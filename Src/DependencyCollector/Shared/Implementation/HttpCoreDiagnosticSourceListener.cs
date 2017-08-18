@@ -239,9 +239,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     telemetry.Context.Properties[item.Key] = item.Value;
                 }
             }
-
+            
             this.client.Initialize(telemetry);
 
+            telemetry.Timestamp = currentActivity.StartTimeUtc;
             telemetry.Name = resourceName;
             telemetry.Target = requestUri.Host;
             telemetry.Type = RemoteDependencyConstants.HTTP;
