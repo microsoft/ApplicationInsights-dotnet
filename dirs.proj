@@ -14,6 +14,7 @@
   
   <Target Name="Build">
   <Exec Command="dotnet --info" />
+  <Exec Command="msbuild -version" />
     <Exec Command='IF EXIST "%(Solution.FullPath)" nuget.exe restore "%(Solution.FullPath)" -NonInteractive' 
           ContinueOnError="ErrorAndStop"/>
           
