@@ -84,7 +84,7 @@
   <!-- Generate AssemblyFileVersion and AssemblyVersion attributes. -->
   <PropertyGroup>
     <!-- Turn on dynamic assembly attribute generation -->
-    <AssemblyAttributesPath>$(IntermediateOutputPath)\$(TargetFramework)\AssemblyInfo.g.cs</AssemblyAttributesPath>
+    <AssemblyAttributesPath>$(IntermediateOutputPath)\AssemblyInfo.g.cs</AssemblyAttributesPath>
     <GenerateAdditionalSources>true</GenerateAdditionalSources>
   </PropertyGroup>
   <ItemGroup>
