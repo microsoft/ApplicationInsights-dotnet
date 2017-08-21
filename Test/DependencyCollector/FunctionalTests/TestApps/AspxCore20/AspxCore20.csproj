@@ -12,10 +12,6 @@
     <DoNotSign>true</DoNotSign>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Src\DependencyCollector\NetCore\DependencyCollector.NetCore.csproj" />
-  </ItemGroup>
-
   <ItemGroup>    
 	<!--<PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0-preview2-final" />-->	
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.0-beta1-build13120" />    
@@ -31,6 +27,12 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.0	" />				
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.AI.DependencyCollector">
+      <HintPath>..\..\..\..\..\..\bin\Debug\Src\DependencyCollector\NetCore\netstandard1.6\Microsoft.AI.DependencyCollector.dll</HintPath>
+    </Reference>
   </ItemGroup>   
 
   <ItemGroup>
