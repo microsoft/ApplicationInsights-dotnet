@@ -31,7 +31,7 @@
 
   <ItemGroup>
     <Reference Include="Microsoft.AI.DependencyCollector">
-      <HintPath>..\..\..\..\..\..\bin\Debug\Src\DependencyCollector\NetCore\netstandard1.6\Microsoft.AI.DependencyCollector.dll</HintPath>
+      <HintPath>$(BinRoot)\$(Configuration)\Src\DependencyCollector\NetCore\netstandard1.6\Microsoft.AI.DependencyCollector.dll</HintPath>
     </Reference>
   </ItemGroup>   
 
