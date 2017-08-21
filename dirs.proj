@@ -13,6 +13,7 @@
   </PropertyGroup>
   
   <Target Name="Build">
+  <Exec Command="dotnet --version" />
     <Exec Command='IF EXIST "%(Solution.FullPath)" nuget.exe restore "%(Solution.FullPath)" -NonInteractive' 
           ContinueOnError="ErrorAndStop"/>
           
