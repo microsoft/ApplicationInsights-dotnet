@@ -6,8 +6,7 @@
     <AssemblyName>AspxCore20</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>AspxCore20</PackageId>
-    <RuntimeFrameworkVersion>2.0.0</RuntimeFrameworkVersion>    
-	<PackageTargetFallback>$(PackageTargetFallback);dotnet5.6;portable-net45+win8</PackageTargetFallback>
+    <RuntimeFrameworkVersion>2.0.0</RuntimeFrameworkVersion>    	
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <DoNotSign>true</DoNotSign>
