@@ -4,8 +4,8 @@
   <ItemGroup>
     <Solution Include="Src\Microsoft.ApplicationInsights.Web.sln" />
     <Solution Include="Test\DependencyCollector\FunctionalTests.sln" />
-    <!--<Solution Include="Test\PerformanceCollector\FunctionalTests.sln" />
-    <Solution Include="Test\Web\FunctionalTests.sln" /> -->
+    <Solution Include="Test\PerformanceCollector\FunctionalTests.sln" />
+    <Solution Include="Test\Web\FunctionalTests.sln" />
   </ItemGroup>
   
   <PropertyGroup>
@@ -13,8 +13,7 @@
   </PropertyGroup>
   
   <Target Name="Build">
-  <Exec Command="dotnet --info" />
-  <Exec Command="msbuild -version" />
+  <Exec Command="dotnet --info" />  
     <Exec Command='IF EXIST "%(Solution.FullPath)" nuget.exe restore "%(Solution.FullPath)" -NonInteractive' 
           ContinueOnError="ErrorAndStop"/>
           
