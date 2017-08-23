@@ -13,8 +13,7 @@
     <Exec Command='IF EXIST "%(Solution.FullPath)" nuget.exe restore "%(Solution.FullPath)" -NonInteractive' 
           ContinueOnError="ErrorAndStop"/>
           
-    <MSBuild Projects="@(Solution)" ContinueOnError="ErrorAndStop" Properties="PreReleaseVersion=$(PreReleaseVersion)"/> 
-	<Exec Command="dotnet restore Test\DependencyCollector\FunctionalTests\TestApps\AspxCore20\AspxCore20.csproj " />
+    <MSBuild Projects="@(Solution)" ContinueOnError="ErrorAndStop" Properties="PreReleaseVersion=$(PreReleaseVersion)"/> 	
 	<Exec Command="dotnet build Test\DependencyCollector\FunctionalTests\TestApps\AspxCore20\AspxCore20.csproj -c $(Configuration)" />
     
     <Exec Command="dotnet publish Test\DependencyCollector\FunctionalTests\TestApps\AspxCore\AspxCore.csproj -c $(Configuration) -o $(BinRoot)\$(Configuration)\Test\DependencyCollector\FunctionalTests\TestApps\AspxCore\netcoreapp1.0\publish /property:DoNotSign=true" />
