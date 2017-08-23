@@ -47,7 +47,7 @@ namespace FW40Shared
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "Reviewed manually")]
         public static void MakeHttpCallSync(int count, string hostname)
         {
-            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "http://www.{0}.com", hostname));
+            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "https://www.{0}.com", hostname));
             HttpWebRequest myHttpWebRequest = null;
             HttpWebResponse myHttpWebResponse = null;
             for (int i = 0; i < count; i++)
