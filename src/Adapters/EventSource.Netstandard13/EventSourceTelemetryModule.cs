@@ -74,6 +74,12 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                     }
                 }
 
+                // Set the initialized flag now to ensure that we do not miss any sources that came online as we are executing the initialization
+                // (OnEventSourceCreated() might have been called on a separate thread). Worst case we will attempt to enable the same source twice
+                // (with same settings), but that is OK, as the semantics of EnableEvents() is really "update what is being tracked", so it is fine
+                // to call it multiple times for the same source.
+                this.initialized = true;
+
                 if (this.appDomainEventSources != null)
                 {
                     // Enumeration over concurrent queue is thread-safe.
@@ -85,6 +91,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             }
             finally
             {
+                // No matter what problems we encounter with enabling EventSources, we should note that we have been initialized.
                 this.initialized = true;
             }
         }
