@@ -74,7 +74,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
                 TestEventSource.Default.InfoEvent("Hey!");
 
-                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.Single();
                 Assert.AreEqual("Hey!", telemetry.Message);
                 Assert.AreEqual("Hey!", telemetry.Properties["information"]);
                 Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
@@ -99,7 +99,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 {
                     eventSource.Message("Hey!");
 
-                    TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+                    TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.Single();
                     Assert.AreEqual("Hey!", telemetry.Message);
                     Assert.AreEqual("Hey!", telemetry.Properties["message"]);
                     Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
