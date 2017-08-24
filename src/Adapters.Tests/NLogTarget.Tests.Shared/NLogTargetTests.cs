@@ -127,6 +127,7 @@
         }
 
         [TestMethod]
+        [Ignore]
         [TestCategory("NLogTarget")]
         public void TelemetryIsAcceptedByValidateEndpoint()
         {
