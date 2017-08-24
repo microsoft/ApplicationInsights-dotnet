@@ -48,8 +48,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         [TestMethod]
         public void TelemetryDiagnosticSourceListenerCapturesEventsByConvention()
         {
-            DiagnosticListener listener = new DiagnosticListener("Test.A.Monitoring");
-            Activity activity = new Activity("Test.A.Client.OutboundCall");
+            DiagnosticListener listener = new DiagnosticListener("Test.A");
+            Activity activity = new Activity("Test.A.Client.Monitoring");
 
             Assert.IsTrue(listener.IsEnabled(), "There is a subscriber for diagnostic source following naming convention");
             Assert.IsTrue(listener.IsEnabled(activity.OperationName), "There is a subscriber for activity/event following naming convention");
@@ -73,8 +73,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         [TestMethod]
         public void TelemetryDiagnosticSourceListenerIgnoresEventsByActivityNameConvention()
         {
-            DiagnosticListener listener = new DiagnosticListener("Test.A.Monitoring"); // does follow convention
-            Activity activity = new Activity("Test.A.Client.OutboundRequest"); // does not follow convention
+            DiagnosticListener listener = new DiagnosticListener("Test.A"); // does follow convention
+            Activity activity = new Activity("Test.A.Client.Diagnostics"); // does not follow convention
 
             Assert.IsTrue(listener.IsEnabled(), "There is a subscriber for diagnostic source following naming convention");
             Assert.IsFalse(listener.IsEnabled(activity.OperationName), "No subscriber for activity/event not following naming convention");
