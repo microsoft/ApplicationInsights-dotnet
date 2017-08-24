@@ -14,13 +14,13 @@ using System.Linq;
 namespace Microsoft.ApplicationInsights.DependencyCollector
 {
     [TestClass]
-    public class DependencyDiagnosticSourceListenerTests
+    public class TelemetryDiagnosticSourceListenerTests
     {
         #region Fields
 
         private TelemetryConfiguration configuration;
         private List<ITelemetry> sentItems;
-        private DependencyDiagnosticSourceListener dependencyDiagnosticSourceListener;
+        private TelemetryDiagnosticSourceListener telemetryDiagnosticSourceListener;
         
         #endregion Fields
 
@@ -33,7 +33,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             this.sentItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sentItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            this.dependencyDiagnosticSourceListener = new DependencyDiagnosticSourceListener(this.configuration);
+            this.telemetryDiagnosticSourceListener = new TelemetryDiagnosticSourceListener(this.configuration);
         }
 
         [TestCleanup]
@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         #region Subscribe by convention tests
 
         [TestMethod]
-        public void DependencyDiagnosticSourceListenerCapturesEventsByConvention()
+        public void TelemetryDiagnosticSourceListenerCapturesEventsByConvention()
         {
             DiagnosticListener listener = new DiagnosticListener("Test.A.Monitoring");
             Activity activity = new Activity("Test.A.Client.OutboundCall");
@@ -71,23 +71,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         }
 
         [TestMethod]
-        public void DependencyDiagnosticSourceListenerIgnoresEventsBySourceNameConvention()
-        {
-            DiagnosticListener listener = new DiagnosticListener("Test.A.NonStandard"); // does not follow convention
-            Activity activity = new Activity("Test.A.Client.OutboundCall"); // does follow convention
-
-            Assert.IsFalse(listener.IsEnabled(), "No subscriber for diagnostic source not following naming convention");
-            Assert.IsFalse(listener.IsEnabled(activity.OperationName), "No subscriber for activity/event (despite following naming convention)");
-            int sentCountBefore = this.sentItems.Count;
-
-            listener.StartActivity(activity, null);
-            listener.StopActivity(activity, null);
-
-            Assert.AreEqual(sentCountBefore, this.sentItems.Count, "No telemetry item should be sent after activity stops");
-        }
-
-        [TestMethod]
-        public void DependencyDiagnosticSourceListenerIgnoresEventsByActivityNameConvention()
+        public void TelemetryDiagnosticSourceListenerIgnoresEventsByActivityNameConvention()
         {
             DiagnosticListener listener = new DiagnosticListener("Test.A.Monitoring"); // does follow convention
             Activity activity = new Activity("Test.A.Client.OutboundRequest"); // does not follow convention

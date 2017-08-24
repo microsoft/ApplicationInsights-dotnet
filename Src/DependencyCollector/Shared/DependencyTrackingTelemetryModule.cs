@@ -31,7 +31,7 @@
 
 #if NET45 || NETCORE
         private HttpCoreDiagnosticSourceListener httpCoreDiagnosticSourceListener;
-        private DependencyDiagnosticSourceListener dependencyDiagnosticSourceListener;
+        private TelemetryDiagnosticSourceListener telemetryDiagnosticSourceListener;
 #endif
 
 #if !NETCORE
@@ -138,7 +138,7 @@
                                 this.ExcludeComponentCorrelationHttpHeadersOnDomains, 
                                 null);
 
-                            this.dependencyDiagnosticSourceListener = new DependencyDiagnosticSourceListener(configuration);
+                            this.telemetryDiagnosticSourceListener = new TelemetryDiagnosticSourceListener(configuration);
 #endif
                             DependencyCollectorEventSource.Log.RemoteDependencyModuleVerbose("Initializing DependencyTrackingModule completed successfully.");
                         }
@@ -226,9 +226,9 @@
                     {
                         this.httpCoreDiagnosticSourceListener.Dispose();
                     }
-                    if (this.dependencyDiagnosticSourceListener != null)
+                    if (this.telemetryDiagnosticSourceListener != null)
                     {
-                        this.dependencyDiagnosticSourceListener.Dispose();
+                        this.telemetryDiagnosticSourceListener.Dispose();
                     }
 #endif
                 }
