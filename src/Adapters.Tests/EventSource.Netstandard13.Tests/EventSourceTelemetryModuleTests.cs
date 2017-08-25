@@ -74,12 +74,38 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
                 TestEventSource.Default.InfoEvent("Hey!");
 
-                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.Single();
                 Assert.AreEqual("Hey!", telemetry.Message);
                 Assert.AreEqual("Hey!", telemetry.Properties["information"]);
                 Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
                 string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(EventSourceTelemetryModule), prefix: "evl:");
                 Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void ReportsSingleEventFromSourceCreatedAfterModuleCreated()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                var listeningRequest = new EventSourceListeningRequest();
+                listeningRequest.Name = OtherTestEventSource.ProviderName;
+                module.Sources.Add(listeningRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                using (var eventSource = new OtherTestEventSource())
+                {
+                    eventSource.Message("Hey!");
+
+                    TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.Single();
+                    Assert.AreEqual("Hey!", telemetry.Message);
+                    Assert.AreEqual("Hey!", telemetry.Properties["message"]);
+                    Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
+                    string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(EventSourceTelemetryModule), prefix: "evl:");
+                    Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
+                }                    
             }
         }
 

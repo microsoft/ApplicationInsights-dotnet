@@ -62,7 +62,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
             }
             if (eventSourceEvent.RelatedActivityId != default(Guid))
             {
-                telemetry.AddProperty(nameof(EventWrittenEventArgs.RelatedActivityId), eventSourceEvent.RelatedActivityId.ToString());
+                telemetry.AddProperty(nameof(EventWrittenEventArgs.RelatedActivityId), ActivityPathDecoder.GetActivityPathString(eventSourceEvent.RelatedActivityId));
             }
             telemetry.AddProperty(nameof(EventWrittenEventArgs.Channel), eventSourceEvent.Channel.GetChannelName());
             telemetry.AddProperty(nameof(EventWrittenEventArgs.Keywords), GetHexRepresentation((long)eventSourceEvent.Keywords));
