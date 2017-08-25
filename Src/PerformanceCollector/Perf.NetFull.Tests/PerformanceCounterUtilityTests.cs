@@ -1,13 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.Tests
 {
-    using System.Collections.Generic;
-    using System.Diagnostics;
+    using System.Collections.Concurrent;
     using System.Linq;
     using System.Reflection;
-
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using System.Collections.Concurrent;
 
     /// <summary>
     /// PerformanceCounterUtility tests.
@@ -101,6 +98,5 @@
             Assert.AreEqual("Available Memory", pc.CounterName);
             Assert.AreEqual(string.Empty, pc.InstanceName);
         }
-
     }
 }
