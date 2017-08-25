@@ -99,46 +99,85 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         public void OnNext(KeyValuePair<string, object> evnt)
         {
-            switch (evnt.Key)
+            try
             {
-                case HttpOutStartEventName:
+                switch (evnt.Key)
                 {
-                    this.OnActivityStart((HttpRequestMessage)this.startRequestFetcher.Fetch(evnt.Value));
-                    break;
-                }
+                    case HttpOutStartEventName:
+                        {
+                            var request = this.startRequestFetcher.Fetch(evnt.Value) as HttpRequestMessage;
 
-                case HttpOutStopEventName:
-                {
-                    this.OnActivityStop(
-                        (HttpResponseMessage)this.stopResponseFetcher.Fetch(evnt.Value),
-                        (HttpRequestMessage)this.stopRequestFetcher.Fetch(evnt.Value),
-                        (TaskStatus)this.stopRequestStatusFetcher.Fetch(evnt.Value));
-                    break;
-                }
+                            if (request != null)
+                            {
+                                this.OnActivityStart(request);
+                            }
+                            break;
+                        }
 
-                case HttpExceptionEventName:
-                {
-                    this.OnException(
-                        (Exception)this.exceptionFetcher.Fetch(evnt.Value),
-                        (HttpRequestMessage)this.exceptionRequestFetcher.Fetch(evnt.Value));
-                    break;
-                }
+                    case HttpOutStopEventName:
+                        {
+                            var response = this.stopResponseFetcher.Fetch(evnt.Value) as HttpResponseMessage;
+                            var request = this.stopRequestFetcher.Fetch(evnt.Value) as HttpRequestMessage;
+                            TaskStatus requestTaskStatus;
 
-                case DeprecatedRequestEventName:
-                {
-                    this.OnRequest(
-                        (HttpRequestMessage)this.deprecatedRequestFetcher.Fetch(evnt.Value),
-                        (Guid)this.deprecatedRequestGuidFetcher.Fetch(evnt.Value));
-                    break;
-                }
+                            if (response != null && request != null && Enum.TryParse(this.stopRequestStatusFetcher.Fetch(evnt.Value).ToString(), out requestTaskStatus))
+                            {
+                                this.OnActivityStop(response, request, requestTaskStatus);
+                            }
+                            break;
+                        }
 
-                case DeprecatedResponseEventName:
-                {
-                    this.OnResponse(
-                        (HttpResponseMessage)this.deprecatedResponseFetcher.Fetch(evnt.Value),
-                        (Guid)this.deprecatedResponseGuidFetcher.Fetch(evnt.Value));
-                    break;
+                    case HttpExceptionEventName:
+                        {
+                            var exception = this.exceptionFetcher.Fetch(evnt.Value) as Exception;
+                            var request = this.exceptionRequestFetcher.Fetch(evnt.Value) as HttpRequestMessage;
+
+                            if (exception != null && request != null)
+                            {
+                                this.OnException(exception, request);
+                            }
+                            break;
+                        }
+
+                    case DeprecatedRequestEventName:
+                        {
+                            var request = this.deprecatedRequestFetcher.Fetch(evnt.Value) as HttpRequestMessage;
+                            Guid loggingRequestId;
+
+                            if (request != null && Guid.TryParse(this.deprecatedRequestGuidFetcher.Fetch(evnt.Value).ToString(), out loggingRequestId))
+                            {
+                                this.OnRequest(request, loggingRequestId);
+                            }
+                            break;
+                        }
+
+                    case DeprecatedResponseEventName:
+                        {
+                            var response = this.deprecatedResponseFetcher.Fetch(evnt.Value) as HttpResponseMessage;
+                            Guid loggingRequestId;
+
+                            if (response != null && Guid.TryParse(this.deprecatedResponseGuidFetcher.Fetch(evnt.Value).ToString(), out loggingRequestId))
+                            {
+                                this.OnResponse(response, loggingRequestId);
+                            }
+                            break;
+                        }
+
+
+                    case "":
+                        {
+
+                            if (this.deprecatedResponseFetcher.Fetch(evnt.Value) is HttpResponseMessage response && Guid.TryParse(this.deprecatedResponseGuidFetcher.Fetch(evnt.Value).ToString(), out Guid loggingRequestId))
+                            {
+                                this.OnResponse(response, loggingRequestId);
+                            }
+                            break;
+                        }
                 }
+            }
+            catch(Exception ex)
+            {
+                AppMapCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(ex));
             }
         }
 
