@@ -105,6 +105,7 @@
         }
 
         [TestMethod]
+        [Ignore]
         [TestCategory("TraceListener")]
         public void TelemetryIsAcceptedByValidateEndpoint()
         {
