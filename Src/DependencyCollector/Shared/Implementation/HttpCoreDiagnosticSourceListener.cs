@@ -97,6 +97,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
         }
 
+        /// <summary>
+        /// Provides the observer with new data.
+        /// <seealso cref="IObserver{T}.OnNext(T)"/>
+        /// </summary>
+        /// <param name="evnt">The current notification information.</param>
         public void OnNext(KeyValuePair<string, object> evnt)
         {
             try
@@ -162,22 +167,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             }
                             break;
                         }
-
-
-                    case "":
-                        {
-
-                            if (this.deprecatedResponseFetcher.Fetch(evnt.Value) is HttpResponseMessage response && Guid.TryParse(this.deprecatedResponseGuidFetcher.Fetch(evnt.Value).ToString(), out Guid loggingRequestId))
-                            {
-                                this.OnResponse(response, loggingRequestId);
-                            }
-                            break;
-                        }
+                        
                 }
             }
             catch(Exception ex)
             {
-                AppMapCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(ex));
+                DependencyCollectorEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(ex));
             }
         }
 
@@ -335,7 +330,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         /// <summary>
         /// Diagnostic event handler method for 'System.Net.Http.Response' event.
-        /// This event will be fired only if response was received (and not called for faulted or cancelled requests).
+        /// This event will be fired only if response was received (and not called for faulted or canceled requests).
         /// </summary>
         internal void OnResponse(HttpResponseMessage response, Guid loggingRequestId)
         {
