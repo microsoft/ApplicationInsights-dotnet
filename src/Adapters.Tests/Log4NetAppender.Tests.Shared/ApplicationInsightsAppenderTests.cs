@@ -152,6 +152,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
         }
 
         [TestMethod]
+        [Ignore]
         [TestCategory("Log4NetAppender")]
         public void TelemetryIsAcceptedByValidateEndpoint()
         {
