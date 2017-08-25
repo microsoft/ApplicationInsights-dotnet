@@ -7,6 +7,7 @@
 
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Collections.Concurrent;
 
     /// <summary>
     /// PerformanceCounterUtility tests.
@@ -53,7 +54,7 @@
             var cache =
                 new PrivateType(typeof(PerformanceCounterUtility)).GetStaticField(
                     "PlaceholderCache",
-                    BindingFlags.NonPublic) as Dictionary<string, string>;
+                    BindingFlags.NonPublic) as ConcurrentDictionary<string, string>;
 
             Assert.AreEqual(3, cache.Count);
             Assert.IsTrue(cache.ContainsKey("APP_WIN32_PROC"));
@@ -100,5 +101,6 @@
             Assert.AreEqual("Available Memory", pc.CounterName);
             Assert.AreEqual(string.Empty, pc.InstanceName);
         }
+
     }
 }

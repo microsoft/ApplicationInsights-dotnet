@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
@@ -28,7 +29,7 @@
         private const string WebSiteEnvironmentVariable = "WEBSITE_SITE_NAME";
         private const string ProcessorsCountEnvironmentVariable = "NUMBER_OF_PROCESSORS";
 
-        private static readonly Dictionary<string, string> PlaceholderCache = new Dictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> PlaceholderCache = new ConcurrentDictionary<string, string>();
 
         private static readonly Regex InstancePlaceholderRegex = new Regex(
             @"^\?\?(?<placeholder>[a-zA-Z0-9_]+)\?\?$",
