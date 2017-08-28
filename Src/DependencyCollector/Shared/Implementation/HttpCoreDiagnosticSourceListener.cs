@@ -167,10 +167,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             }
                             break;
                         }
-                        
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 DependencyCollectorEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(ex));
             }

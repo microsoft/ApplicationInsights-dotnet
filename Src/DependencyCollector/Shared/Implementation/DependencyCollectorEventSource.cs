@@ -387,6 +387,16 @@
             this.WriteEvent(36, error ?? string.Empty, this.ApplicationName);
         }
 
+        [Event(
+            37,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "Unknown error occurred.",
+            Level = EventLevel.Warning)]
+        public void UnknownError(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(37, error, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {
