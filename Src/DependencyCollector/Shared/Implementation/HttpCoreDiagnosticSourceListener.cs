@@ -116,6 +116,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             {
                                 this.OnActivityStart(request);
                             }
+
                             break;
                         }
 
@@ -129,6 +130,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             {
                                 this.OnActivityStop(response, request, requestTaskStatus);
                             }
+
                             break;
                         }
 
@@ -141,6 +143,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             {
                                 this.OnException(exception, request);
                             }
+
                             break;
                         }
 
@@ -153,6 +156,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             {
                                 this.OnRequest(request, loggingRequestId);
                             }
+
                             break;
                         }
 
@@ -165,8 +169,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             {
                                 this.OnResponse(response, loggingRequestId);
                             }
+
                             break;
                         }
+
                 }
             }
             catch (Exception ex)
