@@ -32,7 +32,7 @@ namespace FW40Shared
         /// <summary>
         /// Invalid endpoint to trigger exception being thrown
         /// </summary>
-        public const string UrlWhichThrowException = "http://google.com/404";
+        public const string UrlWhichThrowException = "https://google.com/404";
 
         /// <summary>
         /// Invalid endpoint to trigger exception being thrown at DNS resolution
@@ -81,7 +81,7 @@ namespace FW40Shared
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "Reviewed manually")]
         public static void MakeHttpPostCallSync(int count, string hostname)
         {
-            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "http://www.{0}.com", hostname));
+            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "https://www.{0}.com", hostname));
             HttpWebRequest myHttpWebRequest = null;
             HttpWebResponse myHttpWebResponse = null;
             for (int i = 0; i < count; i++)
@@ -152,7 +152,7 @@ namespace FW40Shared
         /// <param name="hostname">the call will be made to http://www.hostname.com</param>      
         public static void MakeHttpCallAsync1(int count, string hostname)
         {
-            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "http://www.{0}.com", hostname));
+            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "https://www.{0}.com", hostname));
             HttpWebRequest myHttpWebRequest = null;
             HttpWebResponse myHttpWebResponse = null;
             IAsyncResult result = null;
@@ -200,7 +200,7 @@ namespace FW40Shared
         /// <param name="hostname">the call will be made to http://www.hostname.com</param>     
         public static void MakeHttpCallAsync2(int count, string hostname)
         {
-            Uri ourUri = new Uri("http://www.bing.com");
+            Uri ourUri = new Uri("https://www.bing.com");
             HttpWebRequest myHttpWebRequest = null;
             HttpWebResponse myHttpWebResponse = null;
             IAsyncResult result = null;
@@ -251,7 +251,7 @@ namespace FW40Shared
         /// <param name="hostname">the call will be made to http://www.hostname.com</param>    
         public static void MakeHttpCallAsync3(int count, string hostname)
         {
-            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "http://www.{0}.com", hostname));
+            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "https://www.{0}.com", hostname));
             HttpWebRequest myHttpWebRequest = null;
             HttpWebResponse myHttpWebResponse = null;
             IAsyncResult result = null;
