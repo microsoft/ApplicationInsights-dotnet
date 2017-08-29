@@ -18,9 +18,9 @@
 	<Message Text="Value of BinRoot Configuration" Importance="high"/>
 	<Message Text="$(BinRoot)\$(Configuration)" Importance="high"/>
 	<!--<Exec Command="dotnet build Test\DependencyCollector\FunctionalTests\TestApps\AspxCore20\AspxCore20.csproj -c $(Configuration)" />-->
-    	
-    <Exec Command="dotnet publish Test\DependencyCollector\FunctionalTests\TestApps\AspxCore\AspxCore.csproj -c $(Configuration) -o $(BinRoot)\$(Configuration)\Test\DependencyCollector\FunctionalTests\TestApps\AspxCore\netcoreapp1.0\publish /property:DoNotSign=true" />
+    	    
 	<Exec Command="dotnet publish Test\DependencyCollector\FunctionalTests\TestApps\AspxCore20\AspxCore20.csproj -c $(Configuration) -o $(BinRoot)\$(Configuration)\Test\DependencyCollector\FunctionalTests\TestApps\AspxCore20\netcoreapp2.0\publish /property:DoNotSign=true" />
+	<Exec Command="dotnet publish Test\DependencyCollector\FunctionalTests\TestApps\AspxCore\AspxCore.csproj -c $(Configuration) -o $(BinRoot)\$(Configuration)\Test\DependencyCollector\FunctionalTests\TestApps\AspxCore\netcoreapp1.0\publish /property:DoNotSign=true" />
 
   </Target>
   <Target Name="Clean">
