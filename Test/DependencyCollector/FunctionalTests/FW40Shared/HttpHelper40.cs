@@ -321,7 +321,7 @@ namespace FW40Shared
             // asynchronous request.
             AsyncCallback callBack = new AsyncCallback(CallBackForHttp);
 
-            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "http://www.{0}.com", hostname));
+            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "https://www.{0}.com", hostname));
             HttpWebRequest myHttpWebRequest = (HttpWebRequest)WebRequest.Create(ourUri);
             IAsyncResult result = myHttpWebRequest.BeginGetResponse(callBack, myHttpWebRequest);          
         }

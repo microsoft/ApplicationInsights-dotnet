@@ -10,7 +10,7 @@ namespace AspxCore.Controllers
     {/// <summary>
      /// Invalid Hostname to trigger exception being thrown
      /// </summary>
-        private const string InvalidHostName = "http://www.zzkaodkoakdahdjghejajdnad.com";
+        private const string InvalidHostName = "https://www.zzkaodkoakdahdjghejajdnad.com";
 
         private string GetQueryValue(string valueKey)
         {

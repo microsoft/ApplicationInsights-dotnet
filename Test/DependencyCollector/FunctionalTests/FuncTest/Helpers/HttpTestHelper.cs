@@ -105,7 +105,7 @@ namespace FuncTest.Helpers
                 application =>
                 {
                     var queryString = "?type=httpClient&count=1";
-                    var resourceNameExpected = new Uri("http://www.google.com/404");
+                    var resourceNameExpected = new Uri("https://www.google.com/404");
                     application.ExecuteAnonymousRequest(queryString);
 
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
