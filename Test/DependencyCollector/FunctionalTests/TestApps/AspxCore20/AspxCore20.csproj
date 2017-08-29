@@ -30,17 +30,19 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.0	" />				
   </ItemGroup>
 
-  <!--
+  
   <ItemGroup>
     <Reference Include="Microsoft.AI.DependencyCollector">
       <HintPath>$(BinRoot)\$(Configuration)\Src\DependencyCollector\NetCore\netstandard1.6\Microsoft.AI.DependencyCollector.dll</HintPath>
     </Reference>
   </ItemGroup>   
-  -->
   
+  
+  <!--
  <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\Src\DependencyCollector\NetCore\DependencyCollector.NetCore.csproj" />
   </ItemGroup>
+  -->
   
 
   <ItemGroup>
