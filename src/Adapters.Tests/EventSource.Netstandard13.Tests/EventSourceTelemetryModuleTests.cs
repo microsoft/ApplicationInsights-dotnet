@@ -209,6 +209,32 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
             }
         }
 
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void CustomPayloadProperties()
+        {
+            OnEventWrittenHandler onWrittenHandler = (EventWrittenEventArgs args, TelemetryClient client) =>
+            {
+                var traceTelemetry = new TraceTelemetry("CustomPayloadProperties", SeverityLevel.Verbose);
+                traceTelemetry.Properties.Add("CustomPayloadProperties", "true");
+                client.Track(traceTelemetry);
+            };
+
+            using (var module = new EventSourceTelemetryModule(onWrittenHandler))
+            {
+                var listeningRequest = new EventSourceListeningRequest();
+                listeningRequest.Name = TestEventSource.ProviderName;
+                module.Sources.Add(listeningRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                TestEventSource.Default.Write("CustomPayloadProperties");
+
+                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems[0];
+                Assert.IsTrue(telemetry.Properties.All(kvp => kvp.Key.Equals("CustomPayloadProperties") && kvp.Value.Equals("true")));
+            }
+        }
+
         // TODO: there is a known issue with EventListner that prevents it from reporting activities properly
         // This problem is fixed in .NET Core 1.1. (https://github.com/dotnet/coreclr/pull/7591), but it won't be ported
         // to .NET Desktop till 4.7.1
