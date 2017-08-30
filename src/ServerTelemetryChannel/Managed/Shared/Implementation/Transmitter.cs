@@ -133,7 +133,11 @@
 
         internal virtual void Initialize()
         {
+#if NETSTANDARD1_6
+            // TODO: NEED A NET CORE IMPLEMENTATION OF IApplicationFolderProvider
+#else
             this.Storage.Initialize(new ApplicationFolderProvider(this.StorageFolder));
+#endif
         }
 
         internal virtual void Enqueue(Transmission transmission)

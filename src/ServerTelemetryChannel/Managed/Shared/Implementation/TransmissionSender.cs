@@ -186,7 +186,7 @@
                             {
                                 StatusCode = (int)response.StatusCode,
                                 StatusDescription = response.StatusDescription,
-                                RetryAfterHeader = response.Headers?.Get("Retry-After")
+                                RetryAfterHeader = response.Headers?["Retry-After"]
                             };
                         }
                         else

@@ -11,12 +11,12 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
 
-    <TargetFrameworks>net40;net45;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>net40;net45;netstandard1.6</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    
+
     <!--This flag will skip BCL versions check-->
     <SkipValidatePackageReferences>True</SkipValidatePackageReferences>
-    
+
     <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
@@ -42,15 +42,20 @@
     <ContentTargetFolders>content</ContentTargetFolders>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="shared\**\*.cs" />
-    <Compile Include="net40-net45\**\*.cs" Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'" />
-    <Compile Include="net40\**\*.cs" Condition="'$(TargetFramework)' == 'net40'" />
-    <Compile Include="net45\**\*.cs" Condition="'$(TargetFramework)' == 'net45'" />
-    <Compile Include="net46\**\*.cs" Condition="'$(TargetFramework)' == 'net46'" />
-    <Compile Include="netstandard1.3\**\*.cs" Condition="'$(TargetFramework)' == 'netstandard1.3'" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard1.6'">TRACE;DEBUG;NETCORE;NETSTANDARD1_6</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net40'">TRACE;DEBUG;NET40</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net45'">TRACE;DEBUG;NET45</DefineConstants>
+  </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include="shared\**\*.cs" />    
+    <Compile Include="net40\**\*.cs" Condition="'$(TargetFramework)' == 'net40'" />
+
+    <Compile Remove="shared\**\ApplicationFolderProvider.cs" Condition="'$(TargetFramework)' == 'netstandard1.6'" />
+    <Compile Remove="shared\**\WebApplicationLifecycle.cs" Condition="'$(TargetFramework)' == 'netstandard1.6'" />
+  </ItemGroup>
+ 
   <ItemGroup>
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
       <PrivateAssets>All</PrivateAssets>
@@ -66,9 +71,9 @@
       <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="PublicApiAnalyzer" Version="1.0.0-alpha001">
+    <!--<PackageReference Include="PublicApiAnalyzer" Version="1.0.0-alpha001">
       <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
+    </PackageReference>-->
   </ItemGroup>
 
   <ItemGroup>
@@ -105,6 +110,18 @@
     <AdditionalFiles Include="..\..\..\PublicAPI\Microsoft.AI.ServerTelemetryChannel.dll\$(TargetFramework)\PublicAPI.Unshipped.txt">
       <Link>PublicAPI.Unshipped.txt</Link>
     </AdditionalFiles>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.3.0" />
+    <PackageReference Include="System.Net.NetworkInformation" Version="4.3.0" />
+    <PackageReference Include="System.Net.Requests" Version="4.3.0" />
+    <PackageReference Include="System.Net.WebHeaderCollection" Version="4.3.0" />
+    <PackageReference Include="System.Runtime" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
+    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />

@@ -95,8 +95,8 @@
 
         private static string GetSHA256Hash(string input)
         {
-            byte[] inputBits = Encoding.Unicode.GetBytes(input);
-            byte[] hashBits = new SHA256CryptoServiceProvider().ComputeHash(inputBits);
+            byte[] inputBits = Encoding.Unicode.GetBytes(input);            
+            byte[] hashBits = CreateSHA256().ComputeHash(inputBits);
             var hashString = new StringBuilder();
             foreach (byte b in hashBits)
             {
@@ -104,6 +104,15 @@
             }
 
             return hashString.ToString();
+        }
+
+        private static SHA256 CreateSHA256()
+        {
+#if NETSTANDARD1_6
+            return SHA256.Create();
+#else
+            return new SHA256CryptoServiceProvider();
+#endif
         }
 
         private IPlatformFolder CreateAndValidateApplicationFolder(string rootPath, bool createSubFolder, IList<string> errors)

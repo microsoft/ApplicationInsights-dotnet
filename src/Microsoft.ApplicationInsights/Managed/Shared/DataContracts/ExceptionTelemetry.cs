@@ -213,7 +213,7 @@
             return new ExceptionTelemetry(this);
         }
 
-#if !NETSTANDARD1_3
+#if !NETSTANDARD1_6
         /// <summary>
         /// Set parsedStack from an array of StackFrame objects.
         /// </summary>

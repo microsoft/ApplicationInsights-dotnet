@@ -11,7 +11,7 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
 
-    <TargetFrameworks>net40;net45;net46;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>net40;net45;net46;netstandard1.6</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
@@ -20,7 +20,7 @@
     <Compile Include="net40\**\*.cs" Condition="'$(TargetFramework)' == 'net40'" />
     <Compile Include="net45\**\*.cs" Condition="'$(TargetFramework)' == 'net45'" />
     <Compile Include="net46\**\*.cs" Condition="'$(TargetFramework)' == 'net46'" />
-    <Compile Include="netstandard1.3\**\*.cs" Condition="'$(TargetFramework)' == 'netstandard1.3'" />
+    <Compile Include="netstandard1.6\**\*.cs" Condition="'$(TargetFramework)' == 'netstandard1.6'" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,8 +51,9 @@
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
+    <PackageReference Include="System.Net.Requests" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -55,7 +55,6 @@
   </ItemGroup>
   <Import Project="..\..\..\Test\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" />
   <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" />
-  <Import Project="..\net40-net45.Shared.Tests\net40-net45.Shared.Tests.projitems" Label="net40-net45.Shared" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 
 </Project>

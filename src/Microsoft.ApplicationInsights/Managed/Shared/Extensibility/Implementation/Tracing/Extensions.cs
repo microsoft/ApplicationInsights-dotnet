@@ -17,14 +17,14 @@
         /// </summary>
         public static string ToInvariantString(this Exception exception)
         {
-#if !NETSTANDARD1_3
+#if !NETSTANDARD1_6
             CultureInfo originalUICulture = Thread.CurrentThread.CurrentUICulture;
             try
             {
                 Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 #endif
             return exception.ToString();
-#if !NETSTANDARD1_3
+#if !NETSTANDARD1_6
             }
             finally
             {
