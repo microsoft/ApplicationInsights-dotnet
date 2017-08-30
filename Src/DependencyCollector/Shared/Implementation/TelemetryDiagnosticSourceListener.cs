@@ -12,9 +12,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
     internal class TelemetryDiagnosticSourceListener : IObserver<DiagnosticListener>, IDisposable
     {
-        private const string ActivityNameSuffix = ".Monitoring";
-        private const string StopSuffix = ".Stop";
-        private const string ActivityStopNameSuffix = ActivityNameSuffix + StopSuffix;
+        private const string ActivityStartNameSuffix = ".Start";
+        private const string ActivityStopNameSuffix = ".Stop";
 
         private readonly TelemetryClient client;
         private readonly TelemetryConfiguration configuration;
@@ -55,8 +54,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 IDisposable subscription = value.Subscribe(
                     new IndividualDiagnosticSourceListener(value, this),
-                    (evnt, r, _) => evnt.EndsWith(ActivityNameSuffix, StringComparison.OrdinalIgnoreCase)
-                        || evnt.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase));
+                    (evnt, r, _) => !evnt.EndsWith(ActivityStartNameSuffix, StringComparison.OrdinalIgnoreCase));
 
                 if (this.individualSubscriptions == null)
                 {
@@ -127,7 +125,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             telemetry.Timestamp = currentActivity.StartTimeUtc;
 
             telemetry.Context.Properties["DiagnosticSource"] = diagnosticListener.Name;
-            telemetry.Context.Properties["Activity"] = currentActivity.OperationName.Substring(0, currentActivity.OperationName.Length - StopSuffix.Length);
+            telemetry.Context.Properties["Activity"] = currentActivity.OperationName.Substring(0, currentActivity.OperationName.Length - ActivityStopNameSuffix.Length);
 
             this.client.Initialize(telemetry);
 
@@ -152,7 +150,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             // get the Uri from event payload
             Uri requestUri = null;
             string dbStatement = null;
-            string httpMethodWithSpace = null;
+            string httpMethodWithSpace = string.Empty;
             string httpUrl = null;
             string peerAddress = null;
 
@@ -162,6 +160,16 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 // https://github.com/opentracing/specification/blob/master/semantic_conventions.md
                 switch (tag.Key)
                 {
+                    case "span.kind":
+                        {
+                            // "server" and "consumer" roles are more suitable for Request than Dependency
+                            if (string.Equals(tag.Value, "server", StringComparison.OrdinalIgnoreCase) 
+                                || string.Equals(tag.Value, "consumer", StringComparison.OrdinalIgnoreCase))
+                            {
+                                return null;
+                            }
+                            break;
+                        }
                     case "operation.name": // not defined by OpenTracing
                         {
                             telemetry.Name = tag.Value;
