@@ -55,8 +55,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)SamplingTelemetryProcessorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerTelemetryChannelTest.cs" />
 
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebApplicationLifecycleTest.cs" Condition="'$(TargetFramework)' != 'netstandard1.6.1'"/>
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationFolderProviderTest.cs" Condition="'$(TargetFramework)' != 'netstandard1.6.1'"/>
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PlatformFolderTest.cs" Condition="'$(TargetFramework)' != 'netstandard1.6.1'"/>
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebApplicationLifecycleTest.cs" Condition="'$(TargetFramework)' != 'netcoreapp1.1'"/>
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationFolderProviderTest.cs" Condition="'$(TargetFramework)' != 'netcoreapp1.1'"/>
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PlatformFolderTest.cs" Condition="'$(TargetFramework)' != 'netcoreapp1.1'"/>
   </ItemGroup>
 </Project>

@@ -111,7 +111,7 @@
             [TestMethod]
             public void UpperBoundOfDelayIsMaxDelay()
             {
-#if !NETSTANDARD1_6
+#if !NETCOREAPP1_1
                 var manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.Zero);
 
                 PrivateObject wrapper = new PrivateObject(manager);

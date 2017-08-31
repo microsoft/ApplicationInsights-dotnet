@@ -10,7 +10,7 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
 
-    <TargetFrameworks>net40;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>net40;netstandard1.3</TargetFrameworks>
 
     <ProjectGuid>{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}</ProjectGuid>
     <RootNamespace>ApplicationInsightsTypes</RootNamespace>

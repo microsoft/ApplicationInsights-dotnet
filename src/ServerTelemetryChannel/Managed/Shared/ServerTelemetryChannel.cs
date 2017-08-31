@@ -28,7 +28,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerTelemetryChannel"/> class.
         /// </summary>
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
         public ServerTelemetryChannel() : this(new Network(), new WebApplicationLifecycle())
 #else
         // TODO: IApplicationLifecycle implemenation for netcore need to be written instead of null here.
@@ -41,7 +41,7 @@
         {
             var policies = new TransmissionPolicy[] 
             { 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
                 // TODO: REMOVE WHEN WE HAVE A NETCORE IMPLEMENTATION OF IApplicationLifecycle
                 new ApplicationLifecycleTransmissionPolicy(applicationLifecycle),
 #endif

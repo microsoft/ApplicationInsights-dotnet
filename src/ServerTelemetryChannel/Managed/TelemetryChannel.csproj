@@ -11,7 +11,7 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
 
-    <TargetFrameworks>net40;net45;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>net40;net45;netstandard1.3</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 
     <!--This flag will skip BCL versions check-->
@@ -43,7 +43,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard1.6'">TRACE;DEBUG;NETCORE;NETSTANDARD1_6</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard1.3'">TRACE;DEBUG;NETCORE;NETSTANDARD1_3</DefineConstants>
     <DefineConstants Condition="'$(TargetFramework)' == 'net40'">TRACE;DEBUG;NET40</DefineConstants>
     <DefineConstants Condition="'$(TargetFramework)' == 'net45'">TRACE;DEBUG;NET45</DefineConstants>
   </PropertyGroup>
@@ -52,8 +52,8 @@
     <Compile Include="shared\**\*.cs" />    
     <Compile Include="net40\**\*.cs" Condition="'$(TargetFramework)' == 'net40'" />
 
-    <Compile Remove="shared\**\ApplicationFolderProvider.cs" Condition="'$(TargetFramework)' == 'netstandard1.6'" />
-    <Compile Remove="shared\**\WebApplicationLifecycle.cs" Condition="'$(TargetFramework)' == 'netstandard1.6'" />
+    <Compile Remove="shared\**\ApplicationFolderProvider.cs" Condition="'$(TargetFramework)' == 'netstandard1.3'" />
+    <Compile Remove="shared\**\WebApplicationLifecycle.cs" Condition="'$(TargetFramework)' == 'netstandard1.3'" />
   </ItemGroup>
  
   <ItemGroup>
@@ -121,7 +121,7 @@
     </AdditionalFiles>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.3.0" />
     <PackageReference Include="System.Net.NetworkInformation" Version="4.3.0" />
     <PackageReference Include="System.Net.Requests" Version="4.3.0" />

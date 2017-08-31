@@ -10,14 +10,10 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <TargetFramework>netstandard1.6.1</TargetFramework>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
     <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.NetCore.Tests</AssemblyName>
     <DebugType>pdbonly</DebugType> 
     <DebugSymbols>true</DebugSymbols> 
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE;NETCORE;NETSTANDARD1_6</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,8 +38,6 @@
     <PackageReference Include="System.Net.NetworkInformation" Version="4.3.0" />
     <PackageReference Include="System.Net.Requests" Version="4.3.0" />
     <PackageReference Include="System.Security.AccessControl" Version="4.3.0" />
-    <PackageReference Include="xunit.assert" Version="2.2.0" />
-    <PackageReference Include="xunit.core" Version="2.2.0" />
     <!-- 
     commented out due to the error: https://github.com/GregFinzer/Compare-Net-Objects/issues/52 
     Once uncommented - re-enable all DeepClone test cases

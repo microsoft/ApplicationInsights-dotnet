@@ -108,7 +108,7 @@
 
         private static SHA256 CreateSHA256()
         {
-#if NETSTANDARD1_6
+#if NETSTANDARD1_3
             return SHA256.Create();
 #else
             return new SHA256CryptoServiceProvider();

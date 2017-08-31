@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel.Implementation
 {
     using System;
-#if NETSTANDARD1_6
+#if NETSTANDARD1_3
     using Newtonsoft.Json;
 #else
     using System.Web.Script.Serialization;
@@ -17,7 +17,7 @@
 
         private static readonly Random Random = new Random();
 
-#if !NETSTANDARD1_6    
+#if !NETSTANDARD1_3    
         private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
 #endif  
 
@@ -74,7 +74,7 @@
             {
                 if (!string.IsNullOrEmpty(responseContent))
                 {
-#if NETSTANDARD1_6
+#if NETSTANDARD1_3
                     backendResponse = JsonConvert.DeserializeObject<BackendResponse>(responseContent);
 #else
                     backendResponse = Serializer.Deserialize<BackendResponse>(responseContent);

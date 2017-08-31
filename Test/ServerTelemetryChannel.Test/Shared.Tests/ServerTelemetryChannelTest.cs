@@ -416,7 +416,7 @@
                 bool wasCalled = false;
                 var channel = new ServerTelemetryChannel();
                 channel.TelemetrySerializer = new TelemetrySerializerStub(channel.Transmitter) { WasCalled = (called) => { wasCalled = called; } };
- #if NETSTANDARD1_6
+ #if NETCOREAPP1_1
                 channel.TelemetryBuffer = new TelemetryChannel.Implementation.TelemetryBuffer(channel.TelemetrySerializer, null);
 #else
                 channel.TelemetryBuffer = new TelemetryChannel.Implementation.TelemetryBuffer(channel.TelemetrySerializer, new WebApplicationLifecycle());

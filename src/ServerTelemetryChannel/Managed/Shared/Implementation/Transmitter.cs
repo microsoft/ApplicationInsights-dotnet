@@ -133,7 +133,7 @@
 
         internal virtual void Initialize()
         {
-#if NETSTANDARD1_6
+#if NETSTANDARD1_3
             // TODO: NEED A NET CORE IMPLEMENTATION OF IApplicationFolderProvider
 #else
             this.Storage.Initialize(new ApplicationFolderProvider(this.StorageFolder));
