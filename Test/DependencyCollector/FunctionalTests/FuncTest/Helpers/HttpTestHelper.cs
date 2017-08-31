@@ -17,12 +17,12 @@ namespace FuncTest.Helpers
         /// <summary>
         /// Resource Name for failed request.
         /// </summary>
-        private static Uri ResourceNameHttpToFailedRequest = new Uri("http://google.com/404");
+        private static Uri ResourceNameHttpToFailedRequest = new Uri("https://google.com/404");
 
         /// <summary>
         /// Resource Name for failed at DNS request.
         /// </summary>
-        internal static Uri ResourceNameHttpToFailedAtDnsRequest = new Uri("http://abcdefzzzzeeeeadadad.com");
+        internal static Uri ResourceNameHttpToFailedAtDnsRequest = new Uri("https://abcdefzzzzeeeeadadad.com");
 
         /// <summary>
         /// Helper to execute Async Http tests.
