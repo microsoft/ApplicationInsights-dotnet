@@ -1,10 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Tests
 {
-    using System.Collections.Generic;
-    using System.Diagnostics;
+    using System.Collections.Concurrent;
     using System.Linq;
     using System.Reflection;
-
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -53,7 +51,7 @@
             var cache =
                 new PrivateType(typeof(PerformanceCounterUtility)).GetStaticField(
                     "PlaceholderCache",
-                    BindingFlags.NonPublic) as Dictionary<string, string>;
+                    BindingFlags.NonPublic) as ConcurrentDictionary<string, string>;
 
             Assert.AreEqual(3, cache.Count);
             Assert.IsTrue(cache.ContainsKey("APP_WIN32_PROC"));
