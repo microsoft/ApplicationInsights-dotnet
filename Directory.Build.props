@@ -72,7 +72,7 @@
 
         <!-- Forces EventRegister target to generate ETW manifest file --> 
         <EtwManifestForceAll>true</EtwManifestForceAll>
-        <EtwManifestOutDir>$(BinRoot)\$(Configuration)\ETW\</EtwManifestOutDir>
+        <EtwManifestOutDir>$(BinRoot)\$(Configuration)\ETW\$(TargetFramework)\</EtwManifestOutDir>
     </PropertyGroup>
 
     <PropertyGroup>

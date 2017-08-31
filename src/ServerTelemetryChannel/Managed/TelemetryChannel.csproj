@@ -31,11 +31,11 @@
     <!--Copyright defined above-->
     <!--Copyright></Copyright-->
     <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
-    <LicenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</LicenseUrl>
-    <ProjectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</ProjectUrl>
-    <IconUrl>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</IconUrl>
-    <Tags>Analytics ApplicationInsights Telemetry</Tags>
-    <ReleaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</ReleaseNotes>
+    <PackageLicenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</PackageLicenseUrl>
+    <PackageProjectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
+    <PackageIconUrl>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageIconUrl>
+    <PackageTags>Analytics ApplicationInsights Telemetry</PackageTags>
+    <PackageReleaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-dotnet</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageType>Dependency</PackageType>

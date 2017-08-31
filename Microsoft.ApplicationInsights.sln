@@ -40,9 +40,9 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Microsoft.ApplicationInsigh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Net40.Tests", "Test\Microsoft.ApplicationInsights.Test\Net40\Microsoft.ApplicationInsights.Net40.Tests.csproj", "{394A78E5-2F8F-4D2D-AE08-027380C9F6B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Net45.Tests", "Test\Microsoft.ApplicationInsights.Test\Net45\Microsoft.ApplicationInsights.Net45.Tests.csproj", "{0927E682-4A56-45B6-8125-94FA066B2F57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.Net45.Tests", "Test\Microsoft.ApplicationInsights.Test\Net45\Microsoft.ApplicationInsights.Net45.Tests.csproj", "{0927E682-4A56-45B6-8125-94FA066B2F57}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Net46.Tests", "Test\Microsoft.ApplicationInsights.Test\Net46\Microsoft.ApplicationInsights.Net46.Tests.csproj", "{0927E682-4A56-46B6-8125-94FA066B2F57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.Net46.Tests", "Test\Microsoft.ApplicationInsights.Test\Net46\Microsoft.ApplicationInsights.Net46.Tests.csproj", "{0927E682-4A56-46B6-8125-94FA066B2F57}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationInsightsTypes", "Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj", "{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}"
 EndProject
@@ -62,7 +62,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsigh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummyCore", "src\Microsoft.ApplicationInsights\DummyCore\DummyCore.csproj", "{40CCD816-19FD-4B1D-9E24-AD2099351187}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Standalone.Tests", "Test\Microsoft.ApplicationInsights.Test\Standalone\Microsoft.ApplicationInsights.Standalone.Tests.csproj", "{2759BC71-7F47-44DA-8579-AE2D8C8C684D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.Isolated.Tests", "Test\Microsoft.ApplicationInsights.Test\Standalone\Microsoft.ApplicationInsights.Isolated.Tests.csproj", "{2759BC71-7F47-44DA-8579-AE2D8C8C684D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel", "src\ServerTelemetryChannel\Managed\TelemetryChannel.csproj", "{3273D899-D9B3-44FE-B3AB-578E18B2EF90}"
 EndProject
@@ -400,5 +400,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3C6EA106-4464-4038-A5AC-41DDBB1EEB18}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F70D4C7C-02FB-4EE9-875A-A2F95EC90EAC}
 	EndGlobalSection
 EndGlobal

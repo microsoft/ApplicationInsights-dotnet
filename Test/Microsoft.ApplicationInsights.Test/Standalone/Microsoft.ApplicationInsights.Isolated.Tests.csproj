@@ -2,7 +2,7 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
 
   <PropertyGroup>
-    <ProjectGuid>{0927E682-4A56-46B6-8125-94FA066B2F57}</ProjectGuid>
+    <ProjectGuid>{2759BC71-7F47-44DA-8579-AE2D8C8C684D}</ProjectGuid>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
@@ -27,38 +27,54 @@
   </ItemGroup>
   
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.0.0" />
+    <Reference Include="Microsoft.CSharp" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <Reference Include="System" />
+
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0-preview-20170810-02" />
     <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="15.5.0-preview-20170810-02" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0-beta3" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0-beta3" />
-    <PackageReference Include="CompareNETObjects" Version="3.9.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.3.1" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <PackageReference Include="System.Console" Version="4.3.0" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
+    <PackageReference Include="System.Diagnostics.FileVersionInfo" Version="4.3.0" />
+    <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
+    <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
+    <PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
+
+    <Reference Include="System.Management" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Numerics" />
+    <PackageReference Include="System.Reflection.Metadata" Version="1.4.2" />
+    <Reference Include="System.Runtime.Serialization" />
+    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.0" />
+    <PackageReference Include="System.Security.Cryptography.Encoding" Version="4.3.0" />
+    <PackageReference Include="System.Security.Cryptography.Primitives" Version="4.3.0" />
+    <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
+    <Reference Include="System.Xml.Linq" />
+    <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.0" />
+    <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
+    <PackageReference Include="System.Xml.XPath" Version="4.3.0" />
+    <PackageReference Include="System.Xml.XPath.XDocument" Version="4.3.0" />
+
     <PackageReference Include="MicroBuild.Core" Version="0.2.0">
       <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Net" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />  
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\Net40\Extensibility\Implementation\Platform\PlatformReferencesTests.cs">
-      <Link>Extensibility\Implementation\Platform\PlatformReferencesTests.cs</Link>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
-
-  <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" />
-  <Import Project="..\Shared\Microsoft.ApplicationInsights.Shared.Tests.projitems" Label="Shared" />
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 
 </Project>
+

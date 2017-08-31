@@ -11,6 +11,6 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>
     <AssemblyName>$(RootNamespace)</AssemblyName>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).XML</DocumentationFile>
   </PropertyGroup>
 </Project>

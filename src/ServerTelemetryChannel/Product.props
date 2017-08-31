@@ -11,6 +11,6 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel</RootNamespace>
     <AssemblyName>Microsoft.AI.ServerTelemetryChannel</AssemblyName>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).XML</DocumentationFile>
   </PropertyGroup>
 </Project>

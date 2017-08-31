@@ -4,11 +4,11 @@
 
 # Application Insights for .NET
 
-This repository has code for the core .NET SDK for Application Insights. [Application Insights][AILandingPage] is a service that allows developers ensure their application are available, performing, and succeeding. This SDK provides the core ability to send all Application Insights types from any .NET project. 
+This repository has code for the base .NET SDK for Application Insights. [Application Insights][AILandingPage] is a service that allows developers ensure their application are available, performing, and succeeding. This SDK provides the base ability to send all Application Insights types from any .NET project. 
 
 ## Getting Started
 
-If developing for a .Net project that is supported by one of our platform specific packages, [Web][WebGetStarted] or [Windows Apps][WinAppGetStarted], we strongly recommend to use one of those packages instead of this core library. If your project does not fall into one of those platforms you can use this library for any .Net code. This library should have no dependencies outside of the .Net framework. If you are building a [Desktop][DesktopGetStarted] or any other .Net project type this library will enable you to utilize Application Insights.
+If developing for a .Net project that is supported by one of our platform specific packages, [Web][WebGetStarted] or [Windows Apps][WinAppGetStarted], we strongly recommend to use one of those packages instead of this base library. If your project does not fall into one of those platforms you can use this library for any .Net code. This library should have no dependencies outside of the .Net framework. If you are building a [Desktop][DesktopGetStarted] or any other .Net project type this library will enable you to utilize Application Insights. More on SDK layering and extensibility [later](#sdk-layering).
 
 ### Get an Instrumentation Key
 
@@ -31,7 +31,7 @@ tc.InstrumentationKey = "INSERT YOUR KEY";
 
 ### Use the TelemetryClient to send telemetry
 
-This "core" library does not provide any automatic telemetry collection or any automatic meta-data properties. You can populate common context on the `TelemetryClient.context` property which will be automatically attached to each telemetry item sent. You can also attach additional property data to each telemetry item sent. The `TelemetryClient` also exposes a number of `Track...()` methods that can be used to send all core telemetry types understood by the Application Insights service. Some example use cases are shown below.
+This "base" library does not provide any automatic telemetry collection or any automatic meta-data properties. You can populate common context on the `TelemetryClient.context` property which will be automatically attached to each telemetry item sent. You can also attach additional property data to each telemetry item sent. The `TelemetryClient` also exposes a number of `Track...()` methods that can be used to send all telemetry types understood by the Application Insights service. Some example use cases are shown below.
 
 ```C#
 tc.Context.User.Id = Environment.GetUserName(); // This is probably a bad idea from a PII perspective.
@@ -58,6 +58,36 @@ This library makes use of the InMemoryChannel to send telemetry data. This is a 
 ### Full API Overview
 
 Read about [how to use the API and see the results in the portal][api-overview].
+
+## SDK layering
+
+This repository builds two packages - `Microsoft.ApplicationInsights` and `Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel`. These packages define public API, reliable channel to Application Insights back-end and [data reduction code](https://msdn.microsoft.com/magazine/mt808502) like metrics pre-aggregation and sampling. Data collection, enrichment and filtering implemented as separate NuGet packages. These separate NuGet packages are using extensibility points explained below.
+
+Application Insights SDK defines the following layers: data collection, public API, telemetry initialization and enrichment, data reduction pipeline and finally - telemetry sink. 
+
+**Data collection** layer represented by various telemetry modules - officially supported and community created. Each module converts events exposed by platform like ASP.NET into Application Insights data model. For example, dependency collection telemetry module subscribes on `begin` and `end` events of `System.Net.HttpClient` and calls `TrackDependency` API. This module knows how to collect dependency name, target, and [other properties](https://docs.microsoft.com/azure/application-insights/application-insights-data-model-dependency-telemetry) from those `begin` and `end` events.
+
+**Telemetry initialization and enrichment** allows to modify telemetry items. There are two typical scenarios for the enrichment. First - stamp every telemetry item with the platform or application specific [context](https://docs.microsoft.com/azure/application-insights/application-insights-data-model-context). Examples may be application version, user id or flighting name for A/B testing. Second scenario is re-writing properties of the telemetry data collected automatically. For instance, dependency collection telemetry module collects the http dependency name as a url path and telemetry initializer may change this behavior for well-known urls.
+
+**Data reduction pipeline** is a linked list of telemetry processors. Each telemetry processor may decide to pre-aggregate and filter telemetry item or pass it to the next processor. This way only interesting telemetry reaches to the end of the pipeline and being send to the telemetry sinks.
+
+Each **Telemetry sink** is responsible to upload telemetry to the specific back-end. Default telemetry sink sends data to the Application Insights. Sinks may also differ in guarantees they provide while uploading to the same back end. One may implement reliable delivery with re-tries and persistance when another may implement send and forget type of upload. Every telemetry sink may have it's own pipeline for additional data filtering and pre-aggregation. 
+
+Set of telemetry initializers called synchronously for every telemetry item. So extra properties can be added to the item. 
+By this time telemetry item is fully initialized. Build pipeline to aggregate or filter telemetry. 
+Set of telemetry sinks to upload data in various back-ends. Every sink has it's own pipeline for extra filtering and data aggregation.
+
+Here is the diagram of Application Insights SDK layering and extensibility points:
+
+| Layer                											| Extensibility   					|
+|---------------------------------------------------------------|-----------------------------------------------|
+| ![collection](docs/images/pipeline-01-collection.png) 		| Pick one of existing [modules](https://docs.microsoft.com/azure/application-insights/app-insights-configuration-with-applicationinsights-config#telemetry-modules-aspnet) <br> or manually instrument code |
+| ![public-api](docs/images/pipeline-02-public-api.png) 		| Track [custom operations](https://docs.microsoft.com/azure/application-insights/application-insights-custom-operations-tracking) <br> and other [telemetry](https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics) |
+| ![initialization](docs/images/pipeline-03-initialization.png) | Pick [telemetry initializers](https://docs.microsoft.com/azure/application-insights/app-insights-configuration-with-applicationinsights-config#telemetry-initializers-aspnet) <br> or create your [own](https://docs.microsoft.com/azure/application-insights/app-insights-api-filtering-sampling#add-properties-itelemetryinitializer) |
+| ![pipeline](docs/images/pipeline-04-pipeline.png) 			| Configure [sampling](https://docs.microsoft.com/azure/application-insights/app-insights-sampling), <br> create [filtering](https://docs.microsoft.com/azure/application-insights/app-insights-api-filtering-sampling#filtering-itelemetryprocessor) telemetry processor <br> or strip out confidential data |
+| ![sink](docs/images/pipeline-05-sink.png) 					|  For the default sink: <br> Use built-in channel or <br> use [server channel](https://www.nuget.org/packages/Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel/) for reliable delivery. <br> Configure [EventFlow](https://github.com/Azure/diagnostics-eventflow) to upload telemetry <br> to ElasticSearch <br> Azure EventHub and <br> and more |
+
+Packages like `Microsoft.ApplicationInsights.Web` or `Microsoft.ApplicationInisghts.AspNetCore` install a set of telemetry modules, telemetry initializers and default sinks that works for the most scenarios. However SDK is designed to be flexible so you can pick and choose components on every layer for the best telemetry data for your application.  
 
 ## Branches
 
