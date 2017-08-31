@@ -12,10 +12,14 @@
     <ItemGroup>
         <!--<Solution Include="src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.xproj" />-->
         <!-- Tests -->
-        <TestProject Include="test\Microsoft.ApplicationInsights.AspNetCore.Tests\ " />
+        <!--
+		<TestProject Include="test\Microsoft.ApplicationInsights.AspNetCore.Tests\ " />
         <TestProject Include="test\WebApiShimFw46.FunctionalTests\ " />
         <TestProject Include="test\EmptyApp.FunctionalTests\ " />
+		<TestProject Include="test\EmptyApp20.FunctionalTests\ " />
         <TestProject Include="test\MVCFramework45.FunctionalTests\ " />
+		-->
+		<TestProject Include="test\EmptyApp20.FunctionalTests\ " />
     </ItemGroup>
 
     <UsingTask TaskName="DownloadFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
@@ -169,7 +173,7 @@
         <Exec Command=".\nuget.exe locals all -clear" ContinueOnError="ErrorAndStop" />
     </Target>
     
-    <Target Name="Build" DependsOnTargets="CheckBuildParameters;DownloadCLI">
+    <Target Name="Build">
         <Exec Command='"$(CliToolsPath)\dotnet.exe" --version' />        
         <Exec Command='"nuget.exe" restore' ContinueOnError="ErrorAndStop" />
         <Exec Command='"$(CliToolsPath)\dotnet.exe" build $(ProjectToBuild) -c $(Configuration)' ContinueOnError="ErrorAndStop" />
@@ -178,7 +182,7 @@
 	
 	<Target Name="Test" AfterTargets="Build" DependsOnTargets="Build">
 		<Message Condition="$(RunTests) != '' And $(RunTests)" Importance="high" Text="Running tests..."></Message>
-        <Exec Condition="$(RunTests) != '' And $(RunTests)" Command='"$(CliToolsPath)\dotnet.exe" test' WorkingDirectory='%(TestProject.Identity)' ContinueOnError="ErrorAndStop" />
+        <Exec Condition="$(RunTests) != '' And $(RunTests)" Command='"$(CliToolsPath)\dotnet.exe" test -l trx' WorkingDirectory='%(TestProject.Identity)' ContinueOnError="ErrorAndContinue" />
 	</Target>
 
     <Target Name="Clean">
