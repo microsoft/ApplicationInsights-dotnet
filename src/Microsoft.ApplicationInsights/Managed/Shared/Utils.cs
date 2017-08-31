@@ -18,7 +18,7 @@
             {
                 return true;
             }
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
             return value.All(char.IsWhiteSpace);
 #else
             return string.IsNullOrWhiteSpace(value);

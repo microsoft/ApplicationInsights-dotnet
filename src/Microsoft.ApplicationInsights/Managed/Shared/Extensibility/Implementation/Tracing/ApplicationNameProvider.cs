@@ -22,7 +22,7 @@
             string name;
             try
             {
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_3
                 name = AppDomain.CurrentDomain.FriendlyName;
 #else
                 name = string.Empty;

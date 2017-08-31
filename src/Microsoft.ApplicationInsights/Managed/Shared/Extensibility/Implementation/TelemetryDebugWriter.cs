@@ -50,7 +50,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
         void IDebugOutput.WriteLine(string message)
         {
-#if NETSTANDARD1_6
+#if NETSTANDARD1_3
             Debug.WriteLine(message);
 #else
             Debugger.Log(0, "category", message + Environment.NewLine);
@@ -63,7 +63,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             {
                 return false;
             }
-#if NETSTANDARD1_6
+#if NETSTANDARD1_3
             return true;
 #else
             return Debugger.IsLogging();
