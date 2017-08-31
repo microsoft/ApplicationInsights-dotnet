@@ -416,7 +416,11 @@
                 bool wasCalled = false;
                 var channel = new ServerTelemetryChannel();
                 channel.TelemetrySerializer = new TelemetrySerializerStub(channel.Transmitter) { WasCalled = (called) => { wasCalled = called; } };
+ #if NETSTANDARD1_6
+                channel.TelemetryBuffer = new TelemetryChannel.Implementation.TelemetryBuffer(channel.TelemetrySerializer, null);
+#else
                 channel.TelemetryBuffer = new TelemetryChannel.Implementation.TelemetryBuffer(channel.TelemetrySerializer, new WebApplicationLifecycle());
+#endif
                 channel.TelemetryProcessor = channel.TelemetryBuffer;
                 channel.MaxTelemetryBufferCapacity = 1;
                 channel.Initialize(TelemetryConfiguration.CreateDefault());

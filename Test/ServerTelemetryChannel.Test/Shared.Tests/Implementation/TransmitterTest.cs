@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-#if NET45
+#if !NET40
     using System.Diagnostics.Tracing;
 #endif
     using System.IO;

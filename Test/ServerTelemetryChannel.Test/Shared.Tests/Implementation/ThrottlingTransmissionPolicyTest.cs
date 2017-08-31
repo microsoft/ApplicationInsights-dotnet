@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-#if NET45
+#if !NET40
     using System.Diagnostics.Tracing;
 #endif
     using System.Globalization;
@@ -119,7 +119,7 @@
                 var mockWebResponse = new Moq.Mock<HttpWebResponse>();
 
                 var responseHeaders = new WebHeaderCollection();
-                responseHeaders.Add(HttpResponseHeader.RetryAfter, retryAfter);
+                responseHeaders[HttpResponseHeader.RetryAfter] = retryAfter;
 
                 mockWebResponse.SetupGet<HttpStatusCode>((webRes) => webRes.StatusCode).Returns((HttpStatusCode)throttledStatusCode);
                 mockWebResponse.SetupGet<WebHeaderCollection>((webRes) => webRes.Headers).Returns((WebHeaderCollection)responseHeaders);

@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
+#if !NETSTANDARD1_6
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -241,4 +242,5 @@
             }
         }
     }
+#endif
 }

@@ -64,6 +64,7 @@
             // [TestMethod]
             public void IsThreadSafe()
             {
+#if !NETSTANDARD1_6
                 const int NumberOfThreads = 16;
                 const int NumberOfFilesPerThread = 64;
                 var storage = new TransmissionStorage();
@@ -96,6 +97,7 @@
                     {
                     }
                 }
+#endif
             }
         }
 

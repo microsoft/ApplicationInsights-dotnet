@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-#if NET45
+#if !NET40
     using System.Diagnostics.Tracing;
 #endif
     using System.Linq;

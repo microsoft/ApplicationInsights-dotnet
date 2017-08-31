@@ -68,9 +68,9 @@
       <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="PublicApiAnalyzer" Version="1.0.0-alpha001">
+    <!--<PackageReference Include="PublicApiAnalyzer" Version="1.0.0-alpha001">
       <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
+    </PackageReference>-->
   </ItemGroup>
 
   <ItemGroup>

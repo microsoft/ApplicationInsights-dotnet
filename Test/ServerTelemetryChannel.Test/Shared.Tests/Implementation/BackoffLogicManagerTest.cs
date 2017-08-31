@@ -6,7 +6,6 @@
 #endif
 
     using System.Globalization;
-    using System.Net;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -112,6 +111,7 @@
             [TestMethod]
             public void UpperBoundOfDelayIsMaxDelay()
             {
+#if !NETSTANDARD1_6
                 var manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.Zero);
 
                 PrivateObject wrapper = new PrivateObject(manager);
@@ -120,6 +120,7 @@
                 manager.GetBackOffTimeInterval(string.Empty);
 
                 AssertEx.InRange(manager.CurrentDelay, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(3600));
+#endif
             }
 
             [TestMethod]
