@@ -8,31 +8,6 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// </summary>
     public class SimpleMeasurementMetricConfiguration : IMetricConfiguration
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public int SeriesCountLimit { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int ValuesPerDimensionLimit { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public TimeSpan NewSeriesCreationTimeout { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public TimeSpan NewSeriesCreationRetryDelay { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public IMetricSeriesConfiguration SeriesConfig { get; }
-
         private readonly int _hashCode;
 
         /// <summary>
@@ -42,11 +17,12 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <param name="valuesPerDimensionLimit"></param>
         /// <param name="seriesConfig"></param>
         public SimpleMeasurementMetricConfiguration(int seriesCountLimit, int valuesPerDimensionLimit, IMetricSeriesConfiguration seriesConfig)
-            : this(seriesCountLimit,
-                  valuesPerDimensionLimit,
-                  MetricConfiguration.Defaults.NewSeriesCreationTimeout,
-                  MetricConfiguration.Defaults.NewSeriesCreationRetryDelay,
-                  seriesConfig)
+            : this(
+                    seriesCountLimit,
+                    valuesPerDimensionLimit,
+                    MetricConfiguration.Defaults.NewSeriesCreationTimeout,
+                    MetricConfiguration.Defaults.NewSeriesCreationRetryDelay,
+                    seriesConfig)
         {
         }
 
@@ -58,11 +34,12 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <param name="newSeriesCreationTimeout"></param>
         /// <param name="newSeriesCreationRetryDelay"></param>
         /// <param name="seriesConfig"></param>
-        public SimpleMeasurementMetricConfiguration(int seriesCountLimit,
-                                                    int valuesPerDimensionLimit,
-                                                    TimeSpan newSeriesCreationTimeout,
-                                                    TimeSpan newSeriesCreationRetryDelay,
-                                                    IMetricSeriesConfiguration seriesConfig)
+        public SimpleMeasurementMetricConfiguration(
+                                int seriesCountLimit,
+                                int valuesPerDimensionLimit,
+                                TimeSpan newSeriesCreationTimeout,
+                                TimeSpan newSeriesCreationRetryDelay,
+                                IMetricSeriesConfiguration seriesConfig)
         {
             if (seriesCountLimit < 1)
             {
@@ -95,19 +72,30 @@ namespace Microsoft.ApplicationInsights.Metrics
             _hashCode = ComputeHashCode();
         }
 
-        private int ComputeHashCode()
-        {
-            unchecked
-            {
-                int hash = 17;
-                hash = hash * 23 + SeriesCountLimit.GetHashCode();
-                hash = hash * 23 + ValuesPerDimensionLimit.GetHashCode();
-                hash = hash * 23 + NewSeriesCreationTimeout.GetHashCode();
-                hash = hash * 23 + NewSeriesCreationRetryDelay.GetHashCode();
-                hash = hash * 23 + SeriesConfig.GetHashCode();
-                return hash;
-            }
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int SeriesCountLimit { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int ValuesPerDimensionLimit { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public TimeSpan NewSeriesCreationTimeout { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public TimeSpan NewSeriesCreationRetryDelay { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IMetricSeriesConfiguration SeriesConfig { get; }
 
         /// <summary>
         /// 
@@ -169,6 +157,20 @@ namespace Microsoft.ApplicationInsights.Metrics
         public override int GetHashCode()
         {
             return _hashCode;
+        }
+
+        private int ComputeHashCode()
+        {
+            unchecked
+            {
+                int hash = 17;
+                hash = (hash * 23) + SeriesCountLimit.GetHashCode();
+                hash = (hash * 23) + ValuesPerDimensionLimit.GetHashCode();
+                hash = (hash * 23) + NewSeriesCreationTimeout.GetHashCode();
+                hash = (hash * 23) + NewSeriesCreationRetryDelay.GetHashCode();
+                hash = (hash * 23) + SeriesConfig.GetHashCode();
+                return hash;
+            }
         }
     }
 }

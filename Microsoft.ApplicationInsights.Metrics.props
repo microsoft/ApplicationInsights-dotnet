@@ -9,7 +9,7 @@
     <Optimize>false</Optimize>
     <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>

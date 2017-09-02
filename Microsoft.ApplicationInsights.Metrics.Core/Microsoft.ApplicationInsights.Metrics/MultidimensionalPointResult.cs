@@ -12,6 +12,20 @@ namespace Microsoft.ApplicationInsights.Metrics
         private int _failureCoordinateIndex;
         private MultidimensionalPointResultCodes _resultCode;
 
+        internal MultidimensionalPointResult(MultidimensionalPointResultCodes failureCode, int failureCoordinateIndex)
+        {
+            _resultCode = failureCode;
+            _failureCoordinateIndex = failureCoordinateIndex;
+            _point = default(TPoint);
+        }
+
+        internal MultidimensionalPointResult(MultidimensionalPointResultCodes successCode, TPoint point)
+        {
+            _resultCode = successCode;
+            _failureCoordinateIndex = -1;
+            _point = point;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -35,21 +49,13 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        public bool IsSuccess { get { return ((this.ResultCode & MultidimensionalPointResultCodes.Success_NewPointCreated) != 0) 
-                                                || ((this.ResultCode & MultidimensionalPointResultCodes.Success_ExistingPointRetrieved) != 0); } }
-
-        internal MultidimensionalPointResult(MultidimensionalPointResultCodes failureCode, int failureCoordinateIndex)
+        public bool IsSuccess
         {
-            _resultCode = failureCode;
-            _failureCoordinateIndex = failureCoordinateIndex;
-            _point = default(TPoint);
-        }
-
-        internal MultidimensionalPointResult(MultidimensionalPointResultCodes successCode, TPoint point)
-        {
-            _resultCode = successCode;
-            _failureCoordinateIndex = -1;
-            _point = point;
+            get
+            {
+                return ((this.ResultCode & MultidimensionalPointResultCodes.Success_NewPointCreated) != 0)
+                          || ((this.ResultCode & MultidimensionalPointResultCodes.Success_ExistingPointRetrieved) != 0);
+            }
         }
 
         internal void SetAsyncTimeoutReachedFailure()

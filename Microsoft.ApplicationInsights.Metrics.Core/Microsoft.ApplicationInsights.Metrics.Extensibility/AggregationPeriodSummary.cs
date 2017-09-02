@@ -5,20 +5,10 @@ using Microsoft.ApplicationInsights.Channel;
 namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
     /// <summary>
-    /// 
+    ///  
     /// </summary>
     public class AggregationPeriodSummary
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public IReadOnlyCollection<ITelemetry> UnfilteredValuesAggregates { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public IReadOnlyCollection<ITelemetry> FilteredAggregates { get; }
-            
         /// <summary>
         /// 
         /// </summary>
@@ -29,5 +19,15 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             UnfilteredValuesAggregates = unfilteredValuesAggregates;
             FilteredAggregates = filteredAggregates;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IReadOnlyCollection<ITelemetry> UnfilteredValuesAggregates { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IReadOnlyCollection<ITelemetry> FilteredAggregates { get; }
     }
 }

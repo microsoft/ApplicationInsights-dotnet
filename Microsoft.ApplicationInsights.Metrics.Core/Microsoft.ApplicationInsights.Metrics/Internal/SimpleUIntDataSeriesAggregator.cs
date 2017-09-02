@@ -3,8 +3,8 @@ using System.Globalization;
 using System.Threading;
 
 using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -22,21 +22,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             : base(configuration, dataSeries, consumerKind)
         {
             Reset();
-        }
-
-        private void Reset()
-        {
-            _count = 0;
-            _min = UInt32.MaxValue;
-            _max = UInt32.MinValue;
-            _sum = 0;
-            _sumOfSquares = 0;
-        }
-
-        protected override bool RecycleUnsafe()
-        {
-            Reset();
-            return true;
         }
 
         public override ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd)
@@ -60,6 +45,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             Util.CopyTelemetryContext(DataSeries.Context, aggregate.Context);
 
             return aggregate;
+        }
+        
+        protected override bool RecycleUnsafe()
+        {
+            Reset();
+            return true;
         }
 
         protected override void TrackFilteredValue(uint metricValue)
@@ -111,7 +102,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         protected override void TrackFilteredValue(double metricValue)
         {
-            if (metricValue < - MicroOne)
+            if (metricValue < -MicroOne)
             {
                 throw new ArgumentException($"This aggregator cannot process the specified metric measurement."
                                           + $" The aggregator expects metric values of type {nameof(UInt32)}, but the specified {nameof(metricValue)} is"
@@ -267,6 +258,15 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                   + $" Have you specified the correct metric configuration?");
                 }
             }
+        }
+
+        private void Reset()
+        {
+            _count = 0;
+            _min = UInt32.MaxValue;
+            _max = UInt32.MinValue;
+            _sum = 0;
+            _sumOfSquares = 0;
         }
     }
 }

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-
     /// <summary>
     /// Represents a multi-dimensional, discrete data cube.
     /// An N-dimensional discrete cube is a data structure containing elements of type TPoint.
@@ -162,28 +161,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly int _totalPointsCountLimit;
 
         private int _totalPointsCount;
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int DimensionsCount { get { return _dimensionValuesCountLimits.Length; } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int TotalPointsCountLimit { get { return _totalPointsCountLimit; } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int TotalPointsCount { get { return Volatile.Read(ref _totalPointsCount); } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        internal Func<TDimensionValue[], TPoint> PointsFactory { get { return _pointsFactory; } }
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -261,34 +239,31 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
+        public int DimensionsCount { get { return _dimensionValuesCountLimits.Length; } }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int TotalPointsCountLimit { get { return _totalPointsCountLimit; } }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int TotalPointsCount { get { return Volatile.Read(ref _totalPointsCount); } }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        internal Func<TDimensionValue[], TPoint> PointsFactory { get { return _pointsFactory; } }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="dimension"></param>
         /// <returns></returns>
         public int GetDimensionValuesCountLimit(int dimension)
         {
             return _dimensionValuesCountLimits[dimension];
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        internal bool TryIncTotalPointsCount()
-        {
-            int newTotalPointsCount = Interlocked.Increment(ref _totalPointsCount);
-
-            if (newTotalPointsCount <= _totalPointsCountLimit)
-            {
-                return true;
-            }
-
-            Interlocked.Decrement(ref _totalPointsCount);
-            return false;
-        }
-
-        internal int DecTotalPointsCount()
-        {
-            int newTotalPointsCount = Interlocked.Decrement(ref _totalPointsCount);
-            return newTotalPointsCount;
         }
 
         /// <summary>
@@ -351,10 +326,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <returns></returns>
         public Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(params TDimensionValue[] coordinates)
         {
-            return TryGetOrCreatePointAsync(timeout:        TimeSpan.FromMilliseconds(11),
-                                            cancelToken:    CancellationToken.None,
-                                            sleepDuration:  TimeSpan.FromMilliseconds(2),
-                                            coordinates:    coordinates);
+            return TryGetOrCreatePointAsync(
+                        timeout:        TimeSpan.FromMilliseconds(11),
+                        cancelToken:    CancellationToken.None,
+                        sleepDuration:  TimeSpan.FromMilliseconds(2),
+                        coordinates:    coordinates);
         }
 
         /// <summary>
@@ -365,7 +341,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <param name="sleepDuration"></param>
         /// <param name="coordinates"></param>
         /// <returns></returns>
-        public async Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(TimeSpan timeout, CancellationToken cancelToken, TimeSpan sleepDuration, params TDimensionValue[] coordinates)
+        public async Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(
+                                TimeSpan timeout,
+                                CancellationToken cancelToken,
+                                TimeSpan sleepDuration,
+                                params TDimensionValue[] coordinates)
         {
             MultidimensionalPointResult<TPoint> result = this.TryGetOrCreatePoint(coordinates);
             if (result.IsSuccess)
@@ -428,6 +408,29 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 await Task.Delay(delayMillis, cancelToken);
             }
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        internal bool TryIncTotalPointsCount()
+        {
+            int newTotalPointsCount = Interlocked.Increment(ref _totalPointsCount);
+
+            if (newTotalPointsCount <= _totalPointsCountLimit)
+            {
+                return true;
+            }
+
+            Interlocked.Decrement(ref _totalPointsCount);
+            return false;
+        }
+
+        internal int DecTotalPointsCount()
+        {
+            int newTotalPointsCount = Interlocked.Decrement(ref _totalPointsCount);
+            return newTotalPointsCount;
         }
     }
 }

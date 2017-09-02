@@ -5,15 +5,6 @@ namespace Microsoft.ApplicationInsights.Metrics
 {
     internal class MetricsCache
     {
-        /// <summary>
-        /// Ctor facade that can be used to pass as a function pointer without a local lambda instantiation.
-        /// </summary>
-        /// <returns></returns>
-        public static MetricsCache CreateNewInstance(MetricManager metricManager)
-        {
-            return new MetricsCache(metricManager);
-        }
-
         private readonly MetricManager _metricManager;
         private readonly ConcurrentDictionary<string, Metric> _metrics = new ConcurrentDictionary<string, Metric>();
 
@@ -23,19 +14,31 @@ namespace Microsoft.ApplicationInsights.Metrics
             _metricManager = metricManager;
         }
 
-        internal Metric GetOrCreateMetric(string metricId,
-                                          string dimension1Name,
-                                          string dimension2Name,
-                                          IMetricConfiguration metricConfiguration)
+        /// <summary>
+        /// Ctor facade that can be used to pass as a function pointer without a local lambda instantiation.
+        /// </summary>
+        /// <param name="metricManager"></param>
+        /// <returns></returns>
+        public static MetricsCache CreateNewInstance(MetricManager metricManager)
+        {
+            return new MetricsCache(metricManager);
+        }
+
+        internal Metric GetOrCreateMetric(
+                                string metricId,
+                                string dimension1Name,
+                                string dimension2Name,
+                                IMetricConfiguration metricConfiguration)
         {
             Util.ValidateNotNullOrWhitespace(metricId, nameof(metricId));
             
             string metricObjectId = Metric.GetObjectId(metricId, dimension1Name, dimension2Name);
-            Metric metric = _metrics.GetOrAdd(metricObjectId, (key) => new Metric(_metricManager,
-                                                                                  metricId,
-                                                                                  dimension1Name,
-                                                                                  dimension2Name,
-                                                                                  metricConfiguration ?? MetricConfiguration.Default));
+            Metric metric = _metrics.GetOrAdd(metricObjectId, (key) => new Metric(
+                                                                                _metricManager,
+                                                                                metricId,
+                                                                                dimension1Name,
+                                                                                dimension2Name,
+                                                                                metricConfiguration ?? MetricConfiguration.Default));
             
             if (metricConfiguration != null && ! metric.Configuration.Equals(metricConfiguration))
             {

@@ -5,8 +5,10 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// <summary>
     /// 
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1008: Enums should have zero value",
-                                                     Justification = "Crafted these flags to fit into a byte to make the struct container cheaper.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Design",
+            "CA1008: Enums should have zero value",
+            Justification = "Crafted these flags to fit into a byte to make the struct container cheaper.")]
     [Flags]
     public enum MultidimensionalPointResultCodes : byte
     {

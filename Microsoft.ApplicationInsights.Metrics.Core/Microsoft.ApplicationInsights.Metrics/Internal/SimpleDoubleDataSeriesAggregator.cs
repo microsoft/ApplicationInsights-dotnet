@@ -3,8 +3,8 @@ using System.Globalization;
 using System.Threading;
 
 using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -20,21 +20,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             : base(configuration, dataSeries, consumerKind)
         {
             Reset();
-        }
-
-        private void Reset()
-        {
-            _count = 0;
-            _min = Double.MaxValue;
-            _max = Double.MinValue;
-            _sum = 0.0;
-            _sumOfSquares = 0.0;
-        }
-
-        protected override bool RecycleUnsafe()
-        {
-            Reset();
-            return true;
         }
 
         public override ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd)
@@ -185,6 +170,21 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                   + $" Have you specified the correct metric configuration?");
                 }
             }
+        }
+        
+        protected override bool RecycleUnsafe()
+        {
+            Reset();
+            return true;
+        }
+        
+        private void Reset()
+        {
+            _count = 0;
+            _min = Double.MaxValue;
+            _max = Double.MinValue;
+            _sum = 0.0;
+            _sumOfSquares = 0.0;
         }
     }
 }

@@ -4,17 +4,17 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812: Avoid uninstantiated internal classes",
-                                                     Justification = "Needed for internal verification.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Performance",
+            "CA1812: Avoid uninstantiated internal classes",
+            Justification = "Needed for internal verification.")]
     internal class NaiveDistinctCountMetricSeriesConfiguration : IMetricSeriesConfiguration
     {
-
-        public bool RequiresPersistentAggregation { get { return false; } }
-
-
         public NaiveDistinctCountMetricSeriesConfiguration()
         {
         }
+
+        public bool RequiresPersistentAggregation { get { return false; } }
 
         public IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricConsumerKind consumerKind)
         {
@@ -58,7 +58,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public override int GetHashCode()
         {
-            return (17 * 23 + RequiresPersistentAggregation.GetHashCode());
+            return ((17 * 23) + RequiresPersistentAggregation.GetHashCode());
         }
     }
 }

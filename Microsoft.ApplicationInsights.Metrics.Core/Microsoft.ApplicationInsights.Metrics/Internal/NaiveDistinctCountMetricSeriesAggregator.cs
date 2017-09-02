@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 
 using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using Microsoft.ApplicationInsights.DataContracts;
-
+using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -21,6 +20,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
         }
 
+        public override bool SupportsRecycle { get { return false; } }
+
         public override ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd)
         {
             // The enumerator of _values operates on a snapshot in a thread-safe manner.
@@ -31,8 +32,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             return aggregate;
         }
-
-        public override bool SupportsRecycle { get { return false; } }
+        
 
         protected override bool RecycleUnsafe()
         {

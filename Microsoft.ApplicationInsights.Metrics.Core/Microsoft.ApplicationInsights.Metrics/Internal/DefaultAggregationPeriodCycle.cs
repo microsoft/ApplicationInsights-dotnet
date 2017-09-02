@@ -8,17 +8,22 @@ namespace Microsoft.ApplicationInsights.Metrics
 {
     internal class DefaultAggregationPeriodCycle
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming Rules", "SA1310: C# Field must not contain an underscore", Justification = "By design: Structured name.")]
         private const int RunningState_NotStarted = 0;
-        private const int RunningState_Running = 1;
-        private const int RunningState_Stopped = 2;
 
-        private int _runningState;
-        private Task _workerTask = null;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming Rules", "SA1310: C# Field must not contain an underscore", Justification = "By design: Structured name.")]
+        private const int RunningState_Running = 1;
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming Rules", "SA1310: C# Field must not contain an underscore", Justification = "By design: Structured name.")]
+        private const int RunningState_Stopped = 2;
 
         private readonly Action _workerMethod;
 
         private readonly MetricAggregationManager _aggregationManager;
         private readonly MetricManager _metricManager;
+
+        private int _runningState;
+        private Task _workerTask = null;
 
         public DefaultAggregationPeriodCycle(MetricAggregationManager aggregationManager, MetricManager metricManager)
         {
@@ -64,30 +69,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        /// <summary>
-        /// We use exactly one background thread for completing aggregators - either once per minute or once per second.
-        /// We start this thread right when this manager is created to avoid that potential thread starvation on busy systems affects metrics.
-        /// </summary>
-        private void Run()
-        {
-            while (true)
-            {
-                DateTimeOffset now = DateTimeOffset.Now;
-                TimeSpan waitPeriod = GetNextCycleTargetTime(now) - now;
-
-                //Thread.Sleep(waitPeriod);
-                Task.Delay(waitPeriod).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
-
-                int shouldBeRunning = Volatile.Read(ref _runningState);
-                if (shouldBeRunning != RunningState_Running)
-                {
-                    return;
-                }
-
-                FetchAndTrackMetrics();
-            }
-        }
-
         public void FetchAndTrackMetrics()
         {
             DateTimeOffset now = DateTimeOffset.Now;
@@ -124,6 +105,29 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             return target;
         }
-    }
+        
+        /// <summary>
+        /// We use exactly one background thread for completing aggregators - either once per minute or once per second.
+        /// We start this thread right when this manager is created to avoid that potential thread starvation on busy systems affects metrics.
+        /// </summary>
+        private void Run()
+        {
+            while (true)
+            {
+                DateTimeOffset now = DateTimeOffset.Now;
+                TimeSpan waitPeriod = GetNextCycleTargetTime(now) - now;
 
+                //Thread.Sleep(waitPeriod);
+                Task.Delay(waitPeriod).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
+
+                int shouldBeRunning = Volatile.Read(ref _runningState);
+                if (shouldBeRunning != RunningState_Running)
+                {
+                    return;
+                }
+
+                FetchAndTrackMetrics();
+            }
+        }
+    }
 }

@@ -12,139 +12,12 @@ namespace Microsoft.ApplicationInsights.Metrics
     {
         private const string NullMetricObjectId = "null";
 
-        private static void EnsureConfigurationValid(int dimensionCount,
-                                                     IMetricConfiguration configuration)
-        {
-            Util.ValidateNotNull(configuration, nameof(configuration));
-            Util.ValidateNotNull(configuration.SeriesConfig, nameof(configuration.SeriesConfig));
-
-            if (configuration.ValuesPerDimensionLimit < 1)
-            {
-                throw new ArgumentException("Multidimensional metrics must allow at least one dimension-value per dimesion"
-                                         + $" (but {configuration.ValuesPerDimensionLimit} was specified"
-                                         + $" in {nameof(configuration)}.{nameof(configuration.ValuesPerDimensionLimit)}).");
-            }
-
-            if (configuration.SeriesCountLimit < 1)
-            {
-                throw new ArgumentException("Metrics must allow at least one data series"
-                                         + $" (but { configuration.SeriesCountLimit } was specified)"
-                                         + $" in {nameof(configuration)}.{nameof(configuration.SeriesCountLimit)}).");
-            }
-
-            if (dimensionCount > 0 && configuration.SeriesCountLimit < 2)
-            {
-                throw new ArgumentException("Multidimensional metrics must allow at least two data series:"
-                                         + " 1 for the basic (zero-dimensional) series and 1 additional series"
-                                         + $" (but { configuration.SeriesCountLimit } was specified)"
-                                         + $" in {nameof(configuration)}.{nameof(configuration.SeriesCountLimit)}).");
-            }
-        }
-
-        private static void EnsureDimensionNamesValid(out int dimensionCount, ref string dimension1Name, ref string dimension2Name)
-        {
-            dimensionCount = 0;
-            bool hasDim1 = (dimension1Name != null);
-            bool hasDim2 = (dimension2Name != null);
-
-            if (hasDim2)
-            {
-                if (hasDim1)
-                {
-                    dimensionCount = 2;
-                }
-                else
-                {
-                    throw new ArgumentException($"{nameof(dimension1Name)} may not be null (or white space) if {dimension2Name} is present.");
-                }
-
-                dimension2Name = dimension2Name.Trim();
-                if (dimension2Name.Length == 0)
-                {
-                    throw new ArgumentException($"{nameof(dimension2Name)} may not be empty (or whitespace only). Dimension names may be 'null' to"
-                                               + " indicate the absence of a dimension, but if present, they must contain at least 1 printable character.");
-                }
-            }
-            else if (hasDim1)
-            {
-                dimensionCount = 1;
-
-                dimension1Name = dimension1Name.Trim();
-                if (dimension1Name.Length == 0)
-                {
-                    throw new ArgumentException($"{nameof(dimension1Name)} may not be empty (or whitespace only). Dimension names may be 'null' to"
-                                               + " indicate the absence of a dimension, but if present, they must contain at least 1 printable character.");
-                }
-            }
-            else
-            {
-                dimensionCount = 0;
-            }
-        }
-
-        internal static string GetObjectId(string metricId, string dimension1Name, string dimension2Name)
-        {
-            Util.ValidateNotNull(metricId, nameof(metricId));
-
-            int dimensionCount;
-            EnsureDimensionNamesValid(out dimensionCount, ref dimension1Name, ref dimension2Name);
-
-            string metricObjectId;
-            switch (dimensionCount)
-            {
-                case 1:
-                    metricObjectId = $"{metricId}[{dimensionCount}](\"{dimension1Name}\")";
-                    break;
-                case 2:
-                    metricObjectId = $"{metricId}[{dimensionCount}](\"{dimension1Name}\", \"{dimension2Name}\")";
-                    break;
-                default:
-                    metricObjectId = $"{metricId}[{dimensionCount}]()";
-                    break;
-            }
-
-            metricObjectId = metricObjectId.ToUpperInvariant();
-            return metricObjectId;
-        }
-
-
         private readonly MetricManager _metricManager;
         private readonly string _objectId;
         private readonly int _hashCode;
         private readonly MetricSeries _zeroDimSeries;
         private readonly MultidimensionalCube<string, MetricSeries> _metricSeries;
         private readonly string[] _dimensionNames;
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string MetricId { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int DimensionsCount { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Dimension1Name { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Dimension2Name { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public IMetricConfiguration Configuration { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int SeriesCount { get { return 1 + (_metricSeries?.TotalPointsCount ?? 0); } }
 
         internal Metric(MetricManager metricManager, string metricId, string dimension1Name, string dimension2Name, IMetricConfiguration configuration)
         {
@@ -193,41 +66,46 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             _zeroDimSeries = CreateNewMetricSeries(dimensionValues: null);
-            
-        }
-
-        private MetricSeries CreateNewMetricSeries(string[] dimensionValues)
-        {
-            MetricSeries series = _metricManager.CreateNewSeries(MetricId, Configuration.SeriesConfig);
-            if (dimensionValues != null)
-            {
-                for (int d = 0; d < dimensionValues.Length; d++)
-                {
-                    string dimensionName = _dimensionNames[d];
-                    string dimensionValue = dimensionValues[d];
-
-                    if (dimensionValue == null)
-                    {
-                        throw new ArgumentNullException($"The value for dimension number {d} is null.");
-                    }
-                    if (String.IsNullOrWhiteSpace(dimensionValue))
-                    {
-                        throw new ArgumentNullException($"The value for dimension number {d} is empty or white-space.");
-                    }
-
-                    series.Context.Properties[dimensionName] = dimensionValue;
-                }
-            }
-
-            return series;
         }
 
         /// <summary>
         /// 
         /// </summary>
+        public string MetricId { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int DimensionsCount { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Dimension1Name { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Dimension2Name { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IMetricConfiguration Configuration { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int SeriesCount { get { return 1 + (_metricSeries?.TotalPointsCount ?? 0); } }
+        
+        /// <summary>
+        /// 
+        /// </summary>
         /// <returns></returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024: Use properties where appropriate",
-                                                         Justification = "Completes with non-trivial effort. Method is approproiate.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+                                                "Microsoft.Design",
+                                                "CA1024: Use properties where appropriate",
+                                                Justification = "Completes with non-trivial effort. Method is approproiate.")]
         public IReadOnlyCollection<KeyValuePair<string[], MetricSeries>> GetAllSeries()
         {
             var series = new List<KeyValuePair<string[], MetricSeries>>(SeriesCount);
@@ -301,7 +179,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// 
         /// </summary>
         /// <param name="metricValue"></param>
-
         public void TrackValue(uint metricValue)
         {
             _zeroDimSeries.TrackValue(metricValue);
@@ -406,40 +283,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             return (series != null);
         }
 
-        private MetricSeries GetMetricSeries(bool createIfNotExists, params string[] dimensionValues)
-        {
-            if (dimensionValues == null || dimensionValues.Length == 0)
-            {
-                return _zeroDimSeries;
-            }
-
-            if (DimensionsCount != 1)
-            {
-                throw new InvalidOperationException($"Attempted to get a metric series by specifying {dimensionValues.Length} dimension(s),"
-                                                  + $" but this metric has {DimensionsCount} dimensions.");
-            }
-
-            for (int d = 0; d < dimensionValues.Length; d++)
-            {
-                Util.ValidateNotNullOrWhitespace(dimensionValues[d], $"{nameof(dimensionValues)}[{d}]");
-            }
-
-            MultidimensionalPointResult<MetricSeries> result;
-            if (createIfNotExists)
-            {
-                Task<MultidimensionalPointResult<MetricSeries>> t = _metricSeries.TryGetOrCreatePointAsync(Configuration.NewSeriesCreationTimeout,
-                                                                                                           CancellationToken.None,
-                                                                                                           Configuration.NewSeriesCreationRetryDelay,
-                                                                                                           dimensionValues);
-                result = t.ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
-            }
-            else
-            {
-                result = _metricSeries.TryGetPoint(dimensionValues);
-            }
-            return result.IsSuccess ? result.Point : null;
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -478,6 +321,166 @@ namespace Microsoft.ApplicationInsights.Metrics
         public override int GetHashCode()
         {
             return _hashCode;
+        }
+
+        internal static string GetObjectId(string metricId, string dimension1Name, string dimension2Name)
+        {
+            Util.ValidateNotNull(metricId, nameof(metricId));
+
+            int dimensionCount;
+            EnsureDimensionNamesValid(out dimensionCount, ref dimension1Name, ref dimension2Name);
+
+            string metricObjectId;
+            switch (dimensionCount)
+            {
+                case 1:
+                    metricObjectId = $"{metricId}[{dimensionCount}](\"{dimension1Name}\")";
+                    break;
+                case 2:
+                    metricObjectId = $"{metricId}[{dimensionCount}](\"{dimension1Name}\", \"{dimension2Name}\")";
+                    break;
+                default:
+                    metricObjectId = $"{metricId}[{dimensionCount}]()";
+                    break;
+            }
+
+            metricObjectId = metricObjectId.ToUpperInvariant();
+            return metricObjectId;
+        }
+
+        private static void EnsureConfigurationValid(
+                                    int dimensionCount,
+                                    IMetricConfiguration configuration)
+        {
+            Util.ValidateNotNull(configuration, nameof(configuration));
+            Util.ValidateNotNull(configuration.SeriesConfig, nameof(configuration.SeriesConfig));
+
+            if (configuration.ValuesPerDimensionLimit < 1)
+            {
+                throw new ArgumentException("Multidimensional metrics must allow at least one dimension-value per dimesion"
+                                         + $" (but {configuration.ValuesPerDimensionLimit} was specified"
+                                         + $" in {nameof(configuration)}.{nameof(configuration.ValuesPerDimensionLimit)}).");
+            }
+
+            if (configuration.SeriesCountLimit < 1)
+            {
+                throw new ArgumentException("Metrics must allow at least one data series"
+                                         + $" (but {configuration.SeriesCountLimit} was specified)"
+                                         + $" in {nameof(configuration)}.{nameof(configuration.SeriesCountLimit)}).");
+            }
+
+            if (dimensionCount > 0 && configuration.SeriesCountLimit < 2)
+            {
+                throw new ArgumentException("Multidimensional metrics must allow at least two data series:"
+                                         + " 1 for the basic (zero-dimensional) series and 1 additional series"
+                                         + $" (but {configuration.SeriesCountLimit} was specified)"
+                                         + $" in {nameof(configuration)}.{nameof(configuration.SeriesCountLimit)}).");
+            }
+        }
+
+        private static void EnsureDimensionNamesValid(out int dimensionCount, ref string dimension1Name, ref string dimension2Name)
+        {
+            dimensionCount = 0;
+            bool hasDim1 = (dimension1Name != null);
+            bool hasDim2 = (dimension2Name != null);
+
+            if (hasDim2)
+            {
+                if (hasDim1)
+                {
+                    dimensionCount = 2;
+                }
+                else
+                {
+                    throw new ArgumentException($"{nameof(dimension1Name)} may not be null (or white space) if {dimension2Name} is present.");
+                }
+
+                dimension2Name = dimension2Name.Trim();
+                if (dimension2Name.Length == 0)
+                {
+                    throw new ArgumentException($"{nameof(dimension2Name)} may not be empty (or whitespace only). Dimension names may be 'null' to"
+                                               + " indicate the absence of a dimension, but if present, they must contain at least 1 printable character.");
+                }
+            }
+            else if (hasDim1)
+            {
+                dimensionCount = 1;
+
+                dimension1Name = dimension1Name.Trim();
+                if (dimension1Name.Length == 0)
+                {
+                    throw new ArgumentException($"{nameof(dimension1Name)} may not be empty (or whitespace only). Dimension names may be 'null' to"
+                                               + " indicate the absence of a dimension, but if present, they must contain at least 1 printable character.");
+                }
+            }
+            else
+            {
+                dimensionCount = 0;
+            }
+        }
+
+        private MetricSeries CreateNewMetricSeries(string[] dimensionValues)
+        {
+            MetricSeries series = _metricManager.CreateNewSeries(MetricId, Configuration.SeriesConfig);
+            if (dimensionValues != null)
+            {
+                for (int d = 0; d < dimensionValues.Length; d++)
+                {
+                    string dimensionName = _dimensionNames[d];
+                    string dimensionValue = dimensionValues[d];
+
+                    if (dimensionValue == null)
+                    {
+                        throw new ArgumentNullException($"The value for dimension number {d} is null.");
+                    }
+
+                    if (String.IsNullOrWhiteSpace(dimensionValue))
+                    {
+                        throw new ArgumentNullException($"The value for dimension number {d} is empty or white-space.");
+                    }
+
+                    series.Context.Properties[dimensionName] = dimensionValue;
+                }
+            }
+
+            return series;
+        }
+
+        
+        private MetricSeries GetMetricSeries(bool createIfNotExists, params string[] dimensionValues)
+        {
+            if (dimensionValues == null || dimensionValues.Length == 0)
+            {
+                return _zeroDimSeries;
+            }
+
+            if (DimensionsCount != 1)
+            {
+                throw new InvalidOperationException($"Attempted to get a metric series by specifying {dimensionValues.Length} dimension(s),"
+                                                  + $" but this metric has {DimensionsCount} dimensions.");
+            }
+
+            for (int d = 0; d < dimensionValues.Length; d++)
+            {
+                Util.ValidateNotNullOrWhitespace(dimensionValues[d], $"{nameof(dimensionValues)}[{d}]");
+            }
+
+            MultidimensionalPointResult<MetricSeries> result;
+            if (createIfNotExists)
+            {
+                Task<MultidimensionalPointResult<MetricSeries>> t = _metricSeries.TryGetOrCreatePointAsync(
+                                                                                                           Configuration.NewSeriesCreationTimeout,
+                                                                                                           CancellationToken.None,
+                                                                                                           Configuration.NewSeriesCreationRetryDelay,
+                                                                                                           dimensionValues);
+                result = t.ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = _metricSeries.TryGetPoint(dimensionValues);
+            }
+
+            return result.IsSuccess ? result.Point : null;
         }
     }
 }

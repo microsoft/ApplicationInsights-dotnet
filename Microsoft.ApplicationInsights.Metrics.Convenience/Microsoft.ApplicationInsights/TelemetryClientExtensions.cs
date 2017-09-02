@@ -1,8 +1,8 @@
 ﻿using System;
 
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Metrics;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using Microsoft.ApplicationInsights.Extensibility;
 
 namespace Microsoft.ApplicationInsights
 {
@@ -17,8 +17,7 @@ namespace Microsoft.ApplicationInsights
         /// <param name="telemetryClient"></param>
         /// <param name="metricId"></param>
         /// <returns></returns>
-        public static Metric GetMetric(this TelemetryClient telemetryClient,
-                                       string metricId)
+        public static Metric GetMetric(this TelemetryClient telemetryClient, string metricId)
         {
             return GetOrCreateMetric(telemetryClient, metricId, dimension1Name: null, dimension2Name: null, metricConfiguration: null);
         }
@@ -30,9 +29,7 @@ namespace Microsoft.ApplicationInsights
         /// <param name="metricId"></param>
         /// <param name="metricConfiguration"></param>
         /// <returns></returns>
-        public static Metric GetMetric(this TelemetryClient telemetryClient,
-                                      string metricId,
-                                      IMetricConfiguration metricConfiguration)
+        public static Metric GetMetric(this TelemetryClient telemetryClient, string metricId, IMetricConfiguration metricConfiguration)
         {
             return GetOrCreateMetric(telemetryClient, metricId, dimension1Name: null, dimension2Name: null, metricConfiguration: metricConfiguration);
         }
@@ -44,9 +41,7 @@ namespace Microsoft.ApplicationInsights
         /// <param name="metricId"></param>
         /// <param name="dimension1Name"></param>
         /// <returns></returns>
-        public static Metric GetMetric(this TelemetryClient telemetryClient,
-                                       string metricId,
-                                       string dimension1Name)
+        public static Metric GetMetric(this TelemetryClient telemetryClient, string metricId, string dimension1Name)
         {
             Util.ValidateNotNullOrWhitespace(dimension1Name, nameof(dimension1Name));
 
@@ -61,10 +56,7 @@ namespace Microsoft.ApplicationInsights
         /// <param name="dimension1Name"></param>
         /// <param name="metricConfiguration"></param>
         /// <returns></returns>
-        public static Metric GetMetric(this TelemetryClient telemetryClient,
-                                       string metricId,
-                                       string dimension1Name,
-                                       IMetricConfiguration metricConfiguration)
+        public static Metric GetMetric(this TelemetryClient telemetryClient, string metricId, string dimension1Name, IMetricConfiguration metricConfiguration)
         {
             Util.ValidateNotNullOrWhitespace(dimension1Name, nameof(dimension1Name));
 
@@ -79,10 +71,7 @@ namespace Microsoft.ApplicationInsights
         /// <param name="dimension1Name"></param>
         /// <param name="dimension2Name"></param>
         /// <returns></returns>
-        public static Metric GetMetric(this TelemetryClient telemetryClient,
-                                       string metricId,
-                                       string dimension1Name,
-                                       string dimension2Name)
+        public static Metric GetMetric(this TelemetryClient telemetryClient,  string metricId, string dimension1Name, string dimension2Name)
         {
             Util.ValidateNotNullOrWhitespace(dimension1Name, nameof(dimension1Name));
             Util.ValidateNotNullOrWhitespace(dimension2Name, nameof(dimension2Name));
@@ -99,11 +88,12 @@ namespace Microsoft.ApplicationInsights
         /// <param name="dimension2Name"></param>
         /// <param name="metricConfiguration"></param>
         /// <returns></returns>
-        public static Metric GetMetric(this TelemetryClient telemetryClient,
-                                       string metricId,
-                                       string dimension1Name,
-                                       string dimension2Name,
-                                       IMetricConfiguration metricConfiguration)
+        public static Metric GetMetric(
+                                    this TelemetryClient telemetryClient,
+                                    string metricId,
+                                    string dimension1Name,
+                                    string dimension2Name,
+                                    IMetricConfiguration metricConfiguration)
         {
             Util.ValidateNotNullOrWhitespace(dimension1Name, nameof(dimension1Name));
             Util.ValidateNotNullOrWhitespace(dimension2Name, nameof(dimension2Name));
@@ -120,7 +110,8 @@ namespace Microsoft.ApplicationInsights
         /// <param name="dimension2Name"></param>
         /// <param name="metricConfiguration"></param>
         /// <returns></returns>
-        private static Metric GetOrCreateMetric(TelemetryClient telemetryClient,
+        private static Metric GetOrCreateMetric(
+                                                TelemetryClient telemetryClient,
                                                 string metricId,
                                                 string dimension1Name,
                                                 string dimension2Name,
@@ -142,6 +133,5 @@ namespace Microsoft.ApplicationInsights
             Metric metric = cache.GetOrCreateMetric(metricId, dimension1Name, dimension2Name, metricConfiguration);
             return metric;
         }
-
     }
 }

@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using System.Threading.Tasks;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
     internal abstract class DataSeriesAggregatorBase : IMetricSeriesAggregator
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming Rules", "SA1310: C# Field must not contain an underscore", Justification = "By design: Structured name.")]
         private const int InternalExecutionState_Completed = -10000;
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming Rules", "SA1310: C# Field must not contain an underscore", Justification = "By design: Structured name.")]
         private const int InternalExecutionState_Ready = 0;
 
         private readonly MetricSeries _dataSeries;
@@ -38,7 +41,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public MetricSeries DataSeries { get { return _dataSeries; } }
 
-        public bool IsCompleted {
+        public bool IsCompleted
+        {
             get
             {
                 if (_isPersistent)
@@ -115,38 +119,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Initialize(default(DateTimeOffset), default(IMetricValueFilter));
             return RecycleUnsafe();
         }
-
-        private void EnsureUpdatesComplete(DateTimeOffset periodEnd)
-        {
-            DataSeries.ClearAggregator(_consumerKind);
-
-            int prevState = Interlocked.CompareExchange(ref _ongoingUpdates, InternalExecutionState_Completed, InternalExecutionState_Ready);
-
-            if (prevState > InternalExecutionState_Ready)
-            {
-                var spinWait = new SpinWait();
-                prevState = Interlocked.CompareExchange(ref _ongoingUpdates, InternalExecutionState_Completed, InternalExecutionState_Ready);
-
-                while (prevState > InternalExecutionState_Ready)
-                {
-                    spinWait.SpinOnce();
-
-                    if (spinWait.Count % 100 == 0)
-                    {
-                        //Thread.Sleep(10);
-                        Task.Delay(10).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
-                    }
-
-                    prevState = Interlocked.CompareExchange(ref _ongoingUpdates, InternalExecutionState_Completed, InternalExecutionState_Ready);
-                }
-            }
-
-            if (prevState == InternalExecutionState_Ready)
-            {
-                _periodEnd = periodEnd;
-            }
-        }
-
+        
         public void TrackValue(uint metricValue)
         {
             if (_valueFilter != null)
@@ -276,9 +249,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        protected abstract bool RecycleUnsafe();
-
         public abstract ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd);
+
+        protected abstract bool RecycleUnsafe();
 
         protected abstract void TrackFilteredValue(uint metricValue);
 
@@ -286,6 +259,39 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         protected abstract void TrackFilteredValue(object metricValue);
 
-        
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Readability Rules",
+            "SA1129: Do not use default value type constructor",
+            Justification = "SpinWait used as designed")]
+        private void EnsureUpdatesComplete(DateTimeOffset periodEnd)
+        {
+            DataSeries.ClearAggregator(_consumerKind);
+
+            int prevState = Interlocked.CompareExchange(ref _ongoingUpdates, InternalExecutionState_Completed, InternalExecutionState_Ready);
+
+            if (prevState > InternalExecutionState_Ready)
+            {
+                var spinWait = new SpinWait();
+                prevState = Interlocked.CompareExchange(ref _ongoingUpdates, InternalExecutionState_Completed, InternalExecutionState_Ready);
+
+                while (prevState > InternalExecutionState_Ready)
+                {
+                    spinWait.SpinOnce();
+
+                    if (spinWait.Count % 100 == 0)
+                    {
+                        // Thread.Sleep(10);
+                        Task.Delay(10).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
+                    }
+
+                    prevState = Interlocked.CompareExchange(ref _ongoingUpdates, InternalExecutionState_Completed, InternalExecutionState_Ready);
+                }
+            }
+
+            if (prevState == InternalExecutionState_Ready)
+            {
+                _periodEnd = periodEnd;
+            }
+        }
     }
 }

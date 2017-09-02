@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -29,21 +29,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         private IMetricSeriesAggregator _aggregatorRecycleCacheQuickPulse;
         private IMetricSeriesAggregator _aggregatorRecycleCacheCustom;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public IMetricSeriesConfiguration Configuration { get { return _configuration; } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public TelemetryContext Context { get { return _context; } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string MetricId { get { return _metricId; } }
-
         internal MetricSeries(MetricAggregationManager aggregationManager, string metricId, IMetricSeriesConfiguration configuration)
         {
             Util.ValidateNotNull(aggregationManager, nameof(aggregationManager));
@@ -61,6 +46,21 @@ namespace Microsoft.ApplicationInsights.Metrics
             _aggregatorQuickPulse = null;
             _aggregatorCustom = null;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IMetricSeriesConfiguration Configuration { get { return _configuration; } }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public TelemetryContext Context { get { return _context; } }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string MetricId { get { return _metricId; } }
 
         /// <summary>
         /// 
@@ -172,6 +172,36 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
             }
         }
+        
+        internal void ClearAggregator(MetricConsumerKind consumerKind)
+        {
+            if (_requiresPersistentAggregator)
+            {
+                return;
+            }
+
+            WeakReference<IMetricSeriesAggregator> aggregatorWeakRef;
+            switch (consumerKind)
+            {
+                case MetricConsumerKind.Default:
+                    aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorDefault, null);
+                    _aggregatorRecycleCacheDefault = UnwrapAggregator(aggregatorWeakRef);
+                    break;
+
+                case MetricConsumerKind.QuickPulse:
+                    aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorQuickPulse, null);
+                    _aggregatorRecycleCacheQuickPulse = UnwrapAggregator(aggregatorWeakRef);
+                    break;
+
+                case MetricConsumerKind.Custom:
+                    aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorCustom, null);
+                    _aggregatorRecycleCacheCustom = UnwrapAggregator(aggregatorWeakRef);
+                    break;
+
+                default:
+                    throw new ArgumentException($"Unexpected value of {nameof(consumerKind)}: {consumerKind}.");
+            }
+        }
 
         /// <summary>
         /// 
@@ -224,6 +254,21 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static IMetricSeriesAggregator UnwrapAggregator(WeakReference<IMetricSeriesAggregator> aggregatorWeakRef)
+        {
+            if (aggregatorWeakRef != null)
+            {
+                IMetricSeriesAggregator aggregatorHardRef = null;
+                if (aggregatorWeakRef.TryGetTarget(out aggregatorHardRef))
+                {
+                    return aggregatorHardRef;
+                }
+            }
+
+            return null;
+        }
+
         private IMetricSeriesAggregator GetOrCreatePersistentAggregator()
         {
             IMetricSeriesAggregator aggregator = _aggregatorPersistent;
@@ -249,22 +294,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             return aggregator;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static IMetricSeriesAggregator UnwrapAggregator(WeakReference<IMetricSeriesAggregator> aggregatorWeakRef)
-        {
-            if (aggregatorWeakRef != null)
-            {
-                IMetricSeriesAggregator aggregatorHardRef = null;
-                if (aggregatorWeakRef.TryGetTarget(out aggregatorHardRef))
-                {
-                    return aggregatorHardRef;
-                }
-            }
-
-            return null;
-        }
-
+        
         private IMetricSeriesAggregator GetOrCreateAggregator(MetricConsumerKind consumerKind, ref WeakReference<IMetricSeriesAggregator> aggregatorWeakRef)
         {
             while (true)
@@ -399,36 +429,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             return null;
-        }
-
-        internal void ClearAggregator(MetricConsumerKind consumerKind)
-        {
-            if (_requiresPersistentAggregator)
-            {
-                return;
-            }
-
-            WeakReference<IMetricSeriesAggregator> aggregatorWeakRef;
-            switch (consumerKind)
-            {
-                case MetricConsumerKind.Default:
-                    aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorDefault, null);
-                    _aggregatorRecycleCacheDefault = UnwrapAggregator(aggregatorWeakRef);
-                    break;
-
-                case MetricConsumerKind.QuickPulse:
-                    aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorQuickPulse, null);
-                    _aggregatorRecycleCacheQuickPulse = UnwrapAggregator(aggregatorWeakRef);
-                    break;
-
-                case MetricConsumerKind.Custom:
-                    aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorCustom, null);
-                    _aggregatorRecycleCacheCustom = UnwrapAggregator(aggregatorWeakRef);
-                    break;
-
-                default:
-                    throw new ArgumentException($"Unexpected value of {nameof(consumerKind)}: {consumerKind}.");
-            }
         }
     }
 }

@@ -43,9 +43,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                                                  + $" but the returned Tuple was null. (filterFunction's target type: {_filterFunction.Target?.GetType().FullName}.)");
             }
 
-            valueFilter = new MetricValueFilterAdapter(seriesFilterResult.Item2.Item1,
-                                                       seriesFilterResult.Item2.Item2,
-                                                       seriesFilterResult.Item2.Item3);
+            valueFilter = new MetricValueFilterAdapter(
+                                        seriesFilterResult.Item2.Item1,
+                                        seriesFilterResult.Item2.Item2,
+                                        seriesFilterResult.Item2.Item3);
             return true;
         }
     }

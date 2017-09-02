@@ -27,7 +27,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <returns></returns>
         public static
                     bool
-                    StartAggregators(object metricManager,
+                    StartAggregators(
+                                     object metricManager,
                                      int consumerKind,
                                      DateTimeOffset tactTimestamp,
                                      Func<Tuple<bool,
@@ -52,7 +53,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <returns></returns>
         public static
                     Tuple<IReadOnlyCollection<ITelemetry>, IReadOnlyCollection<ITelemetry>>
-                    StopAggregators(object metricManager,
+                    StopAggregators(
+                                    object metricManager,
                                     int consumerKind,
                                     DateTimeOffset tactTimestamp)
         {
@@ -75,7 +77,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <returns></returns>
         public static
                     Tuple<IReadOnlyCollection<ITelemetry>, IReadOnlyCollection<ITelemetry>>
-                    CycleAggregators(object metricManager,
+                    CycleAggregators(
+                                     object metricManager,
                                      int consumerKind,
                                      DateTimeOffset tactTimestamp,
                                      Func<Tuple<bool,
@@ -106,6 +109,5 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
             throw new ArgumentException($"The specified number '{consumerKind}' is not a valid value for the {nameof(MetricConsumerKind)} enumeration.");
         }
-
     }
 }

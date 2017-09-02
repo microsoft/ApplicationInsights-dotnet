@@ -9,20 +9,6 @@ namespace Microsoft.ApplicationInsights.Metrics
 {
     internal class MetricAggregationManager
     {
-        private class AggregatorCollection
-        {
-            public DateTimeOffset PeriodStart { get; }
-            public GrowingCollection<IMetricSeriesAggregator> Aggregators { get; }
-            public IMetricSeriesFilter Filter { get; }
-
-            public AggregatorCollection(DateTimeOffset periodStart, IMetricSeriesFilter filter)
-            {
-                this.PeriodStart = periodStart;
-                this.Aggregators = new GrowingCollection<IMetricSeriesAggregator>();
-                this.Filter = Filter;
-            }
-        }
-
         // We support 4 aggregation cycles. 2 of them can be accessed from the outside:
 
         private AggregatorCollection _aggregatorsForDefaultPersistent = null;
@@ -31,11 +17,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         private AggregatorCollection _aggregatorsForCustom = null;
 
         internal MetricAggregationManager()
-        {
-            StartDefaultAggregators();
-        }
-
-        private void StartDefaultAggregators()
         {
             DateTimeOffset now = DateTimeOffset.Now;
             DateTimeOffset timestamp = new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, 0, now.Offset);
@@ -58,6 +39,29 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 case MetricConsumerKind.Default:
                     throw new ArgumentException($"Cannot invoke {nameof(StartAggregators)} for Default {nameof(MetricConsumerKind)}: Default aggregators are always active.");
+
+                default:
+                    throw new ArgumentException($"Unexpected value of {nameof(consumerKind)}: {consumerKind}.");
+            }
+        }
+        
+        public AggregationPeriodSummary CycleAggregators(MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter)
+        {
+            switch (consumerKind)
+            {
+                case MetricConsumerKind.Default:
+                    if (updatedFilter != null)
+                    {
+                        throw new ArgumentException($"Cannot specify non-null {nameof(updatedFilter)} when {nameof(consumerKind)} is {consumerKind}.");
+                    }
+
+                    return CycleAggregators(ref _aggregatorsForDefault, tactTimestamp, updatedFilter, stopAggregators: false);
+
+                case MetricConsumerKind.QuickPulse:
+                    return CycleAggregators(ref _aggregatorsForQuickPulse, tactTimestamp, updatedFilter, stopAggregators: false);
+
+                case MetricConsumerKind.Custom:
+                    return CycleAggregators(ref _aggregatorsForCustom, tactTimestamp, updatedFilter, stopAggregators: false);
 
                 default:
                     throw new ArgumentException($"Unexpected value of {nameof(consumerKind)}: {consumerKind}.");
@@ -134,7 +138,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             IMetricValueFilter valueFilter = null;
-            if (aggregatorCollection.Filter != null && ! aggregatorCollection.Filter.WillConsume(aggregator.DataSeries, out valueFilter))
+            if (aggregatorCollection.Filter != null && !aggregatorCollection.Filter.WillConsume(aggregator.DataSeries, out valueFilter))
             {
                 return false;
             }
@@ -143,28 +147,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             aggregatorCollection.Aggregators.Add(aggregator);
 
             return true;
-        }
-
-        public AggregationPeriodSummary CycleAggregators(MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter)
-        {
-            switch (consumerKind)
-            {
-                case MetricConsumerKind.Default:
-                    if (updatedFilter != null)
-                    {
-                        throw new ArgumentException($"Cannot specify non-null {nameof(updatedFilter)} when {nameof(consumerKind)} is {consumerKind}.");
-                    }
-                    return CycleAggregators(ref _aggregatorsForDefault, tactTimestamp, updatedFilter, stopAggregators: false);
-
-                case MetricConsumerKind.QuickPulse:
-                    return CycleAggregators(ref _aggregatorsForQuickPulse, tactTimestamp, updatedFilter, stopAggregators: false);
-
-                case MetricConsumerKind.Custom:
-                    return CycleAggregators(ref _aggregatorsForCustom, tactTimestamp, updatedFilter, stopAggregators: false);
-
-                default:
-                    throw new ArgumentException($"Unexpected value of {nameof(consumerKind)}: {consumerKind}.");
-            }
         }
 
         private AggregationPeriodSummary CycleAggregators(ref AggregatorCollection aggregators, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter, bool stopAggregators)
@@ -185,7 +167,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             List<ITelemetry> unfilteredValsAggregations = new List<ITelemetry>(capacity: unfilteredValsAggregators.Count);
             try
             {
-                while(unfilteredValsAggregators.MoveNext())
+                while (unfilteredValsAggregators.MoveNext())
                 {
                     IMetricSeriesAggregator aggregator = unfilteredValsAggregators.Current;
                     if (aggregator != null)
@@ -224,5 +206,25 @@ namespace Microsoft.ApplicationInsights.Metrics
             var summary = new AggregationPeriodSummary(unfilteredValsAggregations, filteredAggregations);
             return summary;
         }
+
+        #region class AggregatorCollection
+
+        private class AggregatorCollection
+        {
+            public AggregatorCollection(DateTimeOffset periodStart, IMetricSeriesFilter filter)
+            {
+                this.PeriodStart = periodStart;
+                this.Aggregators = new GrowingCollection<IMetricSeriesAggregator>();
+                this.Filter = Filter;
+            }
+
+            public DateTimeOffset PeriodStart { get; }
+
+            public GrowingCollection<IMetricSeriesAggregator> Aggregators { get; }
+
+            public IMetricSeriesFilter Filter { get; }
+        }
+
+        #endregion class AggregatorCollection
     }
 }

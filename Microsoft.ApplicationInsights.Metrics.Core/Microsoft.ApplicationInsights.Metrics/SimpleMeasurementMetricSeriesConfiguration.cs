@@ -14,7 +14,22 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly bool _supportDoubleValues;
         private readonly int _hashCode;
 
-        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lifetimeCounter"></param>
+        /// <param name="supportDoubleValues"></param>
+        public SimpleMeasurementMetricSeriesConfiguration(bool lifetimeCounter, bool supportDoubleValues)
+        {
+            _lifetimeCounter = lifetimeCounter;
+            _supportDoubleValues = supportDoubleValues;
+
+            unchecked
+            {
+                _hashCode = (((17 * 23) + _lifetimeCounter.GetHashCode()) * 23) + _supportDoubleValues.GetHashCode();
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -31,22 +46,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return _supportDoubleValues; }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="lifetimeCounter"></param>
-        /// <param name="supportDoubleValues"></param>
-        public SimpleMeasurementMetricSeriesConfiguration(bool lifetimeCounter, bool supportDoubleValues)
-        {
-            _lifetimeCounter = lifetimeCounter;
-            _supportDoubleValues = supportDoubleValues;
-
-            unchecked
-            {
-                _hashCode = (17 * 23 + _lifetimeCounter.GetHashCode()) * 23 + _supportDoubleValues.GetHashCode();
-            }
         }
 
         /// <summary>

@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Collections.Generic;
 
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -85,7 +84,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             if (currentDel == null)
             {
-                PropertyInfo telemetryConfigurationProperty = typeof(TelemetryContext).GetTypeInfo().GetProperty("TelemetryConfiguration",
+                PropertyInfo telemetryConfigurationProperty = typeof(TelemetryContext).GetTypeInfo().GetProperty(
+                                                                                                                "TelemetryConfiguration",
                                                                                                                  BindingFlags.NonPublic | BindingFlags.Instance);
                 MethodInfo telemetryConfigurationGetMethod = telemetryConfigurationProperty.GetGetMethod(nonPublic: true);
 

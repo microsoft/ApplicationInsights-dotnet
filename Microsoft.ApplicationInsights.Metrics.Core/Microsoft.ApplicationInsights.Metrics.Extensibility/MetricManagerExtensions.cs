@@ -62,6 +62,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// the next iteration. However, the background thread will not send any aggregated metrics if it has been notified to stop.
         /// Therefore, this method flushed current data before sending the notification.
         /// </remarks>
+        /// <param name="metricManager">The metric manager</param>
         /// <returns>
         /// You can await the returned Task if you want to be sure that the encapsulated thread completed.
         /// If you just want to notify the thread to stop without waiting for it, do d=not await this method.
@@ -81,7 +82,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <param name="metricManager"></param>
         /// <param name="newCacheInstanceFactory"></param>
         /// <returns></returns>
-        public static T GetOrCreateCache<T>(this MetricManager metricManager, Func<MetricManager, T> newCacheInstanceFactory) where T : class
+        public static T GetOrCreateCache<T>(this MetricManager metricManager, Func<MetricManager, T> newCacheInstanceFactory)
+                where T : class
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
 

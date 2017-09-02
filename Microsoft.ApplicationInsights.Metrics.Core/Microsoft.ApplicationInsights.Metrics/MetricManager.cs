@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Threading;
 
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using System.Threading;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -17,10 +17,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly TelemetryClient _trackingClient;
 
         private object _metricCache;
-
-        internal MetricAggregationManager AggregationManager { get { return _aggregationManager; } }
-        internal DefaultAggregationPeriodCycle AggregationCycle { get { return _aggregationCycle; } }
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -43,6 +40,10 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             var fireAndForget = this.StopAsync();
         }
+
+        internal MetricAggregationManager AggregationManager { get { return _aggregationManager; } }
+
+        internal DefaultAggregationPeriodCycle AggregationCycle { get { return _aggregationCycle; } }
 
         /// <summary>
         /// 

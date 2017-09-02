@@ -38,7 +38,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// </summary>
         /// <returns></returns>
         bool TryRecycle();
-        
+
         /// <summary>
         /// 
         /// </summary>

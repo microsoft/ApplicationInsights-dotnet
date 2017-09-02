@@ -21,25 +21,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             _isLastDimensionLevel = isLastDimensionLevel;
         }
 
-        private bool TryIncSubdimensionsCount()
-        {
-            int newSubdimensionsCount = Interlocked.Increment(ref _subdimensionsCount);
-
-            if (newSubdimensionsCount <= _subdimensionsCountLimit)
-            {
-                return true;
-            }
-
-            Interlocked.Decrement(ref _subdimensionsCount);
-            return false;
-        }
-
-        private int DecSubdimensionsCount()
-        {
-            int newSubdimensionsCount = Interlocked.Decrement(ref _subdimensionsCount);
-            return newSubdimensionsCount;
-        }
-
         public MultidimensionalPointResult<TPoint> TryGetOrAddVector(TDimensionValue[] coordinates)
         {
             Util.ValidateNotNull(coordinates, nameof(coordinates));
@@ -87,12 +68,11 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             else
             {
-
                 foreach (KeyValuePair<TDimensionValue, object> element in _elements)
                 {
                     var elementValue = (MultidimensionalCubeDimension<TDimensionValue, TPoint>) element.Value;
                     IReadOnlyCollection<KeyValuePair<IList<TDimensionValue>, TPoint>> subCube = elementValue.GetAllPointsReversed();
-                    foreach(KeyValuePair<IList<TDimensionValue>, TPoint> subVector in subCube)
+                    foreach (KeyValuePair<IList<TDimensionValue>, TPoint> subVector in subCube)
                     {
                         subVector.Key.Add(element.Key);
                         pointDescriptions.Add(subVector);
@@ -233,7 +213,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 // We are not at the last level. Create the subdimension. Note, we are not under lock, so someone might be creating the same dimention concurrently:
                 bool isLastDimensionLevel = (currentDim == coordinates.Length - 1);
-                var newSubDim = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(_ownerCube, 
+                var newSubDim = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(
+                                                                                           _ownerCube, 
                                                                                            _ownerCube.GetDimensionValuesCountLimit(currentDim + 1),
                                                                                            isLastDimensionLevel);
                 MultidimensionalPointResult<TPoint> newSubDimResult = newSubDim.TryGetOrAddVectorInternal(coordinates, currentDim + 1, createIfNotExists: true);
@@ -274,6 +255,25 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             MultidimensionalPointResult<TPoint> retryResult = this.TryGetOrAddVectorInternal(coordinates, currentDim, createIfNotExists: true);
             return retryResult;
+        }
+
+        private bool TryIncSubdimensionsCount()
+        {
+            int newSubdimensionsCount = Interlocked.Increment(ref _subdimensionsCount);
+
+            if (newSubdimensionsCount <= _subdimensionsCountLimit)
+            {
+                return true;
+            }
+
+            Interlocked.Decrement(ref _subdimensionsCount);
+            return false;
+        }
+
+        private int DecSubdimensionsCount()
+        {
+            int newSubdimensionsCount = Interlocked.Decrement(ref _subdimensionsCount);
+            return newSubdimensionsCount;
         }
     }
 }

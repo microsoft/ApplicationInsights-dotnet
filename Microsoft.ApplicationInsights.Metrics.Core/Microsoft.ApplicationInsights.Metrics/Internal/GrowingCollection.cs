@@ -10,79 +10,59 @@ namespace Microsoft.ApplicationInsights.Metrics
     {
         private const int SegmentSize = 32;
 
-        internal class Segment
+        private Segment _dataHead;
+
+        public GrowingCollection()
         {
-            private readonly Segment _nextSegment;
-            private readonly int _nextSegmentGlobalCount;
-            private readonly T[] _data = new T[SegmentSize];
-            private int _localCount = 0;
+            _dataHead = new Segment(null);
+        }
 
-            public Segment(Segment nextSegment)
+        public int Count
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
             {
-                _nextSegment = nextSegment;
-                _nextSegmentGlobalCount = (nextSegment == null) ? 0 : nextSegment.GlobalCount;
-            }
-
-            public int LocalCount
-            {
-                get
-                {
-                    int lc = Volatile.Read(ref _localCount);
-                    if (lc > SegmentSize)
-                    {
-                        return SegmentSize;
-                    }
-                    else
-                    {
-                        return lc;
-                    }
-                }
-            }
-
-            public Segment NextSegment
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get
-                {
-                    return _nextSegment;
-                }
-            }
-
-            public int GlobalCount
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get
-                {
-                    return LocalCount + _nextSegmentGlobalCount;
-                }
-            }
-
-            internal bool TryAdd(T item)
-            {
-                int index = Interlocked.Increment(ref _localCount) - 1;
-                if (index >= SegmentSize)
-                {
-                    Interlocked.Decrement(ref _localCount);
-                    return false;
-                }
-
-                _data[index] = item;
-                return true;
-            }
-
-            public T this[int index]
-            {
-                get
-                {
-                    if (index < 0 || _localCount <= index || SegmentSize <= index)
-                    {
-                        throw new ArgumentOutOfRangeException(nameof(index), $"Invalid index ({index})");
-                    }
-
-                    return _data[index];
-                }
+                Segment currHead = Volatile.Read(ref _dataHead);
+                return currHead.GlobalCount;
             }
         }
+
+        public void Add(T item)
+        {
+            Segment currHead = Volatile.Read(ref _dataHead);
+
+            bool added = currHead.TryAdd(item);
+            while (! added)
+            {
+                Segment newHead = new Segment(currHead);
+                Segment prevHead = Interlocked.CompareExchange(ref _dataHead, newHead, currHead);
+
+                Segment updatedHead = (prevHead == currHead) ? newHead : prevHead;
+                added = updatedHead.TryAdd(item);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public GrowingCollection<T>.Enumerator GetEnumerator()
+        {
+            var enumerator = new GrowingCollection<T>.Enumerator(_dataHead);
+            return enumerator;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+
+        
+        #region class Enumerator 
 
         public class Enumerator : IEnumerator<T>
         {
@@ -162,54 +142,85 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private Segment _dataHead;
+        #endregion class Enumerator 
 
-        public GrowingCollection()
+
+        #region class Segment
+
+        internal class Segment
         {
-            _dataHead = new Segment(null);
-        }
+            private readonly Segment _nextSegment;
+            private readonly int _nextSegmentGlobalCount;
+            private readonly T[] _data = new T[SegmentSize];
+            private int _localCount = 0;
 
-        public int Count {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
+            public Segment(Segment nextSegment)
             {
-                Segment currHead = Volatile.Read(ref _dataHead);
-                return currHead.GlobalCount;
+                _nextSegment = nextSegment;
+                _nextSegmentGlobalCount = (nextSegment == null) ? 0 : nextSegment.GlobalCount;
+            }
+
+            public int LocalCount
+            {
+                get
+                {
+                    int lc = Volatile.Read(ref _localCount);
+                    if (lc > SegmentSize)
+                    {
+                        return SegmentSize;
+                    }
+                    else
+                    {
+                        return lc;
+                    }
+                }
+            }
+
+            public Segment NextSegment
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get
+                {
+                    return _nextSegment;
+                }
+            }
+
+            public int GlobalCount
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get
+                {
+                    return LocalCount + _nextSegmentGlobalCount;
+                }
+            }
+
+            public T this[int index]
+            {
+                get
+                {
+                    if (index < 0 || _localCount <= index || SegmentSize <= index)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(index), $"Invalid index ({index})");
+                    }
+
+                    return _data[index];
+                }
+            }
+
+            internal bool TryAdd(T item)
+            {
+                int index = Interlocked.Increment(ref _localCount) - 1;
+                if (index >= SegmentSize)
+                {
+                    Interlocked.Decrement(ref _localCount);
+                    return false;
+                }
+
+                _data[index] = item;
+                return true;
             }
         }
 
-        public void Add(T item)
-        {
-            Segment currHead = Volatile.Read(ref _dataHead);
-
-            bool added = currHead.TryAdd(item);
-            while (! added)
-            {
-                Segment newHead = new Segment(currHead);
-                Segment prevHead = Interlocked.CompareExchange(ref _dataHead, newHead, currHead);
-
-                Segment updatedHead = (prevHead == currHead) ? newHead : prevHead;
-                added = updatedHead.TryAdd(item);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public GrowingCollection<T>.Enumerator GetEnumerator()
-        {
-            var enumerator = new GrowingCollection<T>.Enumerator(_dataHead);
-            return enumerator;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
+        #endregion class Segment
     }
 }

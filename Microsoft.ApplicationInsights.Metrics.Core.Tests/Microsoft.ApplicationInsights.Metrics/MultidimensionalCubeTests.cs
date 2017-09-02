@@ -1,12 +1,14 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.ApplicationInsights.Metrics;
 
-namespace UnitTestProject2
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace Microsoft.ApplicationInsights.Metrics
 {
+    /// <summary />
     [TestClass]
     public class MultidimensionalCubeTests
     {
+        /// <summary />
         [TestMethod]
         public void DummyTest()
         {
