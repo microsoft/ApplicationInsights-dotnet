@@ -18,6 +18,11 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     using Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation;
     using Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities;
 
+    /// <summary>
+    /// Delegate to apply custom formatting Application Insights trace telemetry from the Event Source data.
+    /// </summary>
+    /// <param name="eventArgs">Event arguments passed to the EventListener.</param>
+    /// <param name="client">Telemetry client to report telemetry to.</param>
     public delegate void OnEventWrittenHandler(EventWrittenEventArgs eventArgs, TelemetryClient client);
 
     /// <summary>

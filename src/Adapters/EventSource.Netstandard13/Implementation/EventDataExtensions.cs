@@ -15,6 +15,9 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities;
 
+    /// <summary>
+    /// Extension methods to convert EventSource structures to Application Insights telemetry.
+    /// </summary>
     public static class EventDataExtensions
     {
         private static Lazy<Random> random = new Lazy<Random>();
