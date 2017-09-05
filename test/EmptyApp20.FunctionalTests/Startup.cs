@@ -25,9 +25,7 @@
 
         public void Configure(IApplicationBuilder app)
         {
-#if !NET46
             app.UseDeveloperExceptionPage();
-#endif
             app.Use(next =>
             {
                 return async context =>

@@ -4,8 +4,7 @@
     using System.IO;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.AspNetCore;
+    using Microsoft.Extensions.DependencyInjection;    
 
     // a variant of aspnet/Hosting/test/Microsoft.AspNetCore.Hosting.Tests/HostingEngineTests.cs
     public class InProcessServer : IDisposable
@@ -49,19 +48,12 @@
 
         private BackTelemetryChannel Start(string assemblyName)
         {
-
-#if NET46
             var builder = new WebHostBuilder()
                 .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseUrls(this.BaseHost)                
+                .UseUrls(this.BaseHost)
                 .UseKestrel()
                 .UseStartup(assemblyName)
                 .UseEnvironment("Production");
-#else
-
-            var builder = WebHost.CreateDefaultBuilder().UseStartup(assemblyName);
-#endif
-
             if (configureHost != null)
             {
                 builder = configureHost(builder);

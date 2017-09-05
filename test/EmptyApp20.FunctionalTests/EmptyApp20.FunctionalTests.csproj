@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <VersionPrefix>2.0.0</VersionPrefix>
-    <TargetFrameworks>net46;netcoreapp2.0</TargetFrameworks>
-	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net46' ">win7-x86</RuntimeIdentifier>
+    <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net461' ">win7-x86</RuntimeIdentifier>
     <DelaySign>true</DelaySign>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>EmptyApp20.FunctionalTests</AssemblyName>
@@ -16,6 +16,7 @@
     <OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\test\$(MSBuildProjectName)</OutputPath>
     <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>    
+	<DependsOnNETStandard Condition=" '$(TargetFramework)' == 'net461'">true</DependsOnNETStandard>
   </PropertyGroup>
 
   
@@ -23,11 +24,13 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-preview-20170106-08" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
-    <PackageReference Condition=" '$(TargetFramework)' != 'net46' " Include="Microsoft.AspNetCore.Diagnostics" Version="2.0.0" />	
+	<PackageReference Condition=" '$(TargetFramework)' == 'net461' " Include="NETStandard.Library.NETFramework" Version="2.0.0-preview2-25405-01" />
+<!--	<PackageReference Condition=" '$(TargetFramework)' == 'net461' " Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" /> -->
+    <PackageReference Condition=" '$(TargetFramework)' != 'net461' " Include="Microsoft.AspNetCore.Diagnostics" Version="2.0.0" />	
     <PackageReference Include="xunit" Version="2.2.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>

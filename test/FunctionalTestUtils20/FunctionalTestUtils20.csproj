@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <VersionPrefix>1.0.2</VersionPrefix>
-    <TargetFrameworks>net46;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <DelaySign>true</DelaySign>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>FunctionalTestUtils20</AssemblyName>
@@ -12,6 +12,7 @@
     <PackageId>FunctionalTestUtils</PackageId>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
 	<OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\test\$(MSBuildProjectName)</OutputPath>
+	<DependsOnNETStandard Condition=" '$(TargetFramework)' == 'net461'">true</DependsOnNETStandard>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+   <PackageReference Condition=" '$(TargetFramework)' == 'net461' " Include="NETStandard.Library.NETFramework" Version="2.0.0-preview2-25405-01" />
     <PackageReference Condition=" '$(TargetFramework)' == 'net46' " Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.0.3" />
 	<PackageReference Condition=" '$(TargetFramework)' != 'net46' " Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />	
 	<PackageReference Condition=" '$(TargetFramework)' != 'net46' " Include="Microsoft.AspNetCore" Version="2.0.0" />			

@@ -13,7 +13,7 @@
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
-#if NET451 || NET46
+#if NET451 || NET461
     using System.Net;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -113,13 +113,13 @@
                   && d.ResultCode == expected.ResultCode);
             Assert.NotNull(dependencyTelemetry);
 
-#if !NET451
+#if !NET461
             var requestTelemetry = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();
             Assert.Equal(requestTelemetry.Context.Operation.ParentId, dependencyTelemetry.Id);
 #endif
         }
 
-#if NET451 || NET46
+#if NET451 || NET461
         public void ValidatePerformanceCountersAreCollected(string assemblyName, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
             using (var server = new InProcessServer(assemblyName, configureHost))
