@@ -80,7 +80,6 @@ private async Task<OperationOutput> ProcessOperationInstrumentedAsync(OperationI
     {
         if (DiagnosticListener.IsEnabled(ActivityStopName))
         {
-            DiagnosticListener.StopActivity(activity, new {Input = input, Output = output});
             DiagnosticListener.StopActivity(activity,
                 new
                 {
