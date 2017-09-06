@@ -124,8 +124,16 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             telemetry.Context.Operation.ParentId = currentActivity.ParentId;
             telemetry.Timestamp = currentActivity.StartTimeUtc;
 
+            foreach (var item in currentActivity.Baggage)
+            {
+                if (!telemetry.Context.Properties.ContainsKey(item.Key))
+                {
+                    telemetry.Context.Properties[item.Key] = item.Value;
+                }
+            }
+
             telemetry.Context.Properties["DiagnosticSource"] = diagnosticListener.Name;
-            telemetry.Context.Properties["Activity"] = currentActivity.OperationName.Substring(0, currentActivity.OperationName.Length - ActivityStopNameSuffix.Length);
+            telemetry.Context.Properties["Activity"] = currentActivity.OperationName;
 
             this.client.Initialize(telemetry);
 
@@ -139,20 +147,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             telemetry.Id = currentActivity.Id;
             telemetry.Duration = currentActivity.Duration;
 
-            foreach (var item in currentActivity.Baggage)
-            {
-                if (!telemetry.Context.Properties.ContainsKey(item.Key))
-                {
-                    telemetry.Context.Properties[item.Key] = item.Value;
-                }
-            }
-
-            // get the Uri from event payload
             Uri requestUri = null;
+            string component = null;
             string dbStatement = null;
             string httpMethodWithSpace = string.Empty;
             string httpUrl = null;
             string peerAddress = null;
+            string peerService = null;
 
             foreach (KeyValuePair<string, string> tag in currentActivity.Tags)
             {
@@ -175,10 +176,20 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             telemetry.Name = tag.Value;
                             continue; // skip Properties
                         }
+                    case "operation.type": // not defined by OpenTracing
+                        {
+                            telemetry.Type = tag.Value;
+                            continue; // skip Properties
+                        }
                     case "operation.data": // not defined by OpenTracing
                         {
                             telemetry.Data = tag.Value;
                             continue; // skip Properties
+                        }
+                    case "component":
+                        {
+                            component = tag.Value;
+                            break;
                         }
                     case "db.statement":
                         {
@@ -226,16 +237,21 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         }
                     case "peer.service":
                         {
-                            telemetry.Type = tag.Value;
-                            continue; // skip Properties
+                            peerService = tag.Value;
+                            break;
                         }
                 }
 
                 // if more than one tag with the same name is specified, the first one wins
-                if (!telemetry.Context.Properties.ContainsKey(tag.Key))
+                if (!telemetry.Properties.ContainsKey(tag.Key))
                 {
-                    telemetry.Context.Properties[tag.Key] = tag.Value;
+                    telemetry.Properties[tag.Key] = tag.Value;
                 }
+            }
+
+            if (string.IsNullOrEmpty(telemetry.Type))
+            {
+                telemetry.Type = peerService ?? component;
             }
 
             if (string.IsNullOrEmpty(telemetry.Target))
