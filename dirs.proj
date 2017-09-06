@@ -11,15 +11,12 @@
 
     <ItemGroup>
         <!--<Solution Include="src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.xproj" />-->
-        <!-- Tests -->
-        <!--
+        <!-- Tests -->        
 		<TestProject Include="test\Microsoft.ApplicationInsights.AspNetCore.Tests\ " />
         <TestProject Include="test\WebApiShimFw46.FunctionalTests\ " />
         <TestProject Include="test\EmptyApp.FunctionalTests\ " />
 		<TestProject Include="test\EmptyApp20.FunctionalTests\ " />
-        <TestProject Include="test\MVCFramework45.FunctionalTests\ " />
-		-->
-		<TestProject Include="test\EmptyApp20.FunctionalTests\ " />
+        <TestProject Include="test\MVCFramework45.FunctionalTests\ " />				
     </ItemGroup>
 
     <UsingTask TaskName="DownloadFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
@@ -173,7 +170,7 @@
         <Exec Command=".\nuget.exe locals all -clear" ContinueOnError="ErrorAndStop" />
     </Target>
     
-    <Target Name="Build">
+    <Target Name="Build" DependsOnTargets="CheckBuildParameters;DownloadCLI">
         <Exec Command='"$(CliToolsPath)\dotnet.exe" --version' />        
         <Exec Command='"nuget.exe" restore' ContinueOnError="ErrorAndStop" />
         <Exec Command='"$(CliToolsPath)\dotnet.exe" build $(ProjectToBuild) -c $(Configuration)' ContinueOnError="ErrorAndStop" />
