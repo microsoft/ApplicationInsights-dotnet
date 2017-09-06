@@ -44,15 +44,15 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
                 try
                 {
                     // If the event has a badly formatted manifest, message formatting might fail
-                    formattedMessage = string.Format(CultureInfo.InvariantCulture, eventSourceEvent.Message,
-                        eventSourceEvent.Payload.ToArray());
+                    formattedMessage = string.Format(CultureInfo.InvariantCulture, eventSourceEvent.Message, eventSourceEvent.Payload.ToArray());
                 }
                 catch
                 {
                 }
             }
-            return new TraceTelemetry(formattedMessage,
-                eventLevelToSeverityLevel[(int) eventSourceEvent.Level]);
+            return new TraceTelemetry(
+                formattedMessage,
+                eventLevelToSeverityLevel[(int)eventSourceEvent.Level]);
         }
 
         /// <summary>
@@ -88,22 +88,6 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
         }
 
         /// <summary>
-        /// Creates a TraceTelemetry out of an EventSource event and tracks it using the supplied client.
-        /// </summary>
-        /// <param name="eventSourceEvent">The source for the telemetry data.</param>
-        /// <param name="client">Client to track the data with.</param>
-        internal static void Track(this EventWrittenEventArgs eventSourceEvent, TelemetryClient client)
-        {
-            Debug.Assert(client != null, "Should always receive a valid client");
-
-            var telemetry = eventSourceEvent.CreateTraceTelementry()
-                .PopulatePayloadProperties(eventSourceEvent)
-                .PopulateStandardProperties(eventSourceEvent);
-
-            client.Track(telemetry);
-        }
-
-        /// <summary>
         /// Populates properties on the <see cref="TraceTelemetry"/> with values from the Payload of a given EventSource event.
         /// </summary>
         /// <param name="telemetry">Telemetry item to populate with properties.</param>
@@ -131,6 +115,22 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
             }
 
             return telemetry;
+        }
+
+        /// <summary>
+        /// Creates a TraceTelemetry out of an EventSource event and tracks it using the supplied client.
+        /// </summary>
+        /// <param name="eventSourceEvent">The source for the telemetry data.</param>
+        /// <param name="client">Client to track the data with.</param>
+        internal static void Track(this EventWrittenEventArgs eventSourceEvent, TelemetryClient client)
+        {
+            Debug.Assert(client != null, "Should always receive a valid client");
+
+            var telemetry = eventSourceEvent.CreateTraceTelementry()
+                .PopulatePayloadProperties(eventSourceEvent)
+                .PopulateStandardProperties(eventSourceEvent);
+
+            client.Track(telemetry);
         }
 
         /// <summary>

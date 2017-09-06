@@ -30,12 +30,12 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     /// </summary>
     public class EventSourceTelemetryModule : EventListener, ITelemetryModule
     {
+        private readonly OnEventWrittenHandler onEventWrittenHandler;
         private TelemetryClient client;
         private bool initialized; // Relying on the fact that default value in .NET Framework is false
         private ConcurrentQueue<EventSource> appDomainEventSources;
         private ConcurrentQueue<EventSource> enabledEventSources;
-        private readonly OnEventWrittenHandler onEventWrittenHandler;
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="EventSourceTelemetryModule"/> class.
         /// </summary>
@@ -49,7 +49,10 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         /// <param name="onEventWrittenHandler">Action to be executed each time an event is written to format and send via the configured <see cref="TelemetryClient"/></param>
         public EventSourceTelemetryModule(OnEventWrittenHandler onEventWrittenHandler)
         {
-            if (onEventWrittenHandler == null) throw new ArgumentNullException(nameof(onEventWrittenHandler));
+            if (onEventWrittenHandler == null)
+            {
+                throw new ArgumentNullException(nameof(onEventWrittenHandler));
+            }
 
             this.Sources = new List<EventSourceListeningRequest>();
             this.enabledEventSources = new ConcurrentQueue<EventSource>();
@@ -129,7 +132,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                 {
                     this.onEventWrittenHandler(eventData, this.client);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     EventSourceListenerEventSource.Log.OnEventWrittenHandlerFailed(nameof(EventSourceListener.EventSourceTelemetryModule), ex.ToString());
                 }
