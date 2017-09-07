@@ -11,8 +11,7 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>FunctionalTestUtils</PackageId>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
-	<OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\test\$(MSBuildProjectName)</OutputPath>
-	<DependsOnNETStandard Condition=" '$(TargetFramework)' == 'net461'">true</DependsOnNETStandard>
+	<OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\test\$(MSBuildProjectName)</OutputPath>	
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,15 +19,14 @@
   </ItemGroup>
 
   <ItemGroup>
-   <PackageReference Condition=" '$(TargetFramework)' == 'net461' " Include="NETStandard.Library.NETFramework" Version="2.0.0-preview2-25405-01" />
-    <PackageReference Condition=" '$(TargetFramework)' == 'net46' " Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.0.3" />
-	<PackageReference Condition=" '$(TargetFramework)' != 'net46' " Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />	
-	<PackageReference Condition=" '$(TargetFramework)' != 'net46' " Include="Microsoft.AspNetCore" Version="2.0.0" />			
-	<PackageReference Condition=" '$(TargetFramework)' != 'net46' " Include="NETStandard.Library" Version="2.0.0" />			
+   
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />		
+	<PackageReference Include="NETStandard.Library" Version="2.0.0" />			
     <PackageReference Include="xunit" Version="2.2.0" />
+	<PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />			
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
