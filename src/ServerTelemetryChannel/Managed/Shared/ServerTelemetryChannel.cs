@@ -42,7 +42,7 @@
             var policies = new TransmissionPolicy[] 
             { 
 #if !NETSTANDARD1_3
-                // TODO: REMOVE WHEN WE HAVE A NETCORE IMPLEMENTATION OF IApplicationLifecycle
+                // We don't have implementation for IApplicationLifecycle for .NET Core
                 new ApplicationLifecycleTransmissionPolicy(applicationLifecycle),
 #endif
                 new ThrottlingTransmissionPolicy(), 

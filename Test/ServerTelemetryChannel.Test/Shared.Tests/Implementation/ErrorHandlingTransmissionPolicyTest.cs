@@ -6,6 +6,7 @@
 #endif
     using System.Linq;
     using System.Net;
+    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
@@ -239,12 +240,22 @@
                 responseStream.Write(bytes, 0, bytes.Length);
                 responseStream.Seek(0, SeekOrigin.Begin);
 
+#if NETCOREAPP1_1
+                System.Net.Http.HttpResponseMessage responseMessage = new System.Net.Http.HttpResponseMessage((HttpStatusCode)statusCode);
+                responseMessage.Content = new System.Net.Http.StreamContent(responseStream);
+                
+                ConstructorInfo ctor = typeof(HttpWebResponse).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)[0];
+                HttpWebResponse webResponse = (HttpWebResponse)ctor.Invoke(new object[] { responseMessage, null, null });
+
+                return new WebException("Transmitter Error", null, WebExceptionStatus.UnknownError, webResponse);                
+#else
                 var mockWebResponse = new Moq.Mock<HttpWebResponse>();
                 mockWebResponse.Setup(c => c.GetResponseStream()).Returns(responseStream);
 
                 mockWebResponse.SetupGet<HttpStatusCode>((webRes) => webRes.StatusCode).Returns((HttpStatusCode)statusCode);
 
                 return new WebException("Transmitter Error", null, WebExceptionStatus.UnknownError, mockWebResponse.Object);
+#endif        
             }
         }
     }

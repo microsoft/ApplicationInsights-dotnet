@@ -176,7 +176,15 @@
 
         private DirectoryInfo CreateTelemetrySubdirectory(DirectoryInfo root)
         {
-            string appIdentity = this.currentIdentity.Name + "@" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Process.GetCurrentProcess().ProcessName);
+            string baseDirectory = string.Empty;
+
+#if !NETSTANDARD1_3
+            baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+#else
+            baseDirectory = AppContext.BaseDirectory;
+#endif
+
+            string appIdentity = this.currentIdentity.Name + "@" + Path.Combine(baseDirectory, Process.GetCurrentProcess().ProcessName);
             string subdirectoryName = GetSHA256Hash(appIdentity);
             string subdirectoryPath = Path.Combine(@"Microsoft\ApplicationInsights", subdirectoryName);
             DirectoryInfo subdirectory = root.CreateSubdirectory(subdirectoryPath);

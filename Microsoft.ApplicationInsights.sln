@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.10
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microsoft.ApplicationInsights.Tests", "Microsoft.ApplicationInsights.Tests", "{C2FEEDE5-8CAE-41A4-8932-42D284A86EA7}"
 EndProject
@@ -397,9 +397,6 @@ Global
 		{3273D899-D9B3-44FE-B3AB-578E18B2EF90} = {E7B0521E-DA4D-40EA-B55D-ADCBDA69027C}
 		{178F87BF-CCCA-48DE-B171-4482E8CBD060} = {C2FEEDE5-8CAE-41A4-8932-42D284A86EA7}
 		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8} = {A61B048F-ECEA-4BED-A2ED-22834E7D4DFB}
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {3C6EA106-4464-4038-A5AC-41DDBB1EEB18}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F70D4C7C-02FB-4EE9-875A-A2F95EC90EAC}

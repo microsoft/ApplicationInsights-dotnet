@@ -34,11 +34,13 @@
                 AssertEx.Throws<ArgumentNullException>(() => new TelemetryBuffer(null, new StubApplicationLifecycle()));
             }
 
+#if !NETCOREAPP1_1
             [TestMethod]
             public void ConstructorThrowsArgumentNullExceptionWhenApplicationLifecycleIsNull()
             {
                 AssertEx.Throws<ArgumentNullException>(() => new TelemetryBuffer(new StubTelemetrySerializer(), null));
             }
+#endif
         }
 
         [TestClass]

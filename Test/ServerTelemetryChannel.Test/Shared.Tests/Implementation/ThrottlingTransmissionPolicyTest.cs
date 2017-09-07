@@ -7,6 +7,7 @@
     using System.Globalization;
     using System.Linq;
     using System.Net;
+    using System.Reflection;
     using System.Threading;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
@@ -16,7 +17,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
 #if !NET40
-    using TaskEx = System.Threading.Tasks.Task;
+    using TaskEx = System.Threading.Tasks.Task;    
 #endif
 
     public class ThrottlingTransmissionPolicyTest
@@ -116,15 +117,26 @@
 
             private static WebException CreateThrottledResponse(int throttledStatusCode, string retryAfter)
             {
-                var mockWebResponse = new Moq.Mock<HttpWebResponse>();
-
                 var responseHeaders = new WebHeaderCollection();
                 responseHeaders[HttpResponseHeader.RetryAfter] = retryAfter;
 
+#if NETCOREAPP1_1
+                System.Net.Http.HttpResponseMessage responseMessage = new System.Net.Http.HttpResponseMessage((HttpStatusCode)throttledStatusCode);
+                
+                ConstructorInfo ctor = typeof(HttpWebResponse).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)[0];
+                HttpWebResponse webResponse = (HttpWebResponse)ctor.Invoke(new object[] { responseMessage, null, null });
+
+                typeof(HttpWebResponse).GetField("_webHeaderCollection", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(webResponse, (WebHeaderCollection)responseHeaders);
+
+                return new WebException("Transmitter Error", null, WebExceptionStatus.UnknownError, webResponse);                
+#else
+                var mockWebResponse = new Moq.Mock<HttpWebResponse>();
+                
                 mockWebResponse.SetupGet<HttpStatusCode>((webRes) => webRes.StatusCode).Returns((HttpStatusCode)throttledStatusCode);
                 mockWebResponse.SetupGet<WebHeaderCollection>((webRes) => webRes.Headers).Returns((WebHeaderCollection)responseHeaders);
 
                 return new WebException("Transmitter Error", null, WebExceptionStatus.UnknownError, mockWebResponse.Object);
+#endif         
             }
 
             private void PositiveTest(int responseCode, int? expectedSenderCapacity, int? expectedBufferCapacity, int? expectedStorageCapacity)

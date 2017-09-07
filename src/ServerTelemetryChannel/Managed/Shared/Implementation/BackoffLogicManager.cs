@@ -91,6 +91,18 @@
                 TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
                 backendResponse = null;
             }
+#if NETSTANDARD1_3
+            catch (JsonReaderException exp)
+            {
+                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
+                backendResponse = null;
+            }
+            catch (JsonSerializationException exp)
+            {
+                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
+                backendResponse = null;
+            }
+#endif
 
             return backendResponse;
         }

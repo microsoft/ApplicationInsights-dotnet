@@ -66,7 +66,9 @@
             }
 
             this.folder.Create();
-            var fileInfo = new FileInfo(Path.Combine(this.folder.FullName, fileName));
+
+            string fullFileName = Path.Combine(this.folder.FullName, fileName);
+            var fileInfo = new FileInfo(fullFileName);
             if (fileInfo.Exists)
             {
                 throw new IOException("Cannot create file '" + fileName + "' because it already exists.");
@@ -76,7 +78,9 @@
             {
             }
 
-            return new PlatformFile(fileInfo);
+            // we need to re-create FileInfo because property Exist equal to false at the original object 
+            // and in .NET Core there's an explicit check for Exists field in MoveTo() method and it throws FileNotFoundException if it's false
+            return new PlatformFile(new FileInfo(fullFileName));
         }
     }
 } 
