@@ -42,6 +42,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionalTestUtils20", "te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MVCFramework.FunctionalTests", "test\MVCFramework.FunctionalTests\MVCFramework.FunctionalTests.csproj", "{1D5825CC-2EC9-43A1-BE32-778EFF5EAC80}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVCFramework20.FunctionalTests", "test\MVCFramework20.FunctionalTests\MVCFramework20.FunctionalTests.csproj", "{51198C41-CD4A-4006-84D4-DE20A0A44363}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,10 @@ Global
 		{1D5825CC-2EC9-43A1-BE32-778EFF5EAC80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D5825CC-2EC9-43A1-BE32-778EFF5EAC80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D5825CC-2EC9-43A1-BE32-778EFF5EAC80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51198C41-CD4A-4006-84D4-DE20A0A44363}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51198C41-CD4A-4006-84D4-DE20A0A44363}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51198C41-CD4A-4006-84D4-DE20A0A44363}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51198C41-CD4A-4006-84D4-DE20A0A44363}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -94,6 +100,7 @@ Global
 		{C47AFD8A-3326-4391-8115-69349C04C3DA} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 		{937AF006-898E-43FD-80A6-B20D7E3A1944} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 		{1D5825CC-2EC9-43A1-BE32-778EFF5EAC80} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
+		{51198C41-CD4A-4006-84D4-DE20A0A44363} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {047855A4-470F-43B1-8B74-69651DD6B8A6}
