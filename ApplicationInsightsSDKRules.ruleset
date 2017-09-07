@@ -449,6 +449,13 @@
     <Rule Id="C6995" Action="Warning" />
     <Rule Id="C6997" Action="Warning" />
   </Rules>
+  <Rules AnalyzerId="PublicApiAnalyzer" RuleNamespace="PublicApiAnalyzer">
+    <Rule Id="RS0016" Action="Error" />
+    <Rule Id="RS0017" Action="Error" />
+    <Rule Id="RS0022" Action="Error" />
+    <Rule Id="RS0024" Action="Error" />
+    <Rule Id="RS0025" Action="Error" />
+  </Rules>
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
     <Rule Id="SA1000" Action="Error" />
     <Rule Id="SA1001" Action="Error" />
@@ -480,7 +487,7 @@
     <Rule Id="SA1027" Action="Error" />
     <Rule Id="SA1028" Action="None" />
     <Rule Id="SA1100" Action="Error" />
-    <Rule Id="SA1101" Action="None" />
+    <Rule Id="SA1101" Action="Error" />
     <Rule Id="SA1102" Action="Error" />
     <Rule Id="SA1103" Action="Error" />
     <Rule Id="SA1104" Action="Error" />
@@ -613,12 +620,5 @@
     <Rule Id="SA1649" Action="Error" />
     <Rule Id="SA1651" Action="Error" />
     <Rule Id="SA1652" Action="Error" />
-  </Rules>
-  <Rules AnalyzerId="PublicApiAnalyzer" RuleNamespace="PublicApiAnalyzer">
-    <Rule Id="RS0016" Action="Error" />
-    <Rule Id="RS0017" Action="Error" />
-    <Rule Id="RS0022" Action="Error" />
-    <Rule Id="RS0024" Action="Error" />
-    <Rule Id="RS0025" Action="Error" />
   </Rules>
 </RuleSet>
