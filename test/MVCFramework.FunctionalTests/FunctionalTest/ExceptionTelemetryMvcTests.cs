@@ -10,7 +10,7 @@ namespace MVCFramework45.FunctionalTests.FunctionalTest
 
     public class ExceptionTelemetryMvcTests : TelemetryTestsBase
     {
-        private const string assemblyName = "MVCFramework45.FunctionalTests";
+        private const string assemblyName = "MVCFramework.FunctionalTests";
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()

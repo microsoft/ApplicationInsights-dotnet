@@ -9,7 +9,7 @@
 
     public class CorrelationMvcTests : TelemetryTestsBase
     {
-        private const string assemblyName = "MVCFramework45.FunctionalTests";
+        private const string assemblyName = "MVCFramework.FunctionalTests";
 
         [Fact]
         public void CorrelationInfoIsPropagatedToDependendedService()

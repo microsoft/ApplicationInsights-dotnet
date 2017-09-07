@@ -17,7 +17,7 @@ namespace MVCFramework45.FunctionalTests.FunctionalTest
 
     public class DependencyTelemetryMvcTests : TelemetryTestsBase
     {
-        private const string assemblyName = "MVCFramework45.FunctionalTests";
+        private const string assemblyName = "MVCFramework.FunctionalTests";
 
         [Fact]
         public void CorrelationInfoIsNotAddedToRequestHeaderIfUserAddDomainToExcludedList()
