@@ -66,7 +66,7 @@
                 output.WriteLine("actual.Timestamp: " + actual.Timestamp);
                 output.WriteLine("actual.Duration: " + actual.Duration);
                 output.WriteLine("timer.Elapsed: " + timer.Elapsed);
-                Assert.True(actual.Duration < timer.Elapsed, "duration");
+                Assert.True(actual.Duration < timer.Elapsed.Add(TimeSpan.FromMilliseconds(20)), "duration");
             }
         }
 
