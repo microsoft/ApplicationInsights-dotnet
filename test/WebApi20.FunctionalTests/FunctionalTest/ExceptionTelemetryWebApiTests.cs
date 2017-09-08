@@ -5,17 +5,26 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Xunit.Abstractions;
 
     public class ExceptionTelemetryWebApiTests : TelemetryTestsBase
     {
         private const string assemblyName = "WebApi20.FunctionalTests";
 
+
+        protected readonly ITestOutputHelper output;
+        
+        public ExceptionTelemetryWebApiTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
+
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()
-        {
+        {            
             using (var server = new InProcessServer(assemblyName))
-            {
-                const string RequestPath = "/api/exception";
+            {                
+                const string RequestPath = "/api/exception";                
 
                 var expectedRequestTelemetry = new RequestTelemetry();
                 expectedRequestTelemetry.Name = "GET Exception/Get";                

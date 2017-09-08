@@ -3,10 +3,18 @@
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
+    using Xunit.Abstractions;
 
     public class RequestTelemetryWebApiTests : TelemetryTestsBase
     {
         private const string assemblyName = "WebApi20.FunctionalTests";
+        protected readonly ITestOutputHelper output;
+
+
+        public RequestTelemetryWebApiTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingValuesController()

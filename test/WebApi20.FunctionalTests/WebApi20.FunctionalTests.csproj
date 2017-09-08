@@ -29,7 +29,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\FunctionalTestUtils\FunctionalTestUtils.csproj" />
+    <ProjectReference Include="..\FunctionalTestUtils20\FunctionalTestUtils20.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.csproj" />
   </ItemGroup>
 
@@ -46,7 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />	
   </ItemGroup>
 
   <ItemGroup>
