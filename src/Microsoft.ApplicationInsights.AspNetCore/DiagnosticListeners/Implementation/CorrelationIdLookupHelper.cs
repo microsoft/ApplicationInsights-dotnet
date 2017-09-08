@@ -199,14 +199,21 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                 WebRequest request = WebRequest.Create(appIdEndpoint);
                 request.Method = "GET";
                 using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync().ConfigureAwait(false))
-                using (StreamReader reader = new StreamReader(response.GetResponseStream()))
                 {
-                    result = await reader.ReadToEndAsync();
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                        {
+                            result = await reader.ReadToEndAsync();
+                        }
+                    }
                 }
 #else
                 using (HttpClient client = new HttpClient())
                 {
-                    result = await client.GetStringAsync(appIdEndpoint).ConfigureAwait(false);
+                    var resultMessage = await client.GetAsync(appIdEndpoint).ConfigureAwait(false);
+                    if (resultMessage.IsSuccessStatusCode)
+                        result = await resultMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 }
 #endif
                 return result;
