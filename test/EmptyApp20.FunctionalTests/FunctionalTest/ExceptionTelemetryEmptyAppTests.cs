@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Xunit;
+using Xunit.Abstractions;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace EmptyApp20.FunctionalTests.FunctionalTest
@@ -11,6 +12,10 @@ namespace EmptyApp20.FunctionalTests.FunctionalTest
     public class ExceptionTelemetryEmptyAppTests : TelemetryTestsBase
     {
         private const string assemblyName = "EmptyApp20.FunctionalTests";
+        public ExceptionTelemetryEmptyAppTests(ITestOutputHelper output) : base (output)
+        {
+        }
+
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingRequestThatThrows()

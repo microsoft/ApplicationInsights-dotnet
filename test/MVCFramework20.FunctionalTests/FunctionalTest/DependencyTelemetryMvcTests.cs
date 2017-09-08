@@ -14,10 +14,14 @@ namespace MVCFramework20.FunctionalTests.FunctionalTest
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.Extensions.DependencyInjection;
+    using Xunit.Abstractions;
 
     public class DependencyTelemetryMvcTests : TelemetryTestsBase
     {
         private const string assemblyName = "MVCFramework20.FunctionalTests";
+        public DependencyTelemetryMvcTests(ITestOutputHelper output) : base(output)
+        {
+        }
 
         [Fact]
         public void CorrelationInfoIsNotAddedToRequestHeaderIfUserAddDomainToExcludedList()

@@ -8,10 +8,14 @@ namespace MVCFramework.FunctionalTests.FunctionalTest
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
+    using Xunit.Abstractions;
 
     public class RequestTelemetryMvcTests : TelemetryTestsBase
     {
         private const string assemblyName = "MVCFramework.FunctionalTests";
+        public RequestTelemetryMvcTests(ITestOutputHelper output) : base(output)
+        {
+        }
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingHomeController()

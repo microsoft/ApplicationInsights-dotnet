@@ -5,9 +5,14 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Xunit.Abstractions;
 
     public class ExceptionTelemetryWebApiTests : TelemetryTestsBase
     {
+        public ExceptionTelemetryWebApiTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
         private const string assemblyName = "WebApi.FunctionalTests";
 
         [Fact]

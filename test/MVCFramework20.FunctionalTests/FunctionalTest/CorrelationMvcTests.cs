@@ -6,10 +6,16 @@
     using System.Linq;
     using System.Net.Http;
     using Xunit;
+    using Xunit.Abstractions;
 
     public class CorrelationMvcTests : TelemetryTestsBase
     {
         private const string assemblyName = "MVCFramework20.FunctionalTests";
+
+        public CorrelationMvcTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
 
         [Fact]
         public void CorrelationInfoIsPropagatedToDependendedService()
