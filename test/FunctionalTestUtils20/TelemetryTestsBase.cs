@@ -13,16 +13,24 @@
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
+    using Xunit.Abstractions;
 #if NET451 || NET461
     using System.Net;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
-    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility;    
 #endif
 
     public abstract class TelemetryTestsBase
     {
         protected const int TestTimeoutMs = 10000;
         private object noParallelism = new object();
+
+        protected readonly ITestOutputHelper output;
+
+        public TelemetryTestsBase(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
 
         [MethodImpl(MethodImplOptions.NoOptimization)]
         public void ValidateBasicRequest(InProcessServer server, string requestPath, RequestTelemetry expected)
@@ -55,6 +63,9 @@
                 Assert.Equal(expected.Success, actual.Success);
                 Assert.Equal(expected.Url, actual.Url);
                 InRange(actual.Timestamp, expected.Timestamp, DateTimeOffset.Now);
+                output.WriteLine("actual.Timestamp: " + actual.Timestamp);
+                output.WriteLine("actual.Duration: " + actual.Duration);
+                output.WriteLine("timer.Elapsed: " + timer.Elapsed);
                 Assert.True(actual.Duration < timer.Elapsed, "duration");
             }
         }

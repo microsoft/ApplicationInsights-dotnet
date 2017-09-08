@@ -8,12 +8,8 @@
     public class RequestTelemetryWebApiTests : TelemetryTestsBase
     {
         private const string assemblyName = "WebApi20.FunctionalTests";
-        protected readonly ITestOutputHelper output;
-
-
-        public RequestTelemetryWebApiTests(ITestOutputHelper output)
+        public RequestTelemetryWebApiTests(ITestOutputHelper output) : base (output)
         {
-            this.output = output;
         }
 
         [Fact]

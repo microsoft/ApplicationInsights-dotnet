@@ -9,11 +9,8 @@ namespace WebApi20.FunctionalTests.FunctionalTest
     public class TelemetryModuleWorkingWebApiTests : TelemetryTestsBase
     {
         private const string assemblyName = "WebApi20.FunctionalTests";
-        protected readonly ITestOutputHelper output;
-
-        public TelemetryModuleWorkingWebApiTests(ITestOutputHelper output)
+        public TelemetryModuleWorkingWebApiTests(ITestOutputHelper output) : base (output)
         {
-            this.output = output;
         }
 
         // The NET451 conditional check is wrapped inside the test to make the tests visible in the test explorer. We can move them to the class level once if the issue is resolved.

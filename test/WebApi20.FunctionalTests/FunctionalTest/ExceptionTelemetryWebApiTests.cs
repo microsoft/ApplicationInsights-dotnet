@@ -11,12 +11,9 @@
     {
         private const string assemblyName = "WebApi20.FunctionalTests";
 
-
-        protected readonly ITestOutputHelper output;
         
-        public ExceptionTelemetryWebApiTests(ITestOutputHelper output)
-        {
-            this.output = output;
+        public ExceptionTelemetryWebApiTests(ITestOutputHelper output) : base (output)
+        {            
         }
 
         [Fact]
