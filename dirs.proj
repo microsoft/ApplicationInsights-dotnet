@@ -3,19 +3,22 @@
     <Import Project="Signing.props"/>
 
     <PropertyGroup>
-        <CliZipFile>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.1.0.4.zip</CliZipFile>
-        <CliToolsPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.1.0.4.latest</CliToolsPath>
+        <CliZipFile>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-sdk-2.0.0-win-x64.zip</CliZipFile>
+        <CliToolsPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-sdk-2.0.0-win-x64.latest</CliToolsPath>
         <!-- Library -->
         <ProjectToBuild>.\src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.csproj</ProjectToBuild>
     </PropertyGroup>
 
     <ItemGroup>
         <!--<Solution Include="src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.xproj" />-->
-        <!-- Tests -->
-        <TestProject Include="test\Microsoft.ApplicationInsights.AspNetCore.Tests\ " />
-        <TestProject Include="test\WebApiShimFw46.FunctionalTests\ " />
+        <!-- Tests -->        
+		<TestProject Include="test\Microsoft.ApplicationInsights.AspNetCore.Tests\ " />
+        <TestProject Include="test\WebApi.FunctionalTests\ " />
+		<TestProject Include="test\WebApi20.FunctionalTests\ " />
         <TestProject Include="test\EmptyApp.FunctionalTests\ " />
-        <TestProject Include="test\MVCFramework45.FunctionalTests\ " />
+		<TestProject Include="test\EmptyApp20.FunctionalTests\ " />
+        <TestProject Include="test\MVCFramework.FunctionalTests\ " />				
+		<TestProject Include="test\MVCFramework20.FunctionalTests\ " />
     </ItemGroup>
 
     <UsingTask TaskName="DownloadFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
@@ -160,7 +163,8 @@
     </Target>
 
     <Target Name="DownloadCLI">
-        <DownloadFile Address="https://download.microsoft.com/download/E/7/8/E782433E-7737-4E6C-BFBF-290A0A81C3D7/dotnet-dev-win-x64.1.0.4.zip" FileName="$(CliZipFile)" />
+        <!--<DownloadFile Address="https://download.microsoft.com/download/E/7/8/E782433E-7737-4E6C-BFBF-290A0A81C3D7/dotnet-sdk-2.0.0-win-x64.zip" FileName="$(CliZipFile)" />-->
+		<DownloadFile Address="https://download.microsoft.com/download/1/B/4/1B4DE605-8378-47A5-B01B-2C79D6C55519/dotnet-sdk-2.0.0-win-x64.zip" FileName="$(CliZipFile)" />		
         <ExtractZipArchive InputFiles="$(CliZipFile)" OutputPath="$(CliToolsPath)" ArchiveFileNameAsRootFolder="false" Overwrite="true" />
     </Target>
 
@@ -177,14 +181,14 @@
 	
 	<Target Name="Test" AfterTargets="Build" DependsOnTargets="Build">
 		<Message Condition="$(RunTests) != '' And $(RunTests)" Importance="high" Text="Running tests..."></Message>
-        <Exec Condition="$(RunTests) != '' And $(RunTests)" Command='"$(CliToolsPath)\dotnet.exe" test' WorkingDirectory='%(TestProject.Identity)' ContinueOnError="ErrorAndStop" />
+        <Exec Condition="$(RunTests) != '' And $(RunTests)" Command='"$(CliToolsPath)\dotnet.exe" test -l trx' WorkingDirectory='%(TestProject.Identity)' ContinueOnError="ErrorAndContinue" />
 	</Target>
 
     <Target Name="Clean">
         <RemoveDir Directories="$(BinRoot)\$(Configuration)" />
         <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
-        <RemoveDir Directories="$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.1.0.4.latest" />
-        <Delete Files="$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.1.0.4.zip" />
+        <RemoveDir Directories="$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-sdk-2.0.0-win-x64.latest" />
+        <Delete Files="$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-sdk-2.0.0-win-x64.zip" />
     </Target>
 
     <Target Name="AfterBuild" AfterTargets="Test" DependsOnTargets="Test">

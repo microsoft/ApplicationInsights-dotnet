@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <VersionPrefix>1.0.2</VersionPrefix>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <DelaySign>true</DelaySign>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <AssemblyName>FunctionalTestUtils20</AssemblyName>
+    <AssemblyOriginatorKeyFile>../../keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <PackageId>FunctionalTestUtils</PackageId>
+    <NetStandardImplicitPackageVersion>2.0.0</NetStandardImplicitPackageVersion>
+	<OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\test\$(MSBuildProjectName)</OutputPath>	
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+   
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />		
+	<PackageReference Include="NETStandard.Library" Version="2.0.0" />			
+    <PackageReference Include="xunit" Version="2.2.0" />
+	<PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />			
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+</Project>
