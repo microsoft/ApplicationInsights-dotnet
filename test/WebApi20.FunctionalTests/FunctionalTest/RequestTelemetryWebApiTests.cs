@@ -1,4 +1,4 @@
-﻿namespace WebApiShimFw46.FunctionalTests.FunctionalTest
+﻿namespace WebApi20.FunctionalTests.FunctionalTest
 {
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -6,7 +6,7 @@
 
     public class RequestTelemetryWebApiTests : TelemetryTestsBase
     {
-        private const string assemblyName = "WebApiShimFw46.FunctionalTests";
+        private const string assemblyName = "WebApi20.FunctionalTests";
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingValuesController()

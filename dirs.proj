@@ -13,7 +13,8 @@
         <!--<Solution Include="src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.xproj" />-->
         <!-- Tests -->        
 		<TestProject Include="test\Microsoft.ApplicationInsights.AspNetCore.Tests\ " />
-        <TestProject Include="test\WebApiShimFw46.FunctionalTests\ " />
+        <TestProject Include="test\WebApi.FunctionalTests\ " />
+		<TestProject Include="test\WebApi20.FunctionalTests\ " />
         <TestProject Include="test\EmptyApp.FunctionalTests\ " />
 		<TestProject Include="test\EmptyApp20.FunctionalTests\ " />
         <TestProject Include="test\MVCFramework.FunctionalTests\ " />				

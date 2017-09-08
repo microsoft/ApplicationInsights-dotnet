@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace MVCFramework45.FunctionalTests.FunctionalTest
+namespace MVCFramework.FunctionalTests.FunctionalTest
 {
     using System;
     using System.Collections.Generic;

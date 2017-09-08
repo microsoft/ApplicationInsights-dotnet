@@ -1,4 +1,4 @@
-﻿namespace WebApiShimFw46.FunctionalTests.FunctionalTest
+﻿namespace WebApi.FunctionalTests.FunctionalTest
 {
     using System;
     using FunctionalTestUtils;
@@ -8,7 +8,7 @@
 
     public class ExceptionTelemetryWebApiTests : TelemetryTestsBase
     {
-        private const string assemblyName = "WebApiShimFw46.FunctionalTests";
+        private const string assemblyName = "WebApi.FunctionalTests";
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()

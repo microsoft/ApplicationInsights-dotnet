@@ -1,4 +1,4 @@
-﻿namespace MVCFramework45.FunctionalTests.FunctionalTest
+﻿namespace MVCFramework.FunctionalTests.FunctionalTest
 {
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;

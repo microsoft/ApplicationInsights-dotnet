@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace MVCFramework45.FunctionalTests.FunctionalTest
+namespace MVCFramework.FunctionalTests.FunctionalTest
 {
     using System.Linq;
     using System.Net.Http;
