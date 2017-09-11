@@ -76,7 +76,7 @@
         <NugetVersionFilePath>$(MSBuildThisFileDirectory).nugetVersion</NugetVersionFilePath>
         <BuildNugetVersion Condition="Exists($(NugetVersionFilePath))">$([System.IO.File]::ReadAllText($(NugetVersionFilePath)))</BuildNugetVersion>
 
-        <CoreSdkVersion>2.5.0-beta1-build13120</CoreSdkVersion>
+        <CoreSdkVersion>2.5.0-beta1-build19420</CoreSdkVersion>
 
         <!-- Forces EventRegister target to generate ETW manifest file --> 
         <EtwManifestForceAll>true</EtwManifestForceAll>

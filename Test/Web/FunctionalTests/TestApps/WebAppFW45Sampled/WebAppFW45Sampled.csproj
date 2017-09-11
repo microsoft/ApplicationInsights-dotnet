@@ -53,11 +53,11 @@
   <ItemGroup>
     <Reference Include="Microsoft.AI.ServerTelemetryChannel">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.5.0-beta1-build13120\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.5.0-beta1-build19420\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.ApplicationInsights">
-      <HintPath>..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.2.5.0-beta1-build13120\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.2.5.0-beta1-build19420\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.AspNet.TelemetryCorrelation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
