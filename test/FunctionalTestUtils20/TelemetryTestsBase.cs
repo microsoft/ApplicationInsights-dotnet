@@ -11,6 +11,7 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
     using Xunit.Abstractions;
@@ -55,6 +56,8 @@
                 timer.Stop();
                 server.Dispose();
 
+                PrintBufferInfo(server.BackChannel.Buffer); 
+
                 RequestTelemetry actual = server.BackChannel.Buffer.OfType<RequestTelemetry>().Where(t => t.Name == expected.Name).Single();
                 server.BackChannel.Buffer.Clear();
 
@@ -83,6 +86,7 @@
             }
             var result = task.Result;
             server.Dispose();
+            PrintBufferInfo(server.BackChannel.Buffer);
             var actual = server.BackChannel.Buffer.OfType<ExceptionTelemetry>().Single();
 
             Assert.Equal(expected.Exception.GetType(), actual.Exception.GetType());
@@ -114,6 +118,7 @@
                 timer.Stop();
             }
 
+            PrintBufferInfo(server.BackChannel.Buffer);
             IEnumerable<DependencyTelemetry> dependencies = server.BackChannel.Buffer.OfType<DependencyTelemetry>();
             Assert.NotNull(dependencies);
             Assert.NotEmpty(dependencies);
@@ -165,6 +170,15 @@
         {
             string dateFormat = "yyyy-MM-dd HH:mm:ss.ffffzzz";
             Assert.True(low <= actual && actual <= high, $"Range: ({low.ToString(dateFormat)} - {high.ToString(dateFormat)})\nActual: {actual.ToString(dateFormat)}");
+        }
+
+        private void PrintBufferInfo(IList<ITelemetry> buffer)
+        {
+            output.WriteLine(string.Format("Backchannel buffer item count: {0} ", buffer.Count));
+            foreach (var bufferItem in buffer)
+            {
+                output.WriteLine(string.Format("Backchannel item: {0}", bufferItem.GetType()));
+            }
         }
     }
 }
