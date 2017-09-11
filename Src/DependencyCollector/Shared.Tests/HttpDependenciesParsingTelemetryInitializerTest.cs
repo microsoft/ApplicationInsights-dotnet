@@ -1,10 +1,11 @@
-﻿namespace Microsoft.ApplicationInsights.DependencyCollector
+﻿namespace Microsoft.ApplicationInsights.Tests
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     using System;
     using System.Collections.Generic;
     using DataContracts;
-    using Implementation;
+    using Microsoft.ApplicationInsights.DependencyCollector;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>

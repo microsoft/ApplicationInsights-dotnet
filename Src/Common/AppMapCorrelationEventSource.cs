@@ -64,7 +64,7 @@
             Level = EventLevel.Warning)]
         public void GetComponentRoleNameHeaderFailed(string exception, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(3, exception, this.ApplicationName);
+            this.WriteEvent(4, exception, this.ApplicationName);
         }
 
         [Event(
@@ -74,7 +74,7 @@
             Level = EventLevel.Warning)]
         public void UnknownError(string exception, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(4, exception, this.ApplicationName);
+            this.WriteEvent(5, exception, this.ApplicationName);
         }
 
         [NonEvent]

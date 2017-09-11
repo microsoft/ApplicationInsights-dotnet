@@ -70,7 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Net40\DependencyCollector.Net40.csproj">
-      <Project>{aa823e8e-2eb1-4e82-8d62-a6528e204a0e}</Project>
+      <Project>{aa823e8e-2eb1-4e82-8d62-A6528E204A0E}</Project>
       <Name>DependencyCollector.Net40</Name>
     </ProjectReference>
     <ProjectReference Include="..\Net45\DependencyCollector.Net45.csproj">

@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.4.1
+- [Hotfix to address the issue where DependencyCollection breaks Azure Storage Emulator calls](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/640)
+
 ## Version 2.4.0
 - Updated version of DiagnosticSource to 4.4.0
 

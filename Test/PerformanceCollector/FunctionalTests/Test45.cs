@@ -7,6 +7,7 @@
     using Functional.IisExpress;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using PerfCounterCollector.FunctionalTests;
+    using System;
 
     [TestClass]
     public class Test45 : SingleWebHostTestBase
@@ -40,7 +41,18 @@
                     IKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8",
                 });
 
-            base.LaunchAndVerifyApplication();
+            try
+            {
+                base.LaunchAndVerifyApplication();
+            }
+            catch(Exception ex)
+            {
+                Trace.WriteLine("Exception occured while verifying application, exception:" + ex.Message);                
+                this.StopWebAppHost();
+                
+                // Throwing to prevent tests from continuing to execute.
+                throw ex;
+            }
         }
 
         [TestCleanup]
