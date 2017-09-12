@@ -97,48 +97,142 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
         }
 
+        /// <summary>
+        /// Provides the observer with new data.
+        /// <seealso cref="IObserver{T}.OnNext(T)"/>
+        /// </summary>
+        /// <param name="evnt">The current notification information.</param>
         public void OnNext(KeyValuePair<string, object> evnt)
         {
-            switch (evnt.Key)
+            const string ErrorTemplateTypeCast = "Event {0}: cannot cast {1} to expected type {2}";
+            const string ErrorTemplateValueParse = "Event {0}: cannot parse '{1}' as type {2}";
+
+            try
             {
-                case HttpOutStartEventName:
+                switch (evnt.Key)
                 {
-                    this.OnActivityStart((HttpRequestMessage)this.startRequestFetcher.Fetch(evnt.Value));
-                    break;
-                }
+                    case HttpOutStartEventName:
+                        {
+                            var request = this.startRequestFetcher.Fetch(evnt.Value) as HttpRequestMessage;
 
-                case HttpOutStopEventName:
-                {
-                    this.OnActivityStop(
-                        (HttpResponseMessage)this.stopResponseFetcher.Fetch(evnt.Value),
-                        (HttpRequestMessage)this.stopRequestFetcher.Fetch(evnt.Value),
-                        (TaskStatus)this.stopRequestStatusFetcher.Fetch(evnt.Value));
-                    break;
-                }
+                            if (request == null)
+                            {
+                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "request", "HttpRequestMessage");
+                                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
+                            }
+                            else
+                            {
+                                this.OnActivityStart(request);
+                            }
 
-                case HttpExceptionEventName:
-                {
-                    this.OnException(
-                        (Exception)this.exceptionFetcher.Fetch(evnt.Value),
-                        (HttpRequestMessage)this.exceptionRequestFetcher.Fetch(evnt.Value));
-                    break;
-                }
+                            break;
+                        }
 
-                case DeprecatedRequestEventName:
-                {
-                    this.OnRequest(
-                        (HttpRequestMessage)this.deprecatedRequestFetcher.Fetch(evnt.Value),
-                        (Guid)this.deprecatedRequestGuidFetcher.Fetch(evnt.Value));
-                    break;
-                }
+                    case HttpOutStopEventName:
+                        {
+                            var response = this.stopResponseFetcher.Fetch(evnt.Value) as HttpResponseMessage;
+                            var request = this.stopRequestFetcher.Fetch(evnt.Value) as HttpRequestMessage;
+                            var requestTaskStatusString = this.stopRequestStatusFetcher.Fetch(evnt.Value).ToString();
+                            TaskStatus requestTaskStatus;
 
-                case DeprecatedResponseEventName:
-                {
-                    this.OnResponse(
-                        (HttpResponseMessage)this.deprecatedResponseFetcher.Fetch(evnt.Value),
-                        (Guid)this.deprecatedResponseGuidFetcher.Fetch(evnt.Value));
-                    break;
+                            if (response == null)
+                            {
+                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "response", "HttpResponseMessage");
+                                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
+                            }
+                            else if (request == null)
+                            {
+                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "request", "HttpRequestMessage");
+                                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
+                            }
+                            else if (!Enum.TryParse(requestTaskStatusString, out requestTaskStatus))
+                            {
+                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateValueParse, evnt.Key, requestTaskStatusString, "TaskStatus");
+                                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
+                            }
+                            else
+                            {
+                                this.OnActivityStop(response, request, requestTaskStatus);
+                            }
+
+                            break;
+                        }
+
+                    case HttpExceptionEventName:
+                        {
+                            var exception = this.exceptionFetcher.Fetch(evnt.Value) as Exception;
+                            var request = this.exceptionRequestFetcher.Fetch(evnt.Value) as HttpRequestMessage;
+
+                            if (exception == null)
+                            {
+                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "exception", "Exception");
+                                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
+                            }
+                            else if (request == null)
+                            {
+                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "request", "HttpRequestMessage");
+                                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
+                            }
+                            else
+                            {
+                                this.OnException(exception, request);
+                            }
+
+                            break;
+                        }
+
+                    case DeprecatedRequestEventName:
+                        {
+                            var request = this.deprecatedRequestFetcher.Fetch(evnt.Value) as HttpRequestMessage;
+                            var loggingRequestIdString = this.deprecatedRequestGuidFetcher.Fetch(evnt.Value).ToString();
+                            Guid loggingRequestId;
+
+                            if (request == null)
+                            {
+                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "request", "HttpRequestMessage");
+                                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
+                            }
+                            else if (!Guid.TryParse(loggingRequestIdString, out loggingRequestId))
+                            {
+                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateValueParse, evnt.Key, loggingRequestIdString, "Guid");
+                                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
+                            }
+                            else
+                            {
+                                this.OnRequest(request, loggingRequestId);
+                            }
+
+                            break;
+                        }
+
+                    case DeprecatedResponseEventName:
+                        {
+                            var response = this.deprecatedResponseFetcher.Fetch(evnt.Value) as HttpResponseMessage;
+                            var loggingRequestIdString = this.deprecatedResponseGuidFetcher.Fetch(evnt.Value).ToString();
+                            Guid loggingRequestId;
+
+                            if (response == null)
+                            {
+                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "response", "HttpResponseMessage");
+                                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
+                            }
+                            else if (!Guid.TryParse(loggingRequestIdString, out loggingRequestId))
+                            {
+                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateValueParse, evnt.Key, loggingRequestIdString, "Guid");
+                                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
+                            }
+                            else
+                            {
+                                this.OnResponse(response, loggingRequestId);
+                            }
+
+                            break;
+                        }
                 }
+            }
+            catch (Exception ex)
+            {
+                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(ExceptionUtilities.GetExceptionDetailString(ex));
             }
         }
 
@@ -296,7 +390,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         /// <summary>
         /// Diagnostic event handler method for 'System.Net.Http.Response' event.
-        /// This event will be fired only if response was received (and not called for faulted or cancelled requests).
+        /// This event will be fired only if response was received (and not called for faulted or canceled requests).
         /// </summary>
         internal void OnResponse(HttpResponseMessage response, Guid loggingRequestId)
         {

@@ -386,6 +386,16 @@
         {
             this.WriteEvent(36, error ?? string.Empty, this.ApplicationName);
         }
+        
+        [Event(
+            37,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "HttpCoreDiagnosticSourceListener OnNext failed to call event handler. Error details '{0}'",
+            Level = EventLevel.Error)]
+        public void HttpCoreDiagnosticSourceListenerOnNextFailed(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(37, error, this.ApplicationName);
+        }
 
         [NonEvent]
         private string GetApplicationName()
