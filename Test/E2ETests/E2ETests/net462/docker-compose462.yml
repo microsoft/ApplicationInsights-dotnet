@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+    e2etestwebapi:
+        build:
+            context: ./../TestApps/Net452/E2ETestWebApi/Publish
+            dockerfile: DockerFile462
+       
+    e2etestwebapp:
+        build: 
+            context: ./../TestApps/Net452/E2ETestApp/Publish
+            dockerfile: DockerFile46
+        depends_on:
+            - e2etestwebapi
+            - sql-server
+    sql-server:
+        image: microsoft/mssql-server-windows-express
+        environment:
+            SA_PASSWORD: MSDNm4g4z!n3
+            ACCEPT_EULA: "Y"

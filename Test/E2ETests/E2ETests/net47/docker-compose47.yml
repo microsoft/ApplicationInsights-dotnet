@@ -2,10 +2,14 @@ version: '3'
 
 services:
     e2etestwebapi:
-        build: ./../TestApps/Net452/E2ETestWebApi/Publish
+        build:
+            context: ./../../TestApps/Net452/E2ETestWebApi/Publish
+            dockerfile: DockerFile47
        
     e2etestwebapp:
-        build: ./../TestApps/Net452/E2ETestApp/Publish
+        build: 
+            context: ./../../TestApps/Net452/E2ETestApp/Publish
+            dockerfile: DockerFile47
         depends_on:
             - e2etestwebapi
             - sql-server
