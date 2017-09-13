@@ -229,7 +229,7 @@
     <Content Include="DockerFile47">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="Properties\PublishProfiles\Publish.pubxml" />
+    <None Include="Properties\PublishProfiles\PublishForDocker.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
