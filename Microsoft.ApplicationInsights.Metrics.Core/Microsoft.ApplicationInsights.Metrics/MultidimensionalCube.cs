@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -155,6 +157,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         private const int DimensionsCountLimit = 50;
 
+        private const string ExceptionThrownByPointsFactoryKey = "Microsoft.ApplicationInsights.Metrics.MultidimensionalCube.ExceptionThrownByPointsFactory";
+
         private readonly int[] _dimensionValuesCountLimits;
         private readonly MultidimensionalCubeDimension<TDimensionValue, TPoint> _points;
         private readonly Func<TDimensionValue[], TPoint> _pointsFactory;
@@ -254,11 +258,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        internal Func<TDimensionValue[], TPoint> PointsFactory { get { return _pointsFactory; } }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="dimension"></param>
         /// <returns></returns>
         public int GetDimensionValuesCountLimit(int dimension)
@@ -281,7 +280,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// 
         /// </summary>
         /// <param name="pointContainer"></param>
-        public void GetAllPoints(IList<KeyValuePair<TDimensionValue[], TPoint>> pointContainer)
+        public void GetAllPoints(ICollection<KeyValuePair<TDimensionValue[], TPoint>> pointContainer)
         {
             var vectors = new List<KeyValuePair<TDimensionValue[], TPoint>>();
 
@@ -294,6 +293,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 {
                     v.Key[lastI - i] = rv.Key[i];
                 }
+
+                pointContainer.Add(v);
             }
         }
 
@@ -327,30 +328,42 @@ namespace Microsoft.ApplicationInsights.Metrics
         public Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(params TDimensionValue[] coordinates)
         {
             return TryGetOrCreatePointAsync(
+                        sleepDuration: TimeSpan.FromMilliseconds(2),
                         timeout:        TimeSpan.FromMilliseconds(11),
                         cancelToken:    CancellationToken.None,
-                        sleepDuration:  TimeSpan.FromMilliseconds(2),
                         coordinates:    coordinates);
         }
 
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="sleepDuration"></param>
         /// <param name="timeout"></param>
         /// <param name="cancelToken"></param>
-        /// <param name="sleepDuration"></param>
         /// <param name="coordinates"></param>
         /// <returns></returns>
         public async Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(
+                                TimeSpan sleepDuration,
                                 TimeSpan timeout,
                                 CancellationToken cancelToken,
-                                TimeSpan sleepDuration,
                                 params TDimensionValue[] coordinates)
         {
-            MultidimensionalPointResult<TPoint> result = this.TryGetOrCreatePoint(coordinates);
-            if (result.IsSuccess)
+            MultidimensionalPointResult<TPoint> result;
+
+            try
             {
-                return result;
+                result = this.TryGetOrCreatePoint(coordinates);
+                if (result.IsSuccess)
+                {
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (! IsThrownByPointsFactoryKey(ex))
+                {
+                    ExceptionDispatchInfo.Capture(ex).Throw();
+                }
             }
 
             bool infiniteTimeout = (timeout == Timeout.InfiniteTimeSpan);
@@ -388,28 +401,60 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 cancelToken.ThrowIfCancellationRequested();
 
-                result = this.TryGetOrCreatePoint(coordinates);
-                if (result.IsSuccess)
+                int delayMillis;
+                try
                 {
-                    return result;
-                }
+                    result = this.TryGetOrCreatePoint(coordinates);
+                    if (result.IsSuccess)
+                    {
+                        return result;
+                    }
 
-                int currentMillis = Environment.TickCount;
-
-                int delayMillis = infiniteTimeout
+                    delayMillis = infiniteTimeout
                                         ? sleepMillis
-                                        : Math.Min(stopMillis - currentMillis, sleepMillis);
+                                        : Math.Min(stopMillis - Environment.TickCount, sleepMillis);
 
-                if (delayMillis < 0)
+                    if (delayMillis < 0)
+                    {
+                        result.SetAsyncTimeoutReachedFailure();
+                        return result;
+                    }
+                }
+                catch (Exception ex)
                 {
-                    result.SetAsyncTimeoutReachedFailure();
-                    return result;
+                    if (! IsThrownByPointsFactoryKey(ex))
+                    {
+                        ExceptionDispatchInfo.Capture(ex).Throw();
+                    }
+
+                    delayMillis = infiniteTimeout
+                                        ? sleepMillis
+                                        : Math.Min(stopMillis - Environment.TickCount, sleepMillis);
+                    if (delayMillis < 0)
+                    {
+                        ExceptionDispatchInfo.Capture(ex).Throw();
+                    }
                 }
 
                 await Task.Delay(delayMillis, cancelToken);
             }
         }
-        
+
+        internal TPoint InvokePointsFactory(TDimensionValue[] coordinates)
+        {
+            try
+            {
+                TPoint point = _pointsFactory(coordinates);
+                return point;
+            }
+            catch (Exception ex)
+            {
+                ex.Data[ExceptionThrownByPointsFactoryKey] = Boolean.TrueString;
+                ExceptionDispatchInfo.Capture(ex).Throw();
+                return default(TPoint); // never reached
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -431,6 +476,23 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             int newTotalPointsCount = Interlocked.Decrement(ref _totalPointsCount);
             return newTotalPointsCount;
+        }
+
+        private bool IsThrownByPointsFactoryKey(Exception exception)
+        {
+            IDictionary exceptionData = exception?.Data;
+            if (exceptionData == null)
+            {
+                return false;
+            }
+
+            object marker = exceptionData[ExceptionThrownByPointsFactoryKey];
+            if (marker == null)
+            {
+                return false;
+            }
+
+            return Boolean.TrueString.Equals(marker);
         }
     }
 }

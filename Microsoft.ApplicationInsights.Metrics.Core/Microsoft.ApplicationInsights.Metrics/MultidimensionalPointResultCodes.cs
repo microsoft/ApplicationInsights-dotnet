@@ -15,12 +15,12 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        Success_NewPointCreated = 0,
+        Success_NewPointCreated = 1,
 
         /// <summary>
         /// 
         /// </summary>
-        Success_ExistingPointRetrieved = 1,
+        Success_ExistingPointRetrieved = 2,
 
         /// <summary>
         /// 

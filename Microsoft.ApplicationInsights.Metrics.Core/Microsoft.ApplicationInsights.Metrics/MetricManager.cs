@@ -4,6 +4,7 @@ using System.Threading;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
+using System.Threading.Tasks;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -38,7 +39,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         ~MetricManager()
         {
-            var fireAndForget = this.StopAsync();
+            Task fireAndForget = this.StopAsync();
         }
 
         internal MetricAggregationManager AggregationManager { get { return _aggregationManager; } }

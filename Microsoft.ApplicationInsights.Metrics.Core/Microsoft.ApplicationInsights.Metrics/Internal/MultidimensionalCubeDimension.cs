@@ -147,13 +147,13 @@ namespace Microsoft.ApplicationInsights.Metrics
                 // count limit using the same pattern as the dimension values limit:
                 if (! _ownerCube.TryIncTotalPointsCount())
                 {
-                    return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, currentDim);
+                    return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, failureCoordinateIndex: -1);
                 }
 
                 bool mustRestoreTotalPointsCount = true;
                 try
                 {
-                    TPoint newPoint = _ownerCube.PointsFactory(coordinates);
+                    TPoint newPoint = _ownerCube.InvokePointsFactory(coordinates);
 
                     TDimensionValue subElementKey = coordinates[currentDim];
                     bool couldInsert = _elements.TryAdd(subElementKey, newPoint);
@@ -208,16 +208,17 @@ namespace Microsoft.ApplicationInsights.Metrics
                 // (We will do a hard check and pre-booking later when we actually about to create the point.)
                 if (_ownerCube.TotalPointsCount >= _ownerCube.TotalPointsCountLimit)
                 {
-                    return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, currentDim);
+                    return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, failureCoordinateIndex: -1);
                 }
 
                 // We are not at the last level. Create the subdimension. Note, we are not under lock, so someone might be creating the same dimention concurrently:
-                bool isLastDimensionLevel = (currentDim == coordinates.Length - 1);
+                int nextDim = currentDim + 1;
+                bool isLastDimensionLevel = (nextDim == coordinates.Length - 1);
                 var newSubDim = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(
                                                                                            _ownerCube, 
-                                                                                           _ownerCube.GetDimensionValuesCountLimit(currentDim + 1),
+                                                                                           _ownerCube.GetDimensionValuesCountLimit(nextDim),
                                                                                            isLastDimensionLevel);
-                MultidimensionalPointResult<TPoint> newSubDimResult = newSubDim.TryGetOrAddVectorInternal(coordinates, currentDim + 1, createIfNotExists: true);
+                MultidimensionalPointResult<TPoint> newSubDimResult = newSubDim.TryGetOrAddVectorInternal(coordinates, nextDim, createIfNotExists: true);
 
                 // Becasue we have not yet inserted newSubDim into _elements, any operations on newSubDim are not under concurrency.
                 // There are no point-vectors yet pointing to the sub-space of newSubDim, so no DimensionValuesCountLimit can be reached.
