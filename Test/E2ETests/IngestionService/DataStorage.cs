@@ -44,6 +44,12 @@
                         idx,
                         dateStamp,
                         instrumentationKey);
+
+                    if(!Directory.Exists(mapper.GetDataPath()))
+                    {
+                        Directory.CreateDirectory(mapper.GetDataPath());
+                    }
+
                     var target = Path.Combine(mapper.GetDataPath(), filename);
 
                     using (var writer = File.CreateText(target))

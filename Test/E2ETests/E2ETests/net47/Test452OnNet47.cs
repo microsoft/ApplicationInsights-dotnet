@@ -45,8 +45,8 @@ namespace E2ETests.Net47
             Trace.WriteLine(output);
             process.WaitForExit();
 
-            aiClientForWebApp = new AppInsightsRestClient("0d6d8edc-754f-46d9-9ca3-4d5c7ae8346d", "feftgddgxfvxmrhxi1etwjjo1z2k01lc1qgi3p8s");
-            aiClientForWebApi = new AppInsightsRestClient("d376981c-e63a-4701-ac97-3773ad9d67a6", "ed41a1npbikkpawi82yeztynnzzgsjn3kgbecx21");
+            aiClientForWebApp = new AppInsightsRestClient("0d6d8edc-754f-46d9-9ca3-4d5c7ae8346d", "pkhqoml2e3g0z6sfd5dzgcrvphkdo8bwrjahwa2o");
+            aiClientForWebApi = new AppInsightsRestClient("d376981c-e63a-4701-ac97-3773ad9d67a6", "f15yn2tff703j52geego3kx4mgvulmqin58e6mb4");
         }
 
         [TestMethod]        

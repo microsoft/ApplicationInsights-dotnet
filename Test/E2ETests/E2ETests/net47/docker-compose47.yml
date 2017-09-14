@@ -5,7 +5,9 @@ services:
         build:
             context: ./../../TestApps/Net452/E2ETestWebApi/Publish
             dockerfile: DockerFile47
-       
+        depends_on:
+            - ingestionservice
+            
     e2etestwebapp:
         build: 
             context: ./../../TestApps/Net452/E2ETestApp/Publish
@@ -13,6 +15,12 @@ services:
         depends_on:
             - e2etestwebapi
             - sql-server
+
+    ingestionservice:
+        build:
+            context: ./../../IngestionService/Publish
+            dockerfile: DockerFile            
+
     sql-server:
         image: microsoft/mssql-server-windows-express
         environment:
