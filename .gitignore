@@ -167,3 +167,4 @@ $RECYCLE.BIN/
 
 .PreReleaseVersion
 .nugetVersion
+/Test/E2ETests/IngestionService/App_Data
