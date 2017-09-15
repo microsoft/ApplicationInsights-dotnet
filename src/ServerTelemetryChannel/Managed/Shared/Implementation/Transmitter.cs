@@ -166,7 +166,7 @@
 
             TelemetryChannelEventSource.Log.TransmitterBufferSkipped(transmission.Id);
             TelemetryChannelEventSource.Log.LastBackendResponseWhenPutToStorage(this.BackoffLogicManager.LastStatusCode, this.BackoffLogicManager.CurrentDelay.TotalSeconds);
-            
+
             if (!this.Storage.Enqueue(transmissionGetter))
             {
                 TelemetryChannelEventSource.Log.TransmitterStorageSkipped(transmission.Id);

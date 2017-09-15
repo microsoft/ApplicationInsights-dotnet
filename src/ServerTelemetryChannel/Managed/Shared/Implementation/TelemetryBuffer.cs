@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -35,14 +34,20 @@
                 throw new ArgumentNullException("serializer");
             }
 
+#if !NETSTANDARD1_3
+            // We don't have implementation for IApplicationLifecycle for .NET Core
             if (applicationLifecycle == null)
             {
                 throw new ArgumentNullException("applicationLifecycle");
             }
+#endif
+
+            if (applicationLifecycle != null)
+            {
+                applicationLifecycle.Stopping += this.HandleApplicationStoppingEvent;
+            }
 
             this.serializer = serializer;
-
-            applicationLifecycle.Stopping += this.HandleApplicationStoppingEvent;
         }
 
         protected TelemetryBuffer()

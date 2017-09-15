@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.8
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microsoft.ApplicationInsights.Tests", "Microsoft.ApplicationInsights.Tests", "{C2FEEDE5-8CAE-41A4-8932-42D284A86EA7}"
 EndProject
@@ -68,9 +68,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel", "src\Ser
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.netcoreapp11.Tests", "Test\Microsoft.ApplicationInsights.Test\netcoreapp11\Microsoft.ApplicationInsights.netcoreapp11.Tests.csproj", "{178F87BF-CCCA-48DE-B171-4482E8CBD060}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.netcoreapp11.Tests", "Test\ServerTelemetryChannel.Test\netcoreapp11\TelemetryChannel.netcoreapp11.Tests.csproj", "{0301F8A0-6BA2-45DE-9E52-DA10B5593221}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "net40-net45.Shared.Tests", "Test\ServerTelemetryChannel.Test\net40-net45.Shared.Tests\net40-net45.Shared.Tests.shproj", "{C5A3F18D-1426-4941-9D81-D21062A2B8F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.NetCore.Tests", "Test\ServerTelemetryChannel.Test\NetCore.Tests\TelemetryChannel.NetCore.Tests.csproj", "{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -83,7 +81,6 @@ Global
 		Test\ServerTelemetryChannel.Test\Shared.Tests\Shared.Tests.projitems*{a7ccc704-cca9-492a-bb8a-3de5ee9aeac8}*SharedItemsImports = 4
 		Test\TestFramework\Shared\TestFramework.Shared.projitems*{a7ccc704-cca9-492a-bb8a-3de5ee9aeac8}*SharedItemsImports = 4
 		Test\Microsoft.ApplicationInsights.Test\Shared\Microsoft.ApplicationInsights.Shared.Tests.projitems*{c4a0db5b-0988-4e04-b9b8-bcf3b0842000}*SharedItemsImports = 13
-		Test\ServerTelemetryChannel.Test\net40-net45.Shared.Tests\net40-net45.Shared.Tests.projitems*{c5a3f18d-1426-4941-9d81-d21062a2b8f2}*SharedItemsImports = 13
 		Test\ServerTelemetryChannel.Test\Shared.Tests\Shared.Tests.projitems*{c5a3f18f-1426-4941-9d81-d21062a2b8f2}*SharedItemsImports = 13
 		Test\ServerTelemetryChannel.Test\Shared.Tests\Shared.Tests.projitems*{dd9659be-7c0f-4298-82b2-5e957f95977a}*SharedItemsImports = 4
 		Test\TestFramework\Shared\TestFramework.Shared.projitems*{dd9659be-7c0f-4298-82b2-5e957f95977a}*SharedItemsImports = 4
@@ -358,26 +355,26 @@ Global
 		{178F87BF-CCCA-48DE-B171-4482E8CBD060}.Release|x64.Build.0 = Release|Any CPU
 		{178F87BF-CCCA-48DE-B171-4482E8CBD060}.Release|x86.ActiveCfg = Release|Any CPU
 		{178F87BF-CCCA-48DE-B171-4482E8CBD060}.Release|x86.Build.0 = Release|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Debug|ARM.Build.0 = Debug|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Debug|x64.Build.0 = Debug|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Debug|x86.Build.0 = Debug|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Release|ARM.ActiveCfg = Release|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Release|ARM.Build.0 = Release|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Release|x64.ActiveCfg = Release|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Release|x64.Build.0 = Release|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Release|x86.ActiveCfg = Release|Any CPU
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221}.Release|x86.Build.0 = Release|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Debug|ARM.Build.0 = Debug|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Debug|x64.Build.0 = Debug|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Debug|x86.Build.0 = Debug|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Release|ARM.ActiveCfg = Release|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Release|ARM.Build.0 = Release|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Release|x64.ActiveCfg = Release|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Release|x64.Build.0 = Release|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Release|x86.ActiveCfg = Release|Any CPU
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -399,8 +396,7 @@ Global
 		{2759BC71-7F47-44DA-8579-AE2D8C8C684D} = {C2FEEDE5-8CAE-41A4-8932-42D284A86EA7}
 		{3273D899-D9B3-44FE-B3AB-578E18B2EF90} = {E7B0521E-DA4D-40EA-B55D-ADCBDA69027C}
 		{178F87BF-CCCA-48DE-B171-4482E8CBD060} = {C2FEEDE5-8CAE-41A4-8932-42D284A86EA7}
-		{0301F8A0-6BA2-45DE-9E52-DA10B5593221} = {A61B048F-ECEA-4BED-A2ED-22834E7D4DFB}
-		{C5A3F18D-1426-4941-9D81-D21062A2B8F2} = {A61B048F-ECEA-4BED-A2ED-22834E7D4DFB}
+		{3D0DEB59-1297-44F6-9D0C-D075E98A85F8} = {A61B048F-ECEA-4BED-A2ED-22834E7D4DFB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F70D4C7C-02FB-4EE9-875A-A2F95EC90EAC}

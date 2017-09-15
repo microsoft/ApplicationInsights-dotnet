@@ -1,7 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel.Implementation
 {
     using System;
+#if NETSTANDARD1_3
+    using Newtonsoft.Json;
+#else
     using System.Web.Script.Serialization;
+#endif
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     internal class BackoffLogicManager
@@ -12,7 +16,10 @@
         private const int DefaultBackoffEnabledReportingIntervalInMin = 30;
 
         private static readonly Random Random = new Random();
+
+#if !NETSTANDARD1_3    
         private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
+#endif  
 
         private readonly object lockConsecutiveErrors = new object();
         private readonly TimeSpan minIntervalToUpdateConsecutiveErrors;
@@ -67,7 +74,11 @@
             {
                 if (!string.IsNullOrEmpty(responseContent))
                 {
+#if NETSTANDARD1_3
+                    backendResponse = JsonConvert.DeserializeObject<BackendResponse>(responseContent);
+#else
                     backendResponse = Serializer.Deserialize<BackendResponse>(responseContent);
+#endif  
                 }
             }
             catch (ArgumentException exp)
@@ -80,6 +91,18 @@
                 TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
                 backendResponse = null;
             }
+#if NETSTANDARD1_3
+            catch (JsonReaderException exp)
+            {
+                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
+                backendResponse = null;
+            }
+            catch (JsonSerializationException exp)
+            {
+                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
+                backendResponse = null;
+            }
+#endif
 
             return backendResponse;
         }

@@ -95,8 +95,8 @@
 
         private static string GetSHA256Hash(string input)
         {
-            byte[] inputBits = Encoding.Unicode.GetBytes(input);
-            byte[] hashBits = new SHA256CryptoServiceProvider().ComputeHash(inputBits);
+            byte[] inputBits = Encoding.Unicode.GetBytes(input);            
+            byte[] hashBits = CreateSHA256().ComputeHash(inputBits);
             var hashString = new StringBuilder();
             foreach (byte b in hashBits)
             {
@@ -104,6 +104,15 @@
             }
 
             return hashString.ToString();
+        }
+
+        private static SHA256 CreateSHA256()
+        {
+#if NETSTANDARD1_3
+            return SHA256.Create();
+#else
+            return new SHA256CryptoServiceProvider();
+#endif
         }
 
         private IPlatformFolder CreateAndValidateApplicationFolder(string rootPath, bool createSubFolder, IList<string> errors)
@@ -167,7 +176,15 @@
 
         private DirectoryInfo CreateTelemetrySubdirectory(DirectoryInfo root)
         {
-            string appIdentity = this.currentIdentity.Name + "@" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Process.GetCurrentProcess().ProcessName);
+            string baseDirectory = string.Empty;
+
+#if !NETSTANDARD1_3
+            baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+#else
+            baseDirectory = AppContext.BaseDirectory;
+#endif
+
+            string appIdentity = this.currentIdentity.Name + "@" + Path.Combine(baseDirectory, Process.GetCurrentProcess().ProcessName);
             string subdirectoryName = GetSHA256Hash(appIdentity);
             string subdirectoryPath = Path.Combine(@"Microsoft\ApplicationInsights", subdirectoryName);
             DirectoryInfo subdirectory = root.CreateSubdirectory(subdirectoryPath);

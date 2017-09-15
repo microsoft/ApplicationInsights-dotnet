@@ -19,7 +19,7 @@
                 {
                     StatusCode = (int)exceptionResponse.StatusCode,
                     StatusDescription = exceptionResponse.StatusDescription,
-                    RetryAfterHeader = exceptionResponse.Headers?.Get("Retry-After")
+                    RetryAfterHeader = exceptionResponse.Headers?["Retry-After"]
                 };
             }
 
