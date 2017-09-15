@@ -13,26 +13,30 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// An N-dimensional discrete cube is a data structure containing elements of type TPoint.
     /// Each point can be addressed using a coordinate-vector containing N entries of type TDimensionValue.
     /// <br />
-    /// For example, the elements in the cube may be colors, space vectors or a sold item (with its properties as coordinates).
+    /// For example, the elements in the cube may be colors, space vectors or sold items (with its properties as coordinates).
     /// However, the key usage in this library are multidimensional metrics. In such usage the coordinates are metric
     /// dimensions (TDimensionValue is String) and the cube elements (TPoint) are metric data series.
     /// <p>
     /// The cube refers to dimensions using their index: 0th, 1st, 2nd dimension and so on. For each dimension, the cube has a <c>DimensionValuesCountLimit</c>
     /// parameter. This limits the number of distinct values that may be specified for that specific dimension. Once the <c>DimensionValuesCountLimit</c> for
-    /// some particular dimension is reached, the cube will no longer be able to create points whose coordinate vectors contains values for that particular
+    /// some particular dimension is reached, the cube will no longer be able to create points whose coordinate vectors contain values for that particular
     /// dimension that do not occur in coordinate vectors for points already in the cube. The cube also has a <c>TotalPointsCountLimit</c> parameter that limits
     /// the total number of points in the cube.
     /// </p>
     /// <p>
-    /// The elements of the coordinate vectors, i.e.the values of the dimensions of a point in the cube are discrete. Even if their type implies a non-discrete
+    /// The elements of the coordinate vectors (i.e. the values of the dimensions of a point in the cube) are discrete. Even if their type implies a non-discrete
     /// space (e.g.when TDimensionValue is Double) they are always treated as discrete and separate.
     /// </p>
     /// <p>
+    /// The cube is designed to work in concurrent scenarios while minimizing the number, the duration and the scope of locks taken. However, some locks are
+    /// necessary to correctly impose the DimensionValuesCountLimits and the TotalPointsCountLimit constrains.
+    /// </p>
+    /// <p>
     /// This implementation assumes that creation and storage of TPoint-elements is resource intensive. It creates points lazily, only when requested.
-    /// However, to minimize locking it uses pessimistic and optimistic concurrently mechanisms where possible. Two artefacts occur as a result:
+    /// However, to minimize locking it uses pessimistic and optimistic concurrency mechanisms where possible. Two artefacts occur as a result:
     /// </p>
     /// <list type="bullet">
-    ///   <item><description>The specified <c>PointsFactory</c> delegate may be executed more than once for a particular coordinates vector.
+    ///   <item><description>The specified <c>pointsFactory</c> delegate may be executed more than once for a particular coordinates vector.
     ///     However, once a point for the specified coordinates-vector has been actually returned to the caller, always the same instance of
     ///     that point will be returned by the cube. This behaviour is consistent with the ConcurrentDictionary in the .NET Framework.</description></item>
     ///   <item><description>The <c>TryGetOrCreatePoint(..)</c> may return <c>false</c>, and then return <c>true</c> moments later when called with the
@@ -43,13 +47,8 @@ namespace Microsoft.ApplicationInsights.Metrics
     ///     point anyway. In common cases one can assume that the result of <c>TryGetOrCreatePoint(..)</c> is, indeed, stable.
     ///     In order to control potential instability use <c>TryGetOrCreatePointAsync(..)</c> overloads.
     ///     Note, however, that those overloads do not guarantee that the result of requesting a new point is completely stable. They merely make it
-    ///     very unlikely for it to change by re-trying the oprtation several times.
-    ///     Nevertheless,  </description></item>
+    ///     very unlikely for it to change by re-trying the oprtation several times.</description></item>
     /// </list>
-    /// <p>
-    /// The cube is designed to work in concurrent scenarios while minimizing the number, the duration and the scope of locks taken. However, some locks are
-    /// necessary to correctly impose the DimensionValuesCountLimits and the TotalPointsCountLimit constrains.
-    /// </p>
     /// </summary>
     /// <remarks>
     /// <p>** Color Example: **</p>
@@ -92,10 +91,10 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// We collect that metric according to a number of possible groupings:
     /// </p>
     /// <list type="number">
-    ///   <item><description>By the type of the request(the string “synthetic” (i.e.created by a test) or “organic” (created by a legitimate client).</description></item>
-    ///   <item><description>By the response generated(an HTTP response code encoded as a string).</description></item>
-    ///   <item><description>By the name of the instance that executed the request(in case of a web service scaled over multiple instances).</description></item>
-    ///   <item><description>By the name of the API invoked(any URL string).</description></item>
+    ///   <item><description>By the type of the request (the string “synthetic” (i.e.created by a test) or “organic” (created by a legitimate client)).</description></item>
+    ///   <item><description>By the response generated (an HTTP response code encoded as a string).</description></item>
+    ///   <item><description>By the name of the instance that executed the request (in case of a web service scaled over multiple instances).</description></item>
+    ///   <item><description>By the name of the API invoked (any URL string).</description></item>
     /// </list>
     /// <p>
     /// Each view represents a separate dimension. There is a distinct data time series for each combination of dimension-values. For example:
@@ -116,19 +115,20 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// </code>
     /// <p>
     /// Note also that while some dimensions can naturally take a small amount of values(e.g.Type can only take 2 values in this example), URL can essentially
-    /// take an unbounded number of values.In our example we want to limit the number of dimension values for specific dimensions in order to control resource
-    /// usage. We can create a cube as follows.Note how we used different max dimension values counts that are appropriate for each respective dimension.
+    /// take an unbounded number of values. In our example we want to limit the number of dimension values for specific dimensions in order to control resource
+    /// usage. We can create a cube as follows. (Note how we used different max dimension values counts that are appropriate for each respective dimension.)
     /// </p>
     /// <code>
-    /// Func{string[], ResponseTimeMetricSeries} metricFactory = (dimValues) =} new ResponseTimeMetricSeries(kind:         dimValues[0],
-    ///                                                                                                      responseCode: dimValues[1],
-    ///                                                                                                      instanceName: dimValues[2],
-    ///                                                                                                              url:          dimValues[3]);
+    /// Func{string[], ResponseTimeMetricSeries} metricFactory = (dimValues) =} new ResponseTimeMetricSeries(
+    ///                                                                                         kind:         dimValues[0],
+    ///                                                                                         responseCode: dimValues[1],
+    ///                                                                                         instanceName: dimValues[2],
+    ///                                                                                         url:          dimValues[3]);
     /// MultidimensionalCube{string, ResponseTimeMetricSeries} metricsCube = new MultidimensionalCube{string, ResponseTimeMetricSeries}(metricFactory, 2, 50, 100, 1000);
     /// 
     /// MultidimensionalPointResult{ResponseTimeMetricSeries} result;
     /// 
-    /// result = metricsCube.TryGetOrCreatePoint(out responseSeries01, "Organic", "200", "Instance_01", "http://myservice.com/API1?paramA=X");
+    /// result = metricsCube.TryGetOrCreatePoint("Organic", "200", "Instance_01", "http://myservice.com/API1?paramA=X");
     /// if (! result.Success)
     /// {
     ///     throw new SomeAppropriateException("Cannot create metric data series. Dimension cap is potentially reached.");
@@ -137,7 +137,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// ResponseTimeMetricDataSeries responseSeries01 = result.Point;
     /// 
     /// 
-    /// result = metricsCube.TryGetOrCreatePoint(out responseSeries01, "Organic", "500", "Instance_01", "http://myservice.com/API2?paramB=Y");
+    /// result = metricsCube.TryGetOrCreatePoint("Organic", "500", "Instance_01", "http://myservice.com/API2?paramB=Y");
     /// if (! result.Success)
     /// {
     ///     throw new SomeAppropriateException("Cannot create metric data series. Dimension cap is potentially reached.");

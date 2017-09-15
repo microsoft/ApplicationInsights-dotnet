@@ -39,11 +39,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             throw new NotSupportedException();
         }
 
-        protected override void TrackFilteredValue(uint metricValue)
-        {
-            TrackFilteredValue(metricValue.ToString());
-        }
-
         protected override void TrackFilteredValue(double metricValue)
         {
             TrackFilteredValue(metricValue.ToString());

@@ -22,7 +22,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        public static IMetricConfiguration Default { get { return SimpleUIntMeasurement; } }
+        public static IMetricConfiguration Default { get { return SimpleDoubleMeasurement; } }
 
         /// <summary>
         /// 
@@ -39,7 +39,10 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         public static IMetricConfiguration SimpleUIntLifetimeCounter { get { return s_simpleUIntLifetimeCounter; } }
 
-        
+
+        public static IMetricConfiguration SimpleDoubleLifetimeCounter { get { return null; } }
+
+
         private static void ReInitialize()
         {
             s_simpleUIntMeasurement     = new SimpleMeasurementMetricConfiguration(
@@ -71,7 +74,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         }
 
 
-         #region class Defaults
+        #region class Defaults
 
         /// <summary>
         /// 

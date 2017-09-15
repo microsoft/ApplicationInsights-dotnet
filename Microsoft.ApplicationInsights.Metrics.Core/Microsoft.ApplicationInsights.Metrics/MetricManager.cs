@@ -79,9 +79,9 @@ namespace Microsoft.ApplicationInsights.Metrics
                 return;
             }
 
-            if (aggregates.FilteredAggregates != null && aggregates.FilteredAggregates.Count != 0)
+            if (aggregates.NonpersistentAggregates != null && aggregates.NonpersistentAggregates.Count != 0)
             {
-                foreach (ITelemetry telemetryItem in aggregates.FilteredAggregates)
+                foreach (ITelemetry telemetryItem in aggregates.NonpersistentAggregates)
                 {
                     if (telemetryItem != null)
                     {
@@ -90,9 +90,9 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
             }
 
-            if (aggregates.UnfilteredValuesAggregates != null && aggregates.UnfilteredValuesAggregates.Count != 0)
+            if (aggregates.PersistentAggregates != null && aggregates.PersistentAggregates.Count != 0)
             {
-                foreach (ITelemetry telemetryItem in aggregates.UnfilteredValuesAggregates)
+                foreach (ITelemetry telemetryItem in aggregates.PersistentAggregates)
                 {
                     if (telemetryItem != null)
                     {

@@ -120,49 +120,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             return RecycleUnsafe();
         }
         
-        public void TrackValue(uint metricValue)
-        {
-            if (_valueFilter != null)
-            {
-                if (! _valueFilter.WillConsume(_dataSeries, metricValue))
-                {
-                    return;
-                }
-            }
-            
-            if (_isPersistent)
-            {
-                // If we are persistent, just do the actual metric update without tracking ongoing updates:
-                TrackFilteredValue(metricValue);
-            }
-            else
-            {
-                // If we are not persistent, keep track of ongoing updates before doing the actual update:
-
-                if (_ongoingUpdates < InternalExecutionState_Ready)    // Soft check
-                {
-                    return;
-                }
-
-                int internalUpdateState = Interlocked.Increment(ref _ongoingUpdates);
-                try
-                {
-                    // Hard check for being completed:
-                    if (internalUpdateState < InternalExecutionState_Ready)
-                    {
-                        return; // This will decrement _ongoingUpdates in the finally block.
-                    }
-
-                    // Do the actual tracking:
-                    TrackFilteredValue(metricValue);
-                }
-                finally
-                {
-                    Interlocked.Decrement(ref _ongoingUpdates);
-                }
-            }
-        }
-
         public void TrackValue(double metricValue)
         {
             if (_valueFilter != null)
@@ -252,8 +209,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         public abstract ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd);
 
         protected abstract bool RecycleUnsafe();
-
-        protected abstract void TrackFilteredValue(uint metricValue);
 
         protected abstract void TrackFilteredValue(double metricValue);
 

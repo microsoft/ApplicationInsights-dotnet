@@ -64,12 +64,6 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// 
         /// </summary>
         /// <param name="metricValue"></param>
-        void TrackValue(uint metricValue);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="metricValue"></param>
         void TrackValue(double metricValue);
 
         /// <summary>

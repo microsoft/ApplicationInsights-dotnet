@@ -32,8 +32,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                                      int consumerKind,
                                      DateTimeOffset tactTimestamp,
                                      Func<Tuple<bool,
-                                                Tuple<Func<object, uint, bool>,
-                                                      Func<object, double, bool>,
+                                                Tuple<Func<object, double, bool>,
                                                       Func<object, object, bool>>>> metricSeriesFilter)
         {
             MetricManager manager = (MetricManager) metricManager;
@@ -52,7 +51,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <param name="tactTimestamp"></param>
         /// <returns></returns>
         public static
-                    Tuple<IReadOnlyCollection<ITelemetry>, IReadOnlyCollection<ITelemetry>>
+                    Tuple<IReadOnlyList<ITelemetry>, IReadOnlyList<ITelemetry>>
                     StopAggregators(
                                     object metricManager,
                                     int consumerKind,
@@ -63,7 +62,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
             AggregationPeriodSummary summary = MetricManagerExtensions.StopAggregators(manager, consumer, tactTimestamp);
 
-            var result = Tuple.Create(summary.FilteredAggregates, summary.UnfilteredValuesAggregates);
+            var result = Tuple.Create(summary.NonpersistentAggregates, summary.PersistentAggregates);
             return result;
         }
 
@@ -76,14 +75,13 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <param name="updatedMetricSeriesFilter"></param>
         /// <returns></returns>
         public static
-                    Tuple<IReadOnlyCollection<ITelemetry>, IReadOnlyCollection<ITelemetry>>
+                    Tuple<IReadOnlyList<ITelemetry>, IReadOnlyList<ITelemetry>>
                     CycleAggregators(
                                      object metricManager,
                                      int consumerKind,
                                      DateTimeOffset tactTimestamp,
                                      Func<Tuple<bool,
-                                                Tuple<Func<object, uint, bool>,
-                                                      Func<object, double, bool>,
+                                                Tuple<Func<object, double, bool>,
                                                       Func<object, object, bool>>>> updatedMetricSeriesFilter)
         {
             MetricManager manager = (MetricManager) metricManager;
@@ -92,7 +90,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
             AggregationPeriodSummary summary = MetricManagerExtensions.CycleAggregators(manager, consumer, tactTimestamp, filter);
 
-            var result = Tuple.Create(summary.FilteredAggregates, summary.UnfilteredValuesAggregates);
+            var result = Tuple.Create(summary.NonpersistentAggregates, summary.PersistentAggregates);
             return result;
         }
 

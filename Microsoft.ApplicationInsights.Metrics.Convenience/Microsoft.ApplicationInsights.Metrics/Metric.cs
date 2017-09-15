@@ -469,9 +469,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             if (createIfNotExists)
             {
                 Task<MultidimensionalPointResult<MetricSeries>> t = _metricSeries.TryGetOrCreatePointAsync(
+                                                                                                           Configuration.NewSeriesCreationRetryDelay,
                                                                                                            Configuration.NewSeriesCreationTimeout,
                                                                                                            CancellationToken.None,
-                                                                                                           Configuration.NewSeriesCreationRetryDelay,
                                                                                                            dimensionValues);
                 result = t.ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
             }

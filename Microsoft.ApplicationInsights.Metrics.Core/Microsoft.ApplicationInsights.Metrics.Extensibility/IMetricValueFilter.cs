@@ -11,14 +11,6 @@
         /// <param name="dataSeries"></param>
         /// <param name="metricValue"></param>
         /// <returns></returns>
-        bool WillConsume(MetricSeries dataSeries, uint metricValue);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dataSeries"></param>
-        /// <param name="metricValue"></param>
-        /// <returns></returns>
         bool WillConsume(MetricSeries dataSeries, double metricValue);
 
         /// <summary>

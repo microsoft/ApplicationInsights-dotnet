@@ -163,16 +163,16 @@ namespace Microsoft.ApplicationInsights.Metrics
             // The Enumerator of GrowingCollection is a thread-safe lock-free implementation that operates on a "snapshot" of a collection taken at the
             // time when the enumerator is created. We expand the foreach statement (like the compiler normally does) so that we can use the typed
             // enumerator's Count property which is constsent with the data in the snapshot.
-            GrowingCollection<IMetricSeriesAggregator>.Enumerator unfilteredValsAggregators = _aggregatorsForDefaultPersistent.Aggregators.GetEnumerator(); 
-            List<ITelemetry> unfilteredValsAggregations = new List<ITelemetry>(capacity: unfilteredValsAggregators.Count);
+            GrowingCollection<IMetricSeriesAggregator>.Enumerator persistentValsAggregators = _aggregatorsForDefaultPersistent.Aggregators.GetEnumerator(); 
+            List<ITelemetry> persistentValsAggregations = new List<ITelemetry>(capacity: persistentValsAggregators.Count);
             try
             {
-                while (unfilteredValsAggregators.MoveNext())
+                while (persistentValsAggregators.MoveNext())
                 {
-                    IMetricSeriesAggregator aggregator = unfilteredValsAggregators.Current;
+                    IMetricSeriesAggregator aggregator = persistentValsAggregators.Current;
                     if (aggregator != null)
                     {
-                        // Persistent aggregators are always active, regardless of filters for a particular consumer. But we can apply the cunsumer's filters to determine
+                        // Persistent aggregators are always active, regardless of filters for a particular consumer. But we can apply the consumer's filters to determine
                         // whether or not to pull the aggregator for a aggregate at this time. Of course, only series filters, not value filters, can be considered.
                         IMetricValueFilter unusedValueFilter;
                         bool satisfiesFilter = (prevFilter == null)
@@ -181,29 +181,29 @@ namespace Microsoft.ApplicationInsights.Metrics
                         if (satisfiesFilter)
                         {
                             ITelemetry aggregate = aggregator.CompleteAggregation(tactTimestamp);
-                            unfilteredValsAggregations.Add(aggregate);
+                            persistentValsAggregations.Add(aggregate);
                         }
                     }
                 }
             }
             finally
             {
-                unfilteredValsAggregators.Dispose();
+                persistentValsAggregators.Dispose();
             }
 
             // Complete each non-persistent aggregator:
             // (we snapshotted the entire collection, so Count is stable)
-            List<ITelemetry> filteredAggregations = new List<ITelemetry>(capacity: prevAggregators.Aggregators.Count);
+            List<ITelemetry> nonpersistentAggregations = new List<ITelemetry>(capacity: prevAggregators.Aggregators.Count);
             foreach (IMetricSeriesAggregator aggregator in prevAggregators.Aggregators)
             {
                 if (aggregator != null)
                 {
                     ITelemetry aggregate = aggregator.CompleteAggregation(tactTimestamp);
-                    filteredAggregations.Add(aggregate);
+                    nonpersistentAggregations.Add(aggregate);
                 }
             }
 
-            var summary = new AggregationPeriodSummary(unfilteredValsAggregations, filteredAggregations);
+            var summary = new AggregationPeriodSummary(persistentValsAggregations, nonpersistentAggregations);
             return summary;
         }
 

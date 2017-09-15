@@ -45,11 +45,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             return aggregate;
         }
 
-        protected override void TrackFilteredValue(uint metricValue)
-        {
-            TrackValue((double) metricValue);
-        }
-
         protected override void TrackFilteredValue(double metricValue)
         {
             {
@@ -91,7 +86,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 {
                     currentSumOfSquares = _sumOfSquares;  // If we get a torn read, the below assignment will fail and we get to try again.
                     double newSumOfSquares = currentSumOfSquares + (metricValue * metricValue);
-                    prevSumOfSquares = Interlocked.CompareExchange(ref _sum, newSumOfSquares, currentSumOfSquares);
+                    prevSumOfSquares = Interlocked.CompareExchange(ref _sumOfSquares, newSumOfSquares, currentSumOfSquares);
                 }
                 while (prevSumOfSquares != currentSumOfSquares);
             }
@@ -106,43 +101,43 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             if (metricValue is SByte)
             {
-                TrackValue((double) (SByte) metricValue);
+                TrackFilteredValue((double) (SByte) metricValue);
             }
             else if (metricValue is Byte)
             {
-                TrackValue((double) (Byte) metricValue);
+                TrackFilteredValue((double) (Byte) metricValue);
             }
             else if (metricValue is Int16)
             {
-                TrackValue((double) (Int16) metricValue);
+                TrackFilteredValue((double) (Int16) metricValue);
             }
             else if (metricValue is UInt16)
             {
-                TrackValue((double) (UInt16) metricValue);
+                TrackFilteredValue((double) (UInt16) metricValue);
             }
             else if (metricValue is Int32)
             {
-                TrackValue((double) (Int32) metricValue);
+                TrackFilteredValue((double) (Int32) metricValue);
             }
             else if (metricValue is UInt32)
             {
-                TrackValue((double) (UInt32) metricValue);
+                TrackFilteredValue((double) (UInt32) metricValue);
             }
             else if (metricValue is Int64)
             {
-                TrackValue((double) (Int64) metricValue);
+                TrackFilteredValue((double) (Int64) metricValue);
             }
             else if (metricValue is UInt64)
             {
-                TrackValue((double) (UInt64) metricValue);
+                TrackFilteredValue((double) (UInt64) metricValue);
             }
             else if (metricValue is Single)
             {
-                TrackValue((double) (Single) metricValue);
+                TrackFilteredValue((double) (Single) metricValue);
             }
             else if (metricValue is Double)
             {
-                TrackValue((double) (Double) metricValue);
+                TrackFilteredValue((double) (Double) metricValue);
             }
             else
             {
@@ -152,7 +147,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                     double doubleValue;
                     if (Double.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out doubleValue))
                     {
-                        TrackValue(doubleValue);
+                        TrackFilteredValue(doubleValue);
                     }
                     else
                     {

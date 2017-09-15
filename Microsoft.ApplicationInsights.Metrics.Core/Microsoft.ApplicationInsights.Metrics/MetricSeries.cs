@@ -81,38 +81,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// 
         /// </summary>
         /// <param name="metricValue"></param>
-        public void TrackValue(uint metricValue)
-        {
-            List<Exception> errors = null;
-
-            if (_requiresPersistentAggregator)
-            {
-                TrackValue(GetOrCreatePersistentAggregator(), metricValue, ref errors);
-            }
-            else
-            {
-                TrackValue(GetOrCreateAggregator(MetricConsumerKind.Default, ref _aggregatorDefault), metricValue, ref errors);
-                TrackValue(GetOrCreateAggregator(MetricConsumerKind.QuickPulse, ref _aggregatorQuickPulse), metricValue, ref errors);
-                TrackValue(GetOrCreateAggregator(MetricConsumerKind.Custom, ref _aggregatorCustom), metricValue, ref errors);
-            }
-
-            if (errors != null)
-            {
-                if (errors.Count == 1)
-                {
-                    ExceptionDispatchInfo.Capture(errors[0]).Throw();
-                }
-                else
-                {
-                    throw new AggregateException(errors);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="metricValue"></param>
         public void TrackValue(double metricValue)
         {
             List<Exception> errors = null;
@@ -200,27 +168,6 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 default:
                     throw new ArgumentException($"Unexpected value of {nameof(consumerKind)}: {consumerKind}.");
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="aggregator"></param>
-        /// <param name="metricValue"></param>
-        /// <param name="errors"></param>
-        private static void TrackValue(IMetricSeriesAggregator aggregator, uint metricValue, ref List<Exception> errors)
-        {
-            if (aggregator != null)
-            {
-                try
-                {
-                    aggregator.TrackValue(metricValue);
-                }
-                catch (Exception ex)
-                {
-                    (errors = errors ?? new List<Exception>()).Add(ex);
-                }
             }
         }
 

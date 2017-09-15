@@ -12,22 +12,22 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="unfilteredValuesAggregates"></param>
-        /// <param name="filteredAggregates"></param>
-        public AggregationPeriodSummary(IReadOnlyCollection<ITelemetry> unfilteredValuesAggregates, IReadOnlyCollection<ITelemetry> filteredAggregates)
+        /// <param name="persistentAggregates"></param>
+        /// <param name="nonpersistentAggregates"></param>
+        public AggregationPeriodSummary(IReadOnlyList<ITelemetry> persistentAggregates, IReadOnlyList<ITelemetry> nonpersistentAggregates)
         {
-            UnfilteredValuesAggregates = unfilteredValuesAggregates;
-            FilteredAggregates = filteredAggregates;
+            PersistentAggregates = persistentAggregates;
+            NonpersistentAggregates = nonpersistentAggregates;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public IReadOnlyCollection<ITelemetry> UnfilteredValuesAggregates { get; }
+        public IReadOnlyList<ITelemetry> PersistentAggregates { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        public IReadOnlyCollection<ITelemetry> FilteredAggregates { get; }
+        public IReadOnlyList<ITelemetry> NonpersistentAggregates { get; }
     }
 }
