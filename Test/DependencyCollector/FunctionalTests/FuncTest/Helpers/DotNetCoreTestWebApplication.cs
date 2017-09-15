@@ -8,12 +8,14 @@ namespace FuncTest.Helpers
     {
         private DotNetCoreProcess process;
 
+        internal string PublishFolder { get; set; }
+
         /// <summary>Gets the app folder.</summary>
         internal override string AppFolder
         {
             get
             {
-                return string.Join(Path.DirectorySeparatorChar.ToString(), new string[] { base.AppFolder, "netcoreapp1.0", "publish" });
+                return string.Join(Path.DirectorySeparatorChar.ToString(), new string[] { base.AppFolder, PublishFolder, "publish" });
             }
         }
 

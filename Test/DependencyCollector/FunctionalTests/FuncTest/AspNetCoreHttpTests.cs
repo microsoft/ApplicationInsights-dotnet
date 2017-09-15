@@ -28,6 +28,7 @@
                 AppName = "AspxCore",
                 ExternalCallPath = "external/calls",
                 Port = DeploymentAndValidationTools.AspxCorePort,
+                PublishFolder = "netcoreapp1.0"
             };
 
             AspxCoreTestWebApplication.Deploy();

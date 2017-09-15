@@ -31,7 +31,7 @@ namespace FW45Shared
         {
             for (int i = 0; i < count; i++)
             {
-                Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "http://www.{0}.com", hostname));
+                Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "https://www.{0}.com", hostname));
                 WebRequest wr = WebRequest.Create(ourUri);
                 var response = await wr.GetResponseAsync();
                 using (var stm = response.GetResponseStream())
