@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace SomeCustomerNamespace
 {
@@ -27,7 +28,7 @@ namespace SomeCustomerNamespace
                                                                         "Item Add duration",
                                                                         new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
 
-            MockContainerDataStructure dataStructure = new MockContainerDataStructure((c) => TimeSpan.FromSeconds(2));
+            MockContainerDataStructure dataStructure = new MockContainerDataStructure((c) => TimeSpan.FromSeconds(c));
 
             DateTimeOffset experimentStart = new DateTimeOffset(2017, 9, 14, 0, 0, 0, TimeSpan.Zero);
 
@@ -41,16 +42,28 @@ namespace SomeCustomerNamespace
 
             int totalSecs = 0;
             int intervalSecs = 0;
-            Random rnd = new Random();
+
+            int itemsThisTime = 0;
+            const int maxItemsAtATime = 4;
+
+            int operationsCount = 0;
 
             while (totalSecs < ExperimentLengthSecs)
             {
-                int addItemCount = rnd.Next(4);
-                int removeItemCount = rnd.Next(4);
+                itemsThisTime = (itemsThisTime + 1) % maxItemsAtATime;
+
+                int addItemCount = 1 + (itemsThisTime + 1) % maxItemsAtATime;
+                int removeItemCount = 1 + itemsThisTime % maxItemsAtATime;
+
+                Trace.WriteLine($"{totalSecs})");
+                Trace.WriteLine(addItemCount);
+                Trace.WriteLine(removeItemCount);
+                Trace.WriteLine("");
 
                 TimeSpan duration;
 
                 dataStructure.AddItems(addItemCount, out duration);
+                operationsCount++;
 
                 int durationSecs = (int) duration.TotalSeconds;
                 durationMeric.TrackValue(durationSecs);
@@ -59,6 +72,7 @@ namespace SomeCustomerNamespace
                 intervalSecs += durationSecs;
 
                 dataStructure.RemoveItems(removeItemCount, out duration);
+                operationsCount++;
 
                 durationSecs = (int) duration.TotalSeconds;
                 durationMeric.TrackValue(durationSecs);
@@ -68,26 +82,72 @@ namespace SomeCustomerNamespace
 
                 if (intervalSecs >= IntervalLengthSecs)
                 {
-                    intervalSecs %= IntervalLengthSecs;
-
                     AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().CycleAggregators(
                                                                                                 MetricConsumerKind.Custom,
                                                                                                 experimentStart.AddSeconds(totalSecs),
                                                                                                 updatedFilter: null);
+                    Assert.IsNotNull(aggregatedMetrics);
+
                     IReadOnlyList<ITelemetry> aggregates = aggregatedMetrics.NonpersistentAggregates;
-                    MetricTelemetry aggregate = (MetricTelemetry) aggregates[0];
+                    Assert.IsNotNull(aggregates);
+                    Assert.AreEqual(1, aggregates.Count);
                     
+                    MetricTelemetry aggregate = (MetricTelemetry) aggregates[0];
+                    Assert.IsNotNull(aggregates);
+
+                    Assert.AreEqual(1, aggregate.Min);
+                    Assert.AreEqual(4, aggregate.Max);
+                    Assert.AreEqual(operationsCount, aggregate.Count);
+                    Assert.AreEqual("Item Add duration", aggregate.Name);
+                    Assert.IsNotNull(aggregate.Properties);
+                    Assert.AreEqual(0, aggregate.Properties.Count);
+                    Assert.AreEqual(intervalSecs, aggregate.Sum);
+                    Assert.AreEqual(experimentStart.AddSeconds(totalSecs - intervalSecs), aggregate.Timestamp);
+
+                    intervalSecs %= IntervalLengthSecs;
+                    operationsCount = 0;
+
+                    Assert.AreEqual(0, intervalSecs, "For the above to work, the number of wirtual secs must exactly fit into IntervalLengthSecs.");
                 }
-
             }
+            {
+                AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().CycleAggregators(
+                                                                                                    MetricConsumerKind.Custom,
+                                                                                                    experimentStart.AddSeconds(totalSecs),
+                                                                                                    updatedFilter: null);
+                Assert.IsNotNull(aggregatedMetrics);
 
+                IReadOnlyList<ITelemetry> aggregates = aggregatedMetrics.NonpersistentAggregates;
+                Assert.IsNotNull(aggregates);
+                Assert.AreEqual(0, aggregates.Count);
+            }
+            {
+                durationMeric.TrackValue("7");
+                durationMeric.TrackValue("8");
+                durationMeric.TrackValue("9.0");
+                totalSecs += 24;
+            }
             {
                 AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().StopAggregators(
-                                                                                                MetricConsumerKind.Custom,
-                                                                                                experimentStart.AddMilliseconds(totalSecs));
-            }
-            Assert.IsTrue(true);
+                                                                                                    MetricConsumerKind.Custom,
+                                                                                                    experimentStart.AddSeconds(totalSecs));
+                Assert.IsNotNull(aggregatedMetrics);
 
+                IReadOnlyList<ITelemetry> aggregates = aggregatedMetrics.NonpersistentAggregates;
+                Assert.IsNotNull(aggregates);
+
+                MetricTelemetry aggregate = (MetricTelemetry) aggregates[0];
+                Assert.IsNotNull(aggregates);
+
+                Assert.AreEqual(7, aggregate.Min);
+                Assert.AreEqual(9, aggregate.Max);
+                Assert.AreEqual(3, aggregate.Count);
+                Assert.AreEqual("Item Add duration", aggregate.Name);
+                Assert.IsNotNull(aggregate.Properties);
+                Assert.AreEqual(0, aggregate.Properties.Count);
+                Assert.AreEqual(24, aggregate.Sum);
+                Assert.AreEqual(experimentStart.AddSeconds(totalSecs - 24), aggregate.Timestamp);
+            }
         }
 
         #region class MockContainerDataStructure

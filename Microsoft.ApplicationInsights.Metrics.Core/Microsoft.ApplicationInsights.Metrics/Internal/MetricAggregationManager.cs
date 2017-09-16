@@ -109,7 +109,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             Util.ValidateNotNull(aggregator, nameof(aggregator));
 
-            if (aggregator.DataSeries.Configuration.RequiresPersistentAggregation)
+            if (aggregator.DataSeries._configuration.RequiresPersistentAggregation)
             {
                 return AddAggregator(aggregator, _aggregatorsForDefaultPersistent);
             }

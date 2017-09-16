@@ -40,6 +40,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             MetricTelemetry aggregate = new MetricTelemetry(DataSeries.MetricId, count, sum, min, max, stdDev);
             Util.CopyTelemetryContext(DataSeries.Context, aggregate.Context);
+            aggregate.Timestamp = this.PeriodStart;
 
             return aggregate;
         }
@@ -61,7 +62,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             {
                 double currentMin = _min;   // If we get a torn read, the below assignment will fail and we get to try again.
-                while (metricValue > currentMin)
+                while (metricValue < currentMin)
                 {
                     double prevMin = Interlocked.CompareExchange(ref _min, metricValue, currentMin);
                     currentMin = (prevMin == currentMin) ? metricValue : prevMin;

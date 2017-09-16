@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
+using Microsoft.ApplicationInsights.Metrics.Extensibility;
+
 namespace Microsoft.ApplicationInsights.Metrics
 {
     internal class MetricsCache
@@ -40,7 +42,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                                                 dimension2Name,
                                                                                 metricConfiguration ?? MetricConfiguration.Default));
             
-            if (metricConfiguration != null && ! metric.Configuration.Equals(metricConfiguration))
+
+            if (metricConfiguration != null && ! metric._configuration.Equals(metricConfiguration))
             {
                 throw new ArgumentException("A Metric with the specified Id and dimension names already exists, but it has a configuration"
                                           + " that is different from the specified configuration. You may not change configurations once a"
