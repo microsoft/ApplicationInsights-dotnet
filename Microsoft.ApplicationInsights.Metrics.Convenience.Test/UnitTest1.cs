@@ -3,8 +3,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Microsoft.ApplicationInsights.Metrics;
+//using Microsoft.ApplicationInsights.Metrics.Extensibility;
+using Microsoft.ApplicationInsights;
 
-namespace Microsoft.ApplicationInsights.Metrics.Convenience.Test
+namespace SomeCustomerNamespace
 {
     /// <summary />
     [TestClass]
@@ -49,11 +51,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Convenience.Test
 
             femaleBlackHorses.TrackValue("125");
 
+            //aiClient.GetMetric("Foo").GetConfiguration().
+            //femaleBlackHorses.
+
         }
-
-
-
-
 
 
 

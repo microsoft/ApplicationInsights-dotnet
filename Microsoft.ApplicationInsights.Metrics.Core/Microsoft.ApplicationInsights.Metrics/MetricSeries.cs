@@ -6,6 +6,7 @@ using System.Threading;
 
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
+using Microsoft.ApplicationInsights.Channel;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -15,7 +16,6 @@ namespace Microsoft.ApplicationInsights.Metrics
     public sealed class MetricSeries
     {
         private readonly MetricAggregationManager _aggregationManager;
-        private readonly IMetricSeriesConfiguration _configuration;
         private readonly bool _requiresPersistentAggregator;
         private readonly string _metricId;
         private readonly TelemetryContext _context;
@@ -28,6 +28,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         private IMetricSeriesAggregator _aggregatorRecycleCacheDefault;
         private IMetricSeriesAggregator _aggregatorRecycleCacheQuickPulse;
         private IMetricSeriesAggregator _aggregatorRecycleCacheCustom;
+
+        internal readonly IMetricSeriesConfiguration _configuration;
 
         internal MetricSeries(MetricAggregationManager aggregationManager, string metricId, IMetricSeriesConfiguration configuration)
         {
@@ -50,32 +52,12 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        public IMetricSeriesConfiguration Configuration { get { return _configuration; } }
-
-        /// <summary>
-        /// 
-        /// </summary>
         public TelemetryContext Context { get { return _context; } }
 
         /// <summary>
         /// 
         /// </summary>
         public string MetricId { get { return _metricId; } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public IMetricSeriesAggregator CurrentAggregator
-        {
-            get
-            {
-                IMetricSeriesAggregator aggregator = _configuration.RequiresPersistentAggregation
-                                                                ? _aggregatorPersistent
-                                                                : UnwrapAggregator(_aggregatorDefault);
-                return aggregator;
-            }
-        }
 
         /// <summary>
         /// 
@@ -141,6 +123,81 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        public void ResetAggregation()
+        {
+            if (_requiresPersistentAggregator)
+            {
+                IMetricSeriesAggregator aggregator = _aggregatorPersistent;
+                aggregator?.ReinitializeAggregatedValues();
+            }
+            else
+            {
+                {
+                    IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorDefault);
+                    aggregator?.ReinitializeAggregatedValues();
+                }
+                {
+                    IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorQuickPulse);
+                    aggregator?.ReinitializeAggregatedValues();
+                }
+                {
+                    IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorCustom);
+                    aggregator?.ReinitializeAggregatedValues();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public ITelemetry GetCurrentAggregate()
+        {
+            return GetCurrentAggregate(MetricConsumerKind.Default, DateTimeOffset.Now);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="consumerKind"></param>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        public ITelemetry GetCurrentAggregate(MetricConsumerKind consumerKind, DateTimeOffset dateTime)
+        {
+            IMetricSeriesAggregator aggregator = null;
+
+            if (_requiresPersistentAggregator)
+            {
+                aggregator = _aggregatorPersistent;
+            }
+            else
+            {
+                switch (consumerKind)
+                {
+                    case MetricConsumerKind.Default:
+                        aggregator = UnwrapAggregator(_aggregatorDefault);
+                        break;
+
+                    case MetricConsumerKind.QuickPulse:
+                        aggregator = UnwrapAggregator(_aggregatorQuickPulse);
+                        break;
+
+                    case MetricConsumerKind.Custom:
+                        aggregator = UnwrapAggregator(_aggregatorCustom);
+                        break;
+
+                    default:
+                        throw new ArgumentException($"Unexpected value of {nameof(consumerKind)}: {consumerKind}.");
+                }
+            }
+
+            ITelemetry aggregate = aggregator?.CreateAggregateUnsafe(dateTime);
+            return aggregate;
+        }
+
         internal void ClearAggregator(MetricConsumerKind consumerKind)
         {
             if (_requiresPersistentAggregator)
@@ -361,11 +418,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             if (aggregator == null)
-            {
-                return null;
-            }
-
-            if (! aggregator.SupportsRecycle)
             {
                 return null;
             }

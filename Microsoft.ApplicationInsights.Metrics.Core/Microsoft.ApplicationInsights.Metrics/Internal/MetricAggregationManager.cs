@@ -143,7 +143,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 return false;
             }
 
-            aggregator.Initialize(aggregatorCollection.PeriodStart, valueFilter);
+            aggregator.ReinitializePeriodAndAggregatedValues(aggregatorCollection.PeriodStart, valueFilter);
             aggregatorCollection.Aggregators.Add(aggregator);
 
             return true;

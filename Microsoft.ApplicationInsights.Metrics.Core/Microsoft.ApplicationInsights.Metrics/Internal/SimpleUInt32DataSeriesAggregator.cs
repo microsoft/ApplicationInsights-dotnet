@@ -21,7 +21,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         public SimpleUInt32DataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
         {
-            Reset();
         }
 
         public override ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd)
@@ -47,12 +46,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             return aggregate;
         }
         
-        protected override bool RecycleUnsafe()
-        {
-            Reset();
-            return true;
-        }
-
         protected override void TrackFilteredValue(double metricValue)
         {
             if (metricValue < -MicroOne)
@@ -269,7 +262,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private void Reset()
+        public override void ReinitializeAggregatedValues()
         {
             _count = 0;
             _min = UInt32.MaxValue;

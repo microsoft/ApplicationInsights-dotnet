@@ -19,7 +19,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         public SimpleDoubleDataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
         {
-            Reset();
         }
 
         public override ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd)
@@ -167,13 +166,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
         
-        protected override bool RecycleUnsafe()
-        {
-            Reset();
-            return true;
-        }
-        
-        private void Reset()
+        public override void ReinitializeAggregatedValues()
         {
             _count = 0;
             _min = Double.MaxValue;

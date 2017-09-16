@@ -31,11 +31,6 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <summary>
         /// 
         /// </summary>
-        bool SupportsRecycle { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <returns></returns>
         bool TryRecycle();
 
@@ -44,7 +39,12 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// </summary>
         /// <param name="periodStart"></param>
         /// <param name="valueFilter"></param>
-        void Initialize(DateTimeOffset periodStart, IMetricValueFilter valueFilter);
+        void ReinitializePeriodAndAggregatedValues(DateTimeOffset periodStart, IMetricValueFilter valueFilter);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        void ReinitializeAggregatedValues();
 
         /// <summary>
         /// 

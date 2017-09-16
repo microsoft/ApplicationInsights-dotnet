@@ -24,15 +24,13 @@ namespace Microsoft.ApplicationInsights.Metrics
         private IMetricValueFilter _valueFilter;
         private int _ongoingUpdates;
 
-        private ITelemetry _completedAggregate;
-
         public DataSeriesAggregatorBase(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
         {
             _dataSeries = dataSeries;
             _consumerKind = consumerKind;
             _isPersistent = configuration.RequiresPersistentAggregation;
 
-            Initialize(default(DateTimeOffset), default(IMetricValueFilter));
+            ReinitializePeriodAndAggregatedValues(default(DateTimeOffset), default(IMetricValueFilter));
         }
 
         public DateTimeOffset PeriodStart { get { return _periodStart; } }
@@ -66,26 +64,17 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        public virtual bool SupportsRecycle { get { return (! _isPersistent); } }
-
-        public void Initialize(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
+        public void ReinitializePeriodAndAggregatedValues(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
         {
             _periodStart = periodStart;
             _periodEnd = default(DateTimeOffset);
             _valueFilter = valueFilter;
             _ongoingUpdates = InternalExecutionState_Ready;
-
-            _completedAggregate = null;
+            ReinitializeAggregatedValues();
         }
 
         public virtual ITelemetry CompleteAggregation(DateTimeOffset periodEnd)
         {
-            ITelemetry completedAggregate = _completedAggregate;
-            if (completedAggregate != null)
-            {
-                return completedAggregate;
-            }
-
             // Aggregators may transiently have inconsistent state in order to avoid locking.
             // We wait until ongoing updates are complete and then prevent the aggregator from further updating.
             // However, we do NOT do this for persistent aggregators, so they may transinetly inconsistent aggregates.
@@ -99,8 +88,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             ITelemetry aggregate = CreateAggregateUnsafe(periodEnd);
-            ITelemetry prevCompletedAggregate = Interlocked.CompareExchange(ref _completedAggregate, aggregate, null);
-            return (prevCompletedAggregate ?? aggregate);
+            return aggregate;
         }
 
         public bool TryRecycle()
@@ -110,14 +98,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 return false;
             }
 
-            ITelemetry prevCompletedAgregate = Interlocked.Exchange(ref _completedAggregate, null);
-            if (prevCompletedAgregate == null)
-            {
-                return false;
-            }
-
-            Initialize(default(DateTimeOffset), default(IMetricValueFilter));
-            return RecycleUnsafe();
+            ReinitializePeriodAndAggregatedValues(default(DateTimeOffset), default(IMetricValueFilter));
+            return true;
         }
         
         public void TrackValue(double metricValue)
@@ -208,7 +190,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public abstract ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd);
 
-        protected abstract bool RecycleUnsafe();
+        public abstract void ReinitializeAggregatedValues();
 
         protected abstract void TrackFilteredValue(double metricValue);
 

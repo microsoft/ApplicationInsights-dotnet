@@ -1,7 +1,9 @@
-﻿using System;
+﻿using System;configuration
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -19,6 +21,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly MultidimensionalCube<string, MetricSeries> _metricSeries;
         private readonly string[] _dimensionNames;
 
+        internal readonly IMetricConfiguration _configuration;
+
         internal Metric(MetricManager metricManager, string metricId, string dimension1Name, string dimension2Name, IMetricConfiguration configuration)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
@@ -33,9 +37,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             MetricId = metricId.Trim();
             DimensionsCount = dimCount;
-            Dimension1Name = dimension1Name;
-            Dimension2Name = dimension2Name;
-            Configuration = configuration;
+            _configuration = configuration;
 
             _objectId = GetObjectId(metricId, dimension1Name, dimension2Name);
             _hashCode = _objectId.GetHashCode();
@@ -81,22 +83,42 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        public string Dimension1Name { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Dimension2Name { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public IMetricConfiguration Configuration { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
         public int SeriesCount { get { return 1 + (_metricSeries?.TotalPointsCount ?? 0); } }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dimensionNumber">1-based dimension number. Currently it can be <c>1</c> or <c>2</c>.</param>
+        /// <returns></returns>
+        public string GetDimensionName(int dimensionNumber)
+        {
+            if (DimensionsCount < 1)
+            {
+                throw new InvalidOperationException("Cannot get demension name becasue this metric has no dimensions.");
+            }
+
+            if (dimensionNumber < 1)
+            {
+                throw new ArgumentOutOfRangeException(
+                                nameof(dimensionNumber),
+                                $"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Note that {nameof(dimensionNumber)} is a 1-based index.");
+            }
+
+            if (dimensionNumber > 2)
+            {
+                throw new ArgumentOutOfRangeException(
+                                nameof(dimensionNumber),
+                                $"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Currently only {nameof(dimensionNumber)} = 1 or 2 are supported.");
+            }
+
+            if (dimensionNumber > DimensionsCount)
+            {
+                throw new ArgumentException($"Cannot get dimension name for ${nameof(dimensionNumber)} {dimensionNumber}"
+                                          + $" becasue this metric only has {DimensionsCount} dimensions.");
+            }
+
+            return _dimensionNames[dimensionNumber - 1];
+        }
         
         /// <summary>
         /// 
@@ -106,7 +128,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                 "Microsoft.Design",
                                                 "CA1024: Use properties where appropriate",
                                                 Justification = "Completes with non-trivial effort. Method is approproiate.")]
-        public IReadOnlyCollection<KeyValuePair<string[], MetricSeries>> GetAllSeries()
+        public IReadOnlyList<KeyValuePair<string[], MetricSeries>> GetAllSeries()
         {
             var series = new List<KeyValuePair<string[], MetricSeries>>(SeriesCount);
             series.Add(new KeyValuePair<string[], MetricSeries>(new string[0], _zeroDimSeries));
@@ -421,7 +443,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         private MetricSeries CreateNewMetricSeries(string[] dimensionValues)
         {
-            MetricSeries series = _metricManager.CreateNewSeries(MetricId, Configuration.SeriesConfig);
+            MetricSeries series = _metricManager.CreateNewSeries(MetricId, _configuration.SeriesConfig);
             if (dimensionValues != null)
             {
                 for (int d = 0; d < dimensionValues.Length; d++)
@@ -469,8 +491,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             if (createIfNotExists)
             {
                 Task<MultidimensionalPointResult<MetricSeries>> t = _metricSeries.TryGetOrCreatePointAsync(
-                                                                                                           Configuration.NewSeriesCreationRetryDelay,
-                                                                                                           Configuration.NewSeriesCreationTimeout,
+                                                                                                           _configuration.NewSeriesCreationRetryDelay,
+                                                                                                           _configuration.NewSeriesCreationTimeout,
                                                                                                            CancellationToken.None,
                                                                                                            dimensionValues);
                 result = t.ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();

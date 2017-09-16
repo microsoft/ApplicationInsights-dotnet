@@ -13,30 +13,37 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// </summary>
     internal class NaiveDistinctCountMetricSeriesAggregator : DataSeriesAggregatorBase, IMetricSeriesAggregator
     {
-        private readonly GrowingCollection<string> _values = new GrowingCollection<string>();
+        private GrowingCollection<string> _values = null;
 
         public NaiveDistinctCountMetricSeriesAggregator(NaiveDistinctCountMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
         {
         }
 
-        public override bool SupportsRecycle { get { return false; } }
-
         public override ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd)
         {
-            // The enumerator of _values operates on a snapshot in a thread-safe manner.
-            var distinctValues = new HashSet<string>(_values);
+            GrowingCollection<string> values = _values;
+            MetricTelemetry aggregate;
 
-            MetricTelemetry aggregate = new MetricTelemetry(DataSeries.MetricId, distinctValues.Count, sum: 0, min: 0, max: 0, standardDeviation: 0);
+            if (values == null)
+            {
+                aggregate = new MetricTelemetry(DataSeries.MetricId, count: 0, sum: 0, min: 0, max: 0, standardDeviation: 0);
+            }
+            else
+            {
+                // The enumerator of _values operates on a snapshot in a thread-safe manner.
+                var distinctValues = new HashSet<string>(_values);
+                aggregate = new MetricTelemetry(DataSeries.MetricId, distinctValues.Count, sum: 0, min: 0, max: 0, standardDeviation: 0);
+            }
+            
             Util.CopyTelemetryContext(DataSeries.Context, aggregate.Context);
-
             return aggregate;
         }
         
 
-        protected override bool RecycleUnsafe()
+        public override void ReinitializeAggregatedValues()
         {
-            throw new NotSupportedException();
+            _values = new GrowingCollection<string>();
         }
 
         protected override void TrackFilteredValue(double metricValue)
@@ -59,7 +66,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         private void TrackFilteredValue(string metricValue)
         {
-            _values.Add(metricValue);
+            _values?.Add(metricValue);
         }
     }
 }
