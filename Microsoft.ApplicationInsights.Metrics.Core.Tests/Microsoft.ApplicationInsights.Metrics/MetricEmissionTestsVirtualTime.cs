@@ -9,6 +9,7 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using System.Collections.Generic;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
+using System.Threading.Tasks;
 
 namespace SomeCustomerNamespace
 {
@@ -24,11 +25,14 @@ namespace SomeCustomerNamespace
 
             MetricSeries durationMeric = telemetryPipeline.Metrics().CreateNewSeries(
                                                                         "Item Add duration",
-                                                                        new SimpleMeasurementMetricSeriesConfiguration(lifetimeCounter: false, supportDoubleValues: true));
+                                                                        new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
 
-            MockContainerDataStructure dataStructure = new MockContainerDataStructure((c) => TimeSpan.FromSeconds(c));
+            MockContainerDataStructure dataStructure = new MockContainerDataStructure((c) => TimeSpan.FromSeconds(2));
 
             DateTimeOffset experimentStart = new DateTimeOffset(2017, 9, 14, 0, 0, 0, TimeSpan.Zero);
+
+            // Stop the default minute-ly cycle so that it does not interfere with our virtual time debugging:
+            Task fireAndForget = telemetryPipeline.Metrics().StopAsync();   
 
             telemetryPipeline.Metrics().StartAggregators(MetricConsumerKind.Custom, experimentStart, filter: null);
 
@@ -76,6 +80,13 @@ namespace SomeCustomerNamespace
                 }
 
             }
+
+            {
+                AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().StopAggregators(
+                                                                                                MetricConsumerKind.Custom,
+                                                                                                experimentStart.AddMilliseconds(totalSecs));
+            }
+            Assert.IsTrue(true);
 
         }
 

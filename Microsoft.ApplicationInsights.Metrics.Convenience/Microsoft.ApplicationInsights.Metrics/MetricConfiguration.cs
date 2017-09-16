@@ -10,9 +10,10 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// </summary>
     public static class MetricConfiguration
     {
-        private static IMetricConfiguration s_simpleUIntMeasurement;
-        private static IMetricConfiguration s_simpleDoubleMeasurement;
-        private static IMetricConfiguration s_simpleUIntLifetimeCounter;
+        private static IMetricConfiguration s_measurementInt32;
+        private static IMetricConfiguration s_measurementDouble;
+        private static IMetricConfiguration s_counterUInt32;
+        private static IMetricConfiguration s_counterDouble;
 
         static MetricConfiguration()
         {
@@ -22,55 +23,57 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        public static IMetricConfiguration Default { get { return SimpleDoubleMeasurement; } }
+        internal static IMetricConfiguration Default { get { return MeasurementDouble; } }
 
         /// <summary>
         /// 
         /// </summary>
-        public static IMetricConfiguration SimpleUIntMeasurement { get { return s_simpleUIntMeasurement; } }
+        public static IMetricConfiguration MeasurementUInt32 { get { return s_measurementInt32; } }
 
         /// <summary>
         /// 
         /// </summary>
-        public static IMetricConfiguration SimpleDoubleMeasurement { get { return s_simpleDoubleMeasurement; } }
+        public static IMetricConfiguration MeasurementDouble { get { return s_measurementDouble; } }
 
         /// <summary>
         /// 
         /// </summary>
-        public static IMetricConfiguration SimpleUIntLifetimeCounter { get { return s_simpleUIntLifetimeCounter; } }
+        public static IMetricConfiguration CounterUInt32 { get { return s_counterUInt32; } }
 
-
-        public static IMetricConfiguration SimpleDoubleLifetimeCounter { get { return null; } }
+        /// <summary>
+        /// 
+        /// </summary>
+        public static IMetricConfiguration CounterDouble { get { return s_counterDouble; } }
 
 
         private static void ReInitialize()
         {
-            s_simpleUIntMeasurement     = new SimpleMeasurementMetricConfiguration(
+            s_measurementInt32 = new SimpleMeasurementMetricConfiguration(
                                                         Defaults.SeriesCountLimit,
                                                         Defaults.ValuesPerDimensionLimit,
                                                         Defaults.NewSeriesCreationTimeout,
                                                         Defaults.NewSeriesCreationRetryDelay,
-                                                        new SimpleMeasurementMetricSeriesConfiguration(
+                                                        new SimpleMetricSeriesConfiguration(
                                                                         lifetimeCounter: false,
-                                                                        supportDoubleValues: false));
+                                                                        restrictToUInt32Values: true));
 
-            s_simpleDoubleMeasurement   = new SimpleMeasurementMetricConfiguration(
+            s_measurementDouble = new SimpleMeasurementMetricConfiguration(
                                                         Defaults.SeriesCountLimit,
                                                         Defaults.ValuesPerDimensionLimit,
                                                         Defaults.NewSeriesCreationTimeout,
                                                         Defaults.NewSeriesCreationRetryDelay,
-                                                        new SimpleMeasurementMetricSeriesConfiguration(
+                                                        new SimpleMetricSeriesConfiguration(
                                                                         lifetimeCounter: false,
-                                                                        supportDoubleValues: true));
+                                                                        restrictToUInt32Values: false));
 
-            s_simpleUIntLifetimeCounter = new SimpleMeasurementMetricConfiguration(
+            s_counterDouble = new SimpleMeasurementMetricConfiguration(
                                                         Defaults.SeriesCountLimit,
                                                         Defaults.ValuesPerDimensionLimit,
                                                         Defaults.NewSeriesCreationTimeout,
                                                         Defaults.NewSeriesCreationRetryDelay,
-                                                        new SimpleMeasurementMetricSeriesConfiguration(
+                                                        new SimpleMetricSeriesConfiguration(
                                                                         lifetimeCounter: true,
-                                                                        supportDoubleValues: false));
+                                                                        restrictToUInt32Values: true));
         }
 
 

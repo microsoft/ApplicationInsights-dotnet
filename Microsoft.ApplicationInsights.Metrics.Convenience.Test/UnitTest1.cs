@@ -23,7 +23,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Convenience.Test
             aiClient.GetMetric("Cows Sold").TrackValue(18);
 
 
-            Metric itemsInQueue = aiClient.GetMetric("Items in Queue", MetricConfiguration.SimpleUIntLifetimeCounter);
+            Metric itemsInQueue = aiClient.GetMetric("Items in Queue", MetricConfiguration.CounterUInt32);
 
             itemsInQueue.TrackValue(5);     // 5
             itemsInQueue.TrackValue(3);     // 8
@@ -32,7 +32,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Convenience.Test
             itemsInQueue.TrackValue(-2);    // 3
 
 
-            Metric horsesSold = aiClient.GetMetric("Horses sold", "Gender", "Color", MetricConfiguration.SimpleDoubleMeasurement);
+            Metric horsesSold = aiClient.GetMetric("Horses sold", "Gender", "Color", MetricConfiguration.MeasurementDouble);
 
             horsesSold.TrackValue(42);
             bool canTrack = horsesSold.TryTrackValue(18, "Female", "Black");

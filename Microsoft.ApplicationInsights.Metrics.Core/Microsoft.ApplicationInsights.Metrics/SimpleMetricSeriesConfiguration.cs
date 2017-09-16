@@ -8,25 +8,25 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// <summary>
     /// 
     /// </summary>
-    public class SimpleMeasurementMetricSeriesConfiguration : IMetricSeriesConfiguration
+    public class SimpleMetricSeriesConfiguration : IMetricSeriesConfiguration
     {
         private readonly bool _lifetimeCounter;
-        private readonly bool _supportDoubleValues;
+        private readonly bool _restrictToUInt32Values;
         private readonly int _hashCode;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="lifetimeCounter"></param>
-        /// <param name="supportDoubleValues"></param>
-        public SimpleMeasurementMetricSeriesConfiguration(bool lifetimeCounter, bool supportDoubleValues)
+        /// <param name="restrictToUInt32Values"></param>
+        public SimpleMetricSeriesConfiguration(bool lifetimeCounter, bool restrictToUInt32Values)
         {
             _lifetimeCounter = lifetimeCounter;
-            _supportDoubleValues = supportDoubleValues;
+            _restrictToUInt32Values = restrictToUInt32Values;
 
             unchecked
             {
-                _hashCode = (((17 * 23) + _lifetimeCounter.GetHashCode()) * 23) + _supportDoubleValues.GetHashCode();
+                _hashCode = (((17 * 23) + _lifetimeCounter.GetHashCode()) * 23) + _restrictToUInt32Values.GetHashCode();
             }
         }
 
@@ -42,10 +42,10 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        public bool SupportDoubleValues
+        public bool RestrictToUInt32Values
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return _supportDoubleValues; }
+            get { return _restrictToUInt32Values; }
         }
 
         /// <summary>
@@ -56,14 +56,14 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <returns></returns>
         public IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricConsumerKind consumerKind)
         {
-            if (_supportDoubleValues)
+            if (_restrictToUInt32Values)
             {
-                IMetricSeriesAggregator aggregator = new SimpleDoubleDataSeriesAggregator(this, dataSeries, consumerKind);
+                IMetricSeriesAggregator aggregator = new SimpleUInt32DataSeriesAggregator(this, dataSeries, consumerKind);
                 return aggregator;
             }
             else
             {
-                IMetricSeriesAggregator aggregator = new SimpleUIntDataSeriesAggregator(this, dataSeries, consumerKind);
+                IMetricSeriesAggregator aggregator = new SimpleDoubleDataSeriesAggregator(this, dataSeries, consumerKind);
                 return aggregator;
             }
         }
@@ -77,7 +77,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             if (obj != null)
             {
-                var otherConfig = obj as SimpleMeasurementMetricSeriesConfiguration;
+                var otherConfig = obj as SimpleMetricSeriesConfiguration;
                 if (otherConfig != null)
                 {
                     return Equals(otherConfig);
@@ -102,7 +102,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool Equals(SimpleMeasurementMetricSeriesConfiguration other)
+        public bool Equals(SimpleMetricSeriesConfiguration other)
         {
             if (other == null)
             {
@@ -115,7 +115,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             return (this.RequiresPersistentAggregation == other.RequiresPersistentAggregation)
-                || (this.SupportDoubleValues == other.SupportDoubleValues);
+                || (this.RestrictToUInt32Values == other.RestrictToUInt32Values);
         }
 
         /// <summary>

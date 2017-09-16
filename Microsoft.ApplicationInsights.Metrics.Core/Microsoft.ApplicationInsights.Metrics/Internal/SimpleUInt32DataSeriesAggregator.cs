@@ -8,7 +8,7 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    internal class SimpleUIntDataSeriesAggregator : DataSeriesAggregatorBase, IMetricSeriesAggregator
+    internal class SimpleUInt32DataSeriesAggregator : DataSeriesAggregatorBase, IMetricSeriesAggregator
     {
         private const double MicroOne = 0.000001;
 
@@ -18,7 +18,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         private long _sum;                  // Int64 in order to use with Interlocked, but always use casts to get UInt64 semantics.
         private long _sumOfSquares;         // Int64 in order to use with Interlocked, but always use casts to get UInt64 semantics.
 
-        public SimpleUIntDataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
+        public SimpleUInt32DataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
         {
             Reset();
@@ -64,6 +64,15 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             double wholeValue = Math.Round(metricValue);
+
+            if (wholeValue > UInt32.MaxValue)
+            {
+                throw new ArgumentException($"This aggregator cannot process the specified metric measurement."
+                                             + $" The aggregator expects metric values of type {nameof(UInt32)}, but the specified {nameof(metricValue)} is"
+                                             + $" larger than the maximum accepted value ({metricValue})."
+                                             + $" Have you specified the correct metric configuration?");
+            }
+
             double delta = Math.Abs(metricValue - wholeValue);
             if (delta > MicroOne)
             {

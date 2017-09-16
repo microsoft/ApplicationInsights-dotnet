@@ -273,7 +273,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                     IMetricValueFilter valuesFilter;
                     try
                     { 
-                        if (! dataSeriesFilter.WillConsume(this, out valuesFilter))
+                        if (dataSeriesFilter != null && false == dataSeriesFilter.WillConsume(this, out valuesFilter))
                         {
                             return null;
                         }
@@ -281,7 +281,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                     catch
                     {
                         // Protect against errors in user's implemenmtation of IMetricSeriesFilter.IsInterestedIn(..).
-                        return null;
+                        // If it throws, assume that the filter is not functional => consumer will accept all values.
                     }
                 }
 
