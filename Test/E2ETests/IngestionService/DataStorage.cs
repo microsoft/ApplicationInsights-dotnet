@@ -112,25 +112,37 @@
         public IEnumerable<string> DeleteItems(
             string instrumentationKey)
         {
-            var items = GetItemIds(instrumentationKey).ToList();
-            var deletedItems = new List<string>();
-            foreach (var itemId in items)
+            IEnumerable<string> items = null;
+            try
             {
-                try
-                {
-                    var folder = mapper.GetDataPath();
-                    var fileInfo = new FileInfo(Path.Combine(folder, itemId));
-                    if (true == fileInfo.Exists)
-                    {
-                        fileInfo.Delete();
-                        deletedItems.Add(fileInfo.FullName);
-                    } 
-                }
-                catch (Exception)
-                {
-                    // trace errors
-                }
+                items = GetItemIds(instrumentationKey).ToList();
             }
+            catch(Exception ex)
+            {
+                //trace errors
+            }
+
+            var deletedItems = new List<string>();
+            if(items != null)
+            {
+                foreach (var itemId in items)
+                {
+                    try
+                    {
+                        var folder = mapper.GetDataPath();
+                        var fileInfo = new FileInfo(Path.Combine(folder, itemId));
+                        if (true == fileInfo.Exists)
+                        {
+                            fileInfo.Delete();
+                            deletedItems.Add(fileInfo.FullName);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        // trace errors
+                    }
+                }
+            }            
 
             return deletedItems;
         }

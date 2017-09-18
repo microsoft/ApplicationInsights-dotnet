@@ -11,8 +11,10 @@ using AI;
 namespace E2ETests.Net462
 {
     [TestClass]
-    public class UnitTest1
+    public class Test452OnNet462
     {
+        private const string WebAppInstrumentationKey = "e45209bb-49ab-41a0-8065-793acb3acc56";
+        private const string WebApiInstrumentationKey = "0786419e-d901-4373-902a-136921b63fb2";
         internal static string testappip;
         internal static string ingestionServiceIp;
         internal static string dockerComposeFileName = "docker-compose462.yml";
@@ -24,7 +26,7 @@ namespace E2ETests.Net462
         public static void MyClassInitialize(TestContext testContext)
         {
             Assert.IsTrue(File.Exists(".\\"+dockerComposeFileName));
-            string dockerComposeActionCommand = "up -d";
+            string dockerComposeActionCommand = "up -d --build";
             string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", dockerComposeBaseCommandFormat, dockerComposeFileNameFormat, dockerComposeActionCommand);
             Trace.WriteLine("Docker compose done using command: " + dockerComposeFullCommandFormat);
             ProcessStartInfo DockerComposeUp = new ProcessStartInfo("cmd", dockerComposeFullCommandFormat);
@@ -64,6 +66,13 @@ namespace E2ETests.Net462
             dataendpointClient = new DataEndpointClient(new Uri("http://" +ingestionServiceIp));
         }
 
+        [TestInitialize]
+        public void MyTestInitialize()
+        {
+            dataendpointClient.DeleteItems(WebAppInstrumentationKey);
+            dataendpointClient.DeleteItems(WebApiInstrumentationKey);
+        }
+
         [TestMethod]        
         public async Task TestBasicFlow()
         {
@@ -80,18 +89,18 @@ namespace E2ETests.Net462
 
             Thread.Sleep(5000);
 
-            var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>("e45209bb-49ab-41a0-8065-793acb3acc56");
-            var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>("e45209bb-49ab-41a0-8065-793acb3acc56");
-            var requestsWebApi = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>("0786419e-d901-4373-902a-136921b63fb2");
+            var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(WebAppInstrumentationKey);
+            var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(WebAppInstrumentationKey);
+            var requestsWebApi = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(WebApiInstrumentationKey);
 
             Trace.WriteLine("RequestCount for WebApp:"+ requestsWebApp.Count);
-            Assert.IsTrue(requestsWebApp.Count == 2);
+            Assert.IsTrue(requestsWebApp.Count >= 2);
 
             Trace.WriteLine("DependenciesCount for WebApp:" + dependenciesWebApp.Count);
             Assert.IsTrue(dependenciesWebApp.Count >= 2);
 
             Trace.WriteLine("RequestCount for WebApi:" + requestsWebApi.Count);
-            Assert.IsTrue(requestsWebApi.Count == 1);
+            Assert.IsTrue(requestsWebApi.Count >= 1);
         }
 
 
@@ -110,6 +119,9 @@ namespace E2ETests.Net462
             string output = process.StandardOutput.ReadToEnd();
             Trace.WriteLine("Docker Compose Down Console output:" + output);
             process.WaitForExit();
+
+            Thread.Sleep(1000);
+
         }       
     }
 }

@@ -67,7 +67,6 @@
     <Compile Include="Helpers\TelemetryItem.cs" />
     <Compile Include="Helpers\TelemetryItemFactory.cs" />
     <Compile Include="net462\Test452OnNet462.cs" />
-    <Compile Include="net462\UnitTest1.cs" />
     <Compile Include="net47\Test452OnNet47.cs" />
   </ItemGroup>
   <ItemGroup>
