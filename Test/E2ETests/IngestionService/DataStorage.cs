@@ -113,6 +113,7 @@
             string instrumentationKey)
         {
             var items = GetItemIds(instrumentationKey).ToList();
+            var deletedItems = new List<string>();
             foreach (var itemId in items)
             {
                 try
@@ -122,7 +123,8 @@
                     if (true == fileInfo.Exists)
                     {
                         fileInfo.Delete();
-                    }
+                        deletedItems.Add(fileInfo.FullName);
+                    } 
                 }
                 catch (Exception)
                 {
@@ -130,7 +132,7 @@
                 }
             }
 
-            return items;
+            return deletedItems;
         }
     }
 }

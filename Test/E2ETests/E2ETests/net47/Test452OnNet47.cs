@@ -23,7 +23,7 @@ namespace E2ETests.Net47
         [ClassInitialize]
         public static void MyClassInitialize(TestContext testContext)
         {
-            Assert.IsTrue(File.Exists(".\\net47\\"+dockerComposeFileName));
+            Assert.IsTrue(File.Exists(".\\..\\"+dockerComposeFileName));
             string dockerComposeActionCommand = "up -d";
             string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", dockerComposeBaseCommandFormat, dockerComposeFileNameFormat, dockerComposeActionCommand);
             ProcessStartInfo DockerComposeUp = new ProcessStartInfo("cmd", dockerComposeFullCommandFormat);
