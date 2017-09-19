@@ -49,6 +49,7 @@ namespace E2ETests.Net47
             aiClientForWebApi = new AppInsightsRestClient("d376981c-e63a-4701-ac97-3773ad9d67a6", "f15yn2tff703j52geego3kx4mgvulmqin58e6mb4");
         }
 
+        [Ignore]
         [TestMethod]        
         public async Task TestBasicRequest()
         {

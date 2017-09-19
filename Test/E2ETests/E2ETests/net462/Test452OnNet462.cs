@@ -7,6 +7,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using E2ETests.Helpers;
 using AI;
+using Microsoft.ApplicationInsights.DataContracts;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace E2ETests.Net462
 {
@@ -25,6 +28,8 @@ namespace E2ETests.Net462
         [ClassInitialize]
         public static void MyClassInitialize(TestContext testContext)
         {
+            Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
+
             Assert.IsTrue(File.Exists(".\\"+dockerComposeFileName));
             string dockerComposeActionCommand = "up -d --build";
             string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", dockerComposeBaseCommandFormat, dockerComposeFileNameFormat, dockerComposeActionCommand);
@@ -33,6 +38,8 @@ namespace E2ETests.Net462
             ProcessStartInfo DockerInspectIp = new ProcessStartInfo("cmd", "/c docker inspect -f \"{{.NetworkSettings.Networks.e2etests_default.IPAddress}}\" e2etests_e2etestwebapp_1");
             ProcessStartInfo DockerInspectIpIngestion = new ProcessStartInfo("cmd", "/c docker inspect -f \"{{.NetworkSettings.Networks.e2etests_default.IPAddress}}\" e2etests_ingestionservice_1");
 
+            Trace.WriteLine("DockerComposeUp started:" + DateTime.UtcNow.ToLongTimeString());
+            /*
             Process process = new Process { StartInfo = DockerComposeUp };
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             process.StartInfo.UseShellExecute = false;
@@ -41,16 +48,20 @@ namespace E2ETests.Net462
             string output = process.StandardOutput.ReadToEnd();
             Trace.WriteLine("Docker Compose Console output:" + output);
             process.WaitForExit();
+            */
+            Trace.WriteLine("DockerComposeUp completed:" + DateTime.UtcNow.ToLongTimeString());
 
-            process = new Process { StartInfo = DockerInspectIp };
+            Trace.WriteLine("DockerInspect started:" + DateTime.UtcNow.ToLongTimeString());
+            Process process = new Process { StartInfo = DockerInspectIp };
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.Start();
-            output = process.StandardOutput.ReadToEnd();
+            string output = process.StandardOutput.ReadToEnd();
             testappip = output.Trim();
             Trace.WriteLine("DockerInspect WebApp IP" + output);
             process.WaitForExit();
+            Trace.WriteLine("DockerInspect completed:" + DateTime.UtcNow.ToLongTimeString());
 
             process = new Process { StartInfo = DockerInspectIpIngestion };
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -69,11 +80,14 @@ namespace E2ETests.Net462
         [TestInitialize]
         public void MyTestInitialize()
         {
+            Trace.WriteLine("Deleting items started:" + DateTime.UtcNow.ToLongTimeString());
             dataendpointClient.DeleteItems(WebAppInstrumentationKey);
             dataendpointClient.DeleteItems(WebApiInstrumentationKey);
+            Trace.WriteLine("Deleting items completed:" + DateTime.UtcNow.ToLongTimeString());
         }
 
-        [TestMethod]        
+        [TestMethod]   
+        [Ignore]
         public async Task TestBasicFlow()
         {
             var startTime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
@@ -103,10 +117,29 @@ namespace E2ETests.Net462
             Assert.IsTrue(requestsWebApi.Count >= 1);
         }
 
+        [TestMethod]
+        public async Task TestBasicRequestWebApp()
+        {
+            var expectedRequestTelemetry = new RequestTelemetry();
+            expectedRequestTelemetry.ResponseCode = "200";
+
+            await ValidateBasicRequestAsync(testappip, "/Default", expectedRequestTelemetry);
+        }
+
+        [TestMethod]
+        public async Task TestBasicHttpDependencyWebApp()
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "RemoteDependency";
+            expectedDependencyTelemetry.Success = true;
+
+            await ValidateBasicDependencyAsync(testappip, "/Default", expectedDependencyTelemetry);
+        }
+
 
         [ClassCleanup]
         public static void MyClassCleanup()
-        {                        
+        {   /*                     
             string dockerComposeActionCommand = "down";
             string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", dockerComposeBaseCommandFormat, dockerComposeFileNameFormat, dockerComposeActionCommand);
             ProcessStartInfo DockerComposeDown = new ProcessStartInfo("cmd", dockerComposeFullCommandFormat);
@@ -119,9 +152,56 @@ namespace E2ETests.Net462
             string output = process.StandardOutput.ReadToEnd();
             Trace.WriteLine("Docker Compose Down Console output:" + output);
             process.WaitForExit();
+            
+            */
+        }
 
+        private async Task ValidateBasicRequestAsync(string targetInstanceIp, string targetPath, RequestTelemetry expectedRequestTelemetry)
+        {
+            HttpClient client = new HttpClient();
+            string url = "http://" + targetInstanceIp + targetPath;
+            Trace.WriteLine("Hitting the target url:" + url);
+            var response = await client.GetAsync(url);
+            Trace.WriteLine("Actual Response code: " + response.StatusCode);
             Thread.Sleep(1000);
+            var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(WebAppInstrumentationKey);
 
-        }       
+            Trace.WriteLine("RequestCount for WebApp:" + requestsWebApp.Count);
+            Assert.IsTrue(requestsWebApp.Count == 1);
+            var request = requestsWebApp[0];
+            Assert.AreEqual(expectedRequestTelemetry.ResponseCode, request.data.baseData.responseCode, "Response code is incorrect");
+        }
+
+        private async Task ValidateBasicDependencyAsync(string targetInstanceIp, string targetPath, DependencyTelemetry expectedDependencyTelemetry)
+        {
+            HttpClient client = new HttpClient();
+            string url = "http://" + targetInstanceIp + targetPath;
+            Trace.WriteLine("Hitting the target url:" + url);
+            var response = await client.GetAsync(url);
+            Trace.WriteLine("Actual Response code: " + response.StatusCode);
+            Thread.Sleep(1000);
+            var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(WebAppInstrumentationKey);
+            PrintDependencies(dependenciesWebApp);
+
+            Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);            
+            Assert.IsTrue(dependenciesWebApp.Count == 1);
+            var dependency = dependenciesWebApp[0];
+            Assert.AreEqual(expectedDependencyTelemetry.Type, dependency.data.baseData.type, "Dependency Type is incorrect");
+            Assert.AreEqual(expectedDependencyTelemetry.Success, dependency.data.baseData.success, "Dependency success is incorrect");
+        }
+
+        private void PrintDependencies(IList<TelemetryItem<AI.RemoteDependencyData>> dependencies)
+        {
+            foreach(var deps in dependencies)
+            {
+                Trace.WriteLine("Dependency Item Details");
+                Trace.WriteLine("deps.name", deps.name);
+                Trace.WriteLine("deps.time", deps.time);
+                Trace.WriteLine("deps.iKey", deps.iKey);
+                Trace.WriteLine("deps.data.baseData.type", deps.data.baseData.type);
+                Trace.WriteLine("deps.data.baseData.target", deps.data.baseData.target);
+                Trace.WriteLine("--------------------------------------");
+            }
+        }
     }
 }
