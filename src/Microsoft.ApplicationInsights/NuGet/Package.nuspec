@@ -19,9 +19,6 @@
     </releaseNotes>
     <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
     <dependencies>
-      <group targetFramework="net40">
-        <dependency id="Microsoft.Diagnostics.Tracing.EventSource.Redist" version="1.1.28"/>
-      </group>
       <group targetFramework="net45">
         <dependency id="System.Diagnostics.DiagnosticSource" version="4.4.0" />
       </group>
@@ -43,11 +40,6 @@
     <file src="$configuration$\Microsoft.ApplicationInsights\Managed\netstandard1.3\Microsoft.ApplicationInsights.dll" target="lib\netstandard1.3" />
     <file src="$configuration$\Microsoft.ApplicationInsights\Managed\netstandard1.3\Microsoft.ApplicationInsights.pdb" target="lib\netstandard1.3" />
     <file src="$configuration$\Microsoft.ApplicationInsights\Managed\netstandard1.3\Microsoft.ApplicationInsights.xml" target="lib\netstandard1.3" />
-
-    <!-- Binaries for .NET 4.0 projects -->
-    <file src="$configuration$\Microsoft.ApplicationInsights\Managed\net40\Microsoft.ApplicationInsights.dll" target="lib\net40" />
-    <file src="$configuration$\Microsoft.ApplicationInsights\Managed\net40\Microsoft.ApplicationInsights.pdb" target="lib\net40" />
-    <file src="$configuration$\Microsoft.ApplicationInsights\Managed\net40\Microsoft.ApplicationInsights.xml" target="lib\net40" />
 
     <!-- Binaries for .NET 4.5 projects -->
     <file src="$configuration$\Microsoft.ApplicationInsights\Managed\net45\Microsoft.ApplicationInsights.dll" target="lib\net45" />
