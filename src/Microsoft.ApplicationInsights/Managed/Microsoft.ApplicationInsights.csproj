@@ -11,7 +11,7 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
 
-    <TargetFrameworks>net40;net45;net46;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>net45;net46;netstandard1.3</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
