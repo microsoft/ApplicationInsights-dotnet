@@ -8,9 +8,7 @@
     using ApplicationInsights.Channel.Implementation;
     using Extensibility.Implementation;
 
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     internal class ErrorHandlingTransmissionPolicy : TransmissionPolicy, IDisposable
     {

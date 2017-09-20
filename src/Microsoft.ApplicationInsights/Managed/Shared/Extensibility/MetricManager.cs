@@ -12,9 +12,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     /// <summary>
     /// Metric factory and controller. Sends metrics to Application Insights service. Pre-aggregates metrics to reduce bandwidth.

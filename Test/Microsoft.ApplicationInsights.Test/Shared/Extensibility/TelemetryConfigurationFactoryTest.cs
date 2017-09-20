@@ -16,11 +16,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
 
-#if NET40
-    using EventLevel = Microsoft.Diagnostics.Tracing.EventLevel;
-#else
     using EventLevel = System.Diagnostics.Tracing.EventLevel;
-#endif
 
     [TestClass]
     public class TelemetryConfigurationFactoryTest

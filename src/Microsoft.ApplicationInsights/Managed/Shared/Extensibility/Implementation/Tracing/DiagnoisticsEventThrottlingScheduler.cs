@@ -9,9 +9,7 @@
 
     using Implementation;
 
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     internal class DiagnoisticsEventThrottlingScheduler 
         : IDiagnoisticsEventThrottlingScheduler, IDisposable

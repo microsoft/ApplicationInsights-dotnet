@@ -1,11 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-#if NET40 || NET45 || NET46 || NETCOREAPP1_1
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#else
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#endif
 
     
     using DpSeverityLevel = Microsoft.ApplicationInsights.DataContracts.SeverityLevel;

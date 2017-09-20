@@ -2,12 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#else
     using System.Diagnostics.Tracing;
-#endif
     using System.Linq;
     using Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -400,10 +395,6 @@
 
         private static bool IsRunningOnEnvironmentSupportingRichPayloadEventSource()
         {
-#if NET40
-            // NET40 version uses EventSource in Microsoft.Diagnostics which supports RichPayloadEvent on .NET Framework 4.0/4.5/4.6+
-            return true;
-#else
             // Other versions depend on EventSource in .Net Framework 4.6+
             string productVersionString = System.Diagnostics.FileVersionInfo.GetVersionInfo(typeof(object).Assembly.Location).ProductVersion;
 
@@ -415,7 +406,6 @@
 
             var ver46 = new Version(4, 6, 0, 0);
             return ver >= ver46;
-#endif
         }
     }
 }

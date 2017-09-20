@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
-#if NET40 || NET45
+#if NET45
     using System;
     using System.Runtime.Remoting.Messaging;
 

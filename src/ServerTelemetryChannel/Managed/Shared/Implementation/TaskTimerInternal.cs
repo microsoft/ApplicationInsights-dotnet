@@ -11,9 +11,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using WindowsServer.TelemetryChannel.Implementation;
 
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     /// <summary>
     /// Runs a task after a certain delay and log any error.
@@ -67,11 +65,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
 
             TaskEx.Delay(this.Delay, newTokenSource.Token)
                 .ContinueWith(
-#if !NET40
                 async previousTask =>
-#else
-                    previousTask =>
-#endif
                     {
                         CancelAndDispose(Interlocked.CompareExchange(ref this.tokenSource, null, newTokenSource));
                         try
@@ -82,25 +76,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
                             // It should return Task.FromResult but just in case we check for null if someone returned null
                             if (task != null)
                             {
-#if !NET40
                                 await task.ConfigureAwait(false);
-#else
-                                task.ContinueWith(
-                                    userTask =>
-                                    {
-                                        try
-                                        {
-                                            userTask.RethrowIfFaulted();
-                                        }
-                                        catch (Exception exception)
-                                        {
-                                            LogException(exception);
-                                        }
-                                    },
-                                    CancellationToken.None,
-                                    TaskContinuationOptions.ExecuteSynchronously,
-                                    TaskScheduler.Default);
-#endif
                             }
                         }
                         catch (Exception exception)

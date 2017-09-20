@@ -8,9 +8,7 @@
     using System.Collections;
     using System.Collections.Generic;
 
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
 
     internal class AssertEx
@@ -209,11 +207,7 @@
             {
                 Assert.Fail("Exception is null " + exceptionType.ToString());
             }
-#if !NET40
             if (!exceptionType.GetTypeInfo().IsAssignableFrom(exception.GetType().GetTypeInfo()))
-#else
-            if (!exceptionType.IsAssignableFrom(exception.GetType()))
-#endif
             {
                 Assert.Fail("Exception is not assignable from " + exceptionType.ToString() + ". Exception: " + exception.ToString());
             }

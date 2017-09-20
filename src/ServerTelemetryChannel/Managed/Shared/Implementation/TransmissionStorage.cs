@@ -8,9 +8,7 @@
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
 
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     internal class TransmissionStorage : IDisposable
     {

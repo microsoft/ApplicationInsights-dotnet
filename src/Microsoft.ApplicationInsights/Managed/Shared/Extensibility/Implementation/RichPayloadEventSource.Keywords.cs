@@ -1,10 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#else
     using System.Diagnostics.Tracing;
-#endif
     
     /// <summary>
     /// Event Source exposes Application Insights telemetry information as ETW events.

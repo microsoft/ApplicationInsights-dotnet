@@ -2,14 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
     using System.Globalization;
     using System.Linq;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Mocks;
 

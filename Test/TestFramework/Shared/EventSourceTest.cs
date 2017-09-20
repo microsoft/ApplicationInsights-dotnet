@@ -4,15 +4,10 @@ namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
     using System.Collections.Generic;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
 
     internal static class EventSourceTest
     {
@@ -66,11 +61,8 @@ namespace Microsoft.ApplicationInsights.TestFramework
             {
                 return "Test String";
             }
-#if NET40
-            if (parameter.ParameterType.IsValueType)
-#else
+
             if (parameter.ParameterType.GetTypeInfo().IsValueType)
-#endif
             {
                 return Activator.CreateInstance(parameter.ParameterType);
             }

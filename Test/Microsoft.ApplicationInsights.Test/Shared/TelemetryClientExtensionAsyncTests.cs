@@ -12,9 +12,7 @@
     
     using Extensibility.Implementation;
     using TestFramework;
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     /// <summary>
     /// Tests corresponding to TelemetryClientExtension methods.
@@ -150,12 +148,8 @@
 
         private string GetRootOperationId(string operationId)
         {
-#if NET40
-            return operationId;
-#else
             Assert.IsTrue(operationId.StartsWith("|"));
             return operationId.Substring(1, operationId.IndexOf('.') - 1);
-#endif
         }
     }
 }

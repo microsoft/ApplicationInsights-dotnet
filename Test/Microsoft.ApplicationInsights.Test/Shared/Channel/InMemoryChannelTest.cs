@@ -2,19 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Tracing;
     using System.Linq;
     using Microsoft.ApplicationInsights.TestFramework;
-
-#if !NET40
-    using System.Diagnostics.Tracing;
-#endif
-
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     

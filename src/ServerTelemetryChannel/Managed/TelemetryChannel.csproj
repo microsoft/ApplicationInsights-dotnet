@@ -14,9 +14,6 @@
     <TargetFrameworks>net45;netstandard1.3</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 
-    <!--This flag will skip BCL versions check-->
-    <SkipValidatePackageReferences>True</SkipValidatePackageReferences>
-
     <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
@@ -44,14 +41,11 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants Condition="'$(TargetFramework)' == 'netstandard1.3'">TRACE;DEBUG;NETCORE;NETSTANDARD1_3</DefineConstants>
-    <DefineConstants Condition="'$(TargetFramework)' == 'net40'">TRACE;DEBUG;NET40</DefineConstants>
     <DefineConstants Condition="'$(TargetFramework)' == 'net45'">TRACE;DEBUG;NET45</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="shared\**\*.cs" />    
-    <Compile Include="net40\**\*.cs" Condition="'$(TargetFramework)' == 'net40'" />
-
     <Compile Remove="shared\**\WebApplicationLifecycle.cs" Condition="'$(TargetFramework)' == 'netstandard1.3'" />
   </ItemGroup>
  
@@ -77,25 +71,9 @@
       <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
       <Name>Microsoft.ApplicationInsights</Name>
     </ProjectReference>
-    <Reference Include="System.Web" Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'" />
-    <Reference Include="System.Web.Extensions" Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'" />
+    <Reference Include="System.Web" Condition="'$(TargetFramework)' == 'net45'" />
+    <Reference Include="System.Web.Extensions" Condition="'$(TargetFramework)' == 'net45'" />
   </ItemGroup>
-
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
-    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventSource.Redist" Version="1.1.28" />
-    <PackageReference Include="Microsoft.Bcl" Version="1.1.10" />
-    <PackageReference Include="Microsoft.Bcl.Async" Version="1.0.168" />
-    <PackageReference Include="Microsoft.Bcl.Build" Version="1.0.21">
-      <IncludeAssets>All</IncludeAssets>
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28">
-      <IncludeAssets>All</IncludeAssets>
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28">

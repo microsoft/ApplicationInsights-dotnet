@@ -401,7 +401,7 @@
                 {
                     instance = TimeSpan.Parse(valueString, CultureInfo.InvariantCulture);
                 }
-#if NET40 || NET45 || NET46
+#if NET45 || NET46
                 else if (expectedType.IsEnum)
 #else
                 else if (expectedType.GetTypeInfo().IsEnum)

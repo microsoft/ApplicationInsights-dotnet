@@ -11,15 +11,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using System.Threading;
     using System.Threading.Tasks;
 
-#if NET40 || NET45 || NET46 || NETCOREAPP1_1
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#else
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#endif
     
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public class SnapshottingCollectionTest
@@ -306,7 +300,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 Assert.AreSame(previouslyCreatedSnapshot, returnedSnapshot);
             }
 
-#if !NET40 // .Net 4.0 doesn't support Monitor.IsEntered
             [TestMethod]
             public void LocksCollectionWhileCreatingSnapshotForThreadSafety()
             {
@@ -333,7 +326,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 Assert.IsFalse(Monitor.IsEntered(collection));
             }
-#endif
         }
 
         private class TestableSnapshottingCollection<T> : SnapshottingCollection<T, ICollection<T>>

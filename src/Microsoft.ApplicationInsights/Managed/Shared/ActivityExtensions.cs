@@ -1,5 +1,4 @@
-﻿#if !NET40
-namespace Microsoft.ApplicationInsights
+﻿namespace Microsoft.ApplicationInsights
 {
     using System;
     using System.Diagnostics;
@@ -74,4 +73,3 @@ namespace Microsoft.ApplicationInsights
         }
     }
 }
-#endif

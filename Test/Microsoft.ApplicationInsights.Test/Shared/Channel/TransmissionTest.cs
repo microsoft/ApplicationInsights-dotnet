@@ -10,9 +10,7 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
 #if !NETCOREAPP1_1
 
@@ -142,17 +140,6 @@
                 WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
                 Assert.AreEqual(transmission.ContentEncoding, request.Headers[HttpRequestHeader.ContentEncoding]);
             }
-
-#if NET40
-            [TestMethod]
-            public void CreatesHttpWebRequestWithContentLengthCalculatedFromDataSpecifiedInConstructor()
-            {
-                byte[] content = Encoding.UTF8.GetBytes("custom data");
-                var transmission = new TestableTransmission(new Uri("http://test.uri"), content);
-                WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
-                Assert.AreEqual(content.Length, request.ContentLength);
-            }
-#endif
         }
 
         [TestClass]

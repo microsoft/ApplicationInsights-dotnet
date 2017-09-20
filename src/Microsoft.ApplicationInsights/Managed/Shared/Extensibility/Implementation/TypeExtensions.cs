@@ -10,22 +10,6 @@
     /// </summary>
     internal static class TypeExtensions
     {
-#if NET40
-        public static IEnumerable<MethodInfo> GetRuntimeMethods(this Type type)
-        {
-            return type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance);
-        }
-
-        public static bool IsAbstract(this Type type)
-        {
-            return type.IsAbstract;
-        }
-
-        public static bool IsGenericType(this Type type)
-        {
-            return type.IsGenericType;
-        }
-#else
         /// <summary>
         /// Returns a value that indicates whether the specified type can be assigned to the current type.
         /// </summary>
@@ -77,6 +61,5 @@
         {
             return type.GetTypeInfo().IsGenericType;
         }
-#endif
     }
 }

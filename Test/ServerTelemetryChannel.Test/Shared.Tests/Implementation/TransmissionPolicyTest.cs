@@ -1,17 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-    using System.Globalization;
-    using System.Net;
-
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.ApplicationInsights.TestFramework;
-
-
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public class TransmissionPolicyTest

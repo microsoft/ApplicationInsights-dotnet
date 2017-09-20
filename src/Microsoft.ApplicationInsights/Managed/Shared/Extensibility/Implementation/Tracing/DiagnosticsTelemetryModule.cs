@@ -2,15 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility;
-
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
 
     /// <summary>
     /// Use diagnostics telemetry module to report SDK internal problems to the portal and VS debug output window.

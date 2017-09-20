@@ -6,9 +6,7 @@
     using Microsoft.ApplicationInsights.Channel.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     internal class ThrottlingTransmissionPolicy : TransmissionPolicy, IDisposable
     {

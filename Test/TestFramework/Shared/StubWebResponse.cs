@@ -11,9 +11,7 @@
         public Func<string> OnGetContentType = () => default(string);
         public Func<WebHeaderCollection> OnGetHeaders = () => default(WebHeaderCollection);
         public Func<Uri> OnGetResponseUri = () => default(Uri);
-#if !NET40
         public Func<bool> OnGetSupportsHeaders = () => default(bool);
-#endif
         public Action OnDispose = () => { };
         public Func<Stream> OnGetResponseStream = () => default(Stream);
 
@@ -37,12 +35,10 @@
             get { return this.OnGetResponseUri(); }
         }
 
-#if !NET40
         public override bool SupportsHeaders 
         {
             get { return this.OnGetSupportsHeaders(); }
         }
-#endif
 #pragma warning disable 0108
         
         public void Dispose()

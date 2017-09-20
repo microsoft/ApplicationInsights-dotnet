@@ -13,9 +13,7 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public class TelemetrySinkTests

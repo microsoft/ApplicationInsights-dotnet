@@ -32,13 +32,6 @@
 
             Assert.IsNotNull(item.Action, "Action is not set");
 
-#if NET40
-            Assert.AreEqual(
-                manager.GetType(),
-                item.Action.Method.DeclaringType,
-                "Unexpected type of method binded with action");
-#endif
-
             Assert.AreEqual(SampleIntervalInMiliseconds, (uint)item.Interval, "Unexpected interval value");
         }
     }

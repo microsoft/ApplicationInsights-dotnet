@@ -11,15 +11,8 @@
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     
-    
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public class PartialSuccessTransmissionPolicyTest

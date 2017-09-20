@@ -1,11 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Mocks;
 

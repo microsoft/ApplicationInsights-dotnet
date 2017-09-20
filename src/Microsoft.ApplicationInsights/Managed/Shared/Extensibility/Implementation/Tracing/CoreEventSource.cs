@@ -1,10 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#else
     using System.Diagnostics.Tracing;
-#endif
 
     [EventSource(Name = "Microsoft-ApplicationInsights-Core")]
     internal sealed class CoreEventSource : EventSource

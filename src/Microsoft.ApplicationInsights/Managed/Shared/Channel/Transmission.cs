@@ -13,9 +13,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     /// <summary>
     /// Implements an asynchronous transmission of data to an HTTP POST endpoint.
@@ -148,7 +146,6 @@
             get; private set;
         }
 
-#if !NET40
         /// <summary>
         /// Executes the request that the current transmission represents.
         /// </summary>
@@ -192,46 +189,6 @@
                 Interlocked.Exchange(ref this.isSending, 0);
             }
     }
-
-#else // !NET40
-        /// <summary>
-        /// Executes the request that the current transmission represents.
-        /// </summary>
-        /// <returns>The task to await.</returns>
-        public virtual Task<HttpWebResponseWrapper> SendAsync()
-        {
-            if (Interlocked.CompareExchange(ref this.isSending, 1, 0) != 0)
-            {
-                throw new InvalidOperationException("SendAsync is already in progress.");
-            }
-
-            try
-            {
-                WebRequest request = this.CreateRequest(this.EndpointAddress);
-                Task<HttpWebResponseWrapper> sendTask = this.GetResponseAsync(request);
-                Task timeoutTask = TaskEx.Delay(this.Timeout).ContinueWith(task =>
-                {
-                    if (!sendTask.IsCompleted)
-                    {
-                        request.Abort(); // And force the sendTask to throw WebException.
-                    }
-                });
-
-                return TaskEx.WhenAny(timeoutTask, sendTask).ContinueWith(
-                    task =>
-                    {
-                        Interlocked.Exchange(ref this.isSending, 0);
-                        return sendTask;
-                    },
-                    TaskContinuationOptions.ExecuteSynchronously).Unwrap();
-            }
-            catch (Exception)
-            {
-                Interlocked.Exchange(ref this.isSending, 0);
-                throw;
-            }
-        }
-#endif // !NET40
 
         /// <summary>
         /// Splits the Transmission object into two pieces using a method 
@@ -386,43 +343,9 @@
             {
                 request.Headers[ContentEncodingHeader] = this.ContentEncoding;
             }
-#if NET40
-            request.ContentLength = this.Content.Length;
-#endif
+
             return request;
         }
-
-#if NET40
-        private Task<HttpWebResponseWrapper> GetResponseAsync(WebRequest request)
-        {
-            return Task.Factory.FromAsync(request.BeginGetRequestStream, request.EndGetRequestStream, null)
-                .ContinueWith(
-                    getRequestStreamTask =>
-                    {
-                        Stream requestStream = getRequestStreamTask.Result;
-                        return Task.Factory.FromAsync(
-                            (callback, o) => requestStream.BeginWrite(this.Content, 0, this.Content.Length, callback, o),
-                            requestStream.EndWrite, 
-                            null).ContinueWith(
-                                writeTask =>
-                                {
-                                    requestStream.Dispose();
-                                    writeTask.RethrowIfFaulted();
-                                });
-                    }).Unwrap().ContinueWith(requestTask =>
-                    {
-                        requestTask.RethrowIfFaulted();
-                        return Task.Factory.FromAsync(
-                            request.BeginGetResponse, request.EndGetResponse, null);
-                    }).Unwrap().ContinueWith(responseTask =>
-                    {
-                        using (WebResponse response = responseTask.Result)
-                        {
-                            return this.CheckResponse(response);
-                        }
-                    });
-        }
-#else // NET40
 
         private async Task<HttpWebResponseWrapper> GetResponseAsync(WebRequest request)
         {
@@ -436,7 +359,6 @@
                 return this.CheckResponse(response);
             }
         }
-#endif
 
         private HttpWebResponseWrapper CheckResponse(WebResponse response)
         {

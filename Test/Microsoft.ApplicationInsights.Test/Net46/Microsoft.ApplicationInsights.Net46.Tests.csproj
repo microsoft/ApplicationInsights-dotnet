@@ -48,7 +48,7 @@
     <Reference Include="System.Xml.Linq" />  
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Net40\Extensibility\Implementation\Platform\PlatformReferencesTests.cs">
+    <Compile Include="..\Net45\Extensibility\Implementation\Platform\PlatformReferencesTests.cs">
       <Link>Extensibility\Implementation\Platform\PlatformReferencesTests.cs</Link>
     </Compile>
   </ItemGroup>
