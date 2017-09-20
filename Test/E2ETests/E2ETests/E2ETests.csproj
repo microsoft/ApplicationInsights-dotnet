@@ -37,10 +37,18 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Reference Include="ApplicationInsightsTypes">
       <HintPath>..\..\..\..\bin\Debug\Test\ApplicationInsightsTypes\ApplicationInsightsTypes.dll</HintPath>
     </Reference>
+   </ItemGroup>
+   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Reference Include="ApplicationInsightsTypes">
+      <HintPath>..\..\..\..\bin\Release\Test\ApplicationInsightsTypes\ApplicationInsightsTypes.dll</HintPath>
+    </Reference>
+   </ItemGroup>
+	
+  <ItemGroup>    
     <Reference Include="Microsoft.ApplicationInsights, Version=2.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.5.0-beta1-build19420\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
     </Reference>
