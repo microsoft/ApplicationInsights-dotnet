@@ -5,11 +5,14 @@
     using System.Globalization;
     using System.Linq;
     using System.Net;
+#if NETCOREAPP1_1
+    using System.Reflection;
+#endif
     using System.Threading;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+     
     using TaskEx = System.Threading.Tasks.Task;    
 
     public class ThrottlingTransmissionPolicyTest
@@ -128,7 +131,7 @@
                 mockWebResponse.SetupGet<WebHeaderCollection>((webRes) => webRes.Headers).Returns((WebHeaderCollection)responseHeaders);
 
                 return new WebException("Transmitter Error", null, WebExceptionStatus.UnknownError, mockWebResponse.Object);
-#endif         
+#endif
             }
 
             private void PositiveTest(int responseCode, int? expectedSenderCapacity, int? expectedBufferCapacity, int? expectedStorageCapacity)
