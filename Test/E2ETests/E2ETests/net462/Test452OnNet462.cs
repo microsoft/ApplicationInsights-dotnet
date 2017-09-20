@@ -35,11 +35,11 @@ namespace E2ETests.Net462
             string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", dockerComposeBaseCommandFormat, dockerComposeFileNameFormat, dockerComposeActionCommand);
             Trace.WriteLine("Docker compose done using command: " + dockerComposeFullCommandFormat);
             ProcessStartInfo DockerComposeUp = new ProcessStartInfo("cmd", dockerComposeFullCommandFormat);
-            ProcessStartInfo DockerInspectIp = new ProcessStartInfo("cmd", "/c docker inspect -f \"{{.NetworkSettings.Networks.e2etests_default.IPAddress}}\" e2etests_e2etestwebapp_1");
-            ProcessStartInfo DockerInspectIpIngestion = new ProcessStartInfo("cmd", "/c docker inspect -f \"{{.NetworkSettings.Networks.e2etests_default.IPAddress}}\" e2etests_ingestionservice_1");
+            ProcessStartInfo DockerInspectIp = new ProcessStartInfo("cmd", "/c docker inspect -f \"{{.NetworkSettings.Networks.nat.IPAddress}}\" e2etests_e2etestwebapp_1");
+            ProcessStartInfo DockerInspectIpIngestion = new ProcessStartInfo("cmd", "/c docker inspect -f \"{{.NetworkSettings.Networks.nat.IPAddress}}\" e2etests_ingestionservice_1");
 
             Trace.WriteLine("DockerComposeUp started:" + DateTime.UtcNow.ToLongTimeString());
-            /*
+            
             Process process = new Process { StartInfo = DockerComposeUp };
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             process.StartInfo.UseShellExecute = false;
@@ -48,16 +48,16 @@ namespace E2ETests.Net462
             string output = process.StandardOutput.ReadToEnd();
             Trace.WriteLine("Docker Compose Console output:" + output);
             process.WaitForExit();
-            */
+            
             Trace.WriteLine("DockerComposeUp completed:" + DateTime.UtcNow.ToLongTimeString());
 
             Trace.WriteLine("DockerInspect started:" + DateTime.UtcNow.ToLongTimeString());
-            Process process = new Process { StartInfo = DockerInspectIp };
+            process = new Process { StartInfo = DockerInspectIp };
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.Start();
-            string output = process.StandardOutput.ReadToEnd();
+            output = process.StandardOutput.ReadToEnd();
             testappip = output.Trim();
             Trace.WriteLine("DockerInspect WebApp IP" + output);
             process.WaitForExit();
@@ -130,16 +130,25 @@ namespace E2ETests.Net462
         public async Task TestBasicHttpDependencyWebApp()
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
-            expectedDependencyTelemetry.Type = "RemoteDependency";
+            expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
 
-            await ValidateBasicDependencyAsync(testappip, "/Default", expectedDependencyTelemetry);
+            await ValidateBasicDependencyAsync(testappip, "/Dependencies.aspx?type=http", expectedDependencyTelemetry);
         }
 
+        [TestMethod]
+        public async Task TestBasicSqlDependencyWebApp()
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            await ValidateBasicDependencyAsync(testappip, "/Dependencies.aspx?type=sql", expectedDependencyTelemetry);
+        }
 
         [ClassCleanup]
         public static void MyClassCleanup()
-        {   /*                     
+        {    
             string dockerComposeActionCommand = "down";
             string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", dockerComposeBaseCommandFormat, dockerComposeFileNameFormat, dockerComposeActionCommand);
             ProcessStartInfo DockerComposeDown = new ProcessStartInfo("cmd", dockerComposeFullCommandFormat);
@@ -151,9 +160,7 @@ namespace E2ETests.Net462
             process.Start();
             string output = process.StandardOutput.ReadToEnd();
             Trace.WriteLine("Docker Compose Down Console output:" + output);
-            process.WaitForExit();
-            
-            */
+            process.WaitForExit();                        
         }
 
         private async Task ValidateBasicRequestAsync(string targetInstanceIp, string targetPath, RequestTelemetry expectedRequestTelemetry)
@@ -195,11 +202,11 @@ namespace E2ETests.Net462
             foreach(var deps in dependencies)
             {
                 Trace.WriteLine("Dependency Item Details");
-                Trace.WriteLine("deps.name", deps.name);
-                Trace.WriteLine("deps.time", deps.time);
-                Trace.WriteLine("deps.iKey", deps.iKey);
-                Trace.WriteLine("deps.data.baseData.type", deps.data.baseData.type);
-                Trace.WriteLine("deps.data.baseData.target", deps.data.baseData.target);
+                Trace.WriteLine("deps.time: "  +  deps.time);
+                Trace.WriteLine("deps.iKey: " + deps.iKey);
+                Trace.WriteLine("deps.data.baseData.name:" + deps.data.baseData.name);
+                Trace.WriteLine("deps.data.baseData.type:" + deps.data.baseData.type);
+                Trace.WriteLine("deps.data.baseData.target:" + deps.data.baseData.target);
                 Trace.WriteLine("--------------------------------------");
             }
         }
