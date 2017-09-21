@@ -1,5 +1,4 @@
-﻿#if !NET40
-namespace Microsoft.ApplicationInsights
+﻿namespace Microsoft.ApplicationInsights
 {
     using System.Diagnostics;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -40,4 +39,3 @@ namespace Microsoft.ApplicationInsights
         }
     }
 }
-#endif

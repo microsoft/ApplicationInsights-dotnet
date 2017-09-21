@@ -4,14 +4,10 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
     using System.Linq;
     using System.Net;
-#if !NET40
     using System.Net.Http;
-#endif
     using System.Reflection;
     using System.Text;
     using Microsoft.ApplicationInsights.Channel;
@@ -21,14 +17,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.TestFramework;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
-#if NET40 || NET45 || NET46 || NETCOREAPP1_1
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#else
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#endif
     
 
     [TestClass]
@@ -925,10 +914,6 @@
 
             var expected = "dotnet:" + string.Join(".", versionParts[0], versionParts[1], versionParts[2]) + "-" + versionParts[3];
 
-#if NET40
-            expected += "-fw4";
-#endif
-
             Assert.AreEqual(expected, eventTelemetry.Context.Internal.SdkVersion);
         }
 
@@ -1030,27 +1015,6 @@
             string json = JsonSerializer.SerializeAsString(telemetryItems);
             byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
 
-#if NET40
-            WebRequest request = WebRequest.Create("https://dc.services.visualstudio.com/v2/validate");
-            request.Method = "POST";
-            request.ContentType = "application/json";
-            request.ContentLength = jsonBytes.Length;
-            using (var requestStream = request.GetRequestStream())
-            {
-                requestStream.Write(jsonBytes, 0, jsonBytes.Length);
-            }
-
-            WebResponse response = request.GetResponse();
-            var result = (HttpWebResponse)response;
-            if (result.StatusCode != HttpStatusCode.OK)
-            {
-                var responseStream = response.GetResponseStream();
-                using (var reader = new System.IO.StreamReader(responseStream))
-                {
-                    Trace.WriteLine(reader.ReadToEnd());
-                }
-            }
-#else
             HttpClient client = new HttpClient();
             var result = client.PostAsync(
                 "https://dc.services.visualstudio.com/v2/validate",
@@ -1060,7 +1024,6 @@
                 var response = result.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 Trace.WriteLine(response);
             }
-#endif
 
             Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         }

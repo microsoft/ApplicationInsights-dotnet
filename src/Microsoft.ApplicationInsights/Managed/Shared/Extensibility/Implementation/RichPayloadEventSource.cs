@@ -1,16 +1,6 @@
 ﻿#if !NET45 // .Net 4.5 has a private implementation of this
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-#if NET40
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.Diagnostics.Tracing;
-#else
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
@@ -19,7 +9,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-#endif
 
     /// <summary>
     /// Event Source exposes Application Insights telemetry information as ETW events.

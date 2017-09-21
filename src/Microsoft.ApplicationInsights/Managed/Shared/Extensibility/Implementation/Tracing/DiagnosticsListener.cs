@@ -2,13 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
-    using System.Linq;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
 
     /// <summary>
     /// Subscriber to ETW Event source events, which sends data to other Senders (F5 and Portal).

@@ -1,24 +1,19 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
     using System.Globalization;
     using System.Linq;
     using System.Net;
+#if NETCOREAPP1_1
     using System.Reflection;
+#endif
     using System.Threading;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
-#if !NET40
+     
     using TaskEx = System.Threading.Tasks.Task;    
-#endif
 
     public class ThrottlingTransmissionPolicyTest
     {
@@ -136,7 +131,7 @@
                 mockWebResponse.SetupGet<WebHeaderCollection>((webRes) => webRes.Headers).Returns((WebHeaderCollection)responseHeaders);
 
                 return new WebException("Transmitter Error", null, WebExceptionStatus.UnknownError, mockWebResponse.Object);
-#endif         
+#endif
             }
 
             private void PositiveTest(int responseCode, int? expectedSenderCapacity, int? expectedBufferCapacity, int? expectedStorageCapacity)

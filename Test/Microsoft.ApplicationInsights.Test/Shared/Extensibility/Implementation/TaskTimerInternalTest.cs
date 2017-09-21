@@ -1,9 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
     using System.Linq;
     using System.Reflection;
     using System.Threading;
@@ -11,14 +9,9 @@
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.TestFramework;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public class TaskTimerInternalTest
@@ -102,7 +95,7 @@
         [TestClass]
         public class Start
         {
-#if NET40 || NET45
+#if NET45
             [TestMethod]
             public void DoesNotLogErrorsIfCallbackReturnsNull()
             {

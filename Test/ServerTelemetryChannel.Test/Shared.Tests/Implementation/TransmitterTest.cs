@@ -2,9 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
     using System.IO;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
@@ -13,14 +11,9 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     public class TransmitterTest
     {

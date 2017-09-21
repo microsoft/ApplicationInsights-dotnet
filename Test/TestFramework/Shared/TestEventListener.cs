@@ -4,20 +4,15 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
     using System.Threading;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
-#if NET40 || NET45
+#if NET45
     using System.Runtime.Remoting.Messaging;
 #endif
 
     internal class TestEventListener : EventListener
     {
-#if NET40 || NET45
+#if NET45
 
         public static class CurrentContextEvents
         {

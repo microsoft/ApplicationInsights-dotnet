@@ -1,9 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
- #if !NET40
     using System.Diagnostics.Tracing;
-#endif
     using System.Linq;
     using System.Net;
     using System.Reflection;
@@ -15,9 +13,6 @@
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
     using System.Text;

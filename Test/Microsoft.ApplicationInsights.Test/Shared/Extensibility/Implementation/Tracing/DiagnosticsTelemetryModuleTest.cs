@@ -1,20 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     using System;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
     using System.Linq;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public class DiagnosticsTelemetryModuleTest

@@ -8,9 +8,7 @@
     
     using Channel.Helpers;
 
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     public class ApplicationLifecycleTransmissionPolicyTest
     {

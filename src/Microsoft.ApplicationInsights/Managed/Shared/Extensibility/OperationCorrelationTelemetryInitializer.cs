@@ -1,13 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
-#if !NET40
     using System.Diagnostics;
-#endif
     using Implementation;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Channel;
 
-#if NET40 || NET45
+#if NET45
     /// <summary>
     /// Telemetry initializer that populates OperationContext for the telemetry item based on context stored in CallContext.
     /// </summary>
@@ -27,7 +25,6 @@
             var itemContext = telemetryItem.Context.Operation;
 
             bool isActivityAvailable = false;
-#if !NET40
             isActivityAvailable = ActivityExtensions.TryRun(() =>
             { 
                 var currentActivity = Activity.Current;
@@ -59,7 +56,7 @@
                     }
                 }
             });
-#endif
+
             if (!isActivityAvailable)
             {
                 if (string.IsNullOrEmpty(itemContext.ParentId) || string.IsNullOrEmpty(itemContext.Id) || string.IsNullOrEmpty(itemContext.Name))

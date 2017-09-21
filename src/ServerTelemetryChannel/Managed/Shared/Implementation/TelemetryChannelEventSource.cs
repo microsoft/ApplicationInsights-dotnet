@@ -1,12 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-    using System.Net;
-#if NET40  
-    using Microsoft.Diagnostics.Tracing;
-#else
     using System.Diagnostics.Tracing;
-#endif
 
     [EventSource(Name = "Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel")]
     internal sealed class TelemetryChannelEventSource : EventSource

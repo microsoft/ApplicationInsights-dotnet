@@ -17,12 +17,8 @@
     using System.Collections.Generic;
     using Extensibility.Implementation;
 
-#if NET40  
-    using Microsoft.Diagnostics.Tracing;
-#else
     using System.Diagnostics.Tracing;
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     public class ServerTelemetryChannelTest : IDisposable
     {

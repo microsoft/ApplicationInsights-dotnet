@@ -1,15 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
     using System.Text;
     
     using Microsoft.ApplicationInsights.TestFramework;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
 

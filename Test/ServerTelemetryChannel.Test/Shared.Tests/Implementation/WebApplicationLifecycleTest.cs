@@ -5,11 +5,7 @@
     using System.Web.Hosting;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.ApplicationInsights.TestFramework;
-
-
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public sealed class WebApplicationLifecycleTest : IDisposable

@@ -1,9 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
-#if !NET40
     using System.Diagnostics;
-#endif
     using Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -78,7 +76,6 @@
                     {
                         var operationTelemetry = this.Telemetry;
                         bool isActivityAvailable = false;
-#if !NET40
                         isActivityAvailable = ActivityExtensions.TryRun(() =>
                         {
                             var currentActivity = Activity.Current;
@@ -91,7 +88,7 @@
 
                             currentActivity.Stop();
                         });
-#endif
+
                         if (!isActivityAvailable)
                         {
                             var currentOperationContext = CallContextHelpers.GetCurrentOperationContext();

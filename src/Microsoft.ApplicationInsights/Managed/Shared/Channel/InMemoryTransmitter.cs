@@ -160,11 +160,7 @@ namespace Microsoft.ApplicationInsights.Channel
             if (data == null || data.Length == 0)
             {
                 CoreEventSource.Log.LogVerbose("No Telemetry Items passed to Enqueue");
-#if NET40
-                return TaskEx.FromResult<object>(null);
-#else
                 return Task.FromResult<object>(null);
-#endif
             }
 
             var transmission = new Transmission(this.endpointAddress, data, JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout);

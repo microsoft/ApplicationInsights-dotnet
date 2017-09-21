@@ -2,11 +2,7 @@
 {
     using System.Reflection;
     using Microsoft.ApplicationInsights.TestFramework;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#else
     using System.Diagnostics.Tracing;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]

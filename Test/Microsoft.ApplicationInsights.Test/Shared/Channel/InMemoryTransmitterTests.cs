@@ -2,16 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-#if NET40 || NET45 || NET46 || NETCOREAPP1_1
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#else
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#endif
-    
+   
     using Extensibility;
-#if !NET40
     using System.Net.Http;
-#endif
     using System.Threading;
 
     public class InMemoryTransmitterTests
@@ -37,7 +31,6 @@
                 Assert.AreEqual(expectedValue, transmitter.SendingInterval);
             }
 
-#if !NET40
             private class TelemetryBufferWithInternalOperationValidation : TelemetryBuffer
             {
                 public bool WasCalled = false;
@@ -94,7 +87,6 @@
 
                 Assert.IsTrue(buffer.WasCalled);
             }
-#endif
         }
     }
 }

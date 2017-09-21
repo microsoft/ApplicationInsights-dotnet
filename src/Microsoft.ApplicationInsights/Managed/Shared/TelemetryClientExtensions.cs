@@ -106,7 +106,6 @@
 
             bool isActivityAvailable = false;
 
-#if !NET40
             isActivityAvailable = ActivityExtensions.TryRun(() =>
             {
                 var parentActivity = Activity.Current;
@@ -132,7 +131,7 @@
                 operationActivity.Start();
                 operationTelemetry.Id = operationActivity.Id;
             });
-#endif
+
             var operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry);
             if (!isActivityAvailable)
             {

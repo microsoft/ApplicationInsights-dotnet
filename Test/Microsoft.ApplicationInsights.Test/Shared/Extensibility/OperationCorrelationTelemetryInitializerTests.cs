@@ -1,5 +1,4 @@
-﻿#if !NET40
-namespace Microsoft.ApplicationInsights.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using System.Diagnostics;
     using Implementation;
@@ -173,4 +172,3 @@ namespace Microsoft.ApplicationInsights.Extensibility
         }
     }
 }
-#endif

@@ -226,11 +226,7 @@
                             {
                                 if (!ex.Message.Equals(TypeDiscoveryLimitReachedMessage, StringComparison.Ordinal))
                                 {
-#if NET40
-                                    throw;
-#else
                                     ExceptionDispatchInfo.Capture(ex).Throw();
-#endif
                                 }
 
                                 //// Limit was reached concurrently. We will use "Other" after all:

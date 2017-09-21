@@ -1,13 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     using System;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
     using System.Linq;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
 
     internal class DiagnosticsEventListener : EventListener
     {

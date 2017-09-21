@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <Compile Include="shared\**\*.cs" />
-    <Compile Include="net40\**\*.cs" Condition="'$(TargetFramework)' == 'net40'" />
     <Compile Include="net45\**\*.cs" Condition="'$(TargetFramework)' == 'net45'" />
     <Compile Include="net46\**\*.cs" Condition="'$(TargetFramework)' == 'net46'" />
     <Compile Include="netstandard1.3\**\*.cs" Condition="'$(TargetFramework)' == 'netstandard1.3'" />
@@ -41,13 +40,6 @@
       <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
-    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventSource.Redist" Version="1.1.28" />    
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' != 'net40'">
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
   </ItemGroup>
 

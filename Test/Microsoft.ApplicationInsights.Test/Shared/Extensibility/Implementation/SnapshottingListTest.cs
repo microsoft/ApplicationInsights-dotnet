@@ -8,15 +8,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using System.Reflection;
     using System.Threading.Tasks;
 
-#if NET40 || NET45 || NET46 || NETCOREAPP1_1
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#else
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#endif
     
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public class SnapshottingListTest

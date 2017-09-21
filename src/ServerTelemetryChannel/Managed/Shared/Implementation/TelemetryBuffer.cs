@@ -6,9 +6,7 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     /// <summary>
     /// Accumulates <see cref="ITelemetry"/> items for efficient transmission.

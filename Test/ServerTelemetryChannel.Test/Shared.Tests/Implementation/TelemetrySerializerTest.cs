@@ -11,11 +11,7 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
-
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     public class TelemetrySerializerTest
     {
