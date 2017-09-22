@@ -117,7 +117,7 @@
             {
                 items = GetItemIds(instrumentationKey).ToList();
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 //trace errors
             }

@@ -113,6 +113,12 @@
     <Folder Include="App_Data\" />
     <Folder Include="Models\" />
   </ItemGroup>
+    <PropertyGroup>
+    <DeployOnBuild>true</DeployOnBuild>
+    <DeployTarget>PipelinePreDeployCopyAllFilesToOneFolder</DeployTarget>
+    <_PackageTempDir>$(OutputPath)\Publish</_PackageTempDir>
+    <AutoParameterizationWebConfigConnectionStrings>false</AutoParameterizationWebConfigConnectionStrings>
+  </PropertyGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
