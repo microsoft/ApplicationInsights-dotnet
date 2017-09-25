@@ -158,7 +158,8 @@ namespace E2ETests.Helpers
         private string GetDataEndpointActionResult(string url)
         {            
             using (var respose = WebRequest.CreateHttp(url).GetResponse())
-            {            
+            {
+                Trace.TraceInformation("Invoking url:" + url);
                 using (var reader = new StreamReader(respose.GetResponseStream()))
                 {
                     return reader.ReadToEnd();

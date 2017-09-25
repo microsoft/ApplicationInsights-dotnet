@@ -94,15 +94,16 @@ namespace E2ETests.Net462
             process.WaitForExit();
         }
 
-        [TestInitialize]
-        public void MyTestInitialize()
+        [TestCleanup]
+        public void MyTestCleanup()
         {
+            Thread.Sleep(5000);
             Trace.WriteLine("Deleting items started:" + DateTime.UtcNow.ToLongTimeString());
             dataendpointClient.DeleteItems(WebAppInstrumentationKey);
             dataendpointClient.DeleteItems(WebApiInstrumentationKey);
             Trace.WriteLine("Deleting items completed:" + DateTime.UtcNow.ToLongTimeString());
 
-            PrintDockerProcessStats("After TestInitialize");
+            PrintDockerProcessStats("After MyTestCleanup");
         }
 
         [TestMethod]   
@@ -207,8 +208,15 @@ namespace E2ETests.Net462
             HttpClient client = new HttpClient();
             string url = "http://" + targetInstanceIp + targetPath;
             Trace.WriteLine("Hitting the target url:" + url);
-            var response = await client.GetAsync(url);
-            Trace.WriteLine("Actual Response code: " + response.StatusCode);
+            try
+            {
+                var response = await client.GetStringAsync(url);                
+                Trace.WriteLine("Actual Response text: " + response.ToString());
+            }
+            catch(Exception ex)
+            {
+                Trace.WriteLine("Exception occured:" + ex);
+            }
             Thread.Sleep(1000);
             var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(WebAppInstrumentationKey);
             PrintDependencies(dependenciesWebApp);
