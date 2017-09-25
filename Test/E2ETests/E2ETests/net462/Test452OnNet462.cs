@@ -37,6 +37,7 @@ namespace E2ETests.Net462
             ProcessStartInfo DockerComposeUp = new ProcessStartInfo("cmd", dockerComposeFullCommandFormat);
             ProcessStartInfo DockerInspectIp = new ProcessStartInfo("cmd", "/c docker inspect -f \"{{.NetworkSettings.Networks.nat.IPAddress}}\" e2etests_e2etestwebapp_1");
             ProcessStartInfo DockerInspectIpIngestion = new ProcessStartInfo("cmd", "/c docker inspect -f \"{{.NetworkSettings.Networks.nat.IPAddress}}\" e2etests_ingestionservice_1");
+            ProcessStartInfo DockerPSProcessInfo = new ProcessStartInfo("cmd", "/c docker ps -a"); 
 
             Trace.WriteLine("DockerComposeUp started:" + DateTime.UtcNow.ToLongTimeString());
             
@@ -71,6 +72,16 @@ namespace E2ETests.Net462
             output = process.StandardOutput.ReadToEnd();
             ingestionServiceIp = output.Trim();
             Trace.WriteLine("DockerInspect IngestionService IP" + output);
+            Trace.WriteLine(output);
+            process.WaitForExit();
+
+            process = new Process { StartInfo = DockerPSProcessInfo };
+            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.Start();
+            output = process.StandardOutput.ReadToEnd();            
+            Trace.WriteLine("Docker ps -a" + output);
             Trace.WriteLine(output);
             process.WaitForExit();
 
