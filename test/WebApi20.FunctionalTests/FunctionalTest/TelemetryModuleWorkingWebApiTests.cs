@@ -1,9 +1,8 @@
-﻿using Xunit;
-
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
-namespace WebApi20.FunctionalTests.FunctionalTest
+﻿namespace WebApi20.FunctionalTests.FunctionalTest
 {
     using FunctionalTestUtils;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Xunit;
     using Xunit.Abstractions;
 
     public class TelemetryModuleWorkingWebApiTests : TelemetryTestsBase
@@ -18,7 +17,18 @@ namespace WebApi20.FunctionalTests.FunctionalTest
         [Fact]
         public void TestBasicDependencyPropertiesAfterRequestingBasicPage()
         {
-            this.ValidateBasicDependency(assemblyName, "/api/values");
+            const string RequestPath = "/api/values";
+
+            using (var server = new InProcessServer(assemblyName))
+            {
+                DependencyTelemetry expected = new DependencyTelemetry();
+                expected.ResultCode = "200";
+                expected.Success = true;
+                expected.Name = "GET " + RequestPath;
+                expected.Data = server.BaseHost + RequestPath;
+
+                this.ValidateBasicDependency(server, RequestPath, expected);
+            }
         }
 
         [Fact]

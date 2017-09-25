@@ -23,7 +23,10 @@ namespace MVCFramework20.FunctionalTests
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<ITelemetryChannel>(new BackTelemetryChannel());
+            var builder = new ConfigurationBuilder();
+            builder.AddApplicationInsightsSettings(instrumentationKey: "Foo", endpointAddress: "http://localhost:4001/v2/track/", developerMode: true);
+
+            services.AddApplicationInsightsTelemetry(builder.Build());
             services.AddMvc();
         }
 

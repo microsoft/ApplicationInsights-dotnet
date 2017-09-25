@@ -1,6 +1,7 @@
 ﻿namespace MVCFramework20.FunctionalTests.FunctionalTest
 {
     using FunctionalTestUtils;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -17,7 +18,18 @@
         [Fact]
         public void TestBasicDependencyPropertiesAfterRequestingBasicPage()
         {
-            this.ValidateBasicDependency(assemblyName, "/Home/About/5", InProcessServer.UseApplicationInsights);
+            const string RequestPath = "/Home/About/5";
+
+            using (var server = new InProcessServer(assemblyName))
+            {
+                DependencyTelemetry expected = new DependencyTelemetry();
+                expected.ResultCode = "200";
+                expected.Success = true;
+                expected.Name = "GET " + RequestPath;
+                expected.Data = server.BaseHost + RequestPath;
+
+                this.ValidateBasicDependency(server, RequestPath, expected);
+            }
         }
 
         [Fact]

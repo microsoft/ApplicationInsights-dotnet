@@ -1,15 +1,14 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace MVCFramework20.FunctionalTests.FunctionalTest
+﻿namespace MVCFramework20.FunctionalTests.FunctionalTest
 {
     using System.Linq;
     using System.Net.Http;
+
+    using AI;
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
     using Xunit.Abstractions;
-
+    
     public class RequestTelemetryMvcTests : TelemetryTestsBase
     {
         private const string assemblyName = "MVCFramework20.FunctionalTests";
@@ -80,17 +79,25 @@ namespace MVCFramework20.FunctionalTests.FunctionalTest
                     var task = httpClient.GetAsync(server.BaseHost + "/Home/Contact");
                     task.Wait(TestTimeoutMs);
                 }
-            }
-            var telemetries = server.BackChannel.Buffer;
-            Assert.Contains(telemetries.OfType<DependencyTelemetry>(), t => t.Name == "GET /Home/Contact");
-            Assert.True(telemetries.Count >= 4);
-            Assert.Contains(telemetries.OfType<RequestTelemetry>(), t => t.Name == "GET Home/Contact");
-            Assert.Contains(telemetries.OfType<EventTelemetry>(), t => t.Name == "GetContact");
-            Assert.Contains(telemetries.OfType<MetricTelemetry>(),
-                t => t.Name == "ContactFile" && t.Value == 1);
 
-            Assert.Contains(telemetries.OfType<TraceTelemetry>(),
-                t => t.Message == "Fetched contact details." && t.SeverityLevel == SeverityLevel.Information);
+                var telemetries = server.Execute<Envelope>(() => server.Listener.ReceiveItems(5, TestListenerTimeoutInMs));
+                Assert.True(telemetries.Length >= 5);
+
+                Assert.Contains(telemetries.OfType<TelemetryItem<RemoteDependencyData>>(),
+                    t => ((TelemetryItem<RemoteDependencyData>)t).data.baseData.name == "GET /Home/Contact");
+
+                Assert.Contains(telemetries.OfType<TelemetryItem<RequestData>>(),
+                    t => ((TelemetryItem<RequestData>)t).data.baseData.name == "GET Home/Contact");
+
+                Assert.Contains(telemetries.OfType<TelemetryItem<EventData>>(),
+                    t => ((TelemetryItem<EventData>)t).data.baseData.name == "GetContact");
+
+                Assert.Contains(telemetries.OfType<TelemetryItem<MetricData>>(),
+                    t => ((TelemetryItem<MetricData>)t).data.baseData.metrics[0].name == "ContactFile" && ((TelemetryItem<MetricData>)t).data.baseData.metrics[0].value == 1);
+
+                Assert.Contains(telemetries.OfType<TelemetryItem<MessageData>>(),
+                    t => ((TelemetryItem<MessageData>)t).data.baseData.message == "Fetched contact details." && ((TelemetryItem<MessageData>)t).data.baseData.severityLevel == AI.SeverityLevel.Information);
+            }
         }
     }
 }

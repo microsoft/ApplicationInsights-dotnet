@@ -1,10 +1,11 @@
-﻿namespace WebApi20.FunctionalTests.FunctionalTest
+﻿using Xunit;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+namespace WebApi20.FunctionalTests.FunctionalTest
 {
     using System;
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Xunit;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Xunit.Abstractions;
 
     public class ExceptionTelemetryWebApiTests : TelemetryTestsBase

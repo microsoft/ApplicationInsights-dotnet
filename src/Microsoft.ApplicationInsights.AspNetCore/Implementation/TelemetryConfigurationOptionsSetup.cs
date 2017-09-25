@@ -7,9 +7,9 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-#if NET451 || NET46
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
+#if NET451 || NET46
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;    
 #endif
     using Microsoft.Extensions.Options;
 
@@ -99,9 +99,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private void AddTelemetryChannelAndProcessors(TelemetryConfiguration configuration)
         {
-#if NET451 || NET46
             configuration.TelemetryChannel = this.telemetryChannel ?? new ServerTelemetryChannel();
 
+#if NET451 || NET46
             if (configuration.TelemetryChannel is ServerTelemetryChannel)
             {
                 // Enabling Quick Pulse Metric Stream
@@ -120,6 +120,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
             }
 #endif
+
             if (this.applicationInsightsServiceOptions.EnableAdaptiveSampling)
             {
                 configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();

@@ -7,19 +7,17 @@
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.Extensions.Configuration;
     using Microsoft.ApplicationInsights.Channel;
-    using FunctionalTestUtils;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
 
     public class Startup
     {
         // For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<ITelemetryChannel>(new BackTelemetryChannel());
-
             var builder = new ConfigurationBuilder();
-            builder.AddApplicationInsightsSettings(instrumentationKey: "Foo");
+            builder.AddApplicationInsightsSettings(instrumentationKey: "Foo", endpointAddress: "http://localhost:4001/v2/track/", developerMode: true);
             services.AddApplicationInsightsTelemetry(builder.Build());
         }
 

@@ -40,11 +40,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionalTestUtils20", "te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MVCFramework.FunctionalTests", "test\MVCFramework.FunctionalTests\MVCFramework.FunctionalTests.csproj", "{1D5825CC-2EC9-43A1-BE32-778EFF5EAC80}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVCFramework20.FunctionalTests", "test\MVCFramework20.FunctionalTests\MVCFramework20.FunctionalTests.csproj", "{51198C41-CD4A-4006-84D4-DE20A0A44363}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MVCFramework20.FunctionalTests", "test\MVCFramework20.FunctionalTests\MVCFramework20.FunctionalTests.csproj", "{51198C41-CD4A-4006-84D4-DE20A0A44363}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi.FunctionalTests", "test\WebApi.FunctionalTests\WebApi.FunctionalTests.csproj", "{325C4ECE-BD4A-4CF2-BC80-FBD1024B5935}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi20.FunctionalTests", "test\WebApi20.FunctionalTests\WebApi20.FunctionalTests.csproj", "{C3B3F515-0305-4809-A9A8-37FD80428F74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi20.FunctionalTests", "test\WebApi20.FunctionalTests\WebApi20.FunctionalTests.csproj", "{C3B3F515-0305-4809-A9A8-37FD80428F74}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationInsightsTypes", "test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj", "{9DA7024F-216F-4FA5-9B6D-CE4216C2DD72}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -92,6 +94,10 @@ Global
 		{C3B3F515-0305-4809-A9A8-37FD80428F74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3B3F515-0305-4809-A9A8-37FD80428F74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3B3F515-0305-4809-A9A8-37FD80428F74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DA7024F-216F-4FA5-9B6D-CE4216C2DD72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DA7024F-216F-4FA5-9B6D-CE4216C2DD72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DA7024F-216F-4FA5-9B6D-CE4216C2DD72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DA7024F-216F-4FA5-9B6D-CE4216C2DD72}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -108,6 +114,7 @@ Global
 		{51198C41-CD4A-4006-84D4-DE20A0A44363} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 		{325C4ECE-BD4A-4CF2-BC80-FBD1024B5935} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 		{C3B3F515-0305-4809-A9A8-37FD80428F74} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
+		{9DA7024F-216F-4FA5-9B6D-CE4216C2DD72} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {047855A4-470F-43B1-8B74-69651DD6B8A6}

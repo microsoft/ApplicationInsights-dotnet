@@ -2,14 +2,16 @@
 {
     using System;
     using System.IO;
-    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.Extensions.DependencyInjection;    
+    using AI;
 
     // a variant of aspnet/Hosting/test/Microsoft.AspNetCore.Hosting.Tests/HostingEngineTests.cs
     public class InProcessServer : IDisposable
     {
+        private const string httpListenerConnectionString = "http://localhost:4001/v2/track/";
+
         private static Random random = new Random();
+        private static object noParallelism = new object();
 
         public static Func<IWebHostBuilder, IWebHostBuilder> UseApplicationInsights =
             builder => builder.UseApplicationInsights();
@@ -18,22 +20,25 @@
         private IWebHost hostingEngine;
         private string url;
 
-        private readonly BackTelemetryChannel backChannel;
-
-        public BackTelemetryChannel BackChannel
-        {
-            get
-            {
-                return this.backChannel;
-            }
-        }
+        private TelemetryHttpListenerObservable listener;       
+        
 
         public InProcessServer(string assemblyName, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
             this.configureHost = configureHost;
+
             var machineName = Environment.GetEnvironmentVariable("COMPUTERNAME");
-            this.url = "http://" + machineName + ":" + random.Next(5000, 14000).ToString();
-            this.backChannel = this.Start(assemblyName);
+            this.url = "http://" + machineName + ":" + random.Next(5000, 14000).ToString();           
+
+            this.Start(assemblyName);
+        }
+
+        public TelemetryHttpListenerObservable Listener
+        {
+            get
+            {
+                return this.listener;
+            }
         }
 
         public string BaseHost
@@ -44,9 +49,35 @@
             }
         }
 
+        public T[] Execute<T>(Func<T[]> receiveItemsMethod)
+        {
+            lock (noParallelism)
+            {
+                try
+                {
+                    this.listener = new TelemetryHttpListenerObservable(httpListenerConnectionString);
+                    this.listener.Start();
+
+                    if (receiveItemsMethod != null)
+                    {
+                        return receiveItemsMethod();
+                    }
+                }
+                finally
+                {
+                    if (this.listener != null)
+                    {
+                        this.listener.Stop();
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public IServiceProvider ApplicationServices { get; private set; }
 
-        private BackTelemetryChannel Start(string assemblyName)
+        private void Start(string assemblyName)
         {
             var builder = new WebHostBuilder()
                 .UseContentRoot(Directory.GetCurrentDirectory())
@@ -64,7 +95,6 @@
             this.hostingEngine.Start();
 
             this.ApplicationServices = this.hostingEngine.Services;
-            return (BackTelemetryChannel)this.hostingEngine.Services.GetService<ITelemetryChannel>();
         }
 
         public void Dispose()

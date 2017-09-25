@@ -1,19 +1,16 @@
-﻿using System.Diagnostics;
-
-namespace MVCFramework20.FunctionalTests.FunctionalTest
-{
+﻿namespace MVCFramework20.FunctionalTests.FunctionalTest
+{   
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
     using System.Text;
+
+    using AI;
     using FunctionalTestUtils;
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Xunit;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.DependencyCollector;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.Extensions.DependencyInjection;
+    using Xunit;
     using Xunit.Abstractions;
 
     public class DependencyTelemetryMvcTests : TelemetryTestsBase
@@ -27,9 +24,7 @@ namespace MVCFramework20.FunctionalTests.FunctionalTest
         public void CorrelationInfoIsNotAddedToRequestHeaderIfUserAddDomainToExcludedList()
         {
 #if netcoreapp2_0 // Correlation is supported on .Net core.
-            InProcessServer server;
-
-            using (server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
+            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
             {
                 var dependencyCollectorModule = server.ApplicationServices.GetServices<ITelemetryModule>().OfType<DependencyTrackingTelemetryModule>().Single();
                 dependencyCollectorModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Add(server.BaseHost);
@@ -39,20 +34,24 @@ namespace MVCFramework20.FunctionalTests.FunctionalTest
                     var task = httpClient.GetAsync(server.BaseHost + "/");
                     task.Wait(TestTimeoutMs);
                 }
-            }
 
-            var telemetries = server.BackChannel.Buffer;
-            try
-            {
-                Assert.True(telemetries.Count >= 2);
-                var requestTelemetry = telemetries.OfType<RequestTelemetry>().Single();
-                var dependencyTelemetry = telemetries.OfType<DependencyTelemetry>().Single();
-                Assert.NotEqual(requestTelemetry.Context.Operation.Id, dependencyTelemetry.Context.Operation.Id);
-            }
-            catch (Exception e)
-            {
-                string data = DebugTelemetryItems(telemetries);
-                throw new Exception(data, e);
+                var actual = server.Execute<Envelope>(() => server.Listener.ReceiveItems(TestListenerTimeoutInMs));
+
+                try
+                {
+                    var dependencyTelemetry = actual.OfType<TelemetryItem<RemoteDependencyData>>().FirstOrDefault();
+                    Assert.NotNull(dependencyTelemetry);                         
+
+                    var requestTelemetry = actual.OfType<TelemetryItem<RequestData>>().FirstOrDefault();
+                    Assert.NotNull(requestTelemetry);
+
+                    Assert.NotEqual(requestTelemetry.tags["ai.operation.id"], dependencyTelemetry.tags["ai.operation.id"]);
+                }
+                catch (Exception e)
+                {
+                    string data = DebugTelemetryItems(actual);
+                    throw new Exception(data, e);
+                }
             }
 #endif
         }
@@ -72,20 +71,25 @@ namespace MVCFramework20.FunctionalTests.FunctionalTest
                     var task = httpClient.GetAsync(server.BaseHost + "/" + path);
                     task.Wait(TestTimeoutMs);
                 }
-            }
 
-            var telemetries = server.BackChannel.Buffer;
-            try
-            {
-                Assert.True(telemetries.Count >= 2);
-                var requestTelemetry = telemetries.OfType<RequestTelemetry>().Single();
-                var dependencyTelemetry = telemetries.OfType<DependencyTelemetry>().First(t => t.Name == "MyDependency");
-                Assert.Equal(requestTelemetry.Context.Operation.Id, dependencyTelemetry.Context.Operation.Id);
-            }
-            catch (Exception e)
-            {
-                string data = DebugTelemetryItems(telemetries);
-                throw new Exception(data, e);
+                var actual = server.Execute<Envelope>(() => server.Listener.ReceiveItems(TestListenerTimeoutInMs));
+
+                try
+                {
+                    var dependencyTelemetry = actual.OfType<TelemetryItem<RemoteDependencyData>>()
+                        .First( t => ((TelemetryItem<RemoteDependencyData>)t).data.baseData.name == "MyDependency");
+                    Assert.NotNull(dependencyTelemetry);
+
+                    var requestTelemetry = actual.OfType<TelemetryItem<RequestData>>().FirstOrDefault();
+                    Assert.NotNull(requestTelemetry);
+
+                    Assert.Equal(requestTelemetry.tags["ai.operation.id"], dependencyTelemetry.tags["ai.operation.id"]);
+                }
+                catch (Exception e)
+                {
+                    string data = DebugTelemetryItems(actual);
+                    throw new Exception(data, e);
+                }
             }
         }
 
@@ -103,34 +107,42 @@ namespace MVCFramework20.FunctionalTests.FunctionalTest
                     var task = httpClient.GetAsync(server.BaseHost + "/" + path);
                     task.Wait(TestTimeoutMs);
                 }
-            }
 
-            // Filter out any unexpected telemetry items.
-            IEnumerable<ITelemetry> telemetries = server.BackChannel.Buffer.Where((t) => t.Context?.Operation?.Name != null && t.Context.Operation.Name.Contains(path));
-            try
-            {
-                Assert.NotNull(telemetries);
-                var requestTelemetry = telemetries.OfType<RequestTelemetry>().Single();
-                var dependencyTelemetry = telemetries.First(t => t is DependencyTelemetry && (t as DependencyTelemetry).Name == "MyDependency");
-                Assert.Equal(requestTelemetry.Id, dependencyTelemetry.Context.Operation.ParentId);
-            }
-            catch (Exception e)
-            {
-                string data = DebugTelemetryItems(server.BackChannel.Buffer);
-                throw new Exception(data, e);
+                var actual = server.Execute<Envelope>(() => server.Listener.ReceiveItems(TestListenerTimeoutInMs));
+
+                try
+                {
+                    var dependencyTelemetry = actual.OfType<TelemetryItem<RemoteDependencyData>>()
+                        .First(t => ((TelemetryItem<RemoteDependencyData>)t).data.baseData.name == "MyDependency");
+                    Assert.NotNull(dependencyTelemetry);
+
+                    var requestTelemetry = actual.OfType<TelemetryItem<RequestData>>().FirstOrDefault();
+                    Assert.NotNull(requestTelemetry);
+
+                    Assert.Contains(requestTelemetry.tags["ai.operation.id"], dependencyTelemetry.tags["ai.operation.parentId"]);
+                }
+                catch (Exception e)
+                {
+                    string data = DebugTelemetryItems(actual);
+                    throw new Exception(data, e);
+                }
             }
         }
 
-        private string DebugTelemetryItems(IList<ITelemetry> telemetries)
+        private string DebugTelemetryItems(Envelope[] telemetries)
         {
             StringBuilder builder = new StringBuilder();
-            foreach (ITelemetry telemetry in telemetries)
+            foreach (Envelope telemetry in telemetries)
             {
-                DependencyTelemetry dependency = telemetry as DependencyTelemetry;
-                if (dependency != null) {
-                    builder.AppendLine($"{dependency.ToString()} - {dependency.Data} - {dependency.Duration} - {dependency.Id} - {dependency.Name} - {dependency.ResultCode} - {dependency.Sequence} - {dependency.Success} - {dependency.Target} - {dependency.Type}");
-                } else {
-                    builder.AppendLine($"{telemetry.ToString()} - {telemetry.Context?.Operation?.Name}");
+                TelemetryItem<RemoteDependencyData> dependency = telemetry as TelemetryItem<RemoteDependencyData>;
+                if (dependency != null)
+                {
+                    var data = ((TelemetryItem<RemoteDependencyData>)dependency).data.baseData;
+                    builder.AppendLine($"{dependency.ToString()} - {data.data} - {data.duration} - {data.id} - {data.name} - {data.resultCode} - {data.success} - {data.target} - {data.type}");
+                }
+                else
+                {
+                    builder.AppendLine($"{telemetry.ToString()} - {telemetry.name}");
                 }
             }
 

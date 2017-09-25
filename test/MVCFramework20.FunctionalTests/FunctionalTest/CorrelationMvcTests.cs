@@ -5,6 +5,7 @@
     using System;
     using System.Linq;
     using System.Net.Http;
+    using AI;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -21,24 +22,25 @@
         public void CorrelationInfoIsPropagatedToDependendedService()
         {
 #if netcoreapp2_0 // Correlation works on .Net core.
-            InProcessServer server;
-
-            using (server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
+            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
             {
                 using (var httpClient = new HttpClient())
                 {
                     var task = httpClient.GetAsync(server.BaseHost + "/");
                     task.Wait(TestTimeoutMs);
                 }
+
+                var actual = server.Execute<Envelope>(() => server.Listener.ReceiveItems(2, TestListenerTimeoutInMs));
+
+                var dependencyTelemetry = actual.OfType<TelemetryItem<RemoteDependencyData>>().FirstOrDefault();
+                Assert.NotNull(dependencyTelemetry);                         
+
+                var requestTelemetry = actual.OfType<TelemetryItem<RequestData>>().FirstOrDefault();
+                Assert.NotNull(requestTelemetry);
+
+                Assert.Equal(requestTelemetry.tags["ai.operation.id"], dependencyTelemetry.tags["ai.operation.id"]);
+                Assert.Contains(dependencyTelemetry.tags["ai.operation.id"], requestTelemetry.tags["ai.operation.parentId"]);               
             }
-
-            var telemetries = server.BackChannel.Buffer;
-
-            Assert.True(telemetries.Count >= 2);
-            var requestTelemetry = telemetries.OfType<RequestTelemetry>().Single();
-            var dependencyTelemetry = telemetries.OfType<DependencyTelemetry>().Single();
-            Assert.Equal(requestTelemetry.Context.Operation.Id, dependencyTelemetry.Context.Operation.Id);
-            Assert.Equal(requestTelemetry.Context.Operation.ParentId, dependencyTelemetry.Id);
 #endif
         }
     }
