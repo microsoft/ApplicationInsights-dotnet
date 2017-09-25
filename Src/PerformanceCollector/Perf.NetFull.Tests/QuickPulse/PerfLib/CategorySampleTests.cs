@@ -16,7 +16,7 @@
         {
             // ARRANGE
             var dataList = new List<byte>();
-            string resourceName = "Microsoft.ApplicationInsights.QuickPulse.PerfLib.PerfData.data";
+            string resourceName = "Microsoft.ApplicationInsights.Tests.QuickPulse.PerfLib.PerfData.data";
 
             Stream stream = null;
             try

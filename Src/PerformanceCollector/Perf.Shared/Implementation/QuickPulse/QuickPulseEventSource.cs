@@ -1,14 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse
 {
     using System;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
     using System.Reflection;
-
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
 
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-PerformanceCollector-QuickPulse")]
     internal sealed class QuickPulseEventSource : EventSource

@@ -1,9 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer
 {    
     using System;
-#if NET45
     using System.Diagnostics.Tracing;
-#endif
     using System.Globalization;
     using System.IO;
     using System.Linq;    
@@ -12,9 +10,6 @@
     using Microsoft.ApplicationInsights.WindowsServer.Azure;
     using Microsoft.ApplicationInsights.WindowsServer.Azure.Emulation;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Web.TestFramework;
     using Assert = Xunit.Assert;

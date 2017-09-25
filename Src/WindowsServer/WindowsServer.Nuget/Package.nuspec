@@ -16,13 +16,6 @@
     <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
     <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
     <dependencies>
-      <group targetFramework="net40">
-        <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
-        <dependency id="Microsoft.ApplicationInsights.DependencyCollector" version="$version$" />
-        <dependency id="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" version="[$coresdkversion$]" />
-        <dependency id="Microsoft.ApplicationInsights.PerfCounterCollector" version="$version$" />
-        <dependency id="Microsoft.Diagnostics.Tracing.EventSource.Redist" version="1.1.28"/>
-      </group>
       <group targetFramework="net45">
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
         <dependency id="Microsoft.ApplicationInsights.DependencyCollector" version="$version$" />
@@ -37,11 +30,6 @@
     <file src="$configuration$\Src\WindowsServer\WindowsServer.Nuget\ApplicationInsights.config.transform" target="content" />
     <file src="$configuration$\Src\WindowsServer\WindowsServer.Nuget\ApplicationInsights.config.install.xdt" target="content" />
     <file src="$configuration$\Src\WindowsServer\WindowsServer.Nuget\ApplicationInsights.config.uninstall.xdt" target="content" />
-
-    <!-- For .NET 4.0 projects -->
-    <file src="$configuration$\Src\WindowsServer\WindowsServer.Net40\Microsoft.AI.WindowsServer.dll" target="lib\net40" />
-    <file src="$configuration$\Src\WindowsServer\WindowsServer.Net40\Microsoft.AI.WindowsServer.pdb" target="lib\net40" />
-    <file src="$configuration$\Src\WindowsServer\WindowsServer.Net40\Microsoft.AI.WindowsServer.xml" target="lib\net40" />
 
     <!-- For .NET 4.5 projects -->
     <file src="$configuration$\Src\WindowsServer\WindowsServer.Net45\Microsoft.AI.WindowsServer.dll" target="lib\net45" />

@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="GenerateTelemetryItems.aspx.cs" Inherits="TestApp40.Aspx.GenerateTelemetryItems" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="GenerateTelemetryItems.aspx.cs" Inherits="TestApp45.Aspx.GenerateTelemetryItems" %>
 
 <!DOCTYPE html>
 

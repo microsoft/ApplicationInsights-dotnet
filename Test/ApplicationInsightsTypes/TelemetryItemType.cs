@@ -8,8 +8,10 @@
         Metric,
         PageView,
         PageViewPerformance,
+        PerformanceCounter,
         RemoteDependency,
         Request,
+        SessionState,
         Availability
     }
 }

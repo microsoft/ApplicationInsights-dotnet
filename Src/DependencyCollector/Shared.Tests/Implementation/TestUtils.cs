@@ -11,9 +11,6 @@
     using System.Net;
     using System.Runtime.Serialization;
     using Microsoft.ApplicationInsights.Web.TestFramework;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     internal class TestUtils

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -177,7 +177,6 @@
     <Compile Include="Helpers\QuickPulseHttpListenerObservable.cs" />
     <Compile Include="Helpers\HttpListenerObservable.cs" />
     <Compile Include="Helpers\ResponseCookiesExtension.cs" />
-    <Compile Include="Test40.cs" />
     <Compile Include="TestBase\SingleWebHostTestBase.cs" />
     <Compile Include="Helpers\SingleWebHostTestConfiguration.cs" />
     <Compile Include="Serialization\TelemetryExtensions.cs" />

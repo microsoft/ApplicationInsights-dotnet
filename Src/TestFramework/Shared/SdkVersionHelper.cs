@@ -25,10 +25,6 @@
 
             var expected = prefix + string.Join(".", versionParts[0], versionParts[1], versionParts[2]) + "-" + versionParts[3];
 
-#if NET40
-            expected += "-fw4";
-#endif
-
             return expected;
         }
     }

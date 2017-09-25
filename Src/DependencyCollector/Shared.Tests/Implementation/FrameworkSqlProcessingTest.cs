@@ -1,5 +1,4 @@
-﻿#if !NET40
-namespace Microsoft.ApplicationInsights.Tests
+﻿namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -18,9 +17,6 @@ namespace Microsoft.ApplicationInsights.Tests
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.TestFramework;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
     [TestClass]
@@ -208,4 +204,3 @@ namespace Microsoft.ApplicationInsights.Tests
 #endregion Helpers
     }
 }
-#endif

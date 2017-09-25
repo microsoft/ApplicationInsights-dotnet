@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.3
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{ECD2AC30-79B8-45D3-B26E-427BC007F5A9}"
 	ProjectSection(SolutionItems) = preProject
@@ -16,11 +16,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspx451", "FunctionalTests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuncTest", "FunctionalTests\FuncTest\FuncTest.csproj", "{39BEE591-B4B5-479A-ACD7-B450863AD152}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FW40Shared", "FunctionalTests\FW40Shared\FW40Shared.csproj", "{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FW45Shared", "FunctionalTests\FW45Shared\FW45Shared.csproj", "{037ADEA7-EECC-41D4-9CE8-ECD1758FDBAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationInsightsTypes", "..\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj", "{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationInsightsTypes", "..\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj", "{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspxCore", "FunctionalTests\TestApps\AspxCore\AspxCore.csproj", "{A7BCCF0F-8142-4358-81DC-3DFCEA8EFDB8}"
 EndProject
@@ -90,30 +88,6 @@ Global
 		{39BEE591-B4B5-479A-ACD7-B450863AD152}.Signed|Win32.Build.0 = Release|Any CPU
 		{39BEE591-B4B5-479A-ACD7-B450863AD152}.Signed|x64.ActiveCfg = Release|Any CPU
 		{39BEE591-B4B5-479A-ACD7-B450863AD152}.Signed|x64.Build.0 = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Debug|Win32.Build.0 = Debug|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Debug|x64.Build.0 = Debug|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Release|Win32.ActiveCfg = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Release|Win32.Build.0 = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Release|x64.ActiveCfg = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Release|x64.Build.0 = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Signed|Any CPU.ActiveCfg = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Signed|Any CPU.Build.0 = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Signed|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Signed|Mixed Platforms.Build.0 = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Signed|Win32.ActiveCfg = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Signed|Win32.Build.0 = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Signed|x64.ActiveCfg = Release|Any CPU
-		{0D33FC46-A70C-4AFB-8D52-2C0DFCCF1DEC}.Signed|x64.Build.0 = Release|Any CPU
 		{037ADEA7-EECC-41D4-9CE8-ECD1758FDBAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{037ADEA7-EECC-41D4-9CE8-ECD1758FDBAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{037ADEA7-EECC-41D4-9CE8-ECD1758FDBAA}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

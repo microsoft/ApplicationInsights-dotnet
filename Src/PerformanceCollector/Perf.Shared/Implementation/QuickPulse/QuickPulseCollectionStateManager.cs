@@ -156,11 +156,7 @@
                     if (dataSamplesToSubmit.Any(sample => sample.CollectionConfigurationAccumulator.GetRef() != 0))
                     {
                         // some samples are still being processed, wait a little to give them a chance to finish
-#if NET40
-                        Thread.Sleep(this.coolDownTimeout);
-#else
                         Task.Delay(this.coolDownTimeout).GetAwaiter().GetResult();
-#endif
 
                         bool allCooledDown =
                             dataSamplesToSubmit.All(sample => sample.CollectionConfigurationAccumulator.GetRef() == 0);

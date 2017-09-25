@@ -439,9 +439,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
                 TimeSpan timeLeftUntilNextTick = timeToNextUpdate.Value - timeSpentInThisTick;
                 timeLeftUntilNextTick = timeLeftUntilNextTick > TimeSpan.Zero ? timeLeftUntilNextTick : TimeSpan.Zero;
 
-#if NET40
-                Thread.Sleep(timeLeftUntilNextTick);
-#else
                 try
                 {
                     Task.Delay(timeLeftUntilNextTick, cancellationToken).GetAwaiter().GetResult();
@@ -449,7 +446,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
                 catch (OperationCanceledException)
                 {
                 }
-#endif
             }
         }
 
@@ -489,9 +485,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
                 TimeSpan timeLeftUntilNextTick = nextTick - this.timeProvider.UtcNow;
                 timeLeftUntilNextTick = timeLeftUntilNextTick > TimeSpan.Zero ? timeLeftUntilNextTick : TimeSpan.Zero;
 
-#if NET40
-                Thread.Sleep(timeLeftUntilNextTick);
-#else
                 try
                 {
                     Task.Delay(timeLeftUntilNextTick, cancellationToken).GetAwaiter().GetResult();
@@ -499,7 +492,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
                 catch (OperationCanceledException)
                 {
                 }
-#endif
            }
         }
         

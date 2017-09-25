@@ -7,20 +7,15 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Web.Net40.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Web.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.DependencyCollector.Net40.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.DependencyCollector.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.DependencyCollector.Net46.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Web.Net40.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Web.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
-[assembly: InternalsVisibleTo("WindowsServer.Net40.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("WindowsServer.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Operation.Net40.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Operation.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
 internal static class AssemblyInfo

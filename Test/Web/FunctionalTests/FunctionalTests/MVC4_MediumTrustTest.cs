@@ -119,7 +119,7 @@
         [TestMethod]
         [Owner("sergeyni")]
         [DeploymentItem(@"..\TestApps\Mvc4_MediumTrust\App", "TestApps_Mvc4_MediumTrust_App")]
-        public void Test4Medium404RequestAsync()
+        public void Test4Medium454RequestAsync()
         {
             DateTimeOffset testStart = DateTimeOffset.UtcNow;
             Trace.WriteLine("Start: " + testStart);
@@ -149,7 +149,7 @@
         [TestMethod]
         [Owner("sergeyni")]
         [DeploymentItem(@"..\TestApps\Mvc4_MediumTrust\App", "TestApps_Mvc4_MediumTrust_App")]
-        public void Test4Medium404RequestSync()
+        public void Test4Medium454RequestSync()
         {
             DateTimeOffset testStart = DateTimeOffset.UtcNow;
             Trace.WriteLine("Start: " + testStart);
@@ -179,7 +179,7 @@
         [TestMethod]
         [Owner("abaranch")]
         [DeploymentItem(@"..\TestApps\Mvc4_MediumTrust\App", "TestApps_Mvc4_MediumTrust_App")]
-        public void TestDiagnosticsFW40()
+        public void TestDiagnosticsFW45()
         {
             var request = (HttpWebRequest)WebRequest.Create(
                 this.Config.ApplicationUri + "/products/All");

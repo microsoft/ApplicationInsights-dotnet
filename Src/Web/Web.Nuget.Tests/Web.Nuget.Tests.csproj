@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
   <PropertyGroup>
@@ -62,8 +62,8 @@
     <Compile Include="ConfigurationHelpers.cs" />
     <Compile Include="TelemetryInitailizersTestsNet40.cs" />
     <Compile Include="TelemetryInitializerTestsNet45.cs" />
-    <Compile Include="TelemetryModulesTestsNet45.cs" />
     <Compile Include="TelemetryModulesTestsNet40.cs" />
+    <Compile Include="TelemetryModulesTestsNet45.cs" />
     <Compile Include="WebConfigWithLocationTagTransformTest.cs" />
     <Compile Include="WebConfigTransformTest.cs" />
   </ItemGroup>
@@ -71,12 +71,6 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\Web.Nuget\Resources\net40\ApplicationInsights.config.install.xdt">
-      <Link>Resources\net40\ApplicationInsights.config.install.xdt</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\Web.Nuget\Resources\net40\ApplicationInsights.config.uninstall.xdt">
-      <Link>Resources\net40\ApplicationInsights.config.uninstall.xdt</Link>
-    </EmbeddedResource>
     <EmbeddedResource Include="..\Web.Nuget\Resources\net45\ApplicationInsights.config.install.xdt">
       <Link>Resources\net45\ApplicationInsights.config.install.xdt</Link>
     </EmbeddedResource>
@@ -105,12 +99,10 @@
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
     <Error Condition="!Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.54.0\build\StyleCop.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\StyleCop.MSBuild.4.7.54.0\build\StyleCop.MSBuild.Targets'))" />
   </Target>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />

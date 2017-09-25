@@ -18,10 +18,8 @@
 
         private DependencyTableStore()
         {
-#if !NET40
             this.WebRequestCacheHolder = new CacheBasedOperationHolder("aisdkwebrequests", 100 * 1000);
             this.SqlRequestCacheHolder = new CacheBasedOperationHolder("aisdksqlrequests", 100 * 1000);
-#endif
             this.WebRequestConditionalHolder = new ObjectInstanceBasedOperationHolder();
             this.SqlRequestConditionalHolder = new ObjectInstanceBasedOperationHolder();
         }
