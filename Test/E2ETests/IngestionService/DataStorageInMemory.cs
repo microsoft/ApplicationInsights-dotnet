@@ -65,7 +65,7 @@
             {
                 foreach(var item in items)
                 {
-                    deletedItems.Add(item.ToString().Substring(0,100));
+                    deletedItems.Add(item.ToString().Substring(0,140));
                 }                
                 items.Clear();
             }

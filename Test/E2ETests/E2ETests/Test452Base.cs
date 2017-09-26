@@ -94,6 +94,23 @@ namespace E2ETests
             ValidateBasicRequestAsync(testwebAppip, "/Default", expectedRequestTelemetry).Wait();
         }
 
+        public void TestXComponentWebAppToWebApi()
+        {
+            var expectedRequestTelemetryWebApp = new RequestTelemetry();
+            expectedRequestTelemetryWebApp.ResponseCode = "200";            
+
+            var expectedDependencyTelemetryWebApp = new DependencyTelemetry();
+            expectedDependencyTelemetryWebApp.Type = "Http";
+            expectedDependencyTelemetryWebApp.Success = true;
+
+            var expectedRequestTelemetryWebApi = new RequestTelemetry();
+            expectedRequestTelemetryWebApi.ResponseCode = "200";
+
+            ValidateXComponentWebAppToWebApi(testwebAppip, "/Dependencies?type=http", 
+                expectedRequestTelemetryWebApp, expectedDependencyTelemetryWebApp, expectedRequestTelemetryWebApi,
+                WebAppInstrumentationKey, WebApiInstrumentationKey).Wait();
+        }
+
         public void TestBasicHttpDependencyWebApp()
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
@@ -110,6 +127,43 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = true;
 
             ValidateBasicDependencyAsync(testwebAppip, "/Dependencies.aspx?type=sql", expectedDependencyTelemetry).Wait();
+        }
+
+        private async Task ValidateXComponentWebAppToWebApi(string sourceInstanceIp, string sourcePath,
+            RequestTelemetry expectedRequestTelemetrySource,
+            DependencyTelemetry expectedDependencyTelemetrySource,
+            RequestTelemetry expectedRequestTelemetryTarget,
+            string sourceIKey, string targetIKey)
+        {
+            HttpClient client = new HttpClient();
+            string url = "http://" + sourceInstanceIp + sourcePath;
+            Trace.WriteLine("Hitting the target url:" + url);
+            var response = await client.GetAsync(url);
+            Trace.WriteLine("Actual Response code: " + response.StatusCode);
+            Thread.Sleep(2000);
+            var requestsSource = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(sourceIKey);
+            var dependenciesSource = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(sourceIKey);
+            var requestsTarget = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(targetIKey);
+
+            Trace.WriteLine("RequestCount for Source:" + requestsSource.Count);
+            Assert.IsTrue(requestsSource.Count == 1);
+
+            Trace.WriteLine("RequestCount for Target:" + requestsTarget.Count);
+            Assert.IsTrue(requestsTarget.Count == 1);
+
+            Trace.WriteLine("Dependencies count for Source:" + dependenciesSource.Count);
+            Assert.IsTrue(dependenciesSource.Count == 1);
+
+            var requestSource = requestsSource[0];
+            var requestTarget = requestsTarget[0];
+            var dependencySource = dependenciesSource[0];
+
+            Assert.IsTrue(requestSource.tags["ai.operation.id"].Equals(requestTarget.tags["ai.operation.id"]), 
+                "Operation id for request telemetry in source and target must be same.");
+
+            Assert.IsTrue(requestSource.tags["ai.operation.id"].Equals(dependencySource.tags["ai.operation.id"]),
+                "Operation id for request telemetry dependency telemetry in source must be same.");
+
         }
 
         private async Task ValidateBasicRequestAsync(string targetInstanceIp, string targetPath, RequestTelemetry expectedRequestTelemetry)

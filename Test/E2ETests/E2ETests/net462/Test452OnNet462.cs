@@ -38,33 +38,10 @@ namespace E2ETests.Net462
             base.MyTestCleanup();
         }
 
-        [TestMethod]   
-        [Ignore]
-        public async Task TestBasicFlow()
+        [TestMethod]
+        public void ValidateXComponentWebAppToWebApi()
         {
-            var startTime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
-            Thread.Sleep(5000);
-
-            HttpClient client = new HttpClient();
-            string url = "http://" + testwebAppip + "/Default";
-            Trace.WriteLine(url);
-            var response =await client.GetAsync(url);           
-            Trace.WriteLine(response.StatusCode);
-            response = await client.GetAsync(url);
-            Trace.WriteLine(response.StatusCode);            
-
-            var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(WebAppInstrumentationKey);
-            var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(WebAppInstrumentationKey);
-            var requestsWebApi = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(WebApiInstrumentationKey);
-
-            Trace.WriteLine("RequestCount for WebApp:"+ requestsWebApp.Count);
-            Assert.IsTrue(requestsWebApp.Count >= 2);
-
-            Trace.WriteLine("DependenciesCount for WebApp:" + dependenciesWebApp.Count);
-            Assert.IsTrue(dependenciesWebApp.Count >= 2);
-
-            Trace.WriteLine("RequestCount for WebApi:" + requestsWebApi.Count);
-            Assert.IsTrue(requestsWebApi.Count >= 1);
+            base.TestXComponentWebAppToWebApi();
         }
 
         [TestMethod]
