@@ -84,8 +84,7 @@ namespace E2ETests.Net462
 
             PrintDockerProcessStats("ClassInitialize completed");
 
-            dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
-            RemoveIngestionItems();
+            dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));            
         }
 
         private static void PrintDockerProcessStats(string message)
@@ -101,10 +100,16 @@ namespace E2ETests.Net462
             process.WaitForExit();
         }
 
+        [TestInitialize]
+        public void MyTestInitialize()
+        {
+            RemoveIngestionItems();
+            PrintDockerProcessStats("After MyTestInitialize");
+        }
+
         [TestCleanup]
         public void MyTestCleanup()
         {
-
             RemoveIngestionItems();
             PrintDockerProcessStats("After MyTestCleanup");
         }
