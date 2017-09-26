@@ -46,7 +46,7 @@ namespace E2ETests
             testwebApiip = DockerInspectIPAddress(ContainerNameWebApi);
             ingestionServiceIp = DockerInspectIPAddress(ContainerNameIngestionService);
 
-            string url = "http://" + testwebApiip + "/Default";
+            string url = "http://" + testwebApiip + "/api/values";
             Trace.WriteLine("Warmup request fired against WebApi under test:" + url);
             var response = new HttpClient().GetAsync(url);
             Trace.WriteLine("Response for warm up request against WebApi: " + response.Result.StatusCode);
