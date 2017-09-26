@@ -84,7 +84,9 @@ namespace E2ETests.Net462
 
             PrintDockerProcessStats("ClassInitialize completed");
 
-            dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));            
+            dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
+
+            Thread.Sleep(5000);
         }
 
         private static void PrintDockerProcessStats(string message)
