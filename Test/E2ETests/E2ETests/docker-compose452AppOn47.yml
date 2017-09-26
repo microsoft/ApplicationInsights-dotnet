@@ -19,10 +19,14 @@ services:
     ingestionservice:
         build:
             context: ./../IngestionService/Publish
-            dockerfile: DockerFile            
+            dockerfile: DockerFile              
 
     sql-server:
         image: microsoft/mssql-server-windows-express
         environment:
             SA_PASSWORD: MSDNm4g4z!n3
             ACCEPT_EULA: "Y"
+networks:
+  default:
+    external:
+      name: nat        

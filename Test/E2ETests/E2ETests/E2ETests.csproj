@@ -85,12 +85,13 @@
     <Compile Include="Helpers\TelemetryItemFactory.cs" />
     <Compile Include="net462\Test452OnNet462.cs" />
     <Compile Include="net47\Test452OnNet47.cs" />
+    <Compile Include="Test452Base.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="docker-compose47.yml">
+    <None Include="docker-compose452AppOn47.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="docker-compose462.yml">
+    <None Include="docker-compose452AppOn462.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config">

@@ -14,114 +14,28 @@ using System.Collections.Generic;
 namespace E2ETests.Net462
 {
     [TestClass]
-    public class Test452OnNet462
+    public class Test452OnNet462 : Test452Base
     {
-        private const string WebAppInstrumentationKey = "e45209bb-49ab-41a0-8065-793acb3acc56";
-        private const string WebApiInstrumentationKey = "0786419e-d901-4373-902a-136921b63fb2";
-        internal static string testappip;
-        internal static string ingestionServiceIp;
-        internal static string DockerComposeFileName = "docker-compose462.yml";
-        internal static string DockerComposeBaseCommandFormat = "/c docker-compose";
-        internal static string DockerComposeFileNameFormat = string.Format("-f {0}", DockerComposeFileName);
-        internal static DataEndpointClient dataendpointClient;
-        internal static ProcessStartInfo DockerPSProcessInfo = new ProcessStartInfo("cmd", "/c docker ps -a");
+        public TestContext TestContext { get; set; }
 
         [ClassInitialize]
         public static void MyClassInitialize(TestContext testContext)
         {
-            Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
-            Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));                                    
+            DockerComposeFileName = "docker-compose452AppOn462";
 
-            DockerComposeGenericCommandExecute("up -d --build");
-            
-            // Inspect Docker containers to get IP addresses
-            testappip = DockerInspectIPAddress("e2etests_e2etestwebapp_1");
-            ingestionServiceIp = DockerInspectIPAddress("e2etests_ingestionservice_1");
-
-            string url = "http://" + testappip + "/Default";
-            Trace.WriteLine("Warmup request fired against WebApp under test:" + url);
-            var response = new HttpClient().GetAsync(url);
-            Trace.WriteLine("Response for warm up request: "+ response.Result.StatusCode);
-
-            PrintDockerProcessStats("ClassInitialize completed");
-
-            dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
-
-            Thread.Sleep(10000);
-            Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
+            MyClassInitializeBase();
         }
-
-        private static void PrintDockerProcessStats(string message)
-        {
-            Trace.WriteLine("Docker PS Stats at " + message);
-            Process process = new Process { StartInfo = DockerPSProcessInfo };
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            Trace.WriteLine("Docker ps -a" + output);
-            process.WaitForExit();
-        }
-
-        private static void DockerComposeGenericCommandExecute(string action)
-        {            
-            string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", DockerComposeBaseCommandFormat, DockerComposeFileNameFormat, action);
-            Trace.WriteLine("Docker compose using command: " + dockerComposeFullCommandFormat);
-            ProcessStartInfo DockerComposeStop = new ProcessStartInfo("cmd", dockerComposeFullCommandFormat);
-
-            Process process = new Process { StartInfo = DockerComposeStop };
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            Trace.WriteLine("Docker Compose output:" + output);
-            process.WaitForExit();
-        }
-
-        private static string DockerInspectIPAddress(string containerName)
-        {
-            string dockerInspectIpBaseCommand = "/c docker inspect -f \"{{.NetworkSettings.Networks.nat.IPAddress}}\" ";
-            string dockerInspectIpCommand = dockerInspectIpBaseCommand + containerName;
-            ProcessStartInfo DockerInspectIp = new ProcessStartInfo("cmd", dockerInspectIpCommand);
-            Trace.WriteLine("DockerInspectIp done using command:" + dockerInspectIpCommand);
-
-            Process process = new Process { StartInfo = DockerInspectIp };
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            string ip = output.Trim();
-            Trace.WriteLine(string.Format("DockerInspect IP for {0} is {1}", containerName, ip));
-            process.WaitForExit();
-            return ip;
-        }
-
+          
         [TestInitialize]
-        public void MyTestInitialize()
+        public new void MyTestInitialize()
         {
-            Trace.WriteLine("Started Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
-            RemoveIngestionItems();            
-            PrintDockerProcessStats("After MyTestInitialize" + DateTime.UtcNow.ToLongTimeString());
-            Trace.WriteLine("Completed Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
+            base.MyTestInitialize();
         }
 
         [TestCleanup]
-        public void MyTestCleanup()
+        public new void MyTestCleanup()
         {
-            Trace.WriteLine("Started Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());            
-            PrintDockerProcessStats("After MyTestCleanup" + DateTime.UtcNow.ToLongTimeString());
-            Trace.WriteLine("Completed Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
-        }
-
-        private void RemoveIngestionItems()
-        {
-            Trace.WriteLine("Deleting items started:" + DateTime.UtcNow.ToLongTimeString());
-            dataendpointClient.DeleteItems(WebAppInstrumentationKey);
-            dataendpointClient.DeleteItems(WebApiInstrumentationKey);
-            Trace.WriteLine("Deleting items completed:" + DateTime.UtcNow.ToLongTimeString());
+            base.MyTestCleanup();
         }
 
         [TestMethod]   
@@ -154,95 +68,27 @@ namespace E2ETests.Net462
         }
 
         [TestMethod]
-        public async Task TestBasicRequestWebApp()
-        {
-            var expectedRequestTelemetry = new RequestTelemetry();
-            expectedRequestTelemetry.ResponseCode = "200";
-
-            await ValidateBasicRequestAsync(testappip, "/Default", expectedRequestTelemetry);
+        public void Test452OnNet462_TestBasicRequestWebApp()
+        {            
+            base.TestBasicRequestWebApp();
         }
 
         [TestMethod]
-        public async Task TestBasicHttpDependencyWebApp()
+        public void Test452OnNet462_TestBasicHttpDependencyWebApp()
         {
-            var expectedDependencyTelemetry = new DependencyTelemetry();
-            expectedDependencyTelemetry.Type = "Http";
-            expectedDependencyTelemetry.Success = true;
-
-            await ValidateBasicDependencyAsync(testappip, "/Dependencies.aspx?type=http", expectedDependencyTelemetry);
+            base.TestBasicHttpDependencyWebApp();
         }
 
         [TestMethod]
-        public async Task TestBasicSqlDependencyWebApp()
+        public void Test452OnNet462_TestBasicSqlDependencyWebApp()
         {
-            var expectedDependencyTelemetry = new DependencyTelemetry();
-            expectedDependencyTelemetry.Type = "SQL";
-            expectedDependencyTelemetry.Success = true;
-
-            await ValidateBasicDependencyAsync(testappip, "/Dependencies.aspx?type=sql", expectedDependencyTelemetry);
+            base.TestBasicSqlDependencyWebApp();
         }
 
         [ClassCleanup]
         public static void MyClassCleanup()
         {
-            Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());            
-            DockerComposeGenericCommandExecute("down");
-            Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
-        }
-
-        private async Task ValidateBasicRequestAsync(string targetInstanceIp, string targetPath, RequestTelemetry expectedRequestTelemetry)
-        {
-            HttpClient client = new HttpClient();
-            string url = "http://" + targetInstanceIp + targetPath;
-            Trace.WriteLine("Hitting the target url:" + url);
-            var response = await client.GetAsync(url);
-            Trace.WriteLine("Actual Response code: " + response.StatusCode);
-            Thread.Sleep(10000);
-            var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(WebAppInstrumentationKey);
-
-            Trace.WriteLine("RequestCount for WebApp:" + requestsWebApp.Count);
-            Assert.IsTrue(requestsWebApp.Count == 1);
-            var request = requestsWebApp[0];
-            Assert.AreEqual(expectedRequestTelemetry.ResponseCode, request.data.baseData.responseCode, "Response code is incorrect");
-        }
-
-        private async Task ValidateBasicDependencyAsync(string targetInstanceIp, string targetPath, DependencyTelemetry expectedDependencyTelemetry)
-        {
-            HttpClient client = new HttpClient();
-            string url = "http://" + targetInstanceIp + targetPath;
-            Trace.WriteLine("Hitting the target url:" + url);
-            try
-            {
-                var response = await client.GetStringAsync(url);                
-                Trace.WriteLine("Actual Response text: " + response.ToString());
-            }
-            catch(Exception ex)
-            {
-                Trace.WriteLine("Exception occured:" + ex);
-            }
-            Thread.Sleep(10000);
-            var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(WebAppInstrumentationKey);
-            PrintDependencies(dependenciesWebApp);
-
-            Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);            
-            Assert.IsTrue(dependenciesWebApp.Count == 1);
-            var dependency = dependenciesWebApp[0];
-            Assert.AreEqual(expectedDependencyTelemetry.Type, dependency.data.baseData.type, "Dependency Type is incorrect");
-            Assert.AreEqual(expectedDependencyTelemetry.Success, dependency.data.baseData.success, "Dependency success is incorrect");
-        }
-
-        private void PrintDependencies(IList<TelemetryItem<AI.RemoteDependencyData>> dependencies)
-        {
-            foreach(var deps in dependencies)
-            {
-                Trace.WriteLine("Dependency Item Details");
-                Trace.WriteLine("deps.time: "  +  deps.time);
-                Trace.WriteLine("deps.iKey: " + deps.iKey);
-                Trace.WriteLine("deps.data.baseData.name:" + deps.data.baseData.name);
-                Trace.WriteLine("deps.data.baseData.type:" + deps.data.baseData.type);
-                Trace.WriteLine("deps.data.baseData.target:" + deps.data.baseData.target);
-                Trace.WriteLine("--------------------------------------");
-            }
+            MyClassCleanupBase();
         }
     }
 }
