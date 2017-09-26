@@ -123,6 +123,7 @@ namespace E2ETests.Net462
             DockerComposeGenericCommandExecute("start");
             testappip = DockerInspectIPAddress("e2etests_e2etestwebapp_1");
             ingestionServiceIp = DockerInspectIPAddress("e2etests_ingestionservice_1");
+            dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
             PrintDockerProcessStats("After MyTestInitialize" + DateTime.UtcNow.ToLongTimeString());
             Trace.WriteLine("Completed Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
         }
@@ -231,7 +232,7 @@ namespace E2ETests.Net462
             Trace.WriteLine("Hitting the target url:" + url);
             var response = await client.GetAsync(url);
             Trace.WriteLine("Actual Response code: " + response.StatusCode);
-            Thread.Sleep(1000);
+            Thread.Sleep(10000);
             var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(WebAppInstrumentationKey);
 
             Trace.WriteLine("RequestCount for WebApp:" + requestsWebApp.Count);
@@ -254,7 +255,7 @@ namespace E2ETests.Net462
             {
                 Trace.WriteLine("Exception occured:" + ex);
             }
-            Thread.Sleep(1000);
+            Thread.Sleep(10000);
             var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(WebAppInstrumentationKey);
             PrintDependencies(dependenciesWebApp);
 
