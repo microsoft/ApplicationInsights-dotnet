@@ -86,7 +86,7 @@ namespace E2ETests.Net462
 
             dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
 
-            Thread.Sleep(5000);
+            DockerComposeGenericCommandExecute("stop");            
 
             Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
@@ -104,11 +104,28 @@ namespace E2ETests.Net462
             process.WaitForExit();
         }
 
+        private static void DockerComposeGenericCommandExecute(string action)
+        {            
+            string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", dockerComposeBaseCommandFormat, dockerComposeFileNameFormat, action);
+            Trace.WriteLine("Docker compose using command: " + dockerComposeFullCommandFormat);
+            ProcessStartInfo DockerComposeStop = new ProcessStartInfo("cmd", dockerComposeFullCommandFormat);
+
+            Process process = new Process { StartInfo = DockerComposeStop };
+            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            Trace.WriteLine("Docker Compose output:" + output);
+            process.WaitForExit();
+        }
+
         [TestInitialize]
         public void MyTestInitialize()
         {
             Trace.WriteLine("Started Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
-            RemoveIngestionItems();
+            //RemoveIngestionItems();
+            DockerComposeGenericCommandExecute("start");
             PrintDockerProcessStats("After MyTestInitialize" + DateTime.UtcNow.ToLongTimeString());
             Trace.WriteLine("Completed Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
         }
@@ -117,7 +134,8 @@ namespace E2ETests.Net462
         public void MyTestCleanup()
         {
             Trace.WriteLine("Started Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
-            RemoveIngestionItems();
+            //RemoveIngestionItems();
+            DockerComposeGenericCommandExecute("stop");
             PrintDockerProcessStats("After MyTestCleanup" + DateTime.UtcNow.ToLongTimeString());
             Trace.WriteLine("Completed Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
         }
