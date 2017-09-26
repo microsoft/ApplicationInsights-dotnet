@@ -189,12 +189,18 @@
         /// Format and store an iKey and appId pair into the dictionary of known correlation ids.
         /// </summary>
         /// <param name="ikey">Instrumentation Key is expected to be a Guid string.</param>
-        /// <param name="appId">Application Id is expected to be a Guid string.</param>
+        /// <param name="appId">Application Id is expected to be a Guid string. App Id needs to be Http Header safe, and all non-ASCII characters will be removed.</param>
         private void GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
         {
-            if (appId != null && Guid.TryParse(appId, out Guid appIdGuid))
+            if (string.IsNullOrWhiteSpace(appId))
             {
-                this.knownCorrelationIds[ikey] = string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, appIdGuid.ToString());
+                return;
+            }
+
+            appId = HeadersUtilities.SanitizeString(appId);
+            if (!string.IsNullOrEmpty(appId))
+            {
+                this.knownCorrelationIds[ikey] = string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, appId);
             }
         }
 
