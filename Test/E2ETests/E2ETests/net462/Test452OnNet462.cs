@@ -30,18 +30,13 @@ namespace E2ETests.Net462
         public static void MyClassInitialize(TestContext testContext)
         {
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
-
             Assert.IsTrue(File.Exists(".\\" + dockerComposeFileName));
+
             string dockerComposeActionCommand = "up -d --build";
             string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", dockerComposeBaseCommandFormat, dockerComposeFileNameFormat, dockerComposeActionCommand);
             Trace.WriteLine("Docker compose done using command: " + dockerComposeFullCommandFormat);
-            ProcessStartInfo DockerComposeUp = new ProcessStartInfo("cmd", dockerComposeFullCommandFormat);
-            ProcessStartInfo DockerInspectIp = new ProcessStartInfo("cmd", "/c docker inspect -f \"{{.NetworkSettings.Networks.nat.IPAddress}}\" e2etests_e2etestwebapp_1");
-            ProcessStartInfo DockerInspectIpIngestion = new ProcessStartInfo("cmd", "/c docker inspect -f \"{{.NetworkSettings.Networks.nat.IPAddress}}\" e2etests_ingestionservice_1");
-            
-
-            Trace.WriteLine("DockerComposeUp started:" + DateTime.UtcNow.ToLongTimeString());
-
+            ProcessStartInfo DockerComposeUp = new ProcessStartInfo("cmd", dockerComposeFullCommandFormat);            
+                        
             Process process = new Process { StartInfo = DockerComposeUp };
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             process.StartInfo.UseShellExecute = false;
@@ -53,28 +48,9 @@ namespace E2ETests.Net462
 
             Trace.WriteLine("DockerComposeUp completed:" + DateTime.UtcNow.ToLongTimeString());
 
-            Trace.WriteLine("DockerInspect started:" + DateTime.UtcNow.ToLongTimeString());
-            process = new Process { StartInfo = DockerInspectIp };
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.Start();
-            output = process.StandardOutput.ReadToEnd();
-            testappip = output.Trim();
-            Trace.WriteLine("DockerInspect WebApp IP" + output);
-            process.WaitForExit();
-            Trace.WriteLine("DockerInspect completed:" + DateTime.UtcNow.ToLongTimeString());
-
-            process = new Process { StartInfo = DockerInspectIpIngestion };
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.Start();
-            output = process.StandardOutput.ReadToEnd();
-            ingestionServiceIp = output.Trim();
-            Trace.WriteLine("DockerInspect IngestionService IP" + output);
-            Trace.WriteLine(output);
-            process.WaitForExit();
+            
+            testappip = DockerInspectIPAddress("e2etests_e2etestwebapp_1");
+            ingestionServiceIp = DockerInspectIPAddress("e2etests_ingestionservice_1");
 
 
             string url = "http://" + testappip + "/Default";
@@ -120,12 +96,33 @@ namespace E2ETests.Net462
             process.WaitForExit();
         }
 
+        private static string DockerInspectIPAddress(string containerName)
+        {
+            string dockerInspectIpBaseCommand = "/c docker inspect -f \"{{.NetworkSettings.Networks.nat.IPAddress}}\" ";
+            string dockerInspectIpCommand = dockerInspectIpBaseCommand + containerName;
+            ProcessStartInfo DockerInspectIp = new ProcessStartInfo("cmd", dockerInspectIpCommand);
+            Trace.WriteLine("DockerInspectIp done using command:" + dockerInspectIpCommand);
+
+            Process process = new Process { StartInfo = DockerInspectIp };
+            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            string ip = output.Trim();
+            Trace.WriteLine(string.Format("DockerInspect IP for {0} is {1}", containerName, ip));
+            process.WaitForExit();
+            return ip;
+        }
+
         [TestInitialize]
         public void MyTestInitialize()
         {
             Trace.WriteLine("Started Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
             //RemoveIngestionItems();
             DockerComposeGenericCommandExecute("start");
+            testappip = DockerInspectIPAddress("e2etests_e2etestwebapp_1");
+            ingestionServiceIp = DockerInspectIPAddress("e2etests_ingestionservice_1");
             PrintDockerProcessStats("After MyTestInitialize" + DateTime.UtcNow.ToLongTimeString());
             Trace.WriteLine("Completed Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
         }
