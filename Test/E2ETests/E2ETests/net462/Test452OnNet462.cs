@@ -119,9 +119,7 @@ namespace E2ETests.Net462
             var response =await client.GetAsync(url);           
             Trace.WriteLine(response.StatusCode);
             response = await client.GetAsync(url);
-            Trace.WriteLine(response.StatusCode);
-
-            Thread.Sleep(5000);
+            Trace.WriteLine(response.StatusCode);            
 
             var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(WebAppInstrumentationKey);
             var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(WebAppInstrumentationKey);
@@ -182,9 +180,7 @@ namespace E2ETests.Net462
             process.Start();
             string output = process.StandardOutput.ReadToEnd();
             Trace.WriteLine("Docker Compose Down Console output:" + output);
-            process.WaitForExit();
-
-            Thread.Sleep(5000);
+            process.WaitForExit();            
         }
 
         private async Task ValidateBasicRequestAsync(string targetInstanceIp, string targetPath, RequestTelemetry expectedRequestTelemetry)
