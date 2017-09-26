@@ -5,7 +5,6 @@
     using System.Diagnostics.Tracing;
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility;
-
     /// <summary>
     /// Use diagnostics telemetry module to report SDK internal problems to the portal and VS debug output window.
     /// </summary>
@@ -14,6 +13,9 @@
         internal readonly IList<IDiagnosticsSender> Senders = new List<IDiagnosticsSender>();
 
         internal readonly DiagnosticsListener EventListener;
+
+
+        internal IHeartbeatProvider HeartbeatProvider = null;
 
         private readonly object lockObject = new object();
 
@@ -132,12 +134,35 @@
                             portalSender.Send(traceEvent);
                         }
 
+                        // set up heartbeat
+                        if (this.HeartbeatProvider == null)
+                        {
+                            this.HeartbeatProvider = new HealthHeartbeatProvider();
+                        }
+
+                        this.HeartbeatProvider.Initialize(configuration);
+
                         this.isInitialized = true;
                     }
                 }
             }
         }
         
+        /// <summary>
+        /// Allows consumers of the DiagosticsTelemetryModule register an extension for the health heartbeat payload.
+        /// 
+        /// This can also be done by adding the IHealthHeartbeatProperty implementation within the ApplicationInsights.config
+        /// file.
+        /// </summary>
+        /// <param name="payloadProvider">Extension payload to include in Health Heartbeat payloads</param>
+        public void RegisterHeartbeatPayload(IHealthHeartbeatProperty payloadProvider)
+        {
+            if (this.HeartbeatProvider != null)
+            {
+                this.HeartbeatProvider.RegisterHeartbeatPayload(payloadProvider);
+            }
+        }
+
         /// <summary>
         /// Disposes this object.
         /// </summary>
@@ -160,6 +185,7 @@
                 {
                     disposableSender.Dispose();
                 }
+                this.HeartbeatProvider.Dispose();
 
                 GC.SuppressFinalize(this);
             }

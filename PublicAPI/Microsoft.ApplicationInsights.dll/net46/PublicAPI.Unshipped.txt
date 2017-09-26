@@ -1,0 +1,3 @@
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHealthHeartbeatProperty
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHealthHeartbeatProperty.Properties.get -> System.Collections.Generic.KeyValuePair<string, object>[]
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHealthHeartbeatProperty.UnhealthyCount.get -> int
