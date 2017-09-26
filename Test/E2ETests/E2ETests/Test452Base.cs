@@ -18,8 +18,10 @@ namespace E2ETests
         internal const string WebAppInstrumentationKey = "e45209bb-49ab-41a0-8065-793acb3acc56";
         internal const string WebApiInstrumentationKey = "0786419e-d901-4373-902a-136921b63fb2";
         internal const string ContainerNameWebApp = "e2etests_e2etestwebapp_1";
+        internal const string ContainerNameWebApi = "e2etests_e2etestwebapi_1";
         internal const string ContainerNameIngestionService = "e2etests_ingestionservice_1";
-        internal static string testappip;
+        internal static string testwebAppip;
+        internal static string testwebApiip;
         internal static string ingestionServiceIp;
         internal static string DockerComposeFileName = "docker-compose.yml";
         internal static string DockerComposeBaseCommandFormat = "/c docker-compose";
@@ -37,18 +39,23 @@ namespace E2ETests
             DockerComposeFileNameFormat = string.Format("-f {0}", DockerComposeFileName);
             DockerComposeGenericCommandExecute("up -d --build");
 
-            PrintDockerProcessStats("ClassInitialize...");
+            PrintDockerProcessStats("Docker-Compose -build");
 
             // Inspect Docker containers to get IP addresses
-            testappip = DockerInspectIPAddress(ContainerNameWebApp);
+            testwebAppip = DockerInspectIPAddress(ContainerNameWebApp);
+            testwebApiip = DockerInspectIPAddress(ContainerNameWebApi);
             ingestionServiceIp = DockerInspectIPAddress(ContainerNameIngestionService);
 
-            string url = "http://" + testappip + "/Default";
-            Trace.WriteLine("Warmup request fired against WebApp under test:" + url);
+            string url = "http://" + testwebApiip + "/Default";
+            Trace.WriteLine("Warmup request fired against WebApi under test:" + url);
             var response = new HttpClient().GetAsync(url);
-            Trace.WriteLine("Response for warm up request: " + response.Result.StatusCode);
-            
+            Trace.WriteLine("Response for warm up request against WebApi: " + response.Result.StatusCode);
 
+            url = "http://" + testwebAppip + "/Default";
+            Trace.WriteLine("Warmup request fired against WebApp under test:" + url);
+            response = new HttpClient().GetAsync(url);
+            Trace.WriteLine("Response for warm up request against WebApp: " + response.Result.StatusCode);
+            
             dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
 
             Thread.Sleep(10000);
@@ -60,6 +67,8 @@ namespace E2ETests
             Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
             DockerComposeGenericCommandExecute("down");
             Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
+
+            PrintDockerProcessStats("Docker-Compose down");
         }
 
         public void MyTestInitialize()
@@ -82,7 +91,7 @@ namespace E2ETests
             var expectedRequestTelemetry = new RequestTelemetry();
             expectedRequestTelemetry.ResponseCode = "200";
 
-            ValidateBasicRequestAsync(testappip, "/Default", expectedRequestTelemetry).Wait();
+            ValidateBasicRequestAsync(testwebAppip, "/Default", expectedRequestTelemetry).Wait();
         }
 
         public void TestBasicHttpDependencyWebApp()
@@ -91,7 +100,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependencyAsync(testappip, "/Dependencies.aspx?type=http", expectedDependencyTelemetry).Wait();
+            ValidateBasicDependencyAsync(testwebAppip, "/Dependencies.aspx?type=http", expectedDependencyTelemetry).Wait();
         }
 
         public void TestBasicSqlDependencyWebApp()
@@ -100,7 +109,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependencyAsync(testappip, "/Dependencies.aspx?type=sql", expectedDependencyTelemetry).Wait();
+            ValidateBasicDependencyAsync(testwebAppip, "/Dependencies.aspx?type=sql", expectedDependencyTelemetry).Wait();
         }
 
         private async Task ValidateBasicRequestAsync(string targetInstanceIp, string targetPath, RequestTelemetry expectedRequestTelemetry)

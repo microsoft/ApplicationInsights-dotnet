@@ -46,7 +46,7 @@ namespace E2ETests.Net462
             Thread.Sleep(5000);
 
             HttpClient client = new HttpClient();
-            string url = "http://" + testappip + "/Default";
+            string url = "http://" + testwebAppip + "/Default";
             Trace.WriteLine(url);
             var response =await client.GetAsync(url);           
             Trace.WriteLine(response.StatusCode);
