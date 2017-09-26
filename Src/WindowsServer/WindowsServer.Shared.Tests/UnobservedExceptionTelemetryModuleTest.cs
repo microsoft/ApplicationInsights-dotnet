@@ -121,18 +121,10 @@
             {
                 for (int i = 0; i < 50; ++i)
                 {
-#if NET40
-                    tasks[i] = System.Threading.Tasks.TaskEx.Run(() => module.Initialize(this.moduleConfiguration));
-#else
                     tasks[i] = System.Threading.Tasks.Task.Run(() => module.Initialize(this.moduleConfiguration));
-#endif
                 }
 
-#if NET40
-                System.Threading.Tasks.TaskEx.WhenAll(tasks).Wait();
-#else
                 System.Threading.Tasks.Task.WhenAll(tasks).Wait();
-#endif
             }
 
             Assert.Equal(1, count);

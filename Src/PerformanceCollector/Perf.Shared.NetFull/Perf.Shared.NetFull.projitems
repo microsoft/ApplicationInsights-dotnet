@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>85238238-5ef0-40fa-ad3e-bd4b12a3dd1a</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\QuickPulseThreadModuleScheduler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\PerfLib\NativeMethods.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\PerfLib\PerformanceMonitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\PerfLib\SharedUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\QuickPulseTopCpuCollector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseServiceClient.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\CounterFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\NormalizedProcessCPUPerformanceCounter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\StandardPerformanceCounter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\ICounterValue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\StandardPerformanceCollector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\AzureWebEnvironmentVariables.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\CacheHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\CounterFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\NormalizedCPUPercentageGauge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\CPUPercenageGauge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\ICachedEnvironmentVariableAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\ICounterValue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\RawCounterGauge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\PerformanceCounterImplementation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\RateCounterGauge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\RatioCounterGauge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\SumUpCountersGauge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\WebAppPerformanceCollector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PerformanceCounterCollectionRequest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Timer\Timer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Timer\TimerInterface.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PerformanceCollectorModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Resources.Designer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources.resx">
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

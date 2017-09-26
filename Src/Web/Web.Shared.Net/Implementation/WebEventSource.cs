@@ -1,9 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
     using System;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
 #if NET45
     using System.Diagnostics.Tracing;
 #endif

@@ -39,5 +39,10 @@
         {
             this.OnSendEvent(writer);
         }
+
+        public ITelemetry DeepClone()
+        {
+            return this;
+        }
     }
 }

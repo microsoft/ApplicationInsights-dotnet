@@ -54,58 +54,6 @@
             Assert.AreEqual("myRootHeader", initializer.RootOperationIdHeaderName);
         }
 
-#if NET40
-        [TestMethod]
-        public void OperationContextIsSetForNonRequestTelemetry()
-        {
-            var source = new TestableOperationCorrelationTelemetryInitializer(new Dictionary<string, string>
-            {
-                ["Request-Id"] = "|guid.1",
-                ["Correlation-Context"] = "k1=v1,k2=v2,k1=v3"
-            });
-
-            // simulate OnBegin behavior:
-            // create telemetry and start activity for children
-            var requestTelemetry = source.FakeContext.CreateRequestTelemetryPrivate();
-            
-            // lost Acitivity / call context
-            ActivityHelpers.CleanOperationContext();
-
-            var exceptionTelemetry = new ExceptionTelemetry();
-            source.Initialize(exceptionTelemetry);
-
-            Assert.AreEqual(requestTelemetry.Context.Operation.Id, exceptionTelemetry.Context.Operation.Id);
-            Assert.AreEqual(requestTelemetry.Id, exceptionTelemetry.Context.Operation.ParentId);
-
-            Assert.AreEqual(2, exceptionTelemetry.Context.Properties.Count);
-            
-            // undefined behavior for duplicates
-            Assert.IsTrue(exceptionTelemetry.Context.Properties["k1"] == "v3" || exceptionTelemetry.Context.Properties["k1"] == "v1");
-            Assert.AreEqual("v2", exceptionTelemetry.Context.Properties["k2"]);
-        }
-
-        [TestMethod]
-        public void OperationContextIsNotUpdatedIfOperationIdIsSet()
-        {
-            var source = new TestableOperationCorrelationTelemetryInitializer(new Dictionary<string, string>
-            {
-                ["Request-Id"] = "|guid.1",
-                ["Correaltion-Context"] = "k1=v1"
-            });
-
-            // create telemetry and immediately clean call context/activity
-            source.FakeContext.CreateRequestTelemetryPrivate();
-            ActivityHelpers.CleanOperationContext();
-
-            var exceptionTelemetry = new ExceptionTelemetry();
-            exceptionTelemetry.Context.Operation.Id = "guid";
-            source.Initialize(exceptionTelemetry);
-
-            Assert.IsNull(exceptionTelemetry.Context.Operation.ParentId);
-
-            Assert.AreEqual(0, exceptionTelemetry.Context.Properties.Count);
-        }
-#else
         [TestMethod]
         public void OperationContextIsSetForNonRequestTelemetry()
         {
@@ -161,7 +109,6 @@
 
             Assert.AreEqual(0, exceptionTelemetry.Context.Properties.Count);
         }
-#endif
 
         private class TestableOperationCorrelationTelemetryInitializer : OperationCorrelationTelemetryInitializer
         {

@@ -1,4 +1,4 @@
-namespace Microsoft.ApplicationInsights.DependencyCollector
+namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -7,10 +7,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
     using System.Net;
     using System.Net.Http;
 
-    using Implementation;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.DependencyCollector;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;

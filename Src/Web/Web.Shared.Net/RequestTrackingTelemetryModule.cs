@@ -100,39 +100,6 @@
             }
         }
 
-#if NET40
-        /// <summary>
-        /// Implements on PreRequestHandlerExecute callback of http module
-        /// that is executed right before the handler and restores any execution context 
-        /// if it was lost in native/managed thread switches.
-        /// </summary>
-        public void OnPreRequestHandlerExecute(HttpContext context)
-        {
-            if (this.telemetryClient == null)
-            {
-                if (!this.initializationErrorReported)
-                {
-                    this.initializationErrorReported = true;
-                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
-                }
-                else
-                {
-                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetVerbose();
-                }
-
-                return;
-            }
-
-            if (context == null)
-            {
-                WebEventSource.Log.NoHttpContextWarning();
-                return;
-            }
-
-            ActivityHelpers.RestoreOperationContextIfLost(context);
-        }
-#endif
-
         /// <summary>
         /// Implements on end callback of http module.
         /// </summary>
@@ -158,11 +125,6 @@
                 return;
             }
 
-#if NET40
-            // we store Activity/Call context to initialize child telemtery within the scope of this request,
-            // so it's time to stop it
-            ActivityHelpers.CleanOperationContext();
-#endif
             var requestTelemetry = context.ReadOrCreateRequestTelemetryPrivate();
             requestTelemetry.Stop();
 

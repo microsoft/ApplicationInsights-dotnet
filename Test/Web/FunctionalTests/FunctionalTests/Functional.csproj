@@ -130,16 +130,16 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="TestsExcCollectingFw40AspxClassicPipeline.cs" />
-    <Compile Include="TestsExcCollectingFw40AspxIntegratedPipeline.cs" />
-    <Compile Include="TestsExcCollectingFw40Mvc.cs" />
-    <Compile Include="TestsRequestTelemetryFw40AspxIntegrated.cs" />
-    <Compile Include="TestsRequestTelemetryFw40AspxIntegratedSendTelemetryOnStart.cs" />
-    <Compile Include="TestsRequestTelemetryFw40AspxIntegratedWebSecurityOn.cs" />
+    <Compile Include="TestsExcCollectingFw45AspxClassicPipeline.cs" />
+    <Compile Include="TestsExcCollectingFw45AspxIntegratedPipeline.cs" />
+    <Compile Include="TestsExcCollectingFw45Mvc.cs" />
+    <Compile Include="TestsRequestTelemetryFw45AspxIntegrated.cs" />
+    <Compile Include="TestsRequestTelemetryFw45AspxIntegratedSendTelemetryOnStart.cs" />
+    <Compile Include="TestsRequestTelemetryFw45AspxIntegratedWebSecurityOn.cs" />
     <Compile Include="TestsRequestTelemetryHttpModuleConfig.cs" />
-    <Compile Include="TestsUnhandledExceptionsFW40.cs" />
-    <Compile Include="Wcf40TransferHandlerTests.cs" />
-    <Compile Include="WebAppAspx40Classic.cs" />
+    <Compile Include="TestsUnhandledExceptionsFW45.cs" />
+    <Compile Include="Wcf45TransferHandlerTests.cs" />
+    <Compile Include="WebAppAspx45Classic.cs" />
     <Compile Include="WebAppFW45SampledTests.cs" />
     <Compile Include="WebAppFW45Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

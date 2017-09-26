@@ -1,4 +1,4 @@
-namespace Microsoft.ApplicationInsights.DependencyCollector
+namespace Microsoft.ApplicationInsights.Tests
 {
     using Microsoft.ApplicationInsights.Channel;
     using System;

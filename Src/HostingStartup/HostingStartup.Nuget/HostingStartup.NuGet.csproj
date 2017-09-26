@@ -18,7 +18,7 @@
     <NoWarn>2008</NoWarn>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
     <PackageSpecFile>$(MSBuildProjectDirectory)\Package.nuspec</PackageSpecFile>
-    <PackageVersionFile>$(BinRoot)\$(Configuration)\Src\Web\Web.Net40\Microsoft.AI.Web.dll</PackageVersionFile>
+    <PackageVersionFile>$(BinRoot)\$(Configuration)\Src\Web\Web.Net45\Microsoft.AI.Web.dll</PackageVersionFile>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>7286ce46</NuGetPackageImportStamp>
   </PropertyGroup>

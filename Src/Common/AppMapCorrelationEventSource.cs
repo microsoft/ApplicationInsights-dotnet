@@ -1,16 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.Common
 {
     using System;
-#if NETCORE || NET45
     using System.Diagnostics.Tracing;
-#endif
 #if NETCORE
     using System.Reflection;
 #endif
     using Extensibility.Implementation.Tracing;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
 
     /// <summary>
     /// ETW EventSource tracing class.
@@ -64,7 +59,7 @@
             Level = EventLevel.Warning)]
         public void GetComponentRoleNameHeaderFailed(string exception, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(3, exception, this.ApplicationName);
+            this.WriteEvent(4, exception, this.ApplicationName);
         }
 
         [Event(
@@ -74,7 +69,7 @@
             Level = EventLevel.Warning)]
         public void UnknownError(string exception, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(4, exception, this.ApplicationName);
+            this.WriteEvent(5, exception, this.ApplicationName);
         }
 
         [NonEvent]

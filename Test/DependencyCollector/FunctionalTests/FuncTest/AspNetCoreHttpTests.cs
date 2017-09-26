@@ -28,6 +28,7 @@
                 AppName = "AspxCore",
                 ExternalCallPath = "external/calls",
                 Port = DeploymentAndValidationTools.AspxCorePort,
+                PublishFolder = "netcoreapp1.0"
             };
 
             AspxCoreTestWebApplication.Deploy();
@@ -53,8 +54,7 @@
 
         [TestCleanup]
         public void MyTestCleanup()
-        {
-            Assert.IsFalse(DeploymentAndValidationTools.SdkEventListener.FailureDetected, "Failure is detected. Please read test output logs.");
+        {            
             DeploymentAndValidationTools.SdkEventListener.Stop();
         }               
 

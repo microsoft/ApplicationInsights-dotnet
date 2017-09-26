@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights
+﻿namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using System.Diagnostics;

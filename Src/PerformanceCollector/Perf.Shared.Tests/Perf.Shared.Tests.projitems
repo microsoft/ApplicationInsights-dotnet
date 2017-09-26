@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>9b524bd3-682d-4b6f-9251-d4b2911df0fd</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Tests</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ArrayHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Filtering\AccumulatedValuesTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Filtering\CalculatedMetricTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Filtering\CollectionConfigurationAccumulatorTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Filtering\DocumentStreamTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Filtering\FilterConjunctionGroupTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Filtering\FilterTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Filtering\Mocks\TelemetryMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\SimpleTelemetryProcessorSpy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mocks\PerformanceCollectorMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\Mocks\CategorySampleMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\Mocks\ClockMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\Mocks\QuickPulseCollectionTimeSlotManagerMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\Mocks\QuickPulsePerfLibMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\Mocks\QuickPulseProcessProviderMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\Mocks\QuickPulseServiceClientMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\Mocks\QuickPulseTopCpuCollectorMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseCollectionStateManagerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseCollectionTimeSlotManagerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseDataAccumulatorManagerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseDataAccumulatorTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseDataSampleTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseEventSourceTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseProcessProviderTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseQuotaTrackerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseServiceClientTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseTelemetryModuleTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseTelemetryProcessorTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseTestHelper.cs" />
+  </ItemGroup>
+</Project>

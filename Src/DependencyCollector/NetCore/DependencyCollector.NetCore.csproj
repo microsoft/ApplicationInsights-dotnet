@@ -14,7 +14,7 @@
 
   <PropertyGroup>
     <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
-    <VersionPrefix>2.4.0</VersionPrefix>
+    <VersionPrefix>2.5.0-beta1</VersionPrefix>
     <Authors>Microsoft</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
     <DefineConstants>$(DefineConstants);NETCORE</DefineConstants>
@@ -62,7 +62,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.0-beta1-build19420" />
     <PackageReference Include="Microsoft.Extensions.DiagnosticAdapter" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />

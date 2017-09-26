@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.5.0-beta1
+- Removed `net40` targets from all packages. Use the version 2.4 of SDK if your application is still compiled with the framework 4.0.
+
 ## Version 2.4.1
 - [Hotfix to address the issue where DependencyCollection breaks Azure Storage Emulator calls](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/640)
 
