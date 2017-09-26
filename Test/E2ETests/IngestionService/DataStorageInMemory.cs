@@ -63,7 +63,10 @@
             List<string> items;
             if (itemsDictionary.TryGetValue(instrumentationKey, out items))
             {
-                deletedItems.AddRange(items);
+                foreach(var item in items)
+                {
+                    deletedItems.Add(item.ToString().Substring(0,100));
+                }                
                 items.Clear();
             }
             
