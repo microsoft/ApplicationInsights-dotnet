@@ -62,7 +62,7 @@ namespace E2ETests.Net462
 
             dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
 
-            DockerComposeGenericCommandExecute("stop");            
+            Thread.Sleep(10000);
 
             Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
@@ -119,11 +119,11 @@ namespace E2ETests.Net462
         public void MyTestInitialize()
         {
             Trace.WriteLine("Started Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
-            //RemoveIngestionItems();
-            DockerComposeGenericCommandExecute("start");
-            testappip = DockerInspectIPAddress("e2etests_e2etestwebapp_1");
-            ingestionServiceIp = DockerInspectIPAddress("e2etests_ingestionservice_1");
-            dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
+            RemoveIngestionItems();
+            //DockerComposeGenericCommandExecute("start");
+            //testappip = DockerInspectIPAddress("e2etests_e2etestwebapp_1");
+            //ingestionServiceIp = DockerInspectIPAddress("e2etests_ingestionservice_1");
+            //dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
             PrintDockerProcessStats("After MyTestInitialize" + DateTime.UtcNow.ToLongTimeString());
             Trace.WriteLine("Completed Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
         }
@@ -133,7 +133,7 @@ namespace E2ETests.Net462
         {
             Trace.WriteLine("Started Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
             //RemoveIngestionItems();
-            DockerComposeGenericCommandExecute("stop");
+            //DockerComposeGenericCommandExecute("stop");
             PrintDockerProcessStats("After MyTestCleanup" + DateTime.UtcNow.ToLongTimeString());
             Trace.WriteLine("Completed Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
         }
