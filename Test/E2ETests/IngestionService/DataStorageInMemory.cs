@@ -1,13 +1,14 @@
 ﻿namespace IngestionService
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
 
     public class DataStorageInMemory
     {
-        internal static Dictionary<string, List<string>>   itemsDictionary = new Dictionary<string, List<string>>();
+        internal static ConcurrentDictionary<string, List<string>>   itemsDictionary = new ConcurrentDictionary<string, List<string>>();
 
         public DataStorageInMemory()
         {
@@ -35,8 +36,8 @@
             else
             {
                 items = new List<string>();
-                items.Add(data);
-                itemsDictionary.Add(instrumentationKey, items);
+                items.Add(data);                
+                itemsDictionary.TryAdd(instrumentationKey, items);
             }
         }
 

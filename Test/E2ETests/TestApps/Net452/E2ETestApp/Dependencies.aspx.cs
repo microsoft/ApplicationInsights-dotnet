@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.ApplicationInsights.Extensibility;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Globalization;
@@ -36,6 +37,8 @@ namespace E2ETestApp
                 default:
                     throw new ArgumentOutOfRangeException("Request Parameter type is not mapped to an action: " + type);
             }
+
+            TelemetryConfiguration.Active.TelemetryChannel.Flush();
         }
     }
 }

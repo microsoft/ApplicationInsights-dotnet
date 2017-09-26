@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.ApplicationInsights.Extensibility;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
@@ -33,6 +34,8 @@ namespace E2ETestApp
             this.ThrowExceptionIfNeededForRequest(currentRequest);
 
             lblWhatHappened.Text = whatHappened;
+
+            TelemetryConfiguration.Active.TelemetryChannel.Flush();
         }
 
         private void CallDependencyForRequest(long requestId, Uri requestUri)
