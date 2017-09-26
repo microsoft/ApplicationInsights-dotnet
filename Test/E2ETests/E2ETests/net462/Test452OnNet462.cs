@@ -87,6 +87,8 @@ namespace E2ETests.Net462
             dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
 
             Thread.Sleep(5000);
+
+            Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
 
         private static void PrintDockerProcessStats(string message)
@@ -105,15 +107,19 @@ namespace E2ETests.Net462
         [TestInitialize]
         public void MyTestInitialize()
         {
+            Trace.WriteLine("Started Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
             RemoveIngestionItems();
-            PrintDockerProcessStats("After MyTestInitialize");
+            PrintDockerProcessStats("After MyTestInitialize" + DateTime.UtcNow.ToLongTimeString());
+            Trace.WriteLine("Completed Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
         }
 
         [TestCleanup]
         public void MyTestCleanup()
         {
+            Trace.WriteLine("Started Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
             RemoveIngestionItems();
-            PrintDockerProcessStats("After MyTestCleanup");
+            PrintDockerProcessStats("After MyTestCleanup" + DateTime.UtcNow.ToLongTimeString());
+            Trace.WriteLine("Completed Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
         }
 
         private void RemoveIngestionItems()
@@ -185,7 +191,8 @@ namespace E2ETests.Net462
         [ClassCleanup]
         public static void MyClassCleanup()
         {
-            PrintDockerProcessStats("Start of class cleanup");
+
+            Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
             string dockerComposeActionCommand = "down";
             string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", dockerComposeBaseCommandFormat, dockerComposeFileNameFormat, dockerComposeActionCommand);
             Trace.WriteLine("Docker compose cleanup done using command: " + dockerComposeFullCommandFormat);
@@ -198,7 +205,8 @@ namespace E2ETests.Net462
             process.Start();
             string output = process.StandardOutput.ReadToEnd();
             Trace.WriteLine("Docker Compose Down Console output:" + output);
-            process.WaitForExit();            
+            process.WaitForExit();
+            Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
         }
 
         private async Task ValidateBasicRequestAsync(string targetInstanceIp, string targetPath, RequestTelemetry expectedRequestTelemetry)
