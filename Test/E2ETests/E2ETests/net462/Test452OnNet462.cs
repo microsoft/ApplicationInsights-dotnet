@@ -30,28 +30,13 @@ namespace E2ETests.Net462
         public static void MyClassInitialize(TestContext testContext)
         {
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
-            Assert.IsTrue(File.Exists(".\\" + dockerComposeFileName));
+            Assert.IsTrue(File.Exists(".\\" + dockerComposeFileName));                                    
 
-            string dockerComposeActionCommand = "up -d --build";
-            string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", dockerComposeBaseCommandFormat, dockerComposeFileNameFormat, dockerComposeActionCommand);
-            Trace.WriteLine("Docker compose done using command: " + dockerComposeFullCommandFormat);
-            ProcessStartInfo DockerComposeUp = new ProcessStartInfo("cmd", dockerComposeFullCommandFormat);            
-                        
-            Process process = new Process { StartInfo = DockerComposeUp };
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            Trace.WriteLine("Docker Compose Console output:" + output);
-            process.WaitForExit();
-
-            Trace.WriteLine("DockerComposeUp completed:" + DateTime.UtcNow.ToLongTimeString());
-
+            DockerComposeGenericCommandExecute("up -d --build");
             
+            // Inspect Docker containers to get IP addresses
             testappip = DockerInspectIPAddress("e2etests_e2etestwebapp_1");
             ingestionServiceIp = DockerInspectIPAddress("e2etests_ingestionservice_1");
-
 
             string url = "http://" + testappip + "/Default";
             Trace.WriteLine("Warmup request fired against WebApp under test:" + url);
@@ -63,13 +48,12 @@ namespace E2ETests.Net462
             dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
 
             Thread.Sleep(10000);
-
             Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
 
         private static void PrintDockerProcessStats(string message)
         {
-            Trace.WriteLine(message);
+            Trace.WriteLine("Docker PS Stats at " + message);
             Process process = new Process { StartInfo = DockerPSProcessInfo };
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             process.StartInfo.UseShellExecute = false;
@@ -119,11 +103,7 @@ namespace E2ETests.Net462
         public void MyTestInitialize()
         {
             Trace.WriteLine("Started Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
-            RemoveIngestionItems();
-            //DockerComposeGenericCommandExecute("start");
-            //testappip = DockerInspectIPAddress("e2etests_e2etestwebapp_1");
-            //ingestionServiceIp = DockerInspectIPAddress("e2etests_ingestionservice_1");
-            //dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
+            RemoveIngestionItems();            
             PrintDockerProcessStats("After MyTestInitialize" + DateTime.UtcNow.ToLongTimeString());
             Trace.WriteLine("Completed Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
         }
@@ -131,9 +111,7 @@ namespace E2ETests.Net462
         [TestCleanup]
         public void MyTestCleanup()
         {
-            Trace.WriteLine("Started Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
-            //RemoveIngestionItems();
-            //DockerComposeGenericCommandExecute("stop");
+            Trace.WriteLine("Started Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());            
             PrintDockerProcessStats("After MyTestCleanup" + DateTime.UtcNow.ToLongTimeString());
             Trace.WriteLine("Completed Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
         }
@@ -207,21 +185,8 @@ namespace E2ETests.Net462
         [ClassCleanup]
         public static void MyClassCleanup()
         {
-
-            Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
-            string dockerComposeActionCommand = "down";
-            string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", dockerComposeBaseCommandFormat, dockerComposeFileNameFormat, dockerComposeActionCommand);
-            Trace.WriteLine("Docker compose cleanup done using command: " + dockerComposeFullCommandFormat);
-            ProcessStartInfo DockerComposeDown = new ProcessStartInfo("cmd", dockerComposeFullCommandFormat);
-      
-            Process process = new Process { StartInfo = DockerComposeDown };
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            Trace.WriteLine("Docker Compose Down Console output:" + output);
-            process.WaitForExit();
+            Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());            
+            DockerComposeGenericCommandExecute("down");
             Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
         }
 
