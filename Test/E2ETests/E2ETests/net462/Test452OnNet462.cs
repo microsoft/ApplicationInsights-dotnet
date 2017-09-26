@@ -27,7 +27,7 @@ namespace E2ETests.Net462
         internal static ProcessStartInfo DockerPSProcessInfo = new ProcessStartInfo("cmd", "/c docker ps -a");
 
         [ClassInitialize]
-        public async static void MyClassInitialize(TestContext testContext)
+        public static void MyClassInitialize(TestContext testContext)
         {
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
 
@@ -79,8 +79,8 @@ namespace E2ETests.Net462
 
             string url = "http://" + testappip + "/Default";
             Trace.WriteLine("Warmup request fired against WebApp under test:" + url);
-            var response = await new HttpClient().GetAsync(url);
-            Trace.WriteLine("Response for warm up request: "+ response.StatusCode);
+            var response = new HttpClient().GetAsync(url);
+            Trace.WriteLine("Response for warm up request: "+ response.Result.StatusCode);
 
             PrintDockerProcessStats("ClassInitialize completed");
 
@@ -114,7 +114,7 @@ namespace E2ETests.Net462
             PrintDockerProcessStats("After MyTestCleanup");
         }
 
-        private static void RemoveIngestionItems()
+        private void RemoveIngestionItems()
         {
             Trace.WriteLine("Deleting items started:" + DateTime.UtcNow.ToLongTimeString());
             dataendpointClient.DeleteItems(WebAppInstrumentationKey);
