@@ -39,7 +39,7 @@ namespace E2ETests.Net462
         }
 
         [TestMethod]
-        public void ValidateXComponentWebAppToWebApi()
+        public void Test452OnNet462_TestXComponentWebAppToWebApi()
         {
             base.TestXComponentWebAppToWebApi();
         }
