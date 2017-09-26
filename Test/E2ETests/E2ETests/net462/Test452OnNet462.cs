@@ -21,7 +21,7 @@ namespace E2ETests.Net462
         [ClassInitialize]
         public static void MyClassInitialize(TestContext testContext)
         {
-            DockerComposeFileName = "docker-compose452AppOn462";
+            DockerComposeFileName = "docker-compose452AppOn462.yml";
 
             MyClassInitializeBase();
         }

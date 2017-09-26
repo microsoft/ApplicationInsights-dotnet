@@ -110,7 +110,7 @@ namespace E2ETests
             Trace.WriteLine("Hitting the target url:" + url);
             var response = await client.GetAsync(url);
             Trace.WriteLine("Actual Response code: " + response.StatusCode);
-            Thread.Sleep(10000);
+            Thread.Sleep(2000);
             var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(WebAppInstrumentationKey);
 
             Trace.WriteLine("RequestCount for WebApp:" + requestsWebApp.Count);
@@ -133,7 +133,7 @@ namespace E2ETests
             {
                 Trace.WriteLine("Exception occured:" + ex);
             }
-            Thread.Sleep(10000);
+            Thread.Sleep(2000);
             var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(WebAppInstrumentationKey);
             PrintDependencies(dependenciesWebApp);
 
