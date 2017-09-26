@@ -87,6 +87,7 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\DataController.cs" />
+    <Compile Include="DataStorageInMemory.cs" />
     <Compile Include="DataStorage.cs" />
     <Compile Include="DataStoragePathMapper.cs" />
     <Compile Include="Global.asax.cs">
@@ -113,7 +114,7 @@
     <Folder Include="App_Data\" />
     <Folder Include="Models\" />
   </ItemGroup>
-    <PropertyGroup>
+  <PropertyGroup>
     <DeployOnBuild>true</DeployOnBuild>
     <DeployTarget>PipelinePreDeployCopyAllFilesToOneFolder</DeployTarget>
     <_PackageTempDir>$(OutputPath)\Publish</_PackageTempDir>

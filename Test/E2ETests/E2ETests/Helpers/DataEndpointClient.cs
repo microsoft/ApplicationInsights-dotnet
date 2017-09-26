@@ -115,16 +115,12 @@ namespace E2ETests.Helpers
                 throw new ArgumentNullException("instrumentationKey");
             }
 
-            var telemetryItems = new List<T>();
-            foreach (var uploadedItemId in ListItemIds(instrumentationKey))
-            {
-                var itemData = this.GetItem(uploadedItemId);
-                var allTelemetryItems = TelemetryItemFactory.GetTelemetryItems(itemData);
-                var requestedTypeItems =  allTelemetryItems.Where(it => it.GetType() == typeof(T)).Cast<T>().ToArray();
-
-                telemetryItems.AddRange(requestedTypeItems);
-            }
-
+            var telemetryItems = new List<T>();            
+            var itemData = this.GetItem(instrumentationKey);
+            var allTelemetryItems = TelemetryItemFactory.GetTelemetryItems(itemData);
+            var requestedTypeItems =  allTelemetryItems.Where(it => it.GetType() == typeof(T)).Cast<T>().ToArray();
+            telemetryItems.AddRange(requestedTypeItems);
+            
             return telemetryItems;
         }
 

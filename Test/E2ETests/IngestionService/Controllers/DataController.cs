@@ -11,6 +11,8 @@
         private readonly DataStorage storage = new DataStorage(
             new DataStoragePathMapper());
 
+        private readonly DataStorageInMemory storageInMemory = new DataStorageInMemory();
+
         // GET: api/Data/ListAllItems
         [HttpGet]
         [ActionName("ListAllItems")]
@@ -25,7 +27,7 @@
         public IEnumerable<string> ListItems(
             string p)
         {
-            return this.storage.GetItemIds(p);
+            return this.storageInMemory.GetItemIds(p);
         }
 
         // GET: api/Data/GetItem/itemId
@@ -33,9 +35,17 @@
         [ActionName("GetItem")]
         public HttpResponseMessage GetItem(string p)
         {
+            var allItems = this.storageInMemory.GetItemIds(p);
+            string output="";
+            foreach (var item in allItems)
+            {
+                output = output + "\n\n" + item;
+            }
+
             var resp = new HttpResponseMessage()
             {
-                Content = new StringContent(this.storage.GetItemData(p))
+                
+                Content = new StringContent(output)
             };
 
             resp.Content.Headers.ContentType =
@@ -49,7 +59,7 @@
         [ActionName("DeleteItems")]
         public IEnumerable<string> DeleteItems(string p)
         {
-            return this.storage.DeleteItems(p);
+            return this.storageInMemory.DeleteItems(p);
         }
 
         private string ReadIkeyFromContent(string content)
@@ -82,7 +92,7 @@
         public void PushItem([FromBody]string p)
         {            
             var key = ReadIkeyFromContent(p);
-            this.storage.SaveDataItem(key, p);
+            this.storageInMemory.SaveDataItem(key, p);
         }
     }
 }
