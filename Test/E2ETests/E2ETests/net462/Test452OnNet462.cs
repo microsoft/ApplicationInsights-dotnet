@@ -20,9 +20,9 @@ namespace E2ETests.Net462
         private const string WebApiInstrumentationKey = "0786419e-d901-4373-902a-136921b63fb2";
         internal static string testappip;
         internal static string ingestionServiceIp;
-        internal static string dockerComposeFileName = "docker-compose462.yml";
-        internal static string dockerComposeBaseCommandFormat = "/c docker-compose";
-        internal static string dockerComposeFileNameFormat = string.Format("-f {0}", dockerComposeFileName);
+        internal static string DockerComposeFileName = "docker-compose462.yml";
+        internal static string DockerComposeBaseCommandFormat = "/c docker-compose";
+        internal static string DockerComposeFileNameFormat = string.Format("-f {0}", DockerComposeFileName);
         internal static DataEndpointClient dataendpointClient;
         internal static ProcessStartInfo DockerPSProcessInfo = new ProcessStartInfo("cmd", "/c docker ps -a");
 
@@ -30,7 +30,7 @@ namespace E2ETests.Net462
         public static void MyClassInitialize(TestContext testContext)
         {
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
-            Assert.IsTrue(File.Exists(".\\" + dockerComposeFileName));                                    
+            Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));                                    
 
             DockerComposeGenericCommandExecute("up -d --build");
             
@@ -66,7 +66,7 @@ namespace E2ETests.Net462
 
         private static void DockerComposeGenericCommandExecute(string action)
         {            
-            string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", dockerComposeBaseCommandFormat, dockerComposeFileNameFormat, action);
+            string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", DockerComposeBaseCommandFormat, DockerComposeFileNameFormat, action);
             Trace.WriteLine("Docker compose using command: " + dockerComposeFullCommandFormat);
             ProcessStartInfo DockerComposeStop = new ProcessStartInfo("cmd", dockerComposeFullCommandFormat);
 
