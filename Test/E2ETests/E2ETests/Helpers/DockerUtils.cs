@@ -16,10 +16,23 @@ namespace E2ETests.Helpers
             string dockerComposeFullCommandFormat = string.Format("{0} -f {1} {2}", DockerComposeBaseCommandFormat, dockerComposeFile, action);
             CommandLineUtils.ExecuteCommandInCmd(dockerComposeFullCommandFormat);
         }
-        public static void ExecuteDockerCommand(string command)
+        public static string ExecuteDockerCommand(string command)
         {
             string dockerFullCommand = string.Format("{0} {1}", DockerBaseCommandFormat, command);
-            CommandLineUtils.ExecuteCommandInCmd(dockerFullCommand);
+            string output = CommandLineUtils.ExecuteCommandInCmd(dockerFullCommand);
+            return output;
+        }
+
+        public static void RestartDockerContainer(string containerName)
+        {
+            ExecuteDockerCommand("restart " + containerName);
+        }
+
+        public static string FindIpDockerContainer(string containerName, string networkName = "nat")
+        {
+            string commandToFindIp = string.Format("inspect -f \"{{.NetworkSettings.Networks.{0}.IPAddress}}\" {1}", networkName, containerName);            
+            string ip = ExecuteDockerCommand(commandToFindIp);
+            return ip;
         }
     }
 }

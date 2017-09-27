@@ -24,8 +24,7 @@ namespace E2ETests
         internal static string testwebAppip;
         internal static string testwebApiip;
         internal static string ingestionServiceIp;
-        internal static string DockerComposeFileName = "docker-compose.yml";        
-        internal static string DockerComposeFileNameFormat;
+        internal static string DockerComposeFileName = "docker-compose.yml";
 
 
         internal static DataEndpointClient dataendpointClient;
@@ -42,9 +41,9 @@ namespace E2ETests
             Thread.Sleep(1000);
 
             // Inspect Docker containers to get IP addresses
-            testwebAppip = DockerInspectIPAddress(ContainerNameWebApp, 3);
-            testwebApiip = DockerInspectIPAddress(ContainerNameWebApi, 3);
-            ingestionServiceIp = DockerInspectIPAddress(ContainerNameIngestionService, 3);
+            testwebAppip = DockerUtils.FindIpDockerContainer(ContainerNameWebApp);
+            testwebApiip = DockerUtils.FindIpDockerContainer(ContainerNameWebApi);
+            ingestionServiceIp = DockerUtils.FindIpDockerContainer(ContainerNameIngestionService);
 
             HealthCheckAndRestartIfNeeded("WebApi", testwebApiip, "/api/values", true);
             HealthCheckAndRestartIfNeeded("WebApp", testwebAppip, "/Default", true);                        
