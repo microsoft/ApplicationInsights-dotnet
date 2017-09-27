@@ -21,6 +21,18 @@
             return this.storage.GetAllItemIds();
         }
 
+        // GET: api/Data/HealthCheck/name
+        [HttpGet]
+        [ActionName("HealthCheck")]
+        public HttpResponseMessage HealthCheck(string name)
+        {            
+            var resp = new HttpResponseMessage()
+            {
+                Content = new StringContent("Hello" + name + "!")
+            };
+            return resp;
+        }
+
         // GET: api/Data/ListItems/instrumentationKey
         [HttpGet]
         [ActionName("ListItems")]

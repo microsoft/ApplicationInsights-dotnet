@@ -30,9 +30,34 @@ namespace E2ETests
 
         internal static Dictionary<string, DeployedApp> Apps = new Dictionary<string, DeployedApp>()
         {
-            { WebAppName, new DeployedApp { ikey = WebAppInstrumentationKey, containerName = "e2etests_e2etestwebapp_1"} },
-            { WebApiName, new DeployedApp { ikey = WebApiInstrumentationKey, containerName = "e2etests_e2etestwebapi_1"} },
-            { IngestionName, new DeployedApp { containerName = "e2etests_ingestionservice_1" } } 
+            {
+                WebAppName,
+                new DeployedApp
+                    {
+                        ikey = WebAppInstrumentationKey,
+                        containerName = "e2etests_e2etestwebapp_1",
+                        healthCheckPath = "/Default"
+                    }
+            },
+
+            {
+                WebApiName,
+                new DeployedApp
+                    {
+                        ikey = WebApiInstrumentationKey,
+                        containerName = "e2etests_e2etestwebapi_1",
+                        healthCheckPath = "/api/values"
+                    }
+            },
+
+            {
+                IngestionName,
+                new DeployedApp
+                    {
+                        containerName = "e2etests_ingestionservice_1",
+                        healthCheckPath = "/api/Data/HealthCheck?name=cijo"
+                    }
+            } 
         };
         
         internal const int AISDKBufferFlushTime = 2000;        
@@ -54,9 +79,10 @@ namespace E2ETests
             // Populate dynamic properties of Deployed Apps like ip address.
             PopulateIPAddresses();
 
-            HealthCheckAndRestartIfNeeded("WebApi", Apps[WebAppName].ipAddress, "/api/values", true);
-            HealthCheckAndRestartIfNeeded("WebApp", Apps[WebApiName].ipAddress, "/Default", true);
-
+            Assert.IsTrue(HealthCheckAndRestartIfNeeded(Apps[WebAppName]), "Web App is unhealthy");
+            Assert.IsTrue(HealthCheckAndRestartIfNeeded(Apps[WebApiName]), "Web Api is unhealthy");
+            Assert.IsTrue(HealthCheckAndRestartIfNeeded(Apps[IngestionName]), "Ingestion is unhealthy");
+            
             dataendpointClient = new DataEndpointClient(new Uri("http://" + Apps[IngestionName].ipAddress));
 
             Thread.Sleep(5000);
@@ -256,19 +282,44 @@ namespace E2ETests
             Trace.WriteLine("Deleting items completed:" + DateTime.UtcNow.ToLongTimeString());
         }
 
-        private static void HealthCheckAndRestartIfNeeded(string displayName, string ip, string path, bool restartDockerCompose)
+        private static bool HealthCheckAndRestartIfNeeded(DeployedApp app)
         {
-            string url = "http://" + ip + path;
-            Trace.WriteLine(string.Format("Request fired against {0} using url: {1}", displayName, url));
-            try
-            {                
-                var response = new HttpClient().GetStringAsync(url);
-                Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result));
-            }
-            catch(Exception ex)
+            bool isAppHealthy = HealthCheck(app);
+            if(!isAppHealthy)
             {
-                Trace.WriteLine(string.Format("Exception occuring hitting {0} : {1}", url, ex.InnerException.Message));                
+                RestartApp(app);
+                isAppHealthy = HealthCheck(app);
             }
+
+            return isAppHealthy;
+        }
+
+        private static void RestartApp(DeployedApp app)
+        {
+            DockerUtils.RestartDockerContainer(app.containerName);
+            app.ipAddress = DockerUtils.FindIpDockerContainer(app.containerName);
+        }
+
+        private static bool HealthCheck(DeployedApp app)
+        {
+            bool isHealthy = true;
+            string url = "http://" + app.ipAddress + app.healthCheckPath;
+            Trace.WriteLine(string.Format("Request fired against {0} using url: {1}", app.containerName, url));
+            try
+            {
+                var response = new HttpClient().GetAsync(url);
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    isHealthy = false;
+                    Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result.StatusCode));
+                }
+            }
+            catch (Exception ex)
+            {
+                isHealthy = false;
+                Trace.WriteLine(string.Format("Exception occuring hitting {0} : {1}", url, ex.InnerException.Message));
+            }
+            return isHealthy;
         }
     }
 }
