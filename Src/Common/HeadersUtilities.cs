@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     /// <summary>
     /// Generic functions that can be used to get and set Http headers.
@@ -83,6 +84,24 @@
                         return equalsSignIndex == -1 || TrimSubstring(headerValue, 0, equalsSignIndex) != keyName;
                     })
                     .Concat(newHeaderKeyValue);
+        }
+
+        /// <summary>
+        /// Http Headers only allow Printable US-ASCII characters.
+        /// Remove all other characters.
+        /// </summary>
+        public static string SanitizeString(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return input;
+            }
+
+            // US-ASCII characters (hex: 0x00 - 0x7F) (decimal: 0-127)
+            // ASCII Extended characters (hex: 0x80 - 0xFF) (decimal: 0-255) (NOT ALLOWED)
+            // Non-Printable ASCII characters are (hex: 0x00 - 0x1F) (decimal: 0-31) (NOT ALLOWED)
+            // Printable ASCII characters are (hex: 0x20 - 0xFF) (decimal: 32-255) 
+            return Regex.Replace(input, @"[^\u0020-\u007F]", string.Empty);
         }
 
         private static string TrimSubstring(string value, int startIndex, int endIndex)

@@ -72,6 +72,16 @@
             this.WriteEvent(5, exception, this.ApplicationName);
         }
 
+        [Event(
+            6,
+            Keywords = Keywords.UserActionable,
+            Message = "Failed to retrieve App ID for the current application insights resource. Endpoint returned HttpStatusCode: {0}",
+            Level = EventLevel.Warning)]
+        public void FetchAppIdFailedWithResponseCode(string httpStatusCode, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(6, httpStatusCode, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

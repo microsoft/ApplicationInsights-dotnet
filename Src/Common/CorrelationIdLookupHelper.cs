@@ -38,7 +38,7 @@
         private ConcurrentDictionary<string, int> fetchTasks = new ConcurrentDictionary<string, int>();
 
         // Stores failed instrumentation keys along with the time we tried to retrieve them.
-        private ConcurrentDictionary<string, FailedResult> failingInstrumenationKeys = new ConcurrentDictionary<string, FailedResult>();
+        private ConcurrentDictionary<string, FailedResult> failingInstrumentationKeys = new ConcurrentDictionary<string, FailedResult>();
 
         private Func<string, Task<string>> provideAppId;
 
@@ -126,7 +126,7 @@
                 try
                 {
                     FailedResult lastFailedResult;
-                    if (this.failingInstrumenationKeys.TryGetValue(instrumentationKey, out lastFailedResult))
+                    if (this.failingInstrumentationKeys.TryGetValue(instrumentationKey, out lastFailedResult))
                     {
                         if (!lastFailedResult.ShouldRetry || DateTime.UtcNow - lastFailedResult.FailureTime <= this.intervalBetweenFailedRetries)
                         {
@@ -185,9 +185,20 @@
             return this.fetchTasks.TryGetValue(ikey, out value);
         }
 
+        /// <summary>
+        /// Format and store an iKey and appId pair into the dictionary of known correlation ids.
+        /// </summary>
+        /// <param name="ikey">Instrumentation Key is expected to be a Guid string.</param>
+        /// <param name="appId">Application Id is expected to be a Guid string. App Id needs to be Http Header safe, and all non-ASCII characters will be removed.</param>
         private void GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
         {
-            if (appId != null)
+            if (string.IsNullOrWhiteSpace(appId))
+            {
+                return;
+            }
+
+            appId = HeadersUtilities.SanitizeString(appId);
+            if (!string.IsNullOrEmpty(appId))
             {
                 this.knownCorrelationIds[ikey] = string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, appId);
             }
@@ -200,34 +211,56 @@
         /// <returns>App id.</returns>
         private async Task<string> FetchAppIdFromService(string instrumentationKey)
         {
+#if NETCORE
+            string result = null;
+            Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey);
+
+            using (HttpClient client = new HttpClient())
+            {
+                var resultMessage = await client.GetAsync(appIdEndpoint).ConfigureAwait(false);
+                if (resultMessage.IsSuccessStatusCode)
+                {
+                    result = await resultMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    this.RegisterFetchFailure(instrumentationKey, resultMessage.StatusCode);
+                }
+            }
+
+            return result;
+#else
             try
             {
-#if !NETCORE
                 SdkInternalOperationsMonitor.Enter();
-#endif
+
+                string result = null;
                 Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey);
-#if !NETCORE
                 WebRequest request = WebRequest.Create(appIdEndpoint);
                 request.Method = "GET";
 
                 using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync().ConfigureAwait(false))
-                using (StreamReader reader = new StreamReader(response.GetResponseStream()))
                 {
-                    return await reader.ReadToEndAsync();
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                        {
+                            result = await reader.ReadToEndAsync();
+                        }
+                    }
+                    else
+                    {
+                        this.RegisterFetchFailure(instrumentationKey, response.StatusCode);
+                    }
                 }
-#else
-                using (HttpClient client = new HttpClient())
-                {
-                    return await client.GetStringAsync(appIdEndpoint).ConfigureAwait(false);
-                }
-#endif
+
+                return result;
             }
             finally
             {
-#if !NETCORE
                 SdkInternalOperationsMonitor.Exit();
-#endif
             }
+#endif
         }
 
         /// <summary>
@@ -263,19 +296,32 @@
             var webException = ex as WebException;
             if (webException != null)
             {
-                this.failingInstrumenationKeys[instrumentationKey] = new FailedResult(
+                this.failingInstrumentationKeys[instrumentationKey] = new FailedResult(
                     DateTime.UtcNow,
                     ((HttpWebResponse)webException.Response).StatusCode);
             }
             else
             {
 #endif
-                this.failingInstrumenationKeys[instrumentationKey] = new FailedResult(DateTime.UtcNow);
+            this.failingInstrumentationKeys[instrumentationKey] = new FailedResult(DateTime.UtcNow);
 #if !NETCORE
             }
 #endif
 
             AppMapCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
+        }
+
+        /// <summary>
+        /// FetchAppIdFromService failed.
+        /// Registers failure for further action in future.
+        /// </summary>
+        /// <param name="instrumentationKey">Instrumentation key for which the failure occurred.</param>
+        /// <param name="httpStatusCode">Response code from AppId Endpoint.</param>
+        private void RegisterFetchFailure(string instrumentationKey, HttpStatusCode httpStatusCode)
+        {
+            this.failingInstrumentationKeys[instrumentationKey] = new FailedResult(DateTime.UtcNow, httpStatusCode);
+
+            AppMapCorrelationEventSource.Log.FetchAppIdFailedWithResponseCode(httpStatusCode.ToString());
         }
 
         private string GetExceptionDetailString(Exception ex)
@@ -338,6 +384,6 @@
                     return !(this.FailureCode >= 400 && this.FailureCode < 500);
                 }
             }
-        } 
+        }
     }
 }
