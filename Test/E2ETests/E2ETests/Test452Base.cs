@@ -36,45 +36,48 @@ namespace E2ETests
             Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));
 
             DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
-
-            PrintDockerProcessStats("Docker-Compose -build");
+            DockerUtils.PrintDockerProcessStats("Docker-Compose -build");
             Thread.Sleep(1000);
-
-            // Inspect Docker containers to get IP addresses
-            testwebAppip = DockerUtils.FindIpDockerContainer(ContainerNameWebApp);
-            testwebApiip = DockerUtils.FindIpDockerContainer(ContainerNameWebApi);
-            ingestionServiceIp = DockerUtils.FindIpDockerContainer(ContainerNameIngestionService);
+            PopulateIPAddresses();
 
             HealthCheckAndRestartIfNeeded("WebApi", testwebApiip, "/api/values", true);
-            HealthCheckAndRestartIfNeeded("WebApp", testwebAppip, "/Default", true);                        
-            
+            HealthCheckAndRestartIfNeeded("WebApp", testwebAppip, "/Default", true);
+
             dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
 
             Thread.Sleep(5000);
             Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
-        
+
+        private static void PopulateIPAddresses()
+        {
+            // Inspect Docker containers to get IP addresses
+            testwebAppip = DockerUtils.FindIpDockerContainer(ContainerNameWebApp);
+            testwebApiip = DockerUtils.FindIpDockerContainer(ContainerNameWebApi);
+            ingestionServiceIp = DockerUtils.FindIpDockerContainer(ContainerNameIngestionService);
+        }
+
         public static void MyClassCleanupBase()
         {
             Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
             DockerUtils.ExecuteDockerComposeCommand("down --rmi local", DockerComposeFileName);
             Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
 
-            PrintDockerProcessStats("Docker-Compose down");
+            DockerUtils.PrintDockerProcessStats("Docker-Compose down");
         }
 
         public void MyTestInitialize()
         {
             Trace.WriteLine("Started Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
             RemoveIngestionItems();
-            PrintDockerProcessStats("After MyTestInitialize" + DateTime.UtcNow.ToLongTimeString());
+            DockerUtils.PrintDockerProcessStats("After MyTestInitialize" + DateTime.UtcNow.ToLongTimeString());
             Trace.WriteLine("Completed Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
         }
         
         public void MyTestCleanup()
         {
             Trace.WriteLine("Started Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
-            PrintDockerProcessStats("After MyTestCleanup" + DateTime.UtcNow.ToLongTimeString());
+            DockerUtils.PrintDockerProcessStats("After MyTestCleanup" + DateTime.UtcNow.ToLongTimeString());
             Trace.WriteLine("Completed Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
         }
         
@@ -222,58 +225,8 @@ namespace E2ETests
                 Trace.WriteLine("deps.data.baseData.target:" + deps.data.baseData.target);
                 Trace.WriteLine("--------------------------------------");
             }
-        }
-
-        private static void PrintDockerProcessStats(string message)
-        {
-            Trace.WriteLine("Docker PS Stats at " + message);
-            Process process = new Process { StartInfo = DockerPSProcessInfo };
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            Trace.WriteLine("Docker ps -a" + output);
-            process.WaitForExit();
-        }
-
-
-
+        }        
         
-
-        
-
-        private static string DockerInspectIPAddress(string containerName, int maxCount)
-        {
-            int i = 1;
-            string ip = DockerInspectIPAddress(containerName);
-            while(i <= maxCount && string.IsNullOrWhiteSpace(ip))
-            {
-                i++;
-                Trace.WriteLine(string.Format("Attempt {0} to get ip adress for {1}.", i, containerName));
-                ip = DockerInspectIPAddress(containerName);
-            }
-            return ip;
-        }
-        private static string DockerInspectIPAddress(string containerName)
-        {
-            string dockerInspectIpBaseCommand = "/c docker inspect -f \"{{.NetworkSettings.Networks.nat.IPAddress}}\" ";
-            string dockerInspectIpCommand = dockerInspectIpBaseCommand + containerName;
-            ProcessStartInfo DockerInspectIp = new ProcessStartInfo("cmd", dockerInspectIpCommand);
-            Trace.WriteLine("DockerInspectIp done using command:" + dockerInspectIpCommand);
-
-            Process process = new Process { StartInfo = DockerInspectIp };
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            string ip = output.Trim();
-            Trace.WriteLine(string.Format("DockerInspect IP for {0} is {1}", containerName, ip));
-            process.WaitForExit();
-            return ip;
-        }
-
         private void RemoveIngestionItems()
         {
             Trace.WriteLine("Deleting items started:" + DateTime.UtcNow.ToLongTimeString());

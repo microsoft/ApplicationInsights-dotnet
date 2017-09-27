@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,9 +31,15 @@ namespace E2ETests.Helpers
 
         public static string FindIpDockerContainer(string containerName, string networkName = "nat")
         {
-            string commandToFindIp = string.Format("inspect -f \"{{.NetworkSettings.Networks.{0}.IPAddress}}\" {1}", networkName, containerName);            
-            string ip = ExecuteDockerCommand(commandToFindIp);
+            string commandToFindIp = "inspect -f \"{{.NetworkSettings.Networks.nat.IPAddress}}\" "+ containerName;            
+            string ip = ExecuteDockerCommand(commandToFindIp).Trim();
             return ip;
+        }
+
+        public static void PrintDockerProcessStats(string message)
+        {
+            Trace.WriteLine("Docker PS Stats at " + message);
+            ExecuteDockerCommand("ps -a");
         }
     }
 }
