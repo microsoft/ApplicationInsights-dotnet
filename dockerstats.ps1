@@ -7,14 +7,14 @@ Write-Host "Containers before cleanup"
 & docker ps -a
 
 Write-Host "Stopping E2E Containers"
-& docker stop -f e2etests_ingestionservice
-& docker stop -f e2etests_e2etestwebapi
-& docker stop -f e2etests_e2etestwebapp 
+& docker stop e2etests_ingestionservice_1
+& docker stop e2etests_e2etestwebapi_1
+& docker stop e2etests_e2etestwebapp_1
 
 Write-Host "Removing E2E Containers"
-& docker rm e2etests_ingestionservice
-& docker rm e2etests_e2etestwebapi
-& docker rm e2etests_e2etestwebapp
+& docker rm e2etests_ingestionservice_1
+& docker rm e2etests_e2etestwebapi_1
+& docker rm e2etests_e2etestwebapp_1
 
 Write-Host "Removing E2E Images"
 & docker rmi -f e2etests_ingestionservice
