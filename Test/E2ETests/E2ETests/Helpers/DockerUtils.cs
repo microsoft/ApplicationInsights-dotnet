@@ -29,10 +29,25 @@ namespace E2ETests.Helpers
             ExecuteDockerCommand("restart " + containerName);
         }
 
-        public static string FindIpDockerContainer(string containerName, string networkName = "nat")
+        public static string FindIpDockerContainer(string containerName, string networkName = "nat", int retryCount = 1)
         {
-            string commandToFindIp = "inspect -f \"{{.NetworkSettings.Networks.nat.IPAddress}}\" "+ containerName;            
-            string ip = ExecuteDockerCommand(commandToFindIp).Trim();
+            string commandToFindIp = string.Empty;
+            string ip = string.Empty;
+            for (int i = 0; i < retryCount; i++)
+            {
+                commandToFindIp = "inspect -f \"{{.NetworkSettings.Networks.nat.IPAddress}}\" " + containerName;
+                ip = ExecuteDockerCommand(commandToFindIp).Trim();
+                if(!string.IsNullOrWhiteSpace(ip))
+                {
+                    break;
+                }
+                Trace.WriteLine("Failed to get IP Address in attempt" + (i+1));
+            }
+
+            if(string.IsNullOrWhiteSpace(ip))
+            {
+                Trace.WriteLine(string.Format("Unable to obtain ip address of container {0} after {1} attempts.", containerName, retryCount));
+            }
             return ip;
         }
 

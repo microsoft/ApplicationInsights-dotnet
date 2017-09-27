@@ -56,6 +56,13 @@ namespace E2ETests
             testwebApiip = DockerUtils.FindIpDockerContainer(ContainerNameWebApi);
             ingestionServiceIp = DockerUtils.FindIpDockerContainer(ContainerNameIngestionService);
         }
+        
+        private static void RestartAllTestAppContainers()
+        {
+            DockerUtils.RestartDockerContainer(ContainerNameWebApp);
+            DockerUtils.RestartDockerContainer(ContainerNameWebApi);
+            DockerUtils.RestartDockerContainer(ContainerNameIngestionService);
+        }
 
         public static void MyClassCleanupBase()
         {
