@@ -306,7 +306,7 @@ namespace E2ETests
             }
             catch(Exception ex)
             {
-                Trace.WriteLine(string.Format("Exception occuring hitting {0} : {1}", url, ex.Message));
+                Trace.WriteLine(string.Format("Exception occuring hitting {0} : {1}", url, ex.InnerException.Message));
                 if(restartDockerCompose)
                 {
                     PrintDockerProcessStats("Before Attempting To Repair.");
