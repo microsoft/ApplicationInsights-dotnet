@@ -35,7 +35,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             this.sentItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sentItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            this.telemetryDiagnosticSourceListener = new TelemetryDiagnosticSourceListener(this.configuration);
+            this.telemetryDiagnosticSourceListener = new TelemetryDiagnosticSourceListener(this.configuration, null);
         }
 
         [TestCleanup]

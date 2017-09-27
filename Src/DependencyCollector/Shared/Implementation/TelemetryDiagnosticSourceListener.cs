@@ -21,12 +21,20 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private readonly IDisposable listenerSubscription;
         private List<IDisposable> individualSubscriptions;
 
-        public TelemetryDiagnosticSourceListener(TelemetryConfiguration configuration)
+        private readonly HashSet<string> excludedDiagnosticSources 
+            = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, HashSet<string>> excludedDiagnosticSourceActivities 
+            = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+
+
+        public TelemetryDiagnosticSourceListener(TelemetryConfiguration configuration, ICollection<string> excludeDiagnosticSourceActivities)
         {
             this.client = new TelemetryClient(configuration);
             this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceListener + ":");
 
             this.configuration = configuration;
+
+            this.PrepareExclusionLists(excludeDiagnosticSourceActivities);
 
             try
             {
@@ -35,6 +43,49 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             catch (Exception ex)
             {
                 DependencyCollectorEventSource.Log.TelemetryDiagnosticSourceListenerFailedToSubscribe(ex.ToInvariantString());
+            }
+        }
+
+        private void PrepareExclusionLists(ICollection<string> excludeDiagnosticSourceActivities)
+        {
+            if (excludeDiagnosticSourceActivities == null)
+            {
+                return;
+            }
+
+            foreach (string exclusion in excludeDiagnosticSourceActivities)
+            {
+                if (string.IsNullOrWhiteSpace(exclusion))
+                {
+                    continue;
+                }
+
+                // each individual exclusion can specify
+                // 1) the name of Diagnostic Source 
+                //    - in that case the whole source is excluded
+                //    - e.g. "System.Net.Http"
+                // 2) the names of Diagnostic Source and Activity separated by ':' 
+                //   - in that case the activity is disabled but not the whole source
+                //   - e.g. ""
+                string[] tokens = exclusion.Split(':');
+
+                if (tokens.Length == 1)
+                {
+                    // the whole Diagnostic Source is excluded
+                    this.excludedDiagnosticSources.Add(tokens[0]);
+                }
+                else
+                {
+                    // certain Activity from the Diagnostic Source is excluded
+                    HashSet<string> excludedActivities;
+                    if (!this.excludedDiagnosticSourceActivities.TryGetValue(tokens[0], out excludedActivities))
+                    {
+                        excludedActivities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                        this.excludedDiagnosticSourceActivities[tokens[0]] = excludedActivities;
+                    }
+
+                    excludedActivities.Add(tokens[1]);
+                }
             }
         }
 
@@ -50,18 +101,20 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// the list, or a DiagnosticListener that got added after this listener was added.</param>
         public void OnNext(DiagnosticListener value)
         {
-            if (value != null)
+            if (value == null || this.excludedDiagnosticSources.Contains(value.Name))
             {
-                IDisposable subscription = value.Subscribe(
-                    new IndividualDiagnosticSourceListener(value, this),
-                    (evnt, r, _) => !evnt.EndsWith(ActivityStartNameSuffix, StringComparison.OrdinalIgnoreCase));
-
-                if (this.individualSubscriptions == null)
-                {
-                    this.individualSubscriptions = new List<IDisposable>();
-                }
-                this.individualSubscriptions.Add(subscription);
+                return;
             }
+
+            IDisposable subscription = value.Subscribe(
+                new IndividualDiagnosticSourceListener(value, this),
+                (evnt, r, _) => !evnt.EndsWith(ActivityStartNameSuffix, StringComparison.OrdinalIgnoreCase));
+
+            if (this.individualSubscriptions == null)
+            {
+                this.individualSubscriptions = new List<IDisposable>();
+            }
+            this.individualSubscriptions.Add(subscription);
         }
 
         /// <summary>
@@ -282,18 +335,28 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             private readonly DiagnosticListener diagnosticListener;
             private readonly TelemetryDiagnosticSourceListener telemetryDiagnosticSourceListener;
 
+            private readonly HashSet<string> excludedActivities;
+
             internal IndividualDiagnosticSourceListener(DiagnosticListener diagnosticListener, TelemetryDiagnosticSourceListener telemetryDiagnosticSourceListener)
             {
                 this.diagnosticListener = diagnosticListener;
                 this.telemetryDiagnosticSourceListener = telemetryDiagnosticSourceListener;
+
+                if (!this.telemetryDiagnosticSourceListener.excludedDiagnosticSourceActivities.TryGetValue(diagnosticListener.Name, out this.excludedActivities))
+                {
+                    excludedActivities = null;
+                }
             }
 
             public void OnNext(KeyValuePair<string, object> evnt)
             {
-                if (evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase))
+                if (this.excludedActivities?.Contains(evnt.Key) == true
+                    || !evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase))
                 {
-                    this.telemetryDiagnosticSourceListener.OnActivityStop(this.diagnosticListener);
+                    return;
                 }
+
+                this.telemetryDiagnosticSourceListener.OnActivityStop(this.diagnosticListener);
             }
 
             /// <summary>

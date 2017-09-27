@@ -17,6 +17,18 @@
         <Add>localhost</Add>
         <Add>127.0.0.1</Add>
       </ExcludeComponentCorrelationHttpHeadersOnDomains>
+      <ExcludeDiagnosticSourceActivities>
+        <!-- 
+        Diagnostic Sources and Activities listed here will be excluded from telemetry collection.
+        Add entries here to exclude additional Diagnostic Sources or particular Activities.
+        - the name of Diagnostic Source to exclude it as a whole
+        - the names of Diagnostic Source and Activity separated by ':' to exclude only that activity 
+        NOTE: this configuration will be lost upon NuGet upgrade.
+        -->
+        <Add>Microsoft.AspNet.TelemetryCorrelation</Add>
+        <Add>HttpHandlerDiagnosticListener</Add>
+        <Add>System.Net.Http.Desktop</Add>
+      </ExcludeDiagnosticSourceActivities>
     </Add>
   </TelemetryModules>
 </ApplicationInsights>
