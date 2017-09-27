@@ -85,7 +85,9 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\CommandLineUtils.cs" />
     <Compile Include="Helpers\DataEndpointClient.cs" />
+    <Compile Include="Helpers\DockerUtils.cs" />
     <Compile Include="Helpers\TelemetryItem.cs" />
     <Compile Include="Helpers\TelemetryItemFactory.cs" />
     <Compile Include="net462\Test452OnNet462.cs" />

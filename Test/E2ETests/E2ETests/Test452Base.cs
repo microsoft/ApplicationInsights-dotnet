@@ -24,8 +24,7 @@ namespace E2ETests
         internal static string testwebAppip;
         internal static string testwebApiip;
         internal static string ingestionServiceIp;
-        internal static string DockerComposeFileName = "docker-compose.yml";
-        internal static string DockerComposeBaseCommandFormat = "/c docker-compose";
+        internal static string DockerComposeFileName = "docker-compose.yml";        
         internal static string DockerComposeFileNameFormat;
 
 
@@ -37,8 +36,7 @@ namespace E2ETests
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
             Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));
 
-            DockerComposeFileNameFormat = string.Format("-f {0}", DockerComposeFileName);
-            DockerComposeGenericCommandExecute("up -d --build");
+            DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
 
             PrintDockerProcessStats("Docker-Compose -build");
             Thread.Sleep(1000);
@@ -60,7 +58,7 @@ namespace E2ETests
         public static void MyClassCleanupBase()
         {
             Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
-            DockerComposeGenericCommandExecute("down --rmi local");            
+            DockerUtils.ExecuteDockerComposeCommand("down --rmi local", DockerComposeFileName);
             Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
 
             PrintDockerProcessStats("Docker-Compose down");
@@ -240,21 +238,11 @@ namespace E2ETests
             process.WaitForExit();
         }
 
-        private static void DockerComposeGenericCommandExecute(string action)
-        {
-            string dockerComposeFullCommandFormat = string.Format("{0} {1} {2}", DockerComposeBaseCommandFormat, DockerComposeFileNameFormat, action);
-            Trace.WriteLine("Docker compose using command: " + dockerComposeFullCommandFormat);
-            ProcessStartInfo DockerComposeStop = new ProcessStartInfo("cmd", dockerComposeFullCommandFormat);
 
-            Process process = new Process { StartInfo = DockerComposeStop };
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            Trace.WriteLine("Docker Compose output:" + output);
-            process.WaitForExit();
-        }
+
+        
+
+        
 
         private static string DockerInspectIPAddress(string containerName, int maxCount)
         {
@@ -306,17 +294,7 @@ namespace E2ETests
             }
             catch(Exception ex)
             {
-                Trace.WriteLine(string.Format("Exception occuring hitting {0} : {1}", url, ex.InnerException.Message));
-                if(restartDockerCompose)
-                {
-                    PrintDockerProcessStats("Before Attempting To Repair.");
-                    DockerComposeGenericCommandExecute("restart");
-                    PrintDockerProcessStats("Aftet Attempting To Repair by restart.");
-
-                    Trace.WriteLine("Rechecking health. Failure here will abort test run.");
-                    var response = new HttpClient().GetStringAsync(url);
-                    Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result));
-                }
+                Trace.WriteLine(string.Format("Exception occuring hitting {0} : {1}", url, ex.InnerException.Message));                
             }
         }
     }
