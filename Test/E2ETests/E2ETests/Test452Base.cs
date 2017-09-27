@@ -79,9 +79,14 @@ namespace E2ETests
             // Populate dynamic properties of Deployed Apps like ip address.
             PopulateIPAddresses();
 
-            Assert.IsTrue(HealthCheckAndRestartIfNeeded(Apps[WebAppName]), "Web App is unhealthy");
-            Assert.IsTrue(HealthCheckAndRestartIfNeeded(Apps[WebApiName]), "Web Api is unhealthy");
-            Assert.IsTrue(HealthCheckAndRestartIfNeeded(Apps[IngestionName]), "Ingestion is unhealthy");
+            bool webAppHealthy = HealthCheckAndRestartIfNeeded(Apps[WebAppName]);
+            bool webApiHealthy = HealthCheckAndRestartIfNeeded(Apps[WebApiName]);
+            bool ingestionHealthy = HealthCheckAndRestartIfNeeded(Apps[IngestionName]);
+
+
+            Assert.IsTrue(webAppHealthy, "Web App is unhealthy");
+            Assert.IsTrue(webApiHealthy, "Web Api is unhealthy");
+            Assert.IsTrue(ingestionHealthy, "Ingestion is unhealthy");
             
             dataendpointClient = new DataEndpointClient(new Uri("http://" + Apps[IngestionName].ipAddress));
 
