@@ -9,6 +9,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 - Server telemetry channel NuGet support a netstandard1.3 target with fixed rate sampling and adaptive sampling telemetry processors.
 - Instrumentation key is no longer required for TelemetryClient to send data to channel(s). This makes it easier to use the SDK with channels other than native Application Insights channels.
 - .NET 4.0 targets were removed. Please use the version 2.4.0 if you cannot upgrade your application to the latest framework version.
+- Removed `wp8`, `portable-win81+wpa81` and `uap10.0` targets.
 
 ## Version 2.4.0
 - Updated version of DiagnosticSource to 4.4.0 stable

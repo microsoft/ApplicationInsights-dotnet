@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.15
+VisualStudioVersion = 15.0.26906.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microsoft.ApplicationInsights.Tests", "Microsoft.ApplicationInsights.Tests", "{C2FEEDE5-8CAE-41A4-8932-42D284A86EA7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microsoft.ApplicationInsights", "Microsoft.ApplicationInsights", "{68CC2924-E162-44BE-8D7A-DBA385365585}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{05ACA4F0-E560-4E7A-BF50-1C248DAAA0D2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestFramework", "TestFramework", "{BED5EB47-4AB1-4387-98B6-83CC327D6D16}"
 EndProject
@@ -24,7 +22,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		dirs.proj = dirs.proj
 		GlobalStaticVersion.props = GlobalStaticVersion.props
 		NuGet.config = NuGet.config
-		NuGet.targets = NuGet.targets
 		Package.targets = Package.targets
 		README.md = README.md
 		Signing.props = Signing.props
@@ -53,10 +50,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.Nuget.Tests", "Test\ServerTelemetryChannel.Test\TelemetryChannel.Nuget.Tests\TelemetryChannel.Nuget.Tests.csproj", "{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights", "src\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj", "{E9ECEE96-DD50-42F6-9F33-0978CDFA15ED}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.NuGet", "src\Microsoft.ApplicationInsights\NuGet\Microsoft.ApplicationInsights.NuGet.csproj", "{32114B40-35BA-461F-93AC-A2DB7F7CE15B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummyCore", "src\Microsoft.ApplicationInsights\DummyCore\DummyCore.csproj", "{40CCD816-19FD-4B1D-9E24-AD2099351187}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.Isolated.Tests", "Test\Microsoft.ApplicationInsights.Test\Standalone\Microsoft.ApplicationInsights.Isolated.Tests.csproj", "{2759BC71-7F47-44DA-8579-AE2D8C8C684D}"
 EndProject
@@ -211,46 +204,6 @@ Global
 		{E9ECEE96-DD50-42F6-9F33-0978CDFA15ED}.Release|x64.Build.0 = Release|Any CPU
 		{E9ECEE96-DD50-42F6-9F33-0978CDFA15ED}.Release|x86.ActiveCfg = Release|Any CPU
 		{E9ECEE96-DD50-42F6-9F33-0978CDFA15ED}.Release|x86.Build.0 = Release|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Debug|ARM.Build.0 = Debug|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Debug|x64.Build.0 = Debug|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Debug|x86.Build.0 = Debug|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Release|ARM.ActiveCfg = Release|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Release|ARM.Build.0 = Release|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Release|x64.ActiveCfg = Release|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Release|x64.Build.0 = Release|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Release|x86.ActiveCfg = Release|Any CPU
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B}.Release|x86.Build.0 = Release|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Debug|ARM.Build.0 = Debug|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Debug|x64.Build.0 = Debug|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Debug|x86.Build.0 = Debug|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Release|Any CPU.Build.0 = Release|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Release|ARM.ActiveCfg = Release|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Release|ARM.Build.0 = Release|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Release|x64.ActiveCfg = Release|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Release|x64.Build.0 = Release|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Release|x86.ActiveCfg = Release|Any CPU
-		{40CCD816-19FD-4B1D-9E24-AD2099351187}.Release|x86.Build.0 = Release|Any CPU
 		{2759BC71-7F47-44DA-8579-AE2D8C8C684D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2759BC71-7F47-44DA-8579-AE2D8C8C684D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2759BC71-7F47-44DA-8579-AE2D8C8C684D}.Debug|ARM.ActiveCfg = Debug|Any CPU
@@ -345,8 +298,6 @@ Global
 		{C5A3F18F-1426-4941-9D81-D21062A2B8F2} = {A61B048F-ECEA-4BED-A2ED-22834E7D4DFB}
 		{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC} = {A61B048F-ECEA-4BED-A2ED-22834E7D4DFB}
 		{E9ECEE96-DD50-42F6-9F33-0978CDFA15ED} = {68CC2924-E162-44BE-8D7A-DBA385365585}
-		{32114B40-35BA-461F-93AC-A2DB7F7CE15B} = {05ACA4F0-E560-4E7A-BF50-1C248DAAA0D2}
-		{40CCD816-19FD-4B1D-9E24-AD2099351187} = {68CC2924-E162-44BE-8D7A-DBA385365585}
 		{2759BC71-7F47-44DA-8579-AE2D8C8C684D} = {C2FEEDE5-8CAE-41A4-8932-42D284A86EA7}
 		{3273D899-D9B3-44FE-B3AB-578E18B2EF90} = {E7B0521E-DA4D-40EA-B55D-ADCBDA69027C}
 		{178F87BF-CCCA-48DE-B171-4482E8CBD060} = {C2FEEDE5-8CAE-41A4-8932-42D284A86EA7}
