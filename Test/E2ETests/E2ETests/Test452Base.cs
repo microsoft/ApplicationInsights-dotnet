@@ -20,6 +20,7 @@ namespace E2ETests
         internal const string ContainerNameWebApp = "e2etests_e2etestwebapp_1";
         internal const string ContainerNameWebApi = "e2etests_e2etestwebapi_1";
         internal const string ContainerNameIngestionService = "e2etests_ingestionservice_1";
+        private const int AISDKBufferFlushTime = 2000;
         internal static string testwebAppip;
         internal static string testwebApiip;
         internal static string ingestionServiceIp;
@@ -43,9 +44,9 @@ namespace E2ETests
             Thread.Sleep(1000);
 
             // Inspect Docker containers to get IP addresses
-            testwebAppip = DockerInspectIPAddress(ContainerNameWebApp);
-            testwebApiip = DockerInspectIPAddress(ContainerNameWebApi);
-            ingestionServiceIp = DockerInspectIPAddress(ContainerNameIngestionService);
+            testwebAppip = DockerInspectIPAddress(ContainerNameWebApp, 3);
+            testwebApiip = DockerInspectIPAddress(ContainerNameWebApi, 3);
+            ingestionServiceIp = DockerInspectIPAddress(ContainerNameIngestionService, 3);
 
             HealthCheckAndRestartIfNeeded("WebApi", testwebApiip, "/api/values", true);
             HealthCheckAndRestartIfNeeded("WebApp", testwebAppip, "/Default", true);                        
@@ -136,7 +137,7 @@ namespace E2ETests
             Trace.WriteLine("Hitting the target url:" + url);
             var response = await client.GetAsync(url);
             Trace.WriteLine("Actual Response code: " + response.StatusCode);
-            Thread.Sleep(2000);
+            Thread.Sleep(AISDKBufferFlushTime);
             var requestsSource = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(sourceIKey);
             var dependenciesSource = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(sourceIKey);
             var requestsTarget = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(targetIKey);
@@ -170,7 +171,7 @@ namespace E2ETests
             Trace.WriteLine("Hitting the target url:" + url);
             var response = await client.GetAsync(url);
             Trace.WriteLine("Actual Response code: " + response.StatusCode);
-            Thread.Sleep(2000);
+            Thread.Sleep(AISDKBufferFlushTime);
             var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(ikey);
 
             Trace.WriteLine("RequestCount for WebApp:" + requestsWebApp.Count);
@@ -194,7 +195,7 @@ namespace E2ETests
             {
                 Trace.WriteLine("Exception occured:" + ex);
             }
-            Thread.Sleep(2000);
+            Thread.Sleep(AISDKBufferFlushTime);
             var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
             PrintDependencies(dependenciesWebApp);
 
@@ -248,6 +249,18 @@ namespace E2ETests
             process.WaitForExit();
         }
 
+        private static string DockerInspectIPAddress(string containerName, int maxCount)
+        {
+            int i = 1;
+            string ip = DockerInspectIPAddress(containerName);
+            while(i <= maxCount && string.IsNullOrWhiteSpace(ip))
+            {
+                i++;
+                Trace.WriteLine(string.Format("Attempt {0} to get ip adress for {1}.", i, containerName));
+                ip = DockerInspectIPAddress(containerName);
+            }
+            return ip;
+        }
         private static string DockerInspectIPAddress(string containerName)
         {
             string dockerInspectIpBaseCommand = "/c docker inspect -f \"{{.NetworkSettings.Networks.nat.IPAddress}}\" ";
