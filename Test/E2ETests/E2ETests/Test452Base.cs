@@ -13,19 +13,30 @@ using System.Collections.Generic;
 
 namespace E2ETests
 {
+    public class DeployedApp
+    {
+        public string containerName;
+        public string ipAddress;
+        public string ikey;
+        public string healthCheckPath;
+    }
     public abstract class Test452Base
     {
         internal const string WebAppInstrumentationKey = "e45209bb-49ab-41a0-8065-793acb3acc56";
         internal const string WebApiInstrumentationKey = "0786419e-d901-4373-902a-136921b63fb2";
-        internal const string ContainerNameWebApp = "e2etests_e2etestwebapp_1";
-        internal const string ContainerNameWebApi = "e2etests_e2etestwebapi_1";
-        internal const string ContainerNameIngestionService = "e2etests_ingestionservice_1";
-        private const int AISDKBufferFlushTime = 2000;
-        internal static string testwebAppip;
-        internal static string testwebApiip;
-        internal static string ingestionServiceIp;
-        internal static string DockerComposeFileName = "docker-compose.yml";
+        internal const string WebAppName = "WebApp";
+        internal const string WebApiName = "WebApi";
+        internal const string IngestionName = "Ingestion";
 
+        internal static Dictionary<string, DeployedApp> Apps = new Dictionary<string, DeployedApp>()
+        {
+            { WebAppName, new DeployedApp { ikey = WebAppInstrumentationKey, containerName = "e2etests_e2etestwebapp_1"} },
+            { WebApiName, new DeployedApp { ikey = WebApiInstrumentationKey, containerName = "e2etests_e2etestwebapi_1"} },
+            { IngestionName, new DeployedApp { containerName = "e2etests_ingestionservice_1" } } 
+        };
+        
+        internal const int AISDKBufferFlushTime = 2000;        
+        internal static string DockerComposeFileName = "docker-compose.yml";
 
         internal static DataEndpointClient dataendpointClient;
         internal static ProcessStartInfo DockerPSProcessInfo = new ProcessStartInfo("cmd", "/c docker ps -a");
@@ -34,16 +45,19 @@ namespace E2ETests
         {
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
             Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));
-
+                        
+            // Deploy the docker cluster using Docker-Compose
             DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
             DockerUtils.PrintDockerProcessStats("Docker-Compose -build");
             Thread.Sleep(1000);
+            
+            // Populate dynamic properties of Deployed Apps like ip address.
             PopulateIPAddresses();
 
-            HealthCheckAndRestartIfNeeded("WebApi", testwebApiip, "/api/values", true);
-            HealthCheckAndRestartIfNeeded("WebApp", testwebAppip, "/Default", true);
+            HealthCheckAndRestartIfNeeded("WebApi", Apps[WebAppName].ipAddress, "/api/values", true);
+            HealthCheckAndRestartIfNeeded("WebApp", Apps[WebApiName].ipAddress, "/Default", true);
 
-            dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
+            dataendpointClient = new DataEndpointClient(new Uri("http://" + Apps[IngestionName].ipAddress));
 
             Thread.Sleep(5000);
             Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
@@ -52,16 +66,17 @@ namespace E2ETests
         private static void PopulateIPAddresses()
         {
             // Inspect Docker containers to get IP addresses
-            testwebAppip = DockerUtils.FindIpDockerContainer(ContainerNameWebApp);
-            testwebApiip = DockerUtils.FindIpDockerContainer(ContainerNameWebApi);
-            ingestionServiceIp = DockerUtils.FindIpDockerContainer(ContainerNameIngestionService);
+            Apps[WebAppName].ipAddress = DockerUtils.FindIpDockerContainer(Apps[WebAppName].containerName);
+            Apps[WebApiName].ipAddress = DockerUtils.FindIpDockerContainer(Apps[WebApiName].containerName);
+            Apps[IngestionName].ipAddress = DockerUtils.FindIpDockerContainer(Apps[IngestionName].containerName);            
         }
         
         private static void RestartAllTestAppContainers()
         {
-            DockerUtils.RestartDockerContainer(ContainerNameWebApp);
-            DockerUtils.RestartDockerContainer(ContainerNameWebApi);
-            DockerUtils.RestartDockerContainer(ContainerNameIngestionService);
+            foreach(var app in Apps.Values)
+            {
+                DockerUtils.RestartDockerContainer(app.containerName);
+            }            
         }
 
         public static void MyClassCleanupBase()
@@ -91,9 +106,8 @@ namespace E2ETests
         public void TestBasicRequestWebApp()
         {
             var expectedRequestTelemetry = new RequestTelemetry();
-            expectedRequestTelemetry.ResponseCode = "200";
-
-            ValidateBasicRequestAsync(testwebAppip, "/Default", expectedRequestTelemetry, WebAppInstrumentationKey).Wait();
+            expectedRequestTelemetry.ResponseCode = "200";            
+            ValidateBasicRequestAsync(Apps[WebAppName].ipAddress, "/Default", expectedRequestTelemetry, Apps[WebAppName].ikey).Wait();
         }
 
         public void TestXComponentWebAppToWebApi()
@@ -108,9 +122,9 @@ namespace E2ETests
             var expectedRequestTelemetryWebApi = new RequestTelemetry();
             expectedRequestTelemetryWebApi.ResponseCode = "200";
 
-            ValidateXComponentWebAppToWebApi(testwebAppip, "/Dependencies?type=http", 
+            ValidateXComponentWebAppToWebApi(Apps[WebAppName].ipAddress, "/Dependencies?type=http", 
                 expectedRequestTelemetryWebApp, expectedDependencyTelemetryWebApp, expectedRequestTelemetryWebApi,
-                WebAppInstrumentationKey, WebApiInstrumentationKey).Wait();
+                Apps[WebAppName].ikey, Apps[WebApiName].ikey).Wait();
         }
 
         public void TestBasicHttpDependencyWebApp()
@@ -119,8 +133,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependencyAsync(testwebAppip, "/Dependencies.aspx?type=http", expectedDependencyTelemetry,
-                WebAppInstrumentationKey).Wait();
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=http", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey).Wait();
         }
 
         public void TestBasicSqlDependencyWebApp()
@@ -129,8 +143,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependencyAsync(testwebAppip, "/Dependencies.aspx?type=sql", expectedDependencyTelemetry,
-                WebAppInstrumentationKey).Wait();
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=sql", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey).Wait();
         }
 
         private async Task ValidateXComponentWebAppToWebApi(string sourceInstanceIp, string sourcePath,
