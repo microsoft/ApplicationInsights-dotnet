@@ -47,15 +47,8 @@ namespace E2ETests
             testwebApiip = DockerInspectIPAddress(ContainerNameWebApi);
             ingestionServiceIp = DockerInspectIPAddress(ContainerNameIngestionService);
 
-            string url = "http://" + testwebApiip + "/api/values";
-            Trace.WriteLine("Warmup request fired against WebApi under test:" + url);
-            var response = new HttpClient().GetAsync(url);
-            Trace.WriteLine("Response for warm up request against WebApi: " + response.Result.StatusCode);
-
-            url = "http://" + testwebAppip + "/Default";
-            Trace.WriteLine("Warmup request fired against WebApp under test:" + url);
-            response = new HttpClient().GetAsync(url);
-            Trace.WriteLine("Response for warm up request against WebApp: " + response.Result.StatusCode);
+            HealthCheckAndRestartIfNeeded("WebApi", testwebApiip, "/api/values", true);
+            HealthCheckAndRestartIfNeeded("WebApp", testwebAppip, "/Default", true);                        
             
             dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
 
@@ -280,6 +273,31 @@ namespace E2ETests
             dataendpointClient.DeleteItems(WebAppInstrumentationKey);
             dataendpointClient.DeleteItems(WebApiInstrumentationKey);
             Trace.WriteLine("Deleting items completed:" + DateTime.UtcNow.ToLongTimeString());
+        }
+
+        private static void HealthCheckAndRestartIfNeeded(string displayName, string ip, string path, bool restartDockerCompose)
+        {
+            string url = "http://" + ip + path;
+            Trace.WriteLine(string.Format("Request fired against {0} using url: {1}", displayName, url));
+            try
+            {                
+                var response = new HttpClient().GetAsync(url);
+                Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result.StatusCode));
+            }
+            catch(Exception ex)
+            {
+                Trace.WriteLine(string.Format("Exception occuring hitting {0} : {1}", url, ex.Message));
+                if(restartDockerCompose)
+                {
+                    PrintDockerProcessStats("Before Attempting To Repair.");
+                    DockerComposeGenericCommandExecute("restart");
+                    PrintDockerProcessStats("Aftet Attempting To Repair by restart.");
+
+                    Trace.WriteLine("Rechecking health. Failure here will abort test run.");
+                    var response = new HttpClient().GetAsync(url);
+                    Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result.StatusCode));
+                }
+            }
         }
     }
 }
