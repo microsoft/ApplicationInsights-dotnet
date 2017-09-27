@@ -169,8 +169,15 @@ namespace E2ETests
             HttpClient client = new HttpClient();
             string url = "http://" + targetInstanceIp + targetPath;
             Trace.WriteLine("Hitting the target url:" + url);
-            var response = await client.GetAsync(url);
-            Trace.WriteLine("Actual Response code: " + response.StatusCode);
+            try
+            {
+                var response = await client.GetStringAsync(url);
+                Trace.WriteLine("Actual Response text: " + response.ToString());
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine("Exception occured:" + ex);
+            }
             Thread.Sleep(AISDKBufferFlushTime);
             var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(ikey);
 
@@ -294,8 +301,8 @@ namespace E2ETests
             Trace.WriteLine(string.Format("Request fired against {0} using url: {1}", displayName, url));
             try
             {                
-                var response = new HttpClient().GetAsync(url);
-                Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result.StatusCode));
+                var response = new HttpClient().GetStringAsync(url);
+                Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result));
             }
             catch(Exception ex)
             {
@@ -307,8 +314,8 @@ namespace E2ETests
                     PrintDockerProcessStats("Aftet Attempting To Repair by restart.");
 
                     Trace.WriteLine("Rechecking health. Failure here will abort test run.");
-                    var response = new HttpClient().GetAsync(url);
-                    Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result.StatusCode));
+                    var response = new HttpClient().GetStringAsync(url);
+                    Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result));
                 }
             }
         }
