@@ -40,6 +40,7 @@ namespace E2ETests
             DockerComposeGenericCommandExecute("up -d --build");
 
             PrintDockerProcessStats("Docker-Compose -build");
+            Thread.Sleep(1000);
 
             // Inspect Docker containers to get IP addresses
             testwebAppip = DockerInspectIPAddress(ContainerNameWebApp);
@@ -58,7 +59,7 @@ namespace E2ETests
             
             dataendpointClient = new DataEndpointClient(new Uri("http://" + ingestionServiceIp));
 
-            Thread.Sleep(10000);
+            Thread.Sleep(5000);
             Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
         
@@ -91,7 +92,7 @@ namespace E2ETests
             var expectedRequestTelemetry = new RequestTelemetry();
             expectedRequestTelemetry.ResponseCode = "200";
 
-            ValidateBasicRequestAsync(testwebAppip, "/Default", expectedRequestTelemetry).Wait();
+            ValidateBasicRequestAsync(testwebAppip, "/Default", expectedRequestTelemetry, WebAppInstrumentationKey).Wait();
         }
 
         public void TestXComponentWebAppToWebApi()
@@ -117,7 +118,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependencyAsync(testwebAppip, "/Dependencies.aspx?type=http", expectedDependencyTelemetry).Wait();
+            ValidateBasicDependencyAsync(testwebAppip, "/Dependencies.aspx?type=http", expectedDependencyTelemetry,
+                WebAppInstrumentationKey).Wait();
         }
 
         public void TestBasicSqlDependencyWebApp()
@@ -126,7 +128,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependencyAsync(testwebAppip, "/Dependencies.aspx?type=sql", expectedDependencyTelemetry).Wait();
+            ValidateBasicDependencyAsync(testwebAppip, "/Dependencies.aspx?type=sql", expectedDependencyTelemetry,
+                WebAppInstrumentationKey).Wait();
         }
 
         private async Task ValidateXComponentWebAppToWebApi(string sourceInstanceIp, string sourcePath,
@@ -166,7 +169,8 @@ namespace E2ETests
 
         }
 
-        private async Task ValidateBasicRequestAsync(string targetInstanceIp, string targetPath, RequestTelemetry expectedRequestTelemetry)
+        private async Task ValidateBasicRequestAsync(string targetInstanceIp, string targetPath,
+            RequestTelemetry expectedRequestTelemetry, string ikey)
         {
             HttpClient client = new HttpClient();
             string url = "http://" + targetInstanceIp + targetPath;
@@ -174,7 +178,7 @@ namespace E2ETests
             var response = await client.GetAsync(url);
             Trace.WriteLine("Actual Response code: " + response.StatusCode);
             Thread.Sleep(2000);
-            var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(WebAppInstrumentationKey);
+            var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(ikey);
 
             Trace.WriteLine("RequestCount for WebApp:" + requestsWebApp.Count);
             Assert.IsTrue(requestsWebApp.Count == 1);
@@ -182,7 +186,8 @@ namespace E2ETests
             Assert.AreEqual(expectedRequestTelemetry.ResponseCode, request.data.baseData.responseCode, "Response code is incorrect");
         }
 
-        private async Task ValidateBasicDependencyAsync(string targetInstanceIp, string targetPath, DependencyTelemetry expectedDependencyTelemetry)
+        private async Task ValidateBasicDependencyAsync(string targetInstanceIp, string targetPath,
+            DependencyTelemetry expectedDependencyTelemetry, string ikey)
         {
             HttpClient client = new HttpClient();
             string url = "http://" + targetInstanceIp + targetPath;
@@ -197,7 +202,7 @@ namespace E2ETests
                 Trace.WriteLine("Exception occured:" + ex);
             }
             Thread.Sleep(2000);
-            var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(WebAppInstrumentationKey);
+            var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
             PrintDependencies(dependenciesWebApp);
 
             Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
