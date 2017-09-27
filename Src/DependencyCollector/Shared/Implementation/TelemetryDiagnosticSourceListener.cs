@@ -12,8 +12,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
     internal class TelemetryDiagnosticSourceListener : IObserver<DiagnosticListener>, IDisposable
     {
-        private const string ActivityStartNameSuffix = ".Start";
-        private const string ActivityStopNameSuffix = ".Stop";
+        internal const string ActivityStartNameSuffix = ".Start";
+        internal const string ActivityStopNameSuffix = ".Stop";
 
         private readonly TelemetryClient client;
         private readonly TelemetryConfiguration configuration;
@@ -46,49 +46,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
         }
 
-        private void PrepareExclusionLists(ICollection<string> excludeDiagnosticSourceActivities)
-        {
-            if (excludeDiagnosticSourceActivities == null)
-            {
-                return;
-            }
-
-            foreach (string exclusion in excludeDiagnosticSourceActivities)
-            {
-                if (string.IsNullOrWhiteSpace(exclusion))
-                {
-                    continue;
-                }
-
-                // each individual exclusion can specify
-                // 1) the name of Diagnostic Source 
-                //    - in that case the whole source is excluded
-                //    - e.g. "System.Net.Http"
-                // 2) the names of Diagnostic Source and Activity separated by ':' 
-                //   - in that case the activity is disabled but not the whole source
-                //   - e.g. ""
-                string[] tokens = exclusion.Split(':');
-
-                if (tokens.Length == 1)
-                {
-                    // the whole Diagnostic Source is excluded
-                    this.excludedDiagnosticSources.Add(tokens[0]);
-                }
-                else
-                {
-                    // certain Activity from the Diagnostic Source is excluded
-                    HashSet<string> excludedActivities;
-                    if (!this.excludedDiagnosticSourceActivities.TryGetValue(tokens[0], out excludedActivities))
-                    {
-                        excludedActivities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                        this.excludedDiagnosticSourceActivities[tokens[0]] = excludedActivities;
-                    }
-
-                    excludedActivities.Add(tokens[1]);
-                }
-            }
-        }
-
         /// <summary>
         /// This method gets called once for each existing DiagnosticListener when this
         /// DiagnosticListener is added to the list of DiagnosticListeners
@@ -106,9 +63,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 return;
             }
 
+            var individualListener = new IndividualDiagnosticSourceListener(value, this);
             IDisposable subscription = value.Subscribe(
-                new IndividualDiagnosticSourceListener(value, this),
-                (evnt, r, _) => !evnt.EndsWith(ActivityStartNameSuffix, StringComparison.OrdinalIgnoreCase));
+                individualListener,
+                (evnt, r, _) => !individualListener.IsActivityExcluded(evnt)
+                    && !evnt.EndsWith(ActivityStartNameSuffix, StringComparison.OrdinalIgnoreCase));
 
             if (this.individualSubscriptions == null)
             {
@@ -327,6 +286,51 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             return telemetry;
         }
 
+        private void PrepareExclusionLists(ICollection<string> excludeDiagnosticSourceActivities)
+        {
+            if (excludeDiagnosticSourceActivities == null)
+            {
+                return;
+            }
+
+            foreach (string exclusion in excludeDiagnosticSourceActivities)
+            {
+                if (string.IsNullOrWhiteSpace(exclusion))
+                {
+                    continue;
+                }
+
+                // each individual exclusion can specify
+                // 1) the name of Diagnostic Source 
+                //    - in that case the whole source is excluded
+                //    - e.g. "System.Net.Http"
+                // 2) the names of Diagnostic Source and Activity separated by ':' 
+                //   - in that case the activity is disabled but not the whole source
+                //   - e.g. ""
+                string[] tokens = exclusion.Split(':');
+
+                if (tokens.Length == 1)
+                {
+                    // the whole Diagnostic Source is excluded
+                    this.excludedDiagnosticSources.Add(tokens[0]);
+                }
+                else
+                {
+                    // certain Activity from the Diagnostic Source is excluded
+                    HashSet<string> excludedActivities;
+                    if (!this.excludedDiagnosticSourceActivities.TryGetValue(tokens[0], out excludedActivities))
+                    {
+                        excludedActivities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                        this.excludedDiagnosticSourceActivities[tokens[0]] = excludedActivities;
+                    }
+
+                    // exclude activity and activity Stop events
+                    excludedActivities.Add(tokens[1]);
+                    excludedActivities.Add(tokens[1] + ActivityStopNameSuffix);
+                }
+            }
+        }
+
         /// <summary>
         /// Event listener for a single Diagnostic Source.
         /// </summary>
@@ -350,13 +354,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             public void OnNext(KeyValuePair<string, object> evnt)
             {
-                if (this.excludedActivities?.Contains(evnt.Key) == true
-                    || !evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase))
+                if (!this.IsActivityExcluded(evnt.Key) && evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase))
                 {
-                    return;
+                    this.telemetryDiagnosticSourceListener.OnActivityStop(this.diagnosticListener);
                 }
-
-                this.telemetryDiagnosticSourceListener.OnActivityStop(this.diagnosticListener);
             }
 
             /// <summary>
@@ -374,6 +375,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             /// <param name="error">An object that provides additional information about the error.</param>
             public void OnError(Exception error)
             {
+            }
+
+            internal bool IsActivityExcluded(string activityName)
+            {
+                return this.excludedActivities?.Contains(activityName) == true;
             }
         }
     }
