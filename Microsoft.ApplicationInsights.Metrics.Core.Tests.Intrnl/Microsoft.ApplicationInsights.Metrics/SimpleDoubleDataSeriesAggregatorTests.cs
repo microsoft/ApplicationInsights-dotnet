@@ -10,6 +10,7 @@ using Microsoft.ApplicationInsights.DataContracts;
 
 using Microsoft.ApplicationInsights.Metrics.TestUtil;
 using System.Globalization;
+using System.Threading;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -368,6 +369,82 @@ namespace Microsoft.ApplicationInsights.Metrics
             aggregate = aggregator.CreateAggregateUnsafe(endTS);
             ValidateNumericAggregateValues(aggregate, name: "null", count: 14, sum: 7, max: 14, min: -13, stdDev: 8.5, timestamp: default(DateTimeOffset), periodMs: periodString);
            
+        }
+
+        /// <summary />
+        [TestMethod]
+        public void TrackValueConcurrently()
+        {
+            var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
+            var periodString = ((long) ((endTS - default(DateTimeOffset)).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
+
+            var aggregator = new SimpleDoubleDataSeriesAggregator(
+                                                new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                dataSeries: null,
+                                                consumerKind: MetricConsumerKind.Custom);
+
+            List<Task> parallelTasks = new List<Task>();
+            s_trackValueConcurrentWorker_Current = 0;
+            s_trackValueConcurrentWorker_Max = 0;
+
+            for (int i = 0; i < 100; i++)
+            {
+                Task t = Task.Run( () => TrackValueConcurrentWorker(aggregator) );
+                parallelTasks.Add(t);
+            }
+
+            Task.WaitAll(parallelTasks.ToArray());
+
+            Assert.AreEqual(0, s_trackValueConcurrentWorker_Current);
+            Assert.IsTrue(
+                        90 <= s_trackValueConcurrentWorker_Max,
+                        "The local machine has timing characteristics resuling in not enough concurrency. Try re-running or tweaking delays."
+                      + $" (s_trackValueConcurrentWorker_Max = {s_trackValueConcurrentWorker_Max})");
+
+            ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
+            ValidateNumericAggregateValues(aggregate, name: "null", count: 5050000, sum: 757500000000, max: 300000, min: 0, stdDev: 87464.2784226795, timestamp: default(DateTimeOffset), periodMs: periodString);
+        }
+
+        private static int s_trackValueConcurrentWorker_Current;
+        private static int s_trackValueConcurrentWorker_Max;
+
+        private static async Task TrackValueConcurrentWorker(SimpleDoubleDataSeriesAggregator aggregator)
+        {
+            await Task.Delay(3);
+
+            int currentWorkersAtStart = Interlocked.Increment(ref s_trackValueConcurrentWorker_Current);
+            try
+            {
+                int maxWorkers = Volatile.Read(ref s_trackValueConcurrentWorker_Max);
+                while (currentWorkersAtStart > maxWorkers)
+                {
+                    int prevMaxWorkers = Interlocked.CompareExchange(ref s_trackValueConcurrentWorker_Max, currentWorkersAtStart, maxWorkers);
+
+                    if (prevMaxWorkers == maxWorkers)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        maxWorkers = Volatile.Read(ref s_trackValueConcurrentWorker_Max);
+                    }
+                }
+
+                for (int i = 0; i < 500; i++)
+                {
+                    for (int v = 0; v <= 300000; v += 3000)
+                    {
+                        aggregator.TrackValue(v);
+                        Thread.Yield();
+                    }
+
+                    await Task.Delay(1);
+                }
+            }
+            finally
+            {
+                Interlocked.Decrement(ref s_trackValueConcurrentWorker_Current);
+            }
         }
 
         private static void ValidateNumericAggregateValues(ITelemetry aggregate, string name, int count, double sum, double max, double min, double stdDev, DateTimeOffset timestamp, string periodMs)
