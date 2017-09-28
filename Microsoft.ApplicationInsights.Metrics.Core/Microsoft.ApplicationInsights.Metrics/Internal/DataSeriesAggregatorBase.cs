@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
+using Microsoft.ApplicationInsights.DataContracts;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -14,6 +17,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming Rules", "SA1310: C# Field must not contain an underscore", Justification = "By design: Structured name.")]
         private const int InternalExecutionState_Ready = 0;
+
+        public const string AggregationIntervalMonikerPropertyKey = "_MS.AggregationIntervalMs";
 
         private readonly MetricSeries _dataSeries;
         private readonly MetricConsumerKind _consumerKind;
@@ -26,45 +31,18 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public DataSeriesAggregatorBase(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
         {
+            Util.ValidateNotNull(configuration, nameof(configuration));
+
             _dataSeries = dataSeries;
             _consumerKind = consumerKind;
             _isPersistent = configuration.RequiresPersistentAggregation;
 
-            ReinitializePeriodAndAggregatedValues(default(DateTimeOffset), default(IMetricValueFilter));
+            Reset(default(DateTimeOffset), default(IMetricValueFilter));
         }
-
-        public DateTimeOffset PeriodStart { get { return _periodStart; } }
-
-        public DateTimeOffset PeriodEnd { get { return _periodEnd; } }
 
         public MetricSeries DataSeries { get { return _dataSeries; } }
 
-        public bool IsCompleted
-        {
-            get
-            {
-                if (_isPersistent)
-                {
-                    return false;
-                }
-
-                int internalUpdateState = _ongoingUpdates;
-
-                if (internalUpdateState == InternalExecutionState_Completed)
-                {
-                    return true;
-                }
-
-                if (internalUpdateState >= InternalExecutionState_Ready)
-                {
-                    return false;
-                }
-
-                throw new InvalidOperationException($"Unexpected value of {nameof(_ongoingUpdates)}: {internalUpdateState}.");
-            }
-        }
-
-        public void ReinitializePeriodAndAggregatedValues(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
+        public void Reset(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
         {
             _periodStart = periodStart;
             _periodEnd = default(DateTimeOffset);
@@ -98,23 +76,21 @@ namespace Microsoft.ApplicationInsights.Metrics
                 return false;
             }
 
-            ReinitializePeriodAndAggregatedValues(default(DateTimeOffset), default(IMetricValueFilter));
+            Reset(default(DateTimeOffset), default(IMetricValueFilter));
             return true;
         }
         
         public void TrackValue(double metricValue)
         {
-            if (_valueFilter != null)
-            {
-                if (! _valueFilter.WillConsume(_dataSeries, metricValue))
-                {
-                    return;
-                }
-            }
-
             if (_isPersistent)
             {
                 // If we are persistent, just do the actual metric update without tracking ongoing updates:
+
+                if (false == _valueFilter?.WillConsume(_dataSeries, metricValue))
+                {
+                    return;
+                }
+
                 TrackFilteredValue(metricValue);
             }
             else
@@ -122,6 +98,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                 // If we are not persistent, keep track of ongoing updates before doing the actual update:
 
                 if (_ongoingUpdates < InternalExecutionState_Ready)    // Soft check
+                {
+                    return;
+                }
+
+                if (false == _valueFilter?.WillConsume(_dataSeries, metricValue))
                 {
                     return;
                 }
@@ -147,17 +128,15 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public void TrackValue(object metricValue)
         {
-            if (_valueFilter != null)
-            {
-                if (! _valueFilter.WillConsume(_dataSeries, metricValue))
-                {
-                    return;
-                }
-            }
-
             if (_isPersistent)
             {
                 // If we are persistent, just do the actual metric update without tracking ongoing updates:
+
+                if (false == _valueFilter?.WillConsume(_dataSeries, metricValue))
+                {
+                    return;
+                }
+
                 TrackFilteredValue(metricValue);
             }
             else
@@ -165,6 +144,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                 // If we are not persistent, keep track of ongoing updates before doing the actual update:
 
                 if (_ongoingUpdates < InternalExecutionState_Ready)    // Soft check
+                {
+                    return;
+                }
+
+                if (false == _valueFilter?.WillConsume(_dataSeries, metricValue))
                 {
                     return;
                 }
@@ -190,11 +174,54 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public abstract ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd);
 
-        public abstract void ReinitializeAggregatedValues();
+        protected abstract void ReinitializeAggregatedValues();
 
         protected abstract void TrackFilteredValue(double metricValue);
 
         protected abstract void TrackFilteredValue(object metricValue);
+
+        protected void StampVersionAndContextInfo(ITelemetry aggregate)
+        {
+            if (aggregate == null)
+            {
+                return;
+            }
+
+            if (DataSeries != null)
+            {
+                Util.CopyTelemetryContext(DataSeries.Context, aggregate.Context);
+            }
+
+            // TO-DO !!!
+            //string sdkVersionPropertyValue = Microsoft.ApplicationInsights.Extensibility.Implementation.SdkVersionUtils.GetSdkVersion("m-agg:");
+            //aggregate.Context.GetInternalContext().SdkVersion = sdkVersionPropertyValue;
+            // ToDo !!!
+        }
+
+        protected void StampTimingInfo(ITelemetry aggregate, DateTimeOffset periodEnd)
+        {
+            if (aggregate == null)
+            {
+                return;
+            }
+
+            var metricAggregate = aggregate as MetricTelemetry;
+            if (metricAggregate == null)
+            {
+                return;
+            }
+
+            TimeSpan period = periodEnd - _periodStart;
+            long periodMillis = (long) period.TotalMilliseconds;
+
+            IDictionary<string, string> props = metricAggregate.Properties;
+            if (props != null)
+            {
+                props.Add(AggregationIntervalMonikerPropertyKey, periodMillis.ToString(CultureInfo.InvariantCulture));
+            }
+
+            metricAggregate.Timestamp = _periodStart;
+        }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage(
             "Readability Rules",
@@ -202,9 +229,18 @@ namespace Microsoft.ApplicationInsights.Metrics
             Justification = "SpinWait used as designed")]
         private void EnsureUpdatesComplete(DateTimeOffset periodEnd)
         {
+            // Start by decoubling from the series, so that we stop receiving more values:
+
             DataSeries.ClearAggregator(_consumerKind);
 
             int prevState = Interlocked.CompareExchange(ref _ongoingUpdates, InternalExecutionState_Completed, InternalExecutionState_Ready);
+
+            // if (prevState == InternalExecutionState_Ready), the above suceeded and we now have _ongoingUpdates = InternalExecutionState_Completed.
+            // otherwise, that assgnment can fail in 2 ways:
+            //  a) prevState > InternalExecutionState_Ready:
+            //     => we will go into the below loop trying to wait and to repeat the assignment
+            //  b) prevState < InternalExecutionState_Ready:
+            //     => It must already be that _ongoingUpdates = InternalExecutionState_Completed becasue of a cuncurrent assignment, so there is nothing to do.
 
             if (prevState > InternalExecutionState_Ready)
             {

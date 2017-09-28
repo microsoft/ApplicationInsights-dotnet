@@ -19,6 +19,24 @@ namespace Microsoft.ApplicationInsights.Metrics
         public SimpleDoubleDataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
         {
+            Util.ValidateNotNull(configuration, nameof(configuration));
+
+            SimpleMetricSeriesConfiguration simpleSeriesConfig = configuration as SimpleMetricSeriesConfiguration;
+            if (simpleSeriesConfig == null)
+            {
+                throw new ArgumentException(
+                                        $"{nameof(SimpleDoubleDataSeriesAggregator)} expects a configuration of type {nameof(SimpleMetricSeriesConfiguration)},"
+                                      + $" however the specified configuration is {configuration?.GetType()?.FullName ?? Util.NullString}.",
+                                        nameof(configuration));
+            }
+
+            if (true == simpleSeriesConfig.RestrictToUInt32Values)
+            {
+                throw new ArgumentException(
+                                        $"{nameof(SimpleDoubleDataSeriesAggregator)} expects a configuration of type {nameof(SimpleMetricSeriesConfiguration)}"
+                                      + $" where 'RestrictToUInt32Values' is FALSE, however it is True.",
+                                        nameof(configuration));
+            }
         }
 
         public override ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd)
@@ -33,20 +51,41 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 min = _min;
                 max = _max;
-                double mean = sum / count;
-                double variance = (_sumOfSquares / count) - (mean * mean);
-                stdDev = Math.Sqrt(variance);
+
+                if (Double.IsInfinity(_sumOfSquares) || Double.IsInfinity(sum))
+                {
+                    stdDev = Double.NaN;
+                }
+                else
+                {
+                    double mean = sum / count;
+                    double variance = (_sumOfSquares / count) - (mean * mean);
+                    stdDev = Math.Sqrt(variance);
+                }
+
+                min = Util.EnsureConcreteValue(min);
+                max = Util.EnsureConcreteValue(max);
+                stdDev = Util.EnsureConcreteValue(stdDev);
+                
             }
 
-            MetricTelemetry aggregate = new MetricTelemetry(DataSeries.MetricId, count, sum, min, max, stdDev);
-            Util.CopyTelemetryContext(DataSeries.Context, aggregate.Context);
-            aggregate.Timestamp = this.PeriodStart;
+            sum = Util.EnsureConcreteValue(sum);
+
+            MetricTelemetry aggregate = new MetricTelemetry(DataSeries?.MetricId ?? Util.NullString, count, sum, min, max, stdDev); ;
+
+            StampTimingInfo(aggregate, periodEnd);
+            StampVersionAndContextInfo(aggregate);
 
             return aggregate;
         }
 
         protected override void TrackFilteredValue(double metricValue)
         {
+            if (Double.IsNaN(metricValue))
+            {
+                return;
+            }
+
             {
                 Interlocked.Increment(ref _count);
             }
@@ -76,19 +115,36 @@ namespace Microsoft.ApplicationInsights.Metrics
                     currentSum = _sum;  // If we get a torn read, the below assignment will fail and we get to try again.
                     double newSum = currentSum + metricValue;
                     prevSum = Interlocked.CompareExchange(ref _sum, newSum, currentSum);
+
+                    if ( (prevSum == currentSum)
+                        || (Double.IsNaN(prevSum) && Double.IsNaN(currentSum))
+                        || (Double.IsNegativeInfinity(prevSum) && Double.IsNegativeInfinity(currentSum))
+                        || (Double.IsPositiveInfinity(prevSum) && Double.IsPositiveInfinity(currentSum)))
+                    {
+                        break;
+                    }
                 }
-                while (prevSum != currentSum);
+                while (true);
             }
 
             {
+                double squaredValue = metricValue * metricValue;
                 double currentSumOfSquares, prevSumOfSquares;
                 do
                 {
                     currentSumOfSquares = _sumOfSquares;  // If we get a torn read, the below assignment will fail and we get to try again.
-                    double newSumOfSquares = currentSumOfSquares + (metricValue * metricValue);
+                    double newSumOfSquares = currentSumOfSquares + squaredValue;
                     prevSumOfSquares = Interlocked.CompareExchange(ref _sumOfSquares, newSumOfSquares, currentSumOfSquares);
+
+                    if ( (prevSumOfSquares == currentSumOfSquares)
+                        || (Double.IsNaN(prevSumOfSquares) && Double.IsNaN(currentSumOfSquares))
+                        || (Double.IsNegativeInfinity(prevSumOfSquares) && Double.IsNegativeInfinity(currentSumOfSquares))
+                        || (Double.IsPositiveInfinity(prevSumOfSquares) && Double.IsPositiveInfinity(currentSumOfSquares)))
+                    {
+                        break;
+                    }
                 }
-                while (prevSumOfSquares != currentSumOfSquares);
+                while (true);
             }
         }
 
@@ -151,7 +207,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                     }
                     else
                     {
-                        throw new ArgumentException($"This aggregator cannot process the specified metric measurement."
+                        throw new ArgumentException($"This aggregator cannot process the specified metric value."
                                                   + $" The aggregator expects metric values of type Double, but the specified {nameof(metricValue)} is"
                                                   + $" a String that cannot be parsed into a Double (\"{metricValue}\")."
                                                   + $" Have you specified the correct metric configuration?");
@@ -159,7 +215,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
                 else
                 {
-                    throw new ArgumentException($"This aggregator cannot process the specified metric measurement."
+                    throw new ArgumentException($"This aggregator cannot process the specified metric value."
                                                   + $" The aggregator expects metric values of type Double, but the specified {nameof(metricValue)} is"
                                                   + $" of type ${metricValue.GetType().FullName}."
                                                   + $" Have you specified the correct metric configuration?");
@@ -167,7 +223,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
         
-        public override void ReinitializeAggregatedValues()
+        protected override void ReinitializeAggregatedValues()
         {
             _count = 0;
             _min = Double.MaxValue;

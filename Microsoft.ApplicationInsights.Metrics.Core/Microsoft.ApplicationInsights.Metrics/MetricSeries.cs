@@ -122,30 +122,48 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
             }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
         public void ResetAggregation()
         {
+            ResetAggregation(periodStart: DateTimeOffset.Now, valueFilter: null);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void ResetAggregation(DateTimeOffset periodStart)
+        {
+            ResetAggregation(periodStart, valueFilter: null);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="periodStart"></param>
+        /// <param name="valueFilter"></param>
+        public void ResetAggregation(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
+        {
             if (_requiresPersistentAggregator)
             {
                 IMetricSeriesAggregator aggregator = _aggregatorPersistent;
-                aggregator?.ReinitializeAggregatedValues();
+                aggregator?.Reset(periodStart, valueFilter);
             }
             else
             {
                 {
                     IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorDefault);
-                    aggregator?.ReinitializeAggregatedValues();
+                    aggregator?.Reset(periodStart, valueFilter);
                 }
                 {
                     IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorQuickPulse);
-                    aggregator?.ReinitializeAggregatedValues();
+                    aggregator?.Reset(periodStart, valueFilter);
                 }
                 {
                     IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorCustom);
-                    aggregator?.ReinitializeAggregatedValues();
+                    aggregator?.Reset(periodStart, valueFilter);
                 }
             }
         }
@@ -154,9 +172,9 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// 
         /// </summary>
         /// <returns></returns>
-        public ITelemetry GetCurrentAggregate()
+        public ITelemetry GetCurrentAggregateUnsafe()
         {
-            return GetCurrentAggregate(MetricConsumerKind.Default, DateTimeOffset.Now);
+            return GetCurrentAggregateUnsafe(MetricConsumerKind.Default, DateTimeOffset.Now);
         }
 
         /// <summary>
@@ -165,7 +183,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <param name="consumerKind"></param>
         /// <param name="dateTime"></param>
         /// <returns></returns>
-        public ITelemetry GetCurrentAggregate(MetricConsumerKind consumerKind, DateTimeOffset dateTime)
+        public ITelemetry GetCurrentAggregateUnsafe(MetricConsumerKind consumerKind, DateTimeOffset dateTime)
         {
             IMetricSeriesAggregator aggregator = null;
 

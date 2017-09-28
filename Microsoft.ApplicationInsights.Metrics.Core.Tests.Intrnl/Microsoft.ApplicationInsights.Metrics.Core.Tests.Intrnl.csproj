@@ -53,6 +53,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Microsoft.ApplicationInsights.Metrics.TestUtil\Utils.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\SimpleDoubleDataSeriesAggregatorTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\GrowingCollectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

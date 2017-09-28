@@ -11,21 +11,6 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <summary>
         /// 
         /// </summary>
-        DateTimeOffset PeriodStart { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        DateTimeOffset PeriodEnd { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        bool IsCompleted { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
         MetricSeries DataSeries { get; }
 
         /// <summary>
@@ -39,12 +24,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// </summary>
         /// <param name="periodStart"></param>
         /// <param name="valueFilter"></param>
-        void ReinitializePeriodAndAggregatedValues(DateTimeOffset periodStart, IMetricValueFilter valueFilter);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        void ReinitializeAggregatedValues();
+        void Reset(DateTimeOffset periodStart, IMetricValueFilter valueFilter);
 
         /// <summary>
         /// 

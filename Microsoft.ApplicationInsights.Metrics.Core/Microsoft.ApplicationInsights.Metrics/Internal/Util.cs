@@ -10,6 +10,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 {
     internal static class Util
     {
+        public const string NullString = "null";
+
         private const string FallbackParemeterName = "specified parameter";
 
         private static Action<TelemetryContext, TelemetryContext, string> s_TelemetryContextInitializeDelegate = null;
@@ -26,6 +28,18 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 throw new ArgumentNullException(name ?? Util.FallbackParemeterName);
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double EnsureConcreteValue(double x)
+        {
+            return (x < -Double.MaxValue)
+                        ? -Double.MaxValue
+                        : (x > Double.MaxValue)
+                                ? Double.MaxValue
+                                : (Double.IsNaN(x))
+                                        ? 0.0
+                                        : x;
         }
 
         /// <summary>

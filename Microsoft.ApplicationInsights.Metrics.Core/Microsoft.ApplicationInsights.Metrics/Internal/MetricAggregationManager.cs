@@ -137,13 +137,14 @@ namespace Microsoft.ApplicationInsights.Metrics
                 return false;
             }
 
+            IMetricSeriesFilter seriesFilter = aggregatorCollection.Filter;
             IMetricValueFilter valueFilter = null;
-            if (aggregatorCollection.Filter != null && !aggregatorCollection.Filter.WillConsume(aggregator.DataSeries, out valueFilter))
+            if (seriesFilter != null && !seriesFilter.WillConsume(aggregator.DataSeries, out valueFilter))
             {
                 return false;
             }
 
-            aggregator.ReinitializePeriodAndAggregatedValues(aggregatorCollection.PeriodStart, valueFilter);
+            aggregator.Reset(aggregatorCollection.PeriodStart, valueFilter);
             aggregatorCollection.Aggregators.Add(aggregator);
 
             return true;

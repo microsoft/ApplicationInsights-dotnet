@@ -21,6 +21,24 @@ namespace Microsoft.ApplicationInsights.Metrics
         public SimpleUInt32DataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
         {
+            Util.ValidateNotNull(configuration, nameof(configuration));
+
+            SimpleMetricSeriesConfiguration simpleSeriesConfig = configuration as SimpleMetricSeriesConfiguration;
+            if (simpleSeriesConfig == null)
+            {
+                throw new ArgumentException(
+                                        $"{nameof(SimpleUInt32DataSeriesAggregator)} expects a configuration of type {nameof(SimpleMetricSeriesConfiguration)},"
+                                      + $" however the specified configuration is {configuration?.GetType()?.FullName ?? Util.NullString}.",
+                                        nameof(configuration));
+            }
+
+            if (false == simpleSeriesConfig.RestrictToUInt32Values)
+            {
+                throw new ArgumentException(
+                                        $"{nameof(SimpleUInt32DataSeriesAggregator)} expects a configuration of type {nameof(SimpleMetricSeriesConfiguration)}"
+                                      + $" where 'RestrictToUInt32Values' is TRUE, however it is False.",
+                                        nameof(configuration));
+            }
         }
 
         public override ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd)
@@ -40,17 +58,24 @@ namespace Microsoft.ApplicationInsights.Metrics
                 stdDev = Math.Sqrt(variance);
             }
 
-            MetricTelemetry aggregate = new MetricTelemetry(DataSeries.MetricId, count, sum, _min, _max, stdDev);
-            Util.CopyTelemetryContext(DataSeries.Context, aggregate.Context);
+            MetricTelemetry aggregate = new MetricTelemetry(DataSeries?.MetricId ?? Util.NullString, count, sum, min, max, stdDev); ;
+
+            StampTimingInfo(aggregate, periodEnd);
+            StampVersionAndContextInfo(aggregate);
 
             return aggregate;
         }
         
         protected override void TrackFilteredValue(double metricValue)
         {
+            if (Double.IsNaN(metricValue))
+            {
+                return;
+            }
+
             if (metricValue < -MicroOne)
             {
-                throw new ArgumentException($"This aggregator cannot process the specified metric measurement."
+                throw new ArgumentException($"This aggregator cannot process the specified metric value."
                                           + $" The aggregator expects metric values of type {nameof(UInt32)}, but the specified {nameof(metricValue)} is"
                                           + $" a negative double value ({metricValue})."
                                           + $" Have you specified the correct metric configuration?");
@@ -60,7 +85,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             if (wholeValue > UInt32.MaxValue)
             {
-                throw new ArgumentException($"This aggregator cannot process the specified metric measurement."
+                throw new ArgumentException($"This aggregator cannot process the specified metric value."
                                              + $" The aggregator expects metric values of type {nameof(UInt32)}, but the specified {nameof(metricValue)} is"
                                              + $" larger than the maximum accepted value ({metricValue})."
                                              + $" Have you specified the correct metric configuration?");
@@ -90,7 +115,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var v = (SByte) metricValue;
                 if (v < 0)
                 {
-                    throw new ArgumentException($"This aggregator cannot process the specified metric measurement."
+                    throw new ArgumentException($"This aggregator cannot process the specified metric value."
                                               + $" The aggregator expects metric values of type {nameof(UInt32)}, but the specified {nameof(metricValue)} is"
                                               + $" a negative value of type {metricValue.GetType().FullName} ({metricValue})."
                                               + $" Have you specified the correct metric configuration?");
@@ -128,7 +153,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var v = (Int32) metricValue;
                 if (v < 0)
                 {
-                    throw new ArgumentException($"This aggregator cannot process the specified metric measurement."
+                    throw new ArgumentException($"This aggregator cannot process the specified metric value."
                                               + $" The aggregator expects metric values of type {nameof(UInt32)}, but the specified {nameof(metricValue)} is"
                                               + $" a negative value of type {metricValue.GetType().FullName} ({metricValue})."
                                               + $" Have you specified the correct metric configuration?");
@@ -147,14 +172,14 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var v = (Int64) metricValue;
                 if (v < 0)
                 {
-                    throw new ArgumentException($"This aggregator cannot process the specified metric measurement."
+                    throw new ArgumentException($"This aggregator cannot process the specified metric value."
                                               + $" The aggregator expects metric values of type {nameof(UInt32)}, but the specified {nameof(metricValue)} is"
                                               + $" a negative value of type {metricValue.GetType().FullName} ({metricValue})."
                                               + $" Have you specified the correct metric configuration?");
                 }
                 else if (v > UInt32.MaxValue)
                 {
-                    throw new ArgumentException($"This aggregator cannot process the specified metric measurement."
+                    throw new ArgumentException($"This aggregator cannot process the specified metric value."
                                              + $" The aggregator expects metric values of type {nameof(UInt32)}, but the specified {nameof(metricValue)} is"
                                              + $" a value of type {metricValue.GetType().FullName} that larger than the maximum accepted value ({metricValue})."
                                              + $" Have you specified the correct metric configuration?");
@@ -169,7 +194,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var v = (UInt64) metricValue;
                 if (v > UInt32.MaxValue)
                 {
-                    throw new ArgumentException($"This aggregator cannot process the specified metric measurement."
+                    throw new ArgumentException($"This aggregator cannot process the specified metric value."
                                              + $" The aggregator expects metric values of type {nameof(UInt32)}, but the specified {nameof(metricValue)} is"
                                              + $" a value of type {metricValue.GetType().FullName} that larger than the maximum accepted value ({metricValue})."
                                              + $" Have you specified the correct metric configuration?");
@@ -199,7 +224,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                     }
                     else
                     {
-                        throw new ArgumentException($"This aggregator cannot process the specified metric measurement."
+                        throw new ArgumentException($"This aggregator cannot process the specified metric value."
                                                   + $" The aggregator expects metric values of type {nameof(UInt32)}, but the specified {nameof(metricValue)} is"
                                                   + $" a String that cannot be parsed into a {nameof(UInt32)} (\"{metricValue}\")."
                                                   + $" Have you specified the correct metric configuration?");
@@ -207,7 +232,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
                 else
                 {
-                    throw new ArgumentException($"This aggregator cannot process the specified metric measurement."
+                    throw new ArgumentException($"This aggregator cannot process the specified metric value."
                                                   + $" The aggregator expects metric values of type {nameof(UInt32)}, but the specified {nameof(metricValue)} is"
                                                   + $" of type ${metricValue.GetType().FullName}."
                                                   + $" Have you specified the correct metric configuration?");
@@ -251,18 +276,19 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             {
+                ulong squaredValue = metricValue * metricValue;
                 long currentSumOfSquares, prevSumOfSquares;
                 do
                 {
                     currentSumOfSquares = _sumOfSquares;  // If we get a torn read, the below assignment will fail and we get to try again.
-                    ulong newSumOfSquares = ((ulong) currentSumOfSquares) + (metricValue * metricValue);
+                    ulong newSumOfSquares = ((ulong) currentSumOfSquares) + squaredValue;
                     prevSumOfSquares = Interlocked.CompareExchange(ref _sumOfSquares, (long) newSumOfSquares, currentSumOfSquares);
                 }
                 while (prevSumOfSquares != currentSumOfSquares);
             }
         }
 
-        public override void ReinitializeAggregatedValues()
+        protected override void ReinitializeAggregatedValues()
         {
             _count = 0;
             _min = UInt32.MaxValue;

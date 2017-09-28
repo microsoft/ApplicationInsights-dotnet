@@ -39,9 +39,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             Util.CopyTelemetryContext(DataSeries.Context, aggregate.Context);
             return aggregate;
         }
-        
 
-        public override void ReinitializeAggregatedValues()
+
+        protected override void ReinitializeAggregatedValues()
         {
             _values = new GrowingCollection<string>();
         }
