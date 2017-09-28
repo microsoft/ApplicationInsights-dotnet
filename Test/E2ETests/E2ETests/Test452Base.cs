@@ -130,7 +130,7 @@ namespace E2ETests
         public void MyTestCleanup()
         {
             Trace.WriteLine("Started Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
-            DockerUtils.PrintDockerProcessStats("After MyTestCleanup" + DateTime.UtcNow.ToLongTimeString());
+            //DockerUtils.PrintDockerProcessStats("After MyTestCleanup" + DateTime.UtcNow.ToLongTimeString());
             Trace.WriteLine("Completed Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
         }
         
