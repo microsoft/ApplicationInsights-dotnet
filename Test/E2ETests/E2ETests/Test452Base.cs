@@ -89,7 +89,7 @@ namespace E2ETests
             Assert.IsTrue(ingestionHealthy, "Ingestion is unhealthy");
             
             dataendpointClient = new DataEndpointClient(new Uri("http://" + Apps[IngestionName].ipAddress));
-
+          
             Thread.Sleep(5000);
             Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
@@ -113,7 +113,7 @@ namespace E2ETests
         public static void MyClassCleanupBase()
         {
             Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
-            DockerUtils.ExecuteDockerComposeCommand("down --rmi local", DockerComposeFileName);
+            //DockerUtils.ExecuteDockerComposeCommand("down --rmi local", DockerComposeFileName);
             Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
 
             DockerUtils.PrintDockerProcessStats("Docker-Compose down");
