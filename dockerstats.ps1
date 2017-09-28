@@ -31,6 +31,9 @@ Write-Host "Images after cleanup"
 Write-Host "Containers after cleanup"
 & docker ps -a
 
+Write-Host "Checking SQL Docker inspect"
+docker inspect e2etests_sql-server_1
+
 Write-Host "Checking SQL"
 $serverip = docker inspect -f "{{ .NetworkSettings.Networks.nat.IPAddress }}" e2etests_sql-server_1
 Write-Host "IP: $serverip"
