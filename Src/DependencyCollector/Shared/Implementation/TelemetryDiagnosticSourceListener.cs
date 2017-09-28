@@ -125,7 +125,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             DependencyCollectorEventSource.Log.TelemetryDiagnosticSourceListenerActivityStopped(currentActivity.Id, currentActivity.OperationName);
 
             // extensibility point - can chain more telemetry extraction methods here
-            ITelemetry telemetry = this.ExtractDependencyTelemetry(currentActivity);
+            ITelemetry telemetry = this.ExtractDependencyTelemetry(diagnosticListener, currentActivity);
             if (telemetry == null)
             {
                 return;
@@ -152,7 +152,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.client.Track(telemetry);
         }
 
-        internal DependencyTelemetry ExtractDependencyTelemetry(Activity currentActivity)
+        internal DependencyTelemetry ExtractDependencyTelemetry(DiagnosticListener diagnosticListener, Activity currentActivity)
         {
             DependencyTelemetry telemetry = new DependencyTelemetry();
 
@@ -162,7 +162,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Uri requestUri = null;
             string component = null;
             string dbStatement = null;
-            string httpMethodWithSpace = string.Empty;
             string httpUrl = null;
             string peerAddress = null;
             string peerService = null;
@@ -173,16 +172,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 // https://github.com/opentracing/specification/blob/master/semantic_conventions.md
                 switch (tag.Key)
                 {
-                    case "span.kind":
-                        {
-                            // "server" and "consumer" roles are more suitable for Request than Dependency
-                            if (string.Equals(tag.Value, "server", StringComparison.OrdinalIgnoreCase) 
-                                || string.Equals(tag.Value, "consumer", StringComparison.OrdinalIgnoreCase))
-                            {
-                                return null;
-                            }
-                            break;
-                        }
                     case "operation.name": // not defined by OpenTracing
                         {
                             telemetry.Name = tag.Value;
@@ -223,11 +212,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             telemetry.ResultCode = tag.Value;
                             continue; // skip Properties
                         }
-                    case "http.method":
-                        {
-                            httpMethodWithSpace = tag.Value + " ";
-                            break;
-                        }
                     case "http.url":
                         {
                             httpUrl = tag.Value;
@@ -263,7 +247,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             if (string.IsNullOrEmpty(telemetry.Type))
             {
-                telemetry.Type = peerService ?? component;
+                telemetry.Type = peerService ?? component ?? diagnosticListener.Name;
             }
 
             if (string.IsNullOrEmpty(telemetry.Target))
@@ -274,8 +258,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             if (string.IsNullOrEmpty(telemetry.Name))
             {
-                telemetry.Name = (httpMethodWithSpace + (httpUrl ?? requestUri?.OriginalString))
-                    ?? currentActivity.OperationName;
+                telemetry.Name = currentActivity.OperationName;
             }
 
             if (string.IsNullOrEmpty(telemetry.Data))

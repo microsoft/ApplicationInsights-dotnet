@@ -162,5 +162,127 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         }
 
         #endregion Subscribtion tests
+
+        #region Collection tests
+
+        [TestMethod]
+        public void TelemetryDiagnosticSourceListenerCollectsTelemetryFromPreferredTags()
+        {
+            using (new TelemetryDiagnosticSourceListener(this.configuration, null))
+            {
+                DiagnosticListener listener = new DiagnosticListener("Test.A");
+
+                var tags = new Dictionary<string, string>()
+                {
+                    ["operation.name"] = "Test operation",
+                    ["operation.type"] = "Tester",
+                    ["operation.data"] = "raw data",
+                    ["component"] = this.GetType().Namespace,
+                    ["error"] = "true",
+                    ["peer.hostname"] = "test.example.com",
+                    ["custom.tag"] = "test"
+                };
+
+                DependencyTelemetry telemetryItem = CollectDependencyTelemetryFromActivity(listener, tags);
+
+                Assert.AreEqual(telemetryItem.Name, tags["operation.name"]);
+                Assert.AreEqual(telemetryItem.Type, tags["operation.type"]);
+                Assert.AreEqual(telemetryItem.Data, tags["operation.data"]);
+                Assert.AreEqual(telemetryItem.Target, tags["peer.hostname"]);
+                Assert.AreEqual(telemetryItem.Success, false);
+                Assert.IsTrue(telemetryItem.Properties.ContainsKey("custom.tag"));
+                Assert.AreEqual(telemetryItem.Properties["custom.tag"], tags["custom.tag"]);
+            }
+        }
+
+        [TestMethod]
+        public void TelemetryDiagnosticSourceListenerCollectsTelemetryFromOpenTracingTags()
+        {
+            using (new TelemetryDiagnosticSourceListener(this.configuration, null))
+            {
+                DiagnosticListener listener = new DiagnosticListener("Test.A");
+
+                // generic example
+                var tags = new Dictionary<string, string>()
+                {
+                    ["component"] = this.GetType().Namespace,
+                    ["peer.hostname"] = "test.example.com",
+                    ["peer.service"] = "tester",
+                    ["custom.tag"] = "test"
+                };
+
+                DependencyTelemetry telemetryItem = CollectDependencyTelemetryFromActivity(listener, tags);
+
+                Assert.AreEqual(telemetryItem.Name, "Test.A.Client.Monitoring"); // Activity name
+                Assert.AreEqual(telemetryItem.Type, tags["peer.service"]);
+                Assert.IsNull(telemetryItem.Data);
+                Assert.AreEqual(telemetryItem.Target, tags["peer.hostname"]);
+                Assert.AreEqual(telemetryItem.Success, true);
+                Assert.IsTrue(telemetryItem.Properties.ContainsKey("custom.tag"));
+                Assert.AreEqual(telemetryItem.Properties["custom.tag"], tags["custom.tag"]);
+
+                // HTTP example
+                tags = new Dictionary<string, string>()
+                {
+                    ["component"] = this.GetType().Namespace,
+                    ["http.url"] = "https://test.example.com/api/get/1?filter=all#now",
+                    ["http.method"] = "POST",
+                    ["http.status_code"] = "404",
+                    ["error"] = "true"
+                };
+
+                telemetryItem = CollectDependencyTelemetryFromActivity(listener, tags);
+
+                Assert.AreEqual(telemetryItem.Name, "Test.A.Client.Monitoring"); // Activity name
+                Assert.AreEqual(telemetryItem.Type, tags["component"]);
+                Assert.AreEqual(telemetryItem.Data, tags["http.url"]);
+                Assert.AreEqual(telemetryItem.Target, "test.example.com");
+                Assert.AreEqual(telemetryItem.Success, false);
+                Assert.AreEqual(telemetryItem.ResultCode, tags["http.status_code"]);
+            }
+        }
+
+        [TestMethod]
+        public void TelemetryDiagnosticSourceListenerCollectsTelemetryFromNonStandardActivity()
+        {
+            using (new TelemetryDiagnosticSourceListener(this.configuration, null))
+            {
+                DiagnosticListener listener = new DiagnosticListener("Test.A");
+
+                // generic example
+                var tags = new Dictionary<string, string>()
+                {
+                    ["custom.tag"] = "test"
+                };
+
+                DependencyTelemetry telemetryItem = CollectDependencyTelemetryFromActivity(listener, tags);
+
+                Assert.AreEqual(telemetryItem.Name, "Test.A.Client.Monitoring"); // Activity name
+                Assert.AreEqual(telemetryItem.Type, listener.Name);
+                Assert.IsNull(telemetryItem.Data);
+                Assert.IsNull(telemetryItem.Target);
+                Assert.AreEqual(telemetryItem.Success, true);
+                Assert.IsTrue(telemetryItem.Properties.ContainsKey("custom.tag"));
+                Assert.AreEqual(telemetryItem.Properties["custom.tag"], tags["custom.tag"]);
+            }
+        }
+
+        private DependencyTelemetry CollectDependencyTelemetryFromActivity(DiagnosticListener listener, Dictionary<string, string> tags)
+        {
+            Activity activity = new Activity("Test.A.Client.Monitoring");
+
+            foreach (var tag in tags)
+            {
+                activity.AddTag(tag.Key, tag.Value);
+            }
+
+            listener.StartActivity(activity, null);
+            listener.StopActivity(activity, null);
+
+            DependencyTelemetry telemetryItem = this.sentItems.Last() as DependencyTelemetry;
+            return telemetryItem;
+        }
+
+        #endregion Collection tests
     }
 }
