@@ -318,10 +318,10 @@ namespace E2ETests
             try
             {
                 var response = new HttpClient().GetAsync(url);
+                Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result.StatusCode));
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    isHealthy = false;
-                    Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result.StatusCode));
+                    isHealthy = false;                    
                 }
             }
             catch (Exception ex)
