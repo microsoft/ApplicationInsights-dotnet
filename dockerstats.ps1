@@ -16,7 +16,6 @@ Write-Host "Removing E2E Containers"
 & docker rm e2etests_ingestionservice_1
 & docker rm e2etests_e2etestwebapi_1
 & docker rm e2etests_e2etestwebapp_1
-& docker rm e2etests_sql-server_1
 
 Write-Host "Removing E2E Images"
 & docker rmi -f e2etests_ingestionservice
