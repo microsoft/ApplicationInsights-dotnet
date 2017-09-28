@@ -26,21 +26,21 @@ namespace E2ETests.Helpers
 
         public static string GetDockerStateStatus(string containerName)
         {
-            string dockerFullCommand = string.Format("inspect -f \"{{.State.Status}}\" {0}", containerName);
+            string dockerFullCommand = "inspect -f \"{{.State.Status}}\" " + containerName;
             string output = ExecuteDockerCommand(dockerFullCommand);
             return output;
         }
 
         public static string GetDockerStateExitCode(string containerName)
         {
-            string dockerFullCommand = string.Format("inspect -f \"{{.State.ExitCode}}\" {0}", containerName);
+            string dockerFullCommand = "inspect -f \"{{.State.ExitCode}}\" "  + containerName;
             string output = ExecuteDockerCommand(dockerFullCommand);
             return output;
         }
 
         public static string GetDockerStateError(string containerName)
         {
-            string dockerFullCommand = string.Format("inspect -f \"{{.State.Error}}\" {0}", containerName);
+            string dockerFullCommand = "inspect -f \"{{.State.Error}}\" " + containerName;
             string output = ExecuteDockerCommand(dockerFullCommand);
             return output;
         }

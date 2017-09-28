@@ -36,7 +36,7 @@ namespace E2ETests
                     {
                         ikey = WebAppInstrumentationKey,
                         containerName = "e2etests_e2etestwebapp_1",
-                        healthCheckPath = "/Default"
+                        healthCheckPath = "/About"
                     }
             },
 
