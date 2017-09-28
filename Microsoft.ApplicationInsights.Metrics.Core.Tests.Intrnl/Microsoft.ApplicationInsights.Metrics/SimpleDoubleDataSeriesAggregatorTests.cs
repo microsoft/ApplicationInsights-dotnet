@@ -24,7 +24,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.ThrowsException<ArgumentNullException>(() => new SimpleDoubleDataSeriesAggregator(configuration: null, dataSeries: null, consumerKind: MetricConsumerKind.Custom));
 
             Assert.ThrowsException<ArgumentException>(() => new SimpleDoubleDataSeriesAggregator(
-                                                                           new NaiveDistinctCountMetricSeriesConfiguration(),
+                                                                           new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false),
                                                                            dataSeries: null,
                                                                            consumerKind: MetricConsumerKind.Custom));
 
@@ -395,12 +395,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void TryRecycle()
         {
-            var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
-            var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
-
-            var periodStringDef = ((long) ((endTS - default(DateTimeOffset)).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
-            var periodStringStart = ((long) ((endTS - startTS).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
-
             var measurementAggregator = new SimpleDoubleDataSeriesAggregator(
                                                 new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
                                                 dataSeries: null,
@@ -424,7 +418,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var metric = new MetricSeries(aggregationManager, "Cows Sold", seriesConfig);
 
             var aggregatorForConcreteSeries = new SimpleDoubleDataSeriesAggregator(
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                    metric.GetConfiguration(),
                                                     dataSeries: metric,
                                                     consumerKind: MetricConsumerKind.Custom);
 

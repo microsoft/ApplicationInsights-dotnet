@@ -332,61 +332,78 @@ namespace Microsoft.ApplicationInsights.Metrics
             ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 4, sum: 10, max: 4, min: 1, stdDev: 1.11803398874989, timestamp: startTS, periodMs: periodString);
         }
 
-        private class CustomDoubleValueFilter : IMetricValueFilter
+        #region class CustomDoubleValueFilter
+        internal class CustomDoubleValueFilter : IMetricValueFilter
         {
-            public CustomDoubleValueFilter(Func<MetricSeries, double, bool> filterFunction)
+            public CustomDoubleValueFilter(Func<MetricSeries, double, bool> filterFunctionDouble)
             {
-                FilterFunction = filterFunction;
+                FilterFunctionDouble = filterFunctionDouble;
+                FilterFunctionObject = InterpretObjectAsDoubleFilter;
             }
 
-            public Func<MetricSeries, double, bool> FilterFunction { get; }
+            public CustomDoubleValueFilter(
+                                Func<MetricSeries, double, bool> filterFunctionDouble,
+                                Func<MetricSeries, object, bool> filterFunctionObject)
+            {
+                FilterFunctionDouble = filterFunctionDouble;
+                FilterFunctionObject = filterFunctionObject;
+            }
+
+            public Func<MetricSeries, double, bool> FilterFunctionDouble { get; }
+            public Func<MetricSeries, object, bool> FilterFunctionObject { get; }
 
             public bool WillConsume(MetricSeries dataSeries, double metricValue)
             {
-                if (FilterFunction == null)
+                if (FilterFunctionDouble == null)
                 {
                     return true;
                 }
 
-                return FilterFunction(dataSeries, metricValue);
+                return FilterFunctionDouble(dataSeries, metricValue);
             }
 
             public bool WillConsume(MetricSeries dataSeries, object metricValue)
             {
-                if (FilterFunction == null)
+                if (FilterFunctionObject == null)
                 {
                     return true;
                 }
 
+                return FilterFunctionObject(dataSeries, metricValue);
+            }
+
+            private bool InterpretObjectAsDoubleFilter(MetricSeries dataSeries, object metricValue)
+            {
                 if (metricValue == null)
                 {
-                    return false;
+                    return WillConsume(dataSeries, Double.NaN);
                 }
+
+                double doubleValue;
 
                 string stringValue = metricValue as string;
                 if (stringValue != null)
                 {
-                    double doubleValue;
-                    if (Double.TryParse(stringValue, out doubleValue))
+                    if (!Double.TryParse(stringValue, out doubleValue))
                     {
-                        return WillConsume(dataSeries, doubleValue);
+                        doubleValue = Double.NaN;
                     }
-                    else
+                }
+                else
+                {
+                    try
                     {
-                        return false;
+                        doubleValue = (double) metricValue;
+                    }
+                    catch (InvalidCastException)
+                    {
+                        doubleValue = Double.NaN;
                     }
                 }
 
-                try
-                {
-                    double doubleValue = (double) metricValue;
-                    return WillConsume(dataSeries, doubleValue);
-                }
-                catch (InvalidCastException)
-                {
-                    return false;
-                }
+                return WillConsume(dataSeries, doubleValue);
             }
         }
+        #endregion class CustomDoubleValueFilter
     }
 }
