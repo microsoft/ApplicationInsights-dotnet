@@ -54,7 +54,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             int prev = Interlocked.CompareExchange(ref _runningState, RunningState_Stopped, RunningState_Running);
 
-            if (prev == RunningState_NotStarted)
+            if (prev != RunningState_Running)
             {
                 return;
             }
@@ -71,41 +71,29 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public void FetchAndTrackMetrics()
         {
+            // We know that GetNextCycleTargetTime(..) tries to snap cycles to 1 second into each minute.
+            // But the timer wakes us up *approxumately* at that time. If we are within a few seconds of that time, we will snap exactly to that time.
+            // If we are further away, we will just snap to a whole second. That way downstream systems do not need to worry about sub-second resolution.
+
             DateTimeOffset now = DateTimeOffset.Now;
+
+            if (new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, now.Offset) <= now
+                    && new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, 4, now.Offset) >= now)
+            {
+                now = new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, 1, now.Offset);
+            }
+            else
+            {
+                now = RoundToClosestSecond(now);
+            }
 
             AggregationPeriodSummary aggregates = _aggregationManager.CycleAggregators(MetricConsumerKind.Default, updatedFilter: null, tactTimestamp: now);
             if (aggregates != null)
             {
-                Task fireAndForget = Task.Run(() => _metricManager.TrackMetricAggregates(aggregates));
+                Task fireAndForget = Task.Run( () => _metricManager.TrackMetricAggregates(aggregates) );
             }
         }
 
-        private static DateTimeOffset GetNextCycleTargetTime(DateTimeOffset periodStart)
-        {
-            // Next tick: (current time rounded down to MINUTE start) + (1 minute) + (small sub-minute offset).
-            // The strategy here is to always "tick" at the same offset within a minute.
-            // Due to drift and inprecize timing this may conflict with the aggregation being exactly a minute.
-            // In such cases we err on the side of keeping the same offset.
-            // This will tend to straighten out the inmterval and to yield consistent timestamps.
-
-            const int targetOffsetFromRebasedCurrentTimeInSecs = (60) + 1;
-            const double minPeriodInSecs = 20.0;
-
-            DateTimeOffset target = new DateTimeOffset(periodStart.Year, periodStart.Month, periodStart.Day, periodStart.Hour, periodStart.Minute, 0, periodStart.Offset)
-                                        .AddSeconds(targetOffsetFromRebasedCurrentTimeInSecs);
-
-            // If this results in the next period being unreasonably short, we extend that period by 1 minute,
-            // resulting in a total period that is somewhat longer than a minute.
-
-            TimeSpan waitPeriod = target - periodStart;
-            if (waitPeriod.TotalSeconds < minPeriodInSecs)
-            {
-                target = target.AddMinutes(1);
-            }
-
-            return target;
-        }
-        
         /// <summary>
         /// We use exactly one background thread for completing aggregators - either once per minute or once per second.
         /// We start this thread right when this manager is created to avoid that potential thread starvation on busy systems affects metrics.
@@ -128,6 +116,54 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 FetchAndTrackMetrics();
             }
+        }
+
+        private static DateTimeOffset GetNextCycleTargetTime(DateTimeOffset periodStart)
+        {
+            // Next tick: (current time rounded down to MINUTE start) + (1 minute) + (small sub-minute offset).
+            // The strategy here is to always "tick" at the same offset within a minute.
+            // Due to drift and inprecize timing this may conflict with the aggregation being exactly a minute.
+            // In such cases we err on the side of keeping the same offset.
+            // This will tend to straighten out the inmterval and to yield consistent timestamps.
+
+            const int targetOffsetFromRebasedCurrentTimeInSecs = (60) + 1;
+            const double minPeriodInSecs = 20.0 + 1.0;
+
+            DateTimeOffset target = RoundDownToMinute(periodStart).AddSeconds(targetOffsetFromRebasedCurrentTimeInSecs);
+
+            // If this results in the next period being unreasonably short, we extend that period by 1 minute,
+            // resulting in a total period that is somewhat longer than a minute.
+
+            TimeSpan waitPeriod = target - periodStart;
+            if (waitPeriod.TotalSeconds < minPeriodInSecs)
+            {
+                target = target.AddMinutes(1);
+            }
+
+            return target;
+        }
+
+        private static DateTimeOffset RoundDownToMinute(DateTimeOffset dto)
+        {
+            return new DateTimeOffset(dto.Year, dto.Month, dto.Day, dto.Hour, dto.Minute, 0, 0, dto.Offset);
+        }
+
+        private static DateTimeOffset RoundToClosestSecond(DateTimeOffset dto)
+        {
+            DateTimeOffset rounded = new DateTimeOffset(dto.Year, dto.Month, dto.Day, dto.Hour, dto.Minute, dto.Second, dto.Offset);
+
+            if (dto.Millisecond > 500)
+            {
+                rounded = rounded.AddSeconds(1);
+            }
+
+            return rounded;
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming Rules", "SA1310: C# Field must not contain an underscore", Justification = "By design: Structured name.")]
+        internal static DateTimeOffset GetNextCycleTargetTime_UnitTestAccessor(DateTimeOffset periodStart)
+        {
+            return GetNextCycleTargetTime(periodStart);
         }
     }
 }

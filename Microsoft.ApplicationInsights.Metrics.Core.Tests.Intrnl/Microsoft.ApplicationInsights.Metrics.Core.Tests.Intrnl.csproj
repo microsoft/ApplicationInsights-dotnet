@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Microsoft.ApplicationInsights.Metrics.TestUtil\Utils.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\CommonSimpleDataSeriesAggregatorTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\DefaultAggregationPeriodCycle.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\SimpleUInt32DataSeriesAggregatorTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\SimpleDoubleDataSeriesAggregatorTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\GrowingCollectionTests.cs" />
