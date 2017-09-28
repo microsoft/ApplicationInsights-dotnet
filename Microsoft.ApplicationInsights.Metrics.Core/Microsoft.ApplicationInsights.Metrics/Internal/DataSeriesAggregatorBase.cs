@@ -48,7 +48,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             _periodEnd = default(DateTimeOffset);
             _valueFilter = valueFilter;
             _ongoingUpdates = InternalExecutionState_Ready;
-            ReinitializeAggregatedValues();
+            ReinitializeAggregation();
         }
 
         public virtual ITelemetry CompleteAggregation(DateTimeOffset periodEnd)
@@ -174,7 +174,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public abstract ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd);
 
-        protected abstract void ReinitializeAggregatedValues();
+        protected abstract void ReinitializeAggregation();
 
         protected abstract void TrackFilteredValue(double metricValue);
 

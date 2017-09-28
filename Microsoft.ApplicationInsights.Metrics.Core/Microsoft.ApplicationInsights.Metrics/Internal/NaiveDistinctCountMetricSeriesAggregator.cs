@@ -41,7 +41,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         }
 
 
-        protected override void ReinitializeAggregatedValues()
+        protected override void ReinitializeAggregation()
         {
             _values = new GrowingCollection<string>();
         }

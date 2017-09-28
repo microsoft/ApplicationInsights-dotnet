@@ -16,6 +16,8 @@ namespace SomeCustomerNamespace
         [TestMethod]
         public void TestMethod1()
         {
+            return;
+
             TelemetryClient aiClient = new TelemetryClient();
 
             Metric cowsSold = aiClient.GetMetric("Cows Sold");

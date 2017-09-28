@@ -8,15 +8,9 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    internal class SimpleUInt32DataSeriesAggregator : DataSeriesAggregatorBase, IMetricSeriesAggregator
+    internal class SimpleUInt32DataSeriesAggregator : SimpleDataSeriesAggregatorBase, IMetricSeriesAggregator
     {
         private const double MicroOne = 0.000001;
-
-        private int _count;
-        private long _min;
-        private long _max;
-        private long _sum;                  // Int64 in order to use with Interlocked, but always use casts to get UInt64 semantics.
-        private long _sumOfSquares;         // Int64 in order to use with Interlocked, but always use casts to get UInt64 semantics.
 
         public SimpleUInt32DataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
@@ -43,34 +37,23 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public override ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd)
         {
-            int count = _count;
-            ulong sum = (ulong) _sum;
-            long min = 0;
-            long max = 0;
-            double stdDev = 0.0;
-
-            if (count > 0)
-            {
-                min = _min;
-                max = _max;
-                double mean = ((double) sum) / (double) count;
-                double variance = (((double) _sumOfSquares) / (double) count) - (mean * mean);
-                stdDev = Math.Sqrt(variance);
-            }
-
-            MetricTelemetry aggregate = new MetricTelemetry(DataSeries?.MetricId ?? Util.NullString, count, sum, min, max, stdDev); ;
-
-            StampTimingInfo(aggregate, periodEnd);
-            StampVersionAndContextInfo(aggregate);
-
-            return aggregate;
+            SnapAggragetionToIntValues();
+            return base.CreateAggregateUnsafe(periodEnd);
         }
-        
+
+        protected virtual void UpdateAggregationWithTrackedValue(double metricValue)
+        {
+            base.UpdateAggregationWithTrackedValue(metricValue);
+            SnapAggragetionToIntValues();
+        }
+
         protected override void TrackFilteredValue(double metricValue)
         {
             if (Double.IsNaN(metricValue))
             {
-                return;
+                throw new ArgumentException($"This aggregator cannot process the specified metric value."
+                                          + $" The aggregator expects metric values of type {nameof(UInt32)}, but the specified {nameof(metricValue)} is Double.NaN."
+                                          + $" Have you specified the correct metric configuration?");
             }
 
             if (metricValue < -MicroOne)
@@ -100,7 +83,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                           + $" Have you specified the correct metric configuration?");
             }
 
-            TrackFilteredValue((uint) wholeValue);
+            UpdateAggregationWithTrackedValue(wholeValue);
         }
 
         protected override void TrackFilteredValue(object metricValue)
@@ -122,12 +105,12 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
                 else
                 {
-                    TrackFilteredValue((uint) v);
+                    UpdateAggregationWithTrackedValue((double) v);
                 }
             }
             else if (metricValue is Byte)
             {
-                TrackFilteredValue((uint) (Byte) metricValue);
+                UpdateAggregationWithTrackedValue((double) (Byte) metricValue);
             }
             else if (metricValue is Int16)
             {
@@ -141,12 +124,12 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
                 else
                 {
-                    TrackFilteredValue((uint) v);
+                    UpdateAggregationWithTrackedValue((double) v);
                 }
             }
             else if (metricValue is UInt16)
             {
-                TrackFilteredValue((uint) (UInt16) metricValue);
+                UpdateAggregationWithTrackedValue((double) (UInt16) metricValue);
             }
             else if (metricValue is Int32)
             {
@@ -160,12 +143,12 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
                 else
                 {
-                    TrackFilteredValue((uint) v);
+                    UpdateAggregationWithTrackedValue((double) v);
                 }
             }
             else if (metricValue is UInt32)
             {
-                TrackFilteredValue((uint) (UInt32) metricValue);
+                UpdateAggregationWithTrackedValue((double) (UInt32) metricValue);
             }
             else if (metricValue is Int64)
             {
@@ -186,7 +169,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
                 else
                 {
-                    TrackFilteredValue((uint) v);
+                    UpdateAggregationWithTrackedValue((double) v);
                 }
             }
             else if (metricValue is UInt64)
@@ -201,7 +184,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
                 else
                 {
-                    TrackFilteredValue((uint) v);
+                    UpdateAggregationWithTrackedValue((double) v);
                 }
             }
             else if (metricValue is Single)
@@ -240,61 +223,31 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private void TrackFilteredValue(uint metricValue)
+        private void SnapAggragetionToIntValues()
         {
+            double currentMin = _min;
+            if (currentMin != Math.Round(currentMin))
             {
-                Interlocked.Increment(ref _count);
+                Interlocked.CompareExchange(ref _min, Math.Round(currentMin), currentMin);
             }
 
+            double currentMax = _max;
+            if (currentMax != Math.Round(currentMax))
             {
-                long currentMax = _max;   // If we get a torn read, the below assignment will fail and we get to try again.
-                while (metricValue > currentMax)
-                {
-                    long prevMax = Interlocked.CompareExchange(ref _max, metricValue, currentMax);
-                    currentMax = (prevMax == currentMax) ? metricValue : prevMax;
-                }
+                Interlocked.CompareExchange(ref _max, Math.Round(currentMax), currentMax);
             }
 
+            double currentSum = _sum;
+            if (currentSum != Math.Round(currentSum))
             {
-                long currentMin = _min;   // If we get a torn read, the below assignment will fail and we get to try again.
-                while (metricValue < currentMin)
-                {
-                    long prevMin = Interlocked.CompareExchange(ref _min, metricValue, currentMin);
-                    currentMin = (prevMin == currentMin) ? metricValue : prevMin;
-                }
+                Interlocked.CompareExchange(ref _sum, Math.Round(currentSum), currentSum);
             }
 
+            double currentSumOfSquares = _sumOfSquares;
+            if (currentSumOfSquares != Math.Round(currentSumOfSquares))
             {
-                long currentSum, prevSum;
-                do
-                {
-                    currentSum = _sum;  // If we get a torn read, the below assignment will fail and we get to try again.
-                    ulong newSum = ((ulong) currentSum) + metricValue;
-                    prevSum = Interlocked.CompareExchange(ref _sum, (long) newSum, currentSum);
-                }
-                while (prevSum != currentSum);
+                Interlocked.CompareExchange(ref _sumOfSquares, Math.Round(currentSumOfSquares), currentSumOfSquares);
             }
-
-            {
-                ulong squaredValue = metricValue * metricValue;
-                long currentSumOfSquares, prevSumOfSquares;
-                do
-                {
-                    currentSumOfSquares = _sumOfSquares;  // If we get a torn read, the below assignment will fail and we get to try again.
-                    ulong newSumOfSquares = ((ulong) currentSumOfSquares) + squaredValue;
-                    prevSumOfSquares = Interlocked.CompareExchange(ref _sumOfSquares, (long) newSumOfSquares, currentSumOfSquares);
-                }
-                while (prevSumOfSquares != currentSumOfSquares);
-            }
-        }
-
-        protected override void ReinitializeAggregatedValues()
-        {
-            _count = 0;
-            _min = UInt32.MaxValue;
-            _max = UInt32.MinValue;
-            _sum = 0;
-            _sumOfSquares = 0;
         }
     }
 }

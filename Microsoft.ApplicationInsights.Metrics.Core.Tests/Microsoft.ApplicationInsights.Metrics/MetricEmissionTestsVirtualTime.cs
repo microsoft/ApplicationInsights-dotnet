@@ -100,7 +100,7 @@ namespace SomeCustomerNamespace
                     Assert.AreEqual(operationsCount, aggregate.Count);
                     Assert.AreEqual("Item Add duration", aggregate.Name);
                     Assert.IsNotNull(aggregate.Properties);
-                    Assert.AreEqual(0, aggregate.Properties.Count);
+                    Assert.AreEqual(1, aggregate.Properties.Count);  // The aggregation interval.
                     Assert.AreEqual(intervalSecs, aggregate.Sum);
                     Assert.AreEqual(experimentStart.AddSeconds(totalSecs - intervalSecs), aggregate.Timestamp);
 
@@ -144,7 +144,7 @@ namespace SomeCustomerNamespace
                 Assert.AreEqual(3, aggregate.Count);
                 Assert.AreEqual("Item Add duration", aggregate.Name);
                 Assert.IsNotNull(aggregate.Properties);
-                Assert.AreEqual(0, aggregate.Properties.Count);
+                Assert.AreEqual(1, aggregate.Properties.Count); // The aggregation interval
                 Assert.AreEqual(24, aggregate.Sum);
                 Assert.AreEqual(experimentStart.AddSeconds(totalSecs - 24), aggregate.Timestamp);
             }
