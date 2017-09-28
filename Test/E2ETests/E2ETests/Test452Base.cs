@@ -138,7 +138,7 @@ namespace E2ETests
         {
             var expectedRequestTelemetry = new RequestTelemetry();
             expectedRequestTelemetry.ResponseCode = "200";            
-            ValidateBasicRequestAsync(Apps[WebAppName].ipAddress, "/Default", expectedRequestTelemetry, Apps[WebAppName].ikey).Wait();
+            ValidateBasicRequestAsync(Apps[WebAppName].ipAddress, "/About", expectedRequestTelemetry, Apps[WebAppName].ikey).Wait();
         }
 
         public void TestXComponentWebAppToWebApi()

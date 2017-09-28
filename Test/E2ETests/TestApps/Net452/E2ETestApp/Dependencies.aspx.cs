@@ -22,16 +22,30 @@ namespace E2ETestApp
             switch (type)
             {
                 case "http":
-                    HttpClient client = new HttpClient();
-                    client.GetAsync(new Uri("http://e2etestwebapi:80/api/values")).Wait();
+                    try
+                    {
+                        HttpClient client = new HttpClient();
+                        client.GetAsync(new Uri("http://e2etestwebapi:80/api/values")).Wait();
+                    }
+                    catch(Exception ex)
+                    {
+                        this.lblRequestedAction.Text = this.lblRequestedAction.Text + "  Exception occured: " + ex;
+                    }
                     break;
                 case "sql":
-                    using (var connection = new SqlConnection(LocalDbConnectionString))
+                    try
+                    { 
+                        using (var connection = new SqlConnection(LocalDbConnectionString))
+                        {
+                            connection.Open();
+                            SqlCommand cmd = connection.CreateCommand();                        
+                            cmd.CommandText = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabases";                        
+                            object result = cmd.ExecuteScalar();
+                        }
+                    }
+                    catch (Exception ex)
                     {
-                        connection.Open();
-                        SqlCommand cmd = connection.CreateCommand();                        
-                        cmd.CommandText = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabases";                        
-                        object result = cmd.ExecuteScalar();
+                        this.lblRequestedAction.Text = this.lblRequestedAction.Text + "  Exception occured: " + ex;
                     }
                     break;
                 default:
