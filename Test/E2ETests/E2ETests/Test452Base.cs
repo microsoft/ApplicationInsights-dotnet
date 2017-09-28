@@ -308,7 +308,12 @@ namespace E2ETests
         private static bool HealthCheck(DeployedApp app)
         {
             bool isHealthy = true;
-            string url = "http://" + app.ipAddress + app.healthCheckPath;
+            Trace.WriteLine("Docker Stats for: " + app.containerName);
+            Trace.WriteLine("Status" + DockerUtils.GetDockerStateStatus(app.containerName));
+            Trace.WriteLine("ExitCode" + DockerUtils.GetDockerStateExitCode(app.containerName));
+            Trace.WriteLine("Error" + DockerUtils.GetDockerStateError(app.containerName));
+
+            string url = "http://" + app.ipAddress + app.healthCheckPath;            
             Trace.WriteLine(string.Format("Request fired against {0} using url: {1}", app.containerName, url));
             try
             {
