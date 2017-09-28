@@ -1,7 +1,7 @@
 & docker info
 
 Write-Host "Images before cleanup"
-& docker images
+& docker images -a
 
 Write-Host "Containers before cleanup"
 & docker ps -a
@@ -28,7 +28,7 @@ Write-Host "Removing dangling images"
 docker images -f "dangling=true" -q | ForEach-Object {docker rmi $_}
 
 Write-Host "Images after cleanup"
-& docker images
+& docker images -a
 Write-Host "Containers after cleanup"
 & docker ps -a
 
