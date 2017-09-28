@@ -113,7 +113,7 @@ namespace E2ETests
         public static void MyClassCleanupBase()
         {
             Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
-            DockerUtils.ExecuteDockerComposeCommand("down --rmi local", DockerComposeFileName);
+            //DockerUtils.ExecuteDockerComposeCommand("down --rmi local", DockerComposeFileName);
             Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
 
             DockerUtils.PrintDockerProcessStats("Docker-Compose down");
@@ -130,7 +130,7 @@ namespace E2ETests
         public void MyTestCleanup()
         {
             Trace.WriteLine("Started Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
-            //DockerUtils.PrintDockerProcessStats("After MyTestCleanup" + DateTime.UtcNow.ToLongTimeString());
+            DockerUtils.PrintDockerProcessStats("After MyTestCleanup" + DateTime.UtcNow.ToLongTimeString());
             Trace.WriteLine("Completed Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
         }
         
