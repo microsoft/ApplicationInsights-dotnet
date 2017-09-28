@@ -24,7 +24,7 @@ services:
     sql-server:
         image: microsoft/mssql-server-windows-express
         environment:
-            SA_PASSWORD: MSDNm4g4z!n3
+            SA_PASSWORD: MSDNm4g4z!n4
             ACCEPT_EULA: "Y"
 networks:
   default:

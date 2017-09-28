@@ -13,7 +13,7 @@ namespace E2ETestApp
 {
     public partial class Dependencies : System.Web.UI.Page
     {
-        public const string LocalDbConnectionString = @"Server =sql-server;User Id = sa; Password=MSDNm4g4z!n3";
+        public const string LocalDbConnectionString = @"Server =sql-server;User Id = sa; Password=MSDNm4g4z!n4";
 
         protected void Page_Load(object sender, EventArgs e)
         {

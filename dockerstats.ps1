@@ -33,4 +33,5 @@ Write-Host "Containers after cleanup"
 
 Write-Host "Checking SQL"
 $serverip = docker inspect -f "{{ .NetworkSettings.Networks.nat.IPAddress }}" e2etests_sql-server_1
-& "C:\Program Files\Microsoft SQL Server\110\Tools\Binn\sqlcmd.exe" -S $serverip -U sa -P MSDNm4g4z!n3 -d master -q "SELECT name FROM master.dbo.sysdatabases"
+Write-Host "IP: $serverip"
+& "C:\Program Files\Microsoft SQL Server\110\Tools\Binn\sqlcmd.exe" -S $serverip -U sa -P MSDNm4g4z!n4 -d master -q "SELECT name FROM master.dbo.sysdatabases"
