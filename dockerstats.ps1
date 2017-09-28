@@ -30,7 +30,3 @@ Write-Host "Images after cleanup"
 & docker images -a
 Write-Host "Containers after cleanup"
 & docker ps -a
-
-Write-Host "Checking SQL"
-$serverip = docker inspect -f "{{ .NetworkSettings.Networks.nat.IPAddress }}" e2etests_sql-server_1
-Invoke-Command -ScriptBlock { sqlcmd -S $serverip -U sa -P MSDNm4g4z!n3 -d master -q "SELECT name FROM master.dbo.sysdatabases" }
