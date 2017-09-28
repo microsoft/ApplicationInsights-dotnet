@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -13,7 +15,8 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// </summary>
     internal class NaiveDistinctCountMetricSeriesAggregator : DataSeriesAggregatorBase, IMetricSeriesAggregator
     {
-        private GrowingCollection<string> _values = null;
+        private readonly ConcurrentDictionary<string, bool> _uniqueValues = new ConcurrentDictionary<string, bool>();
+        private int _totalValuesCount = 0;
 
         public NaiveDistinctCountMetricSeriesAggregator(NaiveDistinctCountMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
@@ -22,28 +25,28 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public override ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd)
         {
-            GrowingCollection<string> values = _values;
-            MetricTelemetry aggregate;
+            int uniqueValuesCount = _uniqueValues.Count;
+            int totalValuesCount = Volatile.Read(ref _totalValuesCount);
 
-            if (values == null)
-            {
-                aggregate = new MetricTelemetry(DataSeries.MetricId, count: 0, sum: 0, min: 0, max: 0, standardDeviation: 0);
-            }
-            else
-            {
-                // The enumerator of _values operates on a snapshot in a thread-safe manner.
-                var distinctValues = new HashSet<string>(_values);
-                aggregate = new MetricTelemetry(DataSeries.MetricId, distinctValues.Count, sum: 0, min: 0, max: 0, standardDeviation: 0);
-            }
-            
-            Util.CopyTelemetryContext(DataSeries.Context, aggregate.Context);
+            MetricTelemetry aggregate = new MetricTelemetry(
+                                                    name: DataSeries?.MetricId ?? Util.NullString,
+                                                    count: totalValuesCount,
+                                                    sum: uniqueValuesCount,
+                                                    min: 0,
+                                                    max: 0,
+                                                    standardDeviation: 0);
+
+            StampTimingInfo(aggregate, periodEnd);
+            StampVersionAndContextInfo(aggregate);
+
             return aggregate;
         }
 
 
         protected override void ReinitializeAggregation()
         {
-            _values = new GrowingCollection<string>();
+            _uniqueValues.Clear();
+            Volatile.Write(ref _totalValuesCount, 0);
         }
 
         protected override void TrackFilteredValue(double metricValue)
@@ -66,7 +69,17 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         private void TrackFilteredValue(string metricValue)
         {
-            _values?.Add(metricValue);
+            if (metricValue == null)
+            {
+                metricValue = Util.NullString;
+            }
+            else
+            {
+                metricValue = metricValue.Trim();
+            }
+            
+            _uniqueValues.TryAdd(metricValue, true);
+            Interlocked.Increment(ref _totalValuesCount);
         }
     }
 }

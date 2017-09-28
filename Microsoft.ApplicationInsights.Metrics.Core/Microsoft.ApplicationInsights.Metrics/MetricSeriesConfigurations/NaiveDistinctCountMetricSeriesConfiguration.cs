@@ -8,7 +8,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             "Microsoft.Performance",
             "CA1812: Avoid uninstantiated internal classes",
             Justification = "Needed for internal verification.")]
-    internal class NaiveDistinctCountMetricSeriesConfiguration : IMetricSeriesConfiguration
+    public class NaiveDistinctCountMetricSeriesConfiguration : IMetricSeriesConfiguration
     {
         public NaiveDistinctCountMetricSeriesConfiguration()
         {
