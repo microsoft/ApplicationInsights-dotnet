@@ -16,8 +16,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         protected double _sum;
         protected double _sumOfSquares;
 
-        public SimpleDataSeriesAggregatorBase(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
-            : base(configuration, dataSeries, consumerKind)
+        public SimpleDataSeriesAggregatorBase(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
+            : base(configuration, dataSeries, aggregationCycleKind)
         {
         }
 

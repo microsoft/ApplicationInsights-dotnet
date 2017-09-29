@@ -5,6 +5,8 @@ using System.Threading;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
+using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
+
 namespace Microsoft.ApplicationInsights.Metrics
 {
     internal class MetricAggregationManager
@@ -25,87 +27,87 @@ namespace Microsoft.ApplicationInsights.Metrics
             _aggregatorsForDefaultPersistent = new AggregatorCollection(timestamp, filter: null);
         }
 
-        public bool StartAggregators(MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter filter)
+        public bool StartAggregators(MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter filter)
         {
-            switch (consumerKind)
+            switch (aggregationCycleKind)
             {
-                case MetricConsumerKind.QuickPulse:
+                case CycleKind.QuickPulse:
                     AggregatorCollection prevQP = Interlocked.CompareExchange(ref _aggregatorsForQuickPulse, new AggregatorCollection(tactTimestamp, filter), comparand: null);
                     return (prevQP == null);
 
-                case MetricConsumerKind.Custom:
+                case CycleKind.Custom:
                     AggregatorCollection prevC = Interlocked.CompareExchange(ref _aggregatorsForCustom, new AggregatorCollection(tactTimestamp, filter), comparand: null);
                     return (prevC == null);
 
-                case MetricConsumerKind.Default:
-                    throw new ArgumentException($"Cannot invoke {nameof(StartAggregators)} for Default {nameof(MetricConsumerKind)}: Default aggregators are always active.");
+                case CycleKind.Default:
+                    throw new ArgumentException($"Cannot invoke {nameof(StartAggregators)} for Default {nameof(MetricAggregationCycleKind)}: Default aggregators are always active.");
 
                 default:
-                    throw new ArgumentException($"Unexpected value of {nameof(consumerKind)}: {consumerKind}.");
+                    throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
             }
         }
         
-        public AggregationPeriodSummary CycleAggregators(MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter)
+        public AggregationPeriodSummary CycleAggregators(MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter)
         {
-            switch (consumerKind)
+            switch (aggregationCycleKind)
             {
-                case MetricConsumerKind.Default:
+                case CycleKind.Default:
                     if (updatedFilter != null)
                     {
-                        throw new ArgumentException($"Cannot specify non-null {nameof(updatedFilter)} when {nameof(consumerKind)} is {consumerKind}.");
+                        throw new ArgumentException($"Cannot specify non-null {nameof(updatedFilter)} when {nameof(aggregationCycleKind)} is {aggregationCycleKind}.");
                     }
 
                     return CycleAggregators(ref _aggregatorsForDefault, tactTimestamp, updatedFilter, stopAggregators: false);
 
-                case MetricConsumerKind.QuickPulse:
+                case CycleKind.QuickPulse:
                     return CycleAggregators(ref _aggregatorsForQuickPulse, tactTimestamp, updatedFilter, stopAggregators: false);
 
-                case MetricConsumerKind.Custom:
+                case CycleKind.Custom:
                     return CycleAggregators(ref _aggregatorsForCustom, tactTimestamp, updatedFilter, stopAggregators: false);
 
                 default:
-                    throw new ArgumentException($"Unexpected value of {nameof(consumerKind)}: {consumerKind}.");
+                    throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
             }
         }
 
-        public AggregationPeriodSummary StopAggregators(MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp)
+        public AggregationPeriodSummary StopAggregators(MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp)
         {
-            switch (consumerKind)
+            switch (aggregationCycleKind)
             {
-                case MetricConsumerKind.QuickPulse:
+                case CycleKind.QuickPulse:
                     return CycleAggregators(ref _aggregatorsForQuickPulse, tactTimestamp, updatedFilter: null, stopAggregators: true);
 
-                case MetricConsumerKind.Custom:
+                case CycleKind.Custom:
                     return CycleAggregators(ref _aggregatorsForCustom, tactTimestamp, updatedFilter: null, stopAggregators: true);
 
-                case MetricConsumerKind.Default:
-                    throw new ArgumentException($"Cannot invoke {nameof(StopAggregators)} for Default {nameof(MetricConsumerKind)}: Default aggregators are always active.");
+                case CycleKind.Default:
+                    throw new ArgumentException($"Cannot invoke {nameof(StopAggregators)} for Default {nameof(MetricAggregationCycleKind)}: Default aggregators are always active.");
 
                 default:
-                    throw new ArgumentException($"Unexpected value of {nameof(consumerKind)}: {consumerKind}.");
+                    throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
             }
         }
 
-        internal bool IsConsumerActive(MetricConsumerKind consumerKind, out IMetricSeriesFilter filter)
+        internal bool IsConsumerActive(MetricAggregationCycleKind aggregationCycleKind, out IMetricSeriesFilter filter)
         {
-            switch (consumerKind)
+            switch (aggregationCycleKind)
             {
-                case MetricConsumerKind.Default:
+                case CycleKind.Default:
                     filter = null;
                     return true;
 
-                case MetricConsumerKind.QuickPulse:
-                case MetricConsumerKind.Custom:
-                    AggregatorCollection aggs = (consumerKind == MetricConsumerKind.QuickPulse) ? _aggregatorsForQuickPulse : _aggregatorsForCustom;
+                case CycleKind.QuickPulse:
+                case CycleKind.Custom:
+                    AggregatorCollection aggs = (aggregationCycleKind == CycleKind.QuickPulse) ? _aggregatorsForQuickPulse : _aggregatorsForCustom;
                     filter = aggs?.Filter;
                     return (aggs != null);
 
                 default:
-                    throw new ArgumentException($"Unexpected value of {nameof(consumerKind)}: {consumerKind}.");
+                    throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
             }
         }
 
-        internal bool AddAggregator(IMetricSeriesAggregator aggregator, MetricConsumerKind consumerKind)
+        internal bool AddAggregator(IMetricSeriesAggregator aggregator, MetricAggregationCycleKind aggregationCycleKind)
         {
             Util.ValidateNotNull(aggregator, nameof(aggregator));
 
@@ -114,19 +116,19 @@ namespace Microsoft.ApplicationInsights.Metrics
                 return AddAggregator(aggregator, _aggregatorsForDefaultPersistent);
             }
 
-            switch (consumerKind)
+            switch (aggregationCycleKind)
             {
-                case MetricConsumerKind.Default:
+                case CycleKind.Default:
                     return AddAggregator(aggregator, _aggregatorsForDefault);
 
-                case MetricConsumerKind.QuickPulse:
+                case CycleKind.QuickPulse:
                     return AddAggregator(aggregator, _aggregatorsForQuickPulse);
 
-                case MetricConsumerKind.Custom:
+                case CycleKind.Custom:
                     return AddAggregator(aggregator, _aggregatorsForCustom);
 
                 default:
-                    throw new ArgumentException($"Unexpected value of {nameof(consumerKind)}: {consumerKind}.");
+                    throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
             }
         }
 

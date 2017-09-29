@@ -52,18 +52,18 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// 
         /// </summary>
         /// <param name="dataSeries"></param>
-        /// <param name="consumerKind"></param>
+        /// <param name="aggregationCycleKind"></param>
         /// <returns></returns>
-        public IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricConsumerKind consumerKind)
+        public IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
         {
             if (_restrictToUInt32Values)
             {
-                IMetricSeriesAggregator aggregator = new SimpleUInt32DataSeriesAggregator(this, dataSeries, consumerKind);
+                IMetricSeriesAggregator aggregator = new SimpleUInt32DataSeriesAggregator(this, dataSeries, aggregationCycleKind);
                 return aggregator;
             }
             else
             {
-                IMetricSeriesAggregator aggregator = new SimpleDoubleDataSeriesAggregator(this, dataSeries, consumerKind);
+                IMetricSeriesAggregator aggregator = new SimpleDoubleDataSeriesAggregator(this, dataSeries, aggregationCycleKind);
                 return aggregator;
             }
         }

@@ -12,6 +12,8 @@ using Microsoft.ApplicationInsights.DataContracts;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
+using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
+
 namespace SomeCustomerNamespace
 {
     /// <summary />
@@ -35,7 +37,7 @@ namespace SomeCustomerNamespace
             // Stop the default minute-ly cycle so that it does not interfere with our virtual time debugging:
             Task fireAndForget = telemetryPipeline.Metrics().StopAsync();   
 
-            telemetryPipeline.Metrics().StartAggregators(MetricConsumerKind.Custom, experimentStart, filter: null);
+            telemetryPipeline.Metrics().StartAggregators(CycleKind.Custom, experimentStart, filter: null);
 
             const int ExperimentLengthSecs = 60 * 10;
             const int IntervalLengthSecs = 60;
@@ -83,7 +85,7 @@ namespace SomeCustomerNamespace
                 if (intervalSecs >= IntervalLengthSecs)
                 {
                     AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().CycleAggregators(
-                                                                                                MetricConsumerKind.Custom,
+                                                                                                CycleKind.Custom,
                                                                                                 experimentStart.AddSeconds(totalSecs),
                                                                                                 updatedFilter: null);
                     Assert.IsNotNull(aggregatedMetrics);
@@ -112,7 +114,7 @@ namespace SomeCustomerNamespace
             }
             {
                 AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().CycleAggregators(
-                                                                                                    MetricConsumerKind.Custom,
+                                                                                                    CycleKind.Custom,
                                                                                                     experimentStart.AddSeconds(totalSecs),
                                                                                                     updatedFilter: null);
                 Assert.IsNotNull(aggregatedMetrics);
@@ -129,7 +131,7 @@ namespace SomeCustomerNamespace
             }
             {
                 AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().StopAggregators(
-                                                                                                    MetricConsumerKind.Custom,
+                                                                                                    CycleKind.Custom,
                                                                                                     experimentStart.AddSeconds(totalSecs));
                 Assert.IsNotNull(aggregatedMetrics);
 

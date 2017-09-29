@@ -12,8 +12,8 @@ namespace Microsoft.ApplicationInsights.Metrics
     {
         private const double MicroOne = 0.000001;
 
-        public SimpleUInt32DataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
-            : base(configuration, dataSeries, consumerKind)
+        public SimpleUInt32DataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
+            : base(configuration, dataSeries, aggregationCycleKind)
         {
             Util.ValidateNotNull(configuration, nameof(configuration));
 

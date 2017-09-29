@@ -13,15 +13,15 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
     public static class QuickPulseAdapter
     {
         // From MetricManagerExtensions:
-        //public static bool StartAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter filter)
-        //public static AggregationPeriodSummary StopAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp)
-        //public static AggregationPeriodSummary CycleAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter)
+        //public static bool StartAggregators(this MetricManager metricManager, MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter filter)
+        //public static AggregationPeriodSummary StopAggregators(this MetricManager metricManager, MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp)
+        //public static AggregationPeriodSummary CycleAggregators(this MetricManager metricManager, MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter)
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="metricManager"></param>
-        /// <param name="consumerKind"></param>
+        /// <param name="aggregationCycleKind"></param>
         /// <param name="tactTimestamp"></param>
         /// <param name="metricSeriesFilter"></param>
         /// <returns></returns>
@@ -29,14 +29,14 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     bool
                     StartAggregators(
                                      object metricManager,
-                                     int consumerKind,
+                                     int aggregationCycleKind,
                                      DateTimeOffset tactTimestamp,
                                      Func<Tuple<bool,
                                                 Tuple<Func<object, double, bool>,
                                                       Func<object, object, bool>>>> metricSeriesFilter)
         {
             MetricManager manager = (MetricManager) metricManager;
-            MetricConsumerKind consumer = SafeConvertMetricConsumerKind(consumerKind);
+            MetricAggregationCycleKind consumer = SafeConvertMetricAggregationCycleKind(aggregationCycleKind);
             var filter = new MetricSeriesFilterAdapter(metricSeriesFilter);
 
             bool result = MetricManagerExtensions.StartAggregators(manager, consumer, tactTimestamp, filter);
@@ -47,18 +47,18 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// 
         /// </summary>
         /// <param name="metricManager"></param>
-        /// <param name="consumerKind"></param>
+        /// <param name="aggregationCycleKind"></param>
         /// <param name="tactTimestamp"></param>
         /// <returns></returns>
         public static
                     Tuple<IReadOnlyList<ITelemetry>, IReadOnlyList<ITelemetry>>
                     StopAggregators(
                                     object metricManager,
-                                    int consumerKind,
+                                    int aggregationCycleKind,
                                     DateTimeOffset tactTimestamp)
         {
             MetricManager manager = (MetricManager) metricManager;
-            MetricConsumerKind consumer = SafeConvertMetricConsumerKind(consumerKind);
+            MetricAggregationCycleKind consumer = SafeConvertMetricAggregationCycleKind(aggregationCycleKind);
 
             AggregationPeriodSummary summary = MetricManagerExtensions.StopAggregators(manager, consumer, tactTimestamp);
 
@@ -70,7 +70,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// 
         /// </summary>
         /// <param name="metricManager"></param>
-        /// <param name="consumerKind"></param>
+        /// <param name="aggregationCycleKind"></param>
         /// <param name="tactTimestamp"></param>
         /// <param name="updatedMetricSeriesFilter"></param>
         /// <returns></returns>
@@ -78,14 +78,14 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     Tuple<IReadOnlyList<ITelemetry>, IReadOnlyList<ITelemetry>>
                     CycleAggregators(
                                      object metricManager,
-                                     int consumerKind,
+                                     int aggregationCycleKind,
                                      DateTimeOffset tactTimestamp,
                                      Func<Tuple<bool,
                                                 Tuple<Func<object, double, bool>,
                                                       Func<object, object, bool>>>> updatedMetricSeriesFilter)
         {
             MetricManager manager = (MetricManager) metricManager;
-            MetricConsumerKind consumer = SafeConvertMetricConsumerKind(consumerKind);
+            MetricAggregationCycleKind consumer = SafeConvertMetricAggregationCycleKind(aggregationCycleKind);
             var filter = new MetricSeriesFilterAdapter(updatedMetricSeriesFilter);
 
             AggregationPeriodSummary summary = MetricManagerExtensions.CycleAggregators(manager, consumer, tactTimestamp, filter);
@@ -94,18 +94,18 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             return result;
         }
 
-        private static MetricConsumerKind SafeConvertMetricConsumerKind(int consumerKind)
+        private static MetricAggregationCycleKind SafeConvertMetricAggregationCycleKind(int aggregationCycleKind)
         {
-            MetricConsumerKind consumer = (MetricConsumerKind) consumerKind;
+            MetricAggregationCycleKind consumer = (MetricAggregationCycleKind) aggregationCycleKind;
 
-            if (consumer == MetricConsumerKind.Default
-                || consumer == MetricConsumerKind.QuickPulse
-                || consumer == MetricConsumerKind.Custom)
+            if (consumer == MetricAggregationCycleKind.Default
+                || consumer == MetricAggregationCycleKind.QuickPulse
+                || consumer == MetricAggregationCycleKind.Custom)
             {
                 return consumer;
             }
 
-            throw new ArgumentException($"The specified number '{consumerKind}' is not a valid value for the {nameof(MetricConsumerKind)} enumeration.");
+            throw new ArgumentException($"The specified number '{aggregationCycleKind}' is not a valid value for the {nameof(MetricAggregationCycleKind)} enumeration.");
         }
     }
 }

@@ -13,41 +13,41 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// 
         /// </summary>
         /// <param name="metricManager"></param>
-        /// <param name="consumerKind"></param>
+        /// <param name="aggregationCycleKind"></param>
         /// <param name="tactTimestamp"></param>
         /// <param name="filter"></param>
         /// <returns></returns>
-        public static bool StartAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter filter)
+        public static bool StartAggregators(this MetricManager metricManager, MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter filter)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
-            return metricManager.AggregationManager.StartAggregators(consumerKind, tactTimestamp, filter);
+            return metricManager.AggregationManager.StartAggregators(aggregationCycleKind, tactTimestamp, filter);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="metricManager"></param>
-        /// <param name="consumerKind"></param>
+        /// <param name="aggregationCycleKind"></param>
         /// <param name="tactTimestamp"></param>
         /// <returns></returns>
-        public static AggregationPeriodSummary StopAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp)
+        public static AggregationPeriodSummary StopAggregators(this MetricManager metricManager, MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
-            return metricManager.AggregationManager.StopAggregators(consumerKind, tactTimestamp);
+            return metricManager.AggregationManager.StopAggregators(aggregationCycleKind, tactTimestamp);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="metricManager"></param>
-        /// <param name="consumerKind"></param>
+        /// <param name="aggregationCycleKind"></param>
         /// <param name="tactTimestamp"></param>
         /// <param name="updatedFilter"></param>
         /// <returns></returns>
-        public static AggregationPeriodSummary CycleAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter)
+        public static AggregationPeriodSummary CycleAggregators(this MetricManager metricManager, MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
-            return metricManager.AggregationManager.CycleAggregators(consumerKind, tactTimestamp, updatedFilter);
+            return metricManager.AggregationManager.CycleAggregators(aggregationCycleKind, tactTimestamp, updatedFilter);
         }
 
         /// <summary>

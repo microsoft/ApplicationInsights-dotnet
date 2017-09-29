@@ -12,6 +12,8 @@ using Microsoft.ApplicationInsights.Metrics.TestUtil;
 using System.Globalization;
 using System.Text;
 
+using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
+
 namespace Microsoft.ApplicationInsights.Metrics
 {
     /// <summary />
@@ -22,20 +24,20 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void Ctor()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new NaiveDistinctCountMetricSeriesAggregator(configuration: null, dataSeries: null, consumerKind: MetricConsumerKind.Custom));
+            Assert.ThrowsException<ArgumentNullException>(() => new NaiveDistinctCountMetricSeriesAggregator(configuration: null, dataSeries: null, aggregationCycleKind: CycleKind.Custom));
 
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                 new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false),
                                                 dataSeries: null,
-                                                consumerKind: MetricConsumerKind.Custom);
+                                                aggregationCycleKind: CycleKind.Custom);
                 Assert.IsNotNull(aggregator);
             }
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                 new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: true),
                                                 dataSeries: null,
-                                                consumerKind: MetricConsumerKind.Custom);
+                                                aggregationCycleKind: CycleKind.Custom);
                 Assert.IsNotNull(aggregator);
             }
         }
@@ -51,7 +53,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false, caseSensitiveDistinctions: false),
                                                     dataSeries: null,
-                                                    consumerKind: MetricConsumerKind.Custom);
+                                                    aggregationCycleKind: CycleKind.Custom);
 
                 aggregator.TrackValue("Foo");
                 aggregator.TrackValue("Bar");
@@ -66,7 +68,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false, caseSensitiveDistinctions: true),
                                                     dataSeries: null,
-                                                    consumerKind: MetricConsumerKind.Custom);
+                                                    aggregationCycleKind: CycleKind.Custom);
 
                 aggregator.TrackValue("Foo");
                 aggregator.TrackValue("Bar");
@@ -81,7 +83,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false),
                                                     dataSeries: null,
-                                                    consumerKind: MetricConsumerKind.Custom);
+                                                    aggregationCycleKind: CycleKind.Custom);
 
                 aggregator.TrackValue("Foo");
                 aggregator.TrackValue("Bar");
@@ -104,7 +106,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                 new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false),
                                                 dataSeries: null,
-                                                consumerKind: MetricConsumerKind.Custom);
+                                                aggregationCycleKind: CycleKind.Custom);
 
             aggregator.TrackValue(-42);
 
@@ -164,7 +166,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false),
                                                     dataSeries: null,
-                                                    consumerKind: MetricConsumerKind.Custom);
+                                                    aggregationCycleKind: CycleKind.Custom);
 
                 ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
                 ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0.0, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
@@ -227,7 +229,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false, caseSensitiveDistinctions: true),
                                                     dataSeries: null,
-                                                    consumerKind: MetricConsumerKind.Custom);
+                                                    aggregationCycleKind: CycleKind.Custom);
 
                 ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
                 ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0.0, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
@@ -258,7 +260,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false, caseSensitiveDistinctions: false),
                                                     dataSeries: null,
-                                                    consumerKind: MetricConsumerKind.Custom);
+                                                    aggregationCycleKind: CycleKind.Custom);
 
                 ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
                 ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0.0, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
@@ -303,7 +305,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     (NaiveDistinctCountMetricSeriesConfiguration) metric.GetConfiguration(),
                                                     metric,
-                                                    MetricConsumerKind.Custom);
+                                                    CycleKind.Custom);
 
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
@@ -371,12 +373,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             var measurementAggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                 new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false),
                                                 dataSeries: null,
-                                                consumerKind: MetricConsumerKind.Custom);
+                                                aggregationCycleKind: CycleKind.Custom);
 
             var counterAggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                 new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: true),
                                                 dataSeries: null,
-                                                consumerKind: MetricConsumerKind.Custom);
+                                                aggregationCycleKind: CycleKind.Custom);
 
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
@@ -436,12 +438,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             var aggregatorForConcreteSeries = new NaiveDistinctCountMetricSeriesAggregator(
                                                     (NaiveDistinctCountMetricSeriesConfiguration) metric.GetConfiguration(),
                                                     dataSeries: metric,
-                                                    consumerKind: MetricConsumerKind.Custom);
+                                                    aggregationCycleKind: CycleKind.Custom);
 
             var aggregatorForNullSeries = new NaiveDistinctCountMetricSeriesAggregator(
                                                     new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false),
                                                     dataSeries: null,
-                                                    consumerKind: MetricConsumerKind.Custom);
+                                                    aggregationCycleKind: CycleKind.Custom);
 
             Assert.IsNotNull(aggregatorForConcreteSeries.DataSeries);
             Assert.AreSame(metric, aggregatorForConcreteSeries.DataSeries);
@@ -464,7 +466,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false),
                                                     dataSeries: null,
-                                                    consumerKind: MetricConsumerKind.Custom);
+                                                    aggregationCycleKind: CycleKind.Custom);
 
                 int filterDoubleInvocationsCount = 0;
                 int filterObjectInvocationsCount = 0;
@@ -504,7 +506,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: true),
                                                     dataSeries: null,
-                                                    consumerKind: MetricConsumerKind.Custom);
+                                                    aggregationCycleKind: CycleKind.Custom);
 
                 int filterDoubleInvocationsCount = 0;
                 int filterObjectInvocationsCount = 0;
@@ -554,7 +556,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var measurementAggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     (NaiveDistinctCountMetricSeriesConfiguration) measurementMetric.GetConfiguration(),
                                                     measurementMetric,
-                                                    MetricConsumerKind.Custom);
+                                                    CycleKind.Custom);
 
             var counterConfig = new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: true);
             var counterMetric = new MetricSeries(aggregationManager, "Unique Cows Sold", counterConfig);
@@ -562,7 +564,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var counterAggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     (NaiveDistinctCountMetricSeriesConfiguration) counterMetric.GetConfiguration(),
                                                     counterMetric,
-                                                    MetricConsumerKind.Custom);
+                                                    CycleKind.Custom);
 
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));

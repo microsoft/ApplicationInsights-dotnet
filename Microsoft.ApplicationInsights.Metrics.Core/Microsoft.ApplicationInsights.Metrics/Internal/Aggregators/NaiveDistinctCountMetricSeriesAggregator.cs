@@ -33,8 +33,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly ConcurrentDictionary<string, bool> _uniqueValues = new ConcurrentDictionary<string, bool>();
         private int _totalValuesCount = 0;
 
-        public NaiveDistinctCountMetricSeriesAggregator(NaiveDistinctCountMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
-            : base(configuration, dataSeries, consumerKind)
+        public NaiveDistinctCountMetricSeriesAggregator(
+                                    NaiveDistinctCountMetricSeriesConfiguration configuration,
+                                    MetricSeries dataSeries,
+                                    MetricAggregationCycleKind aggregationCycleKind)
+            : base(configuration, dataSeries, aggregationCycleKind)
         {
             _caseSensitive = configuration.IsCaseSensitiveDistinctions;
         }

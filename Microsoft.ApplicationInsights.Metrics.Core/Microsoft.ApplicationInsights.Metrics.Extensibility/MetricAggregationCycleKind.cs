@@ -5,7 +5,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
     /// <summary>
     /// 
     /// </summary>
-    public enum MetricConsumerKind : Int32
+    public enum MetricAggregationCycleKind : Int32
     {
         /// <summary>
         /// 

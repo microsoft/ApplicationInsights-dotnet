@@ -8,6 +8,8 @@ using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using Microsoft.ApplicationInsights.Channel;
 
+using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
+
 namespace Microsoft.ApplicationInsights.Metrics
 {
     /// <summary>
@@ -73,9 +75,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             else
             {
-                TrackValue(GetOrCreateAggregator(MetricConsumerKind.Default, ref _aggregatorDefault), metricValue, ref errors);
-                TrackValue(GetOrCreateAggregator(MetricConsumerKind.QuickPulse, ref _aggregatorQuickPulse), metricValue, ref errors);
-                TrackValue(GetOrCreateAggregator(MetricConsumerKind.Custom, ref _aggregatorCustom), metricValue, ref errors);
+                TrackValue(GetOrCreateAggregator(CycleKind.Default, ref _aggregatorDefault), metricValue, ref errors);
+                TrackValue(GetOrCreateAggregator(CycleKind.QuickPulse, ref _aggregatorQuickPulse), metricValue, ref errors);
+                TrackValue(GetOrCreateAggregator(CycleKind.Custom, ref _aggregatorCustom), metricValue, ref errors);
             }
 
             if (errors != null)
@@ -105,9 +107,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             else
             {
-                TrackValue(GetOrCreateAggregator(MetricConsumerKind.Default, ref _aggregatorDefault), metricValue, ref errors);
-                TrackValue(GetOrCreateAggregator(MetricConsumerKind.QuickPulse, ref _aggregatorQuickPulse), metricValue, ref errors);
-                TrackValue(GetOrCreateAggregator(MetricConsumerKind.Custom, ref _aggregatorCustom), metricValue, ref errors);
+                TrackValue(GetOrCreateAggregator(CycleKind.Default, ref _aggregatorDefault), metricValue, ref errors);
+                TrackValue(GetOrCreateAggregator(CycleKind.QuickPulse, ref _aggregatorQuickPulse), metricValue, ref errors);
+                TrackValue(GetOrCreateAggregator(CycleKind.Custom, ref _aggregatorCustom), metricValue, ref errors);
             }
 
             if (errors != null)
@@ -174,16 +176,16 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <returns></returns>
         public ITelemetry GetCurrentAggregateUnsafe()
         {
-            return GetCurrentAggregateUnsafe(MetricConsumerKind.Default, DateTimeOffset.Now);
+            return GetCurrentAggregateUnsafe(CycleKind.Default, DateTimeOffset.Now);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="consumerKind"></param>
+        /// <param name="aggregationCycleKind"></param>
         /// <param name="dateTime"></param>
         /// <returns></returns>
-        public ITelemetry GetCurrentAggregateUnsafe(MetricConsumerKind consumerKind, DateTimeOffset dateTime)
+        public ITelemetry GetCurrentAggregateUnsafe(MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset dateTime)
         {
             IMetricSeriesAggregator aggregator = null;
 
@@ -193,22 +195,22 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             else
             {
-                switch (consumerKind)
+                switch (aggregationCycleKind)
                 {
-                    case MetricConsumerKind.Default:
+                    case CycleKind.Default:
                         aggregator = UnwrapAggregator(_aggregatorDefault);
                         break;
 
-                    case MetricConsumerKind.QuickPulse:
+                    case CycleKind.QuickPulse:
                         aggregator = UnwrapAggregator(_aggregatorQuickPulse);
                         break;
 
-                    case MetricConsumerKind.Custom:
+                    case CycleKind.Custom:
                         aggregator = UnwrapAggregator(_aggregatorCustom);
                         break;
 
                     default:
-                        throw new ArgumentException($"Unexpected value of {nameof(consumerKind)}: {consumerKind}.");
+                        throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
                 }
             }
 
@@ -216,7 +218,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             return aggregate;
         }
 
-        internal void ClearAggregator(MetricConsumerKind consumerKind)
+        internal void ClearAggregator(MetricAggregationCycleKind aggregationCycleKind)
         {
             if (_requiresPersistentAggregator)
             {
@@ -224,25 +226,25 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             WeakReference<IMetricSeriesAggregator> aggregatorWeakRef;
-            switch (consumerKind)
+            switch (aggregationCycleKind)
             {
-                case MetricConsumerKind.Default:
+                case CycleKind.Default:
                     aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorDefault, null);
                     _aggregatorRecycleCacheDefault = UnwrapAggregator(aggregatorWeakRef);
                     break;
 
-                case MetricConsumerKind.QuickPulse:
+                case CycleKind.QuickPulse:
                     aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorQuickPulse, null);
                     _aggregatorRecycleCacheQuickPulse = UnwrapAggregator(aggregatorWeakRef);
                     break;
 
-                case MetricConsumerKind.Custom:
+                case CycleKind.Custom:
                     aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorCustom, null);
                     _aggregatorRecycleCacheCustom = UnwrapAggregator(aggregatorWeakRef);
                     break;
 
                 default:
-                    throw new ArgumentException($"Unexpected value of {nameof(consumerKind)}: {consumerKind}.");
+                    throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
             }
         }
 
@@ -297,12 +299,12 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             if (aggregator == null)
             {
-                aggregator = _configuration.CreateNewAggregator(this, MetricConsumerKind.Default);
+                aggregator = _configuration.CreateNewAggregator(this, CycleKind.Default);
                 IMetricSeriesAggregator prevAggregator = Interlocked.CompareExchange(ref _aggregatorPersistent, aggregator, null);
 
                 if (prevAggregator == null)
                 {
-                    bool added = _aggregationManager.AddAggregator(aggregator, MetricConsumerKind.Default);
+                    bool added = _aggregationManager.AddAggregator(aggregator, CycleKind.Default);
                     if (added == false)
                     {
                         return GetOrCreatePersistentAggregator();
@@ -317,7 +319,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             return aggregator;
         }
         
-        private IMetricSeriesAggregator GetOrCreateAggregator(MetricConsumerKind consumerKind, ref WeakReference<IMetricSeriesAggregator> aggregatorWeakRef)
+        private IMetricSeriesAggregator GetOrCreateAggregator(MetricAggregationCycleKind aggregationCycleKind, ref WeakReference<IMetricSeriesAggregator> aggregatorWeakRef)
         {
             while (true)
             {
@@ -335,10 +337,10 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 // So aggretator is NULL. For non-default consumers, see if the there is even a consumer hooked up:
 
-                if (consumerKind != MetricConsumerKind.Default)
+                if (aggregationCycleKind != CycleKind.Default)
                 { 
                     IMetricSeriesFilter dataSeriesFilter;
-                    if (! _aggregationManager.IsConsumerActive(consumerKind, out dataSeriesFilter))
+                    if (! _aggregationManager.IsConsumerActive(aggregationCycleKind, out dataSeriesFilter))
                     {
                         return null;
                     }
@@ -362,7 +364,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 // Ok, they want to consume us. Create new aggregator and a weak reference to it:
 
-                IMetricSeriesAggregator newAggregator = GetNewOrRecycledAggregatorInstance(consumerKind);
+                IMetricSeriesAggregator newAggregator = GetNewOrRecycledAggregatorInstance(aggregationCycleKind);
                 WeakReference<IMetricSeriesAggregator> newAggregatorWeakRef = new WeakReference<IMetricSeriesAggregator>(newAggregator, trackResurrection: false);
 
                 // Store the weak reference to the aggregator. However, there is a race on doing it, so check for it:
@@ -377,9 +379,9 @@ namespace Microsoft.ApplicationInsights.Metrics
                     // Becasue the aggregator collection reference is always updated before telling the aggregators to cycle,
                     // we know that any aggregator added will be eventually cycled.
                     // If adding succeeds, AddAggregator(..) will have set the correct filter.
-                    bool added = _aggregationManager.AddAggregator(newAggregator, consumerKind);
+                    bool added = _aggregationManager.AddAggregator(newAggregator, aggregationCycleKind);
 
-                    // If the manager does not accept the addition, it means that the consumerKind is disabled or that the filter is not interested in this data series.
+                    // If the manager does not accept the addition, it means that the aggregationCycleKind is disabled or that the filter is not interested in this data series.
                     // Either way we need to give up.
                     if (added)
                     {
@@ -397,10 +399,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private IMetricSeriesAggregator GetNewOrRecycledAggregatorInstance(MetricConsumerKind consumerKind)
+        private IMetricSeriesAggregator GetNewOrRecycledAggregatorInstance(MetricAggregationCycleKind aggregationCycleKind)
         {
-            IMetricSeriesAggregator aggregator = GetRecycledAggregatorInstance(consumerKind);
-            return (aggregator ?? _configuration.CreateNewAggregator(this, consumerKind));
+            IMetricSeriesAggregator aggregator = GetRecycledAggregatorInstance(aggregationCycleKind);
+            return (aggregator ?? _configuration.CreateNewAggregator(this, aggregationCycleKind));
         }
 
         /// <summary>
@@ -410,9 +412,9 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// Aggregator implementations which believe that they are too expensive to recycle for this, can opt out of this strategy by returning FALSE from
         /// their CanRecycle property.
         /// </summary>
-        /// <param name="consumerKind"></param>
+        /// <param name="aggregationCycleKind"></param>
         /// <returns></returns>
-        private IMetricSeriesAggregator GetRecycledAggregatorInstance(MetricConsumerKind consumerKind)
+        private IMetricSeriesAggregator GetRecycledAggregatorInstance(MetricAggregationCycleKind aggregationCycleKind)
         {
             if (_requiresPersistentAggregator)
             {
@@ -420,17 +422,17 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             IMetricSeriesAggregator aggregator = null;
-            switch (consumerKind)
+            switch (aggregationCycleKind)
             {
-                case MetricConsumerKind.Default:
+                case CycleKind.Default:
                     aggregator = Interlocked.Exchange(ref _aggregatorRecycleCacheDefault, null);
                     break;
 
-                case MetricConsumerKind.QuickPulse:
+                case CycleKind.QuickPulse:
                     aggregator = Interlocked.Exchange(ref _aggregatorRecycleCacheQuickPulse, null);
                     break;
 
-                case MetricConsumerKind.Custom:
+                case CycleKind.Custom:
                     aggregator = Interlocked.Exchange(ref _aggregatorRecycleCacheCustom, null);
                     break;
             }

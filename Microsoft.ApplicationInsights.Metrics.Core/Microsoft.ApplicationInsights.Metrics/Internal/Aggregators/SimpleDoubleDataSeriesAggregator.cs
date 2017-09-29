@@ -10,8 +10,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 {
     internal class SimpleDoubleDataSeriesAggregator : SimpleDataSeriesAggregatorBase, IMetricSeriesAggregator
     {
-        public SimpleDoubleDataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
-            : base(configuration, dataSeries, consumerKind)
+        public SimpleDoubleDataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
+            : base(configuration, dataSeries, aggregationCycleKind)
         {
             Util.ValidateNotNull(configuration, nameof(configuration));
 

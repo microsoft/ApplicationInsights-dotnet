@@ -16,8 +16,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// 
         /// </summary>
         /// <param name="dataSeries"></param>
-        /// <param name="consumerKind"></param>
+        /// <param name="aggregationCycleKind"></param>
         /// <returns></returns>
-        IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricConsumerKind consumerKind);
+        IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind);
     }
 }

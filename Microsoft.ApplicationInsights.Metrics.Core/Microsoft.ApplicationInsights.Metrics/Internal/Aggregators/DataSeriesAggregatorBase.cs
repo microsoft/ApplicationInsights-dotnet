@@ -21,7 +21,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public const string AggregationIntervalMonikerPropertyKey = "_MS.AggregationIntervalMs";
 
         private readonly MetricSeries _dataSeries;
-        private readonly MetricConsumerKind _consumerKind;
+        private readonly MetricAggregationCycleKind _aggregationCycleKind;
         private readonly bool _isPersistent;
         
         private DateTimeOffset _periodStart;
@@ -29,12 +29,12 @@ namespace Microsoft.ApplicationInsights.Metrics
         private IMetricValueFilter _valueFilter;
         private int _ongoingUpdates;
 
-        public DataSeriesAggregatorBase(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
+        public DataSeriesAggregatorBase(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
         {
             Util.ValidateNotNull(configuration, nameof(configuration));
 
             _dataSeries = dataSeries;
-            _consumerKind = consumerKind;
+            _aggregationCycleKind = aggregationCycleKind;
             _isPersistent = configuration.RequiresPersistentAggregation;
 
             Reset(default(DateTimeOffset), default(IMetricValueFilter));
@@ -231,7 +231,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             // Start by decoubling from the series, so that we stop receiving more values:
 
-            DataSeries.ClearAggregator(_consumerKind);
+            DataSeries.ClearAggregator(_aggregationCycleKind);
 
             int prevState = Interlocked.CompareExchange(ref _ongoingUpdates, InternalExecutionState_Completed, InternalExecutionState_Ready);
 

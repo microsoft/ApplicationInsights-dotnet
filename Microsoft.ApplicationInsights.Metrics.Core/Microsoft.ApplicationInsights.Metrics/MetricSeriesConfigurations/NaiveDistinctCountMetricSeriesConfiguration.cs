@@ -66,11 +66,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// </summary>
         /// <param name="dataSeries"></param>
-        /// <param name="consumerKind"></param>
+        /// <param name="aggregationCycleKind"></param>
         /// <returns></returns>
-        public IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricConsumerKind consumerKind)
+        public IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
         {
-            IMetricSeriesAggregator aggregator = new NaiveDistinctCountMetricSeriesAggregator(this, dataSeries, consumerKind);
+            IMetricSeriesAggregator aggregator = new NaiveDistinctCountMetricSeriesAggregator(this, dataSeries, aggregationCycleKind);
             return aggregator;
         }
 

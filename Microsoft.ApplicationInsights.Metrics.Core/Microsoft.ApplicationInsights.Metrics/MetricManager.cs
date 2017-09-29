@@ -67,7 +67,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void Flush()
         {
             DateTimeOffset now = DateTimeOffset.Now;
-            AggregationPeriodSummary aggregates = _aggregationManager.CycleAggregators(MetricConsumerKind.Default, updatedFilter: null, tactTimestamp: now);
+            AggregationPeriodSummary aggregates = _aggregationManager.CycleAggregators(MetricAggregationCycleKind.Default, updatedFilter: null, tactTimestamp: now);
             TrackMetricAggregates(aggregates);
         }
 
