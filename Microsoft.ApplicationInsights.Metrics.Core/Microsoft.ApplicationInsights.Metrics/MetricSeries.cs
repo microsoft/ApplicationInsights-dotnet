@@ -335,17 +335,17 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 // END OF FAST PATH. Could not dereference aggregator. Will attempt to create it...
 
-                // So aggretator is NULL. For non-default consumers, see if the there is even a consumer hooked up:
+                // So aggretator is NULL. For non-default cycle kinds, see if the there is even a cycle hooked up:
 
                 if (aggregationCycleKind != CycleKind.Default)
                 { 
                     IMetricSeriesFilter dataSeriesFilter;
-                    if (! _aggregationManager.IsConsumerActive(aggregationCycleKind, out dataSeriesFilter))
+                    if (! _aggregationManager.IsCycleActive(aggregationCycleKind, out dataSeriesFilter))
                     {
                         return null;
                     }
 
-                    // Ok, a consumer is, indeed, hooked up. See if the consumer's filter is interested in this series:
+                    // Ok, a cycle is, indeed, acgive up. See if the cycle's filter is interested in this series:
 
                     IMetricValueFilter valuesFilter;
                     try
@@ -358,7 +358,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                     catch
                     {
                         // Protect against errors in user's implemenmtation of IMetricSeriesFilter.IsInterestedIn(..).
-                        // If it throws, assume that the filter is not functional => consumer will accept all values.
+                        // If it throws, assume that the filter is not functional => cycle will accept all values.
                     }
                 }
 
@@ -372,7 +372,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 if (prevAggregatorWeakRef == currentAggregatorWeakRef)
                 {
                     // We won the race and stored the aggregator. Now tell the manager about it and go on using it.
-                    // Note that the status of IsConsumerActive and the dataSeriesFilter may have changed concurrently.
+                    // Note that the status of IsCycleActive and the dataSeriesFilter may have changed concurrently.
                     // So it is essential that we do this after the above interlocked assignment of aggregator.
                     // It ensures that only objects are added to the aggregator collection that are also referenced by the data series.
                     // In addition, AddAggregator(..) always uses the current value of the aggregator-collection in a thread-safe manner.

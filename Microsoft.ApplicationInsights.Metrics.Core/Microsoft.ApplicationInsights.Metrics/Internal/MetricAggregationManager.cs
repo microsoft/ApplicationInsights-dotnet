@@ -88,7 +88,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        internal bool IsConsumerActive(MetricAggregationCycleKind aggregationCycleKind, out IMetricSeriesFilter filter)
+        internal bool IsCycleActive(MetricAggregationCycleKind aggregationCycleKind, out IMetricSeriesFilter filter)
         {
             switch (aggregationCycleKind)
             {
@@ -175,8 +175,9 @@ namespace Microsoft.ApplicationInsights.Metrics
                     IMetricSeriesAggregator aggregator = persistentValsAggregators.Current;
                     if (aggregator != null)
                     {
-                        // Persistent aggregators are always active, regardless of filters for a particular consumer. But we can apply the consumer's filters to determine
-                        // whether or not to pull the aggregator for a aggregate at this time. Of course, only series filters, not value filters, can be considered.
+                        // Persistent aggregators are always active, regardless of filters for a particular cycle.
+                        // But we can apply the cycle's filters to determine whether or not to pull the aggregator
+                        // for a aggregate at this time. Of course, only series filters, not value filters, can be considered.
                         IMetricValueFilter unusedValueFilter;
                         bool satisfiesFilter = (prevFilter == null)
                                                 ||

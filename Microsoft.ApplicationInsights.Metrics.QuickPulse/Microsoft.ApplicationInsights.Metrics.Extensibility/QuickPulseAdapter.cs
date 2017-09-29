@@ -36,10 +36,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                                                       Func<object, object, bool>>>> metricSeriesFilter)
         {
             MetricManager manager = (MetricManager) metricManager;
-            MetricAggregationCycleKind consumer = SafeConvertMetricAggregationCycleKind(aggregationCycleKind);
+            MetricAggregationCycleKind cycle = SafeConvertMetricAggregationCycleKind(aggregationCycleKind);
             var filter = new MetricSeriesFilterAdapter(metricSeriesFilter);
 
-            bool result = MetricManagerExtensions.StartAggregators(manager, consumer, tactTimestamp, filter);
+            bool result = MetricManagerExtensions.StartAggregators(manager, cycle, tactTimestamp, filter);
             return result;
         }
 
@@ -58,9 +58,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                                     DateTimeOffset tactTimestamp)
         {
             MetricManager manager = (MetricManager) metricManager;
-            MetricAggregationCycleKind consumer = SafeConvertMetricAggregationCycleKind(aggregationCycleKind);
+            MetricAggregationCycleKind cycle = SafeConvertMetricAggregationCycleKind(aggregationCycleKind);
 
-            AggregationPeriodSummary summary = MetricManagerExtensions.StopAggregators(manager, consumer, tactTimestamp);
+            AggregationPeriodSummary summary = MetricManagerExtensions.StopAggregators(manager, cycle, tactTimestamp);
 
             var result = Tuple.Create(summary.NonpersistentAggregates, summary.PersistentAggregates);
             return result;
@@ -85,10 +85,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                                                       Func<object, object, bool>>>> updatedMetricSeriesFilter)
         {
             MetricManager manager = (MetricManager) metricManager;
-            MetricAggregationCycleKind consumer = SafeConvertMetricAggregationCycleKind(aggregationCycleKind);
+            MetricAggregationCycleKind cycle = SafeConvertMetricAggregationCycleKind(aggregationCycleKind);
             var filter = new MetricSeriesFilterAdapter(updatedMetricSeriesFilter);
 
-            AggregationPeriodSummary summary = MetricManagerExtensions.CycleAggregators(manager, consumer, tactTimestamp, filter);
+            AggregationPeriodSummary summary = MetricManagerExtensions.CycleAggregators(manager, cycle, tactTimestamp, filter);
 
             var result = Tuple.Create(summary.NonpersistentAggregates, summary.PersistentAggregates);
             return result;
@@ -96,13 +96,13 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
         private static MetricAggregationCycleKind SafeConvertMetricAggregationCycleKind(int aggregationCycleKind)
         {
-            MetricAggregationCycleKind consumer = (MetricAggregationCycleKind) aggregationCycleKind;
+            MetricAggregationCycleKind cycle = (MetricAggregationCycleKind) aggregationCycleKind;
 
-            if (consumer == MetricAggregationCycleKind.Default
-                || consumer == MetricAggregationCycleKind.QuickPulse
-                || consumer == MetricAggregationCycleKind.Custom)
+            if (cycle == MetricAggregationCycleKind.Default
+                || cycle == MetricAggregationCycleKind.QuickPulse
+                || cycle == MetricAggregationCycleKind.Custom)
             {
-                return consumer;
+                return cycle;
             }
 
             throw new ArgumentException($"The specified number '{aggregationCycleKind}' is not a valid value for the {nameof(MetricAggregationCycleKind)} enumeration.");
