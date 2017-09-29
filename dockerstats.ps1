@@ -1,5 +1,8 @@
 & docker info
+& docker images -a
+& docker ps -a
 
+<#
 Write-Host "Images before cleanup"
 & docker images -a
 
@@ -32,3 +35,4 @@ Write-Host "Images after cleanup"
 & docker images -a
 Write-Host "Containers after cleanup"
 & docker ps -a
+#>
