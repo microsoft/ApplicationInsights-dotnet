@@ -10,16 +10,19 @@ Write-Host "Stopping E2E Containers"
 & docker stop e2etests_ingestionservice_1
 & docker stop e2etests_e2etestwebapi_1
 & docker stop e2etests_e2etestwebapp_1
+& docker stop e2etests_sql-server_1
 
 Write-Host "Removing E2E Containers"
 & docker rm e2etests_ingestionservice_1
 & docker rm e2etests_e2etestwebapi_1
-
+& docker rm e2etests_e2etestwebapp_1
+& docker rm e2etests_sql-server_1
 
 Write-Host "Removing E2E Images"
 & docker rmi -f e2etests_ingestionservice
 & docker rmi -f e2etests_e2etestwebapi
 & docker rmi -f e2etests_e2etestwebapp 
+& docker rmi -f e2etests_sql-server
 
 
 Write-Host "Removing dangling images"
@@ -32,7 +35,6 @@ Write-Host "Containers after cleanup"
 
 Write-Host "Checking SQL Docker inspect"
 docker inspect e2etests_sql-server_1
-Get-Content "C:\\ProgramData\\docker\\containers\\9fe96fb66f9afb1907e3bc61c83d200a476e1de47d9432c117c4e62dc874180b\\9fe96fb66f9afb1907e3bc61c83d200a476e1de47d9432c117c4e62dc874180b-json.log"
 
 Write-Host "Checking SQL"
 $serverip = docker inspect -f "{{ .NetworkSettings.Networks.nat.IPAddress }}" e2etests_sql-server_1
