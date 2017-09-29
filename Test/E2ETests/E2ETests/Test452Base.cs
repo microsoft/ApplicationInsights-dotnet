@@ -326,7 +326,7 @@ namespace E2ETests
             catch (Exception ex)
             {
                 isHealthy = false;
-                Trace.WriteLine(string.Format("Exception occuring hitting {0} : {1}", url, ex.InnerException.Message));
+                Trace.WriteLine(string.Format("Exception occuring hitting {0} : {1}", url, ex));
             }
             return isHealthy;
         }
