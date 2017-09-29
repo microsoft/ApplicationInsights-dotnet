@@ -32,6 +32,7 @@ Write-Host "Containers after cleanup"
 
 Write-Host "Checking SQL Docker inspect"
 docker inspect e2etests_sql-server_1
+Get-Content "C:\\ProgramData\\docker\\containers\\9fe96fb66f9afb1907e3bc61c83d200a476e1de47d9432c117c4e62dc874180b\\9fe96fb66f9afb1907e3bc61c83d200a476e1de47d9432c117c4e62dc874180b-json.log"
 
 Write-Host "Checking SQL"
 $serverip = docker inspect -f "{{ .NetworkSettings.Networks.nat.IPAddress }}" e2etests_sql-server_1
