@@ -311,9 +311,10 @@ namespace E2ETests
             Trace.WriteLine("Docker Stats for: " + app.containerName);
             Trace.WriteLine("Status" + DockerUtils.GetDockerStateStatus(app.containerName));
             Trace.WriteLine("ExitCode" + DockerUtils.GetDockerStateExitCode(app.containerName));
+            string url = "";
             try
             {
-                string url = "http://" + app.ipAddress + app.healthCheckPath;            
+                url = "http://" + app.ipAddress + app.healthCheckPath;            
                 Trace.WriteLine(string.Format("Request fired against {0} using url: {1}", app.containerName, url));            
                 var response = new HttpClient().GetAsync(url);
                 Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result.StatusCode));
