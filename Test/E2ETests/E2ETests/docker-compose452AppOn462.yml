@@ -21,6 +21,11 @@ services:
             context: ./../IngestionService/Publish
             dockerfile: DockerFile              
 
+    azureemulator:
+        build:
+            context: ./AzureEmulator
+            dockerfile: DockerFile        
+
     sql-server:
         image: microsoft/mssql-server-windows-express
         environment:            

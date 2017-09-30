@@ -95,6 +95,12 @@
     <Compile Include="Test452Base.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AzureEmulator\SqlLocalDB.msi">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="AzureEmulator\start.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="docker-compose452AppOn47.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -112,6 +118,9 @@
     <Content Include="docker-compose.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="AzureEmulator\DockerFile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
