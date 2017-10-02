@@ -66,13 +66,11 @@
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand(
-                    "SELECT name FROM master.dbo.sysdatabases WHERE ('[' + name + ']' = '@databaseName' OR name = '@databaseName')",
-                    connection);
+                SqlCommand cmd = new SqlCommand("select db_id(@databaseName)", connection);
 
                 cmd.Parameters.Add(new SqlParameter("@databaseName", databaseName));
-                object result = cmd.ExecuteNonQuery();
-                if (result != null)
+                object result = cmd.ExecuteScalar();
+                if (result != null && !Convert.IsDBNull(result))
                 {
                     return true;
                 }
@@ -87,11 +85,11 @@
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                string commandStr = string.Format(CultureInfo.InvariantCulture, "CREATE DATABASE {0} ON (NAME = N'@databaseName', FILENAME = '@databaseFileName')", databaseName);
+                string commandStr = $"CREATE DATABASE {databaseName} ON (NAME = N'{databaseName}', FILENAME = '{databaseFileName}')";
                 SqlCommand cmd = new SqlCommand(commandStr, connection);
 
-                cmd.Parameters.Add(new SqlParameter("@databaseName", databaseName));
-                cmd.Parameters.Add(new SqlParameter("@databaseFileName", databaseFileName));
+                //cmd.Parameters.Add(new SqlParameter("@databaseName", databaseName));
+                //cmd.Parameters.Add(new SqlParameter("@databaseFileName", databaseFileName));
                 cmd.ExecuteNonQuery();
             }
         }

@@ -67,7 +67,6 @@ namespace Functional
         [TestMethod]
         [Owner("sergeyni")]
         [Description("Tests 200 OK HTTP status code request execution and collecting result ")]
-        [Ignore] //See: https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/623
         [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
         public void TestAspx200StatusCodeOnRequest()
         {
@@ -108,7 +107,6 @@ namespace Functional
         [Owner("sergeyni")]
         [Description("Tests 500 HTTP status code request execution and collecting result ")]
         [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
-        [Ignore] //See: https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/623
         public void TestAspx500StatusCodeOnRequest()
         {
             const string RequestPath = "/TestWebForm.aspx";
