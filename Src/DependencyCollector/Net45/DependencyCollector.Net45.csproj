@@ -49,6 +49,9 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <Compile Include="..\Shared\Implementation\DiagnosticSourceListenerBase.cs">
+      <Link>DiagnosticSourceListenerBase.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\Implementation\HttpCoreDiagnosticSourceListener.cs">
       <Link>HttpCoreDiagnosticSourceListener.cs</Link>
     </Compile>

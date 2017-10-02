@@ -395,21 +395,21 @@
         [Event(
             38,
             Keywords = Keywords.RddEventKeywords,
-            Message = "{0} id = '{1}'",
-            Level = EventLevel.Verbose)]
-        public void TelemetryDiagnosticSourceListenerActivityStopped(string activityName, string id, string appDomainName = "Incorrect")
+            Message = "{0} failed to subscribe. Error details '{1}'",
+            Level = EventLevel.Error)]
+        public void DiagnosticSourceListenerFailedToSubscribe(string listenerName, string error, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(38, activityName, id, this.ApplicationName);
+            this.WriteEvent(38, listenerName, error, this.ApplicationName);
         }
 
         [Event(
             39,
             Keywords = Keywords.RddEventKeywords,
-            Message = "TelemetryDiagnosticSourceListener failed to subscribe. Error details '{0}'",
-            Level = EventLevel.Error)]
-        public void TelemetryDiagnosticSourceListenerFailedToSubscribe(string error, string appDomainName = "Incorrect")
+            Message = "{0} id = '{1}'",
+            Level = EventLevel.Verbose)]
+        public void TelemetryDiagnosticSourceListenerActivityStopped(string activityName, string id, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(39, error, this.ApplicationName);
+            this.WriteEvent(39, activityName, id, this.ApplicationName);
         }
 
         [NonEvent]

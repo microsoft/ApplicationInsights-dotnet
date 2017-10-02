@@ -6,20 +6,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Web.Implementation;
     using Microsoft.ApplicationInsights.Channel;
 
-    internal class TelemetryDiagnosticSourceListener : IObserver<DiagnosticListener>, IDisposable
+    internal class TelemetryDiagnosticSourceListener : DiagnosticSourceListenerBase<HashSet<string>>
     {
         internal const string ActivityStartNameSuffix = ".Start";
         internal const string ActivityStopNameSuffix = ".Stop";
-
-        private readonly TelemetryClient client;
-        private readonly TelemetryConfiguration configuration;
-
-        private readonly IDisposable listenerSubscription;
-        private List<IDisposable> individualSubscriptions;
 
         private readonly HashSet<string> excludedDiagnosticSources 
             = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -27,93 +20,47 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 
-        public TelemetryDiagnosticSourceListener(TelemetryConfiguration configuration, ICollection<string> excludeDiagnosticSourceActivities)
+        public TelemetryDiagnosticSourceListener(TelemetryConfiguration configuration, ICollection<string> excludeDiagnosticSourceActivities) 
+            : base(configuration)
         {
-            this.client = new TelemetryClient(configuration);
-            this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceListener + ":");
-
-            this.configuration = configuration;
-
+            this.Client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceListener + ":");
             this.PrepareExclusionLists(excludeDiagnosticSourceActivities);
-
-            try
-            {
-                this.listenerSubscription = DiagnosticListener.AllListeners.Subscribe(this);
-            }
-            catch (Exception ex)
-            {
-                DependencyCollectorEventSource.Log.TelemetryDiagnosticSourceListenerFailedToSubscribe(ex.ToInvariantString());
-            }
         }
 
-        /// <summary>
-        /// This method gets called once for each existing DiagnosticListener when this
-        /// DiagnosticListener is added to the list of DiagnosticListeners
-        /// (<see cref="System.Diagnostics.DiagnosticListener.AllListeners"/>). This method will
-        /// also be called for each subsequent DiagnosticListener that is added to the list of
-        /// DiagnosticListeners.
-        /// <seealso cref="IObserver{T}.OnNext(T)"/>
-        /// </summary>
-        /// <param name="value">The DiagnosticListener that exists when this listener was added to
-        /// the list, or a DiagnosticListener that got added after this listener was added.</param>
-        public void OnNext(DiagnosticListener value)
+        internal override bool IsSourceEnabled(DiagnosticListener value)
         {
-            if (value == null || this.excludedDiagnosticSources.Contains(value.Name))
-            {
-                return;
-            }
-
-            var individualListener = new IndividualDiagnosticSourceListener(value, this);
-            IDisposable subscription = value.Subscribe(
-                individualListener,
-                (evnt, r, _) => !individualListener.IsActivityExcluded(evnt)
-                    && !evnt.EndsWith(ActivityStartNameSuffix, StringComparison.OrdinalIgnoreCase));
-
-            if (this.individualSubscriptions == null)
-            {
-                this.individualSubscriptions = new List<IDisposable>();
-            }
-            this.individualSubscriptions.Add(subscription);
+            return !this.excludedDiagnosticSources.Contains(value.Name);
         }
 
-        /// <summary>
-        /// Notifies the observer that the provider has finished sending push-based notifications.
-        /// <seealso cref="IObserver{T}.OnCompleted()"/>
-        /// </summary>
-        public void OnCompleted()
+        protected override HashSet<string> GetListenerContext(DiagnosticListener diagnosticListener)
         {
-        }
-
-        /// <summary>
-        /// Notifies the observer that the provider has experienced an error condition.
-        /// <seealso cref="IObserver{T}.OnError(Exception)"/>
-        /// </summary>
-        /// <param name="error">An object that provides additional information about the error.</param>
-        public void OnError(Exception error)
-        {
-        }
-
-        public void Dispose()
-        {
-            if (this.individualSubscriptions != null)
+            HashSet<string> excludedActivities;
+            if (!this.excludedDiagnosticSourceActivities.TryGetValue(diagnosticListener.Name, out excludedActivities))
             {
-                foreach (var individualSubscription in this.individualSubscriptions)
-                {
-                    individualSubscription.Dispose();
-                }
+                return null;
             }
 
-            if (this.listenerSubscription != null)
-            {
-                this.listenerSubscription.Dispose();
-            }
+            return excludedActivities;
         }
 
-        /// <summary>
-        /// Handler for Activity stop event (response is received for the outgoing request).
-        /// </summary>
-        /// <param name="diagnosticListener">The diagnostic source of the activity.</param>
-        internal void OnActivityStop(DiagnosticListener diagnosticListener)
+        internal override bool IsEventEnabled(string evnt, object input1, object input2, DiagnosticListener diagnosticListener, HashSet<string> context)
+        {
+            return !this.IsActivityExcluded(evnt, context)
+                && !evnt.EndsWith(ActivityStartNameSuffix, StringComparison.OrdinalIgnoreCase);
+        }
+
+        internal override bool ShouldHandleEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener, HashSet<string> context)
+        {
+            return !this.IsActivityExcluded(evnt.Key, context)
+                && evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase);
+        }
+
+        internal bool IsActivityExcluded(string activityName, HashSet<string> excludedActivities)
+        {
+            return excludedActivities?.Contains(activityName) == true;
+        }
+
+        internal override void HandleEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener, HashSet<string> context)
         {
             Activity currentActivity = Activity.Current;
             if (currentActivity == null)
@@ -147,9 +94,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             telemetry.Context.Properties["DiagnosticSource"] = diagnosticListener.Name;
             telemetry.Context.Properties["Activity"] = currentActivity.OperationName;
 
-            this.client.Initialize(telemetry);
+            this.Client.Initialize(telemetry);
 
-            this.client.Track(telemetry);
+            this.Client.Track(telemetry);
         }
 
         internal DependencyTelemetry ExtractDependencyTelemetry(DiagnosticListener diagnosticListener, Activity currentActivity)
@@ -311,58 +258,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     excludedActivities.Add(tokens[1]);
                     excludedActivities.Add(tokens[1] + ActivityStopNameSuffix);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Event listener for a single Diagnostic Source.
-        /// </summary>
-        private class IndividualDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>
-        {
-            private readonly DiagnosticListener diagnosticListener;
-            private readonly TelemetryDiagnosticSourceListener telemetryDiagnosticSourceListener;
-
-            private readonly HashSet<string> excludedActivities;
-
-            internal IndividualDiagnosticSourceListener(DiagnosticListener diagnosticListener, TelemetryDiagnosticSourceListener telemetryDiagnosticSourceListener)
-            {
-                this.diagnosticListener = diagnosticListener;
-                this.telemetryDiagnosticSourceListener = telemetryDiagnosticSourceListener;
-
-                if (!this.telemetryDiagnosticSourceListener.excludedDiagnosticSourceActivities.TryGetValue(diagnosticListener.Name, out this.excludedActivities))
-                {
-                    excludedActivities = null;
-                }
-            }
-
-            public void OnNext(KeyValuePair<string, object> evnt)
-            {
-                if (!this.IsActivityExcluded(evnt.Key) && evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase))
-                {
-                    this.telemetryDiagnosticSourceListener.OnActivityStop(this.diagnosticListener);
-                }
-            }
-
-            /// <summary>
-            /// Notifies the observer that the provider has finished sending push-based notifications.
-            /// <seealso cref="IObserver{T}.OnCompleted()"/>
-            /// </summary>
-            public void OnCompleted()
-            {
-            }
-
-            /// <summary>
-            /// Notifies the observer that the provider has experienced an error condition.
-            /// <seealso cref="IObserver{T}.OnError(Exception)"/>
-            /// </summary>
-            /// <param name="error">An object that provides additional information about the error.</param>
-            public void OnError(Exception error)
-            {
-            }
-
-            internal bool IsActivityExcluded(string activityName)
-            {
-                return this.excludedActivities?.Contains(activityName) == true;
             }
         }
     }
