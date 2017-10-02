@@ -60,13 +60,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                 listener.StartActivity(activity, null);
                 Assert.AreEqual(sentCountBefore, this.sentItems.Count, "No telemetry item should be sent on activity start");
 
-                activity.AddTag("operation.name", "TestName");
                 listener.StopActivity(activity, null);
                 Assert.AreEqual(sentCountBefore + 1, this.sentItems.Count, "One new telemetry item should be sent on activity stop");
 
                 DependencyTelemetry telemetryItem = this.sentItems.Last() as DependencyTelemetry;
                 Assert.IsNotNull(telemetryItem, "Dependency telemetry item should be sent");
-                Assert.AreEqual(telemetryItem.Name, "TestName");
+                Assert.AreEqual(activity.OperationName, telemetryItem.Name);
             }
         }
 
@@ -101,13 +100,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                 listenerB.StartActivity(activityB, null);
                 Assert.AreEqual(sentCountBefore, this.sentItems.Count, "No telemetry item should be sent on activity start");
 
-                activityB.AddTag("operation.name", "TestNameB");
                 listenerB.StopActivity(activityB, null);
                 Assert.AreEqual(sentCountBefore + 1, this.sentItems.Count, "One new telemetry item should be sent on activity B stop");
 
                 DependencyTelemetry telemetryItem = this.sentItems.Last() as DependencyTelemetry;
                 Assert.IsNotNull(telemetryItem, "Dependency telemetry item should be sent");
-                Assert.AreEqual(telemetryItem.Name, "TestNameB");
+                Assert.AreEqual(telemetryItem.Name, activityB.OperationName);
             }
         }
 
@@ -151,13 +149,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                 listener.StartActivity(activity, null);
                 Assert.AreEqual(sentCountBefore, this.sentItems.Count, "No telemetry item should be sent on activity start");
 
-                activity.AddTag("operation.name", "TestName");
                 listener.StopActivity(activity, null);
                 Assert.AreEqual(sentCountBefore + 1, this.sentItems.Count, "One new telemetry item should be sent on activity stop");
 
                 DependencyTelemetry telemetryItem = this.sentItems.Last() as DependencyTelemetry;
                 Assert.IsNotNull(telemetryItem, "Dependency telemetry item should be sent");
-                Assert.AreEqual(telemetryItem.Name, "TestName");
+                Assert.AreEqual(telemetryItem.Name, activity.OperationName);
             }
         }
 
@@ -166,84 +163,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         #region Collection tests
 
         [TestMethod]
-        public void TelemetryDiagnosticSourceListenerCollectsTelemetryFromPreferredTags()
-        {
-            using (new TelemetryDiagnosticSourceListener(this.configuration, null))
-            {
-                DiagnosticListener listener = new DiagnosticListener("Test.A");
-
-                var tags = new Dictionary<string, string>()
-                {
-                    ["operation.name"] = "Test operation",
-                    ["operation.type"] = "Tester",
-                    ["operation.data"] = "raw data",
-                    ["component"] = this.GetType().Namespace,
-                    ["error"] = "true",
-                    ["peer.hostname"] = "test.example.com",
-                    ["custom.tag"] = "test"
-                };
-
-                DependencyTelemetry telemetryItem = CollectDependencyTelemetryFromActivity(listener, tags);
-
-                Assert.AreEqual(telemetryItem.Name, tags["operation.name"]);
-                Assert.AreEqual(telemetryItem.Type, tags["operation.type"]);
-                Assert.AreEqual(telemetryItem.Data, tags["operation.data"]);
-                Assert.AreEqual(telemetryItem.Target, tags["peer.hostname"]);
-                Assert.AreEqual(telemetryItem.Success, false);
-                Assert.IsTrue(telemetryItem.Properties.ContainsKey("custom.tag"));
-                Assert.AreEqual(telemetryItem.Properties["custom.tag"], tags["custom.tag"]);
-            }
-        }
-
-        [TestMethod]
-        public void TelemetryDiagnosticSourceListenerCollectsTelemetryFromOpenTracingTags()
-        {
-            using (new TelemetryDiagnosticSourceListener(this.configuration, null))
-            {
-                DiagnosticListener listener = new DiagnosticListener("Test.A");
-
-                // generic example
-                var tags = new Dictionary<string, string>()
-                {
-                    ["component"] = this.GetType().Namespace,
-                    ["peer.hostname"] = "test.example.com",
-                    ["peer.service"] = "tester",
-                    ["custom.tag"] = "test"
-                };
-
-                DependencyTelemetry telemetryItem = CollectDependencyTelemetryFromActivity(listener, tags);
-
-                Assert.AreEqual(telemetryItem.Name, "Test.A.Client.Monitoring"); // Activity name
-                Assert.AreEqual(telemetryItem.Type, tags["peer.service"]);
-                Assert.IsNull(telemetryItem.Data);
-                Assert.AreEqual(telemetryItem.Target, tags["peer.hostname"]);
-                Assert.AreEqual(telemetryItem.Success, true);
-                Assert.IsTrue(telemetryItem.Properties.ContainsKey("custom.tag"));
-                Assert.AreEqual(telemetryItem.Properties["custom.tag"], tags["custom.tag"]);
-
-                // HTTP example
-                tags = new Dictionary<string, string>()
-                {
-                    ["component"] = this.GetType().Namespace,
-                    ["http.url"] = "https://test.example.com/api/get/1?filter=all#now",
-                    ["http.method"] = "POST",
-                    ["http.status_code"] = "404",
-                    ["error"] = "true"
-                };
-
-                telemetryItem = CollectDependencyTelemetryFromActivity(listener, tags);
-
-                Assert.AreEqual(telemetryItem.Name, "Test.A.Client.Monitoring"); // Activity name
-                Assert.AreEqual(telemetryItem.Type, tags["component"]);
-                Assert.AreEqual(telemetryItem.Data, tags["http.url"]);
-                Assert.AreEqual(telemetryItem.Target, "test.example.com");
-                Assert.AreEqual(telemetryItem.Success, false);
-                Assert.AreEqual(telemetryItem.ResultCode, tags["http.status_code"]);
-            }
-        }
-
-        [TestMethod]
-        public void TelemetryDiagnosticSourceListenerCollectsTelemetryFromNonStandardActivity()
+        public void TelemetryDiagnosticSourceListenerCollectsTelemetryFromRawActivity()
         {
             using (new TelemetryDiagnosticSourceListener(this.configuration, null))
             {
@@ -259,8 +179,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
 
                 Assert.AreEqual(telemetryItem.Name, "Test.A.Client.Monitoring"); // Activity name
                 Assert.AreEqual(telemetryItem.Type, listener.Name);
-                Assert.IsNull(telemetryItem.Data);
-                Assert.IsNull(telemetryItem.Target);
+                Assert.IsTrue(string.IsNullOrEmpty(telemetryItem.Data));
+                Assert.IsTrue(string.IsNullOrEmpty(telemetryItem.Target));
                 Assert.AreEqual(telemetryItem.Success, true);
                 Assert.IsTrue(telemetryItem.Properties.ContainsKey("custom.tag"));
                 Assert.AreEqual(telemetryItem.Properties["custom.tag"], tags["custom.tag"]);
