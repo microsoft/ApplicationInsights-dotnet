@@ -40,7 +40,8 @@ namespace TestApp45
         {
             var quickPulseModule = new QuickPulseTelemetryModule();
 
-            quickPulseModule.QuickPulseServiceEndpoint = "http://localhost:4555/QuickPulseService.svc/";
+            var quickPulseEndpointPort = ConfigurationManager.AppSettings["QuickPulseEndpointPort"];
+            quickPulseModule.QuickPulseServiceEndpoint = string.Format("http://localhost:{0}/QuickPulseService.svc/", quickPulseEndpointPort);
 
             QuickPulseTelemetryProcessor processor = null;
             TelemetryConfiguration.Active.TelemetryProcessorChainBuilder.Use(
