@@ -24,7 +24,7 @@
         public void CorrelationInfoIsNotAddedToRequestHeaderIfUserAddDomainToExcludedList()
         {
 #if netcoreapp2_0 // Correlation is supported on .Net core.
-            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 var dependencyCollectorModule = server.ApplicationServices.GetServices<ITelemetryModule>().OfType<DependencyTrackingTelemetryModule>().Single();
                 dependencyCollectorModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Add(server.BaseHost);
@@ -36,6 +36,7 @@
                 }
 
                 var actual = server.Execute<Envelope>(() => server.Listener.ReceiveItems(TestListenerTimeoutInMs));
+                this.DebugTelemetryItems(actual);
 
                 try
                 {
@@ -64,32 +65,21 @@
             string path = "Home/Dependency";
             InProcessServer server;
 
-            using (server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
+            using (server = new InProcessServer(assemblyName, this.output))
             {
-                using (var httpClient = new HttpClient())
-                {
-                    var task = httpClient.GetAsync(server.BaseHost + "/" + path);
-                    task.Wait(TestTimeoutMs);
-                }
+                this.ExecuteRequest(server.BaseHost + "/" + path);
 
-                var actual = server.Execute<Envelope>(() => server.Listener.ReceiveItems(TestListenerTimeoutInMs));
+                var actual = server.Listener.ReceiveItems(TestListenerTimeoutInMs);
+                this.DebugTelemetryItems(actual);
 
-                try
-                {
-                    var dependencyTelemetry = actual.OfType<TelemetryItem<RemoteDependencyData>>()
-                        .First( t => ((TelemetryItem<RemoteDependencyData>)t).data.baseData.name == "MyDependency");
-                    Assert.NotNull(dependencyTelemetry);
+                var dependencyTelemetry = actual.OfType<TelemetryItem<RemoteDependencyData>>()
+                    .First(t => ((TelemetryItem<RemoteDependencyData>)t).data.baseData.name == "MyDependency");
+                Assert.NotNull(dependencyTelemetry);
 
-                    var requestTelemetry = actual.OfType<TelemetryItem<RequestData>>().FirstOrDefault();
-                    Assert.NotNull(requestTelemetry);
+                var requestTelemetry = actual.OfType<TelemetryItem<RequestData>>().FirstOrDefault();
+                Assert.NotNull(requestTelemetry);
 
-                    Assert.Equal(requestTelemetry.tags["ai.operation.id"], dependencyTelemetry.tags["ai.operation.id"]);
-                }
-                catch (Exception e)
-                {
-                    string data = DebugTelemetryItems(actual);
-                    throw new Exception(data, e);
-                }
+                Assert.Equal(requestTelemetry.tags["ai.operation.id"], dependencyTelemetry.tags["ai.operation.id"]);
             }
         }
 
@@ -100,53 +90,22 @@
             // Verify operation of OperationCorrelationTelemetryInitializer
             string path = "Home/Dependency";
             InProcessServer server;
-            using (server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
+            using (server = new InProcessServer(assemblyName, this.output))
             {
-                using (var httpClient = new HttpClient())
-                {
-                    var task = httpClient.GetAsync(server.BaseHost + "/" + path);
-                    task.Wait(TestTimeoutMs);
-                }
+                this.ExecuteRequest(server.BaseHost + "/" + path);
 
-                var actual = server.Execute<Envelope>(() => server.Listener.ReceiveItems(TestListenerTimeoutInMs));
+                var actual = server.Listener.ReceiveItems(TestListenerTimeoutInMs);
+                this.DebugTelemetryItems(actual);
 
-                try
-                {
-                    var dependencyTelemetry = actual.OfType<TelemetryItem<RemoteDependencyData>>()
-                        .First(t => ((TelemetryItem<RemoteDependencyData>)t).data.baseData.name == "MyDependency");
-                    Assert.NotNull(dependencyTelemetry);
+                var dependencyTelemetry = actual.OfType<TelemetryItem<RemoteDependencyData>>()
+                    .First(t => ((TelemetryItem<RemoteDependencyData>)t).data.baseData.name == "MyDependency");
+                Assert.NotNull(dependencyTelemetry);
 
-                    var requestTelemetry = actual.OfType<TelemetryItem<RequestData>>().FirstOrDefault();
-                    Assert.NotNull(requestTelemetry);
+                var requestTelemetry = actual.OfType<TelemetryItem<RequestData>>().FirstOrDefault();
+                Assert.NotNull(requestTelemetry);
 
-                    Assert.Contains(requestTelemetry.tags["ai.operation.id"], dependencyTelemetry.tags["ai.operation.parentId"]);
-                }
-                catch (Exception e)
-                {
-                    string data = DebugTelemetryItems(actual);
-                    throw new Exception(data, e);
-                }
+                Assert.Contains(requestTelemetry.tags["ai.operation.id"], dependencyTelemetry.tags["ai.operation.parentId"]);
             }
-        }
-
-        private string DebugTelemetryItems(Envelope[] telemetries)
-        {
-            StringBuilder builder = new StringBuilder();
-            foreach (Envelope telemetry in telemetries)
-            {
-                TelemetryItem<RemoteDependencyData> dependency = telemetry as TelemetryItem<RemoteDependencyData>;
-                if (dependency != null)
-                {
-                    var data = ((TelemetryItem<RemoteDependencyData>)dependency).data.baseData;
-                    builder.AppendLine($"{dependency.ToString()} - {data.data} - {data.duration} - {data.id} - {data.name} - {data.resultCode} - {data.success} - {data.target} - {data.type}");
-                }
-                else
-                {
-                    builder.AppendLine($"{telemetry.ToString()} - {telemetry.name}");
-                }
-            }
-
-            return builder.ToString();
         }
     }
 }

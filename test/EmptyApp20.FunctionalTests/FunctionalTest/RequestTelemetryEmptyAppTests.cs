@@ -19,7 +19,7 @@
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingBasicPage()
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 const string RequestPath = "/";
 
@@ -36,7 +36,7 @@
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingNotExistingPage()
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 const string RequestPath = "/not/existing/controller";
 
@@ -53,16 +53,13 @@
         [Fact]
         public void TestMixedTelemetryItemsReceived()
         {
-            InProcessServer server;
-            using (server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
-                using (var httpClient = new HttpClient())
-                {
-                    var task = httpClient.GetAsync(server.BaseHost + "/Mixed");
-                    task.Wait(TestTimeoutMs);
-                }
+                this.ExecuteRequest(server.BaseHost + "/Mixed");
 
-                var telemetries = server.Execute<Envelope>(() => server.Listener.ReceiveItems(5, TestListenerTimeoutInMs));
+                var telemetries = server.Listener.ReceiveItems(5, TestListenerTimeoutInMs);
+                this.DebugTelemetryItems(telemetries);
+
                 Assert.True(telemetries.Length >= 5);
 
                 Assert.Contains(telemetries.OfType<TelemetryItem<RemoteDependencyData>>(), 

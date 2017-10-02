@@ -22,7 +22,7 @@
         public void CorrelationInfoIsPropagatedToDependendedService()
         {
 #if netcoreapp2_0 // Correlation works on .Net core.
-            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 using (var httpClient = new HttpClient())
                 {
@@ -31,6 +31,7 @@
                 }
 
                 var actual = server.Execute<Envelope>(() => server.Listener.ReceiveItems(2, TestListenerTimeoutInMs));
+                this.DebugTelemetryItems(actual);
 
                 var dependencyTelemetry = actual.OfType<TelemetryItem<RemoteDependencyData>>().FirstOrDefault();
                 Assert.NotNull(dependencyTelemetry);                         

@@ -20,7 +20,7 @@ namespace MVCFramework20.FunctionalTests.FunctionalTest
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()
         {
-            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 const string RequestPath = "/Home/Exception";
 
@@ -36,7 +36,7 @@ namespace MVCFramework20.FunctionalTests.FunctionalTest
         [Fact]
         public void TestBasicExceptionPropertiesAfterRequestingControllerThatThrows()
         {
-            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 var expectedExceptionTelemetry = new ExceptionTelemetry();
                 expectedExceptionTelemetry.Exception = new InvalidOperationException();

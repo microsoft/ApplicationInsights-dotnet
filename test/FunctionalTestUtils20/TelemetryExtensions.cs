@@ -56,13 +56,12 @@ namespace FunctionalTestUtils
             return result;
         }
 
-        public static T[] ReceiveItemsOfType<T>(
+        public static Envelope[] ReceiveItemsOfType<T>(
             this TelemetryHttpListenerObservable listener,
             int timeOut)
         {
             var result = listener
-                .Where(item => (item is TelemetryItem<T>))
-                .Select(item => ((TelemetryItem<T>)item).data.baseData)
+                .Where(item => (item is T))
                 .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(timeOut))
                 .ToEnumerable()
                 .ToArray();
@@ -70,14 +69,13 @@ namespace FunctionalTestUtils
             return result;
         }
 
-        public static T[] ReceiveItemsOfType<T>(
+        public static Envelope[] ReceiveItemsOfType<T>(
             this TelemetryHttpListenerObservable listener,
             int count,
             int timeOut)
         {
             var result = listener
-                .Where(item => (item is TelemetryItem<T>))
-                .Select(item => ((TelemetryItem<T>)item).data.baseData)
+                .Where(item => (item is T))
                 .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(timeOut))
                 .Take(count)
                 .ToEnumerable()

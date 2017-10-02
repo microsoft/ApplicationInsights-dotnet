@@ -20,7 +20,7 @@
         {
             const string RequestPath = "/Home/About/5";
 
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 DependencyTelemetry expected = new DependencyTelemetry();
                 expected.ResultCode = "200";
@@ -36,7 +36,7 @@
         public void TestIfPerformanceCountersAreCollected()
         {
 #if NET451 || NET461
-            ValidatePerformanceCountersAreCollected(assemblyName, InProcessServer.UseApplicationInsights);
+            ValidatePerformanceCountersAreCollected(assemblyName);
 #endif
         }
     }

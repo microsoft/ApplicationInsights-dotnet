@@ -20,7 +20,7 @@
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingHomeController()
         {
-            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 const string RequestPath = "/";
 
@@ -37,7 +37,7 @@
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingActionWithParameter()
         {
-            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 const string RequestPath = "/Home/About/5";
 
@@ -54,7 +54,7 @@
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingNotExistingController()
         {
-            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 const string RequestPath = "/not/existing/controller";
 
@@ -71,16 +71,13 @@
         [Fact]
         public void TestMixedTelemetryItemsReceived()
         {
-            InProcessServer server;
-            using (server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
-                using (var httpClient = new HttpClient())
-                {
-                    var task = httpClient.GetAsync(server.BaseHost + "/Home/Contact");
-                    task.Wait(TestTimeoutMs);
-                }
+                this.ExecuteRequest(server.BaseHost + "/Home/Contact");
 
-                var telemetries = server.Execute<Envelope>(() => server.Listener.ReceiveItems(5, TestListenerTimeoutInMs));
+                var telemetries = server.Listener.ReceiveItems(5, TestListenerTimeoutInMs);
+                this.DebugTelemetryItems(telemetries);
+
                 Assert.True(telemetries.Length >= 5);
 
                 Assert.Contains(telemetries.OfType<TelemetryItem<RemoteDependencyData>>(),

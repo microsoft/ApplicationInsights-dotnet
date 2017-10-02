@@ -26,10 +26,13 @@ namespace WebApi20.FunctionalTests
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var builder = new ConfigurationBuilder();
-            builder.AddApplicationInsightsSettings(instrumentationKey: "Foo", endpointAddress: "http://localhost:4001/v2/track/", developerMode: true);
+            var endpointAddress = new EndpointAddress();
+            services.AddSingleton<EndpointAddress>(endpointAddress);
 
+            var builder = new ConfigurationBuilder();
+            builder.AddApplicationInsightsSettings(instrumentationKey: "Foo", endpointAddress: endpointAddress.ConnectionString, developerMode: true);
             services.AddApplicationInsightsTelemetry(builder.Build());
+
             services.AddMvc();
         }
 

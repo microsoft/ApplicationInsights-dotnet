@@ -20,7 +20,7 @@ namespace EmptyApp20.FunctionalTests.FunctionalTest
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingRequestThatThrows()
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 const string RequestPath = "/Exception";
 
@@ -37,7 +37,7 @@ namespace EmptyApp20.FunctionalTests.FunctionalTest
         [Fact]
         public void TestBasicExceptionPropertiesAfterRequestingRequestThatThrows()
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 var expectedExceptionTelemetry = new ExceptionTelemetry();
                 expectedExceptionTelemetry.Exception = new InvalidOperationException();

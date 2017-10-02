@@ -19,7 +19,7 @@
         {
             const string RequestPath = "/";
 
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 DependencyTelemetry expected = new DependencyTelemetry();
                 expected.ResultCode = "200";

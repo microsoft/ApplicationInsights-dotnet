@@ -15,7 +15,7 @@
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingValuesController()
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 const string RequestPath = "/api/values";
 
@@ -32,7 +32,7 @@
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingNotExistingController()
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 const string RequestPath = "/api/notexistingcontroller";
 
@@ -49,7 +49,7 @@
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingWebApiShimRoute()
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, this.output))
             {
                 const string RequestPath = "/api/values/1";
 
