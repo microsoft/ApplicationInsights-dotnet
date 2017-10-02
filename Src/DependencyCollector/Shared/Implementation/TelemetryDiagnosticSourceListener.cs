@@ -91,9 +91,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 }
             }
 
-            telemetry.Context.Properties["DiagnosticSource"] = diagnosticListener.Name;
-            telemetry.Context.Properties["Activity"] = currentActivity.OperationName;
-
             this.Client.Initialize(telemetry);
 
             this.Client.Track(telemetry);
@@ -105,13 +102,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             telemetry.Id = currentActivity.Id;
             telemetry.Duration = currentActivity.Duration;
-
-            Uri requestUri = null;
-            string component = null;
-            string dbStatement = null;
-            string httpUrl = null;
-            string peerAddress = null;
-            string peerService = null;
+            telemetry.Type = diagnosticListener.Name;
+            telemetry.Name = currentActivity.OperationName;
 
             foreach (KeyValuePair<string, string> tag in currentActivity.Tags)
             {
@@ -119,31 +111,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 // https://github.com/opentracing/specification/blob/master/semantic_conventions.md
                 switch (tag.Key)
                 {
-                    case "operation.name": // not defined by OpenTracing
-                        {
-                            telemetry.Name = tag.Value;
-                            continue; // skip Properties
-                        }
-                    case "operation.type": // not defined by OpenTracing
-                        {
-                            telemetry.Type = tag.Value;
-                            continue; // skip Properties
-                        }
-                    case "operation.data": // not defined by OpenTracing
-                        {
-                            telemetry.Data = tag.Value;
-                            continue; // skip Properties
-                        }
-                    case "component":
-                        {
-                            component = tag.Value;
-                            break;
-                        }
-                    case "db.statement":
-                        {
-                            dbStatement = tag.Value;
-                            break;
-                        }
                     case "error":
                         {
                             bool failed;
@@ -154,34 +121,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             }
                             break;
                         }
-                    case "http.status_code":
-                        {
-                            telemetry.ResultCode = tag.Value;
-                            continue; // skip Properties
-                        }
-                    case "http.url":
-                        {
-                            httpUrl = tag.Value;
-                            if (Uri.TryCreate(tag.Value, UriKind.RelativeOrAbsolute, out requestUri))
-                            {
-                                continue; // skip Properties
-                            }
-                            break;
-                        }
-                    case "peer.address":
-                        {
-                            peerAddress = tag.Value;
-                            break;
-                        }
                     case "peer.hostname":
                         {
                             telemetry.Target = tag.Value;
                             continue; // skip Properties
-                        }
-                    case "peer.service":
-                        {
-                            peerService = tag.Value;
-                            break;
                         }
                 }
 
@@ -190,27 +133,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 {
                     telemetry.Properties[tag.Key] = tag.Value;
                 }
-            }
-
-            if (string.IsNullOrEmpty(telemetry.Type))
-            {
-                telemetry.Type = peerService ?? component ?? diagnosticListener.Name;
-            }
-
-            if (string.IsNullOrEmpty(telemetry.Target))
-            {
-                // 'peer.address' can be not user-friendly, thus use only if nothing else specified
-                telemetry.Target = requestUri?.Host ?? peerAddress;
-            }
-
-            if (string.IsNullOrEmpty(telemetry.Name))
-            {
-                telemetry.Name = currentActivity.OperationName;
-            }
-
-            if (string.IsNullOrEmpty(telemetry.Data))
-            {
-                telemetry.Data = dbStatement ?? requestUri?.OriginalString ?? httpUrl;
             }
 
             return telemetry;
