@@ -13,7 +13,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     {
         // We support 4 aggregation cycles. 2 of them can be accessed from the outside:
 
-        private AggregatorCollection _aggregatorsForDefaultPersistent = null;
+        private AggregatorCollection _aggregatorsForPersistent = null;
         private AggregatorCollection _aggregatorsForDefault = null;
         private AggregatorCollection _aggregatorsForQuickPulse = null;
         private AggregatorCollection _aggregatorsForCustom = null;
@@ -24,46 +24,26 @@ namespace Microsoft.ApplicationInsights.Metrics
             DateTimeOffset timestamp = new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, 0, now.Offset);
 
             _aggregatorsForDefault = new AggregatorCollection(timestamp, filter: null);
-            _aggregatorsForDefaultPersistent = new AggregatorCollection(timestamp, filter: null);
+            _aggregatorsForPersistent = new AggregatorCollection(timestamp, filter: null);
         }
 
-        public bool StartAggregators(MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter filter)
-        {
-            switch (aggregationCycleKind)
-            {
-                case CycleKind.QuickPulse:
-                    AggregatorCollection prevQP = Interlocked.CompareExchange(ref _aggregatorsForQuickPulse, new AggregatorCollection(tactTimestamp, filter), comparand: null);
-                    return (prevQP == null);
-
-                case CycleKind.Custom:
-                    AggregatorCollection prevC = Interlocked.CompareExchange(ref _aggregatorsForCustom, new AggregatorCollection(tactTimestamp, filter), comparand: null);
-                    return (prevC == null);
-
-                case CycleKind.Default:
-                    throw new ArgumentException($"Cannot invoke {nameof(StartAggregators)} for Default {nameof(MetricAggregationCycleKind)}: Default aggregators are always active.");
-
-                default:
-                    throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
-            }
-        }
-        
-        public AggregationPeriodSummary CycleAggregators(MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter)
+        public AggregationPeriodSummary StartOrCycleAggregators(MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter futureFilter)
         {
             switch (aggregationCycleKind)
             {
                 case CycleKind.Default:
-                    if (updatedFilter != null)
+                    if (futureFilter != null)
                     {
-                        throw new ArgumentException($"Cannot specify non-null {nameof(updatedFilter)} when {nameof(aggregationCycleKind)} is {aggregationCycleKind}.");
+                        throw new ArgumentException($"Cannot specify non-null {nameof(futureFilter)} when {nameof(aggregationCycleKind)} is {aggregationCycleKind}.");
                     }
 
-                    return CycleAggregators(ref _aggregatorsForDefault, tactTimestamp, updatedFilter, stopAggregators: false);
+                    return CycleAggregators(ref _aggregatorsForDefault, tactTimestamp, futureFilter, stopAggregators: false);
 
                 case CycleKind.QuickPulse:
-                    return CycleAggregators(ref _aggregatorsForQuickPulse, tactTimestamp, updatedFilter, stopAggregators: false);
+                    return CycleAggregators(ref _aggregatorsForQuickPulse, tactTimestamp, futureFilter, stopAggregators: false);
 
                 case CycleKind.Custom:
-                    return CycleAggregators(ref _aggregatorsForCustom, tactTimestamp, updatedFilter, stopAggregators: false);
+                    return CycleAggregators(ref _aggregatorsForCustom, tactTimestamp, futureFilter, stopAggregators: false);
 
                 default:
                     throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
@@ -75,10 +55,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             switch (aggregationCycleKind)
             {
                 case CycleKind.QuickPulse:
-                    return CycleAggregators(ref _aggregatorsForQuickPulse, tactTimestamp, updatedFilter: null, stopAggregators: true);
+                    return CycleAggregators(ref _aggregatorsForQuickPulse, tactTimestamp, futureFilter: null, stopAggregators: true);
 
                 case CycleKind.Custom:
-                    return CycleAggregators(ref _aggregatorsForCustom, tactTimestamp, updatedFilter: null, stopAggregators: true);
+                    return CycleAggregators(ref _aggregatorsForCustom, tactTimestamp, futureFilter: null, stopAggregators: true);
 
                 case CycleKind.Default:
                     throw new ArgumentException($"Cannot invoke {nameof(StopAggregators)} for Default {nameof(MetricAggregationCycleKind)}: Default aggregators are always active.");
@@ -113,7 +93,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             if (aggregator.DataSeries._configuration.RequiresPersistentAggregation)
             {
-                return AddAggregator(aggregator, _aggregatorsForDefaultPersistent);
+                return AddAggregator(aggregator, _aggregatorsForPersistent);
             }
 
             switch (aggregationCycleKind)
@@ -152,21 +132,40 @@ namespace Microsoft.ApplicationInsights.Metrics
             return true;
         }
 
-        private AggregationPeriodSummary CycleAggregators(ref AggregatorCollection aggregators, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter, bool stopAggregators)
+        private AggregationPeriodSummary CycleAggregators(ref AggregatorCollection aggregators, DateTimeOffset tactTimestamp, IMetricSeriesFilter futureFilter, bool stopAggregators)
         {
+            if (aggregators == _aggregatorsForPersistent)
+            {
+                throw new InvalidOperationException("Invernal SDK bug. Please report. Cannot cycle persistent aggregators.");
+            }
+
             // For non-persistent aggregators: create empty holder for the next aggregation period and swap for the previous holder:
-            AggregatorCollection nextAggregators = stopAggregators
-                                                            ? null
-                                                            : new AggregatorCollection(tactTimestamp, updatedFilter);
+            AggregatorCollection prevAggregators;
+            if (stopAggregators)
+            {
+                prevAggregators = Interlocked.Exchange(ref aggregators, null);
+            }
+            else
+            {
+                AggregatorCollection nextAggregators = new AggregatorCollection(tactTimestamp, futureFilter);
+                prevAggregators = Interlocked.Exchange(ref aggregators, nextAggregators);
+            }
 
-            AggregatorCollection prevAggregators = Interlocked.Exchange(ref aggregators, nextAggregators);
-            IMetricSeriesFilter prevFilter = prevAggregators.Filter;
+            List<ITelemetry> persistentValsAggregations = GetPersistentAggregations(tactTimestamp, prevAggregators?.Filter);
+            List<ITelemetry> nonpersistentAggregations = GetNonpersistentAggregations(tactTimestamp, prevAggregators);
 
+            var summary = new AggregationPeriodSummary(persistentValsAggregations, nonpersistentAggregations);
+            return summary;
+        }
+
+        private List<ITelemetry> GetPersistentAggregations(DateTimeOffset tactTimestamp, IMetricSeriesFilter previousFilter)
+        {
             // Complete each persistent aggregator:
             // The Enumerator of GrowingCollection is a thread-safe lock-free implementation that operates on a "snapshot" of a collection taken at the
             // time when the enumerator is created. We expand the foreach statement (like the compiler normally does) so that we can use the typed
             // enumerator's Count property which is constsent with the data in the snapshot.
-            GrowingCollection<IMetricSeriesAggregator>.Enumerator persistentValsAggregators = _aggregatorsForDefaultPersistent.Aggregators.GetEnumerator(); 
+
+            GrowingCollection<IMetricSeriesAggregator>.Enumerator persistentValsAggregators = _aggregatorsForPersistent.Aggregators.GetEnumerator();
             List<ITelemetry> persistentValsAggregations = new List<ITelemetry>(capacity: persistentValsAggregators.Count);
             try
             {
@@ -179,9 +178,9 @@ namespace Microsoft.ApplicationInsights.Metrics
                         // But we can apply the cycle's filters to determine whether or not to pull the aggregator
                         // for a aggregate at this time. Of course, only series filters, not value filters, can be considered.
                         IMetricValueFilter unusedValueFilter;
-                        bool satisfiesFilter = (prevFilter == null)
+                        bool satisfiesFilter = (previousFilter == null)
                                                 ||
-                                               (prevFilter.WillConsume(aggregator.DataSeries, out unusedValueFilter));
+                                               (previousFilter.WillConsume(aggregator.DataSeries, out unusedValueFilter));
                         if (satisfiesFilter)
                         {
                             ITelemetry aggregate = aggregator.CompleteAggregation(tactTimestamp);
@@ -195,10 +194,24 @@ namespace Microsoft.ApplicationInsights.Metrics
                 persistentValsAggregators.Dispose();
             }
 
+            return persistentValsAggregations;
+        }
+
+        private List<ITelemetry> GetNonpersistentAggregations(DateTimeOffset tactTimestamp, AggregatorCollection aggregators)
+        {
             // Complete each non-persistent aggregator:
             // (we snapshotted the entire collection, so Count is stable)
-            List<ITelemetry> nonpersistentAggregations = new List<ITelemetry>(capacity: prevAggregators.Aggregators.Count);
-            foreach (IMetricSeriesAggregator aggregator in prevAggregators.Aggregators)
+
+            GrowingCollection<IMetricSeriesAggregator> actualAggregators = aggregators?.Aggregators;
+
+            if (null == actualAggregators || 0 == actualAggregators.Count)
+            {
+                return new List<ITelemetry>(capacity: 0);
+            }
+
+            List<ITelemetry> nonpersistentAggregations = new List<ITelemetry>(capacity: actualAggregators.Count);
+
+            foreach (IMetricSeriesAggregator aggregator in actualAggregators)
             {
                 if (aggregator != null)
                 {
@@ -207,8 +220,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
             }
 
-            var summary = new AggregationPeriodSummary(persistentValsAggregations, nonpersistentAggregations);
-            return summary;
+            return nonpersistentAggregations;
         }
 
         #region class AggregatorCollection

@@ -87,7 +87,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 now = RoundToClosestSecond(now);
             }
 
-            AggregationPeriodSummary aggregates = _aggregationManager.CycleAggregators(MetricAggregationCycleKind.Default, updatedFilter: null, tactTimestamp: now);
+            AggregationPeriodSummary aggregates = _aggregationManager.StartOrCycleAggregators(MetricAggregationCycleKind.Default, futureFilter: null, tactTimestamp: now);
             if (aggregates != null)
             {
                 Task fireAndForget = Task.Run( () => _metricManager.TrackMetricAggregates(aggregates) );

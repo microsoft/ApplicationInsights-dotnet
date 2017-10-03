@@ -13,35 +13,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
     public static class QuickPulseAdapter
     {
         // From MetricManagerExtensions:
-        //public static bool StartAggregators(this MetricManager metricManager, MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter filter)
         //public static AggregationPeriodSummary StopAggregators(this MetricManager metricManager, MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp)
-        //public static AggregationPeriodSummary CycleAggregators(this MetricManager metricManager, MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter)
+        //public static AggregationPeriodSummary CycleAggregators(this MetricManager metricManager, MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter filter)
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="metricManager"></param>
-        /// <param name="aggregationCycleKind"></param>
-        /// <param name="tactTimestamp"></param>
-        /// <param name="metricSeriesFilter"></param>
-        /// <returns></returns>
-        public static
-                    bool
-                    StartAggregators(
-                                     object metricManager,
-                                     int aggregationCycleKind,
-                                     DateTimeOffset tactTimestamp,
-                                     Func<Tuple<bool,
-                                                Tuple<Func<object, double, bool>,
-                                                      Func<object, object, bool>>>> metricSeriesFilter)
-        {
-            MetricManager manager = (MetricManager) metricManager;
-            MetricAggregationCycleKind cycle = SafeConvertMetricAggregationCycleKind(aggregationCycleKind);
-            var filter = new MetricSeriesFilterAdapter(metricSeriesFilter);
-
-            bool result = MetricManagerExtensions.StartAggregators(manager, cycle, tactTimestamp, filter);
-            return result;
-        }
 
         /// <summary>
         /// 
@@ -72,23 +46,23 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <param name="metricManager"></param>
         /// <param name="aggregationCycleKind"></param>
         /// <param name="tactTimestamp"></param>
-        /// <param name="updatedMetricSeriesFilter"></param>
+        /// <param name="metricSeriesFilter"></param>
         /// <returns></returns>
         public static
                     Tuple<IReadOnlyList<ITelemetry>, IReadOnlyList<ITelemetry>>
-                    CycleAggregators(
+                    StartOrCycleAggregators(
                                      object metricManager,
                                      int aggregationCycleKind,
                                      DateTimeOffset tactTimestamp,
                                      Func<Tuple<bool,
                                                 Tuple<Func<object, double, bool>,
-                                                      Func<object, object, bool>>>> updatedMetricSeriesFilter)
+                                                      Func<object, object, bool>>>> metricSeriesFilter)
         {
             MetricManager manager = (MetricManager) metricManager;
             MetricAggregationCycleKind cycle = SafeConvertMetricAggregationCycleKind(aggregationCycleKind);
-            var filter = new MetricSeriesFilterAdapter(updatedMetricSeriesFilter);
+            var filter = new MetricSeriesFilterAdapter(metricSeriesFilter);
 
-            AggregationPeriodSummary summary = MetricManagerExtensions.CycleAggregators(manager, cycle, tactTimestamp, filter);
+            AggregationPeriodSummary summary = MetricManagerExtensions.StartOrCycleAggregators(manager, cycle, tactTimestamp, filter);
 
             var result = Tuple.Create(summary.NonpersistentAggregates, summary.PersistentAggregates);
             return result;

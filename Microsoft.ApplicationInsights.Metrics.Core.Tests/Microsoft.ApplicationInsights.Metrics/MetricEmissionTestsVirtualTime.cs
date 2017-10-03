@@ -37,7 +37,7 @@ namespace SomeCustomerNamespace
             // Stop the default minute-ly cycle so that it does not interfere with our virtual time debugging:
             Task fireAndForget = telemetryPipeline.Metrics().StopAsync();   
 
-            telemetryPipeline.Metrics().StartAggregators(CycleKind.Custom, experimentStart, filter: null);
+            telemetryPipeline.Metrics().StartOrCycleAggregators(CycleKind.Custom, experimentStart, filter: null);
 
             const int ExperimentLengthSecs = 60 * 10;
             const int IntervalLengthSecs = 60;
@@ -84,10 +84,10 @@ namespace SomeCustomerNamespace
 
                 if (intervalSecs >= IntervalLengthSecs)
                 {
-                    AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().CycleAggregators(
-                                                                                                CycleKind.Custom,
-                                                                                                experimentStart.AddSeconds(totalSecs),
-                                                                                                updatedFilter: null);
+                    AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().StartOrCycleAggregators(
+                                                                                                    CycleKind.Custom,
+                                                                                                    experimentStart.AddSeconds(totalSecs),
+                                                                                                    filter: null);
                     Assert.IsNotNull(aggregatedMetrics);
 
                     IReadOnlyList<ITelemetry> aggregates = aggregatedMetrics.NonpersistentAggregates;
@@ -113,10 +113,10 @@ namespace SomeCustomerNamespace
                 }
             }
             {
-                AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().CycleAggregators(
-                                                                                                    CycleKind.Custom,
-                                                                                                    experimentStart.AddSeconds(totalSecs),
-                                                                                                    updatedFilter: null);
+                AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().StartOrCycleAggregators(
+                                                                                                        CycleKind.Custom,
+                                                                                                        experimentStart.AddSeconds(totalSecs),
+                                                                                                        filter: null);
                 Assert.IsNotNull(aggregatedMetrics);
 
                 IReadOnlyList<ITelemetry> aggregates = aggregatedMetrics.NonpersistentAggregates;
