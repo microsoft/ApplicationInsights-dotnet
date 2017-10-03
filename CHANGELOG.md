@@ -5,6 +5,7 @@
 - Project is upgraded to work with Visual Studio 2017. Also projects are modified to use csproj instead of project.json.
 - Adaptive sampling enabled for both - full framework and .NET Core applications.
 - ServerTelemetryChannel is enabled and set as default channel for both - full framework and .NET Core applications.
+- Live metrics collection is enabled by default for .NET Core applications (was already enabled for full .NET applications).
 
 ## Version 2.1.1
 
