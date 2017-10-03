@@ -138,16 +138,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         internal abstract bool IsEventEnabled(string evnt, object arg1, object arg2, DiagnosticListener diagnosticListener, TContext context);
 
         /// <summary>
-        /// Checks if the event should be handled by this listener.
-        /// In some cases an event may be enabled but not handled (e.g. enable Activity event but handle only Activity start/stop events)
-        /// </summary>
-        /// <param name="evnt">The event (name-payload pair).</param>
-        /// <param name="diagnosticListener">The diagnostic source.</param>
-        /// <param name="context">The diagnostic source-specific context (<see cref="GetListenerContext(DiagnosticListener)"/>).</param>
-        /// <returns></returns>
-        internal abstract bool ShouldHandleEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener, TContext context);
-
-        /// <summary>
         /// Handles the event.
         /// </summary>
         /// <param name="evnt">The event (name-payload pair).</param>
@@ -173,10 +163,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             public void OnNext(KeyValuePair<string, object> evnt)
             {
-                if (this.telemetryDiagnosticSourceListener.ShouldHandleEvent(evnt, this.diagnosticListener, this.context))
-                {
-                    this.telemetryDiagnosticSourceListener.HandleEvent(evnt, this.diagnosticListener, this.context);
-                }
+                this.telemetryDiagnosticSourceListener.HandleEvent(evnt, this.diagnosticListener, this.context);
             }
 
             /// <summary>

@@ -49,12 +49,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 && !evnt.EndsWith(ActivityStartNameSuffix, StringComparison.OrdinalIgnoreCase);
         }
 
-        internal override bool ShouldHandleEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener, HashSet<string> context)
-        {
-            return !this.IsActivityExcluded(evnt.Key, context)
-                && evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase);
-        }
-
         internal bool IsActivityExcluded(string activityName, HashSet<string> excludedActivities)
         {
             return excludedActivities?.Contains(activityName) == true;
@@ -62,6 +56,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         internal override void HandleEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener, HashSet<string> context)
         {
+            if (this.IsActivityExcluded(evnt.Key, context)
+                || !evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
             Activity currentActivity = Activity.Current;
             if (currentActivity == null)
             {
@@ -90,8 +90,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     telemetry.Context.Properties[item.Key] = item.Value;
                 }
             }
-
-            this.Client.Initialize(telemetry);
 
             this.Client.Track(telemetry);
         }
