@@ -132,7 +132,11 @@ namespace Microsoft.ApplicationInsights.Metrics
             return true;
         }
 
-        private AggregationPeriodSummary CycleAggregators(ref AggregatorCollection aggregators, DateTimeOffset tactTimestamp, IMetricSeriesFilter futureFilter, bool stopAggregators)
+        private AggregationPeriodSummary CycleAggregators(
+                                                ref AggregatorCollection aggregators,
+                                                DateTimeOffset tactTimestamp,
+                                                IMetricSeriesFilter futureFilter,
+                                                bool stopAggregators)
         {
             if (aggregators == _aggregatorsForPersistent)
             {
@@ -231,7 +235,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 this.PeriodStart = periodStart;
                 this.Aggregators = new GrowingCollection<IMetricSeriesAggregator>();
-                this.Filter = Filter;
+                this.Filter = filter;
             }
 
             public DateTimeOffset PeriodStart { get; }
