@@ -14,7 +14,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         private const string FallbackParemeterName = "specified parameter";
 
-        private static Action<TelemetryContext, TelemetryContext, string> s_TelemetryContextInitializeDelegate = null;
+        private static Action<TelemetryContext, TelemetryContext, string> s_telemetryContextInitializeDelegate = null;
 
         /// <summary>
         /// Paramater check for Null with a little more informative exception.
@@ -47,7 +47,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         /// <param name="source"></param>
         /// <param name="target"></param>
-        internal static void CopyTelemetryContext(TelemetryContext source, TelemetryContext target)
+        public static void CopyTelemetryContext(TelemetryContext source, TelemetryContext target)
         {
             Util.ValidateNotNull(source, nameof(source));
             Util.ValidateNotNull(target, nameof(target));
@@ -75,7 +75,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             //Need to invoke: void TelemetryContext.Initialize(TelemetryContext source, string instrumentationKey)
 
-            Action<TelemetryContext, TelemetryContext, string> currentDel = s_TelemetryContextInitializeDelegate;
+            Action<TelemetryContext, TelemetryContext, string> currentDel = s_telemetryContextInitializeDelegate;
 
             if (currentDel == null)
             {
@@ -85,7 +85,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                             (Action<TelemetryContext, TelemetryContext, string>)
                                             initializeMethod.CreateDelegate(typeof(Action<TelemetryContext, TelemetryContext, string>));
 
-                Action<TelemetryContext, TelemetryContext, string> prevDel = Interlocked.CompareExchange(ref s_TelemetryContextInitializeDelegate, newDel, null);
+                Action<TelemetryContext, TelemetryContext, string> prevDel = Interlocked.CompareExchange(ref s_telemetryContextInitializeDelegate, newDel, null);
                 currentDel = prevDel ?? newDel;
             }
 
