@@ -30,6 +30,8 @@ RUN AzureStorageEmulator.exe init
 EXPOSE 10000 10001 10002
 
 #Nginx - In windows nginx cannot be run as a daemon. so start nginx as entrypoint.
+RUN powershell -NoProfile -Command \
+        mkdir nginx;
 
 WORKDIR "C:\nginx"
 ADD nginx-1.12.0.zip .

@@ -57,6 +57,12 @@ namespace E2ETests.Net47
         }
 
         [TestMethod]
+        public void Test452OnNet47_TestAzureTableDependencyWebApp()
+        {
+            base.TestAzureTableDependencyWebApp();
+        }
+
+        [TestMethod]
         public void Test452OnNet47_TestBasicSqlDependencyWebApp()
         {
             base.TestBasicSqlDependencyWebApp();

@@ -168,6 +168,16 @@ namespace E2ETests
                 Apps[WebAppName].ikey).Wait();
         }
 
+        public void TestAzureTableDependencyWebApp()
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuretable", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey).Wait();
+        }
+
         public void TestBasicSqlDependencyWebApp()
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
