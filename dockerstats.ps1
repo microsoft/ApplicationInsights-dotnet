@@ -29,6 +29,9 @@ Write-Host "Removing E2E Images"
 Write-Host "Removing dangling images"
 docker images -f "dangling=true" -q | ForEach-Object {docker rmi $_ -f}
 
+Write-Host "Removing E2E Containers"
+docker ps -a -q | ForEach-Object {docker rm $_ -f}
+
 Write-Host "Images after cleanup"
 & docker images -a
 Write-Host "Containers after cleanup"
