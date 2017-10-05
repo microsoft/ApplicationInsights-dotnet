@@ -11,6 +11,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
     /// </summary>
     public class MemoryMetricTelemetryPipeline : IMetricTelemetryPipeline, IReadOnlyList<object>
     {
+        /// <summary>
+        /// </summary>
         public const int CountLimitDefault = 1000;
 
         private readonly Task _completedTask = Task.FromResult(true);
@@ -25,6 +27,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         {
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="countLimit"></param>
         public MemoryMetricTelemetryPipeline(int countLimit)
         {
             if (countLimit <= 0)
@@ -35,8 +40,12 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             CountLimit = countLimit;
         }
 
+        /// <summary>
+        /// </summary>
         public int CountLimit { get; }
 
+        /// <summary>
+        /// </summary>
         public int Count {
             get
             {
@@ -54,6 +63,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public object this[int index]
         {
             get
@@ -72,6 +85,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             }
         }
 
+        /// <summary>
+        /// </summary>
         public void Clear()
         {
             _lock.WaitAsync().GetAwaiter().GetResult();

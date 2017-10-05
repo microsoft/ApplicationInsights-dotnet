@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Channel;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 namespace Microsoft.ApplicationInsights.Metrics.TestUtil
 {
@@ -71,6 +74,37 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtil
             }
 
             return true;
+        }
+
+        public static TelemetryConfiguration CreateAITelemetryConfig(out IList<ITelemetry> telemetrySentToChannel)
+        {
+            StubTelemetryChannel channel = new StubTelemetryChannel();
+            string iKey = Guid.NewGuid().ToString("D");
+            TelemetryConfiguration telemetryConfig = new TelemetryConfiguration(iKey, channel);
+
+            var channelBuilder = new TelemetryProcessorChainBuilder(telemetryConfig);
+            channelBuilder.Build();
+
+            foreach (ITelemetryProcessor initializer in telemetryConfig.TelemetryInitializers)
+            {
+                ITelemetryModule m = initializer as ITelemetryModule;
+                if (m != null)
+                {
+                    m.Initialize(telemetryConfig);
+                }
+            }
+
+            foreach (ITelemetryProcessor processor in telemetryConfig.TelemetryProcessors)
+            {
+                ITelemetryModule m = processor as ITelemetryModule;
+                if (m != null)
+                {
+                    m.Initialize(telemetryConfig);
+                }
+            }
+
+            telemetrySentToChannel = channel.TelemetryItems;
+            return telemetryConfig;
         }
     }
 }

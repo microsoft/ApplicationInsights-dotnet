@@ -52,7 +52,10 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Microsoft.ApplicationInsights.Metrics.Extensibility\ApplicationInsightsTelemetryPipelineTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics.Extensibility\AggregationPeriodSummaryTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics.TestUtil\ArrayEqualityComparer.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics.TestUtil\StubApplicationInsightsTelemetryChannel.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\MetricEmissionTestsVirtualTime.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\MetricManagerTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\MultidimensionalCubeTests.cs" />

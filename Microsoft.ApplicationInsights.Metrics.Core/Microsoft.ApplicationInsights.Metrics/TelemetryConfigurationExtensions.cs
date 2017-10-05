@@ -33,8 +33,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 MetricManager manager = s_defaultMetricManager;
                 if (manager == null)
                 {
-                    var telemetryPipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
-                    MetricManager newManager = new MetricManager(telemetryPipelineAdapter);
+                    var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
+                    MetricManager newManager = new MetricManager(pipelineAdapter);
                     MetricManager prevManager = Interlocked.CompareExchange(ref s_defaultMetricManager, newManager, null);
                     manager = prevManager ?? newManager;
                 }
