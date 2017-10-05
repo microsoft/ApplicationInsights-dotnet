@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -32,7 +33,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 MetricManager manager = s_defaultMetricManager;
                 if (manager == null)
                 {
-                    MetricManager newManager = new MetricManager(telemetryPipeline);
+                    var telemetryPipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
+                    MetricManager newManager = new MetricManager(telemetryPipelineAdapter);
                     MetricManager prevManager = Interlocked.CompareExchange(ref s_defaultMetricManager, newManager, null);
                     manager = prevManager ?? newManager;
                 }
@@ -52,7 +54,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             // Get the manager from the table:
             {
-                MetricManager manager = metricManagers.GetValue(telemetryPipeline, (tp) => new MetricManager(tp));
+                MetricManager manager = metricManagers.GetValue(telemetryPipeline, (tp) => new MetricManager(new ApplicationInsightsTelemetryPipeline(tp)) );
                 return manager;
             }
         }

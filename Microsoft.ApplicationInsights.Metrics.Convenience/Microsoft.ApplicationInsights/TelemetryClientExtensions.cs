@@ -121,11 +121,11 @@ namespace Microsoft.ApplicationInsights
             
 
             TelemetryConfiguration pipeline = Util.GetTelemetryConfiguration(telemetryClient);
-            MetricsCache cache = pipeline.Metrics().GetOrCreateCache(MetricsCache.CreateNewInstance);
+            MetricsCache cache = pipeline.Metrics().GetOrCreateExtensionState(MetricsCache.CreateNewInstance);
 
             if (cache == null)
             {
-                throw new InvalidOperationException($"telemetryConfiguration.Metrics().GetOrCreateCache(..) unexpectedly returned null."
+                throw new InvalidOperationException($"telemetryConfiguration.Metrics().GetOrCreateExtensionState(..) unexpectedly returned null."
                                                   + $" This indicates that multiple extensions attempt to use"
                                                   + $" the \"Cache\" extension point of the {nameof(MetricManager)} in a conflicting manner.");
             }

@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Microsoft.ApplicationInsights.Metrics.TestUtil\ArrayEqualityComparer.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\MetricEmissionTestsVirtualTime.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\MetricManagerTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\MultidimensionalCubeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics.TestUtil\Util.cs" />

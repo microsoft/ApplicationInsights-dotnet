@@ -31,16 +31,16 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <param name="metricManager"></param>
         /// <param name="aggregationCycleKind"></param>
         /// <param name="tactTimestamp"></param>
-        /// <param name="filter"></param>
+        /// <param name="futureFilter"></param>
         /// <returns></returns>
         public static AggregationPeriodSummary StartOrCycleAggregators(
                                                         this MetricManager metricManager,
                                                         MetricAggregationCycleKind aggregationCycleKind,
                                                         DateTimeOffset tactTimestamp,
-                                                        IMetricSeriesFilter filter)
+                                                        IMetricSeriesFilter futureFilter)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
-            return metricManager.AggregationManager.StartOrCycleAggregators(aggregationCycleKind, tactTimestamp, filter);
+            return metricManager.AggregationManager.StartOrCycleAggregators(aggregationCycleKind, tactTimestamp, futureFilter);
         }
 
         /// <summary>
@@ -49,16 +49,16 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <remarks>
         /// Metric Manager does not encapsulate any disposable or native resourses. However, it encapsulates a managed thread.
         /// In normal cases, a metric manager is accessed via convenience methods and consumers never need to worry about that thread.
-        /// However, advanced scenarios may explicitly create a metric manager instance. In such cases, consumers may may need to call
+        /// However, advanced scenarios may explicitly create a metric manager instance. In such cases, consumers may need to call
         /// this method on the explicitly created instance to let the thread know that it no longer needs to run. The thread will not
-        /// be aborted proactively. Instead, it will complete the ongoing aggregation cycle and gracfully exit instead of scheduling
+        /// be aborted proactively. Instead, it will complete the ongoing aggregation cycle and then gracfully exit instead of scheduling
         /// the next iteration. However, the background thread will not send any aggregated metrics if it has been notified to stop.
-        /// Therefore, this method flushed current data before sending the notification.
+        /// Therefore, this method flushes current data before sending the notification.
         /// </remarks>
         /// <param name="metricManager">The metric manager</param>
         /// <returns>
         /// You can await the returned Task if you want to be sure that the encapsulated thread completed.
-        /// If you just want to notify the thread to stop without waiting for it, do d=not await this method.
+        /// If you just want to notify the thread to stop without waiting for it, do not await this method.
         /// </returns>
         public static Task StopAsync(this MetricManager metricManager)
         {
@@ -73,14 +73,14 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="metricManager"></param>
-        /// <param name="newCacheInstanceFactory"></param>
+        /// <param name="newExtensionStateInstanceFactory"></param>
         /// <returns></returns>
-        public static T GetOrCreateCache<T>(this MetricManager metricManager, Func<MetricManager, T> newCacheInstanceFactory)
+        public static T GetOrCreateExtensionState<T>(this MetricManager metricManager, Func<MetricManager, T> newExtensionStateInstanceFactory)
                 where T : class
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
 
-            object cache =  metricManager.GetOrCreateCacheUnsafe(newCacheInstanceFactory);
+            object cache =  metricManager.GetOrCreateExtensionStateUnsafe(newExtensionStateInstanceFactory);
 
             if (cache == null)
             {
@@ -90,10 +90,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             T typedCache = cache as T;
             if (typedCache == null)
             {
-                throw new InvalidOperationException($"{nameof(MetricManagerExtensions)}.{nameof(GetOrCreateCache)}<T>(..) expected to find a"
+                throw new InvalidOperationException($"{nameof(MetricManagerExtensions)}.{nameof(GetOrCreateExtensionState)}<T>(..) expected to find a"
                                                   + $" cache of type {typeof(T).FullName}, but the present cache was of"
                                                   + $" type {cache.GetType().FullName}. This indicates that multiple extensions attempt to use"
-                                                  + $" the \"Cache\" extension point of the {nameof(MetricManager)} in a conflicting manner.");
+                                                  + $" this extension point of the {nameof(MetricManager)} in a conflicting manner.");
             }
 
             return typedCache;

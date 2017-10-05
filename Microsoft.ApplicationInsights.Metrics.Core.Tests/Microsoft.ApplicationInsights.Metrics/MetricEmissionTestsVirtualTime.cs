@@ -37,7 +37,7 @@ namespace SomeCustomerNamespace
             // Stop the default minute-ly cycle so that it does not interfere with our virtual time debugging:
             Task fireAndForget = telemetryPipeline.Metrics().StopAsync();   
 
-            telemetryPipeline.Metrics().StartOrCycleAggregators(CycleKind.Custom, experimentStart, filter: null);
+            telemetryPipeline.Metrics().StartOrCycleAggregators(CycleKind.Custom, experimentStart, futureFilter: null);
 
             const int ExperimentLengthSecs = 60 * 10;
             const int IntervalLengthSecs = 60;
@@ -87,7 +87,7 @@ namespace SomeCustomerNamespace
                     AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().StartOrCycleAggregators(
                                                                                                     CycleKind.Custom,
                                                                                                     experimentStart.AddSeconds(totalSecs),
-                                                                                                    filter: null);
+                                                                                                    futureFilter: null);
                     Assert.IsNotNull(aggregatedMetrics);
 
                     IReadOnlyList<ITelemetry> aggregates = aggregatedMetrics.NonpersistentAggregates;
@@ -116,7 +116,7 @@ namespace SomeCustomerNamespace
                 AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().StartOrCycleAggregators(
                                                                                                         CycleKind.Custom,
                                                                                                         experimentStart.AddSeconds(totalSecs),
-                                                                                                        filter: null);
+                                                                                                        futureFilter: null);
                 Assert.IsNotNull(aggregatedMetrics);
 
                 IReadOnlyList<ITelemetry> aggregates = aggregatedMetrics.NonpersistentAggregates;
