@@ -2,7 +2,6 @@
 & docker images -a
 & docker ps -a
 
-<#
 Write-Host "Images before cleanup"
 & docker images -a
 
@@ -26,7 +25,6 @@ Write-Host "Removing E2E Images"
 & docker rmi -f e2etests_e2etestwebapi
 & docker rmi -f e2etests_e2etestwebapp 
 & docker rmi -f e2etests_sql-server
-#>
 
 Write-Host "Removing dangling images"
 docker images -f "dangling=true" -q | ForEach-Object {docker rmi $_ -f}
