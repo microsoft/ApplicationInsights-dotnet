@@ -95,10 +95,13 @@
     <Compile Include="Test452Base.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="AzureEmulator\SqlLocalDB.msi">
+    <None Include="AzureEmulator\entry.cmd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="AzureEmulator\start.ps1">
+    <None Include="AzureEmulator\nginx-1.12.0.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="AzureEmulator\nginx.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="docker-compose452AppOn47.yml">
@@ -115,6 +118,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AzureEmulator\readme.txt" />
     <Content Include="docker-compose.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
