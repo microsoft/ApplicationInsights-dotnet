@@ -274,7 +274,7 @@ namespace E2ETests
             PrintDependencies(dependenciesWebApp);
 
             Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
-            Assert.IsTrue(dependenciesWebApp.Count == count);
+            Assert.IsTrue(dependenciesWebApp.Count == count, string.Format("Dependeny count is incorrect. Actual {0} Expected {1}", dependenciesWebApp.Count, count));
             var dependency = dependenciesWebApp[0];
             Assert.AreEqual(expectedDependencyTelemetry.Type, dependency.data.baseData.type, "Dependency Type is incorrect");
             Assert.AreEqual(expectedDependencyTelemetry.Success, dependency.data.baseData.success, "Dependency success is incorrect");
