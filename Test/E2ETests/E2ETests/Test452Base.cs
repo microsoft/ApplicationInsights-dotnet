@@ -289,6 +289,7 @@ namespace E2ETests
                 Trace.WriteLine("deps.iKey: " + deps.iKey);
                 Trace.WriteLine("deps.data.baseData.name:" + deps.data.baseData.name);
                 Trace.WriteLine("deps.data.baseData.type:" + deps.data.baseData.type);
+                Trace.WriteLine("deps.data.baseData.success:" + deps.data.baseData.success);
                 Trace.WriteLine("deps.data.baseData.target:" + deps.data.baseData.target);
                 Trace.WriteLine("--------------------------------------");
             }
