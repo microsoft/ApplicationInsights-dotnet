@@ -171,11 +171,16 @@ namespace E2ETests
         public void TestAzureTableDependencyWebApp()
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
+
+            // Expected type is http instead of AzureTable as type is based on the target url which
+            // will be a local url in case of emulator.
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
 
+            // 2 dependency item is expected.
+            // 1 from creating table, and 1 from writing data to it.
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuretable", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey).Wait();
+                Apps[WebAppName].ikey, 2).Wait();
         }
 
         public void TestBasicSqlDependencyWebApp()
@@ -250,7 +255,7 @@ namespace E2ETests
         }
 
         private async Task ValidateBasicDependencyAsync(string targetInstanceIp, string targetPath,
-            DependencyTelemetry expectedDependencyTelemetry, string ikey)
+            DependencyTelemetry expectedDependencyTelemetry, string ikey, int count = 1)
         {
             HttpClient client = new HttpClient();
             string url = "http://" + targetInstanceIp + targetPath;
@@ -269,7 +274,7 @@ namespace E2ETests
             PrintDependencies(dependenciesWebApp);
 
             Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
-            Assert.IsTrue(dependenciesWebApp.Count == 1);
+            Assert.IsTrue(dependenciesWebApp.Count == count);
             var dependency = dependenciesWebApp[0];
             Assert.AreEqual(expectedDependencyTelemetry.Type, dependency.data.baseData.type, "Dependency Type is incorrect");
             Assert.AreEqual(expectedDependencyTelemetry.Success, dependency.data.baseData.success, "Dependency success is incorrect");
