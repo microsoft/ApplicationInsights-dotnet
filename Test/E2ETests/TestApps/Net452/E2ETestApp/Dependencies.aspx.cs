@@ -32,6 +32,17 @@ namespace E2ETestApp
                         this.lblRequestedAction.Text = this.lblRequestedAction.Text + "  Exception occured: " + ex;
                     }
                     break;
+                case "azuretable":
+                    try
+                    {
+                        DependencyCallHelpers.MakeAzureCallToWriteTableWithSdk(1);
+                        this.lblRequestedAction.Text = this.lblRequestedAction.Text + " Sucess!";
+                    }
+                    catch (Exception ex)
+                    {
+                        this.lblRequestedAction.Text = this.lblRequestedAction.Text + "  Exception occured: " + ex;
+                    }
+                    break;
                 case "sql":
                     try
                     { 
