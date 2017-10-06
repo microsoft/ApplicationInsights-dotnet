@@ -5,6 +5,7 @@
     using System.Diagnostics.Tracing;
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility;
+
     /// <summary>
     /// Use diagnostics telemetry module to report SDK internal problems to the portal and VS debug output window.
     /// </summary>
@@ -14,13 +15,9 @@
 
         internal readonly DiagnosticsListener EventListener;
 
-
         internal IHeartbeatProvider HeartbeatProvider = null;
-
         private readonly object lockObject = new object();
-
         private readonly IDiagnoisticsEventThrottlingScheduler throttlingScheduler = new DiagnoisticsEventThrottlingScheduler();
-
         private volatile bool disposed = false;
         private string instrumentationKey;
         private bool isInitialized = false;
@@ -43,6 +40,16 @@
         {
             this.Dispose(false);
         }
+
+        /// <summary>
+        /// Gets or sets the delay between heartbeat emmissions in milliseconds.
+        /// </summary>
+        public int MillisecondsBetweenHeartbeats { get; set; }
+
+        /// <summary>
+        /// Gets or sets property names that are allowed to be sent along with the health heartbeats emitted. * means allow all default properties through.
+        /// </summary>
+        public string AllowedHeartbeatProperties { get; set; }
 
         /// <summary>
         /// Gets or sets diagnostics Telemetry Module LogLevel configuration setting. 
@@ -140,7 +147,7 @@
                             this.HeartbeatProvider = new HealthHeartbeatProvider();
                         }
 
-                        this.HeartbeatProvider.Initialize(configuration);
+                        this.HeartbeatProvider.Initialize();
 
                         this.isInitialized = true;
                     }
@@ -155,7 +162,7 @@
         /// file.
         /// </summary>
         /// <param name="payloadProvider">Extension payload to include in Health Heartbeat payloads</param>
-        public void RegisterHeartbeatPayload(IHealthHeartbeatProperty payloadProvider)
+        public void RegisterHeartbeatPayload(IHealthHeartbeatPayloadExtension payloadProvider)
         {
             if (this.HeartbeatProvider != null)
             {
@@ -185,7 +192,8 @@
                 {
                     disposableSender.Dispose();
                 }
-                this.HeartbeatProvider.Dispose();
+
+                this.HeartbeatProvider = null;
 
                 GC.SuppressFinalize(this);
             }

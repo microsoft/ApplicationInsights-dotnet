@@ -1,3 +1,9 @@
-Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHealthHeartbeatProperty
-Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHealthHeartbeatProperty.Properties.get -> System.Collections.Generic.KeyValuePair<string, object>[]
-Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHealthHeartbeatProperty.UnhealthyCount.get -> int
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.AllowedHeartbeatProperties.get -> string
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.AllowedHeartbeatProperties.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.MillisecondsBetweenHeartbeats.get -> int
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.MillisecondsBetweenHeartbeats.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.RegisterHeartbeatPayload(Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHealthHeartbeatPayloadExtension payloadProvider) -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHealthHeartbeatPayloadExtension
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHealthHeartbeatPayloadExtension.CurrentUnhealthyCount.get -> int
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHealthHeartbeatPayloadExtension.GetPayloadProperties() -> System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, object>>
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHealthHeartbeatPayloadExtension.Name.get -> string

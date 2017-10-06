@@ -4,10 +4,10 @@
 
     internal interface IHeartbeatProvider
     {
-        void RegisterHeartbeatPayload(IHealthHeartbeatProperty payloadProvider);
+        void RegisterHeartbeatPayload(IHealthHeartbeatPayloadExtension payloadProvider);
 
-        bool Initialize(TelemetryConfiguration config);
+        bool Initialize();
 
-        bool UpdateSettings(TelemetryConfiguration config);
+        bool UpdateSettings();
     }
 }
