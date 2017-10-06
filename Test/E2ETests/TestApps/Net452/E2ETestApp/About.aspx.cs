@@ -11,7 +11,7 @@ namespace E2ETestApp
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            DependencyCallHelpers.MakeAzureCallToCreateTableWithSdk("people");
         }
     }
 }

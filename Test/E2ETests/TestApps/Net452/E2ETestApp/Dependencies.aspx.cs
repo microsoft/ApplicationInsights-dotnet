@@ -36,6 +36,7 @@ namespace E2ETestApp
                     try
                     {
                         DependencyCallHelpers.MakeAzureCallToWriteTableWithSdk(1);
+                        DependencyCallHelpers.MakeAzureCallToReadTableWithSdk(1);
                         this.lblRequestedAction.Text = this.lblRequestedAction.Text + " Sucess!";
                     }
                     catch (Exception ex)

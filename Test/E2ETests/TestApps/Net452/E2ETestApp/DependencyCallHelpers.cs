@@ -86,9 +86,8 @@ namespace E2ETestApp
             // Create the table client.
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
-            // Create the table if it doesn't exist.
-            CloudTable table = tableClient.GetTableReference("people");
-            table.CreateIfNotExists();
+            // people table is assumed to be present. About.aspx creates it.
+            CloudTable table = tableClient.GetTableReference("people");            
 
             // Create the batch operation.
             TableBatchOperation batchOperation = new TableBatchOperation();
@@ -112,6 +111,24 @@ namespace E2ETestApp
         }
 
         /// <summary>
+        /// Make azure call to write to Table
+        /// </summary>        
+        /// <param name="count">no of calls to be made</param>        
+        public static void MakeAzureCallToCreateTableWithSdk(string tableName)
+        {
+            // Retrieve storage account from connection string.
+            CloudStorageAccount storageAccount =
+                CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
+
+            // Create the table client.
+            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+
+            // Create the table if it doesn't exist.
+            CloudTable table = tableClient.GetTableReference(tableName);
+            table.CreateIfNotExists();          
+        }
+
+        /// <summary>
         /// Make azure call to read from Table
         /// </summary>        
         /// <param name="count">no of calls to be made</param>        
@@ -124,9 +141,8 @@ namespace E2ETestApp
             // Create the table client.
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
-            // Create the table if it doesn't exist.
-            CloudTable table = tableClient.GetTableReference("people");
-            table.CreateIfNotExists();
+            // table should already be present.
+            CloudTable table = tableClient.GetTableReference("people");            
 
             // Create the table query.
             TableQuery<CustomerEntity> rangeQuery = new TableQuery<CustomerEntity>().Where(
