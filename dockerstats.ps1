@@ -1,3 +1,5 @@
+$ErrorActionPreference = "silentlycontinue"
+
 & docker info
 & docker images -a
 & docker ps -a
