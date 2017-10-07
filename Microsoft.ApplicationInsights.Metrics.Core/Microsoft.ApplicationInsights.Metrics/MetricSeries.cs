@@ -130,42 +130,35 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         public void ResetAggregation()
         {
-            ResetAggregation(periodStart: DateTimeOffset.Now, valueFilter: null);
+            ResetAggregation(periodStart: DateTimeOffset.Now);
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void ResetAggregation(DateTimeOffset periodStart)
-        {
-            ResetAggregation(periodStart, valueFilter: null);
-        }
-
+        
         /// <summary>
         /// 
         /// </summary>
         /// <param name="periodStart"></param>
-        /// <param name="valueFilter"></param>
-        public void ResetAggregation(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
+        public void ResetAggregation(DateTimeOffset periodStart)
         {
+            periodStart = Util.RoundDownToSecond(periodStart);
+
             if (_requiresPersistentAggregator)
             {
                 IMetricSeriesAggregator aggregator = _aggregatorPersistent;
-                aggregator?.Reset(periodStart, valueFilter);
+                aggregator?.Reset(periodStart);
             }
             else
             {
                 {
                     IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorDefault);
-                    aggregator?.Reset(periodStart, valueFilter);
+                    aggregator?.Reset(periodStart);
                 }
                 {
                     IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorQuickPulse);
-                    aggregator?.Reset(periodStart, valueFilter);
+                    aggregator?.Reset(periodStart);
                 }
                 {
                     IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorCustom);
-                    aggregator?.Reset(periodStart, valueFilter);
+                    aggregator?.Reset(periodStart);
                 }
             }
         }
@@ -214,6 +207,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
             }
 
+            dateTime = Util.RoundDownToSecond(dateTime);
             ITelemetry aggregate = aggregator?.CreateAggregateUnsafe(dateTime);
             return aggregate;
         }

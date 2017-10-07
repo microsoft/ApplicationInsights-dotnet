@@ -16,10 +16,6 @@
     -->
   </ItemGroup>
   
-  <ItemGroup>
-    <Folder Include="Microsoft.ApplicationInsights.Metrics\Internal\Aggregators\" />
-  </ItemGroup>
-  
   <PropertyGroup>
     <DocumentationFile>$(OutputPath)\$(TargetFramework)\Microsoft.ApplicationInsights.Metrics.Core.xml</DocumentationFile>
     <ProjectGuid>{B9938C09-9CB3-45CF-BA3C-847FF85EC750}</ProjectGuid>

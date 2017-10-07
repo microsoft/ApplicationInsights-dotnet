@@ -42,13 +42,18 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public MetricSeries DataSeries { get { return _dataSeries; } }
 
-        public void Reset(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
+        public void Reset(DateTimeOffset periodStart)
         {
             _periodStart = periodStart;
             _periodEnd = default(DateTimeOffset);
-            _valueFilter = valueFilter;
             _ongoingUpdates = InternalExecutionState_Ready;
             ReinitializeAggregation();
+        }
+
+        public void Reset(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
+        {
+            _valueFilter = valueFilter;
+            Reset(periodStart);
         }
 
         public virtual ITelemetry CompleteAggregation(DateTimeOffset periodEnd)

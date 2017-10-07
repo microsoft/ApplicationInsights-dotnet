@@ -35,7 +35,7 @@ namespace SomeCustomerNamespace
             DateTimeOffset experimentStart = new DateTimeOffset(2017, 9, 14, 0, 0, 0, TimeSpan.Zero);
 
             // Stop the default minute-ly cycle so that it does not interfere with our virtual time debugging:
-            Task fireAndForget = telemetryPipeline.Metrics().StopAsync();   
+            Task fireAndForget = telemetryPipeline.Metrics().StopDefaultAggregationCycleAsync();   
 
             telemetryPipeline.Metrics().StartOrCycleAggregators(CycleKind.Custom, experimentStart, futureFilter: null);
 

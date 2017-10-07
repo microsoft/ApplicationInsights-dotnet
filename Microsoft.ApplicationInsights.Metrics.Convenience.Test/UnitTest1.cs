@@ -5,6 +5,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.ApplicationInsights.Metrics;
 //using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace SomeCustomerNamespace
 {
@@ -60,7 +62,45 @@ namespace SomeCustomerNamespace
 
 
 
+        void MethodX()
+        {
 
+            MetricManager manager = TelemetryConfiguration.Active.Metrics();
+
+            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false);
+            MetricSeries series1 = TelemetryConfiguration.Active.Metrics().CreateNewSeries("Cows Sold", config);
+
+            series1.TrackValue(42);
+
+            series1.Context.Properties["Color of Cow"] = "Red";
+            series1.Context.Properties["Gender of Cow"] = "Female";
+
+            series1.TrackValue(1);
+            series1.TrackValue(1);
+            series1.TrackValue(1);
+
+        }
+
+        void MethodY()
+        {
+            TelemetryClient client = new TelemetryClient();
+
+            client.TrackEvent(null);
+
+
+            client.GetMetric("Cows Sold").TrackValue(42);
+            client.GetMetric("Cows Sold").TrackValue(24);
+
+            Metric m = client.GetMetric("Cows Sold", "Color", "Gender");
+
+
+            m.TrackValue(42);
+
+            m.TryTrackValue(42, "Red", "Female");
+            m.TryTrackValue(42, "Green", "Female");
+            m.TryTrackValue(42, "Green", "Male");
+
+        }
 
 
 

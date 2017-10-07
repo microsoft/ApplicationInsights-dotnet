@@ -84,10 +84,13 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             else
             {
-                now = RoundToClosestSecond(now);
+                now = Util.RoundDownToSecond(now);
             }
 
-            AggregationPeriodSummary aggregates = _aggregationManager.StartOrCycleAggregators(MetricAggregationCycleKind.Default, futureFilter: null, tactTimestamp: now);
+            AggregationPeriodSummary aggregates = _aggregationManager.StartOrCycleAggregators(
+                                                                            MetricAggregationCycleKind.Default,
+                                                                            futureFilter: null,
+                                                                            tactTimestamp: now);
             if (aggregates != null)
             {
                 Task fireAndForget = Task.Run( () => _metricManager.TrackMetricAggregates(aggregates) );
@@ -129,7 +132,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             const int targetOffsetFromRebasedCurrentTimeInSecs = (60) + 1;
             const double minPeriodInSecs = 20.0 + 1.0;
 
-            DateTimeOffset target = RoundDownToMinute(periodStart).AddSeconds(targetOffsetFromRebasedCurrentTimeInSecs);
+            DateTimeOffset target = Util.RoundDownToMinute(periodStart).AddSeconds(targetOffsetFromRebasedCurrentTimeInSecs);
 
             // If this results in the next period being unreasonably short, we extend that period by 1 minute,
             // resulting in a total period that is somewhat longer than a minute.
@@ -141,23 +144,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             return target;
-        }
-
-        private static DateTimeOffset RoundDownToMinute(DateTimeOffset dto)
-        {
-            return new DateTimeOffset(dto.Year, dto.Month, dto.Day, dto.Hour, dto.Minute, 0, 0, dto.Offset);
-        }
-
-        private static DateTimeOffset RoundToClosestSecond(DateTimeOffset dto)
-        {
-            DateTimeOffset rounded = new DateTimeOffset(dto.Year, dto.Month, dto.Day, dto.Hour, dto.Minute, dto.Second, dto.Offset);
-
-            if (dto.Millisecond > 500)
-            {
-                rounded = rounded.AddSeconds(1);
-            }
-
-            return rounded;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming Rules", "SA1310: C# Field must not contain an underscore", Justification = "By design: Structured name.")]

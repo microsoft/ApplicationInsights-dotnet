@@ -9,6 +9,7 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using Microsoft.ApplicationInsights.Channel;
 
 using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
+using Microsoft.ApplicationInsights.Metrics.TestUtil;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -321,7 +322,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         private static void ValidateNumericAggregateValues(ITelemetry aggregate, string name, int count, double sum, double max, double min, double stdDev, DateTimeOffset timestamp, string periodMs)
         {
-            CommonSimpleDataSeriesAggregatorTests.ValidateNumericAggregateValues(aggregate, name, count, sum, max, min, stdDev, timestamp, periodMs);
+            TestUtil.Util.ValidateNumericAggregateValues(aggregate, name, count, sum, max, min, stdDev, timestamp, periodMs);
         }
 
         /// <summary />

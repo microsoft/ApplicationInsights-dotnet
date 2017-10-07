@@ -8,7 +8,7 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    internal class SimpleUInt32DataSeriesAggregator : SimpleDataSeriesAggregatorBase, IMetricSeriesAggregator
+    internal class SimpleUInt32DataSeriesAggregator : SimpleNumberSeriesAggregatorBase, IMetricSeriesAggregator
     {
         private const double MicroOne = 0.000001;
 

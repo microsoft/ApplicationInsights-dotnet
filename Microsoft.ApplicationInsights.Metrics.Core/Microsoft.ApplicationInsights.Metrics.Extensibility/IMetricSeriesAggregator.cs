@@ -29,6 +29,12 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="periodStart"></param>
+        void Reset(DateTimeOffset periodStart);
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="periodEnd"></param>
         /// <returns></returns>
         ITelemetry CompleteAggregation(DateTimeOffset periodEnd);

@@ -60,7 +60,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// You can await the returned Task if you want to be sure that the encapsulated thread completed.
         /// If you just want to notify the thread to stop without waiting for it, do not await this method.
         /// </returns>
-        public static Task StopAsync(this MetricManager metricManager)
+        public static Task StopDefaultAggregationCycleAsync(this MetricManager metricManager)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
 

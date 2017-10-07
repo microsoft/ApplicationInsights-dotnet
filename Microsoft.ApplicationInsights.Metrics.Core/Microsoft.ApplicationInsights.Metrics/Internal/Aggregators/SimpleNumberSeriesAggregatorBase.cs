@@ -8,7 +8,7 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    internal abstract class SimpleDataSeriesAggregatorBase : DataSeriesAggregatorBase, IMetricSeriesAggregator
+    internal abstract class SimpleNumberSeriesAggregatorBase : DataSeriesAggregatorBase, IMetricSeriesAggregator
     {
         protected int _count;
         protected double _min;
@@ -16,7 +16,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         protected double _sum;
         protected double _sumOfSquares;
 
-        public SimpleDataSeriesAggregatorBase(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
+        public SimpleNumberSeriesAggregatorBase(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
             : base(configuration, dataSeries, aggregationCycleKind)
         {
         }

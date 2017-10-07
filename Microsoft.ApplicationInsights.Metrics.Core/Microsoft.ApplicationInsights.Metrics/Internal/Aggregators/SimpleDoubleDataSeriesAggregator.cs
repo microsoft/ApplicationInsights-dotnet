@@ -8,7 +8,7 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    internal class SimpleDoubleDataSeriesAggregator : SimpleDataSeriesAggregatorBase, IMetricSeriesAggregator
+    internal class SimpleDoubleDataSeriesAggregator : SimpleNumberSeriesAggregatorBase, IMetricSeriesAggregator
     {
         public SimpleDoubleDataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
             : base(configuration, dataSeries, aggregationCycleKind)

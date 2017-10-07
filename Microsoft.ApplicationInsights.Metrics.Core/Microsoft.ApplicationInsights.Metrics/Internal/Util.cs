@@ -42,6 +42,16 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         : x;
         }
 
+        public static DateTimeOffset RoundDownToMinute(DateTimeOffset dto)
+        {
+            return new DateTimeOffset(dto.Year, dto.Month, dto.Day, dto.Hour, dto.Minute, 0, 0, dto.Offset);
+        }
+
+        public static DateTimeOffset RoundDownToSecond(DateTimeOffset dto)
+        {
+            return new DateTimeOffset(dto.Year, dto.Month, dto.Day, dto.Hour, dto.Minute, dto.Second, 0, dto.Offset);
+        }
+
         /// <summary>
         /// We are working on adding a publically exposed method to a future version of the Core SDK so that the reflection employed here is not necesary.
         /// </summary>

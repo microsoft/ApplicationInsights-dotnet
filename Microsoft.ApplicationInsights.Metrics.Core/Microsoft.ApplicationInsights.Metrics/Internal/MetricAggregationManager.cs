@@ -21,7 +21,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         internal MetricAggregationManager()
         {
             DateTimeOffset now = DateTimeOffset.Now;
-            DateTimeOffset timestamp = new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, 0, now.Offset);
+            DateTimeOffset timestamp = Util.RoundDownToSecond(now);
 
             _aggregatorsForDefault = new AggregatorCollection(timestamp, filter: null);
             _aggregatorsForPersistent = new AggregatorCollection(timestamp, filter: null);
@@ -142,6 +142,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 throw new InvalidOperationException("Invernal SDK bug. Please report. Cannot cycle persistent aggregators.");
             }
+
+            tactTimestamp = Util.RoundDownToSecond(tactTimestamp);
 
             // For non-persistent aggregators: create empty holder for the next aggregation period and swap for the previous holder:
             AggregatorCollection prevAggregators;

@@ -53,7 +53,6 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Microsoft.ApplicationInsights.Metrics.TestUtil\Utils.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\CommonSimpleDataSeriesAggregatorTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\DefaultAggregationPeriodCycle.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\UtilTests.cs" />
@@ -68,6 +67,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Microsoft.ApplicationInsights.Metrics.Core.Tests\Microsoft.ApplicationInsights.Metrics.Core.Tests.csproj">
+      <Project>{8fbc7612-4536-45db-86c3-c2ed95219231}</Project>
+      <Name>Microsoft.ApplicationInsights.Metrics.Core.Tests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Microsoft.ApplicationInsights.Metrics.Core\Microsoft.ApplicationInsights.Metrics.Core.csproj">
       <Project>{b9938c09-9cb3-45cf-ba3c-847ff85ec750}</Project>
       <Name>Microsoft.ApplicationInsights.Metrics.Core</Name>

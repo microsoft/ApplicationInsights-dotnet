@@ -5,11 +5,17 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
+using Microsoft.ApplicationInsights.DataContracts;
 
 namespace Microsoft.ApplicationInsights.Metrics.TestUtil
 {
-    internal static class Util
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    public static class Util
+
     {
+        public const string AggregationIntervalMonikerPropertyKey = "_MS.AggregationIntervalMs";
+        public const double MaxAllowedPrecisionError = 0.00001;
+
         public static void AssertAreEqual<T>(T[] array1, T[] array2)
         {
             if (array1 == array2)
@@ -106,5 +112,47 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtil
             telemetrySentToChannel = channel.TelemetryItems;
             return telemetryConfig;
         }
+
+        public static void ValidateNumericAggregateValues(ITelemetry aggregate, string name, int count, double sum, double max, double min, double stdDev, DateTimeOffset timestamp, string periodMs)
+        {
+            ValidateNumericAggregateValues(aggregate, name, count, sum, max, min, stdDev, timestamp, periodMs);
+
+            var metricAggregate = (MetricTelemetry) aggregate;
+            Assert.AreEqual(timestamp, metricAggregate.Timestamp, "metricAggregate.Timestamp mismatch");
+            Assert.AreEqual(periodMs, metricAggregate?.Properties?[Util.AggregationIntervalMonikerPropertyKey], "metricAggregate.Properties[AggregationIntervalMonikerPropertyKey] mismatch");
+        }
+
+        public static void ValidateNumericAggregateValues(ITelemetry aggregate, string name, int count, double sum, double max, double min, double stdDev)
+        {
+            Assert.IsNotNull(aggregate);
+
+            MetricTelemetry metricAggregate = aggregate as MetricTelemetry;
+
+            Assert.IsNotNull(metricAggregate);
+
+            Assert.AreEqual(name, metricAggregate.Name, "metricAggregate.Name mismatch");
+            Assert.AreEqual(count, metricAggregate.Count, "metricAggregate.Count mismatch");
+            Assert.AreEqual(sum, metricAggregate.Sum, Util.MaxAllowedPrecisionError, "metricAggregate.Sum mismatch");
+            Assert.AreEqual(max, metricAggregate.Max.Value, Util.MaxAllowedPrecisionError, "metricAggregate.Max mismatch");
+            Assert.AreEqual(min, metricAggregate.Min.Value, Util.MaxAllowedPrecisionError, "metricAggregate.Min mismatch");
+
+            // For very large numbers we perform an approx comparison.
+            if (Math.Abs(stdDev) > Int64.MaxValue)
+            {
+                double expectedStdDevScale = Math.Floor(Math.Log10(Math.Abs(stdDev)));
+                double actualStdDevScale = Math.Floor(Math.Log10(Math.Abs(metricAggregate.StandardDeviation.Value)));
+                Assert.AreEqual(expectedStdDevScale, actualStdDevScale, "metricAggregate.StandardDeviation (exponent) mismatch");
+                Assert.AreEqual(
+                            stdDev / Math.Pow(10, expectedStdDevScale),
+                            metricAggregate.StandardDeviation.Value / Math.Pow(10, actualStdDevScale),
+                            Util.MaxAllowedPrecisionError,
+                            "metricAggregate.StandardDeviation (significant part) mismatch");
+            }
+            else
+            {
+                Assert.AreEqual(stdDev, metricAggregate.StandardDeviation.Value, Util.MaxAllowedPrecisionError, "metricAggregate.StandardDeviation mismatch");
+            }
+        }
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

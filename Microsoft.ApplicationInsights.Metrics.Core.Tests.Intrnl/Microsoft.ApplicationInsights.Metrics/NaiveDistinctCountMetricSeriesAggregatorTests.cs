@@ -291,7 +291,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         private static void ValidateNumericAggregateValues(ITelemetry aggregate, string name, int count, double sum, double max, double min, double stdDev, DateTimeOffset timestamp, string periodMs)
         {
-            CommonSimpleDataSeriesAggregatorTests.ValidateNumericAggregateValues(aggregate, name, count, sum, max, min, stdDev, timestamp, periodMs);
+            TestUtil.Util.ValidateNumericAggregateValues(aggregate, name, count, sum, max, min, stdDev, timestamp, periodMs);
         }
 
         /// <summary />
@@ -335,15 +335,15 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreEqual("Distinct Cows Sold", metricAggregate.Name, "metricAggregate.Name mismatch");
             Assert.AreEqual(3, metricAggregate.Count, "metricAggregate.Count mismatch");
-            Assert.AreEqual(2, metricAggregate.Sum, Utils.MaxAllowedPrecisionError, "metricAggregate.Sum mismatch");
-            Assert.AreEqual(0, metricAggregate.Max.Value, Utils.MaxAllowedPrecisionError, "metricAggregate.Max mismatch");
-            Assert.AreEqual(0, metricAggregate.Min.Value, Utils.MaxAllowedPrecisionError, "metricAggregate.Min mismatch");
-            Assert.AreEqual(0, metricAggregate.StandardDeviation.Value, Utils.MaxAllowedPrecisionError, "metricAggregate.StandardDeviation mismatch");
+            Assert.AreEqual(2, metricAggregate.Sum, TestUtil.Util.MaxAllowedPrecisionError, "metricAggregate.Sum mismatch");
+            Assert.AreEqual(0, metricAggregate.Max.Value, TestUtil.Util.MaxAllowedPrecisionError, "metricAggregate.Max mismatch");
+            Assert.AreEqual(0, metricAggregate.Min.Value, TestUtil.Util.MaxAllowedPrecisionError, "metricAggregate.Min mismatch");
+            Assert.AreEqual(0, metricAggregate.StandardDeviation.Value, TestUtil.Util.MaxAllowedPrecisionError, "metricAggregate.StandardDeviation mismatch");
 
             Assert.AreEqual(startTS, metricAggregate.Timestamp, "metricAggregate.Timestamp mismatch");
             Assert.AreEqual(
                         ((long) ((endTS - startTS).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture),
-                        metricAggregate?.Properties?[Utils.AggregationIntervalMonikerPropertyKey],
+                        metricAggregate?.Properties?[TestUtil.Util.AggregationIntervalMonikerPropertyKey],
                         "metricAggregate.Properties[AggregationIntervalMonikerPropertyKey] mismatch");
 
             Assert.AreEqual("C", metricAggregate.Context.Component.Version);

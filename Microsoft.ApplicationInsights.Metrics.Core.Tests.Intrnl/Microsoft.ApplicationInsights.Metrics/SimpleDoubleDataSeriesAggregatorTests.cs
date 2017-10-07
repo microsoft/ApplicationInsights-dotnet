@@ -242,7 +242,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 for (int i = 0; i < 100000; i++)
                 {
-                    for (double v = 0; v <= 1.0 || Math.Abs(1.0 - v) < Utils.MaxAllowedPrecisionError; v += 0.01)
+                    for (double v = 0; v <= 1.0 || Math.Abs(1.0 - v) < TestUtil.Util.MaxAllowedPrecisionError; v += 0.01)
                     {
                         aggregator.TrackValue(v);
                     }
@@ -260,7 +260,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 for (int i = 0; i < 100000; i++)
                 {
-                    for (double v = 0; v <= 300000.0 || Math.Abs(300000.0 - v) < Utils.MaxAllowedPrecisionError; v += 3000)
+                    for (double v = 0; v <= 300000.0 || Math.Abs(300000.0 - v) < TestUtil.Util.MaxAllowedPrecisionError; v += 3000)
                     {
                         aggregator.TrackValue(v);
                     }
@@ -451,7 +451,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         private static void ValidateNumericAggregateValues(ITelemetry aggregate, string name, int count, double sum, double max, double min, double stdDev, DateTimeOffset timestamp, string periodMs)
         {
-            CommonSimpleDataSeriesAggregatorTests.ValidateNumericAggregateValues(aggregate, name, count, sum, max, min, stdDev, timestamp, periodMs);
+            TestUtil.Util.ValidateNumericAggregateValues(aggregate, name, count, sum, max, min, stdDev, timestamp, periodMs);
         }
 
         /// <summary />
