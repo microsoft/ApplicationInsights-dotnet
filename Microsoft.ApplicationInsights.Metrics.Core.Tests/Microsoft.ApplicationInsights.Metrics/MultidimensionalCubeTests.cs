@@ -454,6 +454,10 @@ namespace Microsoft.ApplicationInsights.Metrics
                                             {
                                                 throw new ApplicationException($"delayMillis was {delayMillis}, but only {passed} millis passed.");
                                             }
+                                            //else
+                                            //{
+                                            //    throw new InvalidOperationException($"Test issue: Bad timing. delayMillis was {delayMillis}, but {passed} millis passed.");
+                                            //}
                                             return Int32.Parse(vector[0]);
                                         },
                                         10000, 10000, 10000);
@@ -468,7 +472,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         TimeSpan.FromMilliseconds(2),
                                         TimeSpan.FromMilliseconds(7),
                                         CancellationToken.None,
-                                        "7", "500", "foo")
+                                        "7", "50000", "foo")
                              .GetAwaiter().GetResult();
 
                 Assert.Fail("An ApplicationException was expected to escape.");

@@ -157,5 +157,5 @@ namespace SomeCustomerNamespace
         public void TestMethod2()
         {
         }
-        }
+    }
 }

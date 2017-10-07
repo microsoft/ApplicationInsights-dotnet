@@ -56,6 +56,7 @@
     <Compile Include="Microsoft.ApplicationInsights.Metrics.Extensibility\AggregationPeriodSummaryTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics.TestUtil\ArrayEqualityComparer.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics.TestUtil\StubApplicationInsightsTelemetryChannel.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics.TestUtil\TestCategoryNames.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\MetricEmissionTestsVirtualTime.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\MetricSeriesTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\MetricManagerTests.cs" />

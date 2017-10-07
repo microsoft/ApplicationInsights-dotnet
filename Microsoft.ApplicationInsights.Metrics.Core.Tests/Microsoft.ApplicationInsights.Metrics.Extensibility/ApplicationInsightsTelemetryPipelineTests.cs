@@ -25,8 +25,12 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                 Assert.ThrowsException<ArgumentNullException>( () => new ApplicationInsightsTelemetryPipeline(null) );
             }
             {
-                var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(TelemetryConfiguration.Active);
-                Assert.IsNotNull(pipelineAdapter);
+                TelemetryConfiguration defaultPipeline = TelemetryConfiguration.Active;
+                using (defaultPipeline)
+                {
+                    var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(defaultPipeline);
+                    Assert.IsNotNull(pipelineAdapter);
+                }
             }
         }
 

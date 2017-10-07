@@ -6,6 +6,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using System.Linq;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Metrics.TestUtil;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -14,6 +15,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     public class MetricManagerTests
     {
         /// <summary />
+        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
         public void Ctor()
         {
@@ -21,9 +23,12 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var manager = new MetricManager(new MemoryMetricTelemetryPipeline());
             Assert.IsNotNull(manager);
+
+            Util.CompleteDefaultAggregationCycle(manager);
         }
 
         /// <summary />
+        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
         public void CreateNewSeries()
         {
@@ -41,9 +46,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreSame(config, series.GetConfiguration());
 
             Assert.AreEqual("Foo Bar", series.MetricId);
+
+            Util.CompleteDefaultAggregationCycle(manager);
         }
 
         /// <summary />
+        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
         public void Flush()
         {
@@ -53,6 +61,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 manager.Flush();
 
                 Assert.AreEqual(0, metricsCollector.Count);
+                Util.CompleteDefaultAggregationCycle(manager);
             }
             {
                 var metricsCollector = new MemoryMetricTelemetryPipeline();
@@ -103,6 +112,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(1, metricsCollector.Where((item) => (item as MetricTelemetry).Name.Equals("Counter 1")).Count());
                 Assert.AreEqual(3, (metricsCollector.First((item) => (item as MetricTelemetry).Name.Equals("Counter 1")) as MetricTelemetry).Count);
                 Assert.AreEqual(0, (metricsCollector.First((item) => (item as MetricTelemetry).Name.Equals("Counter 1")) as MetricTelemetry).Sum);
+
+                Util.CompleteDefaultAggregationCycle(manager);
             }
 
         }

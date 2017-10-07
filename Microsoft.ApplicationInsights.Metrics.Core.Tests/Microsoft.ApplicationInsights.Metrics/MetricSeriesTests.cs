@@ -17,6 +17,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     public class MetricSeriesTests
     {
         /// <summary />
+        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
         public void Properties()
         {
@@ -32,9 +33,12 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreEqual(config, series.GetConfiguration());
             Assert.AreSame(config, series.GetConfiguration());
+
+            Util.CompleteDefaultAggregationCycle(manager);
         }
 
         /// <summary />
+        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
         public void TrackValueDouble()
         {
@@ -45,6 +49,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false);
             MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
 
+            Thread.Sleep(1500);
+
             series.TrackValue(0.4);
             series.TrackValue(0.8);
             series.TrackValue(-0.04);
@@ -53,7 +59,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             manager.Flush();
             Assert.AreEqual(1, aggregateCollector.Count);
 
-            DateTimeOffset endTS = DateTimeOffset.Now;
+            DateTimeOffset endTSRounded = DateTimeOffset.Now;
+            endTSRounded = new DateTimeOffset(endTSRounded.Year, endTSRounded.Month, endTSRounded.Day, endTSRounded.Hour, endTSRounded.Minute, endTSRounded.Second, 0, endTSRounded.Offset);
+
 
             Assert.IsInstanceOfType(aggregateCollector[0], typeof(MetricTelemetry));
 
@@ -72,7 +80,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             const int millisecsTollerance = 50;
             string durationMs = ((ITelemetry) aggregateCollector[0]).Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey];
             Assert.IsNotNull(durationMs);
-            Assert.IsTrue(Math.Abs(Int64.Parse(durationMs) - (endTS - ((ITelemetry) aggregateCollector[0]).Timestamp).TotalMilliseconds) < millisecsTollerance);
+            Assert.IsTrue(Math.Abs(Int64.Parse(durationMs) - (endTSRounded - ((ITelemetry) aggregateCollector[0]).Timestamp).TotalMilliseconds) < millisecsTollerance);
 
             Assert.AreEqual(1, aggregateCollector.Count);
             aggregateCollector.Clear();
@@ -80,9 +88,12 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             manager.Flush();
             Assert.AreEqual(0, aggregateCollector.Count);
+
+            Util.CompleteDefaultAggregationCycle(manager);
         }
 
         /// <summary />
+        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
         public void TrackValueObject()
         {
@@ -98,11 +109,14 @@ namespace Microsoft.ApplicationInsights.Metrics
             series.TrackValue(-0.04);
             series.TrackValue("0.4");
 
+            Thread.Sleep(1500);
+
             Assert.AreEqual(0, aggregateCollector.Count);
             manager.Flush();
             Assert.AreEqual(1, aggregateCollector.Count);
 
-            DateTimeOffset endTS = DateTimeOffset.Now;
+            DateTimeOffset endTSRounded = DateTimeOffset.Now;
+            endTSRounded = new DateTimeOffset(endTSRounded.Year, endTSRounded.Month, endTSRounded.Day, endTSRounded.Hour, endTSRounded.Minute, endTSRounded.Second, 0, endTSRounded.Offset);
 
             Assert.IsInstanceOfType(aggregateCollector[0], typeof(MetricTelemetry));
 
@@ -121,10 +135,13 @@ namespace Microsoft.ApplicationInsights.Metrics
             const int millisecsTollerance = 50;
             string durationMs = ((ITelemetry) aggregateCollector[0]).Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey];
             Assert.IsNotNull(durationMs);
-            Assert.IsTrue(Math.Abs(Int64.Parse(durationMs) - (endTS - ((ITelemetry) aggregateCollector[0]).Timestamp).TotalMilliseconds) < millisecsTollerance);
+            Assert.IsTrue(Math.Abs(Int64.Parse(durationMs) - (endTSRounded - ((ITelemetry) aggregateCollector[0]).Timestamp).TotalMilliseconds) < millisecsTollerance);
+
+            Util.CompleteDefaultAggregationCycle(manager);
         }
 
         /// <summary />
+        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
         public void ResetAggregation()
         {
@@ -177,10 +194,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreEqual(
                         new DateTimeOffset(resetTS.Year, resetTS.Month, resetTS.Day, resetTS.Hour, resetTS.Minute, resetTS.Second, 0, resetTS.Offset),
                         ((ITelemetry) aggregateCollector[0]).Timestamp);
-            
+
+            Util.CompleteDefaultAggregationCycle(manager);
         }
 
         /// <summary />
+        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
         public void ResetAggregationDateTimeOffset()
         {
@@ -234,9 +253,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                         new DateTimeOffset(resetTS.Year, resetTS.Month, resetTS.Day, resetTS.Hour, resetTS.Minute, resetTS.Second, 0, resetTS.Offset),
                         ((ITelemetry) aggregateCollector[0]).Timestamp);
 
+            Util.CompleteDefaultAggregationCycle(manager);
         }
 
         /// <summary />
+        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
         public void GetCurrentAggregateUnsafe()
         {
@@ -360,9 +381,12 @@ namespace Microsoft.ApplicationInsights.Metrics
                              aggregate.Timestamp);
                 }
             }
+
+            Util.CompleteDefaultAggregationCycle(manager);
         }
 
         /// <summary />
+        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
         public void GetCurrentAggregateUnsafe_MetricAggregationCycleKind_DateTimeOffset()
         {
@@ -735,6 +759,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                             aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
                 }
             }
+
+            Util.CompleteDefaultAggregationCycle(manager);
         }
     }
 }

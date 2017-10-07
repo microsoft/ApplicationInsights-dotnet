@@ -17,8 +17,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void Ctor()
         {
-            var manager = new MetricAggregationManager();
-            Assert.IsNotNull(manager);
+            var aggregationManager = new MetricAggregationManager();
+            Assert.IsNotNull(aggregationManager);
         }
 
         /// <summary />

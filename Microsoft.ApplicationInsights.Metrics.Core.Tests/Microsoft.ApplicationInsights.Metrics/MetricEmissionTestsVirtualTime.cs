@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 
 using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
+using Microsoft.ApplicationInsights.Metrics.TestUtil;
 
 namespace SomeCustomerNamespace
 {
@@ -21,11 +22,21 @@ namespace SomeCustomerNamespace
     public class MetricEmissionTestsVirtualTime
     {
         /// <summary />
+        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
         public void RecordNormalMetric()
         {
             TelemetryConfiguration telemetryPipeline = TelemetryConfiguration.Active;
+            using (telemetryPipeline)
+            {
+                RecordNormalMetric(telemetryPipeline);
+                Util.CompleteDefaultAggregationCycle(telemetryPipeline.Metrics());
+            }
+        }
 
+
+        private void RecordNormalMetric(TelemetryConfiguration telemetryPipeline)
+        {
             MetricSeries durationMeric = telemetryPipeline.Metrics().CreateNewSeries(
                                                                         "Item Add duration",
                                                                         new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));

@@ -40,7 +40,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         ~MetricManager()
         {
-            Task fireAndForget = this.StopDefaultAggregationCycleAsync();
+            DefaultAggregationPeriodCycle aggregationCycle = _aggregationCycle;
+            if (aggregationCycle != null)
+            {
+                Task fireAndForget = _aggregationCycle.StopAsync();
+            }
         }
 
         internal MetricAggregationManager AggregationManager { get { return _aggregationManager; } }

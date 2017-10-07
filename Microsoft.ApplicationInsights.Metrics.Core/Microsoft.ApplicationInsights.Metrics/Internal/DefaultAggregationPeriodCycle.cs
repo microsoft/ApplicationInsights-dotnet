@@ -23,7 +23,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly MetricManager _metricManager;
 
         private int _runningState;
-        private Task _workerTask = null;
+        private Task _workerTask;
 
         public DefaultAggregationPeriodCycle(MetricAggregationManager aggregationManager, MetricManager metricManager)
         {
@@ -34,7 +34,14 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             _aggregationManager = aggregationManager;
             _metricManager = metricManager;
+
             _runningState = RunningState_NotStarted;
+            _workerTask = null;
+        }
+
+        ~DefaultAggregationPeriodCycle()
+        {
+            Task fireAndForget = StopAsync();
         }
 
         public bool Start()
@@ -46,27 +53,21 @@ namespace Microsoft.ApplicationInsights.Metrics
                 return false; // Was already running or stopped.
             }
 
-            _workerTask = Task.Run(_workerMethod);
+            _workerTask = Task.Run(_workerMethod)
+                              .ContinueWith(
+                                        (t) => { _workerTask = null; },
+                                        TaskContinuationOptions.ExecuteSynchronously);
             return true;
         }
 
-        public async Task StopAsync()
+        public Task StopAsync()
         {
-            int prev = Interlocked.CompareExchange(ref _runningState, RunningState_Stopped, RunningState_Running);
-
-            if (prev != RunningState_Running)
-            {
-                return;
-            }
-
+            Interlocked.Exchange(ref _runningState, RunningState_Stopped);
+            
             // Benign race on being called very soon after start. Will miss a cycle but eventually complete correctly.
 
             Task workerTask = _workerTask;
-            if (workerTask != null)
-            {
-                await _workerTask;
-                _workerTask = null;
-            }
+            return workerTask ?? Task.FromResult(true);
         }
 
         public void FetchAndTrackMetrics()

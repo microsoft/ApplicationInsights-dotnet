@@ -4,6 +4,7 @@ using System.Threading;
 
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
+using System.Threading.Tasks;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -36,7 +37,16 @@ namespace Microsoft.ApplicationInsights.Metrics
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
                     MetricManager newManager = new MetricManager(pipelineAdapter);
                     MetricManager prevManager = Interlocked.CompareExchange(ref s_defaultMetricManager, newManager, null);
-                    manager = prevManager ?? newManager;
+
+                    if (prevManager == null)
+                    {
+                        return newManager;
+                    }
+                    else
+                    {
+                        Task fireAndForget = newManager.StopDefaultAggregationCycleAsync();
+                        return prevManager;
+                    }
                 }
 
                 return manager;
