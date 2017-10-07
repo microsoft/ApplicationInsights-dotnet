@@ -183,7 +183,7 @@ namespace E2ETests
                 Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
         }
 
-        public void TestBasicSqlDependencyWebApp(string expectedPrefix = "rdddf")
+        public void TestBasicSqlDependencyWebApp(string expectedPrefix = "rddf")
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "SQL";
@@ -294,6 +294,7 @@ namespace E2ETests
                 Trace.WriteLine("deps.data.baseData.type:" + deps.data.baseData.type);
                 Trace.WriteLine("deps.data.baseData.success:" + deps.data.baseData.success);
                 Trace.WriteLine("deps.data.baseData.target:" + deps.data.baseData.target);
+                Trace.WriteLine("InternalSdkVersion:" + deps.tags[new ContextTagKeys().InternalSdkVersion]);
                 Trace.WriteLine("--------------------------------------");
             }
         }        
