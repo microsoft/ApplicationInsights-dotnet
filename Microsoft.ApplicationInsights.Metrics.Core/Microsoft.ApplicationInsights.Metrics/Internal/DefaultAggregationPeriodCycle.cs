@@ -94,7 +94,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                                             tactTimestamp: now);
             if (aggregates != null)
             {
-                Task fireAndForget = Task.Run( () => _metricManager.TrackMetricAggregates(aggregates) );
+                Task fireAndForget = Task.Run( () => _metricManager.TrackMetricAggregates(aggregates, flush: false) );
             }
         }
 

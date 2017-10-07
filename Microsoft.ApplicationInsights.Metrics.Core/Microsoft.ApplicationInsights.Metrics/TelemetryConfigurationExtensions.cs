@@ -64,9 +64,33 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             // Get the manager from the table:
             {
-                MetricManager manager = metricManagers.GetValue(telemetryPipeline, (tp) => new MetricManager(new ApplicationInsightsTelemetryPipeline(tp)) );
+                MetricManager manager = GetOrGreateFromTable(telemetryPipeline, metricManagers);
                 return manager;
             }
+        }
+
+        private static MetricManager GetOrGreateFromTable(
+                                                TelemetryConfiguration telemetryPipeline,
+                                                ConditionalWeakTable<TelemetryConfiguration, MetricManager> metricManagers)
+        {
+            MetricManager createdManager = null;
+
+            MetricManager chosenManager = metricManagers.GetValue(
+                                                            telemetryPipeline,
+                                                            (tp) =>
+                                                            {
+                                                                createdManager = new MetricManager(new ApplicationInsightsTelemetryPipeline(tp));
+                                                                return createdManager;
+                                                            });
+
+            // If there was a race and we did not end up returning the manager we just created, we will notify it to give up its agregation cycle thread.
+            if (createdManager != null && false == Object.ReferenceEquals(createdManager, chosenManager))
+            {
+                Task fireAndForget = createdManager.StopDefaultAggregationCycleAsync();
+            }
+
+            return chosenManager;
+
         }
     }
 }

@@ -73,11 +73,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             DateTimeOffset now = DateTimeOffset.Now;
             AggregationPeriodSummary aggregates = _aggregationManager.StartOrCycleAggregators(MetricAggregationCycleKind.Default, futureFilter: null, tactTimestamp: now);
-            TrackMetricAggregates(aggregates);
+            TrackMetricAggregates(aggregates, flush: true);
         }
 
 
-        internal void TrackMetricAggregates(AggregationPeriodSummary aggregates)
+        internal void TrackMetricAggregates(AggregationPeriodSummary aggregates, bool flush)
         {
             int nonpersistentAggregatesCount = (aggregates?.NonpersistentAggregates == null)
                                                     ? 0
@@ -121,6 +121,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             Task.WaitAll(trackTasks);
+
+            if (flush)
+            {
+                Task flushTask = _telemetryPipeline.FlushAsync(CancellationToken.None);
+                flushTask.Wait();
+            }
         }
 
         internal object GetOrCreateExtensionStateUnsafe(Func<MetricManager, object> newExtensionStateInstanceFactory)

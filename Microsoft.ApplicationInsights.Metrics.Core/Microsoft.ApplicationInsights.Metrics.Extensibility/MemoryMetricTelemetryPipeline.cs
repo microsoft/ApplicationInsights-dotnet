@@ -125,6 +125,15 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="cancelToken"></param>
+        /// <returns></returns>
+        public Task FlushAsync(CancellationToken cancelToken)
+        {
+            return Task.FromResult(true);
+        }
+
         IEnumerator<object> IEnumerable<object>.GetEnumerator()
         {
             IEnumerator<object> enumerator;

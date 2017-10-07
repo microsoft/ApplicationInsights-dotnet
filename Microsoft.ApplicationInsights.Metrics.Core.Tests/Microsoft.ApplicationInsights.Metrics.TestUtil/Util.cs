@@ -18,8 +18,8 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtil
         public const string AggregationIntervalMonikerPropertyKey = "_MS.AggregationIntervalMs";
         public const double MaxAllowedPrecisionError = 0.00001;
 
-        public const bool WaitForDefaultAggregationCycleCompletion = true;
-        //public const bool WaitForDefaultAggregationCycleCompletion = false;
+        //public const bool WaitForDefaultAggregationCycleCompletion = true;
+        public const bool WaitForDefaultAggregationCycleCompletion = false;
 
         public static void AssertAreEqual<T>(T[] array1, T[] array2)
         {
@@ -85,6 +85,12 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtil
             }
 
             return true;
+        }
+
+        public static TelemetryConfiguration CreateAITelemetryConfig()
+        {
+            IList<ITelemetry> telemetrySentToChannel;
+            return CreateAITelemetryConfig(out telemetrySentToChannel);
         }
 
         public static TelemetryConfiguration CreateAITelemetryConfig(out IList<ITelemetry> telemetrySentToChannel)

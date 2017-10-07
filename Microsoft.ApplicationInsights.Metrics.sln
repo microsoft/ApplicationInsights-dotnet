@@ -25,6 +25,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsigh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl", "Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl\Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl.csproj", "{0272FE8B-9B25-43B0-A26B-3C71154DEBBA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Materials", "Materials", "{926233F6-8E40-4EC2-9FBE-647F2A3DF6EA}"
+	ProjectSection(SolutionItems) = preProject
+		Materials\StdDev Test Tool.xlsx = Materials\StdDev Test Tool.xlsx
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

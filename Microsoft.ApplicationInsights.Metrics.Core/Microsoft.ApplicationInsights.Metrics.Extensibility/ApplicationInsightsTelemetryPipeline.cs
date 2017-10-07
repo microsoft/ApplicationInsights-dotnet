@@ -44,5 +44,16 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
             return _completedTask;
         }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="cancelToken"></param>
+        /// <returns></returns>
+        public Task FlushAsync(CancellationToken cancelToken)
+        {
+            cancelToken.ThrowIfCancellationRequested();
+            _trackingClient.Flush();
+            return _completedTask;
+        }
     }
 }

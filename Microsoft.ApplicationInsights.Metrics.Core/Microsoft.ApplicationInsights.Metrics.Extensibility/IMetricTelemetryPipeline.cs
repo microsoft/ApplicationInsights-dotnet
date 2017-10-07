@@ -21,5 +21,11 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <exception cref="OperationCanceledException">The specified <c>cancelToken</c> has had cancellation requested.</exception>
         /// <returns></returns>
         Task TrackAsync(object metricAggregate, CancellationToken cancelToken);
+
+        /// <summary>
+        /// </summary>
+        /// <param name="cancelToken"></param>
+        /// <returns></returns>
+        Task FlushAsync(CancellationToken cancelToken);
     }
 }
