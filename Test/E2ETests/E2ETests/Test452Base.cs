@@ -158,17 +158,17 @@ namespace E2ETests
                 Apps[WebAppName].ikey, Apps[WebApiName].ikey).Wait();
         }
 
-        public void TestBasicHttpDependencyWebApp()
+        public void TestBasicHttpDependencyWebApp(string expectedPrefix = "rdddsd")
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
 
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=http", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey).Wait();
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
         }
 
-        public void TestAzureTableDependencyWebApp()
+        public void TestAzureTableDependencyWebApp(string expectedPrefix = "rdddsd")
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
 
@@ -180,17 +180,17 @@ namespace E2ETests
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuretable", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 2).Wait();
+                Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
         }
 
-        public void TestBasicSqlDependencyWebApp()
+        public void TestBasicSqlDependencyWebApp(string expectedPrefix = "rdddf")
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=sql", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey).Wait();
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
         }
 
         private async Task ValidateXComponentWebAppToWebApi(string sourceInstanceIp, string sourcePath,
@@ -255,7 +255,7 @@ namespace E2ETests
         }
 
         private async Task ValidateBasicDependencyAsync(string targetInstanceIp, string targetPath,
-            DependencyTelemetry expectedDependencyTelemetry, string ikey, int count = 1)
+            DependencyTelemetry expectedDependencyTelemetry, string ikey, int count, string expectedPrefix)
         {
             HttpClient client = new HttpClient();
             string url = "http://" + targetInstanceIp + targetPath;
@@ -278,6 +278,9 @@ namespace E2ETests
             var dependency = dependenciesWebApp[0];
             Assert.AreEqual(expectedDependencyTelemetry.Type, dependency.data.baseData.type, "Dependency Type is incorrect");
             Assert.AreEqual(expectedDependencyTelemetry.Success, dependency.data.baseData.success, "Dependency success is incorrect");
+
+            string actualSdkVersion = dependency.tags[new ContextTagKeys().InternalSdkVersion];
+            Assert.IsTrue(actualSdkVersion.Contains(expectedPrefix), "Actual version:" + actualSdkVersion);
         }
 
         private void PrintDependencies(IList<TelemetryItem<AI.RemoteDependencyData>> dependencies)

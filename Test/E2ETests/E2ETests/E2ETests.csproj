@@ -90,6 +90,7 @@
     <Compile Include="Helpers\DockerUtils.cs" />
     <Compile Include="Helpers\TelemetryItem.cs" />
     <Compile Include="Helpers\TelemetryItemFactory.cs" />
+    <Compile Include="net462SM\Test452OnNet462SM.cs" />
     <Compile Include="net462\Test452OnNet462.cs" />
     <Compile Include="net47\Test452OnNet47.cs" />
     <Compile Include="Test452Base.cs" />
@@ -102,6 +103,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="AzureEmulator\nginx.conf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="docker-compose452AppOn462StatusMonitor.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="docker-compose452AppOn47.yml">

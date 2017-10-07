@@ -167,7 +167,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Default.aspx" />
-    <Content Include="Dependencies.aspx" />
+    <Content Include="Dependencies.aspx" />    
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -184,6 +184,9 @@
     <Content Include="DockerFile47">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="DockerFileStatusMonitor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>    
     <None Include="Properties\PublishProfiles\PublishForDocker.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />

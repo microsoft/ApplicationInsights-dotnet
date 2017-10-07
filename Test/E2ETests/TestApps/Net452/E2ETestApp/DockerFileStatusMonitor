@@ -1,0 +1,14 @@
+# The `FROM` instruction specifies the base image. You are
+# extending the `microsoft/aspnet` image.
+
+FROM microsoft/aspnet:4.6.2
+
+COPY . /inetpub/wwwroot
+
+#Download status monitor
+ADD http://go.microsoft.com/fwlink/?LinkID=522371&clcid=0x409 ApplicationInsightsAgent.msi
+#Install status monitor
+RUN msiexec /i ApplicationInsightsAgent.msi /qn
+
+#Restart iis to take status monitor effect
+RUN iisreset /restart
