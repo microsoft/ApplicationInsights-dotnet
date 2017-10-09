@@ -3,9 +3,7 @@
     using System;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     internal class StubTransmissionBuffer : TransmissionBuffer
     {

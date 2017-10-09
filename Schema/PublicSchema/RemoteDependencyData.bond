@@ -27,7 +27,7 @@ struct RemoteDependencyData
     61: required string 	 duration;
     
     [Description("Indication of successful or unsuccessful call.")]
-    120: nullable<bool> 	 success = true;
+    120: bool 	 success = true;
     
     [MaxStringLength("8192")]
     [Description("Command initiated by this dependency call. Examples are SQL statement and HTTP URL's with all query parameters.")]

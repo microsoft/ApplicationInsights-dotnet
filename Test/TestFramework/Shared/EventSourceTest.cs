@@ -4,15 +4,10 @@ namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
     using System.Collections.Generic;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
 
     internal static class EventSourceTest
     {
@@ -67,7 +62,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
                 return "Test String";
             }
 
-            if (parameter.ParameterType.IsValueType)
+            if (parameter.ParameterType.GetTypeInfo().IsValueType)
             {
                 return Activator.CreateInstance(parameter.ParameterType);
             }
@@ -98,7 +93,11 @@ namespace Microsoft.ApplicationInsights.TestFramework
 
         private static void VerifyEventApplicationName(MethodInfo eventMethod, EventWrittenEventArgs actualEvent)
         {
+#if !NETSTANDARD1_3 && !NETCOREAPP1_1
             string expectedApplicationName = AppDomain.CurrentDomain.FriendlyName;
+#else
+            string expectedApplicationName = "";
+#endif
             string actualApplicationName = actualEvent.Payload.Last().ToString();
             AssertEqual(expectedApplicationName, actualApplicationName, "Application Name");
         }

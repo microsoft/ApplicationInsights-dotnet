@@ -4,9 +4,7 @@
     using System.IO;
     using System.Net;
     using System.Threading.Tasks;
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     internal class StubWebRequest : WebRequest
     {

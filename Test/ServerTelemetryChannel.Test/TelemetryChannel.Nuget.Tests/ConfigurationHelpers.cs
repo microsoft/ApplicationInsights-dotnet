@@ -10,9 +10,9 @@
 
     public static class ConfigurationHelpers
     {
-        private const string ApplicationInsightsConfigInstall = "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Resources.ApplicationInsights.config.install.xdt";
-        private const string ApplicationInsightsConfigUninstall = "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Resources.ApplicationInsights.config.uninstall.xdt";
-        private const string ApplicationInsightsTransform = "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Resources.ApplicationInsights.config.transform";
+        private const string ApplicationInsightsConfigInstall = "TelemetryChannel.Nuget.Tests.Resources.ApplicationInsights.config.install.xdt";
+        private const string ApplicationInsightsConfigUninstall = "TelemetryChannel.Nuget.Tests.Resources.ApplicationInsights.config.uninstall.xdt";
+        private const string ApplicationInsightsTransform = "TelemetryChannel.Nuget.Tests.Resources.ApplicationInsights.config.transform";
         
         private static readonly XNamespace XmlNamespace = "http://schemas.microsoft.com/ApplicationInsights/2013/Settings";
 

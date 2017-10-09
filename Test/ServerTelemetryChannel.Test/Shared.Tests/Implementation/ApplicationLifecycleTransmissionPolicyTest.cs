@@ -5,12 +5,10 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
     using Channel.Helpers;
 
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     public class ApplicationLifecycleTransmissionPolicyTest
     {
@@ -28,8 +26,8 @@
 
                 applicationLifecycle.OnStopping(ApplicationStoppingEventArgs.Empty);
 
-                Assert.Equal(0, policy.MaxSenderCapacity);
-                Assert.Equal(0, policy.MaxBufferCapacity);
+                Assert.AreEqual(0, policy.MaxSenderCapacity);
+                Assert.AreEqual(0, policy.MaxBufferCapacity);
             }
 
             [TestMethod]
@@ -46,7 +44,7 @@
                 };
                 applicationLifecycle.OnStopping(new ApplicationStoppingEventArgs(asyncMethodRunner));
 
-                Assert.False(asyncMethodInvoked);
+                Assert.IsFalse(asyncMethodInvoked);
             }
         }
 

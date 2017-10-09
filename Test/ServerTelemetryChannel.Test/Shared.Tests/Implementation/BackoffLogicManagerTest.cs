@@ -1,21 +1,14 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation
 {
     using System;
-#if !NET40
     using System.Diagnostics.Tracing;
-#endif
 
     using System.Globalization;
-    using System.Net;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers;
-
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -23,11 +16,9 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     
-    using Assert = Xunit.Assert;
+    
 
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     public class BackoffLogicManagerTest
     {
@@ -37,7 +28,7 @@
             [TestMethod]
             public void DefaultReportingIntervalInMinIs30Min()
             {
-                Assert.Equal(30, new BackoffLogicManager().DefaultBackoffEnabledReportingInterval.TotalMinutes);
+                Assert.AreEqual(30, new BackoffLogicManager().DefaultBackoffEnabledReportingInterval.TotalMinutes);
             }
         }
 
@@ -48,28 +39,28 @@
             public void ReturnNullIfArgumentIsNull()
             {
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
-                Assert.Null(manager.GetBackendResponse(null));
+                Assert.IsNull(manager.GetBackendResponse(null));
             }
 
             [TestMethod]
             public void ReturnNullIfArgumentEmpty()
             {
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
-                Assert.Null(manager.GetBackendResponse(string.Empty));
+                Assert.IsNull(manager.GetBackendResponse(string.Empty));
             }
 
             [TestMethod]
             public void IfContentCannotBeParsedNullIsReturned()
             {
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
-                Assert.Null(manager.GetBackendResponse("ab}{"));
+                Assert.IsNull(manager.GetBackendResponse("ab}{"));
             }
 
             [TestMethod]
             public void IfContentIsUnexpectedJsonNullIsReturned()
             {
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
-                Assert.Null(manager.GetBackendResponse("[1,2]"));
+                Assert.IsNull(manager.GetBackendResponse("[1,2]"));
             }
 
             [TestMethod]
@@ -80,12 +71,12 @@
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 var backendResponse = manager.GetBackendResponse(content);
 
-                Assert.Equal(1, backendResponse.ItemsAccepted);
-                Assert.Equal(100, backendResponse.ItemsReceived);
-                Assert.Equal(1, backendResponse.Errors.Length); // Even though accepted number of items is 1 out of 99 we get only 1 error back. We do not expect same in production but SDK should handle it correctly.
-                Assert.Equal(84, backendResponse.Errors[0].Index);
-                Assert.Equal(206, backendResponse.Errors[0].StatusCode);
-                Assert.Equal("Explanation", backendResponse.Errors[0].Message);
+                Assert.AreEqual(1, backendResponse.ItemsAccepted);
+                Assert.AreEqual(100, backendResponse.ItemsReceived);
+                Assert.AreEqual(1, backendResponse.Errors.Length); // Even though accepted number of items is 1 out of 99 we get only 1 error back. We do not expect same in production but SDK should handle it correctly.
+                Assert.AreEqual(84, backendResponse.Errors[0].Index);
+                Assert.AreEqual(206, backendResponse.Errors[0].StatusCode);
+                Assert.AreEqual("Explanation", backendResponse.Errors[0].Message);
             }
         }
 
@@ -97,7 +88,7 @@
             {
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 manager.GetBackOffTimeInterval(string.Empty);
-                Assert.Equal(TimeSpan.FromSeconds(10), manager.CurrentDelay);
+                Assert.AreEqual(TimeSpan.FromSeconds(10), manager.CurrentDelay);
             }
 
             [TestMethod]
@@ -106,12 +97,13 @@
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 manager.ReportBackoffEnabled(500);
                 manager.GetBackOffTimeInterval(string.Empty);
-                Assert.Equal(TimeSpan.FromSeconds(10), manager.CurrentDelay);
+                Assert.AreEqual(TimeSpan.FromSeconds(10), manager.CurrentDelay);
             }
 
             [TestMethod]
             public void UpperBoundOfDelayIsMaxDelay()
             {
+#if !NETCOREAPP1_1
                 var manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.Zero);
 
                 PrivateObject wrapper = new PrivateObject(manager);
@@ -119,7 +111,8 @@
 
                 manager.GetBackOffTimeInterval(string.Empty);
 
-                Assert.InRange(manager.CurrentDelay, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(3600));
+                AssertEx.InRange(manager.CurrentDelay, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(3600));
+#endif
             }
 
             [TestMethod]
@@ -128,7 +121,7 @@
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 manager.GetBackOffTimeInterval(DateTimeOffset.UtcNow.AddSeconds(30).ToString("O"));
 
-                Xunit.Assert.InRange(manager.CurrentDelay, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30));
+                AssertEx.InRange(manager.CurrentDelay, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30));
             }
 
             [TestMethod]
@@ -136,7 +129,7 @@
             {
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 manager.GetBackOffTimeInterval("no one can parse me");
-                Assert.Equal(TimeSpan.FromSeconds(10), manager.CurrentDelay);
+                Assert.AreEqual(TimeSpan.FromSeconds(10), manager.CurrentDelay);
             }
 
             [TestMethod]
@@ -147,7 +140,7 @@
 
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 manager.GetBackOffTimeInterval(retryAfterDateString);
-                Assert.Equal(TimeSpan.FromSeconds(10), manager.CurrentDelay);
+                Assert.AreEqual(TimeSpan.FromSeconds(10), manager.CurrentDelay);
             }
         }
 
@@ -168,8 +161,8 @@
 
                     var traces = listener.Messages.ToList();
 
-                    Assert.Equal(1, traces.Count);
-                    Assert.Equal(2, traces[0].EventId);
+                    Assert.AreEqual(1, traces.Count);
+                    Assert.AreEqual(2, traces[0].EventId);
                 }
             }
 
@@ -189,7 +182,7 @@
 
                     var traces = listener.Messages.ToList();
 
-                    Assert.Equal(0, traces.Count);
+                    Assert.AreEqual(0, traces.Count);
                 }
             }
 
@@ -210,7 +203,7 @@
 
                     var traces = listener.Messages.ToList();
 
-                    Assert.Equal(1, traces.Count);
+                    Assert.AreEqual(1, traces.Count);
                 }
             }
 
@@ -234,10 +227,10 @@
                     manager.ReportBackoffEnabled(200);
 
                     var traces = listener.Messages.ToList();
-                    Assert.Equal(3, traces.Count);
-                    Assert.Equal(2, traces[0].EventId);
-                    Assert.Equal(1, traces[1].EventId);
-                    Assert.Equal(2, traces[2].EventId);
+                    Assert.AreEqual(3, traces.Count);
+                    Assert.AreEqual(2, traces[0].EventId);
+                    Assert.AreEqual(1, traces[1].EventId);
+                    Assert.AreEqual(2, traces[2].EventId);
                 }
             }
 
@@ -256,7 +249,7 @@
                     manager.ReportBackoffDisabled();
 
                     var traces = listener.Messages.ToList();
-                    Assert.Equal(0, traces.Count);
+                    Assert.AreEqual(0, traces.Count);
                 }
             }
         }
@@ -277,7 +270,7 @@
 
                 Task.WaitAll(tasks);
 
-                Assert.Equal(1, manager.ConsecutiveErrors);
+                Assert.AreEqual(1, manager.ConsecutiveErrors);
             }
 
             [TestMethod]
@@ -289,7 +282,7 @@
                 Thread.Sleep(1);
                 manager.ReportBackoffEnabled(500);
 
-                Assert.Equal(2, manager.ConsecutiveErrors);
+                Assert.AreEqual(2, manager.ConsecutiveErrors);
             }
 
             [TestMethod]
@@ -300,7 +293,7 @@
                 manager.ReportBackoffEnabled(500);
                 manager.ResetConsecutiveErrors();
 
-                Assert.Equal(0, manager.ConsecutiveErrors);
+                Assert.AreEqual(0, manager.ConsecutiveErrors);
             }
         }
     }

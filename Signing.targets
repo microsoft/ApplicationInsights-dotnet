@@ -29,19 +29,15 @@
   </Target>
 
   <PropertyGroup>
-    <!--UseECMAKey>false</UseECMAKey-->
-    <ToolsDir>$(PackagesDir)\Microsoft.DotNet.BuildTools.1.0.16-prerelease\lib\</ToolsDir>
-  </PropertyGroup>
-
-  <Import Project="$(ToolsDir)\sign.targets" Condition="('$(PublicRelease)' != 'True') And (Exists('$(ToolsDir)\sign.targets'))" />
-
-  <PropertyGroup>
     <AssemblyOriginatorKeyFile>$(EnlistmentRoot)\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <KeyOriginatorFile>$(MSBuildThisFileDirectory)\35MSSharedLib1024.snk</KeyOriginatorFile>
+    <!--https://github.com/dotnet/corefx/blob/master/Documentation/project-docs/public-signing.md-->
+    <PublicSign>true</PublicSign>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(PublicRelease)' == 'True'">  
     <SignAssembly>true</SignAssembly>
     <DelaySign>true</DelaySign>  
-  </PropertyGroup>  
-
+    <PublicSign>false</PublicSign>
+  </PropertyGroup>
 </Project>

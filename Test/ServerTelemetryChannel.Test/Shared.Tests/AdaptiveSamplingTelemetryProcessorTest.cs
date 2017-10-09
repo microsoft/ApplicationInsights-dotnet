@@ -11,10 +11,10 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
-    using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     [TestClass]
     public class AdaptiveSamplingTelemetryProcessorTest
@@ -55,7 +55,7 @@
                 }
             }
 
-            Assert.Equal(itemsProduced, sentTelemetry.Count);
+            Assert.AreEqual(itemsProduced, sentTelemetry.Count);
         }
 
         [TestMethod]
@@ -117,8 +117,8 @@
                 sentTelemetry.Count,
                 100.0 * sentTelemetry.Count / targetItemCount));
 
-            Assert.True(sentTelemetry.Count > targetItemCount - tolerance);
-            Assert.True(sentTelemetry.Count < targetItemCount + tolerance);
+            Assert.IsTrue(sentTelemetry.Count > targetItemCount - tolerance);
+            Assert.IsTrue(sentTelemetry.Count < targetItemCount + tolerance);
         }
 
         [TestMethod]
@@ -192,8 +192,8 @@
                 sentTelemetry.Count,
                 100.0 * sentTelemetry.Count / targetItemCount));
 
-            Assert.True(sentTelemetry.Count > targetItemCount - tolerance);
-            Assert.True(sentTelemetry.Count < targetItemCount + tolerance);
+            Assert.IsTrue(sentTelemetry.Count > targetItemCount - tolerance);
+            Assert.IsTrue(sentTelemetry.Count < targetItemCount + tolerance);
         }
 
         [TestMethod]
@@ -207,7 +207,7 @@
             var fieldInfo = typeof(AdaptiveSamplingTelemetryProcessor).GetField("samplingProcessor", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
             SamplingTelemetryProcessor internalProcessor = (SamplingTelemetryProcessor) fieldInfo.GetValue(tc.TelemetryProcessorChain.FirstTelemetryProcessor);
 
-            Assert.Equal("request;", internalProcessor.ExcludedTypes);
+            Assert.AreEqual("request;", internalProcessor.ExcludedTypes);
         }
 
         private void TraceSamplingPercentageEvaluation(

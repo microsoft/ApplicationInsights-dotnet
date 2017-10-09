@@ -58,6 +58,7 @@
 
         <!-- Collect all NuGet packages in the same folder for convenience during testing -->
         <PackageOutputDir>$(BinRoot)\$(Configuration)\NuGet</PackageOutputDir>
+        <PackageOutputPath>$(PackageOutputDir)</PackageOutputPath>
 
         <AppxPackageDir>$(OutputPath)</AppxPackageDir>
 
@@ -71,16 +72,13 @@
 
         <!-- Forces EventRegister target to generate ETW manifest file --> 
         <EtwManifestForceAll>true</EtwManifestForceAll>
-        <EtwManifestOutDir>$(BinRoot)\$(Configuration)\ETW\</EtwManifestOutDir>
+        <EtwManifestOutDir>$(BinRoot)\$(Configuration)\ETW\$(TargetFramework)\</EtwManifestOutDir>
     </PropertyGroup>
 
     <PropertyGroup>
         <!-- Enable NuGet package restore during build -->
         <RestorePackages>true</RestorePackages>
         <RequireRestoreConsent>false</RequireRestoreConsent>
-        
-        <!-- Disable StyleCop by default to prevent StyleCop.MSBuild package from slowing down the debug build -->
-        <StyleCopEnabled>false</StyleCopEnabled>
     </PropertyGroup>
     
   <!-- Generate AssemblyFileVersion and AssemblyVersion attributes. -->

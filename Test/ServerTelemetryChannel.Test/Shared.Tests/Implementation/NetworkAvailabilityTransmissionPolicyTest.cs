@@ -1,23 +1,16 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-#if NET45
     using System.Diagnostics.Tracing;
-#endif
     using System.Linq;
     using System.Net.Sockets;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
 
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
     using Channel.Helpers;
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public class NetworkAvailabilityTransmissionPolicyTest
@@ -33,8 +26,8 @@
 
                 network.OnStatusChanged(EventArgs.Empty);
 
-                Assert.Null(policy.MaxSenderCapacity);
-                Assert.Null(policy.MaxBufferCapacity);
+                Assert.IsNull(policy.MaxSenderCapacity);
+                Assert.IsNull(policy.MaxBufferCapacity);
             }
 
             [TestMethod]
@@ -46,7 +39,7 @@
 
                 policy.Dispose();
 
-                Assert.True(unsubscribeCalled);
+                Assert.IsTrue(unsubscribeCalled);
             }
         }
 
@@ -61,8 +54,8 @@
 
                 policy.Initialize(new StubTransmitter());
 
-                Assert.Equal(0, policy.MaxSenderCapacity);
-                Assert.Equal(0, policy.MaxBufferCapacity);
+                Assert.AreEqual(0, policy.MaxSenderCapacity);
+                Assert.AreEqual(0, policy.MaxBufferCapacity);
             }
 
             [TestMethod]
@@ -73,8 +66,8 @@
 
                 policy.Initialize(new StubTransmitter());
 
-                Assert.Null(policy.MaxSenderCapacity);
-                Assert.Null(policy.MaxBufferCapacity);
+                Assert.IsNull(policy.MaxSenderCapacity);
+                Assert.IsNull(policy.MaxBufferCapacity);
             }
 
             [TestMethod]
@@ -85,8 +78,8 @@
 
                 policy.Initialize(new StubTransmitter());
 
-                Assert.Null(policy.MaxSenderCapacity);
-                Assert.Null(policy.MaxBufferCapacity);
+                Assert.IsNull(policy.MaxSenderCapacity);
+                Assert.IsNull(policy.MaxBufferCapacity);
             }
 
             [TestMethod]
@@ -104,7 +97,7 @@
                     policy.Initialize(new StubTransmitter());
 
                     EventWrittenEventArgs error = listener.Messages.First(arg => arg.EventId == 38);
-                    Assert.Contains(exception.Message, (string)error.Payload[0], StringComparison.CurrentCulture);
+                    AssertEx.Contains(exception.Message, (string)error.Payload[0], StringComparison.CurrentCulture);
                 }
             }
         }
@@ -123,8 +116,8 @@
                 isNetworkAvailable = false;
                 network.OnStatusChanged(EventArgs.Empty);
 
-                Assert.Equal(0, policy.MaxSenderCapacity);
-                Assert.Equal(0, policy.MaxBufferCapacity);
+                Assert.AreEqual(0, policy.MaxSenderCapacity);
+                Assert.AreEqual(0, policy.MaxBufferCapacity);
             }
 
             [TestMethod]
@@ -138,8 +131,8 @@
                 isNetworkAvailable = true;
                 network.OnStatusChanged(EventArgs.Empty);
 
-                Assert.Null(policy.MaxSenderCapacity);
-                Assert.Null(policy.MaxBufferCapacity);
+                Assert.IsNull(policy.MaxSenderCapacity);
+                Assert.IsNull(policy.MaxBufferCapacity);
             }
 
             [TestMethod]
@@ -158,7 +151,7 @@
 
                 network.OnStatusChanged(EventArgs.Empty);
 
-                Assert.True(policiesApplied);
+                Assert.IsTrue(policiesApplied);
             }
 
             [TestMethod]
@@ -177,7 +170,7 @@
                     network.OnStatusChanged(EventArgs.Empty);
 
                     EventWrittenEventArgs error = listener.Messages.First();
-                    Assert.Contains(exception.Message, (string)error.Payload[0], StringComparison.Ordinal);
+                    AssertEx.Contains(exception.Message, (string)error.Payload[0], StringComparison.Ordinal);
                 }
             }
         }

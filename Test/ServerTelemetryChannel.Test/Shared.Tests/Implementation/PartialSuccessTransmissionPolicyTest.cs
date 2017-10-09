@@ -11,15 +11,8 @@
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     
-    using Assert = Xunit.Assert;
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public class PartialSuccessTransmissionPolicyTest
@@ -52,7 +45,7 @@
 
             transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-            Assert.Equal(1, enqueuedTransmissions.Count);
+            Assert.AreEqual(1, enqueuedTransmissions.Count);
         }
 
         [TestMethod]
@@ -82,7 +75,7 @@
             };
             transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-            Assert.Equal(1, enqueuedTransmissions.Count);
+            Assert.AreEqual(1, enqueuedTransmissions.Count);
         }
 
         [TestMethod]
@@ -109,7 +102,7 @@
 
             transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-            Assert.Equal(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
+            Assert.AreEqual(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
         }
 
         [TestMethod]
@@ -149,9 +142,9 @@
                 .Deserialize(enqueuedTransmissions[0].Content)
                 .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-            Assert.Equal(2, newItems.Length);
-            Assert.True(newItems[0].Contains("\"name\":\"1\""));
-            Assert.True(newItems[1].Contains("\"name\":\"2\""));
+            Assert.AreEqual(2, newItems.Length);
+            Assert.IsTrue(newItems[0].Contains("\"name\":\"1\""));
+            Assert.IsTrue(newItems[1].Contains("\"name\":\"2\""));
         }
 
         [TestMethod]
@@ -181,7 +174,7 @@
 
             transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-            Assert.Equal(1, transmitter.BackoffLogicManager.ConsecutiveErrors);
+            Assert.AreEqual(1, transmitter.BackoffLogicManager.ConsecutiveErrors);
         }
 
         [TestMethod]
@@ -209,8 +202,8 @@
 
             transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-            Assert.Equal(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
-            Assert.Equal(0, enqueuedTransmissions.Count);
+            Assert.AreEqual(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
+            Assert.AreEqual(0, enqueuedTransmissions.Count);
         }
 
         [TestMethod]
@@ -243,8 +236,8 @@
 
             transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-            Assert.Equal(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
-            Assert.Equal(0, enqueuedTransmissions.Count);
+            Assert.AreEqual(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
+            Assert.AreEqual(0, enqueuedTransmissions.Count);
         }
 
         [TestMethod]
@@ -275,8 +268,8 @@
 
             transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-            Assert.Equal(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
-            Assert.Equal(0, enqueuedTransmissions.Count);
+            Assert.AreEqual(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
+            Assert.AreEqual(0, enqueuedTransmissions.Count);
         }
     }
 }

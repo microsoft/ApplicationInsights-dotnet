@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
+#if !NETCOREAPP1_1
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -8,7 +9,8 @@
     using System.Security.AccessControl;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    using Microsoft.ApplicationInsights.TestFramework;
+
 
     /// <summary>
     /// We use these tests to understand actual behavior of <see cref="DirectoryInfo"/> and ensure that 
@@ -56,13 +58,13 @@
             [TestMethod]
             public void ConstructorThrowsArgumentNullExceptionWhenGivenFolderIsNullToPreventUsageErrors()
             {
-                Assert.Throws<ArgumentNullException>(() => new PlatformFolder(null));
+                AssertEx.Throws<ArgumentNullException>(() => new PlatformFolder(null));
             }
 
             [TestMethod]
             public void ImplementsIFileSystemFolderInterfaceExpectedByIPlatform()
             {
-                Assert.True(typeof(IPlatformFolder).IsAssignableFrom(typeof(PlatformFolder)));
+                Assert.IsTrue(typeof(IPlatformFolder).IsAssignableFrom(typeof(PlatformFolder)));
             }
         }
 
@@ -74,8 +76,8 @@
             {
                 var folder = new PlatformFolder(this.storageFolder);
                 IEnumerable<IPlatformFile> files = folder.GetFiles();
-                Assert.NotNull(files);
-                Assert.Empty(files);
+                Assert.IsNotNull(files);
+                AssertEx.IsEmpty(files);
             }
 
             [TestMethod]
@@ -84,8 +86,8 @@
                 var folder = new PlatformFolder(this.storageFolder);
                 FileSystemTest.DeletePlatformItem(this.storageFolder);
                 IEnumerable<IPlatformFile> files = folder.GetFiles();
-                Assert.NotNull(files);
-                Assert.Empty(files);
+                Assert.IsNotNull(files);
+                AssertEx.IsEmpty(files);
             }
 
             [TestMethod]
@@ -100,7 +102,7 @@
                 var folder = new PlatformFolder(this.storageFolder);
 
                 IEnumerable<IPlatformFile> files = folder.GetFiles();
-                Assert.Equal(expectedFileNames.OrderBy(name => name), files.Select(f => f.Name).OrderBy(name => name));
+                AssertEx.AreEqual(expectedFileNames.OrderBy(name => name), files.Select(f => f.Name).OrderBy(name => name));
             }
 
             [TestMethod]
@@ -109,7 +111,7 @@
                 using (new DirectoryAccessDenier(this.storageFolder, FileSystemRights.ListDirectory))
                 {
                     var folder = new PlatformFolder(this.storageFolder);
-                    Assert.Throws<UnauthorizedAccessException>(() => folder.GetFiles());
+                    AssertEx.Throws<UnauthorizedAccessException>(() => folder.GetFiles());
                 }
             }
         }
@@ -125,7 +127,7 @@
                 string fileName = GetUniqueFileName();
                 IPlatformFile file = folder.CreateFile(fileName);
 
-                Assert.Equal(fileName, file.Name);
+                Assert.AreEqual(fileName, file.Name);
             }
 
             [TestMethod]
@@ -137,7 +139,7 @@
                 IPlatformFile file = folder.CreateFile(fileName);
 
                 var storageFile = FileSystemTest.GetPlatformFile(fileName, this.storageFolder);
-                Assert.NotNull(storageFile);
+                Assert.IsNotNull(storageFile);
             }
 
             [TestMethod]
@@ -147,28 +149,28 @@
                 FileSystemTest.CreatePlatformFile(fileName, this.storageFolder);
 
                 var folder = new PlatformFolder(this.storageFolder);
-                Assert.Throws<IOException>(() => folder.CreateFile(fileName));
+                AssertEx.Throws<IOException>(() => folder.CreateFile(fileName));
             }
 
             [TestMethod]
             public void ThrowsArgumentNullExceptionWhenGivenFileNameIsNull()
             {
                 var folder = new PlatformFolder(this.storageFolder);
-                Assert.Throws<ArgumentNullException>(() => folder.CreateFile(null));
+                AssertEx.Throws<ArgumentNullException>(() => folder.CreateFile(null));
             }
 
             [TestMethod]
             public void ThrowsArgumentExceptionWhenDesiredFileNameIsEmpty()
             {
                 var folder = new PlatformFolder(this.storageFolder);
-                Assert.Throws<ArgumentException>(() => folder.CreateFile(string.Empty));
+                AssertEx.Throws<ArgumentException>(() => folder.CreateFile(string.Empty));
             }
 
             [TestMethod]
             public void ThrowsIOExceptionWhenDesiredFileNameIsTooLong()
             {
                 var folder = new PlatformFolder(this.storageFolder);
-                Assert.Throws<PathTooLongException>(() => folder.CreateFile(new string('F', 1024)));
+                AssertEx.Throws<PathTooLongException>(() => folder.CreateFile(new string('F', 1024)));
             }
 
             [TestMethod]
@@ -177,7 +179,7 @@
                 using (new DirectoryAccessDenier(this.storageFolder, FileSystemRights.CreateFiles))
                 { 
                     var folder = new PlatformFolder(this.storageFolder);
-                    Assert.Throws<UnauthorizedAccessException>(() => folder.CreateFile(FileSystemTest.GetUniqueFileName()));
+                    AssertEx.Throws<UnauthorizedAccessException>(() => folder.CreateFile(FileSystemTest.GetUniqueFileName()));
                 }
             }
 
@@ -188,7 +190,7 @@
                 FileSystemTest.DeletePlatformItem(this.storageFolder);
                 string fileName = GetUniqueFileName();
                 folder.CreateFile(fileName);
-                Assert.NotNull(FileSystemTest.GetPlatformFile(fileName, this.storageFolder));
+                Assert.IsNotNull(FileSystemTest.GetPlatformFile(fileName, this.storageFolder));
             }
         }
 
@@ -202,7 +204,7 @@
 
                 folder.Delete();
 
-                Assert.False(folder.Exists());
+                Assert.IsFalse(folder.Exists());
             }
 
             [TestMethod]
@@ -211,7 +213,7 @@
                 IPlatformFolder folder = new PlatformFolder(this.storageFolder);
                 FileSystemTest.DeletePlatformItem(this.storageFolder);
 
-                Assert.Throws<DirectoryNotFoundException>(() => folder.Delete());
+                AssertEx.Throws<DirectoryNotFoundException>(() => folder.Delete());
             }
         }
 
@@ -225,7 +227,7 @@
 
                 bool folderExists = folder.Exists();
 
-                Assert.True(folderExists);
+                Assert.IsTrue(folderExists);
             }
 
             [TestMethod]
@@ -236,8 +238,9 @@
 
                 bool folderExists = folder.Exists();
 
-                Assert.False(folderExists);
+                Assert.IsFalse(folderExists);
             }
         }
     }
+#endif
 }

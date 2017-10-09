@@ -10,11 +10,9 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
     using Channel.Helpers;
-#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     public class TransmissionStorageTest
     {
@@ -56,7 +54,7 @@
             public void InitializeThrowsArgumentNullExceptionToPreventUsageErrors()
             {
                 var transmitter = new TransmissionStorage();
-                Assert.Throws<ArgumentNullException>(() => transmitter.Initialize(null));
+                AssertEx.Throws<ArgumentNullException>(() => transmitter.Initialize(null));
             }
 
             // Uncomment this integration test only during investigations.
@@ -64,6 +62,7 @@
             // [TestMethod]
             public void IsThreadSafe()
             {
+#if !NETCOREAPP1_1
                 const int NumberOfThreads = 16;
                 const int NumberOfFilesPerThread = 64;
                 var storage = new TransmissionStorage();
@@ -96,6 +95,7 @@
                     {
                     }
                 }
+#endif
             }
         }
 
@@ -108,7 +108,7 @@
                 var storage = new TransmissionStorage();
                 storage.Initialize(new StubApplicationFolderProvider());
 
-                Assert.Equal(TransmissionStorage.DefaultCapacityKiloBytes * 1024, storage.Capacity);
+                Assert.AreEqual(TransmissionStorage.DefaultCapacityKiloBytes * 1024, storage.Capacity);
             }
 
             [TestMethod]
@@ -119,7 +119,7 @@
 
                 storage.Capacity = 42;
 
-                Assert.Equal(42, storage.Capacity);
+                Assert.AreEqual(42, storage.Capacity);
             }
 
             [TestMethod]
@@ -128,7 +128,7 @@
                 var storage = new TransmissionStorage();
                 storage.Initialize(new StubApplicationFolderProvider());
 
-                Assert.Throws<ArgumentOutOfRangeException>(() => storage.Capacity = -1);
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => storage.Capacity = -1);
             }
         }
 
@@ -153,7 +153,7 @@
 
                 storage.Enqueue(() => new StubTransmission());
 
-                Assert.True(temporaryFileName.EndsWith(TransmissionStorage.TemporaryFileExtension, StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(temporaryFileName.EndsWith(TransmissionStorage.TemporaryFileExtension, StringComparison.OrdinalIgnoreCase));
             }
 
             [TestMethod]
@@ -175,7 +175,7 @@
                 storage.Enqueue(() => new StubTransmission());
                 storage.Enqueue(() => new StubTransmission());
 
-                Assert.NotEqual(actualFileNames[0], actualFileNames[1]);
+                Assert.AreNotEqual(actualFileNames[0], actualFileNames[1]);
             }
 
             [TestMethod]
@@ -199,7 +199,7 @@
                 storage.Enqueue(() => transmission);
                 
                 string encodedContent = writtenContents.Split(Environment.NewLine.ToCharArray()).Last();
-                Assert.Equal(contents, Convert.FromBase64String(encodedContent));
+                AssertEx.AreEqual(contents, Convert.FromBase64String(encodedContent));
             }
 
             [TestMethod]
@@ -215,7 +215,7 @@
 
                 storage.Enqueue(() => new StubTransmission());
                 
-                Assert.True(fileStreamDisposed);
+                Assert.IsTrue(fileStreamDisposed);
             }
 
             [TestMethod]
@@ -231,7 +231,7 @@
 
                 storage.Enqueue(() => new StubTransmission());
 
-                Assert.True(permanentFileName.EndsWith(TransmissionStorage.TransmissionFileExtension, StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(permanentFileName.EndsWith(TransmissionStorage.TransmissionFileExtension, StringComparison.OrdinalIgnoreCase));
             }
 
             [TestMethod]
@@ -242,7 +242,7 @@
 
                 bool result = storage.Enqueue(() => new StubTransmission());
 
-                Assert.True(result);
+                Assert.IsTrue(result);
             }
 
             [TestMethod]
@@ -264,8 +264,8 @@
                 bool result = storage.Enqueue(() => new StubTransmission());
                 Thread.Sleep(20);
 
-                Assert.False(fileCreated, "file created");
-                Assert.False(result);
+                Assert.IsFalse(fileCreated, "file created");
+                Assert.IsFalse(result);
             }
 
             [TestMethod]
@@ -279,8 +279,8 @@
                 bool firstTransmissionSaved = storage.Enqueue(() => new Transmission(new Uri("any://address"), new byte[42], string.Empty, string.Empty));
                 bool secondTransmissionSaved = storage.Enqueue(() => new Transmission(new Uri("any://address"), new byte[42], string.Empty, string.Empty));
 
-                Assert.True(firstTransmissionSaved);
-                Assert.False(secondTransmissionSaved);
+                Assert.IsTrue(firstTransmissionSaved);
+                Assert.IsFalse(secondTransmissionSaved);
             }
 
             [TestMethod]
@@ -292,7 +292,7 @@
 
                 storage.Capacity = 1;
 
-                Assert.True(storage.Enqueue(() => new StubTransmission()));
+                Assert.IsTrue(storage.Enqueue(() => new StubTransmission()));
             }
 
             [TestMethod]
@@ -308,7 +308,7 @@
 
                 bool transmissionEnqueued = storage.Enqueue(() => new StubTransmission());
 
-                Assert.True(transmissionEnqueued);
+                Assert.IsTrue(transmissionEnqueued);
             }
 
             [TestMethod]
@@ -320,7 +320,7 @@
 
                 bool result = storage.Enqueue(() => new StubTransmission());
 
-                Assert.False(result);
+                Assert.IsFalse(result);
             }
 
             [TestMethod]
@@ -335,7 +335,7 @@
 
                 bool result = storage.Enqueue(() => new StubTransmission());
 
-                Assert.False(result);
+                Assert.IsFalse(result);
             }
 
             [TestMethod]
@@ -348,7 +348,7 @@
 
                 bool result = storage.Enqueue(() => new StubTransmission());
 
-                Assert.False(result);
+                Assert.IsFalse(result);
             }
             
             [TestMethod]
@@ -362,7 +362,7 @@
 
                 bool result = storage.Enqueue(() => new StubTransmission());
 
-                Assert.False(result);
+                Assert.IsFalse(result);
             }
 
             [TestMethod]
@@ -373,7 +373,7 @@
 
                 bool result = storage.Enqueue(() => null);
 
-                Assert.False(result);
+                Assert.IsFalse(result);
             }
 
             [TestMethod]
@@ -390,7 +390,7 @@
                     return new StubTransmission();
                 });
 
-                Assert.False(transmissionRemovedFromBuffer);
+                Assert.IsFalse(transmissionRemovedFromBuffer);
             }
 
             [TestMethod]
@@ -406,7 +406,7 @@
                     return new StubTransmission();
                 });
 
-                Assert.False(transmissionRemovedFromBuffer);
+                Assert.IsFalse(transmissionRemovedFromBuffer);
             }
         }
 
@@ -421,7 +421,7 @@
 
                 Transmission transmission = storage.Dequeue();
 
-                Assert.Null(transmission);
+                Assert.IsNull(transmission);
             }
 
             [TestMethod]
@@ -437,7 +437,7 @@
 
                 storage.Dequeue();
 
-                Assert.True(temporaryFileName.EndsWith(TransmissionStorage.TemporaryFileExtension, StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(temporaryFileName.EndsWith(TransmissionStorage.TemporaryFileExtension, StringComparison.OrdinalIgnoreCase));
             }
 
             [TestMethod]
@@ -452,7 +452,7 @@
 
                 Transmission dequeued = storage.Dequeue();
 
-                Assert.Equal(expectedAddress, dequeued.EndpointAddress);
+                Assert.AreEqual(expectedAddress, dequeued.EndpointAddress);
             }
 
             [TestMethod]
@@ -467,7 +467,7 @@
 
                 Transmission dequeued = storage.Dequeue();
 
-                Assert.Null(dequeued);
+                Assert.IsNull(dequeued);
             }
 
             [TestMethod]
@@ -486,7 +486,7 @@
 
                 storage.Dequeue();
 
-                Assert.True(fileStreamDisposedBeforeDeletion);
+                Assert.IsTrue(fileStreamDisposedBeforeDeletion);
             }
 
             [TestMethod]
@@ -502,7 +502,7 @@
 
                 storage.Dequeue();
 
-                Assert.True(fileDeleted);
+                Assert.IsTrue(fileDeleted);
             }
 
             [TestMethod]
@@ -518,7 +518,7 @@
 
                 Transmission dequeued = storage.Dequeue();
 
-                Assert.Equal(expectedAddress, dequeued.EndpointAddress);
+                Assert.AreEqual(expectedAddress, dequeued.EndpointAddress);
             }
 
             [TestMethod]
@@ -539,7 +539,7 @@
 
                 Transmission dequeued = storage.Dequeue();
 
-                Assert.Equal(oldestAddress, dequeued.EndpointAddress);
+                Assert.AreEqual(oldestAddress, dequeued.EndpointAddress);
             }
 
             [TestMethod]
@@ -557,9 +557,9 @@
                 var storage = new TransmissionStorage();
                 storage.Initialize(provider);
 
-                Assert.NotNull(storage.Dequeue());
-                Assert.NotNull(storage.Dequeue());
-                Assert.Equal(2, numberOfGetFilesAsyncCalls); // 1 for initializing size and 1 for 1 dequeue
+                Assert.IsNotNull(storage.Dequeue());
+                Assert.IsNotNull(storage.Dequeue());
+                Assert.AreEqual(2, numberOfGetFilesAsyncCalls); // 1 for initializing size and 1 for 1 dequeue
             }
 
             [TestMethod]
@@ -585,7 +585,7 @@
                 returnFiles.Set();
                 TaskEx.WhenAll(dequeue1, dequeue2).GetAwaiter().GetResult();
 
-                Assert.Equal(2, numberOfGetFilesAsyncCalls); // 1 for initializing size and 1 for 1 dequeue
+                Assert.AreEqual(2, numberOfGetFilesAsyncCalls); // 1 for initializing size and 1 for 1 dequeue
             }
 
             [TestMethod]
@@ -600,7 +600,7 @@
 
                 Transmission dequeued = storage.Dequeue();
 
-                Assert.NotNull(dequeued);
+                Assert.IsNotNull(dequeued);
             }
 
             [TestMethod]
@@ -626,7 +626,7 @@
 
                 Transmission dequeued = storage.Dequeue();
 
-                Assert.NotNull(dequeued);
+                Assert.IsNotNull(dequeued);
             }
 
             [TestMethod]
@@ -652,12 +652,12 @@
 
                 Transmission dequeued = storage.Dequeue();
 
-                Assert.NotNull(dequeued);
+                Assert.IsNotNull(dequeued);
             }
 
             // The test timeout must be large enough to account for potential conflicts in the storage dequeue that
             // cause small sleeps of up to 100 ms each plus the overhead of the test runner itself.
-            [TestMethod, Timeout(250)]
+            [TestMethod, Timeout(1000)]
             public void DoesNotEndlesslyTryToLoadFileTheProcessNoLongerHasAccessTo()
             {
                 StubPlatformFile inaccessibleFile = CreateFile("InaccessibleFile.trn");
@@ -668,7 +668,7 @@
                 storage.Initialize(provider);
 
                 Transmission result = storage.Dequeue();
-                Assert.Null(result);
+                Assert.IsNull(result);
             }
 
             [TestMethod]
@@ -680,7 +680,7 @@
 
                 storage.Dequeue();
 
-                Assert.True(storage.Enqueue(() => new StubTransmission()));
+                Assert.IsTrue(storage.Enqueue(() => new StubTransmission()));
             }
 
             [TestMethod]
@@ -692,7 +692,7 @@
 
                 storage.Dequeue();
 
-                Assert.False(storage.Enqueue(() => new StubTransmission()));
+                Assert.IsFalse(storage.Enqueue(() => new StubTransmission()));
             }
 
             [TestMethod]
@@ -704,7 +704,7 @@
 
                 Transmission result = storage.Dequeue();
 
-                Assert.Null(result);
+                Assert.IsNull(result);
             }
 
             [TestMethod]
@@ -717,7 +717,7 @@
 
                 Transmission result = storage.Dequeue();
 
-                Assert.Null(result);
+                Assert.IsNull(result);
             }
 
             [TestMethod]
@@ -736,7 +736,7 @@
 
                 Transmission dequeued = storage.Dequeue();
 
-                Assert.Null(dequeued);
+                Assert.IsNull(dequeued);
             }
         }
     }
