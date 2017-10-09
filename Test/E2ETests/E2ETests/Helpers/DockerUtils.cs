@@ -51,6 +51,18 @@ namespace E2ETests.Helpers
             ExecuteDockerCommand("restart " + containerName);
         }
 
+        public static void RemoveDockerImage(string imageName, bool force)
+        {
+            if (force)
+            {
+                ExecuteDockerCommand("rm -f " + imageName);
+            }
+            else
+            {
+                ExecuteDockerCommand("rm " + imageName);
+            }
+        }
+
         public static string FindIpDockerContainer(string containerName, string networkName = "nat", int retryCount = 1)
         {
             string commandToFindIp = string.Empty;

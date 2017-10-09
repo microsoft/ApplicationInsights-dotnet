@@ -16,6 +16,7 @@ namespace E2ETests
     public class DeployedApp
     {
         public string containerName;
+        public string imageName;
         public string ipAddress;
         public string ikey;
         public string healthCheckPath;
@@ -36,6 +37,7 @@ namespace E2ETests
                     {
                         ikey = WebAppInstrumentationKey,
                         containerName = "e2etests_e2etestwebapp_1",
+                        imageName = "e2etests_e2etestwebapp",
                         healthCheckPath = "/About"
                     }
             },
@@ -46,6 +48,7 @@ namespace E2ETests
                     {
                         ikey = WebApiInstrumentationKey,
                         containerName = "e2etests_e2etestwebapi_1",
+                        imageName = "e2etests_e2etestwebapi",
                         healthCheckPath = "/api/values"
                     }
             },
@@ -55,6 +58,7 @@ namespace E2ETests
                 new DeployedApp
                     {
                         containerName = "e2etests_ingestionservice_1",
+                        imageName = "e2etests_ingestionservice",
                         healthCheckPath = "/api/Data/HealthCheck?name=cijo"
                     }
             } 
@@ -70,6 +74,8 @@ namespace E2ETests
         {
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
             Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));
+
+            DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
 
             // Deploy the docker cluster using Docker-Compose
             //DockerUtils.ExecuteDockerComposeCommand("up -d --force-recreate --build", DockerComposeFileName);
