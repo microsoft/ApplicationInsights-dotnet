@@ -5,7 +5,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
     /// <summary>
     /// 
     /// </summary>
-    public class SimpleMeasurementMetricConfiguration : IMetricConfiguration
+    public class SimpleMetricConfiguration : IMetricConfiguration
     {
         private readonly int _hashCode;
 
@@ -15,12 +15,12 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <param name="seriesCountLimit"></param>
         /// <param name="valuesPerDimensionLimit"></param>
         /// <param name="seriesConfig"></param>
-        public SimpleMeasurementMetricConfiguration(int seriesCountLimit, int valuesPerDimensionLimit, IMetricSeriesConfiguration seriesConfig)
+        public SimpleMetricConfiguration(int seriesCountLimit, int valuesPerDimensionLimit, IMetricSeriesConfiguration seriesConfig)
             : this(
                     seriesCountLimit,
                     valuesPerDimensionLimit,
-                    MetricConfiguration.Defaults.NewSeriesCreationTimeout,
-                    MetricConfiguration.Defaults.NewSeriesCreationRetryDelay,
+                    MetricConfiguration.FutureDefaults.NewSeriesCreationTimeout,
+                    MetricConfiguration.FutureDefaults.NewSeriesCreationRetryDelay,
                     seriesConfig)
         {
         }
@@ -33,7 +33,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <param name="newSeriesCreationTimeout"></param>
         /// <param name="newSeriesCreationRetryDelay"></param>
         /// <param name="seriesConfig"></param>
-        public SimpleMeasurementMetricConfiguration(
+        public SimpleMetricConfiguration(
                                 int seriesCountLimit,
                                 int valuesPerDimensionLimit,
                                 TimeSpan newSeriesCreationTimeout,
@@ -105,7 +105,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         {
             if (obj != null)
             {
-                var otherConfig = obj as SimpleMeasurementMetricConfiguration;
+                var otherConfig = obj as SimpleMetricConfiguration;
                 if (otherConfig != null)
                 {
                     return Equals(otherConfig);
@@ -130,7 +130,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool Equals(SimpleMeasurementMetricConfiguration other)
+        public bool Equals(SimpleMetricConfiguration other)
         {
             if (other == null)
             {

@@ -84,9 +84,17 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             if (currentDel == null)
             {
-                PropertyInfo telemetryConfigurationProperty = typeof(TelemetryContext).GetTypeInfo().GetProperty(
-                                                                                                                "TelemetryConfiguration",
-                                                                                                                 BindingFlags.NonPublic | BindingFlags.Instance);
+                Type apiType = typeof(TelemetryClient);
+                const string apiName = "TelemetryConfiguration";
+                PropertyInfo telemetryConfigurationProperty = apiType.GetTypeInfo().GetProperty(apiName, BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (telemetryConfigurationProperty == null)
+                {
+                    throw new InvalidOperationException($"Could not get PropertyInfo for {apiType.Name}.{apiName} via reflection."
+                                                       + " This is either an internal SDK bug or there is a mismatch between the Metrics-SDK version"
+                                                       + " and the Application Insights Base SDK version. Please report this issue.");
+                }
+
                 MethodInfo telemetryConfigurationGetMethod = telemetryConfigurationProperty.GetGetMethod(nonPublic: true);
 
                 Func<TelemetryClient, TelemetryConfiguration> newDel =

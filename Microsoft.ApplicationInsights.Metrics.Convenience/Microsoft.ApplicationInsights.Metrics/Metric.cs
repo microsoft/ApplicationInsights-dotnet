@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
+using System.Runtime.CompilerServices;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -94,7 +95,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             if (DimensionsCount < 1)
             {
-                throw new InvalidOperationException("Cannot get demension name becasue this metric has no dimensions.");
+                throw new ArgumentOutOfRangeException("Cannot get demension name becasue this metric has no dimensions.");
             }
 
             if (dimensionNumber < 1)
@@ -113,8 +114,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             if (dimensionNumber > DimensionsCount)
             {
-                throw new ArgumentException($"Cannot get dimension name for ${nameof(dimensionNumber)} {dimensionNumber}"
-                                          + $" becasue this metric only has {DimensionsCount} dimensions.");
+                throw new ArgumentOutOfRangeException($"Cannot get dimension name for {nameof(dimensionNumber)}={dimensionNumber}"
+                                                    + $" becasue this metric only has {DimensionsCount} dimensions.");
             }
 
             return _dimensionNames[dimensionNumber - 1];
@@ -411,33 +412,36 @@ namespace Microsoft.ApplicationInsights.Metrics
                 if (hasDim1)
                 {
                     dimensionCount = 2;
+                    EnsureDimensionNameValid(ref dimension1Name, nameof(dimension1Name));
                 }
                 else
                 {
-                    throw new ArgumentException($"{nameof(dimension1Name)} may not be null (or white space) if {dimension2Name} is present.");
+                    throw new ArgumentException($"{nameof(dimension1Name)} may not be null (or white space) if {nameof(dimension2Name)} is present.");
                 }
 
-                dimension2Name = dimension2Name.Trim();
-                if (dimension2Name.Length == 0)
-                {
-                    throw new ArgumentException($"{nameof(dimension2Name)} may not be empty (or whitespace only). Dimension names may be 'null' to"
-                                               + " indicate the absence of a dimension, but if present, they must contain at least 1 printable character.");
-                }
+                EnsureDimensionNameValid(ref dimension2Name, nameof(dimension2Name));
             }
             else if (hasDim1)
             {
                 dimensionCount = 1;
 
-                dimension1Name = dimension1Name.Trim();
-                if (dimension1Name.Length == 0)
-                {
-                    throw new ArgumentException($"{nameof(dimension1Name)} may not be empty (or whitespace only). Dimension names may be 'null' to"
-                                               + " indicate the absence of a dimension, but if present, they must contain at least 1 printable character.");
-                }
+                EnsureDimensionNameValid(ref dimension1Name, nameof(dimension1Name));
             }
             else
             {
                 dimensionCount = 0;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void EnsureDimensionNameValid(ref string nameValue, string nameMoniker)
+        {
+            nameValue = nameValue.Trim();
+
+            if (nameValue.Length == 0)
+            {
+                throw new ArgumentException($"{nameMoniker} may not be empty (or whitespace only). Dimension names may be 'null' to"
+                                           + " indicate the absence of a dimension, but if present, they must contain at least 1 printable character.");
             }
         }
 

@@ -10,9 +10,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// </summary>
     public static class MetricConfiguration
     {
-        private static IMetricConfiguration s_measurementInt32;
         private static IMetricConfiguration s_measurementDouble;
-        private static IMetricConfiguration s_counterUInt32;
         private static IMetricConfiguration s_counterDouble;
 
         static MetricConfiguration()
@@ -21,65 +19,36 @@ namespace Microsoft.ApplicationInsights.Metrics
         }
 
         /// <summary>
-        /// 
         /// </summary>
-        internal static IMetricConfiguration Default { get { return MeasurementDouble; } }
+        internal static IMetricConfiguration Default { get { return Measurement; } }
+
+
+        /// <summary>
+        /// </summary>
+        public static IMetricConfiguration Measurement { get { return s_measurementDouble; } }
 
         /// <summary>
         /// 
         /// </summary>
-        public static IMetricConfiguration MeasurementUInt32 { get { return s_measurementInt32; } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public static IMetricConfiguration MeasurementDouble { get { return s_measurementDouble; } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public static IMetricConfiguration CounterUInt32 { get { return s_counterUInt32; } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public static IMetricConfiguration CounterDouble { get { return s_counterDouble; } }
+        public static IMetricConfiguration Counter { get { return s_counterDouble; } }
 
 
         private static void ReInitialize()
         {
-            s_measurementInt32 = new SimpleMeasurementMetricConfiguration(
-                                                        Defaults.SeriesCountLimit,
-                                                        Defaults.ValuesPerDimensionLimit,
-                                                        Defaults.NewSeriesCreationTimeout,
-                                                        Defaults.NewSeriesCreationRetryDelay,
-                                                        new SimpleMetricSeriesConfiguration(
-                                                                        lifetimeCounter: false,
-                                                                        restrictToUInt32Values: true));
-
-            s_measurementDouble = new SimpleMeasurementMetricConfiguration(
-                                                        Defaults.SeriesCountLimit,
-                                                        Defaults.ValuesPerDimensionLimit,
-                                                        Defaults.NewSeriesCreationTimeout,
-                                                        Defaults.NewSeriesCreationRetryDelay,
+            s_measurementDouble = new SimpleMetricConfiguration(
+                                                        FutureDefaults.SeriesCountLimit,
+                                                        FutureDefaults.ValuesPerDimensionLimit,
+                                                        FutureDefaults.NewSeriesCreationTimeout,
+                                                        FutureDefaults.NewSeriesCreationRetryDelay,
                                                         new SimpleMetricSeriesConfiguration(
                                                                         lifetimeCounter: false,
                                                                         restrictToUInt32Values: false));
 
-            s_counterUInt32 = new SimpleMeasurementMetricConfiguration(
-                                                        Defaults.SeriesCountLimit,
-                                                        Defaults.ValuesPerDimensionLimit,
-                                                        Defaults.NewSeriesCreationTimeout,
-                                                        Defaults.NewSeriesCreationRetryDelay,
-                                                        new SimpleMetricSeriesConfiguration(
-                                                                        lifetimeCounter: true,
-                                                                        restrictToUInt32Values: true));
-
-            s_counterDouble = new SimpleMeasurementMetricConfiguration(
-                                                        Defaults.SeriesCountLimit,
-                                                        Defaults.ValuesPerDimensionLimit,
-                                                        Defaults.NewSeriesCreationTimeout,
-                                                        Defaults.NewSeriesCreationRetryDelay,
+            s_counterDouble = new SimpleMetricConfiguration(
+                                                        FutureDefaults.SeriesCountLimit,
+                                                        FutureDefaults.ValuesPerDimensionLimit,
+                                                        FutureDefaults.NewSeriesCreationTimeout,
+                                                        FutureDefaults.NewSeriesCreationRetryDelay,
                                                         new SimpleMetricSeriesConfiguration(
                                                                         lifetimeCounter: true,
                                                                         restrictToUInt32Values: false));
@@ -91,7 +60,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        public static class Defaults
+        public static class FutureDefaults
         {
             internal static readonly TimeSpan NewSeriesCreationTimeout = TimeSpan.FromMilliseconds(10);
             internal static readonly TimeSpan NewSeriesCreationRetryDelay = TimeSpan.FromMilliseconds(1);

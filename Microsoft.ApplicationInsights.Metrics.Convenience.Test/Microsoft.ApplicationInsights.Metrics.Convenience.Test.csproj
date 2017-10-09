@@ -53,6 +53,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\MetricTests.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -63,6 +64,10 @@
     <ProjectReference Include="..\Microsoft.ApplicationInsights.Metrics.Convenience\Microsoft.ApplicationInsights.Metrics.Convenience.csproj">
       <Project>{b8b5bca5-6c7f-4178-b80d-0a781b463542}</Project>
       <Name>Microsoft.ApplicationInsights.Metrics.Convenience</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.ApplicationInsights.Metrics.Core.Tests\Microsoft.ApplicationInsights.Metrics.Core.Tests.csproj">
+      <Project>{8fbc7612-4536-45db-86c3-c2ed95219231}</Project>
+      <Name>Microsoft.ApplicationInsights.Metrics.Core.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\Microsoft.ApplicationInsights.Metrics.Core\Microsoft.ApplicationInsights.Metrics.Core.csproj">
       <Project>{b9938c09-9cb3-45cf-ba3c-847ff85ec750}</Project>

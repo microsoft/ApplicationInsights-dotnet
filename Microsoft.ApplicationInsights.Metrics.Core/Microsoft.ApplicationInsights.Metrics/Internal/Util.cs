@@ -89,7 +89,16 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             if (currentDel == null)
             {
-                MethodInfo initializeMethod = typeof(TelemetryContext).GetTypeInfo().GetMethod("Initialize", BindingFlags.NonPublic | BindingFlags.Instance);
+                Type apiType = typeof(TelemetryContext);
+                const string apiName = "Initialize";
+                MethodInfo initializeMethod = apiType.GetTypeInfo().GetMethod(apiName, BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (initializeMethod == null)
+                {
+                    throw new InvalidOperationException($"Could not get MethodInfo for {apiType.Name}.{apiName} via reflection."
+                                                       + " This is either an internal SDK bug or there is a mismatch between the Metrics-SDK version"
+                                                       + " and the Application Insights Base SDK version. Please report this issue.");
+                }
 
                 Action<TelemetryContext, TelemetryContext, string> newDel =
                                             (Action<TelemetryContext, TelemetryContext, string>)

@@ -41,7 +41,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                                                 dimension1Name,
                                                                                 dimension2Name,
                                                                                 metricConfiguration ?? MetricConfiguration.Default));
-            
 
             if (metricConfiguration != null && ! metric._configuration.Equals(metricConfiguration))
             {
@@ -49,7 +48,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                           + " that is different from the specified configuration. You may not change configurations once a"
                                           + " metric was created for the first time. Either specify the same configuration every time, or"
                                           + " specify 'null' during every invocation except the first one. 'Null' will match against any"
-                                          + " previously specified configuration when retrieving existing metrics, of fall back to"
+                                          + " previously specified configuration when retrieving existing metrics, or fall back to"
                                           +$" {nameof(MetricConfiguration.Default)} when creating new metrics. (Metric Object Id: \"{metricObjectId}\".)");
             }
 
