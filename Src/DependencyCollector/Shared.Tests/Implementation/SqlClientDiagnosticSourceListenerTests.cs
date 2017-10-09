@@ -52,6 +52,59 @@ namespace Microsoft.ApplicationInsights.Tests
         }
 
         [TestMethod]
+        public void InitializesTelemetryFromParentActivity()
+        {
+            var operationId = Guid.NewGuid();
+            var sqlConnection = new SqlConnection(TestConnectionString);
+            var sqlCommand = sqlConnection.CreateCommand();
+            sqlCommand.CommandText = "select * from orders";
+
+            var beforeExecuteEventData = new
+            {
+                OperationId = operationId,
+                Timestamp = 1000000L
+            };
+
+            this.fakeSqlClientDiagnosticSource.Write(
+                SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
+                beforeExecuteEventData);
+
+            var afterExecuteEventData = new
+            {
+                OperationId = operationId,
+                Operation = "ExecuteReader",
+                ConnectionId = sqlConnection.ClientConnectionId,
+                Command = sqlCommand,
+                Statistics = sqlConnection.RetrieveStatistics(),
+                Timestamp = 2000000L
+            };
+
+            var parentActivity = new Activity("Parent");
+            var activity = new Activity("Current").AddBaggage("Stuff", "123");
+
+            try
+            {
+                parentActivity.Start();
+                activity.Start();
+
+                this.fakeSqlClientDiagnosticSource.Write(
+                    SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
+                    afterExecuteEventData);
+
+                var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
+
+                Assert.AreEqual(activity.RootId, dependencyTelemetry.Context.Operation.Id);
+                Assert.AreEqual(parentActivity.Id, dependencyTelemetry.Context.Operation.ParentId);
+                Assert.AreEqual("123", dependencyTelemetry.Context.Properties["Stuff"]);
+            }
+            finally
+            {
+                activity.Stop();
+                parentActivity.Stop();
+            }
+        }
+
+        [TestMethod]
         public void TracksCommandExecuted()
         {
             var operationId = Guid.NewGuid();
