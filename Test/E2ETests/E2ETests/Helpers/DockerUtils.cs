@@ -55,11 +55,11 @@ namespace E2ETests.Helpers
         {
             if (force)
             {
-                ExecuteDockerCommand("rm -f " + imageName);
+                ExecuteDockerCommand("rmi -f " + imageName);
             }
             else
             {
-                ExecuteDockerCommand("rm " + imageName);
+                ExecuteDockerCommand("rmi " + imageName);
             }
         }
 
