@@ -7,6 +7,11 @@ COPY . /inetpub/wwwroot
 
 #Download status monitor
 ADD http://go.microsoft.com/fwlink/?LinkID=522371&clcid=0x409 ApplicationInsightsAgent.msi
+
+#Check status of msiserver
+RUN powershell -NoProfile -Command \
+	get-service -name msiserver;
+
 #Install status monitor
 RUN msiexec /i ApplicationInsightsAgent.msi /qn
 

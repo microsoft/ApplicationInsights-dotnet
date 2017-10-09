@@ -70,8 +70,9 @@ namespace E2ETests
         {
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
             Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));
-                        
+
             // Deploy the docker cluster using Docker-Compose
+            //DockerUtils.ExecuteDockerComposeCommand("up -d --force-recreate --build", DockerComposeFileName);
             DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
             DockerUtils.PrintDockerProcessStats("Docker-Compose -build");
             Thread.Sleep(1000);
