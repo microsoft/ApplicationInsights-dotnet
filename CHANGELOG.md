@@ -8,10 +8,6 @@
 - [DiagnosticsListener should have safe OnNext](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/649)
 - [PerfCounterCollector module may go into endless loop (ASP.NET Core on Full Framework)](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/678)
 - [Start Timestamp is not set for Http dependency telemetry in dotnet core 2.0](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/658)
-- [Exception Statistics: Use Problem ID instead of type and method as a metric dimension](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/348)
-- [Exception Statistics: Live Metrics threads should be marked as Internal operation](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/356)
-- [Telemetry is occasionally lost for SF app with ServerTelemetryChannel with SDK 2.3 Stable](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/501)
-- [Move QuickPulse in a separate repo and ship it as separate Nuget package] (https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/450)
 - Bugfix for CorrelationIdLookup NullRef Ex
 
 **Project**
