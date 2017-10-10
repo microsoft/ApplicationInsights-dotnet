@@ -28,6 +28,7 @@ RUN powershell -NoProfile -Command \
 
 RUN ["powershell","Get-Date"]
 RUN ["powershell", "msiexec.exe", "/i", "C:\\ApplicationInsightsAgent.msi", "/qn", "/LIME", "C:\\sminstall.txt"]
+RUN ["powershell","Wait-Process", "msiexec", "-Timeout", "60"]
 RUN ["powershell","Get-Date"]
 RUN ["powershell","Start-Sleep", "60"]
 RUN ["powershell","Get-Date"]
