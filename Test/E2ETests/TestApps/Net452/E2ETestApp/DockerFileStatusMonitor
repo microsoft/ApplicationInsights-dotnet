@@ -26,6 +26,7 @@ RUN powershell -NoProfile -Command \
 #RUN ["powershell","$s.status"]
 
 RUN ["powershell", "msiexec.exe", "/i", "C:\\ApplicationInsightsAgent.msi", "/qn", "/LIME", "C:\\sminstall.txt"]
+RUN ["powershell","Start-Sleep", "10000"]
 RUN ["powershell","Get-Content", "C:\\sminstall.txt"]
 
 
