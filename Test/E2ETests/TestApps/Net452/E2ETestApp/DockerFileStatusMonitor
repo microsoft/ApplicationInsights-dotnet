@@ -8,17 +8,16 @@ ADD http://go.microsoft.com/fwlink/?LinkID=522371&clcid=0x409 ApplicationInsight
 
 #Check status of msiserver
 RUN powershell -NoProfile -Command \
-	get-service -name msiserver;
+	start-service -Name msiserver;
 
 #Check status of SM install
 RUN powershell -NoProfile -Command \	
 	Get-ItemProperty 'hklm:\\SYSTEM\\CurrentControlSet\\Services\\W3SVC'
 	
 #Install status monitor
-RUN msiexec /i ApplicationInsightsAgent.msi /qn /LIME .\sminstall.txt
-RUN powershell -NoProfile -Command \	
-	Write-Host "installation logs"; \
-	Get-Content .\sminstall.txt | Write-Host;
+RUN msiexec /i ApplicationInsightsAgent.msi /qn /LIME C:\sminstall.txt
+RUN powershell -NoProfile -Command \
+	Get-Content .\sminstall.txt
 
 #Restart iis to take status monitor effect
 RUN iisreset /restart
