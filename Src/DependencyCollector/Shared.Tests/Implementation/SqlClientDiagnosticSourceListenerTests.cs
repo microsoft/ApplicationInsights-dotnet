@@ -190,50 +190,6 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual(commandErrorEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
             Assert.IsFalse(dependencyTelemetry.Success.Value);
         }
-
-        [TestMethod]
-        public void TracksConnectionOpened()
-        {
-            var operationId = Guid.NewGuid();
-            var sqlConnection = new SqlConnection(TestConnectionString);
-
-            var beforeOpenEventData = new
-            {
-                OperationId = operationId,
-                Timestamp = 1000000L
-            };
-
-            this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlBeforeOpenConnection,
-                beforeOpenEventData);
-
-            var afterOpenEventData = new
-            {
-                OperationId = operationId,
-                Operation = "Open",
-                ConnectionId = sqlConnection.ClientConnectionId,
-                Connection = sqlConnection,
-                Statistics = sqlConnection.RetrieveStatistics(),
-                Timestamp = 2000000L
-            };
-
-            var now = DateTimeOffset.UtcNow;
-            
-            this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlAfterOpenConnection,
-                afterOpenEventData);
-
-            var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
-
-            Assert.AreEqual(afterOpenEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
-            Assert.AreEqual(afterOpenEventData.Operation, dependencyTelemetry.Data);
-            Assert.AreEqual("(localdb)\\MSSQLLocalDB | master | " + afterOpenEventData.Operation, dependencyTelemetry.Name);
-            Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
-            Assert.AreEqual(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
-            Assert.IsTrue((bool)dependencyTelemetry.Success);
-            Assert.AreEqual(1000000L, dependencyTelemetry.Duration.Ticks);
-            Assert.IsTrue(dependencyTelemetry.Timestamp.Ticks < now.Ticks);
-        }
         
         [TestMethod]
         public void TracksConnectionOpenedError()
@@ -269,52 +225,15 @@ namespace Microsoft.ApplicationInsights.Tests
 
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.AreEqual(errorOpenEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
-            Assert.IsFalse(dependencyTelemetry.Success.Value);
-        }
-
-        [TestMethod]
-        public void TracksConnectionClosed()
-        {
-            var operationId = Guid.NewGuid();
-            var sqlConnection = new SqlConnection(TestConnectionString);
-
-            var beforeCloseEventData = new
-            {
-                OperationId = operationId,
-                Timestamp = 1000000L
-            };
-
-            this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlBeforeCloseConnection,
-                beforeCloseEventData);
-
-            var afterCloseEventData = new
-            {
-                OperationId = operationId,
-                Operation = "Close",
-                ConnectionId = sqlConnection.ClientConnectionId,
-                Connection = sqlConnection,
-                Statistics = sqlConnection.RetrieveStatistics(),
-                Timestamp = 2000000L
-            };
-
-            var now = DateTimeOffset.UtcNow;
-
-            this.fakeSqlClientDiagnosticSource.Write(
-                SqlClientDiagnosticSourceListener.SqlAfterCloseConnection,
-                afterCloseEventData);
-
-            var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
-
-            Assert.AreEqual(afterCloseEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
-            Assert.AreEqual(afterCloseEventData.Operation, dependencyTelemetry.Data);
-            Assert.AreEqual("(localdb)\\MSSQLLocalDB | master | " + afterCloseEventData.Operation, dependencyTelemetry.Name);
+            Assert.AreEqual(errorOpenEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
+            Assert.AreEqual(errorOpenEventData.Operation, dependencyTelemetry.Data);
+            Assert.AreEqual("(localdb)\\MSSQLLocalDB | master | " + errorOpenEventData.Operation, dependencyTelemetry.Name);
             Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
             Assert.AreEqual(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
-            Assert.IsTrue((bool)dependencyTelemetry.Success);
             Assert.AreEqual(1000000L, dependencyTelemetry.Duration.Ticks);
             Assert.IsTrue(dependencyTelemetry.Timestamp.Ticks < now.Ticks);
+            Assert.AreEqual(errorOpenEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
+            Assert.IsFalse(dependencyTelemetry.Success.Value);
         }
 
         [TestMethod]
@@ -351,6 +270,13 @@ namespace Microsoft.ApplicationInsights.Tests
 
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
+            Assert.AreEqual(errorCloseEventData.OperationId.ToString("N"), dependencyTelemetry.Id);
+            Assert.AreEqual(errorCloseEventData.Operation, dependencyTelemetry.Data);
+            Assert.AreEqual("(localdb)\\MSSQLLocalDB | master | " + errorCloseEventData.Operation, dependencyTelemetry.Name);
+            Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
+            Assert.AreEqual(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
+            Assert.AreEqual(1000000L, dependencyTelemetry.Duration.Ticks);
+            Assert.IsTrue(dependencyTelemetry.Timestamp.Ticks < now.Ticks);
             Assert.AreEqual(errorCloseEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
             Assert.IsFalse(dependencyTelemetry.Success.Value);
         }
