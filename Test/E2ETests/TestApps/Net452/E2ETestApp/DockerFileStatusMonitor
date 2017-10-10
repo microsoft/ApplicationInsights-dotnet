@@ -17,7 +17,9 @@ RUN powershell -NoProfile -Command \
 	Get-ItemProperty 'hklm:\\SYSTEM\\CurrentControlSet\\Services\\W3SVC'
 	
 #Install status monitor
-RUN msiexec /i ApplicationInsightsAgent.msi /qn
+RUN msiexec /i ApplicationInsightsAgent.msi /qn /LIME .\sminstall.txt
+RUN powershell -NoProfile -Command \	
+	Get-Content .\sminstall.txt
 
 #Restart iis to take status monitor effect
 RUN iisreset /restart
