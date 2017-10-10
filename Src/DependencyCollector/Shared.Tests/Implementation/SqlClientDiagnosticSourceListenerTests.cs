@@ -12,6 +12,7 @@ namespace Microsoft.ApplicationInsights.Tests
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
@@ -184,11 +185,10 @@ namespace Microsoft.ApplicationInsights.Tests
                 SqlClientDiagnosticSourceListener.SqlErrorExecuteCommand,
                 commandErrorEventData);
 
-            var exceptionTelemetry = (ExceptionTelemetry)this.sendItems.Single();
+            var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.AreSame(commandErrorEventData.Exception, exceptionTelemetry.Exception);
-            Assert.AreEqual(commandErrorEventData.Exception.Message, exceptionTelemetry.Message);
-            Assert.IsTrue(exceptionTelemetry.Timestamp.Ticks < now.Ticks);
+            Assert.AreEqual(commandErrorEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
+            Assert.IsFalse(dependencyTelemetry.Success.Value);
         }
 
         [TestMethod]
@@ -267,11 +267,10 @@ namespace Microsoft.ApplicationInsights.Tests
                 SqlClientDiagnosticSourceListener.SqlErrorOpenConnection,
                 errorOpenEventData);
 
-            var exceptionTelemetry = (ExceptionTelemetry)this.sendItems.Single();
+            var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.AreSame(errorOpenEventData.Exception, exceptionTelemetry.Exception);
-            Assert.AreEqual(errorOpenEventData.Exception.Message, exceptionTelemetry.Message);
-            Assert.IsTrue(exceptionTelemetry.Timestamp.Ticks < now.Ticks);
+            Assert.AreEqual(errorOpenEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
+            Assert.IsFalse(dependencyTelemetry.Success.Value);
         }
 
         [TestMethod]
@@ -334,7 +333,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 SqlClientDiagnosticSourceListener.SqlBeforeCloseConnection,
                 beforeOpenEventData);
 
-            var errorOpenEventData = new
+            var errorCloseEventData = new
             {
                 OperationId = operationId,
                 Operation = "Close",
@@ -348,13 +347,12 @@ namespace Microsoft.ApplicationInsights.Tests
 
             this.fakeSqlClientDiagnosticSource.Write(
                 SqlClientDiagnosticSourceListener.SqlErrorCloseConnection,
-                errorOpenEventData);
+                errorCloseEventData);
 
-            var exceptionTelemetry = (ExceptionTelemetry)this.sendItems.Single();
+            var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.AreSame(errorOpenEventData.Exception, exceptionTelemetry.Exception);
-            Assert.AreEqual(errorOpenEventData.Exception.Message, exceptionTelemetry.Message);
-            Assert.IsTrue(exceptionTelemetry.Timestamp.Ticks < now.Ticks);
+            Assert.AreEqual(errorCloseEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
+            Assert.IsFalse(dependencyTelemetry.Success.Value);
         }
 
         [TestMethod]
@@ -434,11 +432,10 @@ namespace Microsoft.ApplicationInsights.Tests
                 SqlClientDiagnosticSourceListener.SqlErrorCommitTransaction,
                 errorCommitEventData);
 
-            var exceptionTelemetry = (ExceptionTelemetry)this.sendItems.Single();
+            var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
-            Assert.AreSame(errorCommitEventData.Exception, exceptionTelemetry.Exception);
-            Assert.AreEqual(errorCommitEventData.Exception.Message, exceptionTelemetry.Message);
-            Assert.IsTrue(exceptionTelemetry.Timestamp.Ticks < now.Ticks);
+            Assert.AreEqual(errorCommitEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
+            Assert.IsFalse(dependencyTelemetry.Success.Value);
         }
 
         [TestMethod]

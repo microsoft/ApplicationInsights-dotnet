@@ -13,6 +13,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Web.Implementation;
+    using System.Globalization;
 
     internal class SqlClientDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
     {
@@ -115,6 +116,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         operationId,
                         (string)CommandError.Operation.Fetch(evnt.Value),
                         (Guid)CommandError.ConnectionId.Fetch(evnt.Value),
+                        (SqlCommand)CommandError.Command.Fetch(evnt.Value),
                         (Exception)CommandError.Exception.Fetch(evnt.Value),
                         (long)CommandError.Timestamp.Fetch(evnt.Value));
 
@@ -164,6 +166,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         operationId,
                         (string)ConnectionError.Operation.Fetch(evnt.Value),
                         (Guid)ConnectionError.ConnectionId.Fetch(evnt.Value),
+                        (SqlConnection)ConnectionError.Connection.Fetch(evnt.Value),
                         (Exception)ConnectionError.Exception.Fetch(evnt.Value),
                         (long)ConnectionError.Timestamp.Fetch(evnt.Value));
 
@@ -221,34 +224,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
         }
 
-        private static void InitializeTelemetry(ITelemetry telemetry, Guid operationId)
-        {
-            var activity = Activity.Current;
-
-            if (activity != null)
-            {
-                telemetry.Context.Operation.Id = activity.RootId;
-                telemetry.Context.Operation.ParentId = activity.ParentId;
-
-                foreach (var item in activity.Baggage)
-                {
-                    if (!telemetry.Context.Properties.ContainsKey(item.Key))
-                    {
-                        telemetry.Context.Properties[item.Key] = item.Value;
-                    }
-                }
-            }
-            else
-            {
-                telemetry.Context.Operation.Id = operationId.ToString("N");
-            }
-        }
-
-        private static void CorrelateErrorTelemetry(ExceptionTelemetry telemetry, Guid operationId)
-        {
-            telemetry.Context.Operation.ParentId = operationId.ToString("N");
-        }
-
         private void OnAfterCommandEvent(
             Guid operationId,
             string operation,
@@ -256,6 +231,28 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             SqlCommand command,
             IDictionary statistics,
             long endTimestamp)
+        {
+            var telemetry = CreateCommandTelemetry(operationId, command, endTimestamp);
+            
+            this.client.Track(telemetry);
+        }
+
+        private void OnCommandErrorEvent(
+            Guid operationId,
+            string operation,
+            Guid connectionId,
+            SqlCommand command,
+            Exception exception,
+            long endTimestamp)
+        {
+            var telemetry = CreateCommandTelemetry(operationId, command, endTimestamp);
+
+            ConfigureExceptionTelemetry(telemetry, exception);
+
+            this.client.Track(telemetry);
+        }
+
+        private DependencyTelemetry CreateCommandTelemetry(Guid operationId, SqlCommand command, long endTimestamp)
         {
             // Call DeriveDuration first to ensure we remove any start timestamp from operationStartTimestamps
             var duration = this.DeriveDuration(operationId, endTimestamp);
@@ -289,30 +286,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             };
 
             InitializeTelemetry(telemetry, operationId);
-            
-            this.client.Track(telemetry);
-        }
 
-        private void OnCommandErrorEvent(
-            Guid operationId,
-            string operation,
-            Guid connectionId,
-            Exception exception,
-            long endTimestamp)
-        {
-            var duration = this.DeriveDuration(operationId, endTimestamp);
-
-            var telemetry = new ExceptionTelemetry(exception)
-            {
-                Message = exception.Message,
-                Timestamp = DateTimeOffset.UtcNow - duration,
-                SeverityLevel = SeverityLevel.Critical
-            };
-
-            InitializeTelemetry(telemetry, operationId);
-            CorrelateErrorTelemetry(telemetry, operationId);
-
-            this.client.Track(telemetry);
+            return telemetry;
         }
 
         private void OnAfterConnectionEvent(
@@ -323,8 +298,30 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             IDictionary statistics, 
             long endTimestamp)
         {
+            var telemetry = CreateConnectionTelemetry(operationId, operation, connection, endTimestamp);
+
+            this.client.Track(telemetry);
+        }
+
+        private void OnErrorConnectionEvent(
+            Guid operationId,
+            string operation,
+            Guid connectionId,
+            SqlConnection connection,
+            Exception exception,
+            long endTimestamp)
+        {
+            var telemetry = CreateConnectionTelemetry(operationId, operation, connection, endTimestamp);
+
+            ConfigureExceptionTelemetry(telemetry, exception);
+
+            this.client.Track(telemetry);
+        }
+
+        private DependencyTelemetry CreateConnectionTelemetry(Guid operationId, string operation, SqlConnection connection, long endTimestamp)
+        {
             var duration = this.DeriveDuration(operationId, endTimestamp);
-            
+
             var telemetry = new DependencyTelemetry()
             {
                 Id = operationId.ToString("N"),
@@ -339,29 +336,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             InitializeTelemetry(telemetry, operationId);
 
-            this.client.Track(telemetry);
-        }
-
-        private void OnErrorConnectionEvent(
-            Guid operationId,
-            string operation,
-            Guid connectionId,
-            Exception exception,
-            long endTimestamp)
-        {
-            var duration = this.DeriveDuration(operationId, endTimestamp);
-
-            var telemetry = new ExceptionTelemetry(exception)
-            {
-                Message = exception.Message,
-                Timestamp = DateTimeOffset.UtcNow - duration,
-                SeverityLevel = SeverityLevel.Critical
-            };
-
-            InitializeTelemetry(telemetry, operationId);
-            CorrelateErrorTelemetry(telemetry, operationId);
-
-            this.client.Track(telemetry);
+            return telemetry;
         }
 
         private void OnAfterTransactionEvent(
@@ -370,6 +345,29 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             IsolationLevel isolationLevel,
             SqlConnection connection,
             long endTimestamp)
+        {
+            var telemetry = CreateTransactionTelemetry(operationId, operation, isolationLevel, connection, endTimestamp);
+
+            this.client.Track(telemetry);
+        }
+
+        private void OnErrorTransactionEvent(
+            Guid operationId,
+            string operation,
+            IsolationLevel isolationLevel,
+            SqlConnection connection,
+            Exception exception,
+            long endTimestamp)
+        {
+            var telemetry = CreateTransactionTelemetry(operationId, operation, isolationLevel, connection, endTimestamp);
+
+            ConfigureExceptionTelemetry(telemetry, exception);
+
+            this.client.Track(telemetry);
+        }
+
+        private DependencyTelemetry CreateTransactionTelemetry(
+            Guid operationId, string operation, IsolationLevel isolationLevel, SqlConnection connection, long endTimestamp)
         {
             var duration = this.DeriveDuration(operationId, endTimestamp);
 
@@ -387,30 +385,43 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             InitializeTelemetry(telemetry, operationId);
 
-            this.client.Track(telemetry);
+            return telemetry;
         }
 
-        private void OnErrorTransactionEvent(
-            Guid operationId,
-            string operation,
-            IsolationLevel isolationLevel,
-            SqlConnection connection,
-            Exception exception,
-            long endTimestamp)
+        private static void InitializeTelemetry(ITelemetry telemetry, Guid operationId)
         {
-            var duration = this.DeriveDuration(operationId, endTimestamp);
+            var activity = Activity.Current;
 
-            var telemetry = new ExceptionTelemetry(exception)
+            if (activity != null)
             {
-                Message = exception.Message,
-                Timestamp = DateTimeOffset.UtcNow - duration,
-                SeverityLevel = SeverityLevel.Critical
-            };
+                telemetry.Context.Operation.Id = activity.RootId;
+                telemetry.Context.Operation.ParentId = activity.ParentId;
 
-            InitializeTelemetry(telemetry, operationId);
-            CorrelateErrorTelemetry(telemetry, operationId);
+                foreach (var item in activity.Baggage)
+                {
+                    if (!telemetry.Context.Properties.ContainsKey(item.Key))
+                    {
+                        telemetry.Context.Properties[item.Key] = item.Value;
+                    }
+                }
+            }
+            else
+            {
+                telemetry.Context.Operation.Id = operationId.ToString("N");
+            }
+        }
 
-            this.client.Track(telemetry);
+        private static void ConfigureExceptionTelemetry(DependencyTelemetry telemetry, Exception exception)
+        {
+            telemetry.Success = false;
+            telemetry.Properties["Exception"] = exception.ToInvariantString();
+
+            var sqlException = exception as SqlException;
+
+            if (sqlException != null)
+            {
+                telemetry.ResultCode = sqlException.Number.ToString(CultureInfo.InvariantCulture);
+            }
         }
 
         private TimeSpan DeriveDuration(Guid operationId, long endTimestamp)
@@ -419,7 +430,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 ? TimeSpan.FromTicks(endTimestamp - startTimestamp1)
                 : default(TimeSpan);
         }
-        
+
         #region Fetchers
 
         // Fetchers for execute command before event
@@ -446,6 +457,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
             public static readonly PropertyFetcher Operation = new PropertyFetcher(nameof(Operation));
             public static readonly PropertyFetcher ConnectionId = new PropertyFetcher(nameof(ConnectionId));
+            public static readonly PropertyFetcher Command = new PropertyFetcher(nameof(Command));
             public static readonly PropertyFetcher Exception = new PropertyFetcher(nameof(Exception));
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
         }
@@ -474,6 +486,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
             public static readonly PropertyFetcher Operation = new PropertyFetcher(nameof(Operation));
             public static readonly PropertyFetcher ConnectionId = new PropertyFetcher(nameof(ConnectionId));
+            public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
             public static readonly PropertyFetcher Exception = new PropertyFetcher(nameof(Exception));
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
         }
