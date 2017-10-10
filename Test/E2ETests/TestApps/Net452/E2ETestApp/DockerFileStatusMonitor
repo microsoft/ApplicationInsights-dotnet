@@ -17,7 +17,8 @@ RUN powershell -NoProfile -Command \
 #Install status monitor
 RUN msiexec /i ApplicationInsightsAgent.msi /qn /LIME .\sminstall.txt
 RUN powershell -NoProfile -Command \	
-	Get-Content .\sminstall.txt
+	Write-Host "installation logs" \
+	Get-Content .\sminstall.txt | Write-Host
 
 #Restart iis to take status monitor effect
 RUN iisreset /restart
