@@ -14,8 +14,8 @@ RUN powershell -NoProfile -Command \
 
 #Check status of SM install
 RUN powershell -NoProfile -Command \	
-	$s = Get-ItemProperty "hklm:\SYSTEM\CurrentControlSet\Services\W3SVC"; \
-	if ($s.Environment -eq $null) {Write-Host "Status Monitor Not Installed"} else {Write-Host "Status Monitor Installed"}
+	"$s = Get-ItemProperty 'hklm:\\SYSTEM\\CurrentControlSet\\Services\\W3SVC'"; \
+	"if ($s.Environment -eq $null) {Write-Host "Status Monitor Not Installed"} else {Write-Host "Status Monitor Installed"};"
 	
 #Install status monitor
 RUN msiexec /i ApplicationInsightsAgent.msi /qn
@@ -25,6 +25,6 @@ RUN iisreset /restart
 
 #Check status of SM install
 RUN powershell -NoProfile -Command \	
-	$s = Get-ItemProperty "hklm:\SYSTEM\CurrentControlSet\Services\W3SVC"; \
-	if ($s.Environment -eq $null) {Write-Host "Status Monitor Not Installed"} else {Write-Host "Status Monitor Installed"}
+	"$s = Get-ItemProperty 'hklm:\\SYSTEM\\CurrentControlSet\\Services\\W3SVC'"; \
+	"if ($s.Environment -eq $null) {Write-Host "Status Monitor Not Installed"} else {Write-Host "Status Monitor Installed"};"
 	
