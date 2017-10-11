@@ -393,23 +393,23 @@
         }
 
         [Event(
-            37,
+            38,
             Keywords = Keywords.RddEventKeywords,
             Message = "SqlClientDiagnosticSubscriber failed to subscribe. Error details '{0}'",
             Level = EventLevel.Error)]
         public void SqlClientDiagnosticSubscriberFailedToSubscribe(string error, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(37, error, this.ApplicationName);
+            this.WriteEvent(38, error, this.ApplicationName);
         }
 
         [Event(
-            38,
+            39,
             Keywords = Keywords.RddEventKeywords,
             Message = "SqlClientDiagnosticSubscriber: Callback called for id = '{0}', name= '{1}'",
             Level = EventLevel.Verbose)]
-        public void SqlClientDiagnosticSubscriberCallbackCalled(Guid id, string name)
+        public void SqlClientDiagnosticSubscriberCallbackCalled(Guid id, string name, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(38, id, name, this.ApplicationName);
+            this.WriteEvent(39, id, name ?? string.Empty, this.ApplicationName);
         }
 
         [NonEvent]
