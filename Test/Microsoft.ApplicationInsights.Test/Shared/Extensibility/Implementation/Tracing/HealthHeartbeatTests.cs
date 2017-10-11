@@ -18,7 +18,7 @@
         {
             using (var hbeat = new HealthHeartbeatProvider())
             {
-                hbeat.Initialize();
+                hbeat.Initialize(configuration: null);
             }
         }
 
@@ -27,8 +27,8 @@
         {
             using (var hbeat = new HealthHeartbeatProvider())
             {
-                hbeat.Initialize();
-                hbeat.Initialize();
+                hbeat.Initialize(configuration: null);
+                hbeat.Initialize(configuration: null);
             }
         }
 
@@ -37,7 +37,7 @@
         {
             using (var hbeat = new HealthHeartbeatProvider(1200))
             {
-                hbeat.Initialize();
+                hbeat.Initialize(configuration: null);
                 Assert.AreEqual(1200,hbeat.HeartbeatIntervalMs);
             }
         }
@@ -49,7 +49,7 @@
 
             using (var hbeat = new HealthHeartbeatProvider(specificFieldsToEnable))
             {
-                hbeat.Initialize();
+                hbeat.Initialize(configuration: null);
                 Assert.AreEqual(0, String.CompareOrdinal(hbeat.EnabledPayloadFields, specificFieldsToEnable));
             }
         }
@@ -81,16 +81,15 @@
         }
 
         [TestMethod]
-        [Ignore]
         public void CanExtendHeartbeatPayload()
         {
             using (var hbeat = new HealthHeartbeatProvider())
             {
-                hbeat.Initialize();
+                hbeat.Initialize(configuration: null);
                 TestHeartbeatPayload payloadProperties = new TestHeartbeatPayload();
                 hbeat.RegisterHeartbeatPayload(payloadProperties);
+                
             }
-            throw new NotImplementedException();
         }
 
         [TestMethod]

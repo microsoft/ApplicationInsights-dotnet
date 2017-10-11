@@ -1,9 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
@@ -21,9 +19,12 @@
         /// </summary>
         public static string DefaultAllowedFieldsInHeartbeatPayload = "*";
 
+        public static string HeartbeatSyntheticMetricName = "SDKHeartbeat";
+
         private bool disposedValue = false; // To detect redundant calls to dispose
         private int intervalBetweenHeartbeatsMs; // time between heartbeats emitted specified in milliseconds
         private string enabledHeartbeatPayloadFields; // string containing fields that are enabled in the payload. * means everything available.
+        private TelemetryClient telemetryClient; // client to use in sending our heartbeat
 
         public HealthHeartbeatProvider() : this(DefaultHeartbeatIntervalMs, DefaultAllowedFieldsInHeartbeatPayload)
         {
@@ -47,8 +48,17 @@
 
         public string EnabledPayloadFields => this.enabledHeartbeatPayloadFields;
 
-        public bool Initialize()
+        public bool Initialize(TelemetryConfiguration configuration, int? delayMs = null, string allowedPayloadFields = null)
         {
+            this.telemetryClient = new TelemetryClient(configuration);
+
+            this.intervalBetweenHeartbeatsMs = delayMs.GetValueOrDefault(this.intervalBetweenHeartbeatsMs);
+
+            if (!string.IsNullOrEmpty(allowedPayloadFields))
+            {
+                this.enabledHeartbeatPayloadFields = allowedPayloadFields;
+            }
+
             return true;
         }
 
@@ -100,5 +110,66 @@
         }
 
         #endregion
+
+        protected void Send()
+        {
+            this.SendHealthHeartbeat();
+        }
+
+        protected MetricTelemetry GatherData()
+        {
+            return this.GatherDataForHeartbeatPayload();
+        }
+
+        private MetricTelemetry GatherDataForHeartbeatPayload()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void SendHealthHeartbeat()
+        {
+            try
+            {
+                var heartbeatPayload = this.GatherData();
+                if (heartbeatPayload.Properties != null && heartbeatPayload.Count > 0)
+                {
+                    // Check if message is sent to the portal (somewhere before in the stack)
+                    // It allows to avoid infinite recursion if sending to the portal traces something.
+                    if (!ThreadResourceLock.IsResourceLocked)
+                    {
+                        using (var portalSenderLock = new ThreadResourceLock())
+                        {
+                            try
+                            {
+                                this.InternalSendHealthHeartbeat(heartbeatPayload);
+                            }
+                            catch (Exception exp)
+                            {
+                                // This message will not be sent to the portal because we have infinite loop protection
+                                // But it will be available in PerfView or StatusMonitor
+                                CoreEventSource.Log.LogError("Failed to send traces to the portal: " + exp.ToInvariantString());
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // We were trying to send traces out and failed. 
+                // No reason to try to trace something else again
+            }
+        }
+
+        private void InternalSendHealthHeartbeat(MetricTelemetry eventData)
+        {
+            if (this.telemetryClient.TelemetryConfiguration.TelemetryChannel == null)
+            {
+                return;
+            }
+
+            eventData.Context.Operation.SyntheticSource = HeartbeatSyntheticMetricName;
+
+            this.telemetryClient.TrackMetric(eventData);
+        }
     }
 }

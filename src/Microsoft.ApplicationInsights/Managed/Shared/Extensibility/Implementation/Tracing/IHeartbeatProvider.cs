@@ -6,8 +6,6 @@
     {
         void RegisterHeartbeatPayload(IHealthHeartbeatPayloadExtension payloadProvider);
 
-        bool Initialize();
-
-        bool UpdateSettings();
+        bool Initialize(TelemetryConfiguration configuration, int? delayMs = null, string allowedPayloadFields = null);
     }
 }

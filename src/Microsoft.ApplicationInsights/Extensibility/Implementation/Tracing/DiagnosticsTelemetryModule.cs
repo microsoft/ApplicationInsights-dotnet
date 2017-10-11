@@ -147,7 +147,7 @@
                             this.HeartbeatProvider = new HealthHeartbeatProvider();
                         }
 
-                        this.HeartbeatProvider.Initialize();
+                        this.HeartbeatProvider.Initialize(configuration, null, null);
 
                         this.isInitialized = true;
                     }
