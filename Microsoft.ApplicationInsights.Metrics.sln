@@ -19,16 +19,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Microsoft.ApplicationInsights.Metrics.runsettings = Microsoft.ApplicationInsights.Metrics.runsettings
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Metrics.Core.Tests", "Microsoft.ApplicationInsights.Metrics.Core.Tests\Microsoft.ApplicationInsights.Metrics.Core.Tests.csproj", "{8FBC7612-4536-45DB-86C3-C2ED95219231}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Metrics.Core.Tests", "Tests\Microsoft.ApplicationInsights.Metrics.Core.Tests\Microsoft.ApplicationInsights.Metrics.Core.Tests.csproj", "{8FBC7612-4536-45DB-86C3-C2ED95219231}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Metrics.Convenience.Test", "Microsoft.ApplicationInsights.Metrics.Convenience.Test\Microsoft.ApplicationInsights.Metrics.Convenience.Test.csproj", "{A043442C-8B85-40CA-8A0A-7B812A8D9B9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Metrics.Convenience.Test", "Tests\Microsoft.ApplicationInsights.Metrics.Convenience.Test\Microsoft.ApplicationInsights.Metrics.Convenience.Test.csproj", "{A043442C-8B85-40CA-8A0A-7B812A8D9B9C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl", "Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl\Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl.csproj", "{0272FE8B-9B25-43B0-A26B-3C71154DEBBA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl", "Tests\Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl\Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl.csproj", "{0272FE8B-9B25-43B0-A26B-3C71154DEBBA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Materials", "Materials", "{926233F6-8E40-4EC2-9FBE-647F2A3DF6EA}"
 	ProjectSection(SolutionItems) = preProject
 		Materials\StdDev Test Tool.xlsx = Materials\StdDev Test Tool.xlsx
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D1F9E7C3-7C36-44D1-A5B2-B05819D5CEA7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,5 +65,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8FBC7612-4536-45DB-86C3-C2ED95219231} = {D1F9E7C3-7C36-44D1-A5B2-B05819D5CEA7}
+		{A043442C-8B85-40CA-8A0A-7B812A8D9B9C} = {D1F9E7C3-7C36-44D1-A5B2-B05819D5CEA7}
+		{0272FE8B-9B25-43B0-A26B-3C71154DEBBA} = {D1F9E7C3-7C36-44D1-A5B2-B05819D5CEA7}
 	EndGlobalSection
 EndGlobal
