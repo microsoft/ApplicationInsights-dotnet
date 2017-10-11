@@ -29,7 +29,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// </p>
     /// <p>
     /// The cube is designed to work in concurrent scenarios while minimizing the number, the duration and the scope of locks taken. However, some locks are
-    /// necessary to correctly impose the DimensionValuesCountLimits and the TotalPointsCountLimit constrains.
+    /// necessary to correctly impose the SubdimensionsCountLimits and the TotalPointsCountLimit constrains.
     /// </p>
     /// <p>
     /// This implementation assumes that creation and storage of TPoint-elements is resource intensive. It creates points lazily, only when requested.
@@ -159,20 +159,20 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         private const string ExceptionThrownByPointsFactoryKey = "Microsoft.ApplicationInsights.Metrics.MultidimensionalCube.ExceptionThrownByPointsFactory";
 
-        private readonly int[] _dimensionValuesCountLimits;
+        private readonly int[] _subdimensionsCountLimits;
         private readonly MultidimensionalCubeDimension<TDimensionValue, TPoint> _points;
         private readonly Func<TDimensionValue[], TPoint> _pointsFactory;
         private readonly int _totalPointsCountLimit;
 
         private int _totalPointsCount;
-        
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="pointsFactory"></param>
-        /// <param name="dimensionValuesCountLimits"></param>
-        public MultidimensionalCube(Func<TDimensionValue[], TPoint> pointsFactory, IEnumerable<int> dimensionValuesCountLimits)
-            : this(Int32.MaxValue, pointsFactory, dimensionValuesCountLimits)
+        /// <param name="subdimensionsCountLimits"></param>
+        public MultidimensionalCube(Func<TDimensionValue[], TPoint> pointsFactory, IEnumerable<int> subdimensionsCountLimits)
+            : this(Int32.MaxValue, pointsFactory, subdimensionsCountLimits)
         {
         }
 
@@ -181,9 +181,9 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         /// <param name="totalPointsCountLimit"></param>
         /// <param name="pointsFactory"></param>
-        /// <param name="dimensionValuesCountLimits"></param>
-        public MultidimensionalCube(int totalPointsCountLimit, Func<TDimensionValue[], TPoint> pointsFactory, IEnumerable<int> dimensionValuesCountLimits)
-            : this(totalPointsCountLimit, pointsFactory, dimensionValuesCountLimits?.ToArray())
+        /// <param name="subdimensionsCountLimits"></param>
+        public MultidimensionalCube(int totalPointsCountLimit, Func<TDimensionValue[], TPoint> pointsFactory, IEnumerable<int> subdimensionsCountLimits)
+            : this(totalPointsCountLimit, pointsFactory, subdimensionsCountLimits?.ToArray())
         {
         }
 
@@ -191,9 +191,9 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// 
         /// </summary>
         /// <param name="pointsFactory"></param>
-        /// <param name="dimensionValuesCountLimits"></param>
-        public MultidimensionalCube(Func<TDimensionValue[], TPoint> pointsFactory, params int[] dimensionValuesCountLimits)
-            : this(Int32.MaxValue, pointsFactory, dimensionValuesCountLimits)
+        /// <param name="subdimensionsCountLimits"></param>
+        public MultidimensionalCube(Func<TDimensionValue[], TPoint> pointsFactory, params int[] subdimensionsCountLimits)
+            : this(Int32.MaxValue, pointsFactory, subdimensionsCountLimits)
         {
         }
 
@@ -202,8 +202,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         /// <param name="totalPointsCountLimit"></param>
         /// <param name="pointsFactory"></param>
-        /// <param name="dimensionValuesCountLimits"></param>
-        public MultidimensionalCube(int totalPointsCountLimit, Func<TDimensionValue[], TPoint> pointsFactory, params int[] dimensionValuesCountLimits)
+        /// <param name="subdimensionsCountLimits"></param>
+        public MultidimensionalCube(int totalPointsCountLimit, Func<TDimensionValue[], TPoint> pointsFactory, params int[] subdimensionsCountLimits)
         {
             if (totalPointsCountLimit < 1)
             {
@@ -212,38 +212,38 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Util.ValidateNotNull(pointsFactory, nameof(pointsFactory));
 
-            Util.ValidateNotNull(dimensionValuesCountLimits, nameof(dimensionValuesCountLimits));
+            Util.ValidateNotNull(subdimensionsCountLimits, nameof(subdimensionsCountLimits));
 
-            if (dimensionValuesCountLimits.Length == 0)
+            if (subdimensionsCountLimits.Length == 0)
             {
-                throw new ArgumentException("Cube must have 1 or more dimensions.", nameof(dimensionValuesCountLimits));
+                throw new ArgumentException("Cube must have 1 or more dimensions.", nameof(subdimensionsCountLimits));
             }
 
-            if (dimensionValuesCountLimits.Length > DimensionsCountLimit)
+            if (subdimensionsCountLimits.Length > DimensionsCountLimit)
             {
                 throw new ArgumentException($"Cube may not have more than ${MultidimensionalCube<TDimensionValue, TPoint>.DimensionsCountLimit} dimensions,"
-                                          + $" but {dimensionValuesCountLimits.Length} dimensions were specified.");
+                                          + $" but {subdimensionsCountLimits.Length} dimensions were specified.");
             }
 
-            for (int d = 0; d < dimensionValuesCountLimits.Length; d++)
+            for (int d = 0; d < subdimensionsCountLimits.Length; d++)
             {
-                if (dimensionValuesCountLimits[d] < 1)
+                if (subdimensionsCountLimits[d] < 1)
                 {
-                    throw new ArgumentException($"The limit of distinct dimension values must be 1 or larger, but the limit specified for dimension {d} is {dimensionValuesCountLimits[d]}.");
+                    throw new ArgumentException($"The limit of distinct dimension values must be 1 or larger, but the limit specified for dimension {d} is {subdimensionsCountLimits[d]}.");
                 }
             }
 
             _totalPointsCountLimit = totalPointsCountLimit;
 
-            _dimensionValuesCountLimits = dimensionValuesCountLimits;
-            _points = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(this, dimensionValuesCountLimits[0], dimensionValuesCountLimits.Length == 1);
+            _subdimensionsCountLimits = subdimensionsCountLimits;
+            _points = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(this, subdimensionsCountLimits[0], subdimensionsCountLimits.Length == 1);
             _pointsFactory = pointsFactory;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public int DimensionsCount { get { return _dimensionValuesCountLimits.Length; } }
+        public int DimensionsCount { get { return _subdimensionsCountLimits.Length; } }
 
         /// <summary>
         /// 
@@ -260,9 +260,9 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         /// <param name="dimension"></param>
         /// <returns></returns>
-        public int GetDimensionValuesCountLimit(int dimension)
+        public int GetSubdimensionsCountLimit(int dimension)
         {
-            return _dimensionValuesCountLimits[dimension];
+            return _subdimensionsCountLimits[dimension];
         }
 
         /// <summary>
@@ -357,10 +357,16 @@ namespace Microsoft.ApplicationInsights.Metrics
                 {
                     return result;
                 }
+
+                if (timeout == TimeSpan.Zero)
+                {
+                    result.SetAsyncTimeoutReachedFailure();
+                    return result;
+                }
             }
             catch (Exception ex)
             {
-                if (! IsThrownByPointsFactoryKey(ex))
+                if ((! IsThrownByPointsFactoryKey(ex)) || (timeout == TimeSpan.Zero))
                 {
                     ExceptionDispatchInfo.Capture(ex).Throw();
                 }
@@ -372,23 +378,23 @@ namespace Microsoft.ApplicationInsights.Metrics
             { 
                 if (Math.Round(timeout.TotalMilliseconds) >= (double) Int32.MaxValue)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(timeout), $"{nameof(timeout)} must be smaller than {Int32.MaxValue} msec.");
+                    throw new ArgumentOutOfRangeException(nameof(timeout), $"{nameof(timeout)} must be smaller than {Int32.MaxValue} msec, but it is {timeout}.");
                 }
 
                 if (Math.Round(timeout.TotalMilliseconds) < 1)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(timeout), $"{nameof(timeout)} must be positive or Infinite.");
+                    throw new ArgumentOutOfRangeException(nameof(timeout), $"{nameof(timeout)} must be zero, positive or Infinite, but it is {timeout}.");
                 }
             }
 
             if (Math.Round(sleepDuration.TotalMilliseconds) > (double) Int32.MaxValue)
             {
-                throw new ArgumentOutOfRangeException(nameof(sleepDuration), $"{nameof(sleepDuration)} must be smaller than {Int32.MaxValue} msec.");
+                throw new ArgumentOutOfRangeException(nameof(sleepDuration), $"{nameof(sleepDuration)} must be smaller than {Int32.MaxValue} msec, but it is {sleepDuration}.");
             }
 
             if (Math.Round(sleepDuration.TotalMilliseconds) < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(sleepDuration), $"{nameof(sleepDuration)} must be non-negative.");
+                throw new ArgumentOutOfRangeException(nameof(sleepDuration), $"{nameof(sleepDuration)} must be non-negative, but it is {sleepDuration}.");
             }
 
             int timeoutMillis = (int) Math.Round(timeout.TotalMilliseconds);

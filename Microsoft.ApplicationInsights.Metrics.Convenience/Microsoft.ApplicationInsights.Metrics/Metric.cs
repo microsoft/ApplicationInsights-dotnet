@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using System.Runtime.CompilerServices;
+using System.Collections.Concurrent;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -21,6 +22,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly MetricSeries _zeroDimSeries;
         private readonly MultidimensionalCube<string, MetricSeries> _metricSeries;
         private readonly string[] _dimensionNames;
+        //private readonly ConcurrentDictionary<string, bool>[] _dimensionValues;
 
         internal readonly IMetricConfiguration _configuration;
 
@@ -53,15 +55,19 @@ namespace Microsoft.ApplicationInsights.Metrics
                 case 1:
                     _dimensionNames = new string[1] { dimension1Name };
                     _metricSeries = new MultidimensionalCube<string, MetricSeries>(
+                            totalPointsCountLimit:      configuration.SeriesCountLimit - 1,
                             pointsFactory:              CreateNewMetricSeries,
-                            dimensionValuesCountLimits: new int[1] { configuration.ValuesPerDimensionLimit });
+                            subdimensionsCountLimits:   new int[1] { configuration.ValuesPerDimensionLimit });
+                    //_dimensionValues = new ConcurrentDictionary<string, bool>[1] { new ConcurrentDictionary<string, bool>() };
                     break;
 
                 case 2:
                     _dimensionNames = new string[2] { dimension1Name, dimension2Name };
                     _metricSeries = new MultidimensionalCube<string, MetricSeries>(
+                            totalPointsCountLimit:      configuration.SeriesCountLimit - 1,
                             pointsFactory:              CreateNewMetricSeries,
-                            dimensionValuesCountLimits: new int[2] { configuration.ValuesPerDimensionLimit, configuration.ValuesPerDimensionLimit });
+                            subdimensionsCountLimits:   new int[2] { configuration.ValuesPerDimensionLimit, configuration.ValuesPerDimensionLimit });
+                    //_dimensionValues = new ConcurrentDictionary<string, bool>[1] { new ConcurrentDictionary<string, bool>(), new ConcurrentDictionary<string, bool>() };
                     break;
 
                 default:
@@ -93,11 +99,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <returns></returns>
         public string GetDimensionName(int dimensionNumber)
         {
-            if (DimensionsCount < 1)
-            {
-                throw new ArgumentOutOfRangeException("Cannot get demension name becasue this metric has no dimensions.");
-            }
-
             if (dimensionNumber < 1)
             {
                 throw new ArgumentOutOfRangeException(
@@ -110,6 +111,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                 throw new ArgumentOutOfRangeException(
                                 nameof(dimensionNumber),
                                 $"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Currently only {nameof(dimensionNumber)} = 1 or 2 are supported.");
+            }
+
+            if (DimensionsCount < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(dimensionNumber), "Cannot get demension name becasue this metric has no dimensions.");
             }
 
             if (dimensionNumber > DimensionsCount)
@@ -202,15 +208,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// 
         /// </summary>
         /// <param name="metricValue"></param>
-        public void TrackValue(uint metricValue)
-        {
-            _zeroDimSeries.TrackValue(metricValue);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="metricValue"></param>
         public void TrackValue(double metricValue)
         {
             _zeroDimSeries.TrackValue(metricValue);
@@ -225,18 +222,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             _zeroDimSeries.TrackValue(metricValue);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="metricValue"></param>
-        /// <param name="dimension1Value"></param>
-        /// <returns></returns>
-        public bool TryTrackValue(uint metricValue, string dimension1Value)
-        {
-            MetricSeries series = GetMetricSeries(true, dimension1Value);
-            series?.TrackValue(metricValue);
-            return (series != null);
-        }
 
         /// <summary>
         /// 
@@ -260,20 +245,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         public bool TryTrackValue(object metricValue, string dimension1Value)
         {
             MetricSeries series = GetMetricSeries(true, dimension1Value);
-            series?.TrackValue(metricValue);
-            return (series != null);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="metricValue"></param>
-        /// <param name="dimension1Value"></param>
-        /// <param name="dimension2Value"></param>
-        /// <returns></returns>
-        public bool TryTrackValue(uint metricValue, string dimension1Value, string dimension2Value)
-        {
-            MetricSeries series = GetMetricSeries(true, dimension1Value, dimension2Value);
             series?.TrackValue(metricValue);
             return (series != null);
         }
@@ -378,7 +349,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Util.ValidateNotNull(configuration, nameof(configuration));
             Util.ValidateNotNull(configuration.SeriesConfig, nameof(configuration.SeriesConfig));
 
-            if (configuration.ValuesPerDimensionLimit < 1)
+            if (dimensionCount > 0 && configuration.ValuesPerDimensionLimit < 1)
             {
                 throw new ArgumentException("Multidimensional metrics must allow at least one dimension-value per dimesion"
                                          + $" (but {configuration.ValuesPerDimensionLimit} was specified"
@@ -480,7 +451,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 return _zeroDimSeries;
             }
 
-            if (DimensionsCount != 1)
+            if (DimensionsCount != dimensionValues.Length)
             {
                 throw new InvalidOperationException($"Attempted to get a metric series by specifying {dimensionValues.Length} dimension(s),"
                                                   + $" but this metric has {DimensionsCount} dimensions.");

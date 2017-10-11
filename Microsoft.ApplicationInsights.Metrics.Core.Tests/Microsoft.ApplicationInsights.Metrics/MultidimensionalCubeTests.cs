@@ -18,39 +18,39 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void Ctors()
         {
-            int[] dimensionValuesCountLimits = new int[] { 10, 11, 12, 13 };
+            int[] subdimensionsCountLimits = new int[] { 10, 11, 12, 13 };
             int factoryCallsCount = 0;
             object[] lastFactoryCall = null;
 
             {
                 var cube = new MultidimensionalCube<string, int>(
                                         (vector) => { Interlocked.Increment(ref factoryCallsCount); lastFactoryCall = vector; return 42; },
-                                        (IEnumerable<int>) dimensionValuesCountLimits);
+                                        (IEnumerable<int>) subdimensionsCountLimits);
 
-                CtorTestImplementation(cube, ref dimensionValuesCountLimits, ref factoryCallsCount, ref lastFactoryCall, "1", 42, Int32.MaxValue);
+                CtorTestImplementation(cube, ref subdimensionsCountLimits, ref factoryCallsCount, ref lastFactoryCall, "1", 42, Int32.MaxValue);
             }
             {
                 var cube = new MultidimensionalCube<string, int>(
                                         (vector) => { Interlocked.Increment(ref factoryCallsCount); lastFactoryCall = vector; return 18; },
-                                        (int []) dimensionValuesCountLimits);
+                                        (int []) subdimensionsCountLimits);
 
-                CtorTestImplementation(cube, ref dimensionValuesCountLimits, ref factoryCallsCount, ref lastFactoryCall, "2", 18, Int32.MaxValue);
+                CtorTestImplementation(cube, ref subdimensionsCountLimits, ref factoryCallsCount, ref lastFactoryCall, "2", 18, Int32.MaxValue);
             }
             {
                 var cube = new MultidimensionalCube<string, int>(
                                         5,
                                         (vector) => { Interlocked.Increment(ref factoryCallsCount); lastFactoryCall = vector; return 100; },
-                                        (IEnumerable<int>) dimensionValuesCountLimits);
+                                        (IEnumerable<int>) subdimensionsCountLimits);
 
-                CtorTestImplementation(cube, ref dimensionValuesCountLimits, ref factoryCallsCount, ref lastFactoryCall, "3", 100, 5);
+                CtorTestImplementation(cube, ref subdimensionsCountLimits, ref factoryCallsCount, ref lastFactoryCall, "3", 100, 5);
             }
             {
                 var cube = new MultidimensionalCube<string, int>(
                                         3,
                                         (vector) => { Interlocked.Increment(ref factoryCallsCount); lastFactoryCall = vector; return -6; },
-                                        (int[]) dimensionValuesCountLimits);
+                                        (int[]) subdimensionsCountLimits);
 
-                CtorTestImplementation(cube, ref dimensionValuesCountLimits, ref factoryCallsCount, ref lastFactoryCall, "4", -6, 3);
+                CtorTestImplementation(cube, ref subdimensionsCountLimits, ref factoryCallsCount, ref lastFactoryCall, "4", -6, 3);
             }
         }
 
@@ -127,28 +127,28 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         /// <summary />
         [TestMethod]
-        public void TryGetOrCreatePoint_RespectsDimensionValuesCountLimits()
+        public void TryGetOrCreatePoint_RespectsSubdimensionsCountLimits()
         {
-            int[] dimensionValuesCountLimits = new int[] { 3, 5, 4 };
+            int[] subdimensionsCountLimits = new int[] { 3, 5, 4 };
 
 
             var cube = new MultidimensionalCube<string, int>(
                                         (vector) => { return Int32.Parse(vector[0]); },
-                                        (IEnumerable<int>) dimensionValuesCountLimits);
+                                        (IEnumerable<int>) subdimensionsCountLimits);
 
             MultidimensionalPointResult<int> result;
-            for (int d1 = 0; d1 < dimensionValuesCountLimits[0]; d1++)
+            for (int d1 = 0; d1 < subdimensionsCountLimits[0]; d1++)
             {
-                for (int d2 = 0; d2 < dimensionValuesCountLimits[1]; d2++)
+                for (int d2 = 0; d2 < subdimensionsCountLimits[1]; d2++)
                 {
-                    for (int d3 = 0; d3 < dimensionValuesCountLimits[2]; d3++)
+                    for (int d3 = 0; d3 < subdimensionsCountLimits[2]; d3++)
                     {
                         result = cube.TryGetPoint($"{d1 * 10}", $"{d2}", $"{d3}");
                         Assert.IsFalse(result.IsSuccess);
                         Assert.AreEqual(0, result.Point);
                         Assert.IsTrue(0 != (MultidimensionalPointResultCodes.Failure_PointDoesNotExistCreationNotRequested & result.ResultCode));
                         Assert.AreEqual(
-                                    d3 + d2 * dimensionValuesCountLimits[2] + d1 * dimensionValuesCountLimits[1] * dimensionValuesCountLimits[2],
+                                    d3 + d2 * subdimensionsCountLimits[2] + d1 * subdimensionsCountLimits[1] * subdimensionsCountLimits[2],
                                     cube.TotalPointsCount,
                                     $"d3 = {d3}; d2 = {d2}; d1 = {d1}");
 
@@ -156,7 +156,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                         Assert.IsTrue(result.IsSuccess);
                         Assert.AreEqual(d1 * 10, result.Point);
                         Assert.AreEqual(
-                                    1 + d3 + d2 * dimensionValuesCountLimits[2] + d1 * dimensionValuesCountLimits[1] * dimensionValuesCountLimits[2],
+                                    1 + d3 + d2 * subdimensionsCountLimits[2] + d1 * subdimensionsCountLimits[1] * subdimensionsCountLimits[2],
                                     cube.TotalPointsCount,
                                     $"d3 = {d3}; d2 = {d2}; d1 = {d1}");
 
@@ -164,18 +164,18 @@ namespace Microsoft.ApplicationInsights.Metrics
                         Assert.IsTrue(result.IsSuccess);
                         Assert.AreEqual(d1 * 10, result.Point);
                         Assert.AreEqual(
-                                    1 + d3 + d2 * dimensionValuesCountLimits[2] + d1 * dimensionValuesCountLimits[1] * dimensionValuesCountLimits[2],
+                                    1 + d3 + d2 * subdimensionsCountLimits[2] + d1 * subdimensionsCountLimits[1] * subdimensionsCountLimits[2],
                                     cube.TotalPointsCount,
                                     $"d3 = {d3}; d2 = {d2}; d1 = {d1}");
                     }
 
-                    result = cube.TryGetOrCreatePoint($"{d1 * 10}", $"{d2}", $"{dimensionValuesCountLimits[2]}");
+                    result = cube.TryGetOrCreatePoint($"{d1 * 10}", $"{d2}", $"{subdimensionsCountLimits[2]}");
                     Assert.IsFalse(result.IsSuccess);
                     Assert.AreEqual(0, result.Point);
-                    Assert.IsTrue(0 != (result.ResultCode & MultidimensionalPointResultCodes.Failure_DimensionValuesCountLimitReached));
+                    Assert.IsTrue(0 != (result.ResultCode & MultidimensionalPointResultCodes.Failure_SubdimensionsCountLimitReached));
                     Assert.AreEqual(2, result.FailureCoordinateIndex);
 
-                    result = cube.TryGetPoint($"{d1 * 10}", $"{d2}", $"{dimensionValuesCountLimits[2]}");
+                    result = cube.TryGetPoint($"{d1 * 10}", $"{d2}", $"{subdimensionsCountLimits[2]}");
                     Assert.IsFalse(result.IsSuccess);
                     Assert.AreEqual(0, result.Point);
                     Assert.IsTrue(0 != (MultidimensionalPointResultCodes.Failure_PointDoesNotExistCreationNotRequested & result.ResultCode));
@@ -183,26 +183,26 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 }
 
-                result = cube.TryGetOrCreatePoint($"{d1 * 10}", $"{dimensionValuesCountLimits[1]}", $"{dimensionValuesCountLimits[2]}");
+                result = cube.TryGetOrCreatePoint($"{d1 * 10}", $"{subdimensionsCountLimits[1]}", $"{subdimensionsCountLimits[2]}");
                 Assert.IsFalse(result.IsSuccess);
                 Assert.AreEqual(0, result.Point);
-                Assert.IsTrue(0 != (result.ResultCode & MultidimensionalPointResultCodes.Failure_DimensionValuesCountLimitReached));
+                Assert.IsTrue(0 != (result.ResultCode & MultidimensionalPointResultCodes.Failure_SubdimensionsCountLimitReached));
                 Assert.AreEqual(1, result.FailureCoordinateIndex);
 
-                result = cube.TryGetPoint($"{d1 * 10}", $"{dimensionValuesCountLimits[1]}", $"{dimensionValuesCountLimits[2]}");
+                result = cube.TryGetPoint($"{d1 * 10}", $"{subdimensionsCountLimits[1]}", $"{subdimensionsCountLimits[2]}");
                 Assert.IsFalse(result.IsSuccess);
                 Assert.AreEqual(0, result.Point);
                 Assert.IsTrue(0 != (MultidimensionalPointResultCodes.Failure_PointDoesNotExistCreationNotRequested & result.ResultCode));
                 Assert.AreEqual(1, result.FailureCoordinateIndex);
             }
 
-            result = cube.TryGetOrCreatePoint($"{dimensionValuesCountLimits[0] * 10}", $"{dimensionValuesCountLimits[1]}", $"{dimensionValuesCountLimits[2]}");
+            result = cube.TryGetOrCreatePoint($"{subdimensionsCountLimits[0] * 10}", $"{subdimensionsCountLimits[1]}", $"{subdimensionsCountLimits[2]}");
             Assert.IsFalse(result.IsSuccess);
             Assert.AreEqual(0, result.Point);
-            Assert.IsTrue(0 != (result.ResultCode & MultidimensionalPointResultCodes.Failure_DimensionValuesCountLimitReached));
+            Assert.IsTrue(0 != (result.ResultCode & MultidimensionalPointResultCodes.Failure_SubdimensionsCountLimitReached));
             Assert.AreEqual(0, result.FailureCoordinateIndex);
 
-            result = cube.TryGetPoint($"{dimensionValuesCountLimits[0] * 10}", $"{dimensionValuesCountLimits[1]}", $"{dimensionValuesCountLimits[2]}");
+            result = cube.TryGetPoint($"{subdimensionsCountLimits[0] * 10}", $"{subdimensionsCountLimits[1]}", $"{subdimensionsCountLimits[2]}");
             Assert.IsFalse(result.IsSuccess);
             Assert.AreEqual(0, result.Point);
             Assert.IsTrue(0 != (MultidimensionalPointResultCodes.Failure_PointDoesNotExistCreationNotRequested & result.ResultCode));
@@ -522,7 +522,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         }
 
         private void CtorTestImplementation(
-                            MultidimensionalCube<string, int> cube, ref int[] dimensionValuesCountLimits,
+                            MultidimensionalCube<string, int> cube, ref int[] subdimensionsCountLimits,
                             ref int factoryCallsCount,
                             ref object[] lastFactoryCall,
                             string suffix,
@@ -530,11 +530,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                             int totalPointsCountLimit)
         {
             Assert.IsNotNull(cube);
-            Assert.AreEqual(dimensionValuesCountLimits.Length, cube.DimensionsCount);
-            for (int d = 0; d < dimensionValuesCountLimits.Length; d++)
+            Assert.AreEqual(subdimensionsCountLimits.Length, cube.DimensionsCount);
+            for (int d = 0; d < subdimensionsCountLimits.Length; d++)
             {
-                int limit = dimensionValuesCountLimits[d];
-                Assert.AreEqual(limit, cube.GetDimensionValuesCountLimit(d));
+                int limit = subdimensionsCountLimits[d];
+                Assert.AreEqual(limit, cube.GetSubdimensionsCountLimit(d));
             }
 
             Assert.AreEqual(totalPointsCountLimit, cube.TotalPointsCountLimit);

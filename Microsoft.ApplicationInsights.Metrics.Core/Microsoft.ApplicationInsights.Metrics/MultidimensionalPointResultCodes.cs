@@ -25,7 +25,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        Failure_DimensionValuesCountLimitReached = 8,
+        Failure_SubdimensionsCountLimitReached = 8,
 
         /// <summary>
         /// 

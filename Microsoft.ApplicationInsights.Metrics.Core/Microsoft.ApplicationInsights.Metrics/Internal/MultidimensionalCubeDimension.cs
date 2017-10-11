@@ -137,7 +137,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // Check if we reached the dimensions count limit. If we did, we give up. Otherwise we start tracking whether we need to undo the increment later:
             if (! this.TryIncSubdimensionsCount())
             {
-                return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_DimensionValuesCountLimitReached, currentDim);
+                return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_SubdimensionsCountLimitReached, currentDim);
             }
 
             bool mustRestoreSubdimensionsCount = true;
@@ -196,7 +196,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // Check if we reached the dimensions count limit. If we did, we give up. Otherwise we start tracking whether we need to undo the increment later:
             if (! this.TryIncSubdimensionsCount())
             {
-                return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_DimensionValuesCountLimitReached, currentDim);
+                return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_SubdimensionsCountLimitReached, currentDim);
             }
 
             bool mustRestoreSubdimensionsCount = true;
@@ -216,7 +216,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 bool isLastDimensionLevel = (nextDim == coordinates.Length - 1);
                 var newSubDim = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(
                                                                                            _ownerCube, 
-                                                                                           _ownerCube.GetDimensionValuesCountLimit(nextDim),
+                                                                                           _ownerCube.GetSubdimensionsCountLimit(nextDim),
                                                                                            isLastDimensionLevel);
                 MultidimensionalPointResult<TPoint> newSubDimResult = newSubDim.TryGetOrAddVectorInternal(coordinates, nextDim, createIfNotExists: true);
 
