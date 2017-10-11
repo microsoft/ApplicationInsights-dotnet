@@ -7,8 +7,8 @@
     <ProjectGuid>{0272FE8B-9B25-43B0-A26B-3C71154DEBBA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl</AssemblyName>
+    <RootNamespace>Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -28,7 +28,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\..\bin\Debug\Metrics\Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl\Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\..\bin\Debug\Metrics\Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl\Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,7 +37,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\..\bin\Release\Metrics\Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl\Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\..\bin\Release\Metrics\Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl\Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.ApplicationInsights, Version=2.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -67,9 +67,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.ApplicationInsights.Metrics.Core.Tests\Microsoft.ApplicationInsights.Metrics.Core.Tests.csproj">
+    <ProjectReference Include="..\Microsoft.ApplicationInsights.Metrics.Core.Test\Microsoft.ApplicationInsights.Metrics.Core.Test.csproj">
       <Project>{8fbc7612-4536-45db-86c3-c2ed95219231}</Project>
-      <Name>Microsoft.ApplicationInsights.Metrics.Core.Tests</Name>
+      <Name>Microsoft.ApplicationInsights.Metrics.Core.Test</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Microsoft.ApplicationInsights.Metrics.Core\Microsoft.ApplicationInsights.Metrics.Core.csproj">
       <Project>{b9938c09-9cb3-45cf-ba3c-847ff85ec750}</Project>

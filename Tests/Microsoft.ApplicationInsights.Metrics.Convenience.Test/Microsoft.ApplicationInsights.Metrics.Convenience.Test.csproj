@@ -65,7 +65,7 @@
       <Project>{b8b5bca5-6c7f-4178-b80d-0a781b463542}</Project>
       <Name>Microsoft.ApplicationInsights.Metrics.Convenience</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Microsoft.ApplicationInsights.Metrics.Core.Tests\Microsoft.ApplicationInsights.Metrics.Core.Tests.csproj">
+    <ProjectReference Include="..\Microsoft.ApplicationInsights.Metrics.Core.Test\Microsoft.ApplicationInsights.Metrics.Core.Test.csproj">
       <Project>{8fbc7612-4536-45db-86c3-c2ed95219231}</Project>
       <Name>Microsoft.ApplicationInsights.Metrics.Core.Tests</Name>
     </ProjectReference>

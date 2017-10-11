@@ -19,11 +19,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Microsoft.ApplicationInsights.Metrics.runsettings = Microsoft.ApplicationInsights.Metrics.runsettings
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Metrics.Core.Tests", "Tests\Microsoft.ApplicationInsights.Metrics.Core.Tests\Microsoft.ApplicationInsights.Metrics.Core.Tests.csproj", "{8FBC7612-4536-45DB-86C3-C2ED95219231}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Metrics.Core.Test", "Tests\Microsoft.ApplicationInsights.Metrics.Core.Test\Microsoft.ApplicationInsights.Metrics.Core.Test.csproj", "{8FBC7612-4536-45DB-86C3-C2ED95219231}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Metrics.Convenience.Test", "Tests\Microsoft.ApplicationInsights.Metrics.Convenience.Test\Microsoft.ApplicationInsights.Metrics.Convenience.Test.csproj", "{A043442C-8B85-40CA-8A0A-7B812A8D9B9C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl", "Tests\Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl\Microsoft.ApplicationInsights.Metrics.Core.Tests.Intrnl.csproj", "{0272FE8B-9B25-43B0-A26B-3C71154DEBBA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl", "Tests\Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl\Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl.csproj", "{0272FE8B-9B25-43B0-A26B-3C71154DEBBA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Materials", "Materials", "{926233F6-8E40-4EC2-9FBE-647F2A3DF6EA}"
 	ProjectSection(SolutionItems) = preProject
