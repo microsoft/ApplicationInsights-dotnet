@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using System.Runtime.CompilerServices;
-using System.Collections.Concurrent;
+using Microsoft.ApplicationInsights.ConcurrentDatastructures;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {

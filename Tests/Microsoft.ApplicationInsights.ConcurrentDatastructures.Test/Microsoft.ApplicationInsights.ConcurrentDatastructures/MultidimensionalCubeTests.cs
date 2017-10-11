@@ -1,14 +1,12 @@
 ﻿using System;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.ApplicationInsights.Metrics.TestUtil;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
-namespace Microsoft.ApplicationInsights.Metrics
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.ApplicationInsights.Metrics.TestUtil;
+
+namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
 {
     /// <summary />
     [TestClass]

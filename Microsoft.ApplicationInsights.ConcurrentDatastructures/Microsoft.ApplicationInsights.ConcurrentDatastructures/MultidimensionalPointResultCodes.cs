@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Microsoft.ApplicationInsights.Metrics
+namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
 {
     /// <summary>
     /// 

@@ -6,7 +6,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.ApplicationInsights.Metrics
+namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
 {
     /// <summary>
     /// Represents a multi-dimensional, discrete data cube.

@@ -4,19 +4,26 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace Microsoft.ApplicationInsights.Metrics
+namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
 {
-    internal class GrowingCollection<T> : IEnumerable<T>
+    /// <summary>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class GrowingCollection<T> : IEnumerable<T>
     {
         private const int SegmentSize = 32;
 
         private Segment _dataHead;
 
+        /// <summary>
+        /// </summary>
         public GrowingCollection()
         {
             _dataHead = new Segment(null);
         }
 
+        /// <summary>
+        /// </summary>
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -27,6 +34,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="item"></param>
         public void Add(T item)
         {
             Segment currHead = Volatile.Read(ref _dataHead);
@@ -42,6 +52,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public GrowingCollection<T>.Enumerator GetEnumerator()
         {
@@ -49,6 +62,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             return enumerator;
         }
 
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -63,7 +79,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         
         #region class Enumerator 
-
+        /// <summary>
+        /// </summary>
         public class Enumerator : IEnumerator<T>
         {
             private readonly Segment _head;
@@ -81,6 +98,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 _count = _headOffset + (_head.NextSegment == null ? 0 : _head.NextSegment.GlobalCount);
             }
 
+            /// <summary>
+            /// </summary>
             public int Count
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -90,6 +109,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
             }
 
+            /// <summary>
+            /// </summary>
             public T Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -108,11 +129,16 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
             }
 
+            /// <summary>
+            /// </summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Dispose()
             {
             }
 
+            /// <summary>
+            /// </summary>
+            /// <returns></returns>
             public bool MoveNext()
             {
                 if (_currentSegmentOffset == 0)
@@ -135,18 +161,18 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
             }
 
+            /// <summary>
+            /// </summary>
             public void Reset()
             {
                 _currentSegment = _head;
                 _currentSegmentOffset = _headOffset;
             }
         }
-
         #endregion class Enumerator 
 
 
         #region class Segment
-
         internal class Segment
         {
             private readonly Segment _nextSegment;
@@ -220,7 +246,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 return true;
             }
         }
-
         #endregion class Segment
     }
 }
