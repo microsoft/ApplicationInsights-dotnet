@@ -38,7 +38,7 @@ namespace E2ETests
                         ikey = WebAppInstrumentationKey,
                         containerName = "e2etests_e2etestwebapp_1",
                         imageName = "e2etests_e2etestwebapp",
-                        healthCheckPath = "/About"
+                        healthCheckPath = "/Dependencies?type=http"
                     }
             },
 
