@@ -124,7 +124,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 }
                     
                 case SqlBeforeOpenConnection:
-                case SqlBeforeCloseConnection:
                 {
                     var operationId = (Guid)ConnectionBefore.OperationId.Fetch(evnt.Value);
 
