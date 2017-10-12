@@ -14,24 +14,8 @@ RUN powershell -NoProfile -Command \
 RUN powershell -NoProfile -Command \	
 	"Get-ItemProperty 'hklm:\\SYSTEM\\CurrentControlSet\\Services\\W3SVC'"
 	
-#Install status monitor
-#RUN msiexec /i ApplicationInsightsAgent.msi /qn /LIME C:\sminstall.txt
-#RUN powershell -NoProfile -Command \
-#	Get-Content .\sminstall.txt
-
-#RUN powershell -NoProfile -Command \
-#	Start-Process msiexec.exe -ArgumentList '/i', 'C:\\ApplicationInsightsAgent.msi', '/qn', '/LIME C:\\sminstall.txt', '/norestart' -NoNewWindow -Wait
-
-#RUN ["powershell","$a=Start-Process", "-FilePath msiexec -ArgumentList /q, /i, ApplicationInsightsAgent.msi"]
-#RUN ["powershell","$s.status"]
-
-
-RUN ["powershell","Get-Date"]
-#RUN ["powershell", "msiexec.exe", "/i", "C:\\ApplicationInsightsAgent.msi", "/qn", "/LIME", "C:\\sminstall.txt"]
 RUN ["powershell", "Start-Process", "msiexec.exe", "-ArgumentList", "'/i C:\\ApplicationInsightsAgent.msi /qn /LIME C:\\sminstall.txt'", "-NoNewWindow", "-Wait"]
 RUN ["powershell","Get-Content", "C:\\sminstall.txt"]
-RUN ["powershell","Get-Date"]
-
 
 #Restart iis to take status monitor effect
 RUN iisreset /restart

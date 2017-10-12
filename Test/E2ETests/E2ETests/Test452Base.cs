@@ -75,7 +75,7 @@ namespace E2ETests
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
             Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));
 
-            DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
+            //DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
 
             // Deploy the docker cluster using Docker-Compose
             //DockerUtils.ExecuteDockerComposeCommand("up -d --force-recreate --build", DockerComposeFileName);
