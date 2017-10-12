@@ -39,35 +39,30 @@ namespace E2ETests.Net47
         }
 
         [TestMethod]        
-        [Ignore]
         public void Test452OnNet47_TestXComponentWebAppToWebApi()
         {
             base.TestXComponentWebAppToWebApi();
         }
 
         [TestMethod]
-        [Ignore]
         public void Test452OnNet47_TestBasicRequestWebApp()
         {
             base.TestBasicRequestWebApp();
         }
 
         [TestMethod]
-        [Ignore]
         public void Test452OnNet47_TestBasicHttpDependencyWebApp()
         {
             base.TestBasicHttpDependencyWebApp();
         }
 
         [TestMethod]
-        [Ignore]
         public void Test452OnNet47_TestAzureTableDependencyWebApp()
         {
             base.TestAzureTableDependencyWebApp();
         }
 
         [TestMethod]
-        [Ignore]
         public void Test452OnNet47_TestBasicSqlDependencyWebApp()
         {
             base.TestBasicSqlDependencyWebApp();
