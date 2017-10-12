@@ -84,7 +84,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                     this.operationStartTimestamps.TryAdd(
                         operationId,
-                        ConnectionBefore.Timestamp.Fetch(evnt.Value) as long? ?? Stopwatch.GetTimestamp()); // TODO corefx#20748 - timestamp missing from event data
+                        CommandBefore.Timestamp.Fetch(evnt.Value) as long? ?? Stopwatch.GetTimestamp()); // TODO corefx#20748 - timestamp missing from event data
 
                     break;
                 }
@@ -138,7 +138,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 }
 
                 case SqlErrorOpenConnection:
-                case SqlErrorCloseConnection:
                 {
                     var operationId = (Guid)ConnectionError.OperationId.Fetch(evnt.Value);
 
@@ -234,9 +233,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             telemetry.Success = false;
             telemetry.Properties["Exception"] = exception.ToInvariantString();
 
-            var sqlException = exception as SqlException;
-
-            if (sqlException != null)
+            if (exception is SqlException sqlException)
             {
                 telemetry.ResultCode = sqlException.Number.ToString(CultureInfo.InvariantCulture);
             }
@@ -387,8 +384,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         private TimeSpan DeriveDuration(Guid operationId, long endTimestamp)
         {
-            return this.operationStartTimestamps.TryRemove(operationId, out var startTimestamp1)
-                ? TimeSpan.FromTicks(endTimestamp - startTimestamp1)
+            return this.operationStartTimestamps.TryRemove(operationId, out var startTimestamp)
+                ? TimeSpan.FromTicks(endTimestamp - startTimestamp)
                 : default(TimeSpan);
         }
 
