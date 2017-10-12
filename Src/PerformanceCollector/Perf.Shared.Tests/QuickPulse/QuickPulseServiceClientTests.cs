@@ -891,6 +891,7 @@
             serviceClient.Ping("ikey", now, "ETag1", string.Empty, out configurationInfo);
 
             // ASSERT
+            Assert.IsNotNull(configurationInfo, "configurationInfo should not be null.");
             Assert.AreEqual("ETag2", configurationInfo.ETag);
             Assert.AreEqual("Id1", configurationInfo.Metrics.Single().Id);
         }
@@ -939,6 +940,7 @@
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
             // ASSERT
+            Assert.IsNotNull(configurationInfo, "configurationInfo should not be null.");
             Assert.AreEqual("ETag2", configurationInfo.ETag);
             Assert.AreEqual("Id1", configurationInfo.Metrics.Single().Id);
 #endif
