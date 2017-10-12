@@ -42,7 +42,7 @@
 
             if (!this.listener.IsListening)
             {
-                Trace.TraceInformation("Starting listener");
+                Trace.TraceInformation($"{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")} Starting listener");
                 this.listener.Start();
             }
 
@@ -51,7 +51,7 @@
 
         public void Stop()
         {
-            Trace.TraceInformation("Stopping listener");
+            Trace.TraceInformation($"{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")} Stopping listener");
             listener.Stop();
         }
 
