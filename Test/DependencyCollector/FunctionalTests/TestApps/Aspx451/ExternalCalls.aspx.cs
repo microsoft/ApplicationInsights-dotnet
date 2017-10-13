@@ -69,14 +69,10 @@ namespace Aspx451
             var success = true;
             bool.TryParse(Request.QueryString["success"], out success);
             string sqlQueryTouse = (success == true) ? ValidSqlQueryToApmDatabase : InvalidSqlQueryToApmDatabase;
-            var count = 1;
-            try
+
+            if (!int.TryParse(countStr, NumberStyles.Integer, CultureInfo.CurrentCulture, out int count))
             {
-                count = int.Parse(countStr, CultureInfo.CurrentCulture);
-            }
-            catch (Exception)
-            {
-                // Dont care about this           
+                count = 1;
             }
 
             this.lblRequestedAction.Text = "Requested Action:" + type;

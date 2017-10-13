@@ -36,6 +36,11 @@
         internal const string XMsQpsMachineNameHeaderName = "x-ms-qps-machine-name";
 
         /// <summary>
+        /// Invariant version header.
+        /// </summary>
+        internal const string XMsQpsInvariantVersionHeaderName = "x-ms-qps-invariant-version";
+
+        /// <summary>
         /// Authentication API key.
         /// </summary>
         internal const string XMsQpsAuthApiKeyHeaderName = "x-ms-qps-auth-api-key";

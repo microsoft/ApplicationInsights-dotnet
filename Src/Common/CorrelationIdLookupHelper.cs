@@ -294,7 +294,7 @@
             }
 
             var webException = ex as WebException;
-            if (webException != null)
+            if (webException != null && webException.Response != null)
             {
                 this.failingInstrumentationKeys[instrumentationKey] = new FailedResult(
                     DateTime.UtcNow,

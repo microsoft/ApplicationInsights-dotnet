@@ -891,6 +891,7 @@
             serviceClient.Ping("ikey", now, "ETag1", string.Empty, out configurationInfo);
 
             // ASSERT
+            Assert.IsNotNull(configurationInfo, "configurationInfo should not be null.");
             Assert.AreEqual("ETag2", configurationInfo.ETag);
             Assert.AreEqual("Id1", configurationInfo.Metrics.Single().Id);
         }
@@ -939,6 +940,7 @@
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
             // ASSERT
+            Assert.IsNotNull(configurationInfo, "configurationInfo should not be null.");
             Assert.AreEqual("ETag2", configurationInfo.ETag);
             Assert.AreEqual("Id1", configurationInfo.Metrics.Single().Id);
 #endif
@@ -1255,6 +1257,60 @@
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
             Assert.AreEqual(machineName, this.samples[0].Item3.MachineName);
+        }
+
+        [TestMethod]
+        public void QuickPulseServiceClientSubmitsInvariantVersionToServiceWithPing()
+        {
+            // ARRANGE
+            var serviceClient = new QuickPulseServiceClient(
+                this.TestContext.Properties[ServiceEndpointPropertyName] as Uri,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                new Clock(),
+                false,
+                0);
+
+            // ACT
+            CollectionConfigurationInfo configurationInfo;
+            serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+
+            // ASSERT
+            Assert.AreEqual(1, this.pings.Count);
+            Assert.AreEqual(4, this.pings[0].Item1.InvariantVersion);
+            Assert.AreEqual(4, this.pings[0].Item3.InvariantVersion);
+        }
+
+        [TestMethod]
+        public void QuickPulseServiceClientSubmitsInvariantVersionToServiceWithSubmitSamples()
+        {
+            // ARRANGE
+            var now = DateTimeOffset.UtcNow;
+            var serviceClient = new QuickPulseServiceClient(
+                this.TestContext.Properties[ServiceEndpointPropertyName] as Uri,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                new Clock(),
+                false,
+                0);
+            var sample =
+                new QuickPulseDataSample(
+                    new QuickPulseDataAccumulator(this.emptyCollectionConfiguration) { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
+                    new Dictionary<string, Tuple<PerformanceCounterData, double>>(),
+                    Enumerable.Empty<Tuple<string, int>>(),
+                    false);
+
+            // ACT
+            CollectionConfigurationInfo configurationInfo;
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+
+            // ASSERT
+            Assert.AreEqual(1, this.samples.Count);
+            Assert.AreEqual(4, this.samples[0].Item3.InvariantVersion);
         }
 
         [TestMethod]
@@ -1804,6 +1860,8 @@
                                 CultureInfo.InvariantCulture);
                             var instanceName = context.Request.Headers[QuickPulseConstants.XMsQpsInstanceNameHeaderName];
                             var machineName = context.Request.Headers[QuickPulseConstants.XMsQpsMachineNameHeaderName];
+                            var invariantVersion =
+                                context.Request.Headers[QuickPulseConstants.XMsQpsInvariantVersionHeaderName];
                             var streamId = context.Request.Headers[QuickPulseConstants.XMsQpsStreamIdHeaderName];
                             var collectionConfigurationETag = context.Request.Headers[QuickPulseConstants.XMsQpsConfigurationETagHeaderName];
 
@@ -1814,6 +1872,7 @@
                                         TransmissionTime = new DateTimeOffset(transmissionTime, TimeSpan.Zero),
                                         InstanceName = instanceName,
                                         MachineName = machineName,
+                                        InvariantVersion = int.Parse(invariantVersion, CultureInfo.InvariantCulture),
                                         StreamId = streamId
                                     },
                                     collectionConfigurationETag,
@@ -1863,6 +1922,8 @@
             public string InstanceName { get; set; }
 
             public string MachineName { get; set; }
+
+            public int InvariantVersion { get; set; }
 
             public string StreamId { get; set; }
         }

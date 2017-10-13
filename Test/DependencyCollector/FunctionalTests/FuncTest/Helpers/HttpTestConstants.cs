@@ -97,11 +97,11 @@ namespace FuncTest.Helpers
         /// <summary>
         /// Maximum access time for the initial call - This includes an additional 1-2 delay introduced before the very first call by Profiler V2.
         /// </summary>        
-        internal static TimeSpan AccessTimeMaxHttpInitial = TimeSpan.FromSeconds(3);
+        internal static TimeSpan AccessTimeMaxHttpInitial = TimeSpan.FromSeconds(10);
 
         /// <summary>
         /// Maximum access time for calls after initial - This does not incur perf hit of the very first call.
         /// </summary>        
-        internal static TimeSpan AccessTimeMaxHttpNormal = TimeSpan.FromSeconds(3);
+        internal static TimeSpan AccessTimeMaxHttpNormal = TimeSpan.FromSeconds(10);
     }
 }
