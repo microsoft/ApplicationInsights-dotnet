@@ -142,7 +142,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                     DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId, evnt.Key);
 
-                    this.operationStartTimestamps.TryRemove(operationId, out var startTimestamp);
+                    this.operationStartTimestamps.TryRemove(operationId, out _);
 
                     break;
                 }
@@ -243,7 +243,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             telemetry.Success = false;
             telemetry.Properties["Exception"] = exception.ToInvariantString();
 
-            if (exception is SqlException sqlException)
+            var sqlException = exception as SqlException;
+
+            if (sqlException != null)
             {
                 telemetry.ResultCode = sqlException.Number.ToString(CultureInfo.InvariantCulture);
             }
