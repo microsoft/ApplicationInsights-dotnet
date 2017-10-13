@@ -1,6 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     using System;
+    using System.Collections.Generic;
+    using System.Globalization;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -19,12 +21,21 @@
         /// </summary>
         public static string DefaultAllowedFieldsInHeartbeatPayload = "*";
 
+        /// <summary>
+        /// The name of the health heartbeat metric item and operation context.
+        /// </summary>
         public static string HeartbeatSyntheticMetricName = "SDKHeartbeat";
 
+        /// <summary>
+        /// The payload items to send out with each health heartbeat.
+        /// </summary>
+        private Dictionary<string, IHealthHeartbeatPayloadExtension> payloadItems;
+        
         private bool disposedValue = false; // To detect redundant calls to dispose
         private int intervalBetweenHeartbeatsMs; // time between heartbeats emitted specified in milliseconds
         private string enabledHeartbeatPayloadFields; // string containing fields that are enabled in the payload. * means everything available.
         private TelemetryClient telemetryClient; // client to use in sending our heartbeat
+        private int heartbeatsSent;
 
         public HealthHeartbeatProvider() : this(DefaultHeartbeatIntervalMs, DefaultAllowedFieldsInHeartbeatPayload)
         {
@@ -42,6 +53,8 @@
         {
             this.enabledHeartbeatPayloadFields = allowedPayloadFields;
             this.intervalBetweenHeartbeatsMs = delayMs;
+            this.payloadItems = new Dictionary<string, IHealthHeartbeatPayloadExtension>();
+            this.heartbeatsSent = 0; // count up from construction time
         }
 
         public int HeartbeatIntervalMs => this.intervalBetweenHeartbeatsMs;
@@ -50,7 +63,10 @@
 
         public bool Initialize(TelemetryConfiguration configuration, int? delayMs = null, string allowedPayloadFields = null)
         {
-            this.telemetryClient = new TelemetryClient(configuration);
+            if (this.telemetryClient == null)
+            {
+                this.telemetryClient = new TelemetryClient(configuration);
+            }
 
             this.intervalBetweenHeartbeatsMs = delayMs.GetValueOrDefault(this.intervalBetweenHeartbeatsMs);
 
@@ -58,6 +74,8 @@
             {
                 this.enabledHeartbeatPayloadFields = allowedPayloadFields;
             }
+
+            this.AddDefaultPayloadItems(this.payloadItems);
 
             return true;
         }
@@ -69,12 +87,20 @@
                 throw new ArgumentNullException(nameof(payloadProvider));
             }
 
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(payloadProvider.Name) || this.payloadItems.ContainsKey(payloadProvider.Name))
+            {
+                throw new ArgumentNullException(nameof(payloadProvider), "Name member of IHealthHeartbeatPayloadExtension must be set to a unique value and cannot be empty");
+            }
+
+            this.payloadItems.Add(payloadProvider.Name, payloadProvider);
         }
 
-        public bool UpdateSettings()
+        public void UnregisterHeartbeatPayload(string providerName)
         {
-            return true;
+            if (this.payloadItems != null)
+            {
+                this.payloadItems.Remove(providerName);
+            }
         }
 
         #region IDisposable Support
@@ -121,9 +147,35 @@
             return this.GatherDataForHeartbeatPayload();
         }
 
+        protected void AddDefaultPayloadItems(IDictionary<string, IHealthHeartbeatPayloadExtension> heartbeatPayloadItems)
+        {
+            try
+            {
+                heartbeatPayloadItems[string.Empty] = new HealthHeartbeatDefaultPayload(this.enabledHeartbeatPayloadFields);
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException("HealthHeartbeatProvider::AddDefaultPayloadItems : Unable to add default payload items to health heartbeat", nameof(heartbeatPayloadItems), e);
+            }
+        }
+
         private MetricTelemetry GatherDataForHeartbeatPayload()
         {
-            throw new NotImplementedException();
+            var heartbeat = new MetricTelemetry(HeartbeatSyntheticMetricName, 0.0);
+
+            foreach (var payloadItem in this.payloadItems)
+            {
+                var props = payloadItem.Value.GetPayloadProperties();
+                foreach (var kvp in props)
+                {
+                    heartbeat.Properties.Add(kvp.Key, kvp.Value.ToString());
+                }
+
+                heartbeat.Sum += payloadItem.Value.CurrentUnhealthyCount;
+                heartbeat.Sequence = string.Format(CultureInfo.InvariantCulture, "{0}", this.heartbeatsSent++);
+            }
+
+            return heartbeat;
         }
 
         private void SendHealthHeartbeat()
@@ -133,8 +185,6 @@
                 var heartbeatPayload = this.GatherData();
                 if (heartbeatPayload.Properties != null && heartbeatPayload.Count > 0)
                 {
-                    // Check if message is sent to the portal (somewhere before in the stack)
-                    // It allows to avoid infinite recursion if sending to the portal traces something.
                     if (!ThreadResourceLock.IsResourceLocked)
                     {
                         using (var portalSenderLock = new ThreadResourceLock())
@@ -147,7 +197,7 @@
                             {
                                 // This message will not be sent to the portal because we have infinite loop protection
                                 // But it will be available in PerfView or StatusMonitor
-                                CoreEventSource.Log.LogError("Failed to send traces to the portal: " + exp.ToInvariantString());
+                                CoreEventSource.Log.LogError("Failed to send health heartbeat to the portal: " + exp.ToInvariantString());
                             }
                         }
                     }
@@ -155,8 +205,9 @@
             }
             catch (Exception)
             {
-                // We were trying to send traces out and failed. 
-                // No reason to try to trace something else again
+                // We were trying to send heartbeats out and failed. 
+                // No reason to try to send it out again, users can deduce the missing packets via sequence (or that 
+                // they simply don't get them any longer)
             }
         }
 

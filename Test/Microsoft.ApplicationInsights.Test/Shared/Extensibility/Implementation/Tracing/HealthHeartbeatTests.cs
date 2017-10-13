@@ -273,5 +273,30 @@
             throw new NotImplementedException();
         }
 
+        [TestMethod]
+        public void DefaultPayloadIncludesAppInsightsSdkVersion()
+        {
+            var defaultPayload = new HealthHeartbeatDefaultPayload("*");
+            var defaultProps = defaultPayload.GetPayloadProperties();
+            Assert.IsTrue(
+                defaultProps.Any(a =>
+                { return a.Key.Equals(HealthHeartbeatDefaultPayload.FieldAppInsightsSdkVer, StringComparison.Ordinal); }));
+        }
+
+        [TestMethod]
+        public void DefaultPayloadIncludesOnlySpecifiedProperties()
+        {
+            string allowedProps = string.Concat(HealthHeartbeatDefaultPayload.FieldAppInsightsSdkVer, ",", HealthHeartbeatDefaultPayload.FieldTargetFramework);
+            var defaultPayload = new HealthHeartbeatDefaultPayload(allowedProps);
+            var defaultProps = defaultPayload.GetPayloadProperties();
+            Assert.IsTrue(
+                defaultProps.All(a =>
+                {
+                    return a.Key.Equals(HealthHeartbeatDefaultPayload.FieldAppInsightsSdkVer, StringComparison.Ordinal)
+                      ||
+                      a.Key.Equals(HealthHeartbeatDefaultPayload.FieldTargetFramework, StringComparison.Ordinal);
+                }));
+        }
+
     }
 }
