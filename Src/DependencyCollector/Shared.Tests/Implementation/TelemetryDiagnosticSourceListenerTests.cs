@@ -43,7 +43,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         [TestMethod]
         public void TelemetryDiagnosticSourceListenerCapturesAllActivitiesByDefault()
         {
-            using (new TelemetryDiagnosticSourceListener(this.configuration, null))
+            var inclusionList = new[] { "Test.A" }.ToList();
+            using (new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
                 DiagnosticListener listener = new DiagnosticListener("Test.A");
                 Activity activity = new Activity("Test.A.Client.Monitoring");
@@ -70,10 +71,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         }
 
         [TestMethod]
-        public void TelemetryDiagnosticSourceListenerIgnoresExcludedSources()
+        public void TelemetryDiagnosticSourceListenerIgnoresNotIncludedSources()
         {
-            var exclusionList = new[] { "Test.A" }.ToList();
-            using (new TelemetryDiagnosticSourceListener(this.configuration, exclusionList))
+            var inclusionList = new[] { "Test.B" }.ToList();
+            using (new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
                 // Diagnostic Source A is ignored
                 DiagnosticListener listenerA = new DiagnosticListener("Test.A");
@@ -110,10 +111,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         }
 
         [TestMethod]
-        public void TelemetryDiagnosticSourceListenerIgnoresExcludedActivities()
+        public void TelemetryDiagnosticSourceListenerIgnoresNotIncludedActivities()
         {
-            var exclusionList = new[] { "Test.A:Test.A.Activity1", "Test.A:Test.A.Activity2" }.ToList();
-            using (new TelemetryDiagnosticSourceListener(this.configuration, exclusionList))
+            var inclusionList = new[] { "Test.A:Test.A.Client.Monitoring" }.ToList();
+            using (new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
                 // Diagnostic Source is not ignored
                 DiagnosticListener listener = new DiagnosticListener("Test.A");
@@ -165,7 +166,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         [TestMethod]
         public void TelemetryDiagnosticSourceListenerCollectsTelemetryFromRawActivity()
         {
-            using (new TelemetryDiagnosticSourceListener(this.configuration, null))
+            var inclusionList = new[] { "Test.A" }.ToList();
+            using (new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
                 DiagnosticListener listener = new DiagnosticListener("Test.A");
 

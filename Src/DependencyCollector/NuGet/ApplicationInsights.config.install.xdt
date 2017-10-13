@@ -17,19 +17,17 @@
         <Add>localhost</Add>
         <Add>127.0.0.1</Add>
       </ExcludeComponentCorrelationHttpHeadersOnDomains>
-      <ExcludeDiagnosticSourceActivities>
+      <IncludeDiagnosticSourceActivities>
         <!-- 
-        Diagnostic Sources and Activities listed here will be excluded from telemetry collection.
-        Add entries here to exclude additional Diagnostic Sources or particular Activities.
-        - the name of Diagnostic Source to exclude it as a whole
-        - the names of Diagnostic Source and Activity separated by ':' to exclude only that activity 
+        Diagnostic Sources and Activities listed here will be included in automatic telemetry collection.
+        Add entries here to include additional Diagnostic Sources or particular Activities.
+        - the name of Diagnostic Source to include as a whole
+        - the names of Diagnostic Source and Activity separated by ':' to include only that activity 
         NOTE: this configuration will be lost upon NuGet upgrade.
         -->
-        <Add>Microsoft.AspNet.TelemetryCorrelation</Add>
-        <Add>Microsoft.AspNetCore</Add>
-        <Add>HttpHandlerDiagnosticListener</Add>
-        <Add>System.Net.Http.Desktop</Add>
-      </ExcludeDiagnosticSourceActivities>
+        <Add>Microsoft.Azure.DocumentDB</Add>
+        <Add>Microsoft.Azure.EventHubs</Add>
+      </IncludeDiagnosticSourceActivities>
     </Add>
   </TelemetryModules>
 </ApplicationInsights>

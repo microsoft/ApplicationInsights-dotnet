@@ -14,49 +14,50 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         internal const string ActivityStartNameSuffix = ".Start";
         internal const string ActivityStopNameSuffix = ".Stop";
 
-        private readonly HashSet<string> excludedDiagnosticSources 
+        private readonly HashSet<string> includedDiagnosticSources 
             = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        private readonly Dictionary<string, HashSet<string>> excludedDiagnosticSourceActivities 
+        private readonly Dictionary<string, HashSet<string>> includedDiagnosticSourceActivities 
             = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 
-        public TelemetryDiagnosticSourceListener(TelemetryConfiguration configuration, ICollection<string> excludeDiagnosticSourceActivities) 
+        public TelemetryDiagnosticSourceListener(TelemetryConfiguration configuration, ICollection<string> includeDiagnosticSourceActivities) 
             : base(configuration)
         {
             this.Client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceListener + ":");
-            this.PrepareExclusionLists(excludeDiagnosticSourceActivities);
+            this.PrepareInclusionLists(includeDiagnosticSourceActivities);
         }
 
         internal override bool IsSourceEnabled(DiagnosticListener value)
         {
-            return !this.excludedDiagnosticSources.Contains(value.Name);
+            return this.includedDiagnosticSources.Contains(value.Name);
         }
 
         protected override HashSet<string> GetListenerContext(DiagnosticListener diagnosticListener)
         {
-            HashSet<string> excludedActivities;
-            if (!this.excludedDiagnosticSourceActivities.TryGetValue(diagnosticListener.Name, out excludedActivities))
+            HashSet<string> includedActivities;
+            if (!this.includedDiagnosticSourceActivities.TryGetValue(diagnosticListener.Name, out includedActivities))
             {
                 return null;
             }
 
-            return excludedActivities;
+            return includedActivities;
         }
 
         internal override bool IsEventEnabled(string evnt, object input1, object input2, DiagnosticListener diagnosticListener, HashSet<string> context)
         {
-            return !this.IsActivityExcluded(evnt, context)
+            return this.IsActivityIncluded(evnt, context)
                 && !evnt.EndsWith(ActivityStartNameSuffix, StringComparison.OrdinalIgnoreCase);
         }
 
-        internal bool IsActivityExcluded(string activityName, HashSet<string> excludedActivities)
+        internal bool IsActivityIncluded(string activityName, HashSet<string> includedActivities)
         {
-            return excludedActivities?.Contains(activityName) == true;
+            // if no list of included activities then all are included
+            return includedActivities == null || includedActivities.Contains(activityName);
         }
 
         internal override void HandleEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener, HashSet<string> context)
         {
-            if (this.IsActivityExcluded(evnt.Key, context)
+            if (!this.IsActivityIncluded(evnt.Key, context)
                 || !evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase))
             {
                 return;
@@ -129,47 +130,45 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             return telemetry;
         }
 
-        private void PrepareExclusionLists(ICollection<string> excludeDiagnosticSourceActivities)
+        private void PrepareInclusionLists(ICollection<string> includeDiagnosticSourceActivities)
         {
-            if (excludeDiagnosticSourceActivities == null)
+            if (includeDiagnosticSourceActivities == null)
             {
                 return;
             }
 
-            foreach (string exclusion in excludeDiagnosticSourceActivities)
+            foreach (string inclusion in includeDiagnosticSourceActivities)
             {
-                if (string.IsNullOrWhiteSpace(exclusion))
+                if (string.IsNullOrWhiteSpace(inclusion))
                 {
                     continue;
                 }
 
-                // each individual exclusion can specify
+                // each individual inclusion can specify
                 // 1) the name of Diagnostic Source 
-                //    - in that case the whole source is excluded
+                //    - in that case the whole source is included
                 //    - e.g. "System.Net.Http"
                 // 2) the names of Diagnostic Source and Activity separated by ':' 
-                //   - in that case the activity is disabled but not the whole source
+                //   - in that case only the activity is enabled from given source
                 //   - e.g. ""
-                string[] tokens = exclusion.Split(':');
+                string[] tokens = inclusion.Split(':');
 
-                if (tokens.Length == 1)
+                // the Diagnostic Source is included (even if only certain activities are enabled)
+                this.includedDiagnosticSources.Add(tokens[0]);
+
+                if (tokens.Length > 1)
                 {
-                    // the whole Diagnostic Source is excluded
-                    this.excludedDiagnosticSources.Add(tokens[0]);
-                }
-                else
-                {
-                    // certain Activity from the Diagnostic Source is excluded
-                    HashSet<string> excludedActivities;
-                    if (!this.excludedDiagnosticSourceActivities.TryGetValue(tokens[0], out excludedActivities))
+                    // only certain Activity from the Diagnostic Source is included
+                    HashSet<string> includedActivities;
+                    if (!this.includedDiagnosticSourceActivities.TryGetValue(tokens[0], out includedActivities))
                     {
-                        excludedActivities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                        this.excludedDiagnosticSourceActivities[tokens[0]] = excludedActivities;
+                        includedActivities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                        this.includedDiagnosticSourceActivities[tokens[0]] = includedActivities;
                     }
 
-                    // exclude activity and activity Stop events
-                    excludedActivities.Add(tokens[1]);
-                    excludedActivities.Add(tokens[1] + ActivityStopNameSuffix);
+                    // include activity and activity Stop events
+                    includedActivities.Add(tokens[1]);
+                    includedActivities.Add(tokens[1] + ActivityStopNameSuffix);
                 }
             }
         }

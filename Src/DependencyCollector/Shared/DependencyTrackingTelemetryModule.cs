@@ -42,7 +42,7 @@
         private bool disposed = false;
         private bool correlationHeadersEnabled = true;
         private ICollection<string> excludedCorrelationDomains = new SanitizedHostList();
-        private ICollection<string> excludeDiagnosticSourceActivities = new List<string>();
+        private ICollection<string> includeDiagnosticSourceActivities = new List<string>();
 
         /// <summary>
         /// Gets or sets a value indicating whether to disable runtime instrumentation.
@@ -68,11 +68,11 @@
         /// <summary>
         /// Gets the list of diagnostic sources and activities to exclude from collection.
         /// </summary>
-        public ICollection<string> ExcludeDiagnosticSourceActivities
+        public ICollection<string> IncludeDiagnosticSourceActivities
         {
             get
             {
-                return this.excludeDiagnosticSourceActivities;
+                return this.includeDiagnosticSourceActivities;
             }
         }
 
@@ -147,7 +147,7 @@
                                 this.ExcludeComponentCorrelationHttpHeadersOnDomains, 
                                 null);
 
-                            this.telemetryDiagnosticSourceListener = new TelemetryDiagnosticSourceListener(configuration, this.ExcludeDiagnosticSourceActivities);
+                            this.telemetryDiagnosticSourceListener = new TelemetryDiagnosticSourceListener(configuration, this.IncludeDiagnosticSourceActivities);
 
                             DependencyCollectorEventSource.Log.RemoteDependencyModuleVerbose("Initializing DependencyTrackingModule completed successfully.");
                         }
