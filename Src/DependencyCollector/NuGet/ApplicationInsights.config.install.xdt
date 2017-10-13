@@ -26,6 +26,7 @@
         NOTE: this configuration will be lost upon NuGet upgrade.
         -->
         <Add>Microsoft.AspNet.TelemetryCorrelation</Add>
+        <Add>Microsoft.AspNetCore</Add>
         <Add>HttpHandlerDiagnosticListener</Add>
         <Add>System.Net.Http.Desktop</Add>
       </ExcludeDiagnosticSourceActivities>
