@@ -232,6 +232,7 @@
                     {
                         this.httpCoreDiagnosticSourceListener.Dispose();
                     }
+
                     if (this.telemetryDiagnosticSourceListener != null)
                     {
                         this.telemetryDiagnosticSourceListener.Dispose();

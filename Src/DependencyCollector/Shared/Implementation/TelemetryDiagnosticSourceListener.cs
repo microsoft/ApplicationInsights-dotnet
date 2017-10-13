@@ -3,11 +3,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.Implementation;
-    using Microsoft.ApplicationInsights.Channel;
 
     internal class TelemetryDiagnosticSourceListener : DiagnosticSourceListenerBase<HashSet<string>>
     {
@@ -16,9 +16,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         private readonly HashSet<string> includedDiagnosticSources 
             = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         private readonly Dictionary<string, HashSet<string>> includedDiagnosticSourceActivities 
             = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
-
 
         public TelemetryDiagnosticSourceListener(TelemetryConfiguration configuration, ICollection<string> includeDiagnosticSourceActivities) 
             : base(configuration)
@@ -30,17 +30,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         internal override bool IsSourceEnabled(DiagnosticListener value)
         {
             return this.includedDiagnosticSources.Contains(value.Name);
-        }
-
-        protected override HashSet<string> GetListenerContext(DiagnosticListener diagnosticListener)
-        {
-            HashSet<string> includedActivities;
-            if (!this.includedDiagnosticSourceActivities.TryGetValue(diagnosticListener.Name, out includedActivities))
-            {
-                return null;
-            }
-
-            return includedActivities;
         }
 
         internal override bool IsEventEnabled(string evnt, object input1, object input2, DiagnosticListener diagnosticListener, HashSet<string> context)
@@ -110,8 +99,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                                 telemetry.Success = !failed;
                                 continue; // skip Properties
                             }
+
                             break;
                         }
+
                     case "peer.hostname":
                         {
                             telemetry.Target = tag.Value;
@@ -128,6 +119,17 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
 
             return telemetry;
+        }
+
+        protected override HashSet<string> GetListenerContext(DiagnosticListener diagnosticListener)
+        {
+            HashSet<string> includedActivities;
+            if (!this.includedDiagnosticSourceActivities.TryGetValue(diagnosticListener.Name, out includedActivities))
+            {
+                return null;
+            }
+
+            return includedActivities;
         }
 
         private void PrepareInclusionLists(ICollection<string> includeDiagnosticSourceActivities)

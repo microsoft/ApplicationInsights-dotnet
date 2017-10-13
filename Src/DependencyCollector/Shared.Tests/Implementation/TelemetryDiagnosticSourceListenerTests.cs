@@ -1,20 +1,20 @@
-﻿using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
-using Microsoft.ApplicationInsights.Extensibility;
-#if !NETCORE
-using Microsoft.ApplicationInsights.Web.TestFramework;
-#else
-using Microsoft.ApplicationInsights.Tests;
-#endif
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-
-namespace Microsoft.ApplicationInsights.DependencyCollector
+﻿namespace Microsoft.ApplicationInsights.DependencyCollector
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility;
+#if !NETCORE
+    using Microsoft.ApplicationInsights.Web.TestFramework;
+#else
+    using Microsoft.ApplicationInsights.Tests;
+#endif
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
     [TestClass]
     public class TelemetryDiagnosticSourceListenerTests
     {
@@ -51,9 +51,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
 
                 Assert.IsTrue(listener.IsEnabled(), "There is a subscriber for a new diagnostic source");
                 Assert.IsTrue(listener.IsEnabled(activity.OperationName), "There is a subscriber for a new activity");
-                Assert.IsTrue(listener.IsEnabled(activity.OperationName + TelemetryDiagnosticSourceListener.ActivityStopNameSuffix),
+                Assert.IsTrue(
+                    listener.IsEnabled(activity.OperationName + TelemetryDiagnosticSourceListener.ActivityStopNameSuffix),
                     "There is a subscriber for new activity Stop event");
-                Assert.IsFalse(listener.IsEnabled(activity.OperationName + TelemetryDiagnosticSourceListener.ActivityStartNameSuffix),
+                Assert.IsFalse(
+                    listener.IsEnabled(activity.OperationName + TelemetryDiagnosticSourceListener.ActivityStartNameSuffix),
                     "There are no subscribers for new activity Start event");
 
                 int sentCountBefore = this.sentItems.Count;
@@ -177,7 +179,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                     ["custom.tag"] = "test"
                 };
 
-                DependencyTelemetry telemetryItem = CollectDependencyTelemetryFromActivity(listener, tags);
+                DependencyTelemetry telemetryItem = this.CollectDependencyTelemetryFromActivity(listener, tags);
 
                 Assert.AreEqual(telemetryItem.Name, "Test.A.Client.Monitoring"); // Activity name
                 Assert.AreEqual(telemetryItem.Type, listener.Name);

@@ -9,18 +9,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     /// <summary>
     /// Base implementation of DiagnosticSource listener. 
     /// Takes care of managing subscriptions to multiple sources and their events.
-    /// </summary>
-    internal abstract class DiagnosticSourceListenerBase : DiagnosticSourceListenerBase<object>
-    {
-        protected DiagnosticSourceListenerBase(TelemetryConfiguration configuration) : base(configuration)
-        {
-        }
-    }
-
-    /// <summary>
-    /// Base implementation of DiagnosticSource listener. 
-    /// Takes care of managing subscriptions to multiple sources and their events.
-    /// 
     /// <typeparamref name="TContext">The type of processing context for given diagnostic source.</typeparamref>
     /// </summary>
     internal abstract class DiagnosticSourceListenerBase<TContext> : IObserver<DiagnosticListener>, IDisposable
@@ -30,7 +18,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         private readonly IDisposable listenerSubscription;
         private List<IDisposable> individualSubscriptions;
-
 
         protected DiagnosticSourceListenerBase(TelemetryConfiguration configuration)
         {
@@ -67,12 +54,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             var individualListener = new IndividualDiagnosticSourceListener(value, this, this.GetListenerContext(value));
             IDisposable subscription = value.Subscribe(
                 individualListener,
-                (evnt, input1, input2) => this.IsEventEnabled(evnt, input1, input2, value, individualListener.context));
+                (evnt, input1, input2) => this.IsEventEnabled(evnt, input1, input2, value, individualListener.Context));
 
             if (this.individualSubscriptions == null)
             {
                 this.individualSubscriptions = new List<IDisposable>();
             }
+
             this.individualSubscriptions.Add(subscription);
         }
 
@@ -110,20 +98,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         }
 
         /// <summary>
-        /// Gets diagnostic source-specific context for processing events from that source.
-        /// </summary>
-        /// <param name="diagnosticListener">The diagnostic source.</param>
-        /// <returns></returns>
-        protected virtual TContext GetListenerContext(DiagnosticListener diagnosticListener)
-        {
-            return default(TContext);
-        }
-
-        /// <summary>
         /// Checks if the diagnostic source is enabled by this listener.
         /// </summary>
         /// <param name="diagnosticListener">The diagnostic source.</param>
-        /// <returns></returns>
+        /// <returns><code>true</code> if Diagnostic Source is enabled.</returns>
         internal abstract bool IsSourceEnabled(DiagnosticListener diagnosticListener);
 
         /// <summary>
@@ -134,7 +112,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// <param name="arg2">Second event input object (<see cref="DiagnosticListener.IsEnabled(string, object, object)"/>).</param>
         /// <param name="diagnosticListener">The diagnostic source.</param>
         /// <param name="context">The diagnostic source-specific context (<see cref="GetListenerContext(DiagnosticListener)"/>).</param>
-        /// <returns></returns>
+        /// <returns><code>true</code> if Diagnostic Source event is enabled.</returns>
         internal abstract bool IsEventEnabled(string evnt, object arg1, object arg2, DiagnosticListener diagnosticListener, TContext context);
 
         /// <summary>
@@ -146,24 +124,34 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         internal abstract void HandleEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener, TContext context);
 
         /// <summary>
+        /// Gets diagnostic source-specific context for processing events from that source.
+        /// </summary>
+        /// <param name="diagnosticListener">The diagnostic source.</param>
+        /// <returns>The context.</returns>
+        protected virtual TContext GetListenerContext(DiagnosticListener diagnosticListener)
+        {
+            return default(TContext);
+        }
+
+        /// <summary>
         /// Event listener for a single Diagnostic Source.
         /// </summary>
         internal sealed class IndividualDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>
         {
+            internal readonly TContext Context;
             private readonly DiagnosticListener diagnosticListener;
             private readonly DiagnosticSourceListenerBase<TContext> telemetryDiagnosticSourceListener;
-            internal readonly TContext context;
 
             internal IndividualDiagnosticSourceListener(DiagnosticListener diagnosticListener, DiagnosticSourceListenerBase<TContext> telemetryDiagnosticSourceListener, TContext context)
             {
                 this.diagnosticListener = diagnosticListener;
                 this.telemetryDiagnosticSourceListener = telemetryDiagnosticSourceListener;
-                this.context = context;
+                this.Context = context;
             }
 
             public void OnNext(KeyValuePair<string, object> evnt)
             {
-                this.telemetryDiagnosticSourceListener.HandleEvent(evnt, this.diagnosticListener, this.context);
+                this.telemetryDiagnosticSourceListener.HandleEvent(evnt, this.diagnosticListener, this.Context);
             }
 
             /// <summary>
