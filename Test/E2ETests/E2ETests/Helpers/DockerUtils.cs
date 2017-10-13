@@ -63,7 +63,7 @@ namespace E2ETests.Helpers
             }
         }
 
-        public static string FindIpDockerContainer(string containerName, string networkName = "nat", int retryCount = 1)
+        public static string FindIpDockerContainer(string containerName, string networkName = "nat", int retryCount = 3)
         {
             string commandToFindIp = string.Empty;
             string ip = string.Empty;
@@ -76,6 +76,7 @@ namespace E2ETests.Helpers
                     break;
                 }
                 Trace.WriteLine("Failed to get IP Address in attempt" + (i+1));
+                RestartDockerContainer(containerName);
             }
 
             if(string.IsNullOrWhiteSpace(ip))
