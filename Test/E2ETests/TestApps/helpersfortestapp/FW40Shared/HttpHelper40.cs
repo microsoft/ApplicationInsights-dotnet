@@ -88,40 +88,10 @@ namespace FW40Shared
         /// Make sync http calls with POST
         /// </summary>                
         public static void MakeHttpPostCallSync(string targetUrl)
-        {
-            HttpWebResponse myHttpWebResponse = null;
-            try
-            {
-                Uri ourUri = new Uri(targetUrl);
-                HttpWebRequest myHttpWebRequest = null;
-                
-                myHttpWebRequest = (HttpWebRequest)WebRequest.Create(ourUri);
-
-                var postData = "thing1=hello";
-                postData += "&thing2=world";
-                var data = Encoding.ASCII.GetBytes(postData);
-                myHttpWebRequest.Method = "POST";
-                myHttpWebRequest.ContentLength = data.Length;
-                var stream = myHttpWebRequest.GetRequestStream();
-                stream.Write(data, 0, data.Length);
-
-                myHttpWebResponse = (HttpWebResponse)myHttpWebRequest.GetResponse();
-
-                using (var stm = myHttpWebResponse.GetResponseStream())
-                {
-                    using (var reader = new StreamReader(stm))
-                    {
-                        var content = reader.ReadToEnd();
-                    }
-                }                
-            }            
-            catch (Exception ex)
-            {
-                Trace.WriteLine("Exception occured:" + ex);
-            }
-            finally
-            {                
-            }
+        {            
+            HttpClient client = new HttpClient();
+            var content = ("helloworld");
+            client.PostAsync(targetUrl, new StringContent(content.ToString(), Encoding.UTF8, "application/json")).Wait();
         }
 
         /// <summary>

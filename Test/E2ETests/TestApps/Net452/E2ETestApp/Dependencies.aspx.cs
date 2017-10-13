@@ -21,8 +21,7 @@ namespace E2ETestApp
         private const string UrlWithNonexistentHostName = "http://abcdefzzzzeeeeadadad.com";        
 
         protected void Page_Load(object sender, EventArgs e)
-        {
-            int count = 1;
+        {            
             var type = Request.QueryString["type"];
             this.lblRequestedAction.Text = "Requested Action:" + type;
             try
