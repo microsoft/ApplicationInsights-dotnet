@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Dependencies.aspx.cs" Inherits="E2ETestApp.Dependencies" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Dependencies.aspx.cs" Inherits="E2ETestApp.Dependencies" Async="true" %>
 
 <!DOCTYPE html>
 

@@ -18,12 +18,17 @@ namespace E2ETestWebApi.Controllers
         // GET api/values/5
         public string Get(int id)
         {
+            if(id == 999)
+            {
+                throw new Exception("999 is exception!");
+            }
             return "value";
         }
 
         // POST api/values
         public void Post([FromBody]string value)
         {
+
         }
 
         // PUT api/values/5

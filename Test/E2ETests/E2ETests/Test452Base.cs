@@ -38,7 +38,7 @@ namespace E2ETests
                         ikey = WebAppInstrumentationKey,
                         containerName = "e2etests_e2etestwebapp_1",
                         imageName = "e2etests_e2etestwebapp",
-                        healthCheckPath = "/Dependencies?type=http"
+                        healthCheckPath = "/Dependencies?type=httpsync"
                     }
             },
 
@@ -66,6 +66,7 @@ namespace E2ETests
         
         internal const int AISDKBufferFlushTime = 2000;        
         internal static string DockerComposeFileName = "docker-compose.yml";
+        internal static string VersionPrefix = "rdddsd";
 
         internal static DataEndpointClient dataendpointClient;
         internal static ProcessStartInfo DockerPSProcessInfo = new ProcessStartInfo("cmd", "/c docker ps -a");
@@ -160,22 +161,162 @@ namespace E2ETests
             var expectedRequestTelemetryWebApi = new RequestTelemetry();
             expectedRequestTelemetryWebApi.ResponseCode = "200";
 
-            ValidateXComponentWebAppToWebApi(Apps[WebAppName].ipAddress, "/Dependencies?type=http", 
+            ValidateXComponentWebAppToWebApi(Apps[WebAppName].ipAddress, "/Dependencies?type=httpsync", 
                 expectedRequestTelemetryWebApp, expectedDependencyTelemetryWebApp, expectedRequestTelemetryWebApi,
                 Apps[WebAppName].ikey, Apps[WebApiName].ikey).Wait();
         }
 
-        public void TestBasicHttpDependencyWebApp(string expectedPrefix = "rdddsd")
+        public void TestSyncHttpDependency(string expectedPrefix)
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=http", expectedDependencyTelemetry,
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpsync", expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
         }
 
-        public void TestAzureTableDependencyWebApp(string expectedPrefix = "rdddsd")
+        public void TestAsyncWithHttpClientHttpDependency(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpasynchttpclient", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestPostCallHttpDependency(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = true;            
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httppost", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestFailedHttpDependency(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = false;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpfailedwithexception", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestFailedAtDnsHttpDependency(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = false;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpfailedwithinvaliddns", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestAsyncHttpDependency1(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = true;            
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpasync1", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestAsyncFailedHttpDependency1(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = false;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=failedhttpasync1", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestAsyncHttpDependency2(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpasync2", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestAsyncFailedHttpDependency2(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = false;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=failedhttpasync2", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestAsyncHttpDependency3(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpasync3", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestAsyncFailedHttpDependency3(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = false;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=failedhttpasync3", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestAsyncHttpDependency4(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpasync4", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestAsyncFailedHttpDependency4(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = false;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=failedhttpasync4", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestAsyncAwaitCallHttpDependency(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpasyncawait1", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestFailedAsyncAwaitCallHttpDependency(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = false;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=failedhttpasyncawait1", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestAzureTableDependencyWebApp(string expectedPrefix)
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
 
@@ -186,7 +327,37 @@ namespace E2ETests
 
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
-            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuretable", expectedDependencyTelemetry,
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdktable", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 4, expectedPrefix).Wait();
+        }
+
+        public void TestAzureQueueDependencyWebApp(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+
+            // Expected type is http instead of AzureTable as type is based on the target url which
+            // will be a local url in case of emulator.
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = true;
+
+            // 2 dependency item is expected.
+            // 1 from creating table, and 1 from writing data to it.
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdkqueue", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
+        }
+
+        public void TestAzureBlobDependencyWebApp(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+
+            // Expected type is http instead of AzureTable as type is based on the target url which
+            // will be a local url in case of emulator.
+            expectedDependencyTelemetry.Type = "Http";
+            expectedDependencyTelemetry.Success = true;
+
+            // 2 dependency item is expected.
+            // 1 from creating table, and 1 from writing data to it.
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdkblob", expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
         }
 
@@ -297,9 +468,13 @@ namespace E2ETests
                 Trace.WriteLine("Dependency Item Details");
                 Trace.WriteLine("deps.time: " + deps.time);
                 Trace.WriteLine("deps.iKey: " + deps.iKey);
+                Trace.WriteLine("deps.name: " + deps.name);
                 Trace.WriteLine("deps.data.baseData.name:" + deps.data.baseData.name);
                 Trace.WriteLine("deps.data.baseData.type:" + deps.data.baseData.type);
                 Trace.WriteLine("deps.data.baseData.success:" + deps.data.baseData.success);
+                Trace.WriteLine("deps.data.baseData.duration:" + deps.data.baseData.duration);
+                Trace.WriteLine("deps.data.baseData.resultCode:" + deps.data.baseData.resultCode);
+                Trace.WriteLine("deps.data.baseData.id:" + deps.data.baseData.id);
                 Trace.WriteLine("deps.data.baseData.target:" + deps.data.baseData.target);
                 Trace.WriteLine("InternalSdkVersion:" + deps.tags[new ContextTagKeys().InternalSdkVersion]);
                 Trace.WriteLine("--------------------------------------");

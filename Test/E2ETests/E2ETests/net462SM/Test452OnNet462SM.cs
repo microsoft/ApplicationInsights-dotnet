@@ -14,7 +14,7 @@ using System.Collections.Generic;
 namespace E2ETests.Net462SMSM
 {
     [TestClass]
-    public class Test452OnNet462SMSM : Test452Base
+    public class Test452OnNet462SMSMSM : Test452Base
     {
         public TestContext TestContext { get; set; }
 
@@ -22,7 +22,7 @@ namespace E2ETests.Net462SMSM
         public static void MyClassInitialize(TestContext testContext)
         {
             DockerComposeFileName = "docker-compose452AppOn462StatusMonitor.yml";
-
+            VersionPrefix = "rddp";
             MyClassInitializeBase();
         }
           
@@ -51,21 +51,105 @@ namespace E2ETests.Net462SMSM
         }
 
         [TestMethod]
-        public void Test452OnNet462SM_TestBasicHttpDependencyWebApp()
+        public void Test452OnNet462SM_TestSyncHttpDependency()
         {
-            base.TestBasicHttpDependencyWebApp("rddp");
+            base.TestSyncHttpDependency(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestAsyncWithHttpClientHttpDependency()
+        {
+            base.TestAsyncWithHttpClientHttpDependency(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestPostCallHttpDependency()
+        {
+            base.TestPostCallHttpDependency(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestFailedHttpDependency()
+        {
+            base.TestFailedHttpDependency(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestFailedAtDnsHttpDependency()
+        {
+            base.TestFailedAtDnsHttpDependency(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestAsyncHttpDependency1()
+        {
+            base.TestAsyncHttpDependency1(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestAsyncFailedHttpDependency1()
+        {
+            base.TestAsyncFailedHttpDependency1(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestAsyncHttpDependency2()
+        {
+            base.TestAsyncHttpDependency2(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestAsyncFailedHttpDependency2()
+        {
+            base.TestAsyncFailedHttpDependency2(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestAsyncHttpDependency3()
+        {
+            base.TestAsyncHttpDependency3(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestAsyncFailedHttpDependency3()
+        {
+            base.TestAsyncFailedHttpDependency3(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestAsyncHttpDependency4()
+        {
+            base.TestAsyncHttpDependency4(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestAsyncFailedHttpDependency4()
+        {
+            base.TestAsyncFailedHttpDependency4(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestAsyncAwaitCallHttpDependency()
+        {
+            base.TestAsyncAwaitCallHttpDependency(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestFailedAsyncAwaitCallHttpDependency()
+        {
+            base.TestFailedAsyncAwaitCallHttpDependency(VersionPrefix);
         }
 
         [TestMethod]
         public void Test452OnNet462SM_TestAzureTableDependencyWebApp()
         {
-            base.TestAzureTableDependencyWebApp("rddp");
+            base.TestAzureTableDependencyWebApp(VersionPrefix);
         }
 
         [TestMethod]
         public void Test452OnNet462SM_TestBasicSqlDependencyWebApp()
         {
-            base.TestBasicSqlDependencyWebApp("rddp");
+            base.TestBasicSqlDependencyWebApp(VersionPrefix);
         }
 
         [ClassCleanup]

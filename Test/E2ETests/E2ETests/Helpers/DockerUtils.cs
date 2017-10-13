@@ -77,6 +77,7 @@ namespace E2ETests.Helpers
                 }
                 Trace.WriteLine("Failed to get IP Address in attempt" + (i+1));
                 RestartDockerContainer(containerName);
+                PrintDockerProcessStats("Restart "+ containerName);
             }
 
             if(string.IsNullOrWhiteSpace(ip))
