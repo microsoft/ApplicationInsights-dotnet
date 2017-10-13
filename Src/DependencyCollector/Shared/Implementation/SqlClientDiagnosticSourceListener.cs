@@ -136,6 +136,17 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     break;
                 }
 
+                case SqlAfterOpenConnection:
+                {
+                    var operationId = (Guid)ConnectionAfter.OperationId.Fetch(evnt.Value);
+
+                    DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId, evnt.Key);
+
+                    this.operationStartTimestamps.TryRemove(operationId, out var startTimestamp);
+
+                    break;
+                }
+
                 case SqlErrorOpenConnection:
                 {
                     var operationId = (Guid)ConnectionError.OperationId.Fetch(evnt.Value);
