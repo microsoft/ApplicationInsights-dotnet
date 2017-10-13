@@ -92,7 +92,6 @@
     <Compile Include="Helpers\TelemetryItemFactory.cs" />
     <Compile Include="net462SM\Test452OnNet462SM.cs" />
     <Compile Include="net462\Test452OnNet462.cs" />
-    <Compile Include="net47\Test452OnNet47.cs" />
     <Compile Include="Test452Base.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -119,6 +118,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="net47\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
