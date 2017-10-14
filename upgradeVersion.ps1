@@ -1,15 +1,16 @@
-#$oldFileVersion = "2.4.0-beta1"
-#$newVersion = "2.4.0-beta2"
+#$oldFileVersion = ""
 
-$newVersion = .\NuGet.exe list "Microsoft.ApplicationInsights" -Source https://www.myget.org/F/applicationinsights -Pre -NonInteractive | Select-String -Pattern "Microsoft.ApplicationInsights " | %{$_.Line.Split(" ")} | Select -skip 1
+##Use this to get the new version from MyGet##
+#$newVersion = .\NuGet.exe list "Microsoft.ApplicationInsights" -Source https://www.myget.org/F/applicationinsights -Pre -NonInteractive | Select-String -Pattern "Microsoft.ApplicationInsights " | %{$_.Line.Split(" ")} | Select -skip 1
 
-#$newVersion ="2.2.0-beta4"
+##Use this to manually set the new version##
+$newVersion ="2.5.0-beta1"
 
-Write-Host $newVersion
+Write-Host "New Version: " $newVersion
 
 $oldVersion = cat .\Directory.Build.props | Select-String -Pattern "CoreSdkVersion" | %{$_.Line.Split("<>")} | Select -skip 2 | Select -First 1
 
-Write-Host $oldVersion
+Write-Host "Old Version: " $oldVersion
 
 (Get-Content Directory.Build.props) | 
 Foreach-Object {$_ -replace $oldVersion, $newVersion} | 
@@ -31,7 +32,7 @@ foreach-object {
   Set-Content $_.FullName
 
 
-  (Get-Content $_.FullName) | 
-  Foreach-Object {$_ -replace $oldFileVersion, $newFileVersion} | 
-  Set-Content $_.FullName
+#  (Get-Content $_.FullName) | 
+#  Foreach-Object {$_ -replace $oldFileVersion, $newFileVersion} | 
+#  Set-Content $_.FullName
 }
