@@ -32,9 +32,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Materials", "Materials", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D1F9E7C3-7C36-44D1-A5B2-B05819D5CEA7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.ConcurrentDatastructures", "Microsoft.ApplicationInsights.ConcurrentDatastructures\Microsoft.ApplicationInsights.ConcurrentDatastructures.csproj", "{25712D65-216B-46FC-B7EF-4C0F17A57E8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.Datastructures", "Microsoft.ApplicationInsights.Datastructures\Microsoft.ApplicationInsights.Datastructures.csproj", "{25712D65-216B-46FC-B7EF-4C0F17A57E8E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.CncrrntDtstrctrs.Test", "Tests\Microsoft.ApplicationInsights.CncrrntDtstrctrs.Test\Microsoft.ApplicationInsights.CncrrntDtstrctrs.Test.csproj", "{35F87DE6-EA33-4732-B9CD-D92D04FEAE64}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Datastructures.Test", "Tests\Microsoft.ApplicationInsights.Datastructures.Test\Microsoft.ApplicationInsights.Datastructures.Test.csproj", "{35F87DE6-EA33-4732-B9CD-D92D04FEAE64}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

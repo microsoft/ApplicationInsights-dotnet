@@ -7,8 +7,8 @@
     <ProjectGuid>{35F87DE6-EA33-4732-B9CD-D92D04FEAE64}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.ApplicationInsights.ConcurrentDatastructures.Test</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.CncrrntDtstrctrs.Test</AssemblyName>
+    <RootNamespace>Microsoft.ApplicationInsights.Datastructures.Test</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.Datastructures.Test</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -28,7 +28,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\..\bin\Debug\Metrics\Microsoft.ApplicationInsights.CncrrntDtstrctrs.Test\Microsoft.ApplicationInsights.CncrrntDtstrctrs.Test.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\..\bin\Debug\Metrics\Microsoft.ApplicationInsights.Datastructures.Test\Microsoft.ApplicationInsights.Datastructures.Test.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,7 +37,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\..\bin\Release\Metrics\Microsoft.ApplicationInsights.CncrrntDtstrctrs.Test\Microsoft.ApplicationInsights.CncrrntDtstrctrs.Test.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\..\bin\Release\Metrics\Microsoft.ApplicationInsights.Datastructures.Test\Microsoft.ApplicationInsights.Datastructures.Test.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -62,9 +62,9 @@
     <Analyzer Include="..\..\..\..\NuGet.Packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\..\..\..\NuGet.Packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
     -->
-    <ProjectReference Include="..\..\Microsoft.ApplicationInsights.ConcurrentDatastructures\Microsoft.ApplicationInsights.ConcurrentDatastructures.csproj">
+    <ProjectReference Include="..\..\Microsoft.ApplicationInsights.Datastructures\Microsoft.ApplicationInsights.Datastructures.csproj">
       <Project>{25712d65-216b-46fc-b7ef-4c0f17a57e8e}</Project>
-      <Name>Microsoft.ApplicationInsights.ConcurrentDatastructures</Name>
+      <Name>Microsoft.ApplicationInsights.Datastructures</Name>
     </ProjectReference>
     <ProjectReference Include="..\Microsoft.ApplicationInsights.Metrics.Core.Test\Microsoft.ApplicationInsights.Metrics.Core.Test.csproj">
       <Project>{8fbc7612-4536-45db-86c3-c2ed95219231}</Project>

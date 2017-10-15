@@ -17,7 +17,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.ApplicationInsights.ConcurrentDatastructures\Microsoft.ApplicationInsights.ConcurrentDatastructures.csproj" />
+    <ProjectReference Include="..\Microsoft.ApplicationInsights.Datastructures\Microsoft.ApplicationInsights.Datastructures.csproj" />
   </ItemGroup>
   
   <PropertyGroup>

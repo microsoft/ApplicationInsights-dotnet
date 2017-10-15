@@ -17,14 +17,14 @@
   </ItemGroup>
   
   <PropertyGroup>
-    <DocumentationFile>$(OutputPath)\$(TargetFramework)\Microsoft.ApplicationInsights.ConcurrentDatastructures.xml</DocumentationFile>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\Microsoft.ApplicationInsights.Datastructures.xml</DocumentationFile>
     <ProjectGuid>25712d65-216b-46fc-b7ef-4c0f17a57e8e</ProjectGuid>
   </PropertyGroup>
   
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Microsoft.ApplicationInsights.Metrics.props'))\Microsoft.ApplicationInsights.Metrics.props" />
 
   <PropertyGroup>
-    <AssemblyAttributesPath>$(IntermediateOutputPath)\$(TargetFramework)\Microsoft.ApplicationInsights.ConcurrentDatastructures.AssemblyInfo.cs</AssemblyAttributesPath>
+    <AssemblyAttributesPath>$(IntermediateOutputPath)\$(TargetFramework)\Microsoft.ApplicationInsights.Datastructures.AssemblyInfo.cs</AssemblyAttributesPath>
   </PropertyGroup>
 
 </Project>
