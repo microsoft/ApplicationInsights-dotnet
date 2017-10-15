@@ -9,35 +9,31 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
     {
         private readonly int _hashCode;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="seriesCountLimit"></param>
-        /// <param name="valuesPerDimensionLimit"></param>
-        /// <param name="seriesConfig"></param>
-        public SimpleMetricConfiguration(int seriesCountLimit, int valuesPerDimensionLimit, IMetricSeriesConfiguration seriesConfig)
-            : this(
-                    seriesCountLimit,
-                    valuesPerDimensionLimit,
-                    MetricConfiguration.FutureDefaults.NewSeriesCreationRetryDelay,
-                    MetricConfiguration.FutureDefaults.NewSeriesCreationTimeout,
-                    seriesConfig)
-        {
-        }
+        ///// <summary>
+        ///// </summary>
+        ///// <param name="seriesCountLimit"></param>
+        ///// <param name="valuesPerDimensionLimit"></param>
+        ///// <param name="seriesConfig"></param>
+        //public SimpleMetricConfiguration(int seriesCountLimit, int valuesPerDimensionLimit, IMetricSeriesConfiguration seriesConfig)
+        //    : this(
+        //            seriesCountLimit,
+        //            valuesPerDimensionLimit,
+        //            MetricConfiguration.FutureDefaults.NewSeriesCreationRetryDelay,
+        //            MetricConfiguration.FutureDefaults.NewSeriesCreationTimeout,
+        //            seriesConfig)
+        //{
+        //}
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="seriesCountLimit"></param>
         /// <param name="valuesPerDimensionLimit"></param>
-        /// <param name="newSeriesCreationTimeout"></param>
-        /// <param name="newSeriesCreationRetryDelay"></param>
         /// <param name="seriesConfig"></param>
         public SimpleMetricConfiguration(
                                 int seriesCountLimit,
                                 int valuesPerDimensionLimit,
-                                TimeSpan newSeriesCreationRetryDelay,
-                                TimeSpan newSeriesCreationTimeout,
+                                //TimeSpan newSeriesCreationRetryDelay,
+                                //TimeSpan newSeriesCreationTimeout,
                                 IMetricSeriesConfiguration seriesConfig)
         {
             if (seriesCountLimit < 1)
@@ -51,22 +47,24 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                 throw new ArgumentOutOfRangeException(nameof(valuesPerDimensionLimit));
             }
 
-            if (newSeriesCreationRetryDelay < TimeSpan.Zero || TimeSpan.FromSeconds(1) < newSeriesCreationRetryDelay)
-            {
-                throw new ArgumentOutOfRangeException(nameof(newSeriesCreationRetryDelay));
-            }
+            //if (newSeriesCreationRetryDelay < TimeSpan.Zero || TimeSpan.FromSeconds(1) < newSeriesCreationRetryDelay)
+            //{
+            //    throw new ArgumentOutOfRangeException(nameof(newSeriesCreationRetryDelay));
+            //}
 
-            if (newSeriesCreationTimeout < TimeSpan.Zero || TimeSpan.FromSeconds(5) < NewSeriesCreationTimeout)
-            {
-                throw new ArgumentOutOfRangeException(nameof(newSeriesCreationTimeout));
-            }
+            //if (newSeriesCreationTimeout < TimeSpan.Zero || TimeSpan.FromSeconds(5) < NewSeriesCreationTimeout)
+            //{
+            //    throw new ArgumentOutOfRangeException(nameof(newSeriesCreationTimeout));
+            //}
 
             Util.ValidateNotNull(seriesConfig, nameof(seriesConfig));
 
             SeriesCountLimit = seriesCountLimit;
             ValuesPerDimensionLimit = valuesPerDimensionLimit;
-            NewSeriesCreationRetryDelay = newSeriesCreationRetryDelay;
-            NewSeriesCreationTimeout = newSeriesCreationTimeout;
+
+            //NewSeriesCreationRetryDelay = newSeriesCreationRetryDelay;
+            //NewSeriesCreationTimeout = newSeriesCreationTimeout;
+
             SeriesConfig = seriesConfig;
 
             _hashCode = ComputeHashCode();
@@ -82,15 +80,13 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// </summary>
         public int ValuesPerDimensionLimit { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public TimeSpan NewSeriesCreationRetryDelay { get; }
+        ///// <summary>
+        ///// </summary>
+        //public TimeSpan NewSeriesCreationRetryDelay { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public TimeSpan NewSeriesCreationTimeout { get; }
+        ///// <summary>
+        ///// </summary>
+        //public TimeSpan NewSeriesCreationTimeout { get; }
 
         /// <summary>
         /// 
@@ -145,8 +141,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
             return (this.SeriesCountLimit == other.SeriesCountLimit)
                 && (this.ValuesPerDimensionLimit == other.ValuesPerDimensionLimit)
-                && (this.NewSeriesCreationRetryDelay == other.NewSeriesCreationRetryDelay)
-                && (this.NewSeriesCreationTimeout == other.NewSeriesCreationTimeout)
+                //&& (this.NewSeriesCreationRetryDelay == other.NewSeriesCreationRetryDelay)
+                //&& (this.NewSeriesCreationTimeout == other.NewSeriesCreationTimeout)
                 && (this.SeriesConfig.Equals(other.SeriesConfig));
         }
 
@@ -166,8 +162,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                 int hash = 17;
                 hash = (hash * 23) + SeriesCountLimit.GetHashCode();
                 hash = (hash * 23) + ValuesPerDimensionLimit.GetHashCode();
-                hash = (hash * 23) + NewSeriesCreationRetryDelay.GetHashCode();
-                hash = (hash * 23) + NewSeriesCreationTimeout.GetHashCode();
+                //hash = (hash * 23) + NewSeriesCreationRetryDelay.GetHashCode();
+                //hash = (hash * 23) + NewSeriesCreationTimeout.GetHashCode();
                 hash = (hash * 23) + SeriesConfig.GetHashCode();
                 return hash;
             }

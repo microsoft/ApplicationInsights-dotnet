@@ -20,7 +20,9 @@ namespace SomeCustomerNamespace
         {
             return;
 
+#pragma warning disable CS0162 // Unreachable code detected
             TelemetryClient aiClient = new TelemetryClient();
+#pragma warning restore CS0162 // Unreachable code detected
 
             Metric cowsSold = aiClient.GetMetric("Cows Sold");
             cowsSold.TrackValue(42);

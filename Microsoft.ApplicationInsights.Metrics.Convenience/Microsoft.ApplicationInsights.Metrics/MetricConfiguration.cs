@@ -38,8 +38,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             s_measurementDouble = new SimpleMetricConfiguration(
                                                         FutureDefaults.SeriesCountLimit,
                                                         FutureDefaults.ValuesPerDimensionLimit,
-                                                        FutureDefaults.NewSeriesCreationRetryDelay,
-                                                        FutureDefaults.NewSeriesCreationTimeout,
+                                                        //FutureDefaults.NewSeriesCreationRetryDelay,
+                                                        //FutureDefaults.NewSeriesCreationTimeout,
                                                         new SimpleMetricSeriesConfiguration(
                                                                         lifetimeCounter: false,
                                                                         restrictToUInt32Values: false));
@@ -47,8 +47,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             s_counterDouble = new SimpleMetricConfiguration(
                                                         FutureDefaults.SeriesCountLimit,
                                                         FutureDefaults.ValuesPerDimensionLimit,
-                                                        FutureDefaults.NewSeriesCreationRetryDelay,
-                                                        FutureDefaults.NewSeriesCreationTimeout,
+                                                        //FutureDefaults.NewSeriesCreationRetryDelay,
+                                                        //FutureDefaults.NewSeriesCreationTimeout,
                                                         new SimpleMetricSeriesConfiguration(
                                                                         lifetimeCounter: true,
                                                                         restrictToUInt32Values: false));
@@ -62,8 +62,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         public static class FutureDefaults
         {
-            internal static readonly TimeSpan NewSeriesCreationRetryDelay = TimeSpan.FromMilliseconds(1);
-            internal static readonly TimeSpan NewSeriesCreationTimeout = TimeSpan.FromMilliseconds(10);
+            //internal static readonly TimeSpan NewSeriesCreationRetryDelay = TimeSpan.FromMilliseconds(1);
+            //internal static readonly TimeSpan NewSeriesCreationTimeout = TimeSpan.FromMilliseconds(10);
 
             private static int s_seriesCountLimit = 1000;
             private static int s_valuesPerDimensionLimit = 100;

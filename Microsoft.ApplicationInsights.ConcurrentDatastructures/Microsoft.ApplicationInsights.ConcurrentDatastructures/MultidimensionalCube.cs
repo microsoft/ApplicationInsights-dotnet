@@ -17,11 +17,11 @@ namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
     /// However, the key usage in this library are multidimensional metrics. In such usage the coordinates are metric
     /// dimensions (TDimensionValue is String) and the cube elements (TPoint) are metric data series.
     /// <p>
-    /// The cube refers to dimensions using their index: 0th, 1st, 2nd dimension and so on. For each dimension, the cube has a <c>DimensionValuesCountLimit</c>
-    /// parameter. This limits the number of distinct values that may be specified for that specific dimension. Once the <c>DimensionValuesCountLimit</c> for
-    /// some particular dimension is reached, the cube will no longer be able to create points whose coordinate vectors contain values for that particular
-    /// dimension that do not occur in coordinate vectors for points already in the cube. The cube also has a <c>TotalPointsCountLimit</c> parameter that limits
-    /// the total number of points in the cube.
+    /// The cube refers to dimensions using their index: 0th, 1st, 2nd dimension and so on. For each dimension, the cube has a <c>SubdimensionsCountLimit</c>
+    /// parameter. This limits the number of distinct values that may be specified for that specific sub-dimension (given concrete values for lower dimensions).
+    /// Once the <c>SubdimensionsCountLimit</c> for some particular dimension is reached, the cube will no longer be able to create points whose coordinate
+    /// vectors contain values for that particular dimension that do not occur in coordinate vectors for points already in the cube.
+    /// The cube also has a <c>TotalPointsCountLimit</c> parameter that limits the total number of points in the cube.
     /// </p>
     /// <p>
     /// The elements of the coordinate vectors (i.e. the values of the dimensions of a point in the cube) are discrete. Even if their type implies a non-discrete
@@ -157,7 +157,7 @@ namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
         /// </summary>
         private const int DimensionsCountLimit = 50;
 
-        private const string ExceptionThrownByPointsFactoryKey = "Microsoft.ApplicationInsights.Metrics.MultidimensionalCube.ExceptionThrownByPointsFactory";
+        private const string ExceptionThrownByPointsFactoryKey = "Microsoft.ApplicationInsights.ConcurrentDatastructures.MultidimensionalCube.ExceptionThrownByPointsFactory";
 
         private readonly int[] _subdimensionsCountLimits;
         private readonly MultidimensionalCubeDimension<TDimensionValue, TPoint> _points;

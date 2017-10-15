@@ -20,9 +20,10 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly string _objectId;
         private readonly int _hashCode;
         private readonly MetricSeries _zeroDimSeries;
-        private readonly MultidimensionalCube<string, MetricSeries> _metricSeries;
         private readonly string[] _dimensionNames;
-        //private readonly ConcurrentDictionary<string, bool>[] _dimensionValues;
+
+        //private readonly MultidimensionalCube<string, MetricSeries> _metricSeries;
+        private readonly MultidimensionalCube2<MetricSeries> _metricSeries;
 
         internal readonly IMetricConfiguration _configuration;
 
@@ -54,20 +55,30 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 case 1:
                     _dimensionNames = new string[1] { dimension1Name };
-                    _metricSeries = new MultidimensionalCube<string, MetricSeries>(
+
+                    //_metricSeries = new MultidimensionalCube<string, MetricSeries>(
+                    //        totalPointsCountLimit:      configuration.SeriesCountLimit - 1,
+                    //        pointsFactory:              CreateNewMetricSeries,
+                    //        subdimensionsCountLimits:   new int[1] { configuration.ValuesPerDimensionLimit });
+
+                    _metricSeries = new MultidimensionalCube2<MetricSeries>(
                             totalPointsCountLimit:      configuration.SeriesCountLimit - 1,
                             pointsFactory:              CreateNewMetricSeries,
-                            subdimensionsCountLimits:   new int[1] { configuration.ValuesPerDimensionLimit });
-                    //_dimensionValues = new ConcurrentDictionary<string, bool>[1] { new ConcurrentDictionary<string, bool>() };
+                            dimensionValuesCountLimits: new int[1] { configuration.ValuesPerDimensionLimit });
                     break;
 
                 case 2:
                     _dimensionNames = new string[2] { dimension1Name, dimension2Name };
-                    _metricSeries = new MultidimensionalCube<string, MetricSeries>(
-                            totalPointsCountLimit:      configuration.SeriesCountLimit - 1,
-                            pointsFactory:              CreateNewMetricSeries,
-                            subdimensionsCountLimits:   new int[2] { configuration.ValuesPerDimensionLimit, configuration.ValuesPerDimensionLimit });
-                    //_dimensionValues = new ConcurrentDictionary<string, bool>[1] { new ConcurrentDictionary<string, bool>(), new ConcurrentDictionary<string, bool>() };
+
+                    //_metricSeries = new MultidimensionalCube<string, MetricSeries>(
+                    //        totalPointsCountLimit:      configuration.SeriesCountLimit - 1,
+                    //        pointsFactory:              CreateNewMetricSeries,
+                    //        subdimensionsCountLimits:   new int[2] { configuration.ValuesPerDimensionLimit, configuration.ValuesPerDimensionLimit });
+
+                    _metricSeries = new MultidimensionalCube2<MetricSeries>(
+                            totalPointsCountLimit: configuration.SeriesCountLimit - 1,
+                            pointsFactory: CreateNewMetricSeries,
+                            dimensionValuesCountLimits: new int[2] { configuration.ValuesPerDimensionLimit, configuration.ValuesPerDimensionLimit });
                     break;
 
                 default:
@@ -99,32 +110,20 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <returns></returns>
         public string GetDimensionName(int dimensionNumber)
         {
-            if (dimensionNumber < 1)
-            {
-                throw new ArgumentOutOfRangeException(
-                                nameof(dimensionNumber),
-                                $"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Note that {nameof(dimensionNumber)} is a 1-based index.");
-            }
-
-            if (dimensionNumber > 2)
-            {
-                throw new ArgumentOutOfRangeException(
-                                nameof(dimensionNumber),
-                                $"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Currently only {nameof(dimensionNumber)} = 1 or 2 are supported.");
-            }
-
-            if (DimensionsCount < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(dimensionNumber), "Cannot get demension name becasue this metric has no dimensions.");
-            }
-
-            if (dimensionNumber > DimensionsCount)
-            {
-                throw new ArgumentOutOfRangeException($"Cannot get dimension name for {nameof(dimensionNumber)}={dimensionNumber}"
-                                                    + $" becasue this metric only has {DimensionsCount} dimensions.");
-            }
-
+            ValidateDimensionNumberForGetter(dimensionNumber);
             return _dimensionNames[dimensionNumber - 1];
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="dimensionNumber"></param>
+        /// <returns></returns>
+        public IReadOnlyCollection<string> GetDimensionValues(int dimensionNumber)
+        {
+            ValidateDimensionNumberForGetter(dimensionNumber);
+
+            int dimensionIndex = dimensionNumber - 1;
+            return _metricSeries.GetDimensionValues(dimensionIndex);
         }
         
         /// <summary>
@@ -416,6 +415,34 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
+        private void ValidateDimensionNumberForGetter(int dimensionNumber)
+        {
+            if (dimensionNumber < 1)
+            {
+                throw new ArgumentOutOfRangeException(
+                                nameof(dimensionNumber),
+                                $"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Note that {nameof(dimensionNumber)} is a 1-based index.");
+            }
+
+            if (dimensionNumber > 2)
+            {
+                throw new ArgumentOutOfRangeException(
+                                nameof(dimensionNumber),
+                                $"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Currently only {nameof(dimensionNumber)} = 1 or 2 are supported.");
+            }
+
+            if (DimensionsCount < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(dimensionNumber), "Cannot access demension becasue this metric has no dimensions.");
+            }
+
+            if (dimensionNumber > DimensionsCount)
+            {
+                throw new ArgumentOutOfRangeException($"Cannot access dimension for {nameof(dimensionNumber)}={dimensionNumber}"
+                                                    + $" becasue this metric only has {DimensionsCount} dimensions.");
+            }
+        }
+
         private MetricSeries CreateNewMetricSeries(string[] dimensionValues)
         {
             MetricSeries series = _metricManager.CreateNewSeries(MetricId, _configuration.SeriesConfig);
@@ -465,12 +492,14 @@ namespace Microsoft.ApplicationInsights.Metrics
             MultidimensionalPointResult<MetricSeries> result;
             if (createIfNotExists)
             {
-                Task<MultidimensionalPointResult<MetricSeries>> t = _metricSeries.TryGetOrCreatePointAsync(
-                                                                                                           _configuration.NewSeriesCreationRetryDelay,
-                                                                                                           _configuration.NewSeriesCreationTimeout,
-                                                                                                           CancellationToken.None,
-                                                                                                           dimensionValues);
-                result = t.ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
+                //Task<MultidimensionalPointResult<MetricSeries>> t = _metricSeries.TryGetOrCreatePointAsync(
+                //                                                                                           _configuration.NewSeriesCreationRetryDelay,
+                //                                                                                           _configuration.NewSeriesCreationTimeout,
+                //                                                                                           CancellationToken.None,
+                //                                                                                           dimensionValues);
+                //result = t.ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
+
+                result = _metricSeries.TryGetOrCreatePoint(dimensionValues);
             }
             else
             {

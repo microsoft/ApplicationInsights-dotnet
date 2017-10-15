@@ -18,15 +18,13 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         int ValuesPerDimensionLimit { get; }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        TimeSpan NewSeriesCreationTimeout { get; }
+        ///// <summary>
+        ///// </summary>
+        //TimeSpan NewSeriesCreationTimeout { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        TimeSpan NewSeriesCreationRetryDelay { get; }
+        ///// <summary>
+        ///// </summary>
+        //TimeSpan NewSeriesCreationRetryDelay { get; }
 
 
         /// <summary>

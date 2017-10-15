@@ -41,7 +41,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             return base.CreateAggregateUnsafe(periodEnd);
         }
 
-        protected virtual void UpdateAggregationWithTrackedValue(double metricValue)
+        protected override void UpdateAggregationWithTrackedValue(double metricValue)
         {
             base.UpdateAggregationWithTrackedValue(metricValue);
             SnapAggragetionToIntValues();
