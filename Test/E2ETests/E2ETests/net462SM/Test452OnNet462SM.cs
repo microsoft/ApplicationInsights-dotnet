@@ -163,9 +163,189 @@ namespace E2ETests.Net462SMSM
         }
 
         [TestMethod]
-        public void Test452OnNet462SM_TestBasicSqlDependencyWebApp()
+        public void Test452OnNet462SM_SqlDependencyExecuteReaderSuccess()
         {
-           // base.TestBasicSqlDependencyWebApp(VersionPrefix);
+            base.TestSqlDependencyExecuteReaderSuccessAsync(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyExecuteReaderFailed()
+        {
+            base.TestSqlDependencyExecuteReaderFailedAsync(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyBeginExecuteReader0Success()
+        {
+            base.TestSqlDependencyBeginExecuteReader0Success(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyBeginExecuteReader0Failed()
+        {
+            base.TestSqlDependencyBeginExecuteReader0Failed(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyBeginExecuteReader1Success()
+        {
+            base.TestSqlDependencyBeginExecuteReader1Success(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyBeginExecuteReader1Failed()
+        {
+            base.TestSqlDependencyBeginExecuteReader1Failed(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyBeginExecuteReader2Success()
+        {
+            base.TestSqlDependencyBeginExecuteReader2Success(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyBeginExecuteReader3Success()
+        {
+            base.TestSqlDependencyBeginExecuteReader3Success(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyBeginExecuteReader3Failed()
+        {
+            base.TestSqlDependencyBeginExecuteReader3Failed(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencySqlCommandExecuteReader0Success()
+        {
+            base.TestSqlDependencySqlCommandExecuteReader0Success(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencySqlCommandExecuteReader0Failed()
+        {
+            base.TestSqlDependencySqlCommandExecuteReader0Failed(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencySqlCommandExecuteReader1Success()
+        {
+            base.TestSqlDependencySqlCommandExecuteReader1Success(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencySqlCommandExecuteReader1Failed()
+        {
+            base.TestSqlDependencySqlCommandExecuteReader1Failed(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyExecuteScalarAsyncSuccess()
+        {
+            base.TestSqlDependencyExecuteScalarAsyncSuccess(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyExecuteScalarAsyncFailed()
+        {
+            base.TestSqlDependencyExecuteScalarAsyncFailed(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencySqlCommandExecuteScalarSuccess()
+        {
+            base.TestSqlDependencySqlCommandExecuteScalarSuccess(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencySqlCommandExecuteScalarFailed()
+        {
+            base.TestSqlDependencySqlCommandExecuteScalarFailed(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyExecuteNonQuerySuccess()
+        {
+            base.TestSqlDependencyExecuteNonQuerySuccess(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyExecuteNonQueryFailed()
+        {
+            base.TestSqlDependencyExecuteNonQueryFailed(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyExecuteNonQueryAsyncSuccess()
+        {
+            base.TestSqlDependencyExecuteNonQueryAsyncSuccess(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyExecuteNonQueryAsyncFailed()
+        {
+            base.TestSqlDependencyExecuteNonQueryAsyncFailed(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyBeginExecuteNonQuery0Success()
+        {
+            base.TestSqlDependencyBeginExecuteNonQuery0Success(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyBeginExecuteNonQuery0Failed()
+        {
+            base.TestSqlDependencyBeginExecuteNonQuery0Failed(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyBeginExecuteNonQuery2Success()
+        {
+            base.TestSqlDependencyBeginExecuteNonQuery2Success(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyBeginExecuteNonQuery2Failed()
+        {
+            base.TestSqlDependencyBeginExecuteNonQuery2Failed(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyExecuteXmlReaderAsyncSuccess()
+        {
+            base.TestSqlDependencyExecuteXmlReaderAsyncSuccess(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyExecuteXmlReaderAsyncFailed()
+        {
+            base.TestSqlDependencyExecuteXmlReaderAsyncFailed(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyBeginExecuteXmlReaderSuccess()
+        {
+            base.TestSqlDependencyBeginExecuteXmlReaderSuccess(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencyBeginExecuteXmlReaderFailed()
+        {
+            base.TestSqlDependencyBeginExecuteXmlReaderFailed(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencySqlCommandExecuteXmlReaderSuccess()
+        {
+            base.TestSqlDependencySqlCommandExecuteXmlReaderSuccess(VersionPrefixSql);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_SqlDependencySqlCommandExecuteXmlReaderFailed()
+        {
+            base.TestSqlDependencySqlCommandExecuteXmlReaderFailed(VersionPrefixSql);
         }
 
         [ClassCleanup]
