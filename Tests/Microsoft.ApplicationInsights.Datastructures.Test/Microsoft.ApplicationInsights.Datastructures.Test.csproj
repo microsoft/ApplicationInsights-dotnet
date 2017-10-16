@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Microsoft.ApplicationInsights.ConcurrentDatastructures\GrowingCollectionTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.ConcurrentDatastructures\MultidimensionalCube2Tests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.ConcurrentDatastructures\MultidimensionalCubeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

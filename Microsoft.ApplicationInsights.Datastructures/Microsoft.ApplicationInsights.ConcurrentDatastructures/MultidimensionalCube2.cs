@@ -279,7 +279,7 @@ namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
             // Examine each dimension and see if it reached values count limit. If not, track the new value:
 
             int reachedValsLimitDim = -1;
-            BitArray valueAddedToDims = new BitArray(length: coordinates.Length, defaultValue: false); 
+            BitArray valueAddedToDims = new BitArray(length: coordinates.Length, defaultValue: false);
 
             for (int i = 0; i < coordinates.Length; i++)
             {
@@ -292,8 +292,8 @@ namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
                     break;
                 }
 
-                dimVals.Add(coordinates[i]);
-                valueAddedToDims.Set(i, true);
+                bool added = dimVals.Add(coordinates[i]);
+                valueAddedToDims.Set(i, added);
             }
 
             // We hit the _dimensionValuesCountLimits at some dimension.
@@ -319,7 +319,7 @@ namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
             {
                 point = _pointsFactory(coordinates);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 // User code in _pointsFactory may throw. In that case we need to clean up from the added value containers:
                 for (int i = 0; i <= reachedValsLimitDim; i++)
@@ -334,11 +334,12 @@ namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
                 throw;  // This line will never be reached
             }
 
-            bool added = _points.TryAdd(pointMoniker, point);
-
-            if (false == added)
-            {
-                throw new InvalidOperationException($"Internal Metrics SDK bug. Please report this! (pointMoniker: {pointMoniker})");
+            { 
+                bool added = _points.TryAdd(pointMoniker, point);
+                if (false == added)
+                {
+                    throw new InvalidOperationException($"Internal Metrics SDK bug. Please report this! (pointMoniker: {pointMoniker})");
+                }
             }
 
             // Inc total points coint.
@@ -388,7 +389,7 @@ namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
         {
             if (coordinates.Length == 0)
             {
-                return PointMonikerSeparator;
+                return String.Empty;
             }
 
             StringBuilder builder = new StringBuilder();
@@ -396,7 +397,7 @@ namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
             {
                 if (coordinates[i] == null)
                 {
-                    throw new ArgumentNullException($"The specified {nameof(coordinates)}-vector contains null at index {i}.");
+                    throw new ArgumentNullException($"{nameof(coordinates)}[{i}]", $"The specified {nameof(coordinates)}-vector contains null at index {i}.");
                 }
 
                 if (coordinates[i].Contains(PointMonikerSeparator))
@@ -406,7 +407,11 @@ namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
                                               + $" Invalid sub-sequence: \"{PointMonikerSeparator}\".");
                 }
 
-                builder.Append(PointMonikerSeparator);
+                if (i > 0)
+                {
+                    builder.Append(PointMonikerSeparator);
+                }
+
                 builder.Append(coordinates[i]);
             }
 
