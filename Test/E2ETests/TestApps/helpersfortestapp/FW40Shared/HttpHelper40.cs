@@ -244,6 +244,8 @@ namespace FW40Shared
             // Retrieve reference to a previously created container.
             CloudBlobContainer container = blobClient.GetContainerReference(containerName);
 
+            container.CreateIfNotExists();
+
             // Retrieve reference to a blob named "testblob".
             CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
 
