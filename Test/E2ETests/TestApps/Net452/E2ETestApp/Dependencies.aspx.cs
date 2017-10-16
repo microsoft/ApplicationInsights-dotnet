@@ -89,8 +89,7 @@ namespace E2ETestApp
                         HttpHelper40.MakeAzureCallToWriteQueueWithSdk();
                         break;
                     case "azuresdktable":
-                        HttpHelper40.MakeAzureCallToWriteTableWithSdk();
-                        HttpHelper40.MakeAzureCallToReadTableWithSdk();
+                        HttpHelper40.MakeAzureCallToWriteTableWithSdk();                        
                         break; 
                 case "ExecuteReaderAsync":
                         SqlCommandHelper.ExecuteReaderAsync(LocalDbConnectionString, (success == true)
