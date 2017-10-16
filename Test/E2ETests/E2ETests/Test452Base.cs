@@ -336,7 +336,7 @@ namespace E2ETests
 
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
-            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdktable&tablename=people" + expectedPrefix, expectedDependencyTelemetry,
+            ValidateAzureDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdktable&tablename=people" + expectedPrefix, expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
         }
 
@@ -351,7 +351,7 @@ namespace E2ETests
 
             // 2 dependency item is expected.
             // 1 from creating queue, and 1 from writing data to it.
-            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdkqueue", expectedDependencyTelemetry,
+            ValidateAzureDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdkqueue", expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
         }
 
@@ -366,7 +366,7 @@ namespace E2ETests
 
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
-            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdkblob", expectedDependencyTelemetry,
+            ValidateAzureDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdkblob", expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
         }
 
@@ -772,6 +772,37 @@ namespace E2ETests
         private async Task ValidateBasicDependencyAsync(string targetInstanceIp, string targetPath,
             DependencyTelemetry expectedDependencyTelemetry, string ikey, int count, string expectedPrefix, int additionalSleepTimeMsec = 0)
         {
+            await ExecuteWebRequestToTarget(targetInstanceIp, targetPath);
+            Thread.Sleep(AISDKBufferFlushTime + additionalSleepTimeMsec);
+
+            var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
+            Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
+            PrintDependencies(dependenciesWebApp);
+
+            Assert.IsTrue(dependenciesWebApp.Count == count, string.Format("Dependeny count is incorrect. Actual: {0} Expected: {1}", dependenciesWebApp.Count, count));
+            var dependency = dependenciesWebApp[0];
+
+            ValidateDependency(expectedDependencyTelemetry, dependency, expectedPrefix);
+        }
+
+        private async Task ValidateAzureDependencyAsync(string targetInstanceIp, string targetPath,
+            DependencyTelemetry expectedDependencyTelemetry, string ikey, int minCount, string expectedPrefix, int additionalSleepTimeMsec = 0)
+        {
+            await ExecuteWebRequestToTarget(targetInstanceIp, targetPath);
+            Thread.Sleep(AISDKBufferFlushTime + additionalSleepTimeMsec);
+
+            var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
+            Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
+            PrintDependencies(dependenciesWebApp);
+
+            Assert.IsTrue(dependenciesWebApp.Count >= minCount, string.Format("Dependeny count is incorrect. Actual: {0} Expected minimum: {1}", dependenciesWebApp.Count, minCount));
+            var dependency = dependenciesWebApp[0];
+
+            ValidateDependency(expectedDependencyTelemetry, dependency, expectedPrefix);
+        }
+
+        private static async Task ExecuteWebRequestToTarget(string targetInstanceIp, string targetPath)
+        {
             HttpClient client = new HttpClient();
             string url = "http://" + targetInstanceIp + targetPath;
             Trace.WriteLine("Hitting the target url:" + url);
@@ -784,15 +815,6 @@ namespace E2ETests
             {
                 Trace.WriteLine("Exception occured:" + ex);
             }
-            Thread.Sleep(AISDKBufferFlushTime + additionalSleepTimeMsec);
-            var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
-            Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
-            PrintDependencies(dependenciesWebApp);
-            
-            Assert.IsTrue(dependenciesWebApp.Count == count, string.Format("Dependeny count is incorrect. Actual {0} Expected {1}", dependenciesWebApp.Count, count));
-            var dependency = dependenciesWebApp[0];
-
-            ValidateDependency(expectedDependencyTelemetry, dependency, expectedPrefix);
         }
 
         private void ValidateDependency(DependencyTelemetry expectedDependencyTelemetry,
