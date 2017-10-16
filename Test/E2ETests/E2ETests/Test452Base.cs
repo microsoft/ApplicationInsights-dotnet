@@ -80,6 +80,7 @@ namespace E2ETests
             // Deploy the docker cluster using Docker-Compose
             //DockerUtils.ExecuteDockerComposeCommand("up -d --force-recreate --build", DockerComposeFileName);
             DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
+            Thread.Sleep(5000);
             DockerUtils.PrintDockerProcessStats("Docker-Compose -build");
                         
             // Populate dynamic properties of Deployed Apps like ip address.
@@ -92,6 +93,7 @@ namespace E2ETests
             if(!(webAppHealthy && webApiHealthy && ingestionHealthy) )
             {
                 DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
+                Thread.Sleep(5000);
                 DockerUtils.PrintDockerProcessStats("Docker-Compose -build retry");
             }
 
@@ -335,7 +337,7 @@ namespace E2ETests
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdktable&tablename=people" + expectedPrefix, expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 2, expectedPrefix, 2000).Wait();
+                Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
         }
 
         public void TestAzureQueueDependencyWebApp(string expectedPrefix)
@@ -350,7 +352,7 @@ namespace E2ETests
             // 2 dependency item is expected.
             // 1 from creating queue, and 1 from writing data to it.
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdkqueue", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 2, expectedPrefix, 2000).Wait();
+                Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
         }
 
         public void TestAzureBlobDependencyWebApp(string expectedPrefix)
@@ -365,7 +367,7 @@ namespace E2ETests
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdkblob", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 2, expectedPrefix, 2000).Wait();
+                Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
         }
 
         public void TestSqlDependencyExecuteReaderSuccessAsync(string expectedPrefix)
@@ -784,15 +786,23 @@ namespace E2ETests
             }
             Thread.Sleep(AISDKBufferFlushTime + additionalSleepTimeMsec);
             var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
-            PrintDependencies(dependenciesWebApp);
-
             Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
+            PrintDependencies(dependenciesWebApp);
+            
             Assert.IsTrue(dependenciesWebApp.Count == count, string.Format("Dependeny count is incorrect. Actual {0} Expected {1}", dependenciesWebApp.Count, count));
             var dependency = dependenciesWebApp[0];
-            Assert.AreEqual(expectedDependencyTelemetry.Type, dependency.data.baseData.type, "Dependency Type is incorrect");
-            Assert.AreEqual(expectedDependencyTelemetry.Success, dependency.data.baseData.success, "Dependency success is incorrect");
 
-            string actualSdkVersion = dependency.tags[new ContextTagKeys().InternalSdkVersion];
+            ValidateDependency(expectedDependencyTelemetry, dependency, expectedPrefix);
+        }
+
+        private void ValidateDependency(DependencyTelemetry expectedDependencyTelemetry,
+            TelemetryItem<AI.RemoteDependencyData> actualDependencyTelemetry,
+            string expectedPrefix)
+        {
+            Assert.AreEqual(expectedDependencyTelemetry.Type, actualDependencyTelemetry.data.baseData.type, "Dependency Type is incorrect");
+            Assert.AreEqual(expectedDependencyTelemetry.Success, actualDependencyTelemetry.data.baseData.success, "Dependency success is incorrect");
+
+            string actualSdkVersion = actualDependencyTelemetry.tags[new ContextTagKeys().InternalSdkVersion];
             Assert.IsTrue(actualSdkVersion.Contains(expectedPrefix), "Actual version:" + actualSdkVersion);
         }
 
