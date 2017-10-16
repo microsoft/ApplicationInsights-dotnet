@@ -51,15 +51,15 @@ namespace E2ETests.Helpers
             ExecuteDockerCommand("restart " + containerName);
         }
 
-        public static void RemoveDockerImage(string imageName, bool force)
+        public static void RemoveDockerContainer(string containerName, bool force)
         {
             if (force)
             {
-                ExecuteDockerCommand("rmi -f " + imageName);
+                ExecuteDockerCommand("rm -f " + containerName);
             }
             else
             {
-                ExecuteDockerCommand("rmi " + imageName);
+                ExecuteDockerCommand("rm " + containerName);
             }
         }
 

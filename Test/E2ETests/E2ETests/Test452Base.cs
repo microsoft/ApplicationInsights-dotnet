@@ -863,7 +863,7 @@ namespace E2ETests
             bool isAppHealthy = HealthCheck(app);
             if(!isAppHealthy)
             {
-                DockerUtils.RemoveDockerImage(app.imageName, true);                
+                DockerUtils.RemoveDockerContainer(app.containerName, true);                
             }
 
             return isAppHealthy;
