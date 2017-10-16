@@ -366,7 +366,9 @@ namespace E2ETests
 
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
-            ValidateAzureDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdkblob", expectedDependencyTelemetry,
+            ValidateAzureDependencyAsync(Apps[WebAppName].ipAddress,
+                "/Dependencies.aspx?type=azuresdkblob&containerName="+ expectedPrefix + "&blobname="+ expectedPrefix, 
+                expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 2, expectedPrefix, 2000).Wait();
         }
 

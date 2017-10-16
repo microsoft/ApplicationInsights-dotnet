@@ -203,7 +203,7 @@ namespace FW40Shared
         /// <summary>
         /// Make azure call to read Blob
         /// </summary>                
-        public static void MakeAzureCallToReadBlobWithSdk()
+        public static void MakeAzureCallToReadBlobWithSdk(string containerName, string blobName)
         {
             // Retrieve storage account from connection string.
             CloudStorageAccount storageAccount =
@@ -213,10 +213,39 @@ namespace FW40Shared
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
             // Retrieve reference to a previously created container.
-            CloudBlobContainer container = blobClient.GetContainerReference("rddtest");
+            CloudBlobContainer container = blobClient.GetContainerReference(containerName);
 
             // Retrieve reference to a blob named "testblob".
-            CloudBlockBlob blockBlob = container.GetBlockBlobReference("testblob");
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
+
+            Directory.CreateDirectory(@"c:\fromblob");
+
+            // Save blob contents to a file.
+            using (var fileStream = File.OpenWrite(@"c:\fromblob\testblob"))
+            {
+                blockBlob.DownloadToStream(fileStream);
+            }
+
+            Directory.Delete(@"c:\fromblob", true);
+        }
+
+        /// <summary>
+        /// Make azure call to write to Blob
+        /// </summary>                
+        public static void MakeAzureCallToWriteToBlobWithSdk(string containerName, string blobName)
+        {
+            // Retrieve storage account from connection string.
+            CloudStorageAccount storageAccount =
+                CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
+
+            // Create the blob client.
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+
+            // Retrieve reference to a previously created container.
+            CloudBlobContainer container = blobClient.GetContainerReference(containerName);
+
+            // Retrieve reference to a blob named "testblob".
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
 
             Directory.CreateDirectory(@"c:\fromblob");
 

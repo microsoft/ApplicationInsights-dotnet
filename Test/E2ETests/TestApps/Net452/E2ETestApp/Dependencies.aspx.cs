@@ -83,7 +83,16 @@ namespace E2ETestApp
                         HttpHelper45.MakeHttpCallAsyncAwait1(UrlWhichThrowException);
                         break;                    
                     case "azuresdkblob":
-                        HttpHelper40.MakeAzureCallToReadBlobWithSdk();
+                        string containerName = "rddtest";
+                        string blobName = "testblob";
+                        try
+                        {
+                            containerName = Request.QueryString["containerName"];
+                            blobName = Request.QueryString["blobName"];
+                        }
+                        catch (Exception) { }
+                        HttpHelper40.MakeAzureCallToWriteToBlobWithSdk(containerName, blobName);
+                        HttpHelper40.MakeAzureCallToReadBlobWithSdk(containerName, blobName);
                         break;
                     case "azuresdkqueue":
                         HttpHelper40.MakeAzureCallToWriteQueueWithSdk();
