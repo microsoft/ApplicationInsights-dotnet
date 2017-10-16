@@ -247,15 +247,23 @@ namespace FW40Shared
             // Retrieve reference to a blob named "testblob".
             CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
 
-            Directory.CreateDirectory(@"c:\fromblob");
-
-            // Save blob contents to a file.
-            using (var fileStream = File.OpenWrite(@"c:\fromblob\testblob"))
+            if (!blockBlob.Exists())
             {
-                blockBlob.DownloadToStream(fileStream);
+                var stream = new MemoryStream();
+                try
+                {
+                    var writer = new StreamWriter(stream, new UnicodeEncoding());
+                    writer.Write("test content");
+                    writer.Flush();
+                    stream.Seek(0, SeekOrigin.Begin);
+                    blockBlob.UploadFromStream(stream);
+                }
+                finally
+                {
+                    stream.Dispose();
+                }
             }
 
-            Directory.Delete(@"c:\fromblob", true);
         }
 
         /// <summary>
