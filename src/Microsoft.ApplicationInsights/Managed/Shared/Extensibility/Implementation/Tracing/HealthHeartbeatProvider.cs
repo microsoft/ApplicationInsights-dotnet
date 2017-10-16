@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -35,7 +36,8 @@
         private int intervalBetweenHeartbeatsMs; // time between heartbeats emitted specified in milliseconds
         private string enabledHeartbeatPayloadFields; // string containing fields that are enabled in the payload. * means everything available.
         private TelemetryClient telemetryClient; // client to use in sending our heartbeat
-        private int heartbeatsSent;
+        private int heartbeatsSent; // counter of all heartbeats
+        private Timer heartbeatTimer; // timer that will send each heartbeat in intervals
 
         public HealthHeartbeatProvider() : this(DefaultHeartbeatIntervalMs, DefaultAllowedFieldsInHeartbeatPayload)
         {
@@ -76,7 +78,15 @@
             }
 
             this.AddDefaultPayloadItems(this.payloadItems);
-
+            if (this.heartbeatTimer == null)
+            {
+                this.heartbeatTimer = new Timer(this.HeartbeatPulse, this, this.intervalBetweenHeartbeatsMs, this.intervalBetweenHeartbeatsMs);
+            }
+            else
+            {
+                this.heartbeatTimer.Change(this.intervalBetweenHeartbeatsMs, this.intervalBetweenHeartbeatsMs);
+            }
+            
             return true;
         }
 
@@ -157,6 +167,11 @@
             {
                 throw new ArgumentException("HealthHeartbeatProvider::AddDefaultPayloadItems : Unable to add default payload items to health heartbeat", nameof(heartbeatPayloadItems), e);
             }
+        }
+
+        private void HeartbeatPulse(object me)
+        {
+            return;
         }
 
         private MetricTelemetry GatherDataForHeartbeatPayload()

@@ -42,12 +42,12 @@
         }
 
         /// <summary>
-        /// Gets or sets the delay between heartbeat emmissions in milliseconds.
+        /// Gets or sets the delay between heartbeats in milliseconds.
         /// </summary>
         public int MillisecondsBetweenHeartbeats { get; set; }
 
         /// <summary>
-        /// Gets or sets property names that are allowed to be sent along with the health heartbeats emitted. * means allow all default properties through.
+        /// Gets or sets property names that are allowed to be sent along with the health heartbeats. * means allow all default properties through.
         /// </summary>
         public string AllowedHeartbeatProperties { get; set; }
 
@@ -147,7 +147,7 @@
                             this.HeartbeatProvider = new HealthHeartbeatProvider();
                         }
 
-                        this.HeartbeatProvider.Initialize(configuration, null, null);
+                        this.HeartbeatProvider.Initialize(configuration, this.MillisecondsBetweenHeartbeats, this.AllowedHeartbeatProperties);
 
                         this.isInitialized = true;
                     }
