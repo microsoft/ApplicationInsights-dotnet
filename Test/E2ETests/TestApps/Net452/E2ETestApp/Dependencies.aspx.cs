@@ -104,7 +104,8 @@ namespace E2ETestApp
                             tableName = Request.QueryString["tablename"];
                         }
                         catch (Exception) { }
-                        HttpHelper40.MakeAzureCallToWriteTableWithSdk(tableName);                        
+                        HttpHelper40.MakeAzureCallToWriteTableWithSdk(tableName);
+                        HttpHelper40.MakeAzureCallToReadTableWithSdk(tableName);
                         break; 
                 case "ExecuteReaderAsync":
                         SqlCommandHelper.ExecuteReaderAsync(LocalDbConnectionString, (success == true)

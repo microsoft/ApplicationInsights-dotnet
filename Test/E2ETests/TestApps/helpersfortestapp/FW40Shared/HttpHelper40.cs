@@ -308,7 +308,7 @@ namespace FW40Shared
         /// <summary>
         /// Make azure call to read from Table
         /// </summary>                
-        public static void MakeAzureCallToReadTableWithSdk()
+        public static void MakeAzureCallToReadTableWithSdk(string tableName)
         {
             // Retrieve storage account from connection string.
             CloudStorageAccount storageAccount =
@@ -318,7 +318,7 @@ namespace FW40Shared
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
             // Create the table if it doesn't exist.
-            CloudTable table = tableClient.GetTableReference("people");
+            CloudTable table = tableClient.GetTableReference(tableName);
             table.CreateIfNotExists();
 
             // Create the table query.
