@@ -22,7 +22,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         public void Ctor()
         {
             {
-                Assert.ThrowsException<ArgumentNullException>( () => new ApplicationInsightsTelemetryPipeline(null) );
+                Assert.ThrowsException<ArgumentNullException>( () => new ApplicationInsightsTelemetryPipeline((TelemetryClient) null) );
+                Assert.ThrowsException<ArgumentNullException>( () => new ApplicationInsightsTelemetryPipeline((TelemetryConfiguration) null) );
             }
             {
                 TelemetryConfiguration defaultPipeline = TelemetryConfiguration.Active;

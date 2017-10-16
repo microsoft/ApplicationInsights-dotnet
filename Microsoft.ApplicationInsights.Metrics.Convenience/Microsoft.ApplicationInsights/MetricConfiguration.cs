@@ -2,8 +2,9 @@
 using System.Threading;
 
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
+using Microsoft.ApplicationInsights.Metrics;
 
-namespace Microsoft.ApplicationInsights.Metrics
+namespace Microsoft.ApplicationInsights
 {
     /// <summary>
     /// 

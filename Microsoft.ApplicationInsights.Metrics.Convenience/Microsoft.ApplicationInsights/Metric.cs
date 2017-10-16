@@ -6,8 +6,9 @@ using System.Runtime.CompilerServices;
 
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using Microsoft.ApplicationInsights.ConcurrentDatastructures;
+using Microsoft.ApplicationInsights.Metrics;
 
-namespace Microsoft.ApplicationInsights.Metrics
+namespace Microsoft.ApplicationInsights
 {
     /// <summary>
     /// 
@@ -15,6 +16,8 @@ namespace Microsoft.ApplicationInsights.Metrics
     public class Metric : IEquatable<Metric>
     {
         private const string NullMetricObjectId = "null";
+
+        private static readonly char[] InvalidMetricChars = new char[] { '\0', '"', '\'', '(', ')', '[', ']', '{', '}', '=', ',' };
 
         private readonly MetricManager _metricManager;
         private readonly string _objectId;
@@ -319,6 +322,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         internal static string GetObjectId(string metricId, string dimension1Name, string dimension2Name)
         {
             Util.ValidateNotNull(metricId, nameof(metricId));
+            ValidateInvalidChars(metricId, nameof(metricId));
 
             int dimensionCount;
             EnsureDimensionNamesValid(out dimensionCount, ref dimension1Name, ref dimension2Name);
@@ -412,6 +416,18 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 throw new ArgumentException($"{nameMoniker} may not be empty (or whitespace only). Dimension names may be 'null' to"
                                            + " indicate the absence of a dimension, but if present, they must contain at least 1 printable character.");
+            }
+
+            ValidateInvalidChars(nameValue, nameMoniker);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void ValidateInvalidChars(string nameValue, string nameMoniker)
+        {
+            int pos = nameValue.IndexOfAny(InvalidMetricChars);
+            if (pos >= 0)
+            {
+                throw new ArgumentException($"{nameMoniker} contains a disallowed character (\"{nameValue}\").");
             }
         }
 

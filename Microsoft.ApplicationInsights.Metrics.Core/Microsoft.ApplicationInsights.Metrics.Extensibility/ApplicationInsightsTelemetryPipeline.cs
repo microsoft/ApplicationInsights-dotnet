@@ -23,6 +23,16 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
         /// <summary>
         /// </summary>
+        /// <param name="telemetryClient"></param>
+        public ApplicationInsightsTelemetryPipeline(ApplicationInsights.TelemetryClient telemetryClient)
+        {
+            Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));
+
+            _trackingClient = telemetryClient;
+        }
+
+        /// <summary>
+        /// </summary>
         /// <param name="metricAggregate"></param>
         /// <param name="cancelToken"></param>
         /// <returns></returns>
