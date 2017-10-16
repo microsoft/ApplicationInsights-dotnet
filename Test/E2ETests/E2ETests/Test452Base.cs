@@ -335,7 +335,7 @@ namespace E2ETests
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdktable&tablename=people" + expectedPrefix, expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
+                Apps[WebAppName].ikey, 2, expectedPrefix, 2000).Wait();
         }
 
         public void TestAzureQueueDependencyWebApp(string expectedPrefix)
@@ -350,7 +350,7 @@ namespace E2ETests
             // 2 dependency item is expected.
             // 1 from creating queue, and 1 from writing data to it.
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdkqueue", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
+                Apps[WebAppName].ikey, 2, expectedPrefix, 2000).Wait();
         }
 
         public void TestAzureBlobDependencyWebApp(string expectedPrefix)
@@ -365,7 +365,7 @@ namespace E2ETests
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdkblob", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
+                Apps[WebAppName].ikey, 2, expectedPrefix, 2000).Wait();
         }
 
         public void TestSqlDependencyExecuteReaderSuccessAsync(string expectedPrefix)
@@ -768,7 +768,7 @@ namespace E2ETests
         }
 
         private async Task ValidateBasicDependencyAsync(string targetInstanceIp, string targetPath,
-            DependencyTelemetry expectedDependencyTelemetry, string ikey, int count, string expectedPrefix)
+            DependencyTelemetry expectedDependencyTelemetry, string ikey, int count, string expectedPrefix, int additionalSleepTimeMsec = 0)
         {
             HttpClient client = new HttpClient();
             string url = "http://" + targetInstanceIp + targetPath;
@@ -782,7 +782,7 @@ namespace E2ETests
             {
                 Trace.WriteLine("Exception occured:" + ex);
             }
-            Thread.Sleep(AISDKBufferFlushTime);
+            Thread.Sleep(AISDKBufferFlushTime + additionalSleepTimeMsec);
             var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
             PrintDependencies(dependenciesWebApp);
 
