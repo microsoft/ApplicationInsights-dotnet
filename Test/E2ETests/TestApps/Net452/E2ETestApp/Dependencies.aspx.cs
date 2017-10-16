@@ -38,7 +38,7 @@ namespace E2ETestApp
                 switch (type)
                 {
                     case "httpsync":
-                        HttpHelper40.MakeHttpCallSync(UrlTestWebApiGetCall);
+                        HttpHelper40.MakeHttpCallUsingHttpClient(UrlTestWebApiGetCall);
                         break;
                     case "httpasynchttpclient":
                         HttpHelper40.MakeHttpCallUsingHttpClient(UrlTestWebApiGetCall);
