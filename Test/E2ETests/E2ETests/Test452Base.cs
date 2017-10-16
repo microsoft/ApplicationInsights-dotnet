@@ -105,7 +105,7 @@ namespace E2ETests
             
             dataendpointClient = new DataEndpointClient(new Uri("http://" + Apps[IngestionName].ipAddress));
           
-            Thread.Sleep(5000);
+            Thread.Sleep(1000);
             Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
 
@@ -334,7 +334,7 @@ namespace E2ETests
 
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
-            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdktable", expectedDependencyTelemetry,
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdktable&tablename=people" + expectedPrefix, expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
         }
 

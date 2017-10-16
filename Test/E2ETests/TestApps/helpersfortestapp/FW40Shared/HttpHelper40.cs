@@ -232,7 +232,7 @@ namespace FW40Shared
         /// <summary>
         /// Make azure call to write to Table
         /// </summary>                
-        public static void MakeAzureCallToWriteTableWithSdk()
+        public static void MakeAzureCallToWriteTableWithSdk(string tableName)
         {
             // Retrieve storage account from connection string.
             CloudStorageAccount storageAccount =
@@ -242,7 +242,7 @@ namespace FW40Shared
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
             // Create the table if it doesn't exist.
-            CloudTable table = tableClient.GetTableReference("people");
+            CloudTable table = tableClient.GetTableReference(tableName);
             table.CreateIfNotExists();
 
             // Create the batch operation.
