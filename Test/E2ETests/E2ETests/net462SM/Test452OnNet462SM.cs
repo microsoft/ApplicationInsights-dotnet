@@ -16,6 +16,9 @@ namespace E2ETests.Net462SMSM
     [TestClass]
     public class Test452OnNet462SMSMSM : Test452Base
     {
+        private static string VersionPrefix;
+        private static string VersionPrefixSql;
+
         public TestContext TestContext { get; set; }
 
         [ClassInitialize]
@@ -23,6 +26,7 @@ namespace E2ETests.Net462SMSM
         {
             DockerComposeFileName = "docker-compose452AppOn462StatusMonitor.yml";
             VersionPrefix = "rddp";
+            VersionPrefixSql = "rddp";
             MyClassInitializeBase();
         }
           
@@ -147,9 +151,21 @@ namespace E2ETests.Net462SMSM
         }
 
         [TestMethod]
+        public void Test452OnNet462SM_TestAzureQueueDependencyWebApp()
+        {
+            base.TestAzureQueueDependencyWebApp(VersionPrefix);
+        }
+
+        [TestMethod]
+        public void Test452OnNet462SM_TestAzureBlobDependencyWebApp()
+        {
+            base.TestAzureBlobDependencyWebApp(VersionPrefix);
+        }
+
+        [TestMethod]
         public void Test452OnNet462SM_TestBasicSqlDependencyWebApp()
         {
-            base.TestBasicSqlDependencyWebApp(VersionPrefix);
+           // base.TestBasicSqlDependencyWebApp(VersionPrefix);
         }
 
         [ClassCleanup]

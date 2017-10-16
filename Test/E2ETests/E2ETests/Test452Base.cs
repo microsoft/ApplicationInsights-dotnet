@@ -65,8 +65,7 @@ namespace E2ETests
         };
         
         internal const int AISDKBufferFlushTime = 2000;        
-        internal static string DockerComposeFileName = "docker-compose.yml";
-        internal static string VersionPrefix = "rdddsd";
+        internal static string DockerComposeFileName = "docker-compose.yml";        
 
         internal static DataEndpointClient dataendpointClient;
         internal static ProcessStartInfo DockerPSProcessInfo = new ProcessStartInfo("cmd", "/c docker ps -a");
@@ -361,15 +360,343 @@ namespace E2ETests
                 Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
         }
 
-        public void TestBasicSqlDependencyWebApp(string expectedPrefix = "rddf")
+        public void TestSqlDependencyExecuteReaderSuccessAsync(string expectedPrefix)
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=sql", expectedDependencyTelemetry,
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteReaderAsync&success=true", expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
         }
+
+        public void TestSqlDependencyExecuteReaderFailedAsync(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";            
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteReaderAsync&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyBeginExecuteReader0Success(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader0&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyBeginExecuteReader0Failed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader0&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyBeginExecuteReader1Success(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader1&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyBeginExecuteReader1Failed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader1&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyBeginExecuteReader2Success(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader2&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyBeginExecuteReader2Failed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader2&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyBeginExecuteReader3Success(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader3&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyBeginExecuteReader3Failed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader3&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencySqlCommandExecuteReader0Success(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteReader1&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencySqlCommandExecuteReader0Failed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteReader1&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencySqlCommandExecuteReader1Success(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteReader1&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencySqlCommandExecuteReader1Failed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteReader1&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyExecuteScalarAsyncSuccess(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteScalarAsync&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyExecuteScalarAsyncFailed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteScalarAsync&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencySqlCommandExecuteScalarSuccess(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteScalar&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencySqlCommandExecuteScalarFailed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteScalar&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyExecuteNonQuerySuccess(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteNonQuery&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyExecuteNonQueryFailed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteNonQuery&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyExecuteNonQueryAsyncSuccess(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteNonQueryAsync&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyExecuteNonQueryAsyncFailed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteNonQueryAsync&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyBeginExecuteNonQuery0Success(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteNonQuery0&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyBeginExecuteNonQuery0Failed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteNonQuery0&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyBeginExecuteNonQuery2Success(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteNonQuery2&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyBeginExecuteNonQuery2Failed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteNonQuery2&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyExecuteXmlReaderAsyncSuccess(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteXmlReaderAsync&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyExecuteXmlReaderAsyncFailed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteXmlReaderAsync&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyBeginExecuteXmlReaderSuccess(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteXmlReader&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencyBeginExecuteXmlReaderFailed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteXmlReader&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencySqlCommandExecuteXmlReaderSuccess(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteXmlReader&success=true", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSqlDependencySqlCommandExecuteXmlReaderFailed(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "208";
+
+            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteXmlReader&success=false", expectedDependencyTelemetry,
+                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+
 
         private async Task ValidateXComponentWebAppToWebApi(string sourceInstanceIp, string sourcePath,
             RequestTelemetry expectedRequestTelemetrySource,
