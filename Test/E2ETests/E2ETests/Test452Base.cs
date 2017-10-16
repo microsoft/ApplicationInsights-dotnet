@@ -81,15 +81,23 @@ namespace E2ETests
             //DockerUtils.ExecuteDockerComposeCommand("up -d --force-recreate --build", DockerComposeFileName);
             DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
             DockerUtils.PrintDockerProcessStats("Docker-Compose -build");
-            Thread.Sleep(1000);
-            
+                        
             // Populate dynamic properties of Deployed Apps like ip address.
             PopulateIPAddresses();
 
-            bool webAppHealthy = HealthCheckAndRestartIfNeeded(Apps[WebAppName]);
-            bool webApiHealthy = HealthCheckAndRestartIfNeeded(Apps[WebApiName]);
-            bool ingestionHealthy = HealthCheckAndRestartIfNeeded(Apps[IngestionName]);
+            bool webAppHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[WebAppName]);
+            bool webApiHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[WebApiName]);
+            bool ingestionHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[IngestionName]);
 
+            if(!(webAppHealthy && webApiHealthy && ingestionHealthy) )
+            {
+                DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
+                DockerUtils.PrintDockerProcessStats("Docker-Compose -build retry");
+            }
+
+            webAppHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[WebAppName]);
+            webApiHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[WebApiName]);
+            ingestionHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[IngestionName]);
 
             Assert.IsTrue(webAppHealthy, "Web App is unhealthy");
             Assert.IsTrue(webApiHealthy, "Web Api is unhealthy");
@@ -340,7 +348,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = true;
 
             // 2 dependency item is expected.
-            // 1 from creating table, and 1 from writing data to it.
+            // 1 from creating queue, and 1 from writing data to it.
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdkqueue", expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 2, expectedPrefix).Wait();
         }
@@ -816,16 +824,21 @@ namespace E2ETests
             Trace.WriteLine("Deleting items completed:" + DateTime.UtcNow.ToLongTimeString());
         }
 
-        private static bool HealthCheckAndRestartIfNeeded(DeployedApp app)
+        private static bool HealthCheckAndRemoveImageIfNeeded(DeployedApp app)
         {
             bool isAppHealthy = HealthCheck(app);
             if(!isAppHealthy)
             {
-                RestartApp(app);
-                isAppHealthy = HealthCheck(app);
+                DockerUtils.RemoveDockerImage(app.imageName, true);                
             }
 
             return isAppHealthy;
+        }
+
+        private static void RemoveApp(DeployedApp app)
+        {
+            DockerUtils.RestartDockerContainer(app.containerName);
+            app.ipAddress = DockerUtils.FindIpDockerContainer(app.containerName);
         }
 
         private static void RestartApp(DeployedApp app)
