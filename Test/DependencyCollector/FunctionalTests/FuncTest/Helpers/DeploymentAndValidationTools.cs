@@ -36,6 +36,8 @@
 
         public static int AspxCorePort = 791;
 
+        public static int AspxCore20Port = 792;
+
         private static readonly object lockObj = new object();
 
         private static bool isInitialized;

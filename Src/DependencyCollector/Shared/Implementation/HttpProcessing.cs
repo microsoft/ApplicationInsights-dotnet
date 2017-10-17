@@ -6,18 +6,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using System.Globalization;
     using System.Linq;
     using System.Net;
-#if !NET40
     using System.Web;
-#endif
     using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-#if NET40
-    using Microsoft.ApplicationInsights.Net40;
-#endif
     using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
@@ -218,21 +213,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                         if (webRequest.Headers[RequestResponseHeaders.CorrelationContextHeader] == null)
                         {
-#if NET45
                             var currentActivity = Activity.Current;
                             if (currentActivity != null && currentActivity.Baggage.Any())
                             {
                                 webRequest.Headers.SetHeaderFromNameValueCollection(RequestResponseHeaders.CorrelationContextHeader, currentActivity.Baggage);
                             }
-#else
-#pragma warning disable 618
-                            var correlationContext = CorrelationHelper.GetCorrelationContext();
-#pragma warning restore 618
-                            if (correlationContext != null && correlationContext.Count > 0)
-                            {
-                                webRequest.Headers.SetHeaderFromNameValueCollection(RequestResponseHeaders.CorrelationContextHeader, correlationContext);
-                            }
-#endif
                         }
                     }
                 }

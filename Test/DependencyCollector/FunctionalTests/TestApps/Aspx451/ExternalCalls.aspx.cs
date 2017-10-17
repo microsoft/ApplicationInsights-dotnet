@@ -69,14 +69,10 @@ namespace Aspx451
             var success = true;
             bool.TryParse(Request.QueryString["success"], out success);
             string sqlQueryTouse = (success == true) ? ValidSqlQueryToApmDatabase : InvalidSqlQueryToApmDatabase;
-            var count = 1;
-            try
+
+            if (!int.TryParse(countStr, NumberStyles.Integer, CultureInfo.CurrentCulture, out int count))
             {
-                count = int.Parse(countStr, CultureInfo.CurrentCulture);
-            }
-            catch (Exception)
-            {
-                // Dont care about this           
+                count = 1;
             }
 
             this.lblRequestedAction.Text = "Requested Action:" + type;
@@ -89,7 +85,7 @@ namespace Aspx451
                         HttpHelper40.MakeHttpCallSync(count, "bing");
                         break;
                     case "httpClient":
-                        HttpHelper40.MakeHttpCallUsingHttpClient("http://www.google.com/404");
+                        HttpHelper40.MakeHttpCallUsingHttpClient("https://www.google.com/404");
                         break;
                     case "httppost":
                         HttpHelper40.MakeHttpPostCallSync(count, "bing");

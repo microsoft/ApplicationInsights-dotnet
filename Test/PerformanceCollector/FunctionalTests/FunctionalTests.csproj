@@ -177,7 +177,6 @@
     <Compile Include="Helpers\QuickPulseHttpListenerObservable.cs" />
     <Compile Include="Helpers\HttpListenerObservable.cs" />
     <Compile Include="Helpers\ResponseCookiesExtension.cs" />
-    <Compile Include="Test40.cs" />
     <Compile Include="TestBase\SingleWebHostTestBase.cs" />
     <Compile Include="Helpers\SingleWebHostTestConfiguration.cs" />
     <Compile Include="Serialization\TelemetryExtensions.cs" />

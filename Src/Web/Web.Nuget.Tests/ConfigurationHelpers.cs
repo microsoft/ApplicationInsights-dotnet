@@ -10,15 +10,13 @@
 
     public static class ConfigurationHelpers
     {
-        private const string ApplicationInsightsConfigInstallNet40 = "Microsoft.ApplicationInsights.Resources.net40.ApplicationInsights.config.install.xdt";
         private const string ApplicationInsightsConfigInstallNet45 = "Microsoft.ApplicationInsights.Resources.net45.ApplicationInsights.config.install.xdt";
-        private const string ApplicationInsightsConfigUninstallNet40 = "Microsoft.ApplicationInsights.Resources.net40.ApplicationInsights.config.uninstall.xdt";
         private const string ApplicationInsightsConfigUninstallNet45 = "Microsoft.ApplicationInsights.Resources.net45.ApplicationInsights.config.uninstall.xdt";
         private const string ApplicationInsightsTransform = "Microsoft.ApplicationInsights.Resources.ApplicationInsights.config.transform";
         
         private static readonly XNamespace XmlNamespace = "http://schemas.microsoft.com/ApplicationInsights/2013/Settings";
-        private static string applicationInsightsConfigInstall = ApplicationInsightsConfigInstallNet40;
-        private static string applicationInsightsConfigUninstall = ApplicationInsightsConfigUninstallNet40;
+        private static string applicationInsightsConfigInstall = ApplicationInsightsConfigInstallNet45;
+        private static string applicationInsightsConfigUninstall = ApplicationInsightsConfigUninstallNet45;
 
         public static void ConfigureNet45()
         {
@@ -28,7 +26,7 @@
 
         public static string GetEmptyConfig()
         {
-            Stream stream = typeof(TelemetryInitailizersTestsNet40).Assembly.GetManifestResourceStream(ApplicationInsightsTransform);
+            Stream stream = typeof(TelemetryInitailizersTestsNet45).Assembly.GetManifestResourceStream(ApplicationInsightsTransform);
             using (var reader = new StreamReader(stream))
             {
                 return reader.ReadToEnd();

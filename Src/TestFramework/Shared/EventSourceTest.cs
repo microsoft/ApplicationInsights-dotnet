@@ -4,15 +4,10 @@ namespace Microsoft.ApplicationInsights.Web.TestFramework
 {
     using System;
     using System.Collections.Generic;
-#if NET45
     using System.Diagnostics.Tracing;
-#endif
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
 
     internal static class EventSourceTest
     {

@@ -19,6 +19,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\WebTelemetryModuleBaseFake.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpContextBaseExtensionTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpContextExtensionTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HeadersUtilitiesTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpRequestExtensionsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SdkVersionUtilsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventSourceTest.cs" />

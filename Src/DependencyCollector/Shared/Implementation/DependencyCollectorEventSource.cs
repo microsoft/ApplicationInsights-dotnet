@@ -1,17 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
-#if NETCORE || NET45
     using System.Diagnostics.Tracing;
-#endif
     using System.Globalization;
 #if NETCORE
     using System.Reflection;
 #endif
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
 
     /// <summary>
     /// ETW EventSource tracing class.
@@ -385,6 +380,16 @@
         public void HttpHandlerDiagnosticListenerFailedToInitialize(string error, string appDomainName = "Incorrect")
         {
             this.WriteEvent(36, error ?? string.Empty, this.ApplicationName);
+        }
+        
+        [Event(
+            37,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "HttpCoreDiagnosticSourceListener OnNext failed to call event handler. Error details '{0}'",
+            Level = EventLevel.Error)]
+        public void HttpCoreDiagnosticSourceListenerOnNextFailed(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(37, error, this.ApplicationName);
         }
 
         [NonEvent]

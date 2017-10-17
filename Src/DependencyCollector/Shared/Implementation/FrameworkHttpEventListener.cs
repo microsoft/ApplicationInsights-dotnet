@@ -1,5 +1,4 @@
-﻿#if !NET40
-namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
     using System.Diagnostics.Tracing;
@@ -187,4 +186,3 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         }
     }
 }
-#endif

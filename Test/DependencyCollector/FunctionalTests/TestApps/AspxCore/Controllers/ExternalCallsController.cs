@@ -10,7 +10,7 @@ namespace AspxCore.Controllers
     {/// <summary>
      /// Invalid Hostname to trigger exception being thrown
      /// </summary>
-        private const string InvalidHostName = "http://www.zzkaodkoakdahdjghejajdnad.com";
+        private const string InvalidHostName = "https://www.zzkaodkoakdahdjghejajdnad.com";
 
         private string GetQueryValue(string valueKey)
         {
@@ -65,7 +65,7 @@ namespace AspxCore.Controllers
         {
             string result = "";
 
-            Uri ourUri = new Uri(string.Format("http://www.{0}.com", hostname));
+            Uri ourUri = new Uri(string.Format("https://www.{0}.com", hostname));
             HttpClient client = new HttpClient();
             for (int i = 0; i < count; i++)
             {
@@ -84,7 +84,7 @@ namespace AspxCore.Controllers
         {
             string result = "";
 
-            Uri ourUri = new Uri(string.Format("http://www.{0}.com", hostname));
+            Uri ourUri = new Uri(string.Format("https://www.{0}.com", hostname));
             HttpClient client = new HttpClient();
             HttpContent content = new StringContent("thing1=hello&thing2=world", Encoding.ASCII);
             for (int i = 0; i < count; i++)

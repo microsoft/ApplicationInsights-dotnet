@@ -29,9 +29,6 @@
             Version version = new Version(versionStr);
 
             string postfix = version.Revision.ToString(CultureInfo.InvariantCulture);
-#if NET40
-            postfix += "-fw4";
-#endif
             return (versionPrefix ?? string.Empty) + version.ToString(3) + "-" + postfix;
         }
     }

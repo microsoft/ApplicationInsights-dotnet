@@ -12,13 +12,6 @@ using DependencyCollector.Shared.Tests;
 
 [assembly: ComVisible(false)]
 
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Log4NetAppender.Net40.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Log4NetAppender.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.NLogTarget.Net40.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.NLogTarget.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TraceListener.Net40.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TraceListener.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
-
 namespace DependencyCollector.Shared.Tests
 {
     internal static class AssemblyInfo

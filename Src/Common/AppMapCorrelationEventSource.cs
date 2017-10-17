@@ -1,16 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.Common
 {
     using System;
-#if NETCORE || NET45
     using System.Diagnostics.Tracing;
-#endif
 #if NETCORE
     using System.Reflection;
 #endif
     using Extensibility.Implementation.Tracing;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
 
     /// <summary>
     /// ETW EventSource tracing class.
@@ -75,6 +70,16 @@
         public void UnknownError(string exception, string appDomainName = "Incorrect")
         {
             this.WriteEvent(5, exception, this.ApplicationName);
+        }
+
+        [Event(
+            6,
+            Keywords = Keywords.UserActionable,
+            Message = "Failed to retrieve App ID for the current application insights resource. Endpoint returned HttpStatusCode: {0}",
+            Level = EventLevel.Warning)]
+        public void FetchAppIdFailedWithResponseCode(string httpStatusCode, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(6, httpStatusCode, this.ApplicationName);
         }
 
         [NonEvent]

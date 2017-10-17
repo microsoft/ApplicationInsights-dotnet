@@ -26,7 +26,6 @@
         {
             var telemetry = new DependencyTelemetry();
             telemetry.Start();
-#if NET45
             Activity activity;
             Activity currentActivity = Activity.Current;
 
@@ -86,15 +85,7 @@
             {
                 telemetry.Context.Operation.Id = activity.RootId;
             }
-#else
-            telemetryClient.Initialize(telemetry);
 
-            // telemetry is initialized by Base SDK OperationCorrealtionTelemetryInitializer
-            // however it does not know about Activity on .NET40 and does not know how to properly generate Ids
-            // let's fix it
-            telemetry.Id = ApplicationInsightsActivity.GenerateDependencyId(telemetry.Context.Operation.ParentId);
-            telemetry.Context.Operation.Id = ApplicationInsightsActivity.GetRootId(telemetry.Id);
-#endif
             PretendProfilerIsAttached = false;
             return telemetry;
         }
@@ -140,9 +131,7 @@
             }
             else
             {
-#if !NET40
                 telemetryTuple = DependencyTableStore.Instance.WebRequestCacheHolder.Get(GetIdForRequestObject(webRequest));
-#endif
             }
 
             return telemetryTuple;
@@ -173,9 +162,7 @@
             }
             else
             {
-#if !NET40
                 DependencyTableStore.Instance.WebRequestCacheHolder.Store(GetIdForRequestObject(webRequest), telemetryTuple);
-#endif
             }
         }
 
@@ -199,9 +186,7 @@
             }
             else
             {
-#if !NET40
                 telemetryTuple = DependencyTableStore.Instance.SqlRequestCacheHolder.Get(GetIdForRequestObject(sqlRequest));
-#endif
             }
 
             return telemetryTuple;
@@ -232,9 +217,7 @@
             }
             else
             {
-#if !NET40
                 DependencyTableStore.Instance.SqlRequestCacheHolder.Store(GetIdForRequestObject(sqlRequest), telemetryTuple);
-#endif
             }
         }
 

@@ -16,10 +16,6 @@
     <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
     <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
     <dependencies>
-      <group targetFramework="net40">
-        <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
-        <dependency id="Microsoft.ApplicationInsights.Agent.Intercept" version="2.4.0" />
-      </group>
       <group targetFramework="net45">
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
         <dependency id="Microsoft.ApplicationInsights.Agent.Intercept" version="2.4.0" />
@@ -38,11 +34,6 @@
     <file src="$configuration$\Src\DependencyCollector\NuGet\ApplicationInsights.config.transform" target="content" />
     <file src="$configuration$\Src\DependencyCollector\NuGet\ApplicationInsights.config.install.xdt" target="content" />
     <file src="$configuration$\Src\DependencyCollector\NuGet\ApplicationInsights.config.uninstall.xdt" target="content" />
-
-    <!-- For .NET 4.0 projects -->
-    <file src="$configuration$\Src\DependencyCollector\Net40\Microsoft.AI.DependencyCollector.dll" target="lib\net40" />
-    <file src="$configuration$\Src\DependencyCollector\Net40\Microsoft.AI.DependencyCollector.pdb" target="lib\net40" />
-    <file src="$configuration$\Src\DependencyCollector\Net40\Microsoft.AI.DependencyCollector.xml" target="lib\net40" />
 
     <!-- For .NET 4.5 projects -->
     <file src="$configuration$\Src\DependencyCollector\Net45\Microsoft.AI.DependencyCollector.dll" target="lib\net45" />

@@ -1,17 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionalTests", "FunctionalTests\FunctionalTests.csproj", "{D233F8EF-C4A8-49B1-8D60-58B32756C850}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestApps", "TestApps", "{1C499664-AC36-44CD-BCF2-9EEF6356E196}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp40", "FunctionalTests\TestApps\TestApp40\TestApp40.csproj", "{492D24C2-9FAA-4B00-8C4D-5719B7EAA334}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp45", "FunctionalTests\TestApps\TestApp45\TestApp45.csproj", "{BD4C55CF-0513-4F93-936B-6EE57497ED84}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationInsightsTypes", "..\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj", "{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationInsightsTypes", "..\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj", "{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,14 +27,6 @@ Global
 		{D233F8EF-C4A8-49B1-8D60-58B32756C850}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D233F8EF-C4A8-49B1-8D60-58B32756C850}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{D233F8EF-C4A8-49B1-8D60-58B32756C850}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{492D24C2-9FAA-4B00-8C4D-5719B7EAA334}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{492D24C2-9FAA-4B00-8C4D-5719B7EAA334}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{492D24C2-9FAA-4B00-8C4D-5719B7EAA334}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{492D24C2-9FAA-4B00-8C4D-5719B7EAA334}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{492D24C2-9FAA-4B00-8C4D-5719B7EAA334}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{492D24C2-9FAA-4B00-8C4D-5719B7EAA334}.Release|Any CPU.Build.0 = Release|Any CPU
-		{492D24C2-9FAA-4B00-8C4D-5719B7EAA334}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{492D24C2-9FAA-4B00-8C4D-5719B7EAA334}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{BD4C55CF-0513-4F93-936B-6EE57497ED84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BD4C55CF-0513-4F93-936B-6EE57497ED84}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD4C55CF-0513-4F93-936B-6EE57497ED84}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -58,7 +48,9 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{492D24C2-9FAA-4B00-8C4D-5719B7EAA334} = {1C499664-AC36-44CD-BCF2-9EEF6356E196}
 		{BD4C55CF-0513-4F93-936B-6EE57497ED84} = {1C499664-AC36-44CD-BCF2-9EEF6356E196}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {79CD25F7-0592-4CA1-B05A-260CDEB9BAF6}
 	EndGlobalSection
 EndGlobal

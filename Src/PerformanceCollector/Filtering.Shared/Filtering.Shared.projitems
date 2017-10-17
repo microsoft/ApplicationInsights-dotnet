@@ -27,6 +27,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\FilterInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\Predicate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\TelemetryType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)PortableHelpers.cs" />
   </ItemGroup>
 </Project>

@@ -12,11 +12,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Functional", "FunctionalTes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mvc4_MediumTrust", "FunctionalTests\TestApps\Mvc4_MediumTrust\Mvc4_MediumTrust.csproj", "{C459F80F-D4CC-415C-B85B-8A20DCF37498}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspx40", "FunctionalTests\TestApps\Aspx40\Aspx40.csproj", "{89ED26D7-425B-4EE1-B53D-D2B7A1E971DF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspx45", "FunctionalTests\TestApps\Aspx45\Aspx45.csproj", "{89ED26D7-425B-4EE1-B53D-D2B7A1E971DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wa40Aspx", "FunctionalTests\TestApps\Wa40Aspx\Wa40Aspx.csproj", "{94F62856-1467-4158-A31E-7D94B348882C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wa45Aspx", "FunctionalTests\TestApps\Wa45Aspx\Wa45Aspx.csproj", "{94F62856-1467-4158-A31E-7D94B348882C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wcf40Tests", "FunctionalTests\TestApps\Wcf40Tests\Wcf40Tests.csproj", "{EBF4262A-0C95-4E70-9733-DAABD59AB786}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wcf45Tests", "FunctionalTests\TestApps\Wcf45Tests\Wcf45Tests.csproj", "{EBF4262A-0C95-4E70-9733-DAABD59AB786}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetDiagnostics", "FunctionalTests\TestApps\AspNetDiagnostics\AspNetDiagnostics.csproj", "{D237F415-C2EF-46BE-B14F-2C26E941AF80}"
 EndProject
@@ -24,7 +24,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAppFW45", "FunctionalTes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAppFW45Sampled", "FunctionalTests\TestApps\WebAppFW45Sampled\WebAppFW45Sampled.csproj", "{4E735DB0-178C-4719-9F5A-A04280739A3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppFW40", "FunctionalTests\TestApps\ConsoleAppFW40\ConsoleAppFW40.csproj", "{B3284820-85BB-4273-B05F-D64FB175015A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppFW45", "FunctionalTests\TestApps\ConsoleAppFW45\ConsoleAppFW45.csproj", "{B3284820-85BB-4273-B05F-D64FB175015A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationInsightsTypes", "..\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj", "{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}"
 EndProject
