@@ -64,7 +64,7 @@ namespace E2ETests
             } 
         };
         
-        internal const int AISDKBufferFlushTime = 2000;        
+        internal const int AISDKBufferFlushTime = 3000;        
         internal static string DockerComposeFileName = "docker-compose.yml";        
 
         internal static DataEndpointClient dataendpointClient;
