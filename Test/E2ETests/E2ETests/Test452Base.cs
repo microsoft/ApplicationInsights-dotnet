@@ -38,7 +38,7 @@ namespace E2ETests
                         ikey = WebAppInstrumentationKey,
                         containerName = "e2etests_e2etestwebapp_1",
                         imageName = "e2etests_e2etestwebapp",
-                        healthCheckPath = "/Dependencies?type=httpsync"
+                        healthCheckPath = "/Dependencies?type=httpasyncawait1"
                     }
             },
 
@@ -75,7 +75,8 @@ namespace E2ETests
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
             Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));
 
-            //DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
+            DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
+            DockerUtils.RemoveDockerContainer(Apps[WebAppName].containerName, true);
 
             // Deploy the docker cluster using Docker-Compose
             //DockerUtils.ExecuteDockerComposeCommand("up -d --force-recreate --build", DockerComposeFileName);
@@ -107,8 +108,8 @@ namespace E2ETests
             
             dataendpointClient = new DataEndpointClient(new Uri("http://" + Apps[IngestionName].ipAddress));
           
-            Thread.Sleep(1000);
-            Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
+            Thread.Sleep(5000);
+            Trace.WriteLine(".Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
 
         private static void PopulateIPAddresses()
@@ -130,8 +131,8 @@ namespace E2ETests
         public static void MyClassCleanupBase()
         {
             Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
-            DockerUtils.ExecuteDockerComposeCommand("down", DockerComposeFileName);
-            DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
+            //DockerUtils.ExecuteDockerComposeCommand("down", DockerComposeFileName);
+            //DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
             Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
 
             DockerUtils.PrintDockerProcessStats("Docker-Compose down");

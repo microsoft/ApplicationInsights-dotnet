@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
@@ -37,6 +38,11 @@ namespace E2ETestApp
             {
                 switch (type)
                 {
+                    case "etw":
+                        Process p = new Process();
+                        p.StartInfo.FileName = ".\\RddListener.exe";
+                        p.Start();
+                        break;
                     case "httpsync":
                         HttpHelper40.MakeHttpCallUsingHttpClient(UrlTestWebApiGetCall);
                         break;

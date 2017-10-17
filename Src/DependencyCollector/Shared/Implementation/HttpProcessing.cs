@@ -91,6 +91,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
             try
             {
+                DependencyCollectorEventSource.Log.BeginCallbackCalled(thisObj.GetHashCode(), "resourcenameyettobeknown");
                 if (thisObj == null)
                 {
                     DependencyCollectorEventSource.Log.NotExpectedCallback(0, "OnBeginHttp", "thisObj == null");
