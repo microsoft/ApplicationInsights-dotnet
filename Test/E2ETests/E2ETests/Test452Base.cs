@@ -131,6 +131,7 @@ namespace E2ETests
         {
             Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
             DockerUtils.ExecuteDockerComposeCommand("down", DockerComposeFileName);
+            DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
             Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
 
             DockerUtils.PrintDockerProcessStats("Docker-Compose down");
@@ -860,12 +861,15 @@ namespace E2ETests
 
         private static bool HealthCheckAndRemoveImageIfNeeded(DeployedApp app)
         {
+            Trace.WriteLine("Starting health check for :" + app.imageName);
+
             bool isAppHealthy = HealthCheck(app);
             if(!isAppHealthy)
             {
                 DockerUtils.RemoveDockerContainer(app.containerName, true);                
             }
 
+            Trace.WriteLine(app.imageName + " healthy:" + isAppHealthy);
             return isAppHealthy;
         }
 
@@ -884,9 +888,9 @@ namespace E2ETests
         private static bool HealthCheck(DeployedApp app)
         {
             bool isHealthy = true;
-            Trace.WriteLine("Docker Stats for: " + app.containerName);
-            Trace.WriteLine("Status" + DockerUtils.GetDockerStateStatus(app.containerName));
-            Trace.WriteLine("ExitCode" + DockerUtils.GetDockerStateExitCode(app.containerName));
+            //Trace.WriteLine("Docker Stats for: " + app.containerName);
+            //Trace.WriteLine("Status" + DockerUtils.GetDockerStateStatus(app.containerName));
+            //Trace.WriteLine("ExitCode" + DockerUtils.GetDockerStateExitCode(app.containerName));
             string url = "";
             try
             {

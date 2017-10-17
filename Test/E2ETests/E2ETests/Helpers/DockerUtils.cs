@@ -63,6 +63,18 @@ namespace E2ETests.Helpers
             }
         }
 
+        public static void RemoveDockerImage(string imageName, bool force)
+        {
+            if (force)
+            {
+                ExecuteDockerCommand("rmi -f " + imageName);
+            }
+            else
+            {
+                ExecuteDockerCommand("rmi " + imageName);
+            }
+        }
+
         public static string FindIpDockerContainer(string containerName, string networkName = "nat", int retryCount = 1)
         {
             string commandToFindIp = string.Empty;
