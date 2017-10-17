@@ -13,11 +13,6 @@
     internal class HealthHeartbeatProvider : IDisposable, IHeartbeatProvider
     {
         /// <summary>
-        /// The default interval between heartbeats if not specified by the user
-        /// </summary>
-        public static int DefaultHeartbeatIntervalMs = 5000;
-
-        /// <summary>
         /// The default fields to include in every heartbeat sent. Note that setting the value to '*' includes all default fields.
         /// </summary>
         public static string DefaultAllowedFieldsInHeartbeatPayload = "*";
@@ -25,7 +20,12 @@
         /// <summary>
         /// The name of the health heartbeat metric item and operation context.
         /// </summary>
-        public static string HeartbeatSyntheticMetricName = "SDKHeartbeat";
+        private static string heartbeatSyntheticMetricName = "SDKHeartbeat";
+
+        /// <summary>
+        /// The default interval between heartbeats if not specified by the user
+        /// </summary>
+        private static int defaultHeartbeatIntervalMs = 5000;
 
         /// <summary>
         /// The payload items to send out with each health heartbeat.
@@ -39,7 +39,7 @@
         private int heartbeatsSent; // counter of all heartbeats
         private Timer heartbeatTimer; // timer that will send each heartbeat in intervals
 
-        public HealthHeartbeatProvider() : this(DefaultHeartbeatIntervalMs, DefaultAllowedFieldsInHeartbeatPayload)
+        public HealthHeartbeatProvider() : this(defaultHeartbeatIntervalMs, DefaultAllowedFieldsInHeartbeatPayload)
         {
         }
 
@@ -47,7 +47,7 @@
         {
         }
 
-        public HealthHeartbeatProvider(string allowedPayloadFields) : this(DefaultHeartbeatIntervalMs, allowedPayloadFields)
+        public HealthHeartbeatProvider(string allowedPayloadFields) : this(defaultHeartbeatIntervalMs, allowedPayloadFields)
         {
         }
 
@@ -169,26 +169,43 @@
             }
         }
 
-        private void HeartbeatPulse(object me)
+        private void HeartbeatPulse(object state)
         {
-            return;
+            if (state is HealthHeartbeatProvider)
+            {
+                HealthHeartbeatProvider hp = state as HealthHeartbeatProvider;
+                hp.Send();
+            }
+            else
+            {
+                throw new ArgumentException("Heartbeat pulse being sent without valid instance of HealthHeartbeatProvider as its state");
+            }
         }
 
         private MetricTelemetry GatherDataForHeartbeatPayload()
         {
-            var heartbeat = new MetricTelemetry(HeartbeatSyntheticMetricName, 0.0);
+            var heartbeat = new MetricTelemetry(heartbeatSyntheticMetricName, 0.0);
 
             foreach (var payloadItem in this.payloadItems)
             {
-                var props = payloadItem.Value.GetPayloadProperties();
-                foreach (var kvp in props)
+                try
                 {
-                    heartbeat.Properties.Add(kvp.Key, kvp.Value.ToString());
-                }
+                    var props = payloadItem.Value.GetPayloadProperties();
+                    foreach (var kvp in props)
+                    {
+                        heartbeat.Properties.Add(kvp.Key, kvp.Value.ToString());
+                    }
 
-                heartbeat.Sum += payloadItem.Value.CurrentUnhealthyCount;
-                heartbeat.Sequence = string.Format(CultureInfo.InvariantCulture, "{0}", this.heartbeatsSent++);
+                    heartbeat.Sum += payloadItem.Value.CurrentUnhealthyCount;
+                }
+                catch (Exception)
+                {
+                    // skip sending this payload item out, no need to interrupt other payloads. Log it to core.
+                    CoreEventSource.Log.LogError(string.Format(CultureInfo.CurrentCulture, "Failed to send payload for item {0}.", payloadItem.Key));
+                }
             }
+
+            heartbeat.Sequence = string.Format(CultureInfo.InvariantCulture, "{0}", this.heartbeatsSent++);
 
             return heartbeat;
         }
@@ -233,7 +250,7 @@
                 return;
             }
 
-            eventData.Context.Operation.SyntheticSource = HeartbeatSyntheticMetricName;
+            eventData.Context.Operation.SyntheticSource = heartbeatSyntheticMetricName;
 
             this.telemetryClient.TrackMetric(eventData);
         }
