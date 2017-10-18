@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -23,14 +24,14 @@ namespace E2ETestApp
         private string SqlQuerySuccess = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabases";
         private string SqlQueryError = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabasesunknown";
         private string SqlStoredProcedureName = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabases";
-        
+
         private const string UrlTestWebApiGetCallTemplate = "http://{0}:80/api/values";
         private const string UrlGoogle = "http://google.com";
         public const string UrlWhichThrowException = "http://e2etestwebapi:80/api/values/999";
-        private const string UrlWithNonexistentHostName = "http://abcdefzzzzeeeeadadad.com";        
+        private const string UrlWithNonexistentHostName = "http://abcdefzzzzeeeeadadad.com";
 
         protected void Page_Load(object sender, EventArgs e)
-        {            
+        {
             var type = Request.QueryString["type"];
             var success = true;
             bool.TryParse(Request.QueryString["success"], out success);
@@ -44,7 +45,14 @@ namespace E2ETestApp
                 switch (type)
                 {
                     case "etw":
-                        
+                        new Thread(() =>
+                        {
+                            Thread.CurrentThread.IsBackground = true;
+                            EtwEventSessionRdd EtwSession = new EtwEventSessionRdd();
+                            EtwSession.Start();
+                            Console.WriteLine("Hello, world");
+                        }).Start();
+                        HttpHelper40.MakeHttpCallSync(UrlTestWebApiGetCall);
                         break;
                     case "httpsyncgoogle":
                         HttpHelper40.MakeHttpCallSync(UrlGoogle);
@@ -93,7 +101,7 @@ namespace E2ETestApp
                         break;
                     case "failedhttpasyncawait1":
                         HttpHelper45.MakeHttpCallAsyncAwait1(UrlWhichThrowException);
-                        break;                    
+                        break;
                     case "azuresdkblob":
                         string containerName = "rddtest";
                         string blobName = "testblob";
@@ -118,134 +126,134 @@ namespace E2ETestApp
                         catch (Exception) { }
                         HttpHelper40.MakeAzureCallToWriteTableWithSdk(tableName);
                         HttpHelper40.MakeAzureCallToReadTableWithSdk(tableName);
-                        break; 
-                case "ExecuteReaderAsync":
+                        break;
+                    case "ExecuteReaderAsync":
                         SqlCommandHelper.ExecuteReaderAsync(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError);
                         break;
-                case "ExecuteScalarAsync":
+                    case "ExecuteScalarAsync":
                         SqlCommandHelper.ExecuteScalarAsync(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError);
                         break;
-                case "ExecuteReaderStoredProcedureAsync":                    
+                    case "ExecuteReaderStoredProcedureAsync":
                         SqlCommandHelper.ExecuteReaderAsync(LocalDbConnectionString, SqlStoredProcedureName, CommandType.StoredProcedure);
                         break;
-                case "TestExecuteReaderTwice":
+                    case "TestExecuteReaderTwice":
                         SqlCommandHelper.TestExecuteReaderTwice(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError);
                         break;
-                case "BeginExecuteReader0":
+                    case "BeginExecuteReader0":
                         SqlCommandHelper.BeginExecuteReader(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError, 0);
                         break;
-                case "BeginExecuteReader1":
+                    case "BeginExecuteReader1":
                         SqlCommandHelper.BeginExecuteReader(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError, 1);
                         break;
-                case "BeginExecuteReader2":
+                    case "BeginExecuteReader2":
                         SqlCommandHelper.BeginExecuteReader(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError, 2);
                         break;
-                case "BeginExecuteReader3":
+                    case "BeginExecuteReader3":
                         SqlCommandHelper.BeginExecuteReader(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError, 3);
                         break;
-                case "TestExecuteReaderTwiceInSequence":
+                    case "TestExecuteReaderTwiceInSequence":
                         SqlCommandHelper.TestExecuteReaderTwiceInSequence(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError);
                         break;
-                case "TestExecuteReaderTwiceWithTasks":
+                    case "TestExecuteReaderTwiceWithTasks":
                         SqlCommandHelper.AsyncExecuteReaderInTasks(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError);
                         break;
-                case "ExecuteNonQueryAsync":
+                    case "ExecuteNonQueryAsync":
                         SqlCommandHelper.ExecuteNonQueryAsync(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError);
                         break;
-                case "BeginExecuteNonQuery0":
+                    case "BeginExecuteNonQuery0":
                         SqlCommandHelper.BeginExecuteNonQuery(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError, 0);
                         break;
-                case "BeginExecuteNonQuery2":
+                    case "BeginExecuteNonQuery2":
                         SqlCommandHelper.BeginExecuteNonQuery(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError, 2);
                         break;
-                case "ExecuteXmlReaderAsync":
+                    case "ExecuteXmlReaderAsync":
                         SqlQuerySuccess += " FOR XML AUTO";
                         SqlCommandHelper.ExecuteXmlReaderAsync(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError);
                         break;
-                case "BeginExecuteXmlReader":
+                    case "BeginExecuteXmlReader":
                         SqlCommandHelper.BeginExecuteXmlReader(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError);
                         break;
-                case "SqlCommandExecuteScalar":                        
+                    case "SqlCommandExecuteScalar":
                         SqlCommandHelper.ExecuteScalar(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError);
                         break;
-                case "SqlCommandExecuteNonQuery":
+                    case "SqlCommandExecuteNonQuery":
                         SqlCommandHelper.ExecuteNonQuery(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError);
                         break;
-                case "SqlCommandExecuteReader0":
+                    case "SqlCommandExecuteReader0":
                         SqlCommandHelper.ExecuteReader(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError, 0);
                         break;
-                case "SqlCommandExecuteReader1":
+                    case "SqlCommandExecuteReader1":
                         SqlCommandHelper.ExecuteReader(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError, 1);
                         break;
-                case "SqlCommandExecuteXmlReader":
+                    case "SqlCommandExecuteXmlReader":
                         SqlQuerySuccess += " FOR XML AUTO";
                         SqlCommandHelper.ExecuteXmlReader(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError);
                         break;
-                case "SqlConnectionOpen":                        
+                    case "SqlConnectionOpen":
                         SqlCommandHelper.OpenConnection(LocalDbConnectionString);
                         break;
-                case "SqlConnectionOpenFailedInvalidAccount":                        
+                    case "SqlConnectionOpenFailedInvalidAccount":
                         SqlCommandHelper.OpenConnection(InvalidAccountConnectionString);
                         break;
-                case "SqlConnectionOpenFailedInvalidServer":                        
+                    case "SqlConnectionOpenFailedInvalidServer":
                         SqlCommandHelper.OpenConnection(InvalidServerConnectionString);
                         break;
-                case "SqlConnectionOpenAsync":                        
+                    case "SqlConnectionOpenAsync":
                         SqlCommandHelper.OpenConnectionAsync(LocalDbConnectionString);
                         break;
-                case "SqlConnectionOpenAsyncFailedInvalidAccount":                        
+                    case "SqlConnectionOpenAsyncFailedInvalidAccount":
                         SqlCommandHelper.OpenConnectionAsync(InvalidAccountConnectionString);
                         break;
-                case "SqlConnectionOpenAsyncFailedInvalidServer":                        
+                    case "SqlConnectionOpenAsyncFailedInvalidServer":
                         SqlCommandHelper.OpenConnectionAsync(InvalidServerConnectionString);
                         break;
-                case "SqlConnectionOpenAsyncAwait":                        
+                    case "SqlConnectionOpenAsyncAwait":
                         SqlCommandHelper.OpenConnectionAsyncAwait(LocalDbConnectionString);
                         break;
-                case "SqlConnectionOpenAsyncAwaitFailedInvalidAccount":                    
-                    SqlCommandHelper.OpenConnectionAsyncAwait(InvalidAccountConnectionString);
-                    break;
-                case "SqlConnectionOpenAsyncAwaitFailedInvalidServer":                    
-                    SqlCommandHelper.OpenConnectionAsyncAwait(InvalidServerConnectionString);
-                    break;
+                    case "SqlConnectionOpenAsyncAwaitFailedInvalidAccount":
+                        SqlCommandHelper.OpenConnectionAsyncAwait(InvalidAccountConnectionString);
+                        break;
+                    case "SqlConnectionOpenAsyncAwaitFailedInvalidServer":
+                        SqlCommandHelper.OpenConnectionAsyncAwait(InvalidServerConnectionString);
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException("Request Parameter type is not mapped to an action: " + type);
                 }
