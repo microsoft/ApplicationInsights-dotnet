@@ -61,11 +61,11 @@ namespace E2ETests
                         imageName = "e2etests_ingestionservice",
                         healthCheckPath = "/api/Data/HealthCheck?name=cijo"
                     }
-            } 
+            }
         };
-        
-        internal const int AISDKBufferFlushTime = 3000;        
-        internal static string DockerComposeFileName = "docker-compose.yml";        
+
+        internal const int AISDKBufferFlushTime = 3000;
+        internal static string DockerComposeFileName = "docker-compose.yml";
 
         internal static DataEndpointClient dataendpointClient;
         internal static ProcessStartInfo DockerPSProcessInfo = new ProcessStartInfo("cmd", "/c docker ps -a");
@@ -83,7 +83,7 @@ namespace E2ETests
             DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
             Thread.Sleep(5000);
             DockerUtils.PrintDockerProcessStats("Docker-Compose -build");
-                        
+
             // Populate dynamic properties of Deployed Apps like ip address.
             PopulateIPAddresses();
 
@@ -91,7 +91,7 @@ namespace E2ETests
             bool webApiHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[WebApiName]);
             bool ingestionHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[IngestionName]);
 
-            if(!(webAppHealthy && webApiHealthy && ingestionHealthy) )
+            if (!(webAppHealthy && webApiHealthy && ingestionHealthy))
             {
                 DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
                 Thread.Sleep(5000);
@@ -105,9 +105,9 @@ namespace E2ETests
             Assert.IsTrue(webAppHealthy, "Web App is unhealthy");
             Assert.IsTrue(webApiHealthy, "Web Api is unhealthy");
             Assert.IsTrue(ingestionHealthy, "Ingestion is unhealthy");
-            
+
             dataendpointClient = new DataEndpointClient(new Uri("http://" + Apps[IngestionName].ipAddress));
-          
+
             Thread.Sleep(5000);
             Trace.WriteLine(".Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
@@ -117,15 +117,15 @@ namespace E2ETests
             // Inspect Docker containers to get IP addresses
             Apps[WebAppName].ipAddress = DockerUtils.FindIpDockerContainer(Apps[WebAppName].containerName);
             Apps[WebApiName].ipAddress = DockerUtils.FindIpDockerContainer(Apps[WebApiName].containerName);
-            Apps[IngestionName].ipAddress = DockerUtils.FindIpDockerContainer(Apps[IngestionName].containerName);            
+            Apps[IngestionName].ipAddress = DockerUtils.FindIpDockerContainer(Apps[IngestionName].containerName);
         }
-        
+
         private static void RestartAllTestAppContainers()
         {
-            foreach(var app in Apps.Values)
+            foreach (var app in Apps.Values)
             {
                 DockerUtils.RestartDockerContainer(app.containerName);
-            }            
+            }
         }
 
         public static void MyClassCleanupBase()
@@ -145,25 +145,25 @@ namespace E2ETests
             DockerUtils.PrintDockerProcessStats("After MyTestInitialize" + DateTime.UtcNow.ToLongTimeString());
             Trace.WriteLine("Completed Test Initialize:" + DateTime.UtcNow.ToLongTimeString());
         }
-        
+
         public void MyTestCleanup()
         {
             Trace.WriteLine("Started Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
             DockerUtils.PrintDockerProcessStats("After MyTestCleanup" + DateTime.UtcNow.ToLongTimeString());
             Trace.WriteLine("Completed Test Cleanup:" + DateTime.UtcNow.ToLongTimeString());
         }
-        
+
         public void TestBasicRequestWebApp()
         {
             var expectedRequestTelemetry = new RequestTelemetry();
-            expectedRequestTelemetry.ResponseCode = "200";            
+            expectedRequestTelemetry.ResponseCode = "200";
             ValidateBasicRequestAsync(Apps[WebAppName].ipAddress, "/About", expectedRequestTelemetry, Apps[WebAppName].ikey).Wait();
         }
 
         public void TestXComponentWebAppToWebApi()
         {
             var expectedRequestTelemetryWebApp = new RequestTelemetry();
-            expectedRequestTelemetryWebApp.ResponseCode = "200";            
+            expectedRequestTelemetryWebApp.ResponseCode = "200";
 
             var expectedDependencyTelemetryWebApp = new DependencyTelemetry();
             expectedDependencyTelemetryWebApp.Type = "Http";
@@ -172,7 +172,7 @@ namespace E2ETests
             var expectedRequestTelemetryWebApi = new RequestTelemetry();
             expectedRequestTelemetryWebApi.ResponseCode = "200";
 
-            ValidateXComponentWebAppToWebApi(Apps[WebAppName].ipAddress, "/Dependencies?type=httpsync", 
+            ValidateXComponentWebAppToWebApi(Apps[WebAppName].ipAddress, "/Dependencies?type=httpsync",
                 expectedRequestTelemetryWebApp, expectedDependencyTelemetryWebApp, expectedRequestTelemetryWebApi,
                 Apps[WebAppName].ikey, Apps[WebApiName].ikey).Wait();
         }
@@ -201,7 +201,7 @@ namespace E2ETests
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
-            expectedDependencyTelemetry.Success = true;            
+            expectedDependencyTelemetry.Success = true;
 
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httppost", expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
@@ -231,7 +231,7 @@ namespace E2ETests
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
-            expectedDependencyTelemetry.Success = true;            
+            expectedDependencyTelemetry.Success = true;
 
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpasync1", expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
@@ -369,7 +369,7 @@ namespace E2ETests
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
             ValidateAzureDependencyAsync(Apps[WebAppName].ipAddress,
-                "/Dependencies.aspx?type=azuresdkblob&containerName="+ expectedPrefix + "&blobname="+ expectedPrefix, 
+                "/Dependencies.aspx?type=azuresdkblob&containerName=" + expectedPrefix + "&blobname=" + expectedPrefix,
                 expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 2, expectedPrefix, 2000).Wait();
         }
@@ -389,7 +389,7 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = false;
-            expectedDependencyTelemetry.ResultCode = "208";            
+            expectedDependencyTelemetry.ResultCode = "208";
 
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteReaderAsync&success=false", expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
@@ -741,7 +741,7 @@ namespace E2ETests
             var requestTarget = requestsTarget[0];
             var dependencySource = dependenciesSource[0];
 
-            Assert.IsTrue(requestSource.tags["ai.operation.id"].Equals(requestTarget.tags["ai.operation.id"]), 
+            Assert.IsTrue(requestSource.tags["ai.operation.id"].Equals(requestTarget.tags["ai.operation.id"]),
                 "Operation id for request telemetry in source and target must be same.");
 
             Assert.IsTrue(requestSource.tags["ai.operation.id"].Equals(dependencySource.tags["ai.operation.id"]),
@@ -850,8 +850,8 @@ namespace E2ETests
                 Trace.WriteLine("InternalSdkVersion:" + deps.tags[new ContextTagKeys().InternalSdkVersion]);
                 Trace.WriteLine("--------------------------------------");
             }
-        }        
-        
+        }
+
         private void RemoveIngestionItems()
         {
             Trace.WriteLine("Deleting items started:" + DateTime.UtcNow.ToLongTimeString());
@@ -865,9 +865,9 @@ namespace E2ETests
             Trace.WriteLine("Starting health check for :" + app.imageName);
 
             bool isAppHealthy = HealthCheck(app);
-            if(!isAppHealthy)
+            if (!isAppHealthy)
             {
-                DockerUtils.RemoveDockerContainer(app.containerName, true);                
+                DockerUtils.RemoveDockerContainer(app.containerName, true);
             }
 
             Trace.WriteLine(app.imageName + " healthy:" + isAppHealthy);
@@ -895,13 +895,13 @@ namespace E2ETests
             string url = "";
             try
             {
-                url = "http://" + app.ipAddress + app.healthCheckPath;            
-                Trace.WriteLine(string.Format("Request fired against {0} using url: {1}", app.containerName, url));            
+                url = "http://" + app.ipAddress + app.healthCheckPath;
+                Trace.WriteLine(string.Format("Request fired against {0} using url: {1}", app.containerName, url));
                 var response = new HttpClient().GetAsync(url);
                 Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result.StatusCode));
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    isHealthy = false;                    
+                    isHealthy = false;
                 }
             }
             catch (Exception ex)

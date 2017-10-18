@@ -8,7 +8,7 @@
 
     public class DataStorageInMemory
     {
-        internal static ConcurrentDictionary<string, List<string>>   itemsDictionary = new ConcurrentDictionary<string, List<string>>();
+        internal static ConcurrentDictionary<string, List<string>> itemsDictionary = new ConcurrentDictionary<string, List<string>>();
 
         public DataStorageInMemory()
         {
@@ -36,7 +36,7 @@
             else
             {
                 items = new List<string>();
-                items.Add(data);                
+                items.Add(data);
                 itemsDictionary.TryAdd(instrumentationKey, items);
             }
         }
@@ -54,22 +54,22 @@
                 return new List<string>();
             }
         }
-         
+
         public IEnumerable<string> DeleteItems(
             string instrumentationKey)
         {
-            
+
             var deletedItems = new List<string>();
             List<string> items;
             if (itemsDictionary.TryGetValue(instrumentationKey, out items))
             {
-                foreach(var item in items)
+                foreach (var item in items)
                 {
-                    deletedItems.Add(item.ToString().Substring(76,124));
+                    deletedItems.Add(item.ToString().Substring(76, 124));
                 }
                 items.Clear();
             }
-            
+
             return deletedItems;
         }
     }
