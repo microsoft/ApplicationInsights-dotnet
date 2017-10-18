@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -44,7 +45,14 @@ namespace E2ETestApp
                 switch (type)
                 {
                     case "etw":
-                        
+                        new Thread(() =>
+                        {
+                            Thread.CurrentThread.IsBackground = true;
+                            EtwEventSessionRdd EtwSession = new EtwEventSessionRdd();
+                            EtwSession.Start();
+                            Console.WriteLine("Hello, world");
+                        }).Start();
+                        HttpHelper40.MakeHttpCallSync(UrlTestWebApiGetCall);
                         break;
                     case "httpsyncgoogle":
                         HttpHelper40.MakeHttpCallSync(UrlGoogle);

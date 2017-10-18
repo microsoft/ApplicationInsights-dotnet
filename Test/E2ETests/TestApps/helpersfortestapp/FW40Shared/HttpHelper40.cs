@@ -64,6 +64,7 @@ namespace FW40Shared
             catch (Exception ex)
             {
                 Trace.WriteLine("Exception occured:" + ex);
+                throw;
             }
         }
 
