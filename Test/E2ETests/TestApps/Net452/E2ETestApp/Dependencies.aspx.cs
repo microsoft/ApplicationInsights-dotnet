@@ -24,7 +24,8 @@ namespace E2ETestApp
         private string SqlQueryError = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabasesunknown";
         private string SqlStoredProcedureName = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabases";
         
-        private const string UrlTestWebApiGetCall = "http://e2etestwebapi:80/api/values";
+        private const string UrlTestWebApiGetCallTemplate = "http://{0}:80/api/values";
+        private const string UrlGoogle = "http://google.com";
         public const string UrlWhichThrowException = "http://e2etestwebapi:80/api/values/999";
         private const string UrlWithNonexistentHostName = "http://abcdefzzzzeeeeadadad.com";        
 
@@ -34,17 +35,22 @@ namespace E2ETestApp
             var success = true;
             bool.TryParse(Request.QueryString["success"], out success);
             this.lblRequestedAction.Text = "Requested Action:" + type;
+
+            var webApiHostName = Microsoft.Azure.CloudConfigurationManager.GetSetting("webapihostname");
+            string UrlTestWebApiGetCall = string.Format(UrlTestWebApiGetCallTemplate, webApiHostName);
+
             try
             {
                 switch (type)
                 {
                     case "etw":
-                        Process p = new Process();
-                        p.StartInfo.FileName = ".\\RddListener.exe";
-                        p.Start();
+                        
+                        break;
+                    case "httpsyncgoogle":
+                        HttpHelper40.MakeHttpCallSync(UrlGoogle);
                         break;
                     case "httpsync":
-                        HttpHelper40.MakeHttpCallUsingHttpClient(UrlTestWebApiGetCall);
+                        HttpHelper40.MakeHttpCallSync(UrlTestWebApiGetCall);
                         break;
                     case "httpasynchttpclient":
                         HttpHelper40.MakeHttpCallUsingHttpClient(UrlTestWebApiGetCall);

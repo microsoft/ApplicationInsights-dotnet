@@ -38,7 +38,7 @@ namespace E2ETests
                         ikey = WebAppInstrumentationKey,
                         containerName = "e2etests_e2etestwebapp_1",
                         imageName = "e2etests_e2etestwebapp",
-                        healthCheckPath = "/Dependencies?type=httpasyncawait1"
+                        healthCheckPath = "/Dependencies?type=httpsync"
                     }
             },
 
@@ -96,11 +96,11 @@ namespace E2ETests
                 DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
                 Thread.Sleep(5000);
                 DockerUtils.PrintDockerProcessStats("Docker-Compose -build retry");
-            }
 
-            webAppHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[WebAppName]);
-            webApiHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[WebApiName]);
-            ingestionHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[IngestionName]);
+                webAppHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[WebAppName]);
+                webApiHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[WebApiName]);
+                ingestionHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[IngestionName]);
+            }            
 
             Assert.IsTrue(webAppHealthy, "Web App is unhealthy");
             Assert.IsTrue(webApiHealthy, "Web Api is unhealthy");
