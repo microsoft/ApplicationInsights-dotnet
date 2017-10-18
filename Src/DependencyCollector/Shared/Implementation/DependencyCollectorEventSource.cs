@@ -412,6 +412,16 @@
             this.WriteEvent(39, id, name ?? string.Empty, this.ApplicationName);
         }
 
+        [Event(
+            40,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "SqlClientDiagnosticSourceListener OnNext failed to call event handler. Error details '{0}'",
+            Level = EventLevel.Error)]
+        public void SqlClientDiagnosticSourceListenerOnNextFailed(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(40, error, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

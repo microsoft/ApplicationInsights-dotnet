@@ -144,7 +144,8 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
             Assert.AreEqual(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
             Assert.IsTrue((bool)dependencyTelemetry.Success);
-            Assert.AreEqual(1000000L, dependencyTelemetry.Duration.Ticks);
+            Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
+            Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
             Assert.IsTrue(DateTimeOffset.UtcNow >= dependencyTelemetry.Timestamp);
         }
 
@@ -171,7 +172,7 @@ namespace Microsoft.ApplicationInsights.Tests
             {
                 OperationId = operationId,
                 Command = sqlCommand,
-                Timestamp = Stopwatch.GetTimestamp() + 2000000L
+                Timestamp = Stopwatch.GetTimestamp()
             };
 
             this.fakeSqlClientDiagnosticSource.Write(
@@ -186,7 +187,8 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
             Assert.AreEqual(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
             Assert.IsTrue((bool)dependencyTelemetry.Success);
-            Assert.IsTrue(dependencyTelemetry.Duration.Ticks > 2000000L);
+            Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
+            Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
         }
 
         [TestMethod]
@@ -342,7 +344,8 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual("(localdb)\\MSSQLLocalDB | master | " + beforeOpenEventData.Operation, dependencyTelemetry.Name);
             Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
             Assert.AreEqual(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
-            Assert.AreEqual(1000000L, dependencyTelemetry.Duration.Ticks);
+            Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
+            Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
             Assert.IsTrue(DateTimeOffset.UtcNow >= dependencyTelemetry.Timestamp);
             Assert.AreEqual(errorOpenEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
             Assert.IsFalse(dependencyTelemetry.Success.Value);
@@ -454,7 +457,8 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
             Assert.AreEqual(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
             Assert.IsTrue((bool)dependencyTelemetry.Success);
-            Assert.AreEqual(1000000L, dependencyTelemetry.Duration.Ticks);
+            Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
+            Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
             Assert.IsTrue(DateTimeOffset.UtcNow >= dependencyTelemetry.Timestamp);
         }
 
@@ -537,7 +541,8 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual("(localdb)\\MSSQLLocalDB | master", dependencyTelemetry.Target);
             Assert.AreEqual(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
             Assert.IsTrue((bool)dependencyTelemetry.Success);
-            Assert.AreEqual(1000000L, dependencyTelemetry.Duration.Ticks);
+            Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
+            Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
             Assert.IsTrue(DateTimeOffset.UtcNow >= dependencyTelemetry.Timestamp);
         }
 
