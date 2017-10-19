@@ -774,7 +774,7 @@ namespace E2ETests
 
             //Thread.Sleep(AISDKBufferFlushTime + additionalSleepTimeMsec);
             //var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
-            var dependenciesWebApp = WaitForReceiveDependencyItemsFromDataIngestion(ikey);
+            var dependenciesWebApp = WaitForReceiveDependencyItemsFromDataIngestion(targetInstanceIp, ikey);
             Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
             PrintDependencies(dependenciesWebApp);
 
@@ -785,7 +785,7 @@ namespace E2ETests
             ValidateDependency(expectedDependencyTelemetry, dependency, expectedPrefix);
         }
 
-        private IList<TelemetryItem<RemoteDependencyData>> WaitForReceiveDependencyItemsFromDataIngestion(string ikey)
+        private IList<TelemetryItem<RemoteDependencyData>> WaitForReceiveDependencyItemsFromDataIngestion(string targetInstanceIp,string ikey)
         {
             int receivedItemCount = 0;
             int iteration = 0;
@@ -797,6 +797,7 @@ namespace E2ETests
                 items = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
                 receivedItemCount = items.Count;
                 iteration++;
+                ExecuteWebRequestToTarget(targetInstanceIp, "/Dependencies.aspx?type=flush").Wait();
             }
 
             Trace.WriteLine("Items received in iteration: " + iteration);
