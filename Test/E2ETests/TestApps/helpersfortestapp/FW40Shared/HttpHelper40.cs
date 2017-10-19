@@ -228,6 +228,7 @@ namespace FW40Shared
 
             Directory.Delete(@"c:\fromblob", true);
 
+            blockBlob.DeleteIfExists();
             container.DeleteIfExists();
 
         }

@@ -155,7 +155,7 @@ namespace E2ETests.Helpers
         {            
             using (var respose = WebRequest.CreateHttp(url).GetResponse())
             {
-                Trace.TraceInformation("Invoking url:" + url);
+                Trace.TraceInformation(DateTime.UtcNow.ToLongTimeString()+" Invoking url:" + url);
                 using (var reader = new StreamReader(respose.GetResponseStream()))
                 {
                     return reader.ReadToEnd();

@@ -791,7 +791,7 @@ namespace E2ETests
             int iteration = 0;
             IList<TelemetryItem<RemoteDependencyData>> items = new List<TelemetryItem<RemoteDependencyData>>();
 
-            while (iteration < 5 && receivedItemCount < 1)
+            while (iteration < 10 && receivedItemCount < 1)
             {
                 Thread.Sleep(AISDKBufferFlushTime);                
                 items = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
@@ -809,7 +809,7 @@ namespace E2ETests
             int iteration = 0;
             IList<TelemetryItem<RequestData>> items = new List<TelemetryItem<RequestData>>();
 
-            while (iteration < 5 && receivedItemCount < 1)
+            while (iteration < 10 && receivedItemCount < 1)
             {
                 Thread.Sleep(AISDKBufferFlushTime);
                 items = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(ikey);
