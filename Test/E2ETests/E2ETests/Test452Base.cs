@@ -824,13 +824,20 @@ namespace E2ETests
 
         private void PrintApplicationTraces(string ikey)
         {
-            var messages = dataendpointClient.GetItemsOfType<TelemetryItem<AI.MessageData>>(ikey);
-            Trace.WriteLine("Begin Application Traces for ikey:" + ikey + "----------------------------------------------------------------------------------------");
-            foreach (var message in messages)
+            try
             {
-                Trace.WriteLine("Application Trace:" + message.data.baseData.message);
+                var messages = dataendpointClient.GetItemsOfType<TelemetryItem<AI.MessageData>>(ikey);
+                Trace.WriteLine("Begin Application Traces for ikey:" + ikey + "----------------------------------------------------------------------------------------");
+                foreach (var message in messages)
+                {
+                    Trace.WriteLine("Application Trace:" + message.data.baseData.message);
+                }
+                Trace.WriteLine("End Application Traces for ikey:" + ikey + "----------------------------------------------------------------------------------------");
             }
-            Trace.WriteLine("End Application Traces for ikey:" + ikey + "----------------------------------------------------------------------------------------");
+            catch(Exception ex)
+            {
+                Trace.WriteLine("Exception printing application traces:" + ex.Message);
+            }
         }
 
         private async Task ValidateAzureDependencyAsync(string targetInstanceIp, string targetPath,
@@ -861,7 +868,7 @@ namespace E2ETests
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("Exception occured:" + ex);
+                Trace.WriteLine("Exception occured:" + ex.Message);
             }
         }
 
