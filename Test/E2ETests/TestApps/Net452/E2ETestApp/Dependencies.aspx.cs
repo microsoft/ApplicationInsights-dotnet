@@ -55,6 +55,7 @@ namespace E2ETestApp
                         break;
                     case "flush":
                             TelemetryConfiguration.Active.TelemetryChannel.Flush();
+                            Thread.Sleep(3000);
                             break;
                     case "httpsyncgoogle":
                         HttpHelper40.MakeHttpCallSync(UrlGoogle);
