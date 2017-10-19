@@ -44,7 +44,7 @@
 
             var target = Path.Combine(MyDirectoryPath, filename);
 
-            File.AppendAllText(target, data + "\n");
+            File.AppendAllText(target, data);
 
         }
 

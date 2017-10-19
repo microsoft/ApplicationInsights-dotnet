@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -80,6 +81,17 @@ namespace E2ETestApp
                         }).Start();
                         etwEnabled = true;
                         break;
+                    case "etwlogs":
+                        string MyDirectoryPath = "c:\\mylogs";
+                        string filename = "logs.txt";                         
+
+                        using (TextReader reader = new StreamReader(File.OpenRead(Path.Combine(MyDirectoryPath, filename))))
+                        {
+                            Response.Write(reader.ReadToEnd()); 
+                        }
+
+                        break;
+
                     case "flush":
                             TelemetryConfiguration.Active.TelemetryChannel.Flush();
                             Thread.Sleep(3000);

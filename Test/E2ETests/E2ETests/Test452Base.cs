@@ -778,7 +778,7 @@ namespace E2ETests
             Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
             PrintDependencies(dependenciesWebApp);
 
-            PrintApplicationTraces(ikey);
+            ReadApplicationTraces(targetInstanceIp, "/Dependencies.aspx?type=etwlogs");
             Assert.IsTrue(dependenciesWebApp.Count == count, string.Format("Dependeny count is incorrect. Actual: {0} Expected: {1}", dependenciesWebApp.Count, count));
             var dependency = dependenciesWebApp[0];
 
@@ -835,6 +835,33 @@ namespace E2ETests
                 Trace.WriteLine("End Application Traces for ikey:" + ikey + "----------------------------------------------------------------------------------------");
             }
             catch(Exception ex)
+            {
+                Trace.WriteLine("Exception printing application traces:" + ex.Message);
+            }
+        }
+
+        private void ReadApplicationTraces(string targetInstanceIp, string targetPath)
+        {
+            try
+            {                
+                Trace.WriteLine("Begin Application Traces----------------------------------------------------------------------------------------");
+
+
+                HttpClient client = new HttpClient();
+                string url = "http://" + targetInstanceIp + targetPath;                
+                try
+                {
+                    var response = client.GetStringAsync(url).Result;
+                    Trace.WriteLine("Actual Response text: " + response.ToString());
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Exception occured:" + ex.Message);
+                }
+
+                Trace.WriteLine("End Application Traces----------------------------------------------------------------------------------------");
+            }
+            catch (Exception ex)
             {
                 Trace.WriteLine("Exception printing application traces:" + ex.Message);
             }
