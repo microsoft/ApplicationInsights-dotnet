@@ -147,7 +147,7 @@
                                 this.ExcludeComponentCorrelationHttpHeadersOnDomains, 
                                 null);
 
-                            if (this.IncludeDiagnosticSourceActivities?.Any() == true)
+                            if (this.IncludeDiagnosticSourceActivities != null && this.IncludeDiagnosticSourceActivities.Count > 0)
                             {
                                 this.telemetryDiagnosticSourceListener = new TelemetryDiagnosticSourceListener(configuration, this.IncludeDiagnosticSourceActivities);
                             }
