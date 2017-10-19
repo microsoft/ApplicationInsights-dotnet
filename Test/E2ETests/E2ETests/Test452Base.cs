@@ -728,6 +728,9 @@ namespace E2ETests
             var dependenciesSource = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(sourceIKey);
             var requestsTarget = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(targetIKey);
 
+            PrintApplicationTraces(sourceIKey);
+            PrintApplicationTraces(targetIKey);
+
             Trace.WriteLine("RequestCount for Source:" + requestsSource.Count);
             Assert.IsTrue(requestsSource.Count == 1);
 
@@ -758,6 +761,7 @@ namespace E2ETests
             var requestsWebApp = WaitForReceiveRequestItemsFromDataIngestion(ikey);
 
             Trace.WriteLine("RequestCount for WebApp:" + requestsWebApp.Count);
+            PrintApplicationTraces(ikey);
             Assert.IsTrue(requestsWebApp.Count == 1);
             var request = requestsWebApp[0];
             Assert.AreEqual(expectedRequestTelemetry.ResponseCode, request.data.baseData.responseCode, "Response code is incorrect");
