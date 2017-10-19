@@ -53,6 +53,9 @@ namespace E2ETestApp
                         }).Start();
                         HttpHelper40.MakeHttpCallSync(UrlTestWebApiGetCall);
                         break;
+                    case "flush":
+                            TelemetryConfiguration.Active.TelemetryChannel.Flush();
+                            break;
                     case "httpsyncgoogle":
                         HttpHelper40.MakeHttpCallSync(UrlGoogle);
                         break;
