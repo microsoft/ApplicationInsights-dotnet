@@ -147,7 +147,10 @@
                                 this.ExcludeComponentCorrelationHttpHeadersOnDomains, 
                                 null);
 
-                            this.telemetryDiagnosticSourceListener = new TelemetryDiagnosticSourceListener(configuration, this.IncludeDiagnosticSourceActivities);
+                            if (this.IncludeDiagnosticSourceActivities?.Any() == true)
+                            {
+                                this.telemetryDiagnosticSourceListener = new TelemetryDiagnosticSourceListener(configuration, this.IncludeDiagnosticSourceActivities);
+                            }
 
                             DependencyCollectorEventSource.Log.RemoteDependencyModuleVerbose("Initializing DependencyTrackingModule completed successfully.");
                         }
