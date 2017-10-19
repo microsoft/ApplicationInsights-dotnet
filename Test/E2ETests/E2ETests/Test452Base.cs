@@ -723,7 +723,7 @@ namespace E2ETests
             Trace.WriteLine("Hitting the target url:" + url);
             var response = await client.GetAsync(url);
             Trace.WriteLine("Actual Response code: " + response.StatusCode);
-            Thread.Sleep(2 * AISDKBufferFlushTime);
+            Thread.Sleep(5 * AISDKBufferFlushTime);
             var requestsSource = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(sourceIKey);
             var dependenciesSource = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(sourceIKey);
             var requestsTarget = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(targetIKey);
@@ -752,20 +752,10 @@ namespace E2ETests
         private async Task ValidateBasicRequestAsync(string targetInstanceIp, string targetPath,
             RequestTelemetry expectedRequestTelemetry, string ikey)
         {
-            HttpClient client = new HttpClient();
-            string url = "http://" + targetInstanceIp + targetPath;
-            Trace.WriteLine("Hitting the target url:" + url);
-            try
-            {
-                var response = await client.GetStringAsync(url);
-                Trace.WriteLine("Actual Response text: " + response.ToString());
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine("Exception occured:" + ex);
-            }
-            Thread.Sleep(AISDKBufferFlushTime);
-            var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(ikey);
+            await ExecuteWebRequestToTarget(targetInstanceIp, targetPath);
+            //Thread.Sleep(AISDKBufferFlushTime);
+            //var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(ikey);
+            var requestsWebApp = WaitForReceiveRequestItemsFromDataIngestion(ikey);
 
             Trace.WriteLine("RequestCount for WebApp:" + requestsWebApp.Count);
             Assert.IsTrue(requestsWebApp.Count == 1);
@@ -780,7 +770,7 @@ namespace E2ETests
 
             //Thread.Sleep(AISDKBufferFlushTime + additionalSleepTimeMsec);
             //var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
-            var dependenciesWebApp = WaitForReceiveItemsFromDataIngestion(ikey);
+            var dependenciesWebApp = WaitForReceiveDependencyItemsFromDataIngestion(ikey);
             Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
             PrintDependencies(dependenciesWebApp);
 
@@ -791,7 +781,7 @@ namespace E2ETests
             ValidateDependency(expectedDependencyTelemetry, dependency, expectedPrefix);
         }
 
-        private IList<TelemetryItem<RemoteDependencyData>> WaitForReceiveItemsFromDataIngestion(string ikey)
+        private IList<TelemetryItem<RemoteDependencyData>> WaitForReceiveDependencyItemsFromDataIngestion(string ikey)
         {
             int receivedItemCount = 0;
             int iteration = 0;
@@ -801,6 +791,24 @@ namespace E2ETests
             {
                 Thread.Sleep(AISDKBufferFlushTime);                
                 items = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
+                receivedItemCount = items.Count;
+                iteration++;
+            }
+
+            Trace.WriteLine("Items received in iteration: " + iteration);
+            return items;
+        }
+
+        private IList<TelemetryItem<RequestData>> WaitForReceiveRequestItemsFromDataIngestion(string ikey)
+        {
+            int receivedItemCount = 0;
+            int iteration = 0;
+            IList<TelemetryItem<RequestData>> items = new List<TelemetryItem<RequestData>>();
+
+            while (iteration < 5 && receivedItemCount < 1)
+            {
+                Thread.Sleep(AISDKBufferFlushTime);
+                items = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(ikey);
                 receivedItemCount = items.Count;
                 iteration++;
             }
