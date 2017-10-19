@@ -64,7 +64,7 @@ namespace E2ETests
             }
         };
 
-        internal const int AISDKBufferFlushTime = 3000;
+        internal const int AISDKBufferFlushTime = 1000;
         internal static string DockerComposeFileName = "docker-compose.yml";
 
         internal static DataEndpointClient dataendpointClient;
@@ -777,9 +777,10 @@ namespace E2ETests
             DependencyTelemetry expectedDependencyTelemetry, string ikey, int count, string expectedPrefix, int additionalSleepTimeMsec = 0)
         {
             await ExecuteWebRequestToTarget(targetInstanceIp, targetPath);
-            Thread.Sleep(AISDKBufferFlushTime + additionalSleepTimeMsec);
 
-            var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
+            //Thread.Sleep(AISDKBufferFlushTime + additionalSleepTimeMsec);
+            //var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
+            var dependenciesWebApp = WaitForReceiveItemsFromDataIngestion(ikey);
             Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
             PrintDependencies(dependenciesWebApp);
 
@@ -788,6 +789,24 @@ namespace E2ETests
             var dependency = dependenciesWebApp[0];
 
             ValidateDependency(expectedDependencyTelemetry, dependency, expectedPrefix);
+        }
+
+        private IList<TelemetryItem<RemoteDependencyData>> WaitForReceiveItemsFromDataIngestion(string ikey)
+        {
+            int receivedItemCount = 0;
+            int iteration = 0;
+            IList<TelemetryItem<RemoteDependencyData>> items = new List<TelemetryItem<RemoteDependencyData>>();
+
+            while (iteration < 5 && receivedItemCount < 1)
+            {
+                Thread.Sleep(AISDKBufferFlushTime);                
+                items = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
+                receivedItemCount = items.Count;
+                iteration++;
+            }
+
+            Trace.WriteLine("Items received in iteration: " + iteration);
+            return items;
         }
 
         private void PrintApplicationTraces(string ikey)
