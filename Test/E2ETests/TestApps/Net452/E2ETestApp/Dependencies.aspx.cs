@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Diagnostics.Tracing;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
@@ -29,6 +30,7 @@ namespace E2ETestApp
         private const string UrlGoogle = "http://google.com";
         public const string UrlWhichThrowException = "http://e2etestwebapi:80/api/values/999";
         private const string UrlWithNonexistentHostName = "http://abcdefzzzzeeeeadadad.com";
+        private static bool etwEnabled = false;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -45,13 +47,38 @@ namespace E2ETestApp
                 switch (type)
                 {
                     case "etw":
+                        if(etwEnabled)                        
+                            break;
+                        
+
+                        string levelString = "Error";
+                        try {
+                            levelString = Request.QueryString["level"];
+                        }
+                        catch (Exception) { }
+
+                        EventLevel level = EventLevel.Error;
+                        switch (levelString)
+                        {
+                            case "Verbose": level = EventLevel.Verbose; break;
+                            case "Informational": level = EventLevel.Informational; break;
+                            case "Warning": level = EventLevel.Warning; break;
+                            case "Error": level = EventLevel.Error; break;
+                            case "Critical": level = EventLevel.Critical; break;
+                        }
                         new Thread(() =>
                         {
-                            Thread.CurrentThread.IsBackground = true;
-                            EtwEventSessionRdd EtwSession = new EtwEventSessionRdd();
-                            EtwSession.Start();                            
+                            try
+                            {
+                                Thread.CurrentThread.IsBackground = true;
+                                DiagnosticsEventListener dd = new DiagnosticsEventListener(level);
+                            }
+                            catch(Exception ex)
+                            {
+
+                            }
                         }).Start();
-                        HttpHelper40.MakeHttpCallSync(UrlTestWebApiGetCall);
+                        etwEnabled = true;
                         break;
                     case "flush":
                             TelemetryConfiguration.Active.TelemetryChannel.Flush();

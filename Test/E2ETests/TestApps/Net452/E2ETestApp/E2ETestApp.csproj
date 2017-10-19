@@ -181,9 +181,6 @@
     </Content>
     <None Include="Properties\PublishProfiles\PublishForDocker.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
-    <Content Include="RddListener.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
@@ -252,9 +249,7 @@
       <DependentUpon>Dependencies.aspx</DependentUpon>
     </Compile>
     <Compile Include="DependencyCallHelpers.cs" />
-    <Compile Include="EtwEventSessionRdd.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Compile>
+    <Compile Include="DiagnosticsEventListener.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
