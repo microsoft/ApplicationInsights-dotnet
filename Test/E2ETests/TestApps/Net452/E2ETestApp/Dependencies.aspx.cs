@@ -49,8 +49,7 @@ namespace E2ETestApp
                         {
                             Thread.CurrentThread.IsBackground = true;
                             EtwEventSessionRdd EtwSession = new EtwEventSessionRdd();
-                            EtwSession.Start();
-                            Console.WriteLine("Hello, world");
+                            EtwSession.Start();                            
                         }).Start();
                         HttpHelper40.MakeHttpCallSync(UrlTestWebApiGetCall);
                         break;

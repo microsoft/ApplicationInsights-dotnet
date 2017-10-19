@@ -783,10 +783,22 @@ namespace E2ETests
             Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
             PrintDependencies(dependenciesWebApp);
 
+            PrintApplicationTraces(ikey);
             Assert.IsTrue(dependenciesWebApp.Count == count, string.Format("Dependeny count is incorrect. Actual: {0} Expected: {1}", dependenciesWebApp.Count, count));
             var dependency = dependenciesWebApp[0];
 
             ValidateDependency(expectedDependencyTelemetry, dependency, expectedPrefix);
+        }
+
+        private void PrintApplicationTraces(string ikey)
+        {
+            var messages = dataendpointClient.GetItemsOfType<TelemetryItem<AI.MessageData>>(ikey);
+            Trace.WriteLine("Begin Application Traces for ikey:" + ikey + "----------------------------------------------------------------------------------------");
+            foreach (var message in messages)
+            {
+                Trace.WriteLine("Application Trace:" + message.data.baseData.message);
+            }
+            Trace.WriteLine("End Application Traces for ikey:" + ikey + "----------------------------------------------------------------------------------------");
         }
 
         private async Task ValidateAzureDependencyAsync(string targetInstanceIp, string targetPath,
