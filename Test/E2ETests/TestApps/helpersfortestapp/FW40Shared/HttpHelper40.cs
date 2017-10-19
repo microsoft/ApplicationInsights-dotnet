@@ -227,6 +227,9 @@ namespace FW40Shared
             }
 
             Directory.Delete(@"c:\fromblob", true);
+
+            container.DeleteIfExists();
+
         }
 
         /// <summary>
@@ -302,7 +305,7 @@ namespace FW40Shared
             batchOperation.Insert(customer2);
 
             // Execute the batch operation.
-            table.ExecuteBatch(batchOperation);
+            table.ExecuteBatch(batchOperation);            
         }
 
         /// <summary>
@@ -337,6 +340,8 @@ namespace FW40Shared
                 var x4 = entity.PhoneNumber;
                 var s = x1 + x2 + x3 + x4;
             }
+
+            table.DeleteIfExists();
         }
 
         /// <summary>
