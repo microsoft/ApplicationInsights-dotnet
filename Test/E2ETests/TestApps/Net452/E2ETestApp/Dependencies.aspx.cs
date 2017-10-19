@@ -74,7 +74,7 @@ namespace E2ETestApp
                                 Thread.CurrentThread.IsBackground = true;
                                 DiagnosticsEventListener dd = new DiagnosticsEventListener(level);
                             }
-                            catch(Exception ex)
+                            catch(Exception)
                             {
 
                             }
