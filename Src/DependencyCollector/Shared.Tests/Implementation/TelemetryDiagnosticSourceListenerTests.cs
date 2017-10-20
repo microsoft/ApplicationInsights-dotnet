@@ -176,6 +176,8 @@
                 // generic example
                 var tags = new Dictionary<string, string>()
                 {
+                    ["error"] = "true",
+                    ["peer.hostname"] = "test.example.com",
                     ["custom.tag"] = "test"
                 };
 
@@ -184,8 +186,8 @@
                 Assert.AreEqual(telemetryItem.Name, "Test.A.Client.Monitoring"); // Activity name
                 Assert.AreEqual(telemetryItem.Type, listener.Name);
                 Assert.IsTrue(string.IsNullOrEmpty(telemetryItem.Data));
-                Assert.IsTrue(string.IsNullOrEmpty(telemetryItem.Target));
-                Assert.AreEqual(telemetryItem.Success, true);
+                Assert.AreEqual(telemetryItem.Target, tags["peer.hostname"]);
+                Assert.AreEqual(telemetryItem.Success, false);
                 Assert.IsTrue(telemetryItem.Properties.ContainsKey("custom.tag"));
                 Assert.AreEqual(telemetryItem.Properties["custom.tag"], tags["custom.tag"]);
             }
