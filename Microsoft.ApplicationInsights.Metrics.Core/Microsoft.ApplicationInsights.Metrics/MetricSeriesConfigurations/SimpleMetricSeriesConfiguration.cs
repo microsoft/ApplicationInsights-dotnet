@@ -115,7 +115,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             return (this.RequiresPersistentAggregation == other.RequiresPersistentAggregation)
-                || (this.RestrictToUInt32Values == other.RestrictToUInt32Values);
+                && (this.RestrictToUInt32Values == other.RestrictToUInt32Values);
         }
 
         /// <summary>

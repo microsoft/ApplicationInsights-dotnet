@@ -53,7 +53,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Microsoft.ApplicationInsights.Metrics\MetricTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics.Extensibility\MetricEntensionsTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\SimpleMetricConfigurationTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights\MetricTests.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

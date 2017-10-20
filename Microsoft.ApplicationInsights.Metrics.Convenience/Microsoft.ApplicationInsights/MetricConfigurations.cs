@@ -9,12 +9,12 @@ namespace Microsoft.ApplicationInsights
     /// <summary>
     /// 
     /// </summary>
-    public static class MetricConfiguration
+    public static class MetricConfigurations
     {
         private static IMetricConfiguration s_measurementDouble;
         private static IMetricConfiguration s_counterDouble;
 
-        static MetricConfiguration()
+        static MetricConfigurations()
         {
             ReInitialize();
         }
@@ -87,7 +87,7 @@ namespace Microsoft.ApplicationInsights
                     }
 
                     Interlocked.Exchange(ref s_seriesCountLimit, value);    // benign race;
-                    MetricConfiguration.ReInitialize();
+                    MetricConfigurations.ReInitialize();
                 }
             }
 
@@ -109,7 +109,7 @@ namespace Microsoft.ApplicationInsights
                     }
 
                     Interlocked.Exchange(ref s_valuesPerDimensionLimit, value);    // benign race;
-                    MetricConfiguration.ReInitialize();
+                    MetricConfigurations.ReInitialize();
                 }
             }
         }

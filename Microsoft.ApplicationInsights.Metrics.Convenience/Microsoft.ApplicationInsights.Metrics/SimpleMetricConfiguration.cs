@@ -18,8 +18,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         //    : this(
         //            seriesCountLimit,
         //            valuesPerDimensionLimit,
-        //            MetricConfiguration.FutureDefaults.NewSeriesCreationRetryDelay,
-        //            MetricConfiguration.FutureDefaults.NewSeriesCreationTimeout,
+        //            MetricConfigurations.FutureDefaults.NewSeriesCreationRetryDelay,
+        //            MetricConfigurations.FutureDefaults.NewSeriesCreationTimeout,
         //            seriesConfig)
         //{
         //}

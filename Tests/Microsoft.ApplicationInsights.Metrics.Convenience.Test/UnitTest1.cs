@@ -31,7 +31,7 @@ namespace SomeCustomerNamespace
             aiClient.GetMetric("Cows Sold").TrackValue(18);
 
 
-            Metric itemsInQueue = aiClient.GetMetric("Items in Queue", MetricConfiguration.Counter);
+            Metric itemsInQueue = aiClient.GetMetric("Items in Queue", MetricConfigurations.Counter);
 
             itemsInQueue.TrackValue(5);     // 5
             itemsInQueue.TrackValue(3);     // 8
@@ -40,7 +40,7 @@ namespace SomeCustomerNamespace
             itemsInQueue.TrackValue(-2);    // 3
 
 
-            Metric horsesSold = aiClient.GetMetric("Horses sold", "Gender", "Color", MetricConfiguration.Measurement);
+            Metric horsesSold = aiClient.GetMetric("Horses sold", "Gender", "Color", MetricConfigurations.Measurement);
 
             horsesSold.TrackValue(42);
             bool canTrack = horsesSold.TryTrackValue(18, "Female", "Black");

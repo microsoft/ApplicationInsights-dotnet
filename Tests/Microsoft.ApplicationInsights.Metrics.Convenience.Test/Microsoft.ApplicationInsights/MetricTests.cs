@@ -2,14 +2,10 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Microsoft.ApplicationInsights.Metrics;
-//using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using System.Collections.Generic;
 using Microsoft.ApplicationInsights.Metrics.TestUtil;
-using Microsoft.ApplicationInsights.Channel;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using Microsoft.ApplicationInsights.DataContracts;
@@ -39,7 +35,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Measurement)
+                                    configuration: MetricConfigurations.Measurement)
             );
 
             {
@@ -48,7 +44,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "  Foo ",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Measurement);
+                                    configuration: MetricConfigurations.Measurement);
                 Assert.IsNotNull(metric);
             }
 
@@ -61,7 +57,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: null,
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Measurement)
+                                    configuration: MetricConfigurations.Measurement)
             );
 
             Assert.ThrowsException<ArgumentException>(
@@ -70,7 +66,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Measurement)
+                                    configuration: MetricConfigurations.Measurement)
             );
 
             Assert.ThrowsException<ArgumentException>(
@@ -79,7 +75,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "   ",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Measurement)
+                                    configuration: MetricConfigurations.Measurement)
             );
 
             {
@@ -88,7 +84,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "  Foo ",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Measurement);
+                                    configuration: MetricConfigurations.Measurement);
                 Assert.IsNotNull(metric);
                 Assert.AreEqual("Foo", metric.MetricId);
             }
@@ -102,7 +98,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: null,
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Measurement)
+                                    configuration: MetricConfigurations.Measurement)
             );
 
             Assert.ThrowsException<ArgumentException>(
@@ -111,7 +107,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Measurement)
+                                    configuration: MetricConfigurations.Measurement)
             );
 
             Assert.ThrowsException<ArgumentException>(
@@ -120,7 +116,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "  \t",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Measurement)
+                                    configuration: MetricConfigurations.Measurement)
             );
 
             {
@@ -129,7 +125,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: " D1  ",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Measurement);
+                                    configuration: MetricConfigurations.Measurement);
                 Assert.IsNotNull(metric);
                 Assert.AreEqual("D1", metric.GetDimensionName(1));
             }
@@ -143,7 +139,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: "",
-                                    configuration: MetricConfiguration.Measurement)
+                                    configuration: MetricConfigurations.Measurement)
             );
 
             Assert.ThrowsException<ArgumentException>(
@@ -152,7 +148,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: " \r\n",
-                                    configuration: MetricConfiguration.Measurement)
+                                    configuration: MetricConfigurations.Measurement)
             );
 
             {
@@ -161,7 +157,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2\t",
-                                    configuration: MetricConfiguration.Measurement);
+                                    configuration: MetricConfigurations.Measurement);
                 Assert.IsNotNull(metric);
                 Assert.AreEqual(2, metric.DimensionsCount);
                 Assert.AreEqual("D1", metric.GetDimensionName(1));
@@ -173,7 +169,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: null,
-                                    configuration: MetricConfiguration.Measurement);
+                                    configuration: MetricConfigurations.Measurement);
                 Assert.IsNotNull(metric);
                 Assert.AreEqual(1, metric.DimensionsCount);
                 Assert.AreEqual("D1", metric.GetDimensionName(1));
@@ -185,7 +181,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: null,
                                     dimension2Name: null,
-                                    configuration: MetricConfiguration.Measurement);
+                                    configuration: MetricConfigurations.Measurement);
                 Assert.IsNotNull(metric);
                 Assert.AreEqual(0, metric.DimensionsCount);
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionName(1) );
@@ -210,11 +206,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: null,
                                     dimension2Name: null,
-                                    configuration: MetricConfiguration.Measurement);
+                                    configuration: MetricConfigurations.Measurement);
                 Assert.IsNotNull(metric);
 
-                Assert.AreEqual(MetricConfiguration.Measurement, metric.GetConfiguration());
-                Assert.AreSame(MetricConfiguration.Measurement, metric.GetConfiguration());
+                Assert.AreEqual(MetricConfigurations.Measurement, metric.GetConfiguration());
+                Assert.AreSame(MetricConfigurations.Measurement, metric.GetConfiguration());
             }
             {
                 IMetricConfiguration customConfig = new SimpleMetricConfiguration(
@@ -253,7 +249,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: null,
                                         dimension2Name: null,
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfigurations.Measurement);
 
                 Assert.AreEqual("Foo", metric.MetricId);
             }
@@ -263,7 +259,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "\t\tFoo Bar \r\nx ",
                                         dimension1Name: null,
                                         dimension2Name: null,
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfigurations.Measurement);
 
                 Assert.AreEqual("Foo Bar \r\nx", metric.MetricId);
             }
@@ -287,7 +283,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: null,
                                         dimension2Name: null,
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfigurations.Measurement);
 
                 Assert.AreEqual(0, metric.DimensionsCount);
             }
@@ -297,7 +293,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: "XXX",
                                         dimension2Name: null,
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfigurations.Measurement);
 
                 Assert.AreEqual(1, metric.DimensionsCount);
             }
@@ -307,7 +303,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: "XXX",
                                         dimension2Name: "XXX",
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfigurations.Measurement);
 
                 Assert.AreEqual(2, metric.DimensionsCount);
             }
@@ -329,7 +325,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: "D1",
                                         dimension2Name: "D2",
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfigurations.Measurement);
 
                 Assert.AreEqual(1, metric.SeriesCount);
 
@@ -414,7 +410,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: null,
                                         dimension2Name: null,
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfigurations.Measurement);
 
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionName(-1) );
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionName(0) );
@@ -428,7 +424,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: "D1",
                                         dimension2Name: null,
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfigurations.Measurement);
 
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionName(-1) );
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionName(0) );
@@ -442,7 +438,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: "D1",
                                         dimension2Name: "D2",
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfigurations.Measurement);
 
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionName(-1) );
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionName(0) );
@@ -468,7 +464,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: "D1",
                                         dimension2Name: "D2",
-                                        configuration: MetricConfiguration.Counter);
+                                        configuration: MetricConfigurations.Counter);
 
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
@@ -516,7 +512,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: "D1",
                                         dimension2Name: null,
-                                        configuration: MetricConfiguration.Counter);
+                                        configuration: MetricConfigurations.Counter);
 
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
@@ -821,7 +817,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: null,
                                         dimension2Name: null,
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfigurations.Measurement);
 
                 MetricSeries series;
                 bool success;
@@ -861,7 +857,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: "Bar",
                                         dimension2Name: null,
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfigurations.Measurement);
 
                 MetricSeries series;
                 bool success;
@@ -960,7 +956,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: "Bar",
                                         dimension2Name: "Poo",
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfigurations.Measurement);
 
                 MetricSeries series;
                 bool success;
@@ -1126,7 +1122,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: "D1",
                                         dimension2Name: "D2",
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfigurations.Measurement);
 
                 metric.TrackValue(42);
                 metric.TrackValue(-100);
@@ -1151,7 +1147,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         metricId: "Foo",
                                         dimension1Name: "D1",
                                         dimension2Name: "D2",
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfigurations.Measurement);
 
                 metric.TrackValue("42");
                 metric.TrackValue("-100");
@@ -1368,7 +1364,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary />
         [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
-        public void Equals()
+        public void TestEquals()
         {
             MetricManager metricManager = new MetricManager(new MemoryMetricTelemetryPipeline());
             Metric metric1 = InvokeMetricCtor(
@@ -1376,7 +1372,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.IsFalse(metric1.Equals(null));
             Assert.IsFalse(metric1.Equals("some object"));
@@ -1387,7 +1383,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.IsTrue(metric1.Equals(metric2));
             Assert.IsTrue(metric2.Equals(metric1));
@@ -1397,7 +1393,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2x",
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.IsFalse(metric1.Equals(metric2));
             Assert.IsFalse(metric2.Equals(metric1));
@@ -1407,7 +1403,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: null,
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.IsFalse(metric1.Equals(metric2));
             Assert.IsFalse(metric2.Equals(metric1));
@@ -1417,7 +1413,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                    metricId: "Foo",
                                    dimension1Name: null,
                                    dimension2Name: null,
-                                   configuration: MetricConfiguration.Counter);
+                                   configuration: MetricConfigurations.Counter);
 
             Assert.IsFalse(metric1.Equals(metric2));
             Assert.IsFalse(metric2.Equals(metric1));
@@ -1427,7 +1423,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1x",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.IsFalse(metric1.Equals(metric2));
             Assert.IsFalse(metric2.Equals(metric1));
@@ -1437,7 +1433,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foox",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.IsFalse(metric1.Equals(metric2));
             Assert.IsFalse(metric2.Equals(metric1));
@@ -1447,7 +1443,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Measurement);
+                                    configuration: MetricConfigurations.Measurement);
 
             Assert.IsTrue(metric1.Equals(metric2));
             Assert.IsTrue(metric2.Equals(metric1));
@@ -1458,7 +1454,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.IsTrue(metric1.Equals(metric2));
             Assert.IsTrue(metric2.Equals(metric1));
@@ -1471,7 +1467,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary />
         [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
-        public void GetHashCode()
+        public void TestGetHashCode()
         {
             MetricManager metricManager = new MetricManager(new MemoryMetricTelemetryPipeline());
             Metric metric1 = InvokeMetricCtor(
@@ -1479,7 +1475,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.AreNotEqual(0, metric1.GetHashCode());
             Assert.AreEqual(metric1.GetHashCode(), metric1.GetHashCode());
@@ -1489,7 +1485,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.AreEqual(metric1.GetHashCode(), metric2.GetHashCode());
             Assert.AreNotEqual(0, metric1.GetHashCode());
@@ -1500,7 +1496,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2x",
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.AreNotEqual(metric1.GetHashCode(), metric2.GetHashCode());
             Assert.AreNotEqual(0, metric1.GetHashCode());
@@ -1511,7 +1507,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: null,
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.AreNotEqual(metric1.GetHashCode(), metric2.GetHashCode());
             Assert.AreNotEqual(0, metric1.GetHashCode());
@@ -1522,7 +1518,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: null,
                                     dimension2Name: null,
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.AreNotEqual(metric1.GetHashCode(), metric2.GetHashCode());
             Assert.AreNotEqual(0, metric1.GetHashCode());
@@ -1533,7 +1529,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1x",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.AreNotEqual(metric1.GetHashCode(), metric2.GetHashCode());
             Assert.AreNotEqual(0, metric1.GetHashCode());
@@ -1544,7 +1540,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foox",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.AreNotEqual(metric1.GetHashCode(), metric2.GetHashCode());
             Assert.AreNotEqual(0, metric1.GetHashCode());
@@ -1555,7 +1551,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Measurement);
+                                    configuration: MetricConfigurations.Measurement);
 
             Assert.AreEqual(metric1.GetHashCode(), metric2.GetHashCode());
             Assert.AreNotEqual(0, metric1.GetHashCode());
@@ -1567,7 +1563,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     metricId: "Foo",
                                     dimension1Name: "D1",
                                     dimension2Name: "D2",
-                                    configuration: MetricConfiguration.Counter);
+                                    configuration: MetricConfigurations.Counter);
 
             Assert.AreEqual(metric1.GetHashCode(), metric2.GetHashCode());
             Assert.AreNotEqual(0, metric1.GetHashCode());
