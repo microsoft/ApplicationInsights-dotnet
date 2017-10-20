@@ -2,10 +2,6 @@
 
 namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    class MetricEntensions
-    {
-    }
-
     /// <summary>
     /// There are some APIs on <c>Metric</c> that we hide from Intellisense by making them internal until the ..Extensibility namespace is imported.
     /// This class exposes them.

@@ -10,7 +10,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 {
     /// <summary />
     [TestClass]
-    public class MetricEntensionsTests
+    public class MetricExtensionsTests
     {
        
         /// <summary />

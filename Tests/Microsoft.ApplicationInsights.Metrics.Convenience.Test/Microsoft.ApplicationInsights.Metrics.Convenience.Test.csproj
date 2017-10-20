@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Microsoft.ApplicationInsights.Metrics.Extensibility\MetricEntensionsTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\SimpleMetricConfigurationTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights\TelemetryClientExtensionsTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights\MetricTests.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
