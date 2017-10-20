@@ -13,6 +13,7 @@ using Microsoft.ApplicationInsights.Channel;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using Microsoft.ApplicationInsights.DataContracts;
+using System.Linq;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -33,7 +34,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // ** Validate metricManager parameter:
 
             Assert.ThrowsException<ArgumentNullException>(
-                    () => CreateMetric(
+                    () => InvokeMetricCtor(
                                     metricManager: null,
                                     metricId: "Foo",
                                     dimension1Name: "D1",
@@ -42,7 +43,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             );
 
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                     metricManager,
                                     metricId: "  Foo ",
                                     dimension1Name: "D1",
@@ -55,7 +56,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // ** Validate metricId parameter:
 
             Assert.ThrowsException<ArgumentNullException>(
-                    () => CreateMetric(
+                    () => InvokeMetricCtor(
                                     metricManager,
                                     metricId: null,
                                     dimension1Name: "D1",
@@ -64,7 +65,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             );
 
             Assert.ThrowsException<ArgumentException>(
-                    () => CreateMetric(
+                    () => InvokeMetricCtor(
                                     metricManager,
                                     metricId: "",
                                     dimension1Name: "D1",
@@ -73,7 +74,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             );
 
             Assert.ThrowsException<ArgumentException>(
-                    () => CreateMetric(
+                    () => InvokeMetricCtor(
                                     metricManager,
                                     metricId: "   ",
                                     dimension1Name: "D1",
@@ -82,7 +83,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             );
 
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                     metricManager,
                                     metricId: "  Foo ",
                                     dimension1Name: "D1",
@@ -96,7 +97,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // ** Validate dimension1Name parameter:
 
             Assert.ThrowsException<ArgumentException>(
-                    () => CreateMetric(
+                    () => InvokeMetricCtor(
                                     metricManager,
                                     metricId: "Foo",
                                     dimension1Name: null,
@@ -105,7 +106,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             );
 
             Assert.ThrowsException<ArgumentException>(
-                    () => CreateMetric(
+                    () => InvokeMetricCtor(
                                     metricManager,
                                     metricId: "Foo",
                                     dimension1Name: "",
@@ -114,7 +115,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             );
 
             Assert.ThrowsException<ArgumentException>(
-                    () => CreateMetric(
+                    () => InvokeMetricCtor(
                                     metricManager,
                                     metricId: "Foo",
                                     dimension1Name: "  \t",
@@ -123,7 +124,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             );
 
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                     metricManager,
                                     metricId: "Foo",
                                     dimension1Name: " D1  ",
@@ -137,7 +138,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // ** Validate dimension2Name parameter:
 
             Assert.ThrowsException<ArgumentException>(
-                    () => CreateMetric(
+                    () => InvokeMetricCtor(
                                     metricManager,
                                     metricId: "Foo",
                                     dimension1Name: "D1",
@@ -146,7 +147,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             );
 
             Assert.ThrowsException<ArgumentException>(
-                    () => CreateMetric(
+                    () => InvokeMetricCtor(
                                     metricManager,
                                     metricId: "Foo",
                                     dimension1Name: "D1",
@@ -155,7 +156,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             );
 
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                     metricManager,
                                     metricId: "Foo",
                                     dimension1Name: "D1",
@@ -167,7 +168,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual("D2", metric.GetDimensionName(2));
             }
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                     metricManager,
                                     metricId: "Foo",
                                     dimension1Name: "D1",
@@ -179,7 +180,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionName(2) );
             }
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                     metricManager,
                                     metricId: "Foo",
                                     dimension1Name: null,
@@ -195,7 +196,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // ** Validate configuration parameter:
 
             Assert.ThrowsException<ArgumentNullException>(
-                    () => CreateMetric(
+                    () => InvokeMetricCtor(
                                     metricManager,
                                     metricId: "Foo",
                                     dimension1Name: "D1",
@@ -204,7 +205,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             );
 
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                     metricManager,
                                     metricId: "Foo",
                                     dimension1Name: null,
@@ -223,7 +224,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                                                                             lifetimeCounter: true,
                                                                                                             restrictToUInt32Values: true));
 
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                     metricManager,
                                     metricId: "Foo",
                                     dimension1Name: null,
@@ -243,13 +244,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void MetricId()
         {
-            // The Metric ctor is internal, we use reflection to invoke it.
-
             MemoryMetricTelemetryPipeline telemetryCollector = new MemoryMetricTelemetryPipeline();
             MetricManager metricManager = new MetricManager(telemetryCollector);
 
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: null,
@@ -259,7 +258,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual("Foo", metric.MetricId);
             }
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "\t\tFoo Bar \r\nx ",
                                         dimension1Name: null,
@@ -283,7 +282,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             MetricManager metricManager = new MetricManager(telemetryCollector);
 
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: null,
@@ -293,7 +292,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(0, metric.DimensionsCount);
             }
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: "XXX",
@@ -303,7 +302,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(1, metric.DimensionsCount);
             }
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: "XXX",
@@ -321,13 +320,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void SeriesCount()
         {
-            // The Metric ctor is internal, we use reflection to invoke it.
-
             MemoryMetricTelemetryPipeline telemetryCollector = new MemoryMetricTelemetryPipeline();
             MetricManager metricManager = new MetricManager(telemetryCollector);
 
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: "D1",
@@ -335,11 +332,72 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         configuration: MetricConfiguration.Measurement);
 
                 Assert.AreEqual(1, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(1, "DV11", "DV21"));
+                Assert.AreEqual(2, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(2, "DV11", "DV21"));
+                Assert.AreEqual(2, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(3, "DV12", "DV21"));
+                Assert.AreEqual(3, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(4, "DV13", "DV21"));
+                Assert.AreEqual(4, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(5, "DV14", "DV21"));
+                Assert.AreEqual(5, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(6, "DV12", "DV22"));
+                Assert.AreEqual(6, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(7, "DV12", "DV23"));
+                Assert.AreEqual(7, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(8, "DV12", "DV23"));
+                Assert.AreEqual(7, metric.SeriesCount);
+            }
+            {
+                IMetricConfiguration config = new SimpleMetricConfiguration(
+                                                            5,
+                                                            1000,
+                                                            new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+
+                Metric metric = InvokeMetricCtor(
+                                        metricManager,
+                                        metricId: "Foo",
+                                        dimension1Name: "D1",
+                                        dimension2Name: "D2",
+                                        configuration: config);
+
+                Assert.AreEqual(1, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(1, "DV11", "DV21"));
+                Assert.AreEqual(2, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(2, "DV11", "DV21"));
+                Assert.AreEqual(2, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(3, "DV12", "DV21"));
+                Assert.AreEqual(3, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(4, "DV13", "DV21"));
+                Assert.AreEqual(4, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(5, "DV14", "DV21"));
+                Assert.AreEqual(5, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TryTrackValue(6, "DV12", "DV22"));
+                Assert.AreEqual(5, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TryTrackValue(7, "DV12", "DV23"));
+                Assert.AreEqual(5, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TryTrackValue(8, "DV12", "DV23"));
+                Assert.AreEqual(5, metric.SeriesCount);
             }
 
             Util.CompleteDefaultAggregationCycle(metricManager);
-
-            //throw new NotImplementedException();
         }
 
         /// <summary />
@@ -347,13 +405,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void GetDimensionName()
         {
-            // The Metric ctor is internal, we use reflection to invoke it.
-
             MemoryMetricTelemetryPipeline telemetryCollector = new MemoryMetricTelemetryPipeline();
             MetricManager metricManager = new MetricManager(telemetryCollector);
 
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: null,
@@ -367,7 +423,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionName(3) );
             }
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: "D1",
@@ -381,7 +437,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionName(3) );
             }
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: "D1",
@@ -401,36 +457,354 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary />
         [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
-        public void GetAllSeries()
+        public void GetDimensionValues()
         {
-            // The Metric ctor is internal, we use reflection to invoke it.
-
             MemoryMetricTelemetryPipeline telemetryCollector = new MemoryMetricTelemetryPipeline();
             MetricManager metricManager = new MetricManager(telemetryCollector);
 
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: "D1",
                                         dimension2Name: "D2",
-                                        configuration: MetricConfiguration.Measurement);
+                                        configuration: MetricConfiguration.Counter);
 
-                IReadOnlyList<KeyValuePair<string[], MetricSeries>> series = metric.GetAllSeries();
-                Assert.IsNotNull(series);
-                Assert.AreEqual(1, series.Count);
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
 
-                Assert.IsNotNull(series[0].Key);
-                Assert.AreEqual(0, series[0].Key.Length);
+                IReadOnlyCollection<string> dimVals = metric.GetDimensionValues(1);
+                Assert.AreEqual(0, dimVals.Count);
 
-                Assert.IsNotNull(series[0].Value);
-                Assert.AreEqual("Foo", series[0].Value.MetricId);
-                Assert.AreEqual(0, series[0].Value.Context?.Properties?.Count);
+                dimVals = metric.GetDimensionValues(2);
+                Assert.AreEqual(0, dimVals.Count);
+
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+
+
+                metric.TrackValue(1);
+                metric.TrackValue(2);
+                metric.TryTrackValue(3, "A", "B");
+                metric.TryTrackValue(4, "a", "B");
+                metric.TryTrackValue(5, "X", "B");
+                metric.TryTrackValue(6, "Y", "B");
+                metric.TryTrackValue(7, "Y", "C");
+                metric.TryTrackValue(8, "A", "B");
+
+                dimVals = metric.GetDimensionValues(1);
+                Assert.AreEqual(4, dimVals.Count);
+                Assert.IsTrue(dimVals.Contains("A"));
+                Assert.IsTrue(dimVals.Contains("a"));
+                Assert.IsTrue(dimVals.Contains("X"));
+                Assert.IsTrue(dimVals.Contains("Y"));
+                Assert.IsFalse(dimVals.Contains("y"));
+
+                dimVals = metric.GetDimensionValues(2);
+                Assert.AreEqual(2, dimVals.Count);
+                Assert.IsTrue(dimVals.Contains("B"));
+                Assert.IsTrue(dimVals.Contains("C"));
+                Assert.IsFalse(dimVals.Contains("b"));
+                Assert.IsFalse(dimVals.Contains("c"));
+
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+            }
+            {
+                Metric metric = InvokeMetricCtor(
+                                        metricManager,
+                                        metricId: "Foo",
+                                        dimension1Name: "D1",
+                                        dimension2Name: null,
+                                        configuration: MetricConfiguration.Counter);
+
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
+
+                IReadOnlyCollection<string> dimVals = metric.GetDimensionValues(1);
+                Assert.AreEqual(0, dimVals.Count);
+
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(2) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+
+
+                metric.TrackValue(1);
+                metric.TrackValue(2);
+                metric.TryTrackValue(3, "A");
+                metric.TryTrackValue(4, "a");
+                metric.TryTrackValue(5, "X");
+                metric.TryTrackValue(6, "Y");
+                metric.TryTrackValue(7, "Y");
+                metric.TryTrackValue(8, "A");
+
+                dimVals = metric.GetDimensionValues(1);
+                Assert.AreEqual(4, dimVals.Count);
+                Assert.IsTrue(dimVals.Contains("A"));
+                Assert.IsTrue(dimVals.Contains("a"));
+                Assert.IsTrue(dimVals.Contains("X"));
+                Assert.IsTrue(dimVals.Contains("Y"));
+                Assert.IsFalse(dimVals.Contains("y"));
+
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(2) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+            }
+            {
+                IMetricConfiguration config = new SimpleMetricConfiguration(
+                                                            4,
+                                                            1000,
+                                                            new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
+                Metric metric = InvokeMetricCtor(
+                                        metricManager,
+                                        metricId: "Foo",
+                                        dimension1Name: "D1",
+                                        dimension2Name: "D2",
+                                        configuration: config);
+
+                metric.TrackValue(1);
+                metric.TrackValue(1);
+                Assert.IsTrue(metric.TryTrackValue(2, "A", "B"));
+                Assert.IsTrue(metric.TryTrackValue(3, "a", "B"));
+                Assert.IsTrue(metric.TryTrackValue(4, "X", "B"));
+                Assert.IsFalse(metric.TryTrackValue(5, "Y", "B"));
+                Assert.IsFalse(metric.TryTrackValue(5, "Y", "C"));
+                Assert.IsTrue(metric.TryTrackValue(5, "A", "B"));
+
+                IReadOnlyCollection<string> dimVals = metric.GetDimensionValues(1);
+                Assert.AreEqual(3, dimVals.Count);
+                Assert.IsTrue(dimVals.Contains("A"));
+                Assert.IsTrue(dimVals.Contains("a"));
+                Assert.IsTrue(dimVals.Contains("X"));
+                Assert.IsFalse(dimVals.Contains("Y"));
+
+                dimVals = metric.GetDimensionValues(2);
+                Assert.AreEqual(1, dimVals.Count);
+                Assert.IsTrue(dimVals.Contains("B"));
+
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+            }
+            {
+                IMetricConfiguration config = new SimpleMetricConfiguration(
+                                                            4,
+                                                            1000,
+                                                            new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
+                Metric metric = InvokeMetricCtor(
+                                        metricManager,
+                                        metricId: "Foo",
+                                        dimension1Name: "D1",
+                                        dimension2Name: null,
+                                        configuration: config);
+
+                metric.TrackValue(1);
+                metric.TrackValue(1);
+                Assert.IsTrue(metric.TryTrackValue(2, "A"));
+                Assert.IsTrue(metric.TryTrackValue(3, "a"));
+                Assert.IsTrue(metric.TryTrackValue(4, "X"));
+                Assert.IsFalse(metric.TryTrackValue(5, "Y"));
+                Assert.IsFalse(metric.TryTrackValue(5, "Y"));
+                Assert.IsTrue(metric.TryTrackValue(5, "A"));
+
+                IReadOnlyCollection<string> dimVals = metric.GetDimensionValues(1);
+                Assert.AreEqual(3, dimVals.Count);
+                Assert.IsTrue(dimVals.Contains("A"));
+                Assert.IsTrue(dimVals.Contains("a"));
+                Assert.IsTrue(dimVals.Contains("X"));
+                Assert.IsFalse(dimVals.Contains("Y"));
+
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(2) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+            }
+            {
+                IMetricConfiguration config = new SimpleMetricConfiguration(
+                                                            1000,
+                                                            2,
+                                                            new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
+                Metric metric = InvokeMetricCtor(
+                                        metricManager,
+                                        metricId: "Foo",
+                                        dimension1Name: "D1",
+                                        dimension2Name: "D2",
+                                        configuration: config);
+
+                metric.TrackValue(0);
+                metric.TrackValue(0);
+                Assert.IsTrue(metric.TryTrackValue(0, "A", "B"));
+                Assert.IsTrue(metric.TryTrackValue(0, "a", "B"));
+                Assert.IsFalse(metric.TryTrackValue(0, "X", "B"));
+                Assert.IsFalse(metric.TryTrackValue(0, "Y", "B"));
+                Assert.IsFalse(metric.TryTrackValue(0, "Y", "C"));
+                Assert.IsTrue(metric.TryTrackValue(0, "A", "B"));
+                Assert.IsTrue(metric.TryTrackValue(0, "A", "C"));
+                Assert.IsFalse(metric.TryTrackValue(0, "A", "D"));
+
+                IReadOnlyCollection<string> dimVals = metric.GetDimensionValues(1);
+                Assert.AreEqual(2, dimVals.Count);
+                Assert.IsTrue(dimVals.Contains("A"));
+                Assert.IsTrue(dimVals.Contains("a"));
+
+                dimVals = metric.GetDimensionValues(2);
+                Assert.AreEqual(2, dimVals.Count);
+                Assert.IsTrue(dimVals.Contains("B"));
+                Assert.IsTrue(dimVals.Contains("C"));
+
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
+            }
+            {
+                IMetricConfiguration config = new SimpleMetricConfiguration(
+                                                            1000,
+                                                            2,
+                                                            new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
+                Metric metric = InvokeMetricCtor(
+                                        metricManager,
+                                        metricId: "Foo",
+                                        dimension1Name: "D1",
+                                        dimension2Name: null,
+                                        configuration: config);
+
+                metric.TrackValue(0);
+                metric.TrackValue(0);
+                Assert.IsTrue(metric.TryTrackValue(0, "A"));
+                Assert.IsTrue(metric.TryTrackValue(0, "a"));
+                Assert.IsFalse(metric.TryTrackValue(0, "X"));
+                Assert.IsFalse(metric.TryTrackValue(0, "Y"));
+                Assert.IsTrue(metric.TryTrackValue(0, "A"));
+
+                IReadOnlyCollection<string> dimVals = metric.GetDimensionValues(1);
+                Assert.AreEqual(2, dimVals.Count);
+                Assert.IsTrue(dimVals.Contains("A"));
+                Assert.IsTrue(dimVals.Contains("a"));
+
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(-1) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(0) );
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
             }
 
             Util.CompleteDefaultAggregationCycle(metricManager);
+        }
 
-            //throw new NotImplementedException();
+        /// <summary />
+        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
+        [TestMethod]
+        public void GetAllSeries()
+        {
+            MemoryMetricTelemetryPipeline telemetryCollector = new MemoryMetricTelemetryPipeline();
+            MetricManager metricManager = new MetricManager(telemetryCollector);
+
+            {
+                IMetricConfiguration config = new SimpleMetricConfiguration(
+                                                            5,
+                                                            1000,
+                                                            new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
+
+                Metric metric = InvokeMetricCtor(
+                                        metricManager,
+                                        metricId: "Foo",
+                                        dimension1Name: "D1",
+                                        dimension2Name: "D2",
+                                        configuration: config);
+
+                IReadOnlyList<KeyValuePair<string[], MetricSeries>> series = metric.GetAllSeries();
+                Assert.AreEqual(1, series.Count);
+                AssertSeries(
+                            series[0],
+                            expectedKeys:               new string[0],
+                            expectedMetricId:           "Foo",
+                            expectedContextProperties:  new Dictionary<string, string> { },
+                            expectedCount:              null,
+                            expectedSum:                null);
+
+
+                metric.TrackValue(1);
+                metric.TrackValue(2);
+                Assert.IsTrue( metric.TryTrackValue(3, "A", "B") );
+                Assert.IsTrue( metric.TryTrackValue(4, "a", "B") );
+                Assert.IsTrue( metric.TryTrackValue(7, "Y", "C") );
+                Assert.IsTrue( metric.TryTrackValue(5, "X", "B") );
+                Assert.IsFalse( metric.TryTrackValue(6, "Y", "B") );
+                Assert.IsTrue( metric.TryTrackValue(8, "A", "B") );
+
+                series = metric.GetAllSeries();
+                Assert.AreEqual(5, series.Count);
+
+                KeyValuePair<string[], MetricSeries>[] sortedSeries = series.OrderBy( (s) => String.Concat(s.Key) ).ToArray();
+
+                AssertSeries(
+                            sortedSeries[0],
+                            expectedKeys:               new string[0],
+                            expectedMetricId:           "Foo",
+                            expectedContextProperties:  new Dictionary<string, string> { },
+                            expectedCount:              2,
+                            expectedSum:                3);
+
+                 AssertSeries(
+                            sortedSeries[1],
+                            expectedKeys:               new string[] { "a", "B" },
+                            expectedMetricId:           "Foo",
+                            expectedContextProperties:  new Dictionary<string, string> { ["D1"] = "a", ["D2"] = "B" },
+                            expectedCount:              1,
+                            expectedSum:                4);
+
+                AssertSeries(
+                            sortedSeries[2],
+                            expectedKeys:               new string[] { "A", "B" },
+                            expectedMetricId:           "Foo",
+                            expectedContextProperties:  new Dictionary<string, string> { ["D1"] = "A", ["D2"] = "B" },
+                            expectedCount:              2,
+                            expectedSum:                11);
+
+                AssertSeries(
+                            sortedSeries[3],
+                            expectedKeys:               new string[] { "X", "B" },
+                            expectedMetricId:           "Foo",
+                            expectedContextProperties:  new Dictionary<string, string> { ["D1"] = "X", ["D2"] = "B" },
+                            expectedCount:              1,
+                            expectedSum:                5);
+
+                AssertSeries(
+                            sortedSeries[4],
+                            expectedKeys:               new string[] { "Y", "C" },
+                            expectedMetricId:           "Foo",
+                            expectedContextProperties:  new Dictionary<string, string> { ["D1"] = "Y", ["D2"] = "C" },
+                            expectedCount:              1,
+                            expectedSum:                7);
+            }
+
+            Util.CompleteDefaultAggregationCycle(metricManager);
+        }
+
+        private static void AssertSeries(
+                                    KeyValuePair<string[], MetricSeries> series,
+                                    string[] expectedKeys,
+                                    string expectedMetricId,
+                                    IDictionary<string, string> expectedContextProperties,
+                                    int? expectedCount,
+                                    double? expectedSum)
+        {
+            Assert.IsNotNull(series.Key);
+
+            Assert.AreEqual(expectedKeys.Length, series.Key.Length);
+            for (int i = 0; i < expectedKeys.Length; i++)
+            {
+                Assert.AreEqual(expectedKeys[i], series.Key[i]);
+            }
+            
+            Assert.AreEqual(expectedMetricId, series.Value.MetricId);
+
+            Assert.AreEqual(expectedContextProperties.Count, series.Value.Context.Properties.Count);
+            foreach (KeyValuePair<string, string> dimNameValue in expectedContextProperties)
+            {
+                Assert.AreEqual(dimNameValue.Value, series.Value.Context.Properties[dimNameValue.Key]);
+            }
+
+            Assert.AreEqual(expectedCount, (series.Value.GetCurrentAggregateUnsafe() as MetricTelemetry)?.Count);
+            Assert.AreEqual(expectedSum, (series.Value.GetCurrentAggregateUnsafe() as MetricTelemetry)?.Sum);
         }
 
         /// <summary />
@@ -438,13 +812,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void TryGetDataSeries_CreatingSeriesCorrectly()
         {
-            // The Metric ctor is internal, we use reflection to invoke it.
-
             MemoryMetricTelemetryPipeline telemetryCollector = new MemoryMetricTelemetryPipeline();
             MetricManager metricManager = new MetricManager(telemetryCollector);
 
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: null,
@@ -484,7 +856,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             {
                 telemetryCollector.Clear();
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: "Bar",
@@ -583,7 +955,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             {
                 telemetryCollector.Clear();
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: "Bar",
@@ -737,21 +1109,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void TryGetDataSeries_NotCreatingWhenLimitsAreReached()
         {
-            // The Metric ctor is internal, we use reflection to invoke it.
-
-            MemoryMetricTelemetryPipeline telemetryCollector = new MemoryMetricTelemetryPipeline();
-            MetricManager metricManager = new MetricManager(telemetryCollector);
-
-            {
-                Metric metric = CreateMetric(
-                                        metricManager,
-                                        metricId: "Foo",
-                                        dimension1Name: "D1",
-                                        dimension2Name: "D2",
-                                        configuration: MetricConfiguration.Measurement);
-            }
-
-            Util.CompleteDefaultAggregationCycle(metricManager);
+           // Removed due to duplication. We asseted this in several other tests.
         }
 
         /// <summary />
@@ -759,13 +1117,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void TrackValue()
         {
-            // The Metric ctor is internal, we use reflection to invoke it.
-
             MemoryMetricTelemetryPipeline telemetryCollector = new MemoryMetricTelemetryPipeline();
             MetricManager metricManager = new MetricManager(telemetryCollector);
 
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: "D1",
@@ -790,7 +1146,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             telemetryCollector.Clear();
             {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: "D1",
@@ -824,17 +1180,15 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void TryTrackValue()
         {
-            // The Metric ctor is internal, we use reflection to invoke it.
-
             MemoryMetricTelemetryPipeline telemetryCollector = new MemoryMetricTelemetryPipeline();
             MetricManager metricManager = new MetricManager(telemetryCollector);
-            IMetricConfiguration config = new SimpleMetricConfiguration(
+
+            {
+                IMetricConfiguration config = new SimpleMetricConfiguration(
                                                     seriesCountLimit: 10,
                                                     valuesPerDimensionLimit: 2,
                                                     seriesConfig: new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
-
-            {
-                Metric metric = CreateMetric(
+                Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
                                         dimension1Name: "D1",
@@ -873,33 +1227,359 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.IsTrue(metric.TryTrackValue(42, "A", "Y"));
                 Assert.AreEqual(4, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(42, "A", "Z"), "Values per Dim2 for Dim1=A limit reached.");
-                Assert.AreEqual(4, metric.SeriesCount);
-
-                Assert.IsTrue(metric.TryTrackValue(42, "B", "Z"), "Values per Dim2 for Dim1=B limit was not yet reached.");
+                Assert.IsTrue(metric.TryTrackValue(42, "B", "Y"));
                 Assert.AreEqual(5, metric.SeriesCount);
 
+                Assert.IsFalse(metric.TryTrackValue(42, "B", "Z"));
+                Assert.AreEqual(5, metric.SeriesCount);
 
-                //metricManager.Flush();
+                Assert.IsFalse(metric.TryTrackValue(42, "A", "Z"));
+                Assert.AreEqual(5, metric.SeriesCount);
 
-                //Assert.AreEqual(1, telemetryCollector.Count);
-                //Assert.IsInstanceOfType(telemetryCollector[0], typeof(MetricTelemetry));
+                metricManager.Flush();
 
-                //Assert.AreEqual("Foo", ((MetricTelemetry) telemetryCollector[0]).Name);
-                //Assert.AreEqual(3, ((MetricTelemetry) telemetryCollector[0]).Count);
-                //Assert.AreEqual(-57.3, ((MetricTelemetry) telemetryCollector[0]).Sum);
+                Assert.AreEqual(5, telemetryCollector.Count);
 
-                //Assert.AreEqual(1, ((MetricTelemetry) telemetryCollector[0]).Context?.Properties?.Count);
-                //Assert.IsTrue(((MetricTelemetry) telemetryCollector[0]).Context?.Properties?.ContainsKey(Util.AggregationIntervalMonikerPropertyKey) ?? false);
+                HashSet<string> results = new HashSet<string>();
+
+                for (int i = 0; i < telemetryCollector.Count; i++)
+                {
+                    Assert.IsInstanceOfType(telemetryCollector[i], typeof(MetricTelemetry));
+                    MetricTelemetry aggregate = (MetricTelemetry) telemetryCollector[i];
+
+                    Assert.AreEqual("Foo", aggregate.Name);
+                    Assert.AreEqual(1, aggregate.Count);
+                    Assert.AreEqual(42, aggregate.Sum);
+
+                    if (1 == aggregate.Context?.Properties?.Count)
+                    {
+                        results.Add("-");
+                    }
+                    else if (3 == aggregate.Context?.Properties?.Count)
+                    {
+                        results.Add($"{aggregate?.Context?.Properties?["D1"]}-{aggregate.Context?.Properties?["D2"]}");
+                    }
+                    else
+                    {
+                        Assert.Fail($"Unexpected number of context properties: {aggregate.Context?.Properties?.Count}.");
+                    }
+                }
+
+                Assert.AreEqual(5, results.Count);
+                Assert.IsTrue(results.Contains("-"));
+                Assert.IsTrue(results.Contains("A-X"));
+                Assert.IsTrue(results.Contains("B-X"));
+                Assert.IsTrue(results.Contains("A-Y"));
+                Assert.IsTrue(results.Contains("B-Y"));
             }
             telemetryCollector.Clear();
-            
+            {
+                IMetricConfiguration config = new SimpleMetricConfiguration(
+                                                    seriesCountLimit: 4,
+                                                    valuesPerDimensionLimit: 25,
+                                                    seriesConfig: new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                Metric metric = InvokeMetricCtor(
+                                        metricManager,
+                                        metricId: "Foo",
+                                        dimension1Name: "D1",
+                                        dimension2Name: null,
+                                        configuration: config);
+
+                Assert.AreEqual(1, metric.SeriesCount);
+
+                metric.TrackValue(42);
+                Assert.AreEqual(1, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(42, "A"));
+                Assert.AreEqual(2, metric.SeriesCount);
+
+                Assert.ThrowsException<ArgumentException>(() => metric.TryTrackValue(42, ""));
+                Assert.AreEqual(2, metric.SeriesCount);
+
+                Assert.ThrowsException<ArgumentNullException>(() => metric.TryTrackValue(42, null));
+                Assert.AreEqual(2, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(42, "B"));
+                Assert.AreEqual(3, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(42, "C"));
+                Assert.AreEqual(4, metric.SeriesCount);
+
+                Assert.IsTrue(metric.TryTrackValue(42, "C"));
+                Assert.AreEqual(4, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TryTrackValue(42, "D"));
+                Assert.AreEqual(4, metric.SeriesCount);
+
+                Assert.IsFalse(metric.TryTrackValue(42, "E"));
+                Assert.AreEqual(4, metric.SeriesCount);
+
+                metricManager.Flush();
+
+                Assert.AreEqual(4, telemetryCollector.Count);
+
+                HashSet<string> results = new HashSet<string>();
+
+                for (int i = 0; i < telemetryCollector.Count; i++)
+                {
+                    Assert.IsInstanceOfType(telemetryCollector[i], typeof(MetricTelemetry));
+                    MetricTelemetry aggregate = (MetricTelemetry) telemetryCollector[i];
+
+                    Assert.AreEqual("Foo", aggregate.Name);
+
+                    bool isC = false;
+                    if (1 == aggregate.Context?.Properties?.Count)
+                    {
+                        results.Add("-");
+                    }
+                    else if (2 == aggregate.Context?.Properties?.Count)
+                    {
+                        string dimVal = aggregate?.Context?.Properties?["D1"];
+                        isC = "C".Equals(dimVal);
+                        results.Add(dimVal);
+                    }
+                    else
+                    {
+                        Assert.Fail($"Unexpected number of context properties: {aggregate.Context?.Properties?.Count}.");
+                    }
+
+                    if (! isC)
+                    {
+                        Assert.AreEqual(1, aggregate.Count);
+                        Assert.AreEqual(42, aggregate.Sum);
+                    }
+                    else
+                    {
+                        Assert.AreEqual(2, aggregate.Count);
+                        Assert.AreEqual(84, aggregate.Sum);
+                    }
+                }
+
+                Assert.AreEqual(4, results.Count);
+                Assert.IsTrue(results.Contains("-"));
+                Assert.IsTrue(results.Contains("A"));
+                Assert.IsTrue(results.Contains("B"));
+                Assert.IsTrue(results.Contains("C"));
+            }
+
+            Util.CompleteDefaultAggregationCycle(metricManager);
+        }
+
+        /// <summary />
+        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
+        [TestMethod]
+        public void Equals()
+        {
+            MetricManager metricManager = new MetricManager(new MemoryMetricTelemetryPipeline());
+            Metric metric1 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: "D1",
+                                    dimension2Name: "D2",
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.IsFalse(metric1.Equals(null));
+            Assert.IsFalse(metric1.Equals("some object"));
+            Assert.IsTrue(metric1.Equals(metric1));
+
+            Metric metric2 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: "D1",
+                                    dimension2Name: "D2",
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.IsTrue(metric1.Equals(metric2));
+            Assert.IsTrue(metric2.Equals(metric1));
+
+            metric2 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: "D1",
+                                    dimension2Name: "D2x",
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.IsFalse(metric1.Equals(metric2));
+            Assert.IsFalse(metric2.Equals(metric1));
+
+            metric2 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: "D1",
+                                    dimension2Name: null,
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.IsFalse(metric1.Equals(metric2));
+            Assert.IsFalse(metric2.Equals(metric1));
+
+            metric2 = InvokeMetricCtor(
+                                   metricManager,
+                                   metricId: "Foo",
+                                   dimension1Name: null,
+                                   dimension2Name: null,
+                                   configuration: MetricConfiguration.Counter);
+
+            Assert.IsFalse(metric1.Equals(metric2));
+            Assert.IsFalse(metric2.Equals(metric1));
+
+            metric2 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: "D1x",
+                                    dimension2Name: "D2",
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.IsFalse(metric1.Equals(metric2));
+            Assert.IsFalse(metric2.Equals(metric1));
+
+            metric2 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foox",
+                                    dimension1Name: "D1",
+                                    dimension2Name: "D2",
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.IsFalse(metric1.Equals(metric2));
+            Assert.IsFalse(metric2.Equals(metric1));
+
+            metric2 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: "D1",
+                                    dimension2Name: "D2",
+                                    configuration: MetricConfiguration.Measurement);
+
+            Assert.IsTrue(metric1.Equals(metric2));
+            Assert.IsTrue(metric2.Equals(metric1));
+
+            MetricManager anotherMetricManager = TelemetryConfiguration.Active.Metrics();
+            metric2 = InvokeMetricCtor(
+                                    anotherMetricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: "D1",
+                                    dimension2Name: "D2",
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.IsTrue(metric1.Equals(metric2));
+            Assert.IsTrue(metric2.Equals(metric1));
+
+            Util.CompleteDefaultAggregationCycle(anotherMetricManager);
+
+            Util.CompleteDefaultAggregationCycle(metricManager);
+        }
+
+        /// <summary />
+        [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
+        [TestMethod]
+        public void GetHashCode()
+        {
+            MetricManager metricManager = new MetricManager(new MemoryMetricTelemetryPipeline());
+            Metric metric1 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: "D1",
+                                    dimension2Name: "D2",
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.AreNotEqual(0, metric1.GetHashCode());
+            Assert.AreEqual(metric1.GetHashCode(), metric1.GetHashCode());
+
+            Metric metric2 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: "D1",
+                                    dimension2Name: "D2",
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.AreEqual(metric1.GetHashCode(), metric2.GetHashCode());
+            Assert.AreNotEqual(0, metric1.GetHashCode());
+            Assert.AreNotEqual(0, metric2.GetHashCode());
+
+            metric2 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: "D1",
+                                    dimension2Name: "D2x",
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.AreNotEqual(metric1.GetHashCode(), metric2.GetHashCode());
+            Assert.AreNotEqual(0, metric1.GetHashCode());
+            Assert.AreNotEqual(0, metric2.GetHashCode());
+
+            metric2 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: "D1",
+                                    dimension2Name: null,
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.AreNotEqual(metric1.GetHashCode(), metric2.GetHashCode());
+            Assert.AreNotEqual(0, metric1.GetHashCode());
+            Assert.AreNotEqual(0, metric2.GetHashCode());
+
+            metric2 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: null,
+                                    dimension2Name: null,
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.AreNotEqual(metric1.GetHashCode(), metric2.GetHashCode());
+            Assert.AreNotEqual(0, metric1.GetHashCode());
+            Assert.AreNotEqual(0, metric2.GetHashCode());
+
+            metric2 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: "D1x",
+                                    dimension2Name: "D2",
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.AreNotEqual(metric1.GetHashCode(), metric2.GetHashCode());
+            Assert.AreNotEqual(0, metric1.GetHashCode());
+            Assert.AreNotEqual(0, metric2.GetHashCode());
+
+            metric2 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foox",
+                                    dimension1Name: "D1",
+                                    dimension2Name: "D2",
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.AreNotEqual(metric1.GetHashCode(), metric2.GetHashCode());
+            Assert.AreNotEqual(0, metric1.GetHashCode());
+            Assert.AreNotEqual(0, metric2.GetHashCode());
+
+            metric2 = InvokeMetricCtor(
+                                    metricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: "D1",
+                                    dimension2Name: "D2",
+                                    configuration: MetricConfiguration.Measurement);
+
+            Assert.AreEqual(metric1.GetHashCode(), metric2.GetHashCode());
+            Assert.AreNotEqual(0, metric1.GetHashCode());
+            Assert.AreNotEqual(0, metric2.GetHashCode());
+
+            MetricManager anotherMetricManager = TelemetryConfiguration.Active.Metrics();
+            metric2 = InvokeMetricCtor(
+                                    anotherMetricManager,
+                                    metricId: "Foo",
+                                    dimension1Name: "D1",
+                                    dimension2Name: "D2",
+                                    configuration: MetricConfiguration.Counter);
+
+            Assert.AreEqual(metric1.GetHashCode(), metric2.GetHashCode());
+            Assert.AreNotEqual(0, metric1.GetHashCode());
+            Assert.AreNotEqual(0, metric2.GetHashCode());
+
+            Util.CompleteDefaultAggregationCycle(anotherMetricManager);
 
             Util.CompleteDefaultAggregationCycle(metricManager);
         }
 
 
-        private static Metric CreateMetric(MetricManager metricManager, string metricId, string dimension1Name, string dimension2Name, IMetricConfiguration configuration)
+        private static Metric InvokeMetricCtor(MetricManager metricManager, string metricId, string dimension1Name, string dimension2Name, IMetricConfiguration configuration)
         {
             // Metric ctor is private..
 
