@@ -18,14 +18,14 @@
         public static string DefaultAllowedFieldsInHeartbeatPayload = "*";
 
         /// <summary>
+        /// The default interval between heartbeats if not specified by the user
+        /// </summary>
+        public static int DefaultHeartbeatIntervalMs = 5000;
+
+        /// <summary>
         /// The name of the health heartbeat metric item and operation context.
         /// </summary>
         private static string heartbeatSyntheticMetricName = "SDKHeartbeat";
-
-        /// <summary>
-        /// The default interval between heartbeats if not specified by the user
-        /// </summary>
-        private static int defaultHeartbeatIntervalMs = 5000;
 
         /// <summary>
         /// The payload items to send out with each health heartbeat.
@@ -37,9 +37,8 @@
         private string enabledHeartbeatPayloadFields; // string containing fields that are enabled in the payload. * means everything available.
         private TelemetryClient telemetryClient; // client to use in sending our heartbeat
         private int heartbeatsSent; // counter of all heartbeats
-        private Timer heartbeatTimer; // timer that will send each heartbeat in intervals
 
-        public HealthHeartbeatProvider() : this(defaultHeartbeatIntervalMs, DefaultAllowedFieldsInHeartbeatPayload)
+        public HealthHeartbeatProvider() : this(DefaultHeartbeatIntervalMs, DefaultAllowedFieldsInHeartbeatPayload)
         {
         }
 
@@ -47,7 +46,7 @@
         {
         }
 
-        public HealthHeartbeatProvider(string allowedPayloadFields) : this(defaultHeartbeatIntervalMs, allowedPayloadFields)
+        public HealthHeartbeatProvider(string allowedPayloadFields) : this(DefaultHeartbeatIntervalMs, allowedPayloadFields)
         {
         }
 
@@ -63,7 +62,9 @@
 
         public string EnabledPayloadFields => this.enabledHeartbeatPayloadFields;
 
-        public bool Initialize(TelemetryConfiguration configuration, int? delayMs = null, string allowedPayloadFields = null)
+        protected Timer HeartbeatTimer { get; set; } // timer that will send each heartbeat in intervals
+
+        public virtual bool Initialize(TelemetryConfiguration configuration, int? delayMs = null, string allowedPayloadFields = null)
         {
             if (this.telemetryClient == null)
             {
@@ -78,15 +79,12 @@
             }
 
             this.AddDefaultPayloadItems(this.payloadItems);
-            if (this.heartbeatTimer == null)
+            // Note: if this is a subsequent initialization, the interval between heartbeats will be updated in the next cycle so no .Change call necessary here
+            if (this.HeartbeatTimer == null)
             {
-                this.heartbeatTimer = new Timer(this.HeartbeatPulse, this, this.intervalBetweenHeartbeatsMs, this.intervalBetweenHeartbeatsMs);
+                this.HeartbeatTimer = new Timer(this.HeartbeatPulse, this, this.intervalBetweenHeartbeatsMs, this.intervalBetweenHeartbeatsMs);
             }
-            else
-            {
-                this.heartbeatTimer.Change(this.intervalBetweenHeartbeatsMs, this.intervalBetweenHeartbeatsMs);
-            }
-            
+
             return true;
         }
 
@@ -136,6 +134,10 @@
             {
                 if (disposing)
                 {
+                    if (this.HeartbeatTimer != null)
+                    {
+                        this.HeartbeatTimer.Dispose();
+                    }
                 }
 
                 // free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -147,70 +149,7 @@
 
         #endregion
 
-        protected void Send()
-        {
-            this.SendHealthHeartbeat();
-        }
-
-        protected MetricTelemetry GatherData()
-        {
-            return this.GatherDataForHeartbeatPayload();
-        }
-
-        protected void AddDefaultPayloadItems(IDictionary<string, IHealthHeartbeatPayloadExtension> heartbeatPayloadItems)
-        {
-            try
-            {
-                heartbeatPayloadItems[string.Empty] = new HealthHeartbeatDefaultPayload(this.enabledHeartbeatPayloadFields);
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentException("HealthHeartbeatProvider::AddDefaultPayloadItems : Unable to add default payload items to health heartbeat", nameof(heartbeatPayloadItems), e);
-            }
-        }
-
-        private void HeartbeatPulse(object state)
-        {
-            if (state is HealthHeartbeatProvider)
-            {
-                HealthHeartbeatProvider hp = state as HealthHeartbeatProvider;
-                hp.Send();
-            }
-            else
-            {
-                throw new ArgumentException("Heartbeat pulse being sent without valid instance of HealthHeartbeatProvider as its state");
-            }
-        }
-
-        private MetricTelemetry GatherDataForHeartbeatPayload()
-        {
-            var heartbeat = new MetricTelemetry(heartbeatSyntheticMetricName, 0.0);
-
-            foreach (var payloadItem in this.payloadItems)
-            {
-                try
-                {
-                    var props = payloadItem.Value.GetPayloadProperties();
-                    foreach (var kvp in props)
-                    {
-                        heartbeat.Properties.Add(kvp.Key, kvp.Value.ToString());
-                    }
-
-                    heartbeat.Sum += payloadItem.Value.CurrentUnhealthyCount;
-                }
-                catch (Exception)
-                {
-                    // skip sending this payload item out, no need to interrupt other payloads. Log it to core.
-                    CoreEventSource.Log.LogError(string.Format(CultureInfo.CurrentCulture, "Failed to send payload for item {0}.", payloadItem.Key));
-                }
-            }
-
-            heartbeat.Sequence = string.Format(CultureInfo.InvariantCulture, "{0}", this.heartbeatsSent++);
-
-            return heartbeat;
-        }
-
-        private void SendHealthHeartbeat()
+        protected virtual void Send()
         {
             try
             {
@@ -240,6 +179,67 @@
                 // We were trying to send heartbeats out and failed. 
                 // No reason to try to send it out again, users can deduce the missing packets via sequence (or that 
                 // they simply don't get them any longer)
+            }
+        }
+
+        protected virtual MetricTelemetry GatherData()
+        {
+            var heartbeat = new MetricTelemetry(heartbeatSyntheticMetricName, 0.0);
+
+            foreach (var payloadItem in this.payloadItems)
+            {
+                try
+                {
+                    var props = payloadItem.Value.GetPayloadProperties();
+                    foreach (var kvp in props)
+                    {
+                        heartbeat.Properties.Add(kvp.Key, kvp.Value.ToString());
+                    }
+
+                    heartbeat.Sum += payloadItem.Value.CurrentUnhealthyCount;
+                }
+                catch (Exception)
+                {
+                    // skip sending this payload item out, no need to interrupt other payloads. Log it to core.
+                    CoreEventSource.Log.LogError(string.Format(CultureInfo.CurrentCulture, "Failed to send payload for item {0}.", payloadItem.Key));
+                }
+            }
+
+            heartbeat.Sequence = string.Format(CultureInfo.InvariantCulture, "{0}", this.heartbeatsSent++);
+
+            return heartbeat;
+        }
+
+        protected void AddDefaultPayloadItems(IDictionary<string, IHealthHeartbeatPayloadExtension> heartbeatPayloadItems)
+        {
+            try
+            {
+                heartbeatPayloadItems[string.Empty] = new HealthHeartbeatDefaultPayload(this.enabledHeartbeatPayloadFields);
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException("HealthHeartbeatProvider::AddDefaultPayloadItems : Unable to add default payload items to health heartbeat", nameof(heartbeatPayloadItems), e);
+            }
+        }
+
+        private void HeartbeatPulse(object state)
+        {
+            if (state is HealthHeartbeatProvider)
+            {
+                HealthHeartbeatProvider hp = state as HealthHeartbeatProvider;
+                // we are being called from a different thread here. We will need to block access to the list of payload providers
+                lock (this.payloadItems)
+                {
+                    // we will be prone to overlap if any extension payload provider takes a longer time to process than our timer
+                    // interval. Best that we reset the timer each time round.
+                    this.HeartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                    hp.Send();
+                    this.HeartbeatTimer.Change(this.intervalBetweenHeartbeatsMs, this.intervalBetweenHeartbeatsMs);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("Heartbeat pulse being sent without valid instance of HealthHeartbeatProvider as its state");
             }
         }
 

@@ -31,6 +31,9 @@
             this.Senders.Add(new PortalDiagnosticsQueueSender());
 
             this.EventListener = new DiagnosticsListener(this.Senders);
+
+            this.MillisecondsBetweenHeartbeats = HealthHeartbeatProvider.DefaultHeartbeatIntervalMs;
+            this.AllowedHeartbeatProperties = HealthHeartbeatProvider.DefaultAllowedFieldsInHeartbeatPayload;
         }
 
         /// <summary>

@@ -6,9 +6,12 @@
 
     internal class HealthHeartbeatDefaultPayload : IHealthHeartbeatPayloadExtension
     {
-        public const string FieldRuntimeFrameworkVer = "runtimeFramework";
-        public const string FieldTargetFramework = "targetFramework";
-        public const string FieldAppInsightsSdkVer = "appinsightsSdkVer";
+        public Enum DefaultFields
+        {
+            FieldRuntimeFrameworkVer = "runtimeFramework",
+            FieldTargetFramework = "targetFramework",
+            FieldAppInsightsSdkVer = "appinsightsSdkVer"
+        };
 
         private string enabledProperties;
 
