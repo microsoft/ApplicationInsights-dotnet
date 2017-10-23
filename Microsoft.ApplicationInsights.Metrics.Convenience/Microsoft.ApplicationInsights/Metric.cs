@@ -18,8 +18,7 @@ namespace Microsoft.ApplicationInsights
         private const string NullMetricObjectId = "null";
 
         private static readonly char[] InvalidMetricChars = new char[] { '\0', '"', '\'', '(', ')', '[', ']', '{', '}', '=', ',' };
-
-        private readonly MetricManager _metricManager;
+        
         private readonly string _objectId;
         private readonly int _hashCode;
         private readonly MetricSeries _zeroDimSeries;
@@ -29,6 +28,8 @@ namespace Microsoft.ApplicationInsights
         private readonly MultidimensionalCube2<MetricSeries> _metricSeries;
 
         internal readonly IMetricConfiguration _configuration;
+        //internal readonly MetricManager _metricManager;
+        private readonly MetricManager _metricManager;
 
         internal Metric(MetricManager metricManager, string metricId, string dimension1Name, string dimension2Name, IMetricConfiguration configuration)
         {
@@ -42,7 +43,7 @@ namespace Microsoft.ApplicationInsights
 
             _metricManager = metricManager;
 
-            MetricId = metricId.Trim();
+            MetricId = metricId;
             DimensionsCount = dimCount;
             _configuration = configuration;
 

@@ -12,7 +12,6 @@ namespace Microsoft.ApplicationInsights.Metrics
     [TestClass]
     public class MetricExtensionsTests
     {
-       
         /// <summary />
         [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
@@ -44,6 +43,26 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Util.CompleteDefaultAggregationCycle(TelemetryConfiguration.Active.Metrics());
         }
+
+        ///// <summary />
+        //[TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
+        //[TestMethod]
+        //public void GetMetricManager()
+        //{
+        //    {
+        //        TelemetryClient client = new TelemetryClient();
+        //        Metric metric = client.GetMetric("CowsSold");
+        //        Assert.AreSame(TelemetryConfiguration.Active.Metrics(), metric.GetMetricManager());
+        //        Util.CompleteDefaultAggregationCycle(TelemetryConfiguration.Active.Metrics());
+        //    }
+        //    {
+        //        TelemetryConfiguration telemetryPipeline = Util.CreateAITelemetryConfig();
+        //        TelemetryClient client = new TelemetryClient(telemetryPipeline);
+        //        Metric metric = client.GetMetric("CowsSold");
+        //        Assert.AreSame(telemetryPipeline.Metrics(), metric.GetMetricManager());
+        //        Util.CompleteDefaultAggregationCycle(telemetryPipeline.Metrics());
+        //    }
+        //}
 
     }
 }

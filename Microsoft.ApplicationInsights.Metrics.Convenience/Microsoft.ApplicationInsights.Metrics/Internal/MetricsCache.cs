@@ -33,6 +33,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                 string dimension2Name,
                                 IMetricConfiguration metricConfiguration)
         {
+            metricId = metricId?.Trim();
             Util.ValidateNotNullOrWhitespace(metricId, nameof(metricId));
             
             string metricObjectId = Metric.GetObjectId(metricId, dimension1Name, dimension2Name);

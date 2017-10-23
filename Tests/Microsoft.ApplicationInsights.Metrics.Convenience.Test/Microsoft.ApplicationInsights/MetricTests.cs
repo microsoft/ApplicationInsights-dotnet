@@ -1105,7 +1105,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void TryGetDataSeries_NotCreatingWhenLimitsAreReached()
         {
-           // Removed due to duplication. We asseted this in several other tests.
+           // Removed due to duplication. We asserted this in several other tests.
         }
 
         /// <summary />
@@ -1356,6 +1356,26 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.IsTrue(results.Contains("A"));
                 Assert.IsTrue(results.Contains("B"));
                 Assert.IsTrue(results.Contains("C"));
+            }
+            telemetryCollector.Clear();
+            {
+                Metric metric = InvokeMetricCtor(
+                                        metricManager,
+                                        metricId: "Foo",
+                                        dimension1Name: null,
+                                        dimension2Name: null,
+                                        configuration: MetricConfigurations.Measurement);
+
+                Assert.AreEqual(1, metric.SeriesCount);
+
+                metric.TrackValue(42);
+                Assert.AreEqual(1, metric.SeriesCount);
+
+                Assert.ThrowsException<InvalidOperationException>( () => metric.TryTrackValue(42, "A") );
+                Assert.AreEqual(1, metric.SeriesCount);
+
+                Assert.ThrowsException<InvalidOperationException>( () => metric.TryTrackValue(42, "A", "X") );
+                Assert.AreEqual(1, metric.SeriesCount);
             }
 
             Util.CompleteDefaultAggregationCycle(metricManager);

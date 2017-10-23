@@ -180,15 +180,29 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtil
         /// between waiting and not waiting. This will let us run test quickly most of the time, but we can switch the flag to get
         /// a clean test run.
         /// </summary>
-        /// <param name="metricManager"></param>
-        public static void CompleteDefaultAggregationCycle(MetricManager metricManager)
+        /// <param name="metricManagers"></param>
+        public static void CompleteDefaultAggregationCycle(params MetricManager[] metricManagers)
         {
-            Task cycleCompletionTask = metricManager.StopDefaultAggregationCycleAsync();
+            if (metricManagers == null)
+            {
+                return;
+            }
+
+            List<Task> completionTasks = new List<Task>();
+            foreach (MetricManager manager in metricManagers)
+            {
+                if (manager != null)
+                {
+                    Task cycleCompletionTask = manager.StopDefaultAggregationCycleAsync();
+                    completionTasks.Add(cycleCompletionTask);
+                }
+            }
+            
 
             if (WaitForDefaultAggregationCycleCompletion)
             {
 #pragma warning disable CS0162 // Unreachable code detected
-                cycleCompletionTask.GetAwaiter().GetResult();
+                Task.WhenAll(completionTasks).GetAwaiter().GetResult();
 #pragma warning restore CS0162 // Unreachable code detected
             }
         }

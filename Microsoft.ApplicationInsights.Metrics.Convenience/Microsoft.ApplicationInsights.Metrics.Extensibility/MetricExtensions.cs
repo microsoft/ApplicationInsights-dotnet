@@ -17,5 +17,15 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         {
             return metric._configuration;
         }
+
+        ///// <summary>
+        ///// Exposes the <c>MetricManager</c> property for users who imported the <c>Microsoft.ApplicationInsights.Metrics.Extensibility</c> namespace.
+        ///// </summary>
+        ///// <param name="metric"></param>
+        ///// <returns></returns>
+        //public static MetricManager GetMetricManager(this Metric metric)
+        //{
+        //    return metric._metricManager;
+        //}
     }
 }

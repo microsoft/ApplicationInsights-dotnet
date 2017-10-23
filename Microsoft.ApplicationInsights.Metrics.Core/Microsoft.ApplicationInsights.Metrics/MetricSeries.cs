@@ -75,9 +75,16 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             else
             {
-                TrackValue(GetOrCreateAggregator(CycleKind.Default, ref _aggregatorDefault), metricValue, ref errors);
-                TrackValue(GetOrCreateAggregator(CycleKind.QuickPulse, ref _aggregatorQuickPulse), metricValue, ref errors);
-                TrackValue(GetOrCreateAggregator(CycleKind.Custom, ref _aggregatorCustom), metricValue, ref errors);
+                IMetricSeriesAggregator aggregator;
+
+                aggregator = GetOrCreateAggregator(CycleKind.Default, ref _aggregatorDefault);
+                TrackValue(aggregator, metricValue, ref errors);
+
+                aggregator = GetOrCreateAggregator(CycleKind.QuickPulse, ref _aggregatorQuickPulse);
+                TrackValue(aggregator, metricValue, ref errors);
+
+                aggregator = GetOrCreateAggregator(CycleKind.Custom, ref _aggregatorCustom);
+                TrackValue(aggregator, metricValue, ref errors);
             }
 
             if (errors != null)
@@ -107,9 +114,16 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             else
             {
-                TrackValue(GetOrCreateAggregator(CycleKind.Default, ref _aggregatorDefault), metricValue, ref errors);
-                TrackValue(GetOrCreateAggregator(CycleKind.QuickPulse, ref _aggregatorQuickPulse), metricValue, ref errors);
-                TrackValue(GetOrCreateAggregator(CycleKind.Custom, ref _aggregatorCustom), metricValue, ref errors);
+                IMetricSeriesAggregator aggregator;
+
+                aggregator = GetOrCreateAggregator(CycleKind.Default, ref _aggregatorDefault);
+                TrackValue(aggregator, metricValue, ref errors);
+
+                aggregator = GetOrCreateAggregator(CycleKind.QuickPulse, ref _aggregatorQuickPulse);
+                TrackValue(aggregator, metricValue, ref errors);
+
+                aggregator = GetOrCreateAggregator(CycleKind.Custom, ref _aggregatorCustom);
+                TrackValue(aggregator, metricValue, ref errors);
             }
 
             if (errors != null)
