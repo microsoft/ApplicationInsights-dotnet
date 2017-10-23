@@ -86,7 +86,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     dimension2Name: "D2",
                                     configuration: MetricConfigurations.Measurement);
                 Assert.IsNotNull(metric);
-                Assert.AreEqual("Foo", metric.MetricId);
+                Assert.AreEqual("  Foo ", metric.MetricId);
             }
 
 
@@ -261,7 +261,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         dimension2Name: null,
                                         configuration: MetricConfigurations.Measurement);
 
-                Assert.AreEqual("Foo Bar \r\nx", metric.MetricId);
+                Assert.AreEqual("\t\tFoo Bar \r\nx ", metric.MetricId);
             }
 
             Util.CompleteDefaultAggregationCycle(metricManager);

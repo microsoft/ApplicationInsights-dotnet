@@ -53,6 +53,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Microsoft.ApplicationInsights.Metrics.Extensibility\TelemetryClientExtensionsAdvancedTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics.Extensibility\MetricExtensionsTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\SimpleMetricConfigurationTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights\TelemetryClientExtensionsTests.cs" />
