@@ -392,6 +392,36 @@
             this.WriteEvent(37, error, this.ApplicationName);
         }
 
+        [Event(
+            38,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "SqlClientDiagnosticSubscriber failed to subscribe. Error details '{0}'",
+            Level = EventLevel.Error)]
+        public void SqlClientDiagnosticSubscriberFailedToSubscribe(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(38, error, this.ApplicationName);
+        }
+
+        [Event(
+            39,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "SqlClientDiagnosticSubscriber: Callback called for id = '{0}', name= '{1}'",
+            Level = EventLevel.Verbose)]
+        public void SqlClientDiagnosticSubscriberCallbackCalled(Guid id, string name, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(39, id, name ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(
+            40,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "SqlClientDiagnosticSourceListener OnNext failed to call event handler. Error details '{0}'",
+            Level = EventLevel.Error)]
+        public void SqlClientDiagnosticSourceListenerOnNextFailed(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(40, error, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

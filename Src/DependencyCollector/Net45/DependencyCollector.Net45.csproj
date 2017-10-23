@@ -52,6 +52,9 @@
     <Compile Include="..\Shared\Implementation\HttpCoreDiagnosticSourceListener.cs">
       <Link>HttpCoreDiagnosticSourceListener.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\Implementation\SqlClientDiagnosticSourceListener.cs">
+      <Link>SqlClientDiagnosticSourceListener.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\Implementation\HttpHeadersUtilities.cs">
       <Link>HttpHeadersUtilities.cs</Link>
     </Compile>
