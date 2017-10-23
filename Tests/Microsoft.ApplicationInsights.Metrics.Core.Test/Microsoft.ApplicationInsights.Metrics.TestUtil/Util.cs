@@ -165,6 +165,31 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtil
             }
         }
 
+        /// <summary />
+        /// <param name="versionMoniker"></param>
+        public static void ValidateSdkVersionString(string versionMoniker)
+        {
+            Assert.IsNotNull(versionMoniker);
+
+            // Expected result example: // "msdk-0.1.0-371:2.3.0-41907"
+
+            const string expectedPrefix = "msdk-0.1.0-";
+            const string expectedPostfix = ":2.3.0-41907";
+
+            Assert.IsTrue(versionMoniker.StartsWith(expectedPrefix));
+            Assert.IsTrue(versionMoniker.EndsWith(expectedPostfix));
+
+            string metricsSdkRevisionStr = versionMoniker.Substring(expectedPrefix.Length);
+            metricsSdkRevisionStr = metricsSdkRevisionStr.Substring(0, metricsSdkRevisionStr.Length - expectedPostfix.Length);
+
+            Assert.IsNotNull(metricsSdkRevisionStr);
+            Assert.IsTrue(metricsSdkRevisionStr.Length > 0);
+
+            int metricsSdkRevision;
+            Assert.IsTrue(Int32.TryParse(metricsSdkRevisionStr, out metricsSdkRevision));
+            Assert.IsTrue(metricsSdkRevision > 0);
+        }
+
         /// <summary>
         /// The MetricManager contains an instance of DefaultAggregationPeriodCycle which encapsulates a managed thread.
         /// That tread sleeps for most of the time, and once per minute it wakes up to cycle aggregators and send aggregates.

@@ -17,7 +17,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void GetConfiguration()
         {
-            TelemetryClient client = new TelemetryClient();
+            TelemetryConfiguration pipeline = Util.CreateAITelemetryConfig();
+            TelemetryClient client = new TelemetryClient(pipeline);
 
             {
                 Metric metric = client.GetMetric("CowsSold");
@@ -41,7 +42,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreSame(config, metric.GetConfiguration());
             }
 
-            Util.CompleteDefaultAggregationCycle(TelemetryConfiguration.Active.Metrics());
+            Util.CompleteDefaultAggregationCycle(pipeline.Metrics());
+            pipeline.Dispose();
         }
 
         ///// <summary />

@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
-
+using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
+using System.Linq;
+using System.Globalization;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -13,8 +16,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         public const string NullString = "null";
 
         private const string FallbackParemeterName = "specified parameter";
+        private const string MetricsSdkVersionMonikerPrefix = "msdk-";
 
-        private static Action<TelemetryContext, TelemetryContext, string> s_telemetryContextInitializeDelegate = null;
+        private static Action<TelemetryContext, TelemetryContext, string> s_delegateTelemetryContextInitialize = null;
+
+        private static string s_sdkVersionMoniker = null;
 
         /// <summary>
         /// Paramater check for Null with a little more informative exception.
@@ -63,7 +69,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Util.ValidateNotNull(target, nameof(target));
 
             // Copy internal tags:
-            Action<TelemetryContext, TelemetryContext, string> initializeDelegate = GetTelemetryContextInitializeDelegate();
+            Action<TelemetryContext, TelemetryContext, string> initializeDelegate = GetDelegate_TelemetryContextInitialize();
             initializeDelegate(target, source, null);
 
             // Copy public properties:
@@ -81,19 +87,85 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private static Action<TelemetryContext, TelemetryContext, string> GetTelemetryContextInitializeDelegate()
+        public static void StampSdkVersionToContext(ITelemetry aggregate)
+        {
+            InternalContext context = aggregate?.Context?.GetInternalContext();
+
+            if (context == null)
+            {
+                return;
+            }
+
+            string sdkVersionMoniker = GetSdkVersionMoniker();
+            context.SdkVersion = sdkVersionMoniker;
+        }
+
+        /// <summary>
+        /// ToDo: Modeled on a copy from Base AI SDK. Keep in sync until the Base SDK version can be exposed.
+        /// { SdkVersionUtils.GetSdkVersion(string versionPrefix); }
+        /// Format msdk-MAJOR.MINOR-REVISION:major.minor-revision.
+        ///   where CAPs indicate metrics SDK version and lower indicares base SDK version.
+        /// </summary>
+        /// <returns>String representation of the version with prefix added.</returns>
+        public static string GetSdkVersionMoniker()
+        {
+            string sdkVersionMoniker = s_sdkVersionMoniker;
+            if (sdkVersionMoniker != null)
+            {
+                return sdkVersionMoniker;
+            }
+
+            string baseSdkVersionStr = typeof(Microsoft.ApplicationInsights.TelemetryClient)
+                                        .GetTypeInfo()
+                                        .Assembly
+                                        .GetCustomAttributes<AssemblyFileVersionAttribute>()
+                                        .FirstOrDefault()?
+                                        .Version;
+
+            string metricsSdkVersionStr = typeof(Microsoft.ApplicationInsights.Metrics.MetricManager)
+                                        .GetTypeInfo()
+                                        .Assembly
+                                        .GetCustomAttributes<AssemblyFileVersionAttribute>()
+                                        .FirstOrDefault()?
+                                        .Version;
+
+            Version baseSdkVersion = null;
+            Version metricsSdkVersion = null;
+
+            if (false == Version.TryParse(baseSdkVersionStr ?? "", out baseSdkVersion))
+            {
+                baseSdkVersion = null;
+            }
+
+            if (false == Version.TryParse(metricsSdkVersionStr ?? "", out metricsSdkVersion))
+            {
+                metricsSdkVersion = null;
+            }
+
+            string baseSdkPostfix = baseSdkVersion.Revision.ToString(CultureInfo.InvariantCulture);
+            string metricsSdkPostfix = metricsSdkVersion.Revision.ToString(CultureInfo.InvariantCulture);
+
+            string metricsSdkVersionMoniker = $"{MetricsSdkVersionMonikerPrefix}{metricsSdkVersion?.ToString(3) ?? "0"}-{metricsSdkPostfix}";
+            string baseSdkVersionMoniker = $"{baseSdkVersion?.ToString(3) ?? "0"}-{baseSdkPostfix}";
+            sdkVersionMoniker = $"{metricsSdkVersionMoniker}:{baseSdkVersionMoniker}";
+
+            s_sdkVersionMoniker = sdkVersionMoniker;
+            return sdkVersionMoniker;
+        }
+
+        private static Action<TelemetryContext, TelemetryContext, string> GetDelegate_TelemetryContextInitialize()
         {
             //Need to invoke: void TelemetryContext.Initialize(TelemetryContext source, string instrumentationKey)
 
-            Action<TelemetryContext, TelemetryContext, string> currentDel = s_telemetryContextInitializeDelegate;
+            Action<TelemetryContext, TelemetryContext, string> currentDel = s_delegateTelemetryContextInitialize;
 
             if (currentDel == null)
             {
                 Type apiType = typeof(TelemetryContext);
                 const string apiName = "Initialize";
-                MethodInfo initializeMethod = apiType.GetTypeInfo().GetMethod(apiName, BindingFlags.NonPublic | BindingFlags.Instance);
+                MethodInfo method = apiType.GetTypeInfo().GetMethod(apiName, BindingFlags.NonPublic | BindingFlags.Instance);
 
-                if (initializeMethod == null)
+                if (method == null)
                 {
                     throw new InvalidOperationException($"Could not get MethodInfo for {apiType.Name}.{apiName} via reflection."
                                                        + " This is either an internal SDK bug or there is a mismatch between the Metrics-SDK version"
@@ -102,9 +174,9 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 Action<TelemetryContext, TelemetryContext, string> newDel =
                                             (Action<TelemetryContext, TelemetryContext, string>)
-                                            initializeMethod.CreateDelegate(typeof(Action<TelemetryContext, TelemetryContext, string>));
+                                            method.CreateDelegate(typeof(Action<TelemetryContext, TelemetryContext, string>));
 
-                Action<TelemetryContext, TelemetryContext, string> prevDel = Interlocked.CompareExchange(ref s_telemetryContextInitializeDelegate, newDel, null);
+                Action<TelemetryContext, TelemetryContext, string> prevDel = Interlocked.CompareExchange(ref s_delegateTelemetryContextInitialize, newDel, null);
                 currentDel = prevDel ?? newDel;
             }
 

@@ -197,10 +197,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Util.CopyTelemetryContext(DataSeries.Context, aggregate.Context);
             }
 
-            // TO-DO !!!
-            //string sdkVersionPropertyValue = Microsoft.ApplicationInsights.Extensibility.Implementation.SdkVersionUtils.GetSdkVersion("m-agg:");
-            //aggregate.Context.GetInternalContext().SdkVersion = sdkVersionPropertyValue;
-            // ToDo !!!
+            Util.StampSdkVersionToContext(aggregate);
         }
 
         protected void StampTimingInfo(ITelemetry aggregate, DateTimeOffset periodEnd)

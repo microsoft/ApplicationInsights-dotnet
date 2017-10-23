@@ -12,7 +12,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     {
         private const string FallbackParemeterName = "specified parameter";
 
-        private static Func<TelemetryClient, TelemetryConfiguration> s_telemetryClientConfigurationDelegate = null;
+        private static Func<TelemetryClient, TelemetryConfiguration> s_delegateTelemetryClientGetConfiguration = null;
 
         /// <summary>
         /// Paramater check for Null with a little more informative exception.
@@ -72,36 +72,36 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));
 
-            Func<TelemetryClient, TelemetryConfiguration> getTelemetryConfigurationDelegate = GetTelemetryClientConfigurationDelegate();
+            Func<TelemetryClient, TelemetryConfiguration> getTelemetryConfigurationDelegate = GetDelegate_TelemetryClientGetConfiguration();
             TelemetryConfiguration pipeline = getTelemetryConfigurationDelegate(telemetryClient);
 
             return pipeline;
         }
 
-        private static Func<TelemetryClient, TelemetryConfiguration> GetTelemetryClientConfigurationDelegate()
+        private static Func<TelemetryClient, TelemetryConfiguration> GetDelegate_TelemetryClientGetConfiguration()
         {
-            Func<TelemetryClient, TelemetryConfiguration> currentDel = s_telemetryClientConfigurationDelegate;
+            Func<TelemetryClient, TelemetryConfiguration> currentDel = s_delegateTelemetryClientGetConfiguration;
 
             if (currentDel == null)
             {
                 Type apiType = typeof(TelemetryClient);
                 const string apiName = "TelemetryConfiguration";
-                PropertyInfo telemetryConfigurationProperty = apiType.GetTypeInfo().GetProperty(apiName, BindingFlags.NonPublic | BindingFlags.Instance);
+                PropertyInfo property = apiType.GetTypeInfo().GetProperty(apiName, BindingFlags.NonPublic | BindingFlags.Instance);
 
-                if (telemetryConfigurationProperty == null)
+                if (property == null)
                 {
                     throw new InvalidOperationException($"Could not get PropertyInfo for {apiType.Name}.{apiName} via reflection."
                                                        + " This is either an internal SDK bug or there is a mismatch between the Metrics-SDK version"
                                                        + " and the Application Insights Base SDK version. Please report this issue.");
                 }
 
-                MethodInfo telemetryConfigurationGetMethod = telemetryConfigurationProperty.GetGetMethod(nonPublic: true);
+                MethodInfo propertyGetMethod = property.GetGetMethod(nonPublic: true);
 
                 Func<TelemetryClient, TelemetryConfiguration> newDel =
                                             (Func<TelemetryClient, TelemetryConfiguration>)
-                                             telemetryConfigurationGetMethod.CreateDelegate(typeof(Func<TelemetryClient, TelemetryConfiguration>));
+                                             propertyGetMethod.CreateDelegate(typeof(Func<TelemetryClient, TelemetryConfiguration>));
 
-                Func<TelemetryClient, TelemetryConfiguration> prevDel = Interlocked.CompareExchange(ref s_telemetryClientConfigurationDelegate, newDel, null);
+                Func<TelemetryClient, TelemetryConfiguration> prevDel = Interlocked.CompareExchange(ref s_delegateTelemetryClientGetConfiguration, newDel, null);
                 currentDel = prevDel ?? newDel;
             }
 

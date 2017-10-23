@@ -13,6 +13,7 @@ using System.Globalization;
 using System.Text;
 
 using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -363,7 +364,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.IsTrue(metricAggregate.Context.Properties.ContainsKey("Dim 3"));
             Assert.AreEqual("Y", metricAggregate.Context.Properties["Dim 3"]);
 
-            // ToDo: Add test for version info.
+            Assert.IsNotNull(metricAggregate.Context.GetInternalContext());
+            TestUtil.Util.ValidateSdkVersionString(metricAggregate.Context.GetInternalContext().SdkVersion);
         }
 
         /// <summary />

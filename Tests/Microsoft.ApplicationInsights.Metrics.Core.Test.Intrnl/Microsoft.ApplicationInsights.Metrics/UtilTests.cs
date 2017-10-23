@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Channel;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -136,6 +138,37 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.IsTrue(target.Properties.ContainsKey("Dim 3"));
                 Assert.AreEqual("Y", target.Properties["Dim 3"]);
             }
+        }
+
+        /// <summary />
+        [TestMethod]
+        public void GetSdkVersionMoniker()
+        {
+            string versionMoniker = Util.GetSdkVersionMoniker();
+            TestUtil.Util.ValidateSdkVersionString(versionMoniker);
+        }
+
+        /// <summary />
+        [TestMethod]
+        public void StampSdkVersionToContext()
+        {
+            Util.StampSdkVersionToContext(null);
+
+            ITelemetry eventTelemetry = new EventTelemetry("FooEvent");
+            Assert.IsNull(eventTelemetry?.Context?.GetInternalContext()?.SdkVersion);
+
+            Util.StampSdkVersionToContext(eventTelemetry);
+
+            Assert.IsNotNull(eventTelemetry.Context);
+            Assert.IsNotNull(eventTelemetry.Context.GetInternalContext());
+            TestUtil.Util.ValidateSdkVersionString(eventTelemetry.Context.GetInternalContext().SdkVersion);
+
+            ITelemetry metricTelemetry = new MetricTelemetry("FooMetric", count: 3, sum: 30, min: 10, max: 10, standardDeviation: 0);
+            Util.StampSdkVersionToContext(metricTelemetry);
+
+            Assert.IsNotNull(metricTelemetry.Context);
+            Assert.IsNotNull(metricTelemetry.Context.GetInternalContext());
+            TestUtil.Util.ValidateSdkVersionString(metricTelemetry.Context.GetInternalContext().SdkVersion);
         }
     }
 }
