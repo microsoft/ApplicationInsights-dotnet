@@ -13,7 +13,7 @@
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" />
 
   <PropertyGroup>
-    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
+    <Copyright>Copyright Â© Microsoft. All Rights Reserved.</Copyright>
     <VersionPrefix>2.5.0-beta1</VersionPrefix>
     <Authors>Microsoft</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
@@ -34,11 +34,15 @@
   <ItemGroup>
     <Compile Include="..\Shared\DependencyTrackingTelemetryModule.cs" Link="DependencyTrackingTelemetryModule.cs" />
     <Compile Include="..\Shared\HttpDependenciesParsingTelemetryInitializer.cs" Link="HttpDependenciesParsingTelemetryInitializer.cs" />
+    <Compile Include="..\Shared\Implementation\Operation\ObjectInstanceBasedOperationHolder.cs" Link="ObjectInstanceBasedOperationHolder.cs" />
     <Compile Include="..\Shared\SanitizedHostList.cs" Link="SanitizedHostList.cs" />
     <Compile Include="..\Shared\Implementation\DependencyCollectorEventSource.cs" Link="DependencyCollectorEventSource.cs" />
     <Compile Include="..\Shared\Implementation\ApplicationInsightsUrlFilter.cs" Link="ApplicationInsightsUrlFilter.cs" />
     <Compile Include="..\Shared\Implementation\RemoteDependencyConstants.cs" Link="RemoteDependencyConstants.cs" />
+    <Compile Include="..\Shared\Implementation\DiagnosticSourceListenerBase.cs" Link="DiagnosticSourceListenerBase.cs" />
+    <Compile Include="..\Shared\Implementation\TelemetryDiagnosticSourceListener.cs" Link="TelemetryDiagnosticSourceListener.cs" />
     <Compile Include="..\Shared\Implementation\HttpCoreDiagnosticSourceListener.cs" Link="HttpCoreDiagnosticSourceListener.cs" />
+    <Compile Include="..\Shared\Implementation\SqlClientDiagnosticSourceListener.cs" Link="SqlClientDiagnosticSourceListener.cs" />
     <Compile Include="..\Shared\Implementation\HttpHeadersUtilities.cs" Link="HttpHeadersUtilities.cs" />
     <Compile Include="..\Shared\Implementation\PropertyFetcher.cs" Link="PropertyFetcher.cs" />
     <Compile Include="..\Shared\Implementation\RDDSource.cs" Link="RDDSource.cs" />
@@ -66,6 +70,7 @@
     <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.3.1" />
     <PackageReference Include="MicroBuild.Core" Version="0.2.0" developmentDependency="true" />
 
   </ItemGroup>

@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Text;
+using FW45Shared;
 
 namespace AspxCore20.Controllers
 {
@@ -11,6 +14,32 @@ namespace AspxCore20.Controllers
      /// Invalid Hostname to trigger exception being thrown
      /// </summary>
         private const string InvalidHostName = "http://www.zzkaodkoakdahdjghejajdnad.com";
+
+        /// <summary>
+        /// Connection string to APM Development database.
+        /// </summary> 
+        private const string ConnectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=RDDTestDatabase;Integrated Security=True";
+
+        /// <summary>
+        /// Valid SQL Query. The wait for delay of 6 ms is used to prevent access time of less than 1 ms. SQL is not accurate below 3, so used 6 ms delay.
+        /// </summary> 
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed.")]
+        private const string ValidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:006'; select * from dbo.Messages";
+
+        /// <summary>
+        /// Valid SQL Query to get count.
+        /// </summary> 
+        private const string ValidSqlQueryCountToApmDatabase = "WAITFOR DELAY '00:00:00:006'; SELECT count(*) FROM dbo.Messages";
+
+        /// <summary>
+        /// Invalid SQL Query.
+        /// </summary> 
+        private const string InvalidSqlQueryToApmDatabase = "SELECT TOP 2 * FROM apm.[Database1212121]";
+
+        /// <summary>
+        /// Label used to identify the query being executed.
+        /// </summary> 
+        private const string QueryToExecuteLabel = "Query Executed:";
 
         private string GetQueryValue(string valueKey)
         {
@@ -26,6 +55,9 @@ namespace AspxCore20.Controllers
 
             string type = GetQueryValue("type");
             string countStr = GetQueryValue("count");
+
+            bool.TryParse(GetQueryValue("success"), out var success);
+            string sqlQueryTouse = success ? ValidSqlQueryToApmDatabase : InvalidSqlQueryToApmDatabase;
 
             int count;
             if (!int.TryParse(countStr, out count))
@@ -46,6 +78,32 @@ namespace AspxCore20.Controllers
                 case "failedhttp":
                     title = "Made failing Sync GET HTTP call to bing";
                     response = MakeHttpCallSyncFailed(count);
+                    break;
+                case "ExecuteReaderAsync":
+                    SqlCommandHelper.ExecuteReaderAsync(ConnectionString, sqlQueryTouse);
+                    response = QueryToExecuteLabel + sqlQueryTouse;
+                    break;
+                case "ExecuteScalarAsync":
+                    SqlCommandHelper.ExecuteScalarAsync(ConnectionString, sqlQueryTouse);
+                    break;
+                case "ExecuteReaderStoredProcedureAsync":
+                    this.ExecuteReaderStoredProcedureAsync();
+                    break;
+                case "TestExecuteReaderTwiceWithTasks":
+                    SqlCommandHelper.AsyncExecuteReaderInTasks(ConnectionString, sqlQueryTouse);
+                    break;
+                case "ExecuteNonQueryAsync":
+                    SqlCommandHelper.ExecuteNonQueryAsync(ConnectionString, sqlQueryTouse);
+                    break;
+                case "ExecuteXmlReaderAsync":
+                    sqlQueryTouse += " FOR XML AUTO";
+                    SqlCommandHelper.ExecuteXmlReaderAsync(ConnectionString, sqlQueryTouse);
+                    break;
+                case "SqlCommandExecuteScalar":
+                    sqlQueryTouse = success
+                                    ? ValidSqlQueryCountToApmDatabase
+                                    : InvalidSqlQueryToApmDatabase;
+                    SqlCommandHelper.ExecuteScalar(ConnectionString, sqlQueryTouse);
                     break;
                 default:
                     title = $"Unrecognized request type '{type}'";
@@ -119,6 +177,20 @@ namespace AspxCore20.Controllers
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Executes reader stored procedure.
+        /// </summary>        
+        private void ExecuteReaderStoredProcedureAsync()
+        {
+            var storedProcedureName = GetQueryValue("storedProcedureName");
+            if (string.IsNullOrEmpty(storedProcedureName))
+            {
+                throw new ArgumentException("storedProcedureName query string parameter is not defined.");
+            }
+
+            SqlCommandHelper.ExecuteReaderAsync(ConnectionString, storedProcedureName, CommandType.StoredProcedure);
         }
     }
 }

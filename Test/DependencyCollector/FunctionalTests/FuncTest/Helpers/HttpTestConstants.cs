@@ -95,6 +95,46 @@ namespace FuncTest.Helpers
         internal static string QueryStringOutboundHttpAsyncAwait1Failed = "?type=failedhttpasyncawait1&count=";
 
         /// <summary>
+        /// Query string to specify Outbound SQL Call .
+        /// </summary>
+        internal static string QueryStringOutboundExecuteReaderAsync = "?type=ExecuteReaderAsync&success=true&count=";
+
+        /// <summary>
+        /// Query string to specify Outbound SQL Call .
+        /// </summary>
+        internal static string QueryStringOutboundExecuteScalarAsync = "?type=ExecuteScalarAsync&success=true&count=";
+
+        /// <summary>
+        /// Query string to specify Outbound SQL Call .
+        /// </summary>
+        internal static string QueryStringOutboundExecuteReaderStoredProcedureAsync = "?type=ExecuteReaderStoredProcedureAsync&storedProcedureName=GetTopTenMessages&success=true&count=";
+
+        /// <summary>
+        /// Query string to specify Outbound SQL Call .
+        /// </summary>
+        internal static string QueryStringOutboundTestExecuteReaderTwiceWithTasks = "?type=TestExecuteReaderTwiceWithTasks&success=true&count=";
+
+        /// <summary>
+        /// Query string to specify Outbound SQL Call .
+        /// </summary>
+        internal static string QueryStringOutboundExecuteNonQueryAsync = "?type=ExecuteNonQueryAsync&success=true&count=";
+
+        /// <summary>
+        /// Query string to specify Outbound SQL Call .
+        /// </summary>
+        internal static string QueryStringOutboundExecuteXmlReaderAsync = "?type=ExecuteXmlReaderAsync&success=true&count=";
+
+        /// <summary>
+        /// Query string to specify Outbound SQL Call .
+        /// </summary>
+        internal static string QueryStringOutboundSqlCommandExecuteScalar = "?type=SqlCommandExecuteScalar&success=true&count=";
+
+        /// <summary>
+        /// Query string to specify Outbound SQL Call .
+        /// </summary>
+        internal static string QueryStringOutboundSqlCommandExecuteScalarError = "?type=SqlCommandExecuteScalar&success=false&count=";
+
+        /// <summary>
         /// Maximum access time for the initial call - This includes an additional 1-2 delay introduced before the very first call by Profiler V2.
         /// </summary>        
         internal static TimeSpan AccessTimeMaxHttpInitial = TimeSpan.FromSeconds(10);

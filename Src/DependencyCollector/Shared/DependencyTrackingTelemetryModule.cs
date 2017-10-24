@@ -30,17 +30,20 @@
 #endif
 
         private HttpCoreDiagnosticSourceListener httpCoreDiagnosticSourceListener;
+        private TelemetryDiagnosticSourceListener telemetryDiagnosticSourceListener;
+        private SqlClientDiagnosticSourceListener sqlClientDiagnosticSourceListener;
 
 #if !NETCORE
         private ProfilerSqlCommandProcessing sqlCommandProcessing;
         private ProfilerSqlConnectionProcessing sqlConnectionProcessing;
-        private ProfilerHttpProcessing httpProcessing;        
+        private ProfilerHttpProcessing httpProcessing;
 #endif
         private TelemetryConfiguration telemetryConfiguration;
         private bool isInitialized = false;
         private bool disposed = false;
         private bool correlationHeadersEnabled = true;
         private ICollection<string> excludedCorrelationDomains = new SanitizedHostList();
+        private ICollection<string> includeDiagnosticSourceActivities = new List<string>();
 
         /// <summary>
         /// Gets or sets a value indicating whether to disable runtime instrumentation.
@@ -60,6 +63,17 @@
             get
             {
                 return this.excludedCorrelationDomains;
+            }
+        }
+
+        /// <summary>
+        /// Gets the list of diagnostic sources and activities to exclude from collection.
+        /// </summary>
+        public ICollection<string> IncludeDiagnosticSourceActivities
+        {
+            get
+            {
+                return this.includeDiagnosticSourceActivities;
             }
         }
 
@@ -133,6 +147,13 @@
                                 this.SetComponentCorrelationHttpHeaders,
                                 this.ExcludeComponentCorrelationHttpHeadersOnDomains, 
                                 null);
+
+                            if (this.IncludeDiagnosticSourceActivities != null && this.IncludeDiagnosticSourceActivities.Count > 0)
+                            {
+                                this.telemetryDiagnosticSourceListener = new TelemetryDiagnosticSourceListener(configuration, this.IncludeDiagnosticSourceActivities);
+                            }
+
+                            this.sqlClientDiagnosticSourceListener = new SqlClientDiagnosticSourceListener(configuration);
 
                             DependencyCollectorEventSource.Log.RemoteDependencyModuleVerbose("Initializing DependencyTrackingModule completed successfully.");
                         }
@@ -217,6 +238,16 @@
                     {
                         this.httpCoreDiagnosticSourceListener.Dispose();
                     }
+
+                    if (this.telemetryDiagnosticSourceListener != null)
+                    {
+                        this.telemetryDiagnosticSourceListener.Dispose();
+                    }
+
+                    if (this.sqlClientDiagnosticSourceListener != null)
+                    {
+                        this.sqlClientDiagnosticSourceListener.Dispose();
+                    }
                 }
 
                 this.disposed = true;
@@ -289,7 +320,7 @@
             }
             else
             {
-                // if profiler is not attached then default to diagnositics and framework event source
+                // if profiler is not attached then default to diagnostics and framework event source
                 this.InitializeForDiagnosticAndFrameworkEventSource();
 
                 // Log a message to indicate the profiler is not attached

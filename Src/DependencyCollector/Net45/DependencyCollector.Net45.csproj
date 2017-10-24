@@ -49,14 +49,23 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <Compile Include="..\Shared\Implementation\DiagnosticSourceListenerBase.cs">
+      <Link>DiagnosticSourceListenerBase.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\Implementation\HttpCoreDiagnosticSourceListener.cs">
       <Link>HttpCoreDiagnosticSourceListener.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Implementation\SqlClientDiagnosticSourceListener.cs">
+      <Link>SqlClientDiagnosticSourceListener.cs</Link>
     </Compile>
     <Compile Include="..\Shared\Implementation\HttpHeadersUtilities.cs">
       <Link>HttpHeadersUtilities.cs</Link>
     </Compile>
     <Compile Include="..\Shared\Implementation\PropertyFetcher.cs">
       <Link>PropertyFetcher.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Implementation\TelemetryDiagnosticSourceListener.cs">
+      <Link>TelemetryDiagnosticSourceListener.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
