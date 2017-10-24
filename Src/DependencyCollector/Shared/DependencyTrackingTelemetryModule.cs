@@ -31,11 +31,12 @@
 
         private HttpCoreDiagnosticSourceListener httpCoreDiagnosticSourceListener;
         private TelemetryDiagnosticSourceListener telemetryDiagnosticSourceListener;
+        private SqlClientDiagnosticSourceListener sqlClientDiagnosticSourceListener;
 
 #if !NETCORE
         private ProfilerSqlCommandProcessing sqlCommandProcessing;
         private ProfilerSqlConnectionProcessing sqlConnectionProcessing;
-        private ProfilerHttpProcessing httpProcessing;        
+        private ProfilerHttpProcessing httpProcessing;
 #endif
         private TelemetryConfiguration telemetryConfiguration;
         private bool isInitialized = false;
@@ -152,6 +153,8 @@
                                 this.telemetryDiagnosticSourceListener = new TelemetryDiagnosticSourceListener(configuration, this.IncludeDiagnosticSourceActivities);
                             }
 
+                            this.sqlClientDiagnosticSourceListener = new SqlClientDiagnosticSourceListener(configuration);
+
                             DependencyCollectorEventSource.Log.RemoteDependencyModuleVerbose("Initializing DependencyTrackingModule completed successfully.");
                         }
                         catch (Exception exc)
@@ -240,6 +243,11 @@
                     {
                         this.telemetryDiagnosticSourceListener.Dispose();
                     }
+
+                    if (this.sqlClientDiagnosticSourceListener != null)
+                    {
+                        this.sqlClientDiagnosticSourceListener.Dispose();
+                    }
                 }
 
                 this.disposed = true;
@@ -312,7 +320,7 @@
             }
             else
             {
-                // if profiler is not attached then default to diagnositics and framework event source
+                // if profiler is not attached then default to diagnostics and framework event source
                 this.InitializeForDiagnosticAndFrameworkEventSource();
 
                 // Log a message to indicate the profiler is not attached

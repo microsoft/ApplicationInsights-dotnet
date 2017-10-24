@@ -2,14 +2,15 @@
 
 ## Version 2.5.0-beta1
 - Removed `net40` targets from all packages. Use the version 2.4 of SDK if your application is still compiled with the framework 4.0.
+- Adds ADO SQL dependency collection for SqlClient (System.Data.SqlClient) on .NET Core versions 1.0 and 2.0.
 - /ping calls to Live Metrics Stream (aka QuickPulse) now contain the invariant version of the agent.
-- [App Id Lookup bug](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/683)
-- [Testing .NET Core 2.0 DependencyCollector](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/572)
-- [DiagnosticsListener should have safe OnNext](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/649)
-- [PerfCounterCollector module may go into endless loop (ASP.NET Core on Full Framework)](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/678)
-- [Start Timestamp is not set for Http dependency telemetry in dotnet core 2.0](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/658)
+- [Fix App Id Lookup bug](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/683)
+- [Fix DiagnosticsListener should have safe OnNext](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/649)
+- [Fix PerfCounterCollector module may go into endless loop (ASP.NET Core on Full Framework)](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/678)
+- [Fix Start Timestamp is not set for Http dependency telemetry in dotnet core 2.0](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/658)
 - [Support collecting non-HTTP dependency calls from 3rd party libraries](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/665)
 - Bugfix for CorrelationIdLookup NullRef Ex
+- [Added Test App for testing DependencyCollector on .NET Core 2.0](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/572)
 
 **Project**
 - install.ps1 is now signed
