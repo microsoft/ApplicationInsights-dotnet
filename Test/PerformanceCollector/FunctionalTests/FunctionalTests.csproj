@@ -99,67 +99,67 @@
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\AggregationType.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering.Shared\Implementation\Service contract\AggregationType.cs">
       <Link>Serialization\QuickPulse\AggregationType.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\CalculatedMetricInfo.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering.Shared\Implementation\Service contract\CalculatedMetricInfo.cs">
       <Link>Serialization\QuickPulse\CalculatedMetricInfo.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\CollectionConfigurationInfo.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering.Shared\Implementation\Service contract\CollectionConfigurationInfo.cs">
       <Link>Serialization\QuickPulse\CollectionConfigurationInfo.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\DocumentFilterConjunctionGroupInfo.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering.Shared\Implementation\Service contract\DocumentFilterConjunctionGroupInfo.cs">
       <Link>Serialization\QuickPulse\DocumentFilterConjunctionGroupInfo.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\DocumentStreamInfo.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering.Shared\Implementation\Service contract\DocumentStreamInfo.cs">
       <Link>Serialization\QuickPulse\DocumentStreamInfo.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\Errors\CollectionConfigurationError.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering.Shared\Implementation\Service contract\Errors\CollectionConfigurationError.cs">
       <Link>Serialization\QuickPulse\CollectionConfigurationError.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\Errors\CollectionConfigurationErrorType.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering.Shared\Implementation\Service contract\Errors\CollectionConfigurationErrorType.cs">
       <Link>Serialization\QuickPulse\CollectionConfigurationErrorType.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\FilterConjunctionGroupInfo.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering.Shared\Implementation\Service contract\FilterConjunctionGroupInfo.cs">
       <Link>Serialization\QuickPulse\FilterConjunctionGroupInfo.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\FilterInfo.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering.Shared\Implementation\Service contract\FilterInfo.cs">
       <Link>Serialization\QuickPulse\FilterInfo.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\Predicate.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering.Shared\Implementation\Service contract\Predicate.cs">
       <Link>Serialization\QuickPulse\Predicate.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\TelemetryType.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering.Shared\Implementation\Service contract\TelemetryType.cs">
       <Link>Serialization\QuickPulse\TelemetryType.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\MetricPoint.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Perf.Shared\Implementation\QuickPulse\Service contract\MetricPoint.cs">
       <Link>Serialization\QuickPulse\MetricPoint.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\MonitoringDataPoint.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Perf.Shared\Implementation\QuickPulse\Service contract\MonitoringDataPoint.cs">
       <Link>Serialization\QuickPulse\MonitoringDataPoint.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\ProcessCpuData.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Perf.Shared\Implementation\QuickPulse\Service contract\ProcessCpuData.cs">
       <Link>Serialization\QuickPulse\ProcessCpuData.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\TelemetryDocument\DependencyTelemetryDocument.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Perf.Shared\Implementation\QuickPulse\Service contract\TelemetryDocument\DependencyTelemetryDocument.cs">
       <Link>Serialization\QuickPulse\DependencyTelemetryDocument.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\TelemetryDocument\EventTelemetryDocument.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Perf.Shared\Implementation\QuickPulse\Service contract\TelemetryDocument\EventTelemetryDocument.cs">
       <Link>Serialization\QuickPulse\EventTelemetryDocument.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\TelemetryDocument\ExceptionTelemetryDocument.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Perf.Shared\Implementation\QuickPulse\Service contract\TelemetryDocument\ExceptionTelemetryDocument.cs">
       <Link>Serialization\QuickPulse\ExceptionTelemetryDocument.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\TelemetryDocument\ITelemetryDocument.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Perf.Shared\Implementation\QuickPulse\Service contract\TelemetryDocument\ITelemetryDocument.cs">
       <Link>Serialization\QuickPulse\ITelemetryDocument.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\TelemetryDocument\RequestTelemetryDocument.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Perf.Shared\Implementation\QuickPulse\Service contract\TelemetryDocument\RequestTelemetryDocument.cs">
       <Link>Serialization\QuickPulse\RequestTelemetryDocument.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\TelemetryDocument\TelemetryDocumentType.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Perf.Shared\Implementation\QuickPulse\Service contract\TelemetryDocument\TelemetryDocumentType.cs">
       <Link>Serialization\QuickPulse\TelemetryDocumentType.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\TelemetryDocument\TraceTelemetryDocument.cs">
+    <Compile Include="..\..\..\Src\PerformanceCollector\Perf.Shared\Implementation\QuickPulse\Service contract\TelemetryDocument\TraceTelemetryDocument.cs">
       <Link>Serialization\QuickPulse\TraceTelemetryDocument.cs</Link>
     </Compile>
     <Compile Include="CommonTests.cs" />
@@ -177,7 +177,6 @@
     <Compile Include="Helpers\QuickPulseHttpListenerObservable.cs" />
     <Compile Include="Helpers\HttpListenerObservable.cs" />
     <Compile Include="Helpers\ResponseCookiesExtension.cs" />
-    <Compile Include="Test40.cs" />
     <Compile Include="TestBase\SingleWebHostTestBase.cs" />
     <Compile Include="Helpers\SingleWebHostTestConfiguration.cs" />
     <Compile Include="Serialization\TelemetryExtensions.cs" />

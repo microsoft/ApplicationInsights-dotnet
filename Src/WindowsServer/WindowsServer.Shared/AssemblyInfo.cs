@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("WindowsServer.Net40.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("WindowsServer.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Web.TestFramework, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("WindowsServer.Nuget.Tests, PublicKey=" + AssemblyInfo.PublicKey)]

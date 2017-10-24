@@ -1,10 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
-#if NET40
-    using System.Collections.Generic;
-#else
     using System.Diagnostics;
-#endif
     using System.Web;
     using Common;
     using Microsoft.ApplicationInsights.Channel;
@@ -100,7 +96,7 @@
                 {
                     telemetry.Context.Operation.ParentId = requestTelemetry.Id;
                 }
-#if NET45
+
                 var activity = platformContext.Items[ActivityHelpers.RequestActivityItemName] as Activity;
                 if (activity == null)
                 {
@@ -114,19 +110,6 @@
                         telemetry.Context.Properties.Add(item);
                     }
                 }
-#else
-                var correlationContext = platformContext.Items[ActivityHelpers.CorrelationContextItemName] as IDictionary<string, string>;
-                if (correlationContext != null)
-                {
-                    foreach (var item in correlationContext)
-                    {
-                        if (!telemetry.Context.Properties.ContainsKey(item.Key))
-                        {
-                            telemetry.Context.Properties.Add(item);
-                        }
-                    }
-                }
-#endif
             }
         }
     }

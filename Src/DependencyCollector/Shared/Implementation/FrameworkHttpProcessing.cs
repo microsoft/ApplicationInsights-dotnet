@@ -1,5 +1,4 @@
-﻿#if !NET40
-namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
     using System.Collections.Generic;
@@ -180,4 +179,3 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         }
     }
 }
-#endif

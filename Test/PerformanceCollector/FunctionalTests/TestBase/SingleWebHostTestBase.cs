@@ -20,17 +20,19 @@ namespace Functional.Helpers
     /// </summary>
     public abstract class SingleWebHostTestBase
     {
-        protected IisExpress Server { get; private set; }
+        protected IisExpress Server { get { return this.TestContext.Properties["Server"] as IisExpress; } private set { this.TestContext.Properties["Server"] = value; } }
 
-        protected HttpClient HttpClient { get; private set; }
+        protected HttpClient HttpClient { get { return this.TestContext.Properties["HttpClient"] as HttpClient; } private set { this.TestContext.Properties["HttpClient"] = value; } }
 
-        protected HttpListenerObservable Listener { get; private set; }
+        protected HttpListenerObservable Listener { get { return this.TestContext.Properties["Listener"] as HttpListenerObservable; } private set { this.TestContext.Properties["Listener"] = value; } }
 
-        internal QuickPulseHttpListenerObservable QuickPulseListener { get; private set; }
+        internal QuickPulseHttpListenerObservable QuickPulseListener { get { return this.TestContext.Properties["QuickPulseListener"] as QuickPulseHttpListenerObservable; } private set { this.TestContext.Properties["QuickPulseListener"] = value; } }
 
-        protected SingleWebHostTestConfiguration Config { get; private set; }
+        protected SingleWebHostTestConfiguration Config { get { return this.TestContext.Properties["Config"] as SingleWebHostTestConfiguration; } private set { this.TestContext.Properties["Config"] = value; } }
 
-        protected EtwEventSession EtwSession { get; private set; }
+        protected EtwEventSession EtwSession { get { return this.TestContext.Properties["EtwSession"] as EtwEventSession; } private set { this.TestContext.Properties["EtwSession"] = value; } }
+
+        public TestContext TestContext { get; set; }
 
         public Task<string> SendRequest(string requestPath, bool wait = true)
         {
@@ -95,7 +97,7 @@ namespace Functional.Helpers
             this.Server.Stop();
             this.HttpClient.Dispose();
 
-            if (treatTraceErrorsAsFailures && this.EtwSession.FailureDetected || this.Listener.FailureDetected)
+            if (treatTraceErrorsAsFailures && this.EtwSession.FailureDetected)
             {
                 Assert.Fail("Read test output. There are errors found in application trace.");
             }

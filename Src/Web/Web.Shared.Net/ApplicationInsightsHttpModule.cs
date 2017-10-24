@@ -19,10 +19,8 @@
         private readonly RequestTrackingTelemetryModule requestModule;
         private readonly ExceptionTrackingTelemetryModule exceptionModule;
 
-#if !NET40
         // Delegate preferred over Invoke to gain performance, only in NET45 or above as ISubscriptionToken is not available in Net40
         private Func<HttpResponse, Action<HttpContext>, ISubscriptionToken> openDelegateForInvokingAddOnSendingHeadersMethod;
-#endif
         private MethodInfo addOnSendingHeadersMethod;                
         private bool addOnSendingHeadersMethodExists;
         private Action<HttpContext> addOnSendingHeadersMethodParam;
@@ -79,9 +77,7 @@
                                 }
                             });
                     this.addOnSendingHeadersMethodParams = new object[] { this.addOnSendingHeadersMethodParam };
-#if !NET40
                     this.openDelegateForInvokingAddOnSendingHeadersMethod = this.CreateOpenDelegate(this.addOnSendingHeadersMethod);
-#endif
                 }
             }
             catch (Exception exc)
@@ -103,10 +99,6 @@
                 try
                 {
                     context.BeginRequest += this.OnBeginRequest;
-#if NET40
-                    context.EndRequest += this.OnEndRequest;
-                    context.PreRequestHandlerExecute += this.OnPreRequestHandlerExecute;
-#endif
                 }
                 catch (Exception exc)
                 {
@@ -137,10 +129,6 @@
                     {
                         this.AddCorreleationHeaderOnSendRequestHeaders(httpApplication);
                     }
-
-#if NET40
-                    this.requestModule.OnBeginRequest(httpApplication.Context);
-#endif
                 }
             }
         }
@@ -157,12 +145,8 @@
                 {                                     
                     if (this.addOnSendingHeadersMethodExists)
                     {                        
-#if !NET40
                         // Faster delegate based invocation.
                         this.openDelegateForInvokingAddOnSendingHeadersMethod.Invoke(httpApplication.Response, this.addOnSendingHeadersMethodParam);
-#else
-                        this.addOnSendingHeadersMethod.Invoke(httpApplication.Response, this.addOnSendingHeadersMethodParams);
-#endif
                     }
                 }
             }
@@ -172,7 +156,6 @@
             }
         }
 
-#if !NET40
         /// <summary>
         /// Creates open delegate for faster invocation than regular Invoke.        
         /// </summary>
@@ -187,69 +170,6 @@
 
             return (Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>)openDelegate;
         }
-#endif
-
-#if NET40
-        private void OnPreRequestHandlerExecute(object sender, EventArgs eventArgs)
-        {
-            if (this.isEnabled)
-            {
-                HttpApplication httpApplication = (HttpApplication)sender;
-
-                this.TraceCallback("OnPreRequestHandlerExecute", httpApplication);
-
-                this.requestModule?.OnPreRequestHandlerExecute(httpApplication.Context);
-            }
-        }
-
-        private void OnEndRequest(object sender, EventArgs eventArgs)
-        {
-            if (this.isEnabled)
-            {
-                var httpApplication = (HttpApplication)sender;
-                this.TraceCallback("OnEndRequest", httpApplication);
-
-                if (this.IsFirstRequest(httpApplication))
-                {
-                    if (this.exceptionModule != null)
-                    {
-                        this.exceptionModule.OnError(httpApplication.Context);
-                    }
-
-                    if (this.requestModule != null)
-                    {
-                        this.requestModule.OnEndRequest(httpApplication.Context);
-                    }
-                }
-                else
-                {
-                    WebEventSource.Log.RequestFiltered();
-                }
-            }
-        }
-
-        private bool IsFirstRequest(HttpApplication application)
-        {
-            var firstRequest = true;
-            try
-            {
-                if (application.Context != null)
-                {
-                    firstRequest = application.Context.Items[RequestTrackingConstants.EndRequestCallFlag] == null;
-                    if (firstRequest)
-                    {
-                        application.Context.Items.Add(RequestTrackingConstants.EndRequestCallFlag, true);
-                    }
-                }
-            }
-            catch (Exception exc)
-            {
-                WebEventSource.Log.FlagCheckFailure(exc.ToInvariantString());
-            }
-
-            return firstRequest;
-        }
-#endif
 
         private void TraceCallback(string callback, HttpApplication application)
         {

@@ -22,9 +22,6 @@
                 throw new ArgumentException("platformContext");
             }
 
-#if NET40
-            var result = ActivityHelpers.ParseRequest(platformContext);
-#else
             var result = new RequestTelemetry();
             var currentActivity = Activity.Current;
             var requestContext = result.Context.Operation;
@@ -94,7 +91,6 @@
             // save current activity in case it will be lost - we will use it in Web.OperationCorrelationTelemetryIntitalizer
             platformContext.Items[ActivityHelpers.RequestActivityItemName] = currentActivity;
 
-#endif
             platformContext.Items.Add(RequestTrackingConstants.RequestTelemetryItemName, result);
             WebEventSource.Log.WebTelemetryModuleRequestTelemetryCreated();
 

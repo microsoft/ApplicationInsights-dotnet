@@ -16,11 +16,6 @@
     <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
     <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
     <dependencies>
-      <group targetFramework="net40">
-        <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
-        <dependency id="Microsoft.Diagnostics.Tracing.EventSource.Redist" version="1.1.28"/>
-        <dependency id="Microsoft.ApplicationInsights.WindowsServer" version="$version$" />
-      </group>
       <group targetFramework="net45">
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
         <dependency id="Microsoft.ApplicationInsights.WindowsServer" version="$version$" />
@@ -30,17 +25,6 @@
     </dependencies>
   </metadata>
   <files>
-    <!-- For .NET 4.0 projects -->
-    <file src="$configuration$\Src\Web\Web.Nuget\Resources\ApplicationInsights.config.transform" target="content\net40" />
-    <file src="$configuration$\Src\Web\Web.Nuget\Resources\net40\ApplicationInsights.config.install.xdt" target="content\net40" />
-    <file src="$configuration$\Src\Web\Web.Nuget\Resources\net40\ApplicationInsights.config.uninstall.xdt" target="content\net40" />    
-    <file src="$configuration$\Src\Web\Web.Nuget\Resources\web.config.install.xdt" target="content\net40" />
-    <file src="$configuration$\Src\Web\Web.Nuget\Resources\web.config.uninstall.xdt" target="content\net40" />
-
-    <file src="$configuration$\Src\Web\Web.Net40\Microsoft.AI.Web.dll" target="lib\net40" />
-    <file src="$configuration$\Src\Web\Web.Net40\Microsoft.AI.Web.xml" target="lib\net40" />
-    <file src="$configuration$\Src\Web\Web.Net40\Microsoft.AI.Web.pdb" target="lib\net40" />
-
     <!-- For .NET 4.5 projects -->
     <file src="$configuration$\Src\Web\Web.Nuget\Resources\ApplicationInsights.config.transform" target="content\net45" />
     <file src="$configuration$\Src\Web\Web.Nuget\Resources\net45\ApplicationInsights.config.install.xdt" target="content\net45" />

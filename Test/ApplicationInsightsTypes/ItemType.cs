@@ -17,5 +17,9 @@
         public const string PageViewPerformance = "Microsoft.ApplicationInsights.PageViewPerformance";
 
         public const string RemoteDependency = "Microsoft.ApplicationInsights.RemoteDependency";
+
+        public const string PerformanceCounter = "Microsoft.ApplicationInsights.PerformanceCounter";
+
+        public const string SessionState = "Microsoft.ApplicationInsights.SessionState";
     }
 }

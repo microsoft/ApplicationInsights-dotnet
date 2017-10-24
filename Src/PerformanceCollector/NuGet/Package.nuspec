@@ -16,28 +16,31 @@
     <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
     <tags>Analytics ApplicationInsights Telemetry ASP.NET ASMX Web Azure Server Services ASPX Websites Performance Counters Performance Collection</tags>
     <dependencies>      
-      <group targetFramework="net40">
-        <dependency id="Microsoft.ApplicationInsights" version="$coresdkversion$" />
-        <dependency id="Microsoft.Diagnostics.Tracing.EventSource.Redist" version="1.1.28"/>
-      </group>
       <group targetFramework="net45">
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
+      </group>
+      <group targetFramework="netstandard1.6">
+        <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
+        <dependency id="Microsoft.Extensions.PlatformAbstractions" version="1.1.0" />
+        <dependency id="NETStandard.Library" version="1.6.1" />
+        <dependency id="System.Runtime.Serialization.Json" version="4.3.0" />
+        <dependency id="System.Runtime.Serialization.Primitives" version="4.3.0" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <!-- Binaries for .NET 4.0 -->
-    <file src="$configuration$\Src\PerformanceCollector\Net40\Microsoft.AI.PerfCounterCollector.dll" target="lib\net40" />
-    <file src="$configuration$\Src\PerformanceCollector\Net40\Microsoft.AI.PerfCounterCollector.pdb" target="lib\net40" />
-
     <!-- Binaries for .NET 4.5 -->
     <file src="$configuration$\Src\PerformanceCollector\Net45\Microsoft.AI.PerfCounterCollector.dll" target="lib\net45" />
     <file src="$configuration$\Src\PerformanceCollector\Net45\Microsoft.AI.PerfCounterCollector.pdb" target="lib\net45" />
+
+    <!-- For .NET Standard 1.6 projects -->
+    <file src="$configuration$\Src\PerformanceCollector\NetCore\netstandard1.6\Microsoft.AI.PerfCounterCollector.dll" target="lib\netstandard1.6" />
+    <file src="$configuration$\Src\PerformanceCollector\NetCore\netstandard1.6\Microsoft.AI.PerfCounterCollector.pdb" target="lib\netstandard1.6" />
+    <file src="$configuration$\Src\PerformanceCollector\NetCore\netstandard1.6\Microsoft.AI.PerfCounterCollector.xml" target="lib\netstandard1.6" />
 
     <!-- XDT transformations -->
     <file src="$configuration$\Src\PerformanceCollector\NuGet\ApplicationInsights.config.transform" target="content"/>
     <file src="$configuration$\Src\PerformanceCollector\NuGet\ApplicationInsights.config.install.xdt" target="content"/>
     <file src="$configuration$\Src\PerformanceCollector\NuGet\ApplicationInsights.config.uninstall.xdt" target="content"/>
-
   </files>
 </package>

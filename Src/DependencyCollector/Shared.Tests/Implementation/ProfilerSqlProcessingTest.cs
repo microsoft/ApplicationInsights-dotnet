@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -15,14 +15,13 @@
     
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.DependencyCollector;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.TestFramework;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable", Justification = "Disposing TelemetryConfiguration after each test.")]

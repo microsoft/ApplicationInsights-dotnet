@@ -15,7 +15,7 @@
             // Since dependencySource is no longer set, sdk version is prepended with information which can identify whether RDD was collected by profiler/framework
             // For directly using TrackDependency(), version will be simply what is set by core
             Type sdkVersionUtilsType = typeof(SdkVersionUtils);
-            
+
 #if NETCORE
             IEnumerable<Attribute> assemblyCustomAttributes = sdkVersionUtilsType.GetTypeInfo().Assembly.GetCustomAttributes();
 #else
@@ -29,9 +29,6 @@
             Version version = new Version(versionStr);
 
             string postfix = version.Revision.ToString(CultureInfo.InvariantCulture);
-#if NET40
-            postfix += "-fw4";
-#endif
             return (versionPrefix ?? string.Empty) + version.ToString(3) + "-" + postfix;
         }
     }

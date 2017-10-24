@@ -2,12 +2,12 @@
 {
     using System;
     using System.Diagnostics;
-    using Microsoft.ApplicationInsights.Extensibility;
+    using Extensibility;
 
     /// <summary>
     /// Telemetry module that sets developer mode to true when is not already set AND managed debugger is attached.
     /// </summary>
-    internal class DeveloperModeWithDebuggerAttachedTelemetryModule : ITelemetryModule
+    public class DeveloperModeWithDebuggerAttachedTelemetryModule : ITelemetryModule
     {
         /// <summary>
         /// Function that checks whether debugger is attached with implementation that can be replaced by unit test code.

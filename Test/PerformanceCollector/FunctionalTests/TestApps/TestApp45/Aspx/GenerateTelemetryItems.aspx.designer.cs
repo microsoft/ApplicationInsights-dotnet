@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestApp40.Aspx {
+namespace TestApp45.Aspx {
     
     
     public partial class GenerateTelemetryItems {

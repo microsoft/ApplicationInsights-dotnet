@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.Tests
 {
     using System.Net;
 

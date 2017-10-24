@@ -28,6 +28,7 @@
                 AppName = "AspxCore",
                 ExternalCallPath = "external/calls",
                 Port = DeploymentAndValidationTools.AspxCorePort,
+                PublishFolder = "netcoreapp1.0"
             };
 
             AspxCoreTestWebApplication.Deploy();
@@ -53,8 +54,7 @@
 
         [TestCleanup]
         public void MyTestCleanup()
-        {
-            Assert.IsFalse(DeploymentAndValidationTools.SdkEventListener.FailureDetected, "Failure is detected. Please read test output logs.");
+        {            
             DeploymentAndValidationTools.SdkEventListener.Stop();
         }               
 
@@ -107,7 +107,7 @@
         {
             EnsureDotNetCoreInstalled();
 
-            return new ExpectedSDKPrefixChanger("rdddsc", null);
+            return new ExpectedSDKPrefixChanger("rdddsc", "rdddsc");
         }
 
         private const string AspxCoreTestAppFolder = "..\\TestApps\\AspxCore\\";
@@ -117,7 +117,6 @@
         [TestMethod]
         [TestCategory(TestCategory.NetCore)]
         [DeploymentItem(AspxCoreTestAppFolder, AspxCoreAppFolder)]
-        [Ignore] //Temp ignore to unlock a release
         public void TestRddForSyncHttpAspxCore()
         {
             using (DotNetCoreTestSetup())
@@ -130,7 +129,6 @@
         [TestMethod]
         [TestCategory(TestCategory.NetCore)]
         [DeploymentItem(AspxCoreTestAppFolder, AspxCoreAppFolder)]
-        [Ignore] //Temp ignore to unlock a release
         public void TestRddForSyncHttpPostCallAspxCore()
         {
             using (DotNetCoreTestSetup())
@@ -150,6 +148,111 @@
             {
                 // Execute and verify calls which fails.            
                 HttpTestHelper.ExecuteSyncHttpTests(AspxCoreTestWebApplication, false, 1, HttpTestConstants.AccessTimeMaxHttpInitial, "200", HttpTestConstants.QueryStringOutboundHttpFailed);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(TestCategory.NetCore20)]
+        [DeploymentItem(AspxCoreTestAppFolder, AspxCoreAppFolder)]
+        public void TestRddForSqlExecuteReaderAsyncAspxCore()
+        {
+            using (DotNetCoreTestSetup())
+            {
+                // Execute and verify calls which succeeds            
+                HttpTestHelper.ExecuteSqlTest(
+                    AspxCoreTestWebApplication, true, 1, HttpTestConstants.AccessTimeMaxHttpNormal, HttpTestConstants.QueryStringOutboundExecuteReaderAsync);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(TestCategory.NetCore20)]
+        [DeploymentItem(AspxCoreTestAppFolder, AspxCoreAppFolder)]
+        public void TestRddForSqlExecuteScalarAsyncAspxCore()
+        {
+            using (DotNetCoreTestSetup())
+            {
+                // Execute and verify calls which succeeds            
+                HttpTestHelper.ExecuteSqlTest(
+                    AspxCoreTestWebApplication, true, 1, HttpTestConstants.AccessTimeMaxHttpNormal, HttpTestConstants.QueryStringOutboundExecuteScalarAsync);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(TestCategory.NetCore20)]
+        [DeploymentItem(AspxCoreTestAppFolder, AspxCoreAppFolder)]
+        public void TestRddForExecuteReaderStoredProcedureAsyncAspxCore()
+        {
+            using (DotNetCoreTestSetup())
+            {
+                // Execute and verify calls which succeeds            
+                HttpTestHelper.ExecuteSqlTest(
+                    AspxCoreTestWebApplication, true, 1, HttpTestConstants.AccessTimeMaxHttpNormal, HttpTestConstants.QueryStringOutboundExecuteReaderStoredProcedureAsync);
+            }
+        }
+
+        [TestMethod]
+        [Ignore] // Can't run this until race condition in SqlCommandHelper.AsyncExecuteReaderInTasks is fixed.
+        [TestCategory(TestCategory.NetCore20)]
+        [DeploymentItem(AspxCoreTestAppFolder, AspxCoreAppFolder)]
+        public void TestRddForTestExecuteReaderTwiceWithTasksAspxCore()
+        {
+            using (DotNetCoreTestSetup())
+            {
+                // Execute and verify calls which succeeds            
+                HttpTestHelper.ExecuteSqlTest(
+                    AspxCoreTestWebApplication, true, 1, HttpTestConstants.AccessTimeMaxHttpNormal, HttpTestConstants.QueryStringOutboundTestExecuteReaderTwiceWithTasks);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(TestCategory.NetCore20)]
+        [DeploymentItem(AspxCoreTestAppFolder, AspxCoreAppFolder)]
+        public void TestRddForTestExecuteNonQueryAsyncAspxCore()
+        {
+            using (DotNetCoreTestSetup())
+            {
+                // Execute and verify calls which succeeds            
+                HttpTestHelper.ExecuteSqlTest(
+                    AspxCoreTestWebApplication, true, 1, HttpTestConstants.AccessTimeMaxHttpNormal, HttpTestConstants.QueryStringOutboundExecuteNonQueryAsync);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(TestCategory.NetCore20)]
+        [DeploymentItem(AspxCoreTestAppFolder, AspxCoreAppFolder)]
+        public void TestRddForTestExecuteXmlReaderAsyncAspxCore()
+        {
+            using (DotNetCoreTestSetup())
+            {
+                // Execute and verify calls which succeeds            
+                HttpTestHelper.ExecuteSqlTest(
+                    AspxCoreTestWebApplication, true, 1, HttpTestConstants.AccessTimeMaxHttpNormal, HttpTestConstants.QueryStringOutboundExecuteXmlReaderAsync);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(TestCategory.NetCore20)]
+        [DeploymentItem(AspxCoreTestAppFolder, AspxCoreAppFolder)]
+        public void TestRddForTestSqlCommandExecuteScalarAspxCore()
+        {
+            using (DotNetCoreTestSetup())
+            {
+                // Execute and verify calls which succeeds            
+                HttpTestHelper.ExecuteSqlTest(
+                    AspxCoreTestWebApplication, true, 1, HttpTestConstants.AccessTimeMaxHttpNormal, HttpTestConstants.QueryStringOutboundSqlCommandExecuteScalar);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(TestCategory.NetCore20)]
+        [DeploymentItem(AspxCoreTestAppFolder, AspxCoreAppFolder)]
+        public void TestRddForTestSqlCommandExecuteScalarErrorAspxCore()
+        {
+            using (DotNetCoreTestSetup())
+            {
+                // Execute and verify calls which succeeds            
+                HttpTestHelper.ExecuteSqlTest(
+                    AspxCoreTestWebApplication, false, 1, HttpTestConstants.AccessTimeMaxHttpNormal, HttpTestConstants.QueryStringOutboundSqlCommandExecuteScalarError);
             }
         }
 

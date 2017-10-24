@@ -1,56 +1,37 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\packages\Bond.CSharp.4.2.1\build\Bond.CSharp.props" Condition="Exists('..\..\..\packages\Bond.CSharp.4.2.1\build\Bond.CSharp.props')" />
+<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Company>Microsoft</Company>
+    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+
+    <TargetFrameworks>net45;netstandard1.3</TargetFrameworks>
+
     <ProjectGuid>{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ApplicationInsightsTypes</RootNamespace>
     <AssemblyName>ApplicationInsightsTypes</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
     <BondOptions>--collection-interfaces --using="DateTimeOffset=System.DateTimeOffset" --using="TimeSpan=System.TimeSpan" --using="Guid=System.Guid"</BondOptions>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bond">
-      <HintPath>..\..\..\packages\Bond.Core.CSharp.4.2.1\lib\net40\Bond.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Bond.Attributes">
-      <HintPath>..\..\..\packages\Bond.Core.CSharp.4.2.1\lib\net40\Bond.Attributes.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Bond.IO">
-      <HintPath>..\..\..\packages\Bond.Core.CSharp.4.2.1\lib\net40\Bond.IO.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Bond.JSON">
-      <HintPath>..\..\..\packages\Bond.Runtime.CSharp.4.2.1\lib\net40\Bond.JSON.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\Newtonsoft.Json.9.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ItemType.cs" />
-    <Compile Include="TelemetryItem.cs" />
-    <Compile Include="TelemetryItemType.cs" />
+    <PackageReference Include="MicroBuild.Core" Version="0.2.0">
+      <IncludeAssets>All</IncludeAssets>
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Bond.CSharp" Version="6.0.0" Condition="'$(TargetFramework)' != 'net40'">
+      <IncludeAssets>All</IncludeAssets>
+      <PrivateAssets>build</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Bond.CSharp" Version="4.2.1" Condition="'$(TargetFramework)' == 'net40'">
+      <IncludeAssets>All</IncludeAssets>
+      <PrivateAssets>build</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <BondCodegen Include="..\..\Schema\PublicSchema\AvailabilityData.bond">
@@ -110,28 +91,6 @@
     <BondCodegen Include="..\..\Schema\PublicSchema\StackFrame.bond">
       <Link>StackFrame.bond</Link>
     </BondCodegen>
-    <None Include="app.config" />
-    <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\packages\Bond.CSharp.4.2.1\build\Bond.CSharp.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\Bond.CSharp.4.2.1\build\Bond.CSharp.props'))" />
-    <Error Condition="!Exists('..\..\..\packages\Bond.CSharp.4.2.1\build\Bond.CSharp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\Bond.CSharp.4.2.1\build\Bond.CSharp.targets'))" />
-  </Target>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
-  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\..\packages\Bond.CSharp.4.2.1\build\Bond.CSharp.targets" Condition="Exists('..\..\..\packages\Bond.CSharp.4.2.1\build\Bond.CSharp.targets')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

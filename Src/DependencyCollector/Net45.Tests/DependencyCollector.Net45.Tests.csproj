@@ -28,8 +28,8 @@
     <RootNamespace>Microsoft.ApplicationInsights.DependencyCollector</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.ApplicationInsights, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.4.0\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
+    <Reference Include="Microsoft.ApplicationInsights, Version=2.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.5.0-beta1\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
@@ -74,7 +74,7 @@
       <Name>TestFramework.Net45</Name>
     </ProjectReference>
     <ProjectReference Include="..\Net45\DependencyCollector.Net45.csproj">
-      <Project>{EA2D14AA-AE1E-4982-9326-11D4DCBB9529}</Project>
+      <Project>{ea2d14aa-ae1e-4982-9326-11d4dcbb9529}</Project>
       <Name>DependencyCollector.Net45</Name>
     </ProjectReference>
   </ItemGroup>
