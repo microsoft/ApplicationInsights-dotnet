@@ -47,6 +47,8 @@ namespace E2ETestApp
             {
                 switch (type)
                 {
+                    // A bit hacky way to enable collect application logs. This is temporary until actual
+                    // etw listener can be installed inside docker itself separate from the app.
                     case "etw":
                         if(etwEnabled)                        
                             break;
