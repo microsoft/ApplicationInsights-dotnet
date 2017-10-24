@@ -30,6 +30,7 @@
 #endif
 
         private HttpCoreDiagnosticSourceListener httpCoreDiagnosticSourceListener;
+        private TelemetryDiagnosticSourceListener telemetryDiagnosticSourceListener;
         private SqlClientDiagnosticSourceListener sqlClientDiagnosticSourceListener;
 
 #if !NETCORE
@@ -42,6 +43,7 @@
         private bool disposed = false;
         private bool correlationHeadersEnabled = true;
         private ICollection<string> excludedCorrelationDomains = new SanitizedHostList();
+        private ICollection<string> includeDiagnosticSourceActivities = new List<string>();
 
         /// <summary>
         /// Gets or sets a value indicating whether to disable runtime instrumentation.
@@ -61,6 +63,17 @@
             get
             {
                 return this.excludedCorrelationDomains;
+            }
+        }
+
+        /// <summary>
+        /// Gets the list of diagnostic sources and activities to exclude from collection.
+        /// </summary>
+        public ICollection<string> IncludeDiagnosticSourceActivities
+        {
+            get
+            {
+                return this.includeDiagnosticSourceActivities;
             }
         }
 
@@ -134,6 +147,11 @@
                                 this.SetComponentCorrelationHttpHeaders,
                                 this.ExcludeComponentCorrelationHttpHeadersOnDomains, 
                                 null);
+
+                            if (this.IncludeDiagnosticSourceActivities != null && this.IncludeDiagnosticSourceActivities.Count > 0)
+                            {
+                                this.telemetryDiagnosticSourceListener = new TelemetryDiagnosticSourceListener(configuration, this.IncludeDiagnosticSourceActivities);
+                            }
 
                             this.sqlClientDiagnosticSourceListener = new SqlClientDiagnosticSourceListener(configuration);
 
@@ -219,6 +237,11 @@
                     if (this.httpCoreDiagnosticSourceListener != null)
                     {
                         this.httpCoreDiagnosticSourceListener.Dispose();
+                    }
+
+                    if (this.telemetryDiagnosticSourceListener != null)
+                    {
+                        this.telemetryDiagnosticSourceListener.Dispose();
                     }
 
                     if (this.sqlClientDiagnosticSourceListener != null)
