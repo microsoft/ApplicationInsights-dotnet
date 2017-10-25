@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "E2ETests", "E2ETests\E2ETests.csproj", "{DB992B10-D3D8-4DA1-815A-A2F5B7F3C18C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyCollectionTests", "E2ETests\DependencyCollectionTests.csproj", "{DB992B10-D3D8-4DA1-815A-A2F5B7F3C18C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "E2ETestApp", "TestApps\Net452\E2ETestApp\E2ETestApp.csproj", "{F114D711-3FCB-4603-AC44-5A7E42EFC55D}"
 EndProject
@@ -16,6 +16,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FW45Shared", "TestApps\helpersfortestapp\FW40Shared\FW45Shared.csproj", "{0B686082-D66C-438D-8B44-032654B69C22}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationInsightsTypes", "..\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj", "{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestApps", "TestApps", "{E51D85A0-9962-416B-8314-9C58BC170D89}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestUtils", "TestUtils", "{75D4A1E1-5500-4BA2-8405-CF25297F7B89}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,6 +80,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F114D711-3FCB-4603-AC44-5A7E42EFC55D} = {E51D85A0-9962-416B-8314-9C58BC170D89}
+		{C5D0B7FC-B9FB-4A22-8853-F0E2B0128F33} = {E51D85A0-9962-416B-8314-9C58BC170D89}
+		{1CDFCA01-F1A0-4210-8D18-C0A0A0144E7A} = {E51D85A0-9962-416B-8314-9C58BC170D89}
+		{0B686082-D66C-438D-8B44-032654B69C22} = {E51D85A0-9962-416B-8314-9C58BC170D89}
+		{4B0BC3B7-C7FC-4333-9E28-5790D9153F07} = {75D4A1E1-5500-4BA2-8405-CF25297F7B89}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D0646BA3-97C4-49E1-927B-40B983BC3434}

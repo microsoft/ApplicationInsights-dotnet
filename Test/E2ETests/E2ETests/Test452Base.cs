@@ -147,7 +147,7 @@ namespace E2ETests
         public static void MyClassCleanupBase()
         {
             Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
-            //DockerUtils.ExecuteDockerComposeCommand("down", DockerComposeFileName);
+            DockerUtils.ExecuteDockerComposeCommand("down", DockerComposeFileName);
             //DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
             Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
 
