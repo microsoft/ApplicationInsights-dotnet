@@ -79,8 +79,16 @@ namespace E2ETests
             var stream = client.GetStreamAsync("https://github.com/docker/compose/releases/download/1.12.0/docker-compose-Windows-x86_64.exe").Result;
             if (!File.Exists(".\\docker-compose.exe"))
             {
-                var fstream = new FileStream(".\\docker-compose.exe", FileMode.Create, FileAccess.Write, FileShare.None);
-                stream.CopyToAsync(fstream).Wait();
+                FileStream fs = null;
+                try
+                {
+                    fs = new FileStream(".\\docker-compose.exe", FileMode.Create, FileAccess.Write, FileShare.None);
+                    stream.CopyToAsync(fs).Wait();
+                }
+                finally
+                {
+                    fs.Close();
+                }
             }
 
             DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
