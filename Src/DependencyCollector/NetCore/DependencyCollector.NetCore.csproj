@@ -39,6 +39,8 @@
     <Compile Include="..\Shared\Implementation\DependencyCollectorEventSource.cs" Link="DependencyCollectorEventSource.cs" />
     <Compile Include="..\Shared\Implementation\ApplicationInsightsUrlFilter.cs" Link="ApplicationInsightsUrlFilter.cs" />
     <Compile Include="..\Shared\Implementation\RemoteDependencyConstants.cs" Link="RemoteDependencyConstants.cs" />
+    <Compile Include="..\Shared\Implementation\DiagnosticSourceListenerBase.cs" Link="DiagnosticSourceListenerBase.cs" />
+    <Compile Include="..\Shared\Implementation\TelemetryDiagnosticSourceListener.cs" Link="TelemetryDiagnosticSourceListener.cs" />
     <Compile Include="..\Shared\Implementation\HttpCoreDiagnosticSourceListener.cs" Link="HttpCoreDiagnosticSourceListener.cs" />
     <Compile Include="..\Shared\Implementation\SqlClientDiagnosticSourceListener.cs" Link="SqlClientDiagnosticSourceListener.cs" />
     <Compile Include="..\Shared\Implementation\HttpHeadersUtilities.cs" Link="HttpHeadersUtilities.cs" />
