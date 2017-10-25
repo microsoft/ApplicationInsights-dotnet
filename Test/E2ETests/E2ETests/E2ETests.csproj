@@ -117,9 +117,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AzureEmulator\readme.txt" />
-    <Content Include="docker-compose.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="AzureEmulator\DockerFile">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

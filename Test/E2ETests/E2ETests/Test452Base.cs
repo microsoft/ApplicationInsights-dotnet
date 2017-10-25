@@ -75,6 +75,14 @@ namespace E2ETests
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
             Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));
 
+            HttpClient client = new HttpClient();
+            var stream = client.GetStreamAsync("https://github.com/docker/compose/releases/download/1.12.0/docker-compose-Windows-x86_64.exe").Result;
+            if (!File.Exists(".\\docker-compose.exe"))
+            {
+                var fstream = new FileStream(".\\docker-compose.exe", FileMode.Create, FileAccess.Write, FileShare.None);
+                stream.CopyToAsync(fstream).Wait();
+            }
+
             DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
             DockerUtils.RemoveDockerContainer(Apps[WebAppName].containerName, true);
 
