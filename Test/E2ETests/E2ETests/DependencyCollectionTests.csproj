@@ -98,6 +98,9 @@
     <None Include="AzureEmulator\nginx.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="docker-composeNet20AppOn20.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="docker-compose452AppOn462StatusMonitor.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

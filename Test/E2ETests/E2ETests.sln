@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestApps", "TestApps", "{E5
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestUtils", "TestUtils", "{75D4A1E1-5500-4BA2-8405-CF25297F7B89}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "E2ETestAppCore20", "TestApps\NetCore20\E2ETestAppCore20\E2ETestAppCore20.csproj", "{F838D8E1-FFCF-4C6B-901D-4D8DC98EC05C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,14 @@ Global
 		{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F838D8E1-FFCF-4C6B-901D-4D8DC98EC05C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F838D8E1-FFCF-4C6B-901D-4D8DC98EC05C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F838D8E1-FFCF-4C6B-901D-4D8DC98EC05C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F838D8E1-FFCF-4C6B-901D-4D8DC98EC05C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F838D8E1-FFCF-4C6B-901D-4D8DC98EC05C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F838D8E1-FFCF-4C6B-901D-4D8DC98EC05C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F838D8E1-FFCF-4C6B-901D-4D8DC98EC05C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F838D8E1-FFCF-4C6B-901D-4D8DC98EC05C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,6 +97,7 @@ Global
 		{1CDFCA01-F1A0-4210-8D18-C0A0A0144E7A} = {E51D85A0-9962-416B-8314-9C58BC170D89}
 		{0B686082-D66C-438D-8B44-032654B69C22} = {E51D85A0-9962-416B-8314-9C58BC170D89}
 		{4B0BC3B7-C7FC-4333-9E28-5790D9153F07} = {75D4A1E1-5500-4BA2-8405-CF25297F7B89}
+		{F838D8E1-FFCF-4C6B-901D-4D8DC98EC05C} = {E51D85A0-9962-416B-8314-9C58BC170D89}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D0646BA3-97C4-49E1-927B-40B983BC3434}

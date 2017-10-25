@@ -24,8 +24,10 @@ namespace E2ETests
     public abstract class Test452Base
     {
         internal const string WebAppInstrumentationKey = "e45209bb-49ab-41a0-8065-793acb3acc56";
+        internal const string WebAppCore20NameInstrumentationKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8";
         internal const string WebApiInstrumentationKey = "0786419e-d901-4373-902a-136921b63fb2";
         internal const string WebAppName = "WebApp";
+        internal const string WebAppCore20Name = "WebAppCore20";
         internal const string WebApiName = "WebApi";
         internal const string IngestionName = "Ingestion";
 
@@ -39,6 +41,17 @@ namespace E2ETests
                         containerName = "e2etests_e2etestwebapp_1",
                         imageName = "e2etests_e2etestwebapp",
                         healthCheckPath = "/Dependencies?type=etw"
+                    }
+            },
+
+            {
+                WebAppCore20Name,
+                new DeployedApp
+                    {
+                        ikey = WebAppCore20NameInstrumentationKey,
+                        containerName = "e2etests_e2etestwebappcore20_1",
+                        imageName = "e2etests_e2etestwebappcore20",
+                        healthCheckPath = "/api/values"
                     }
             },
 
@@ -57,6 +70,7 @@ namespace E2ETests
                 IngestionName,
                 new DeployedApp
                     {
+                        ikey = "dummy",
                         containerName = "e2etests_ingestionservice_1",
                         imageName = "e2etests_ingestionservice",
                         healthCheckPath = "/api/Data/HealthCheck?name=cijo"
@@ -91,8 +105,8 @@ namespace E2ETests
                 }
             }
 
-            DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
-            DockerUtils.RemoveDockerContainer(Apps[WebAppName].containerName, true);
+            //DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
+            //DockerUtils.RemoveDockerContainer(Apps[WebAppName].containerName, true);
 
             // Deploy the docker cluster using Docker-Compose
             //DockerUtils.ExecuteDockerComposeCommand("up -d --force-recreate --build", DockerComposeFileName);
@@ -103,24 +117,18 @@ namespace E2ETests
             // Populate dynamic properties of Deployed Apps like ip address.
             PopulateIPAddresses();
 
-            bool webAppHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[WebAppName]);
-            bool webApiHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[WebApiName]);
-            bool ingestionHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[IngestionName]);
+            bool allAppsHealthy = HealthCheckAndRemoveImageIfNeededAllApp();
 
-            if (!(webAppHealthy && webApiHealthy && ingestionHealthy))
+            if (!allAppsHealthy)
             {
                 DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
                 Thread.Sleep(5000);
                 DockerUtils.PrintDockerProcessStats("Docker-Compose -build retry");
 
-                webAppHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[WebAppName]);
-                webApiHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[WebApiName]);
-                ingestionHealthy = HealthCheckAndRemoveImageIfNeeded(Apps[IngestionName]);
+                allAppsHealthy = HealthCheckAndRemoveImageIfNeededAllApp();
             }            
 
-            Assert.IsTrue(webAppHealthy, "Web App is unhealthy");
-            Assert.IsTrue(webApiHealthy, "Web Api is unhealthy");
-            Assert.IsTrue(ingestionHealthy, "Ingestion is unhealthy");
+            Assert.IsTrue(allAppsHealthy, "All Apps are not unhealthy.");            
 
             dataendpointClient = new DataEndpointClient(new Uri("http://" + Apps[IngestionName].ipAddress));
 
@@ -128,12 +136,24 @@ namespace E2ETests
             Trace.WriteLine(".Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
 
+        private static bool HealthCheckAndRemoveImageIfNeededAllApp()
+        {
+            bool healthy = true;
+            foreach(var app in Apps)
+            {
+                healthy = healthy && HealthCheckAndRemoveImageIfNeeded(app.Value);
+            }
+
+            return healthy;
+        }
+
         private static void PopulateIPAddresses()
         {
-            // Inspect Docker containers to get IP addresses
-            Apps[WebAppName].ipAddress = DockerUtils.FindIpDockerContainer(Apps[WebAppName].containerName);
-            Apps[WebApiName].ipAddress = DockerUtils.FindIpDockerContainer(Apps[WebApiName].containerName);
-            Apps[IngestionName].ipAddress = DockerUtils.FindIpDockerContainer(Apps[IngestionName].containerName);
+            // Inspect Docker containers to get IP addresses            
+            foreach (var app in Apps)
+            {
+                app.Value.ipAddress = DockerUtils.FindIpDockerContainer(app.Value.containerName);                
+            }
         }
 
         private static void RestartAllTestAppContainers()
@@ -193,14 +213,19 @@ namespace E2ETests
                 Apps[WebAppName].ikey, Apps[WebApiName].ikey).Wait();
         }
 
-        public void TestSyncHttpDependency(string expectedPrefix)
+        public void TestSyncHttpDependency(string expectedPrefix, string appname, string path)
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpsync", expectedDependencyTelemetry,
+            ValidateBasicDependencyAsync(Apps[appname].ipAddress, path, expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+        }
+
+        public void TestSyncHttpDependency(string expectedPrefix)
+        {
+            TestSyncHttpDependency(expectedPrefix, WebAppName, "/Dependencies.aspx?type=httpsync");            
         }
 
         public void TestAsyncWithHttpClientHttpDependency(string expectedPrefix)
@@ -217,7 +242,7 @@ namespace E2ETests
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
-            expectedDependencyTelemetry.Success = true;
+            expectedDependencyTelemetry.Success = true;            
 
             ValidateBasicDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httppost", expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
@@ -948,9 +973,11 @@ namespace E2ETests
 
         private void RemoveIngestionItems()
         {
-            Trace.WriteLine("Deleting items started:" + DateTime.UtcNow.ToLongTimeString());
-            dataendpointClient.DeleteItems(WebAppInstrumentationKey);
-            dataendpointClient.DeleteItems(WebApiInstrumentationKey);
+            Trace.WriteLine("Deleting items started:" + DateTime.UtcNow.ToLongTimeString());            
+            foreach(var app in Apps)
+            {
+                dataendpointClient.DeleteItems(app.Value.ikey);
+            }            
             Trace.WriteLine("Deleting items completed:" + DateTime.UtcNow.ToLongTimeString());
         }
 
@@ -982,10 +1009,7 @@ namespace E2ETests
 
         private static bool HealthCheck(DeployedApp app)
         {
-            bool isHealthy = true;
-            //Trace.WriteLine("Docker Stats for: " + app.containerName);
-            //Trace.WriteLine("Status" + DockerUtils.GetDockerStateStatus(app.containerName));
-            //Trace.WriteLine("ExitCode" + DockerUtils.GetDockerStateExitCode(app.containerName));
+            bool isHealthy = true;            
             string url = "";
             try
             {

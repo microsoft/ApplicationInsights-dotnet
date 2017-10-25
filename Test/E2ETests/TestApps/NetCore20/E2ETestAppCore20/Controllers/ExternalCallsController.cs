@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
@@ -6,13 +6,13 @@ using System.Net.Http;
 using System.Text;
 using FW45Shared;
 
-namespace AspxCore20.Controllers
-{
+namespace E2ETestAppCore20.Controllers
+{    
     [Route("external/calls")]
     public class ExternalCallsController : Controller
     {       /// <summary>
-         /// Invalid Hostname to trigger exception being thrown
-         /// </summary>
+            /// Invalid Hostname to trigger exception being thrown
+            /// </summary>
         private const string InvalidHostName = "http://www.zzkaodkoakdahdjghejajdnad.com";
 
         /// <summary>
@@ -22,8 +22,7 @@ namespace AspxCore20.Controllers
 
         /// <summary>
         /// Valid SQL Query. The wait for delay of 6 ms is used to prevent access time of less than 1 ms. SQL is not accurate below 3, so used 6 ms delay.
-        /// </summary> 
-        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed.")]
+        /// </summary>         
         private const string ValidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:006'; select * from dbo.Messages";
 
         /// <summary>
