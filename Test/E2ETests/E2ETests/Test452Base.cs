@@ -29,8 +29,7 @@ namespace E2ETests
         internal const string WebAppName = "WebApp";
         internal const string WebAppCore20Name = "WebAppCore20";
         internal const string WebApiName = "WebApi";
-        internal const string IngestionName = "Ingestion";
-
+        internal const string IngestionName = "Ingestion";        
         internal static Dictionary<string, DeployedApp> Apps = new Dictionary<string, DeployedApp>()
         {
             {
@@ -89,21 +88,11 @@ namespace E2ETests
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
             Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));
 
-            HttpClient client = new HttpClient();
-            var stream = client.GetStreamAsync("https://github.com/docker/compose/releases/download/1.12.0/docker-compose-Windows-x86_64.exe").Result;
-            if (!File.Exists(".\\docker-compose.exe"))
-            {
-                FileStream fs = null;
-                try
-                {
-                    fs = new FileStream(".\\docker-compose.exe", FileMode.Create, FileAccess.Write, FileShare.None);
-                    stream.CopyToAsync(fs).Wait();
-                }
-                finally
-                {
-                    fs.Close();
-                }
-            }
+
+            InitializeDatabase();
+            // Windows Server Machines dont have docker-compose installed.
+            GetDockerCompose();
+
 
             //DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
             //DockerUtils.RemoveDockerContainer(Apps[WebAppName].containerName, true);
@@ -136,6 +125,34 @@ namespace E2ETests
             Trace.WriteLine(".Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
 
+        private static void GetDockerCompose()
+        {
+            HttpClient client = new HttpClient();
+            var stream = client.GetStreamAsync("https://github.com/docker/compose/releases/download/1.12.0/docker-compose-Windows-x86_64.exe").Result;
+            if (!File.Exists(".\\docker-compose.exe"))
+            {
+                FileStream fs = null;
+                try
+                {
+                    fs = new FileStream(".\\docker-compose.exe", FileMode.Create, FileAccess.Write, FileShare.None);
+                    stream.CopyToAsync(fs).Wait();
+                }
+                finally
+                {
+                    fs.Close();
+                }
+            }
+        }
+
+        private static void InitializeDatabase()
+        {
+            if (!LocalDbHelper.CheckDatabaseExists("dependencytest"))
+            {
+                LocalDbHelper.CreateDatabase("dependencytest", "c:\\dependencytest.mdf");
+            }
+            LocalDbHelper.ExecuteScript("dependencytest", "Helpers\\TestDatabase.sql");
+        }
+
         private static bool HealthCheckAndRemoveImageIfNeededAllApp()
         {
             bool healthy = true;
@@ -145,7 +162,7 @@ namespace E2ETests
             }
 
             return healthy;
-        }
+        }       
 
         private static void PopulateIPAddresses()
         {
@@ -850,7 +867,10 @@ namespace E2ETests
                 items = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
                 receivedItemCount = items.Count;
                 iteration++;
-                ExecuteWebRequestToTarget(targetInstanceIp, "/Dependencies.aspx?type=flush").Wait();
+                if (receivedItemCount == 0)
+                {
+                    ExecuteWebRequestToTarget(targetInstanceIp, "/Dependencies.aspx?type=flush").Wait();
+                }
             }
 
             Trace.WriteLine("Items received in iteration: " + iteration);

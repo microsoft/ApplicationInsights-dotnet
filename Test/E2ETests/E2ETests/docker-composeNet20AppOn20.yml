@@ -16,7 +16,7 @@ services:
             - e2etestwebapi
             - sql-server
 
-      e2etestwebapp:
+    e2etestwebapp:
         build: 
             context: ./../TestApps/Net452/E2ETestApp/Publish
             dockerfile: DockerFile462

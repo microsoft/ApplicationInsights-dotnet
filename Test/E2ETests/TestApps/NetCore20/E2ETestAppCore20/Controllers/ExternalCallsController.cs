@@ -20,17 +20,17 @@ namespace E2ETestAppCore20.Controllers
         /// <summary>
         /// Connection string to local database.
         /// </summary>         
-        public const string ConnectionString = @"Server =sql-server;User Id = sa; Password=MSDNm4g4z!n4";
+        public const string ConnectionString = @"Server =sql-server;Initial Catalog=dependencytest;User Id = sa; Password=MSDNm4g4z!n4";
 
         /// <summary>
         /// Valid SQL Query. The wait for delay of 6 ms is used to prevent access time of less than 1 ms. SQL is not accurate below 3, so used 6 ms delay.
         /// </summary>         
-        private const string ValidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabases";
+        private const string ValidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:007';select * from dbo.Messages";
 
         /// <summary>
         /// Valid SQL Query to get count.
         /// </summary> 
-        private const string ValidSqlQueryCountToApmDatabase = "WAITFOR DELAY '00:00:00:007';SELECT count (*) FROM master.dbo.sysdatabases";
+        private const string ValidSqlQueryCountToApmDatabase = "WAITFOR DELAY '00:00:00:007';select count(*) from dbo.Messages";
 
         /// <summary>
         /// Invalid SQL Query.

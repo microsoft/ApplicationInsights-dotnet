@@ -91,6 +91,12 @@ namespace E2ETests.netcore20
             base.TestSqlDependency(VersionPrefixSql, Test452Base.WebAppCore20Name, "/external/calls?type=SqlCommandExecuteScalar&success=false", false);
         }
 
+        [TestMethod]
+        public void TestCore20OnNetCore20_SqlCommandExecuteReaderStoredProcedureAsync()
+        {
+            base.TestSqlDependency(VersionPrefixSql, Test452Base.WebAppCore20Name, "/external/calls?type=ExecuteReaderStoredProcedureAsync&storedProcedureName=GetTopTenMessages&success=true", true);
+        }
+
         [ClassCleanup]
         public static void MyClassCleanup()
         {

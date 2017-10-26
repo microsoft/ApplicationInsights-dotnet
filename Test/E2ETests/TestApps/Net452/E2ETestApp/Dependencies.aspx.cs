@@ -18,11 +18,11 @@ using System.Web.UI.WebControls;
 namespace E2ETestApp
 {
     public partial class Dependencies : System.Web.UI.Page
-    {
-        public const string LocalDbConnectionString = @"Server =sql-server;User Id = sa; Password=MSDNm4g4z!n4";
+    {        
+        public const string LocalDbConnectionString = @"Server =sql-server;Initial Catalog=dependencytest;User Id = sa; Password=MSDNm4g4z!n4";
         public const string InvalidAccountConnectionString = @"Server =sql-server;User Id = sa; Password=thisiswrong";
         public const string InvalidServerConnectionString = @"Server =sql-server-dontexist;User Id = sa; Password=MSDNm4g4z!n4";
-        private string SqlQuerySuccess = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabases";
+        private string SqlQuerySuccess = "WAITFOR DELAY '00:00:00:007';select * from dbo.Messages";
         private string SqlQueryError = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabasesunknown";
         private string SqlStoredProcedureName = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabases";
 
@@ -240,6 +240,7 @@ namespace E2ETestApp
                                         : SqlQueryError);
                         break;
                     case "BeginExecuteXmlReader":
+                        SqlQuerySuccess += " FOR XML AUTO";
                         SqlCommandHelper.BeginExecuteXmlReader(LocalDbConnectionString, (success == true)
                                         ? SqlQuerySuccess
                                         : SqlQueryError);
