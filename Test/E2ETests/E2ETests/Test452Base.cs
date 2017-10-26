@@ -91,8 +91,8 @@ namespace E2ETests
             // Windows Server Machines dont have docker-compose installed.
             GetDockerCompose();
 
-            //DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
-            //DockerUtils.RemoveDockerContainer(Apps[WebAppName].containerName, true);
+            DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
+            DockerUtils.RemoveDockerContainer(Apps[WebAppName].containerName, true);
 
             // Deploy the docker cluster using Docker-Compose
             //DockerUtils.ExecuteDockerComposeCommand("up -d --force-recreate --build", DockerComposeFileName);
