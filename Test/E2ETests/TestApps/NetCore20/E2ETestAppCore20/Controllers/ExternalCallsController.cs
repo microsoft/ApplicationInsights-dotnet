@@ -69,6 +69,7 @@ namespace E2ETestAppCore20.Controllers
             switch (type)
             {
                 case "flush":
+                    title = response = "Flushed telemetry channel";
                     TelemetryConfiguration.Active.TelemetryChannel.Flush();
                     Thread.Sleep(3000);
                     break;

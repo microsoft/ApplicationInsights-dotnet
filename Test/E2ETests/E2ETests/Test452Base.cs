@@ -6,9 +6,9 @@ using System.Threading;
 using System.Net.Http;
 using System.Threading.Tasks;
 using E2ETests.Helpers;
+using TestUtils.TestConstants;
 using AI;
 using Microsoft.ApplicationInsights.DataContracts;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace E2ETests
@@ -24,58 +24,28 @@ namespace E2ETests
     }
     public abstract class Test452Base
     {
-        internal const string WebAppInstrumentationKey = "e45209bb-49ab-41a0-8065-793acb3acc56";
-        internal const string WebAppCore20NameInstrumentationKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8";
-        internal const string WebApiInstrumentationKey = "0786419e-d901-4373-902a-136921b63fb2";
-        internal const string WebAppName = "WebApp";
-        internal const string WebAppCore20Name = "WebAppCore20";
-        internal const string WebApiName = "WebApi";
-        internal const string IngestionName = "Ingestion";        
+        
         internal static Dictionary<string, DeployedApp> Apps = new Dictionary<string, DeployedApp>()
-        {
+        {                          
             {
-                WebAppName,
+                TestConstants.WebApiName,
                 new DeployedApp
                     {
-                        ikey = WebAppInstrumentationKey,
-                        containerName = "e2etests_e2etestwebapp_1",
-                        imageName = "e2etests_e2etestwebapp",
-                        healthCheckPath = "/Dependencies?type=etw",
-                        flushPath= "/Dependencies?type=flush"
+                        ikey = TestConstants.WebApiInstrumentationKey,
+                        containerName = TestConstants.WebApiContainerName,
+                        imageName = TestConstants.WebApiImageName,
+                        healthCheckPath = TestConstants.WebApiHealthCheckPath
                     }
             },
 
             {
-                WebAppCore20Name,
-                new DeployedApp
-                    {
-                        ikey = WebAppCore20NameInstrumentationKey,
-                        containerName = "e2etests_e2etestwebappcore20_1",
-                        imageName = "e2etests_e2etestwebappcore20",
-                        healthCheckPath = "/api/values",
-                        flushPath= "/external/calls?type=flush"
-                    }
-            },
-
-            {
-                WebApiName,
-                new DeployedApp
-                    {
-                        ikey = WebApiInstrumentationKey,
-                        containerName = "e2etests_e2etestwebapi_1",
-                        imageName = "e2etests_e2etestwebapi",
-                        healthCheckPath = "/api/values"
-                    }
-            },
-
-            {
-                IngestionName,
+                TestConstants.IngestionName,
                 new DeployedApp
                     {
                         ikey = "dummy",
-                        containerName = "e2etests_ingestionservice_1",
-                        imageName = "e2etests_ingestionservice",
-                        healthCheckPath = "/api/Data/HealthCheck?name=cijo"
+                        containerName = TestConstants.IngestionContainerName,
+                        imageName = TestConstants.IngestionImageName,
+                        healthCheckPath = TestConstants.IngestionHealthCheckPath
                     }
             }
         };
@@ -95,8 +65,8 @@ namespace E2ETests
             // Windows Server Machines dont have docker-compose installed.
             GetDockerCompose();
 
-            DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
-            DockerUtils.RemoveDockerContainer(Apps[WebAppName].containerName, true);
+            //DockerUtils.RemoveDockerImage(Apps[AppNameBeingTested].imageName, true);
+            //DockerUtils.RemoveDockerContainer(Apps[AppNameBeingTested].containerName, true);
 
             // Deploy the docker cluster using Docker-Compose
             //DockerUtils.ExecuteDockerComposeCommand("up -d --force-recreate --build", DockerComposeFileName);
@@ -120,12 +90,12 @@ namespace E2ETests
 
             Assert.IsTrue(allAppsHealthy, "All Apps are not unhealthy.");            
 
-            dataendpointClient = new DataEndpointClient(new Uri("http://" + Apps[IngestionName].ipAddress));
+            dataendpointClient = new DataEndpointClient(new Uri("http://" + Apps[TestConstants.IngestionName].ipAddress));
 
             InitializeDatabase();
 
             Thread.Sleep(5000);
-            Trace.WriteLine(".Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
+            Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
 
         private static void GetDockerCompose()
@@ -178,7 +148,7 @@ namespace E2ETests
         private static void PopulateIPAddresses()
         {
             // Inspect Docker containers to get IP addresses      
-            Trace.WriteLine("Inspecting Docker containers to get IP addresses      ");
+            Trace.WriteLine("Inspecting Docker containers to get IP addresses");
             foreach (var app in Apps)
             {
                 app.Value.ipAddress = DockerUtils.FindIpDockerContainer(app.Value.containerName);                
@@ -196,8 +166,8 @@ namespace E2ETests
         public static void MyClassCleanupBase()
         {
             Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
-            //DockerUtils.ExecuteDockerComposeCommand("down", DockerComposeFileName);
-            //DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
+            // Not doing cleanup intentional for fast re-runs in local.
+            //DockerUtils.ExecuteDockerComposeCommand("down", DockerComposeFileName);            
             Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
 
             DockerUtils.PrintDockerProcessStats("Docker-Compose down");
@@ -222,7 +192,7 @@ namespace E2ETests
         {
             var expectedRequestTelemetry = new RequestTelemetry();
             expectedRequestTelemetry.ResponseCode = "200";
-            ValidateBasicRequestAsync(Apps[WebAppName].ipAddress, "/About", expectedRequestTelemetry, Apps[WebAppName].ikey).Wait();
+            ValidateBasicRequestAsync(Apps[AppNameBeingTested].ipAddress, "/About", expectedRequestTelemetry, Apps[AppNameBeingTested].ikey).Wait();
         }
 
         public void TestXComponentWebAppToWebApi()
@@ -237,9 +207,9 @@ namespace E2ETests
             var expectedRequestTelemetryWebApi = new RequestTelemetry();
             expectedRequestTelemetryWebApi.ResponseCode = "200";
 
-            ValidateXComponentWebAppToWebApi(Apps[WebAppName].ipAddress, "/Dependencies?type=httpsync",
+            ValidateXComponentWebAppToWebApi(Apps[AppNameBeingTested].ipAddress, "/Dependencies?type=httpsync",
                 expectedRequestTelemetryWebApp, expectedDependencyTelemetryWebApp, expectedRequestTelemetryWebApi,
-                Apps[WebAppName].ikey, Apps[WebApiName].ikey).Wait();
+                Apps[AppNameBeingTested].ikey, Apps[TestConstants.WebApiName].ikey).Wait();
         }
 
         public void TestSyncHttpDependency(string expectedPrefix, string appname, string path)
@@ -254,7 +224,7 @@ namespace E2ETests
 
         public void TestSyncHttpDependency(string expectedPrefix)
         {
-            TestSyncHttpDependency(expectedPrefix, WebAppName, "/Dependencies.aspx?type=httpsync");            
+            TestSyncHttpDependency(expectedPrefix, AppNameBeingTested, "/Dependencies.aspx?type=httpsync");            
         }
 
         public void TestAsyncWithHttpClientHttpDependency(string expectedPrefix)
@@ -263,8 +233,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpasynchttpclient", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpasynchttpclient", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestPostCallHttpDependency(string expectedPrefix)
@@ -273,8 +243,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;            
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httppost", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httppost", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestFailedHttpDependency(string expectedPrefix)
@@ -283,8 +253,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = false;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpfailedwithexception", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpfailedwithexception", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestFailedAtDnsHttpDependency(string expectedPrefix)
@@ -293,8 +263,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = false;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpfailedwithinvaliddns", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpfailedwithinvaliddns", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestAsyncHttpDependency1(string expectedPrefix)
@@ -303,8 +273,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpasync1", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpasync1", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestAsyncFailedHttpDependency1(string expectedPrefix)
@@ -313,8 +283,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = false;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=failedhttpasync1", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=failedhttpasync1", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestAsyncHttpDependency2(string expectedPrefix)
@@ -323,8 +293,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpasync2", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpasync2", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestAsyncFailedHttpDependency2(string expectedPrefix)
@@ -333,8 +303,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = false;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=failedhttpasync2", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=failedhttpasync2", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestAsyncHttpDependency3(string expectedPrefix)
@@ -343,8 +313,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpasync3", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpasync3", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestAsyncFailedHttpDependency3(string expectedPrefix)
@@ -353,8 +323,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = false;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=failedhttpasync3", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=failedhttpasync3", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestAsyncHttpDependency4(string expectedPrefix)
@@ -363,8 +333,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpasync4", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpasync4", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestAsyncFailedHttpDependency4(string expectedPrefix)
@@ -373,8 +343,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = false;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=failedhttpasync4", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=failedhttpasync4", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestAsyncAwaitCallHttpDependency(string expectedPrefix)
@@ -383,8 +353,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=httpasyncawait1", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpasyncawait1", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestFailedAsyncAwaitCallHttpDependency(string expectedPrefix)
@@ -393,8 +363,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = false;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=failedhttpasyncawait1", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=failedhttpasyncawait1", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestAzureTableDependencyWebApp(string expectedPrefix)
@@ -408,8 +378,8 @@ namespace E2ETests
 
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
-            ValidateAzureDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdktable&tablename=people" + expectedPrefix, expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 2, expectedPrefix, 2000);
+            ValidateAzureDependencyAsync(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=azuresdktable&tablename=people" + expectedPrefix, expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 2, expectedPrefix, 2000);
         }
 
         public void TestAzureQueueDependencyWebApp(string expectedPrefix)
@@ -423,8 +393,8 @@ namespace E2ETests
 
             // 2 dependency item is expected.
             // 1 from creating queue, and 1 from writing data to it.
-            ValidateAzureDependencyAsync(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=azuresdkqueue", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 2, expectedPrefix, 2000);
+            ValidateAzureDependencyAsync(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=azuresdkqueue", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 2, expectedPrefix, 2000);
         }
 
         public void TestAzureBlobDependencyWebApp(string expectedPrefix)
@@ -438,10 +408,10 @@ namespace E2ETests
 
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
-            ValidateAzureDependencyAsync(Apps[WebAppName].ipAddress,
+            ValidateAzureDependencyAsync(Apps[AppNameBeingTested].ipAddress,
                 "/Dependencies.aspx?type=azuresdkblob&containerName=" + expectedPrefix + "&blobname=" + expectedPrefix,
                 expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 2, expectedPrefix, 2000);
+                Apps[AppNameBeingTested].ikey, 2, expectedPrefix, 2000);
         }
 
 
@@ -461,8 +431,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteReaderAsync&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=ExecuteReaderAsync&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyExecuteReaderFailedAsync(string expectedPrefix)
@@ -472,8 +442,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteReaderAsync&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=ExecuteReaderAsync&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyBeginExecuteReader0Success(string expectedPrefix)
@@ -482,8 +452,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader0&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader0&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyBeginExecuteReader0Failed(string expectedPrefix)
@@ -493,8 +463,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader0&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader0&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyBeginExecuteReader1Success(string expectedPrefix)
@@ -503,8 +473,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader1&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader1&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyBeginExecuteReader1Failed(string expectedPrefix)
@@ -514,8 +484,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader1&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader1&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyBeginExecuteReader2Success(string expectedPrefix)
@@ -524,8 +494,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader2&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader2&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyBeginExecuteReader2Failed(string expectedPrefix)
@@ -535,8 +505,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader2&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader2&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyBeginExecuteReader3Success(string expectedPrefix)
@@ -545,8 +515,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader3&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader3&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyBeginExecuteReader3Failed(string expectedPrefix)
@@ -556,8 +526,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader3&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteReader3&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencySqlCommandExecuteReader0Success(string expectedPrefix)
@@ -566,8 +536,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteReader1&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteReader1&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencySqlCommandExecuteReader0Failed(string expectedPrefix)
@@ -577,8 +547,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteReader1&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteReader1&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencySqlCommandExecuteReader1Success(string expectedPrefix)
@@ -587,8 +557,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteReader1&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteReader1&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencySqlCommandExecuteReader1Failed(string expectedPrefix)
@@ -598,8 +568,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteReader1&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteReader1&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyExecuteScalarAsyncSuccess(string expectedPrefix)
@@ -608,8 +578,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteScalarAsync&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=ExecuteScalarAsync&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyExecuteScalarAsyncFailed(string expectedPrefix)
@@ -619,8 +589,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteScalarAsync&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=ExecuteScalarAsync&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencySqlCommandExecuteScalarSuccess(string expectedPrefix)
@@ -629,8 +599,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteScalar&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteScalar&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencySqlCommandExecuteScalarFailed(string expectedPrefix)
@@ -640,8 +610,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteScalar&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteScalar&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyExecuteNonQuerySuccess(string expectedPrefix)
@@ -650,8 +620,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteNonQuery&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteNonQuery&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyExecuteNonQueryFailed(string expectedPrefix)
@@ -661,8 +631,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteNonQuery&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteNonQuery&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyExecuteNonQueryAsyncSuccess(string expectedPrefix)
@@ -671,8 +641,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteNonQueryAsync&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=ExecuteNonQueryAsync&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyExecuteNonQueryAsyncFailed(string expectedPrefix)
@@ -682,8 +652,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteNonQueryAsync&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=ExecuteNonQueryAsync&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyBeginExecuteNonQuery0Success(string expectedPrefix)
@@ -692,8 +662,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteNonQuery0&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteNonQuery0&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyBeginExecuteNonQuery0Failed(string expectedPrefix)
@@ -703,8 +673,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteNonQuery0&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteNonQuery0&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyBeginExecuteNonQuery2Success(string expectedPrefix)
@@ -713,8 +683,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteNonQuery2&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteNonQuery2&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyBeginExecuteNonQuery2Failed(string expectedPrefix)
@@ -724,8 +694,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteNonQuery2&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteNonQuery2&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyExecuteXmlReaderAsyncSuccess(string expectedPrefix)
@@ -734,8 +704,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteXmlReaderAsync&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=ExecuteXmlReaderAsync&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyExecuteXmlReaderAsyncFailed(string expectedPrefix)
@@ -745,8 +715,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=ExecuteXmlReaderAsync&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=ExecuteXmlReaderAsync&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyBeginExecuteXmlReaderSuccess(string expectedPrefix)
@@ -755,8 +725,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteXmlReader&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteXmlReader&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencyBeginExecuteXmlReaderFailed(string expectedPrefix)
@@ -766,8 +736,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=BeginExecuteXmlReader&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=BeginExecuteXmlReader&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencySqlCommandExecuteXmlReaderSuccess(string expectedPrefix)
@@ -776,8 +746,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = true;
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteXmlReader&success=true", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteXmlReader&success=true", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
         public void TestSqlDependencySqlCommandExecuteXmlReaderFailed(string expectedPrefix)
@@ -787,8 +757,8 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = false;
             expectedDependencyTelemetry.ResultCode = "208";
 
-            ValidateBasicDependency(Apps[WebAppName].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteXmlReader&success=false", expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix);
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=SqlCommandExecuteXmlReader&success=false", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
 

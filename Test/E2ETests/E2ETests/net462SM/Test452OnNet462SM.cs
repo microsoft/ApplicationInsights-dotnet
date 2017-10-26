@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TestUtils.TestConstants;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
@@ -28,6 +29,14 @@ namespace E2ETests.Net462SMSM
             AppNameBeingTested = "WebApp";
             VersionPrefix = "rddp";
             VersionPrefixSql = "rddp";
+            Apps.Add(TestConstants.WebAppName, new DeployedApp
+            {
+                ikey = TestConstants.WebAppInstrumentationKey,
+                containerName = TestConstants.WebAppContainerName,
+                imageName = TestConstants.WebAppImageName,
+                healthCheckPath = TestConstants.WebAppHealthCheckPath,
+                flushPath = TestConstants.WebAppFlushPath
+            });
             MyClassInitializeBase();
         }
 

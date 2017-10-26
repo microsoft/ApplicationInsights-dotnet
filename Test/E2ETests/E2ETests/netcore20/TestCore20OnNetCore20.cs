@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TestUtils.TestConstants;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
@@ -27,7 +28,15 @@ namespace E2ETests.netcore20
             DockerComposeFileName = "docker-composeNet20AppOn20.yml";
             VersionPrefix = "rdddsc";
             VersionPrefixSql = "rdddsc";
-            AppNameBeingTested = "WebAppCore20";
+            AppNameBeingTested = TestConstants.WebAppCore20Name;
+            Apps.Add(AppNameBeingTested, new DeployedApp
+            {
+                ikey = TestConstants.WebAppCore20NameInstrumentationKey,
+                containerName = TestConstants.WebAppCore20ContainerName,
+                imageName = TestConstants.WebAppCore20ImageName,
+                healthCheckPath = TestConstants.WebAppCore20HealthCheckPath,
+                flushPath = TestConstants.WebAppCore20FlushPath
+            });            
             MyClassInitializeBase();
         }
 
@@ -47,14 +56,14 @@ namespace E2ETests.netcore20
         [TestCategory("Core20")]
         public void TestCore20OnNetCore20_SyncHttpDependency()
         {
-            base.TestSyncHttpDependency(VersionPrefix, Test452Base.WebAppCore20Name, "/external/calls?type=http");
+            base.TestSyncHttpDependency(VersionPrefix, AppNameBeingTested, "/external/calls?type=http");
         }
 
         [TestMethod]
         [TestCategory("Core20")]
         public void TestCore20OnNetCore20_SyncHttpPostDependency()
         {
-            base.TestSyncHttpDependency(VersionPrefix, Test452Base.WebAppCore20Name, "/external/calls?type=httppost");
+            base.TestSyncHttpDependency(VersionPrefix, AppNameBeingTested, "/external/calls?type=httppost");
         }
 
 
@@ -62,49 +71,49 @@ namespace E2ETests.netcore20
         [TestCategory("Core20")]
         public void TestCore20OnNetCore20_SqlExecuteReaderAsync()
         {
-            base.TestSqlDependency(VersionPrefixSql, Test452Base.WebAppCore20Name, "/external/calls?type=ExecuteReaderAsync&success=true");
+            base.TestSqlDependency(VersionPrefixSql, AppNameBeingTested, "/external/calls?type=ExecuteReaderAsync&success=true");
         }
 
         [TestMethod]
         [TestCategory("Core20")]
         public void TestCore20OnNetCore20_SqlExecuteScalarAsync()
         {
-            base.TestSqlDependency(VersionPrefixSql, Test452Base.WebAppCore20Name, "/external/calls?type=ExecuteScalarAsync&success=true");
+            base.TestSqlDependency(VersionPrefixSql, AppNameBeingTested, "/external/calls?type=ExecuteScalarAsync&success=true");
         }
 
         [TestMethod]
         [TestCategory("Core20")]
         public void TestCore20OnNetCore20_SqlExecuteNonQueryAsync()
         {
-            base.TestSqlDependency(VersionPrefixSql, Test452Base.WebAppCore20Name, "/external/calls?type=ExecuteNonQueryAsync&success=true");
+            base.TestSqlDependency(VersionPrefixSql, AppNameBeingTested, "/external/calls?type=ExecuteNonQueryAsync&success=true");
         }
 
         [TestMethod]
         [TestCategory("Core20")]
         public void TestCore20OnNetCore20_SqlExecuteXmlReaderAsync()
         {
-            base.TestSqlDependency(VersionPrefixSql, Test452Base.WebAppCore20Name, "/external/calls?type=ExecuteXmlReaderAsync&success=true");
+            base.TestSqlDependency(VersionPrefixSql, AppNameBeingTested, "/external/calls?type=ExecuteXmlReaderAsync&success=true");
         }
 
         [TestMethod]
         [TestCategory("Core20")]
         public void TestCore20OnNetCore20_SqlCommandExecuteScalarAsync()
         {
-            base.TestSqlDependency(VersionPrefixSql, Test452Base.WebAppCore20Name, "/external/calls?type=SqlCommandExecuteScalar&success=true");
+            base.TestSqlDependency(VersionPrefixSql, AppNameBeingTested, "/external/calls?type=SqlCommandExecuteScalar&success=true");
         }
 
         [TestMethod]
         [TestCategory("Core20")]
         public void TestCore20OnNetCore20_SqlCommandExecuteScalarFailedAsync()
         {
-            base.TestSqlDependency(VersionPrefixSql, Test452Base.WebAppCore20Name, "/external/calls?type=SqlCommandExecuteScalar&success=false", false);
+            base.TestSqlDependency(VersionPrefixSql, AppNameBeingTested, "/external/calls?type=SqlCommandExecuteScalar&success=false", false);
         }
 
         [TestMethod]
         [TestCategory("Core20")]
         public void TestCore20OnNetCore20_SqlCommandExecuteReaderStoredProcedureAsync()
         {
-            base.TestSqlDependency(VersionPrefixSql, Test452Base.WebAppCore20Name, "/external/calls?type=ExecuteReaderStoredProcedureAsync&storedProcedureName=GetTopTenMessages&success=true", true);
+            base.TestSqlDependency(VersionPrefixSql, AppNameBeingTested, "/external/calls?type=ExecuteReaderStoredProcedureAsync&storedProcedureName=GetTopTenMessages&success=true", true);
         }
 
         [ClassCleanup]

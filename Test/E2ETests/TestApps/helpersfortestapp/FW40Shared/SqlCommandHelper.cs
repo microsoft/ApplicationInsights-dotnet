@@ -166,10 +166,17 @@
         {
             using (var connection = new SqlConnection(connectionString))
             {
-                connection.Open();
-                SqlCommand command = connection.CreateCommand();
-                command.CommandText = commandText;
-                object obj = command.ExecuteScalar();
+                object obj = null;
+                try
+                {
+                    connection.Open();
+                    SqlCommand command = connection.CreateCommand();
+                    command.CommandText = commandText;
+                    obj = command.ExecuteScalar();                    
+                } catch(Exception)
+                {
+
+                }
                 return obj;
             }
         }

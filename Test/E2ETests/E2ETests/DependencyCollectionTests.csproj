@@ -135,6 +135,10 @@
       <Project>{4b0bc3b7-c7fc-4333-9e28-5790d9153f07}</Project>
       <Name>ApplicationInsightsTypes</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TestConstants\TestConstants.csproj">
+      <Project>{c46726f5-105a-46d8-a92b-0a62a64c2430}</Project>
+      <Name>TestConstants</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
