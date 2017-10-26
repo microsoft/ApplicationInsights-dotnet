@@ -20,6 +20,7 @@ namespace E2ETests
         public string ipAddress;
         public string ikey;
         public string healthCheckPath;
+        public string flushPath;
     }
     public abstract class Test452Base
     {
@@ -39,7 +40,8 @@ namespace E2ETests
                         ikey = WebAppInstrumentationKey,
                         containerName = "e2etests_e2etestwebapp_1",
                         imageName = "e2etests_e2etestwebapp",
-                        healthCheckPath = "/Dependencies?type=etw"
+                        healthCheckPath = "/Dependencies?type=etw",
+                        flushPath= "/Dependencies?type=flush"
                     }
             },
 
@@ -50,7 +52,8 @@ namespace E2ETests
                         ikey = WebAppCore20NameInstrumentationKey,
                         containerName = "e2etests_e2etestwebappcore20_1",
                         imageName = "e2etests_e2etestwebappcore20",
-                        healthCheckPath = "/api/values"
+                        healthCheckPath = "/api/values",
+                        flushPath= "/external/calls?type=flush"
                     }
             },
 
@@ -79,6 +82,7 @@ namespace E2ETests
 
         internal const int AISDKBufferFlushTime = 1000;
         internal static string DockerComposeFileName = "docker-compose.yml";
+        internal static string AppNameBeingTested = "none";
 
         internal static DataEndpointClient dataendpointClient;
         internal static ProcessStartInfo DockerPSProcessInfo = new ProcessStartInfo("cmd", "/c docker ps -a");
@@ -877,8 +881,8 @@ namespace E2ETests
                 receivedItemCount = items.Count;
                 iteration++;
                 if (receivedItemCount == 0)
-                {
-                    ExecuteWebRequestToTarget(targetInstanceIp, "/Dependencies.aspx?type=flush").Wait();
+                {                    
+                    ExecuteWebRequestToTarget(targetInstanceIp, Apps[AppNameBeingTested].flushPath).Wait();
                 }
             }
 

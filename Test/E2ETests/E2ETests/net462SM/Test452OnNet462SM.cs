@@ -25,6 +25,7 @@ namespace E2ETests.Net462SMSM
         public static void MyClassInitialize(TestContext testContext)
         {
             DockerComposeFileName = "docker-compose452AppOn462StatusMonitor.yml";
+            AppNameBeingTested = "WebApp";
             VersionPrefix = "rddp";
             VersionPrefixSql = "rddp";
             MyClassInitializeBase();

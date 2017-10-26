@@ -27,6 +27,7 @@ namespace E2ETests.netcore20
             DockerComposeFileName = "docker-composeNet20AppOn20.yml";
             VersionPrefix = "rdddsc";
             VersionPrefixSql = "rdddsc";
+            AppNameBeingTested = "WebAppCore20";
             MyClassInitializeBase();
         }
 
