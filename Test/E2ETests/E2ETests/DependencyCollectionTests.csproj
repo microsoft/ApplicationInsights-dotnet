@@ -86,6 +86,7 @@
     <Compile Include="Helpers\TelemetryItemFactory.cs" />
     <Compile Include="net462SM\Test452OnNet462SM.cs" />
     <Compile Include="net462\Test452OnNet462.cs" />
+    <Compile Include="netcore20\TestCore20OnNetCore20.cs" />
     <Compile Include="Test452Base.cs" />
   </ItemGroup>
   <ItemGroup>

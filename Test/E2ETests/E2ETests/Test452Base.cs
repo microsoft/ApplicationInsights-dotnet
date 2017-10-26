@@ -220,7 +220,7 @@ namespace E2ETests
             expectedDependencyTelemetry.Success = true;
 
             ValidateBasicDependencyAsync(Apps[appname].ipAddress, path, expectedDependencyTelemetry,
-                Apps[WebAppName].ikey, 1, expectedPrefix).Wait();
+                Apps[appname].ikey, 1, expectedPrefix).Wait();
         }
 
         public void TestSyncHttpDependency(string expectedPrefix)
@@ -413,6 +413,17 @@ namespace E2ETests
                 "/Dependencies.aspx?type=azuresdkblob&containerName=" + expectedPrefix + "&blobname=" + expectedPrefix,
                 expectedDependencyTelemetry,
                 Apps[WebAppName].ikey, 2, expectedPrefix, 2000).Wait();
+        }
+
+
+        public void TestSqlDependency(string expectedPrefix, string appname, string path, bool success = true)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = success;
+
+            ValidateBasicDependencyAsync(Apps[appname].ipAddress, path, expectedDependencyTelemetry,
+                Apps[appname].ikey, 1, expectedPrefix).Wait();
         }
 
         public void TestSqlDependencyExecuteReaderSuccessAsync(string expectedPrefix)

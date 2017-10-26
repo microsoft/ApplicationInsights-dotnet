@@ -5,6 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Text;
 using FW45Shared;
+using Microsoft.ApplicationInsights.Extensibility;
+using System.Threading;
 
 namespace E2ETestAppCore20.Controllers
 {    
@@ -16,19 +18,19 @@ namespace E2ETestAppCore20.Controllers
         private const string InvalidHostName = "http://www.zzkaodkoakdahdjghejajdnad.com";
 
         /// <summary>
-        /// Connection string to APM Development database.
-        /// </summary> 
-        private const string ConnectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=RDDTestDatabase;Integrated Security=True";
+        /// Connection string to local database.
+        /// </summary>         
+        public const string ConnectionString = @"Server =sql-server;User Id = sa; Password=MSDNm4g4z!n4";
 
         /// <summary>
         /// Valid SQL Query. The wait for delay of 6 ms is used to prevent access time of less than 1 ms. SQL is not accurate below 3, so used 6 ms delay.
         /// </summary>         
-        private const string ValidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:006'; select * from dbo.Messages";
+        private const string ValidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabases";
 
         /// <summary>
         /// Valid SQL Query to get count.
         /// </summary> 
-        private const string ValidSqlQueryCountToApmDatabase = "WAITFOR DELAY '00:00:00:006'; SELECT count(*) FROM dbo.Messages";
+        private const string ValidSqlQueryCountToApmDatabase = "WAITFOR DELAY '00:00:00:007';SELECT count (*) FROM master.dbo.sysdatabases";
 
         /// <summary>
         /// Invalid SQL Query.
@@ -66,17 +68,24 @@ namespace E2ETestAppCore20.Controllers
 
             switch (type)
             {
+                case "flush":
+                    TelemetryConfiguration.Active.TelemetryChannel.Flush();
+                    Thread.Sleep(3000);
+                    break;
                 case "http":
                     title = "Made Sync GET HTTP call to bing";
-                    response = MakeHttpGetCallSync(count, "bing");
+                    MakeHttpGetCallSync(count, "bing");
+                    response = title;
                     break;
                 case "httppost":
                     title = "Made Sync POST HTTP call to bing";
-                    response = MakeHttpPostCallSync(count, "bing");
+                    MakeHttpPostCallSync(count, "bing");
+                    response = title;
                     break;
                 case "failedhttp":
                     title = "Made failing Sync GET HTTP call to bing";
-                    response = MakeHttpCallSyncFailed(count);
+                    MakeHttpCallSyncFailed(count);
+                    response = title;
                     break;
                 case "ExecuteReaderAsync":
                     SqlCommandHelper.ExecuteReaderAsync(ConnectionString, sqlQueryTouse);
@@ -84,15 +93,19 @@ namespace E2ETestAppCore20.Controllers
                     break;
                 case "ExecuteScalarAsync":
                     SqlCommandHelper.ExecuteScalarAsync(ConnectionString, sqlQueryTouse);
+                    response = QueryToExecuteLabel + sqlQueryTouse;
                     break;
                 case "ExecuteReaderStoredProcedureAsync":
                     this.ExecuteReaderStoredProcedureAsync();
+                    response = QueryToExecuteLabel + sqlQueryTouse;
                     break;
                 case "TestExecuteReaderTwiceWithTasks":
                     SqlCommandHelper.AsyncExecuteReaderInTasks(ConnectionString, sqlQueryTouse);
+                    response = QueryToExecuteLabel + sqlQueryTouse;
                     break;
                 case "ExecuteNonQueryAsync":
                     SqlCommandHelper.ExecuteNonQueryAsync(ConnectionString, sqlQueryTouse);
+                    response = QueryToExecuteLabel + sqlQueryTouse;
                     break;
                 case "ExecuteXmlReaderAsync":
                     sqlQueryTouse += " FOR XML AUTO";
