@@ -149,7 +149,8 @@ namespace E2ETests
 
         private static void PopulateIPAddresses()
         {
-            // Inspect Docker containers to get IP addresses            
+            // Inspect Docker containers to get IP addresses      
+            Trace.WriteLine("Inspecting Docker containers to get IP addresses      ");
             foreach (var app in Apps)
             {
                 app.Value.ipAddress = DockerUtils.FindIpDockerContainer(app.Value.containerName);                
