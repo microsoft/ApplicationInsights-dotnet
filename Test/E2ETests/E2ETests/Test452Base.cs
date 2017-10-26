@@ -841,7 +841,9 @@ namespace E2ETests
         private async Task ValidateBasicDependencyAsync(string targetInstanceIp, string targetPath,
             DependencyTelemetry expectedDependencyTelemetry, string ikey, int count, string expectedPrefix, int additionalSleepTimeMsec = 0)
         {
-            await ExecuteWebRequestToTarget(targetInstanceIp, targetPath);
+            var success = ExecuteWebRequestToTarget(targetInstanceIp, targetPath).Result;
+            Assert.IsTrue(success, "Web App did not respond with success. Failing test. Check exception from logs.");
+            
 
             //Thread.Sleep(AISDKBufferFlushTime + additionalSleepTimeMsec);
             //var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
@@ -957,8 +959,9 @@ namespace E2ETests
             ValidateDependency(expectedDependencyTelemetry, dependency, expectedPrefix);
         }
 
-        private static async Task ExecuteWebRequestToTarget(string targetInstanceIp, string targetPath)
+        private static async Task<bool> ExecuteWebRequestToTarget(string targetInstanceIp, string targetPath)
         {
+            bool success = false;
             HttpClient client = new HttpClient();
             string url = "http://" + targetInstanceIp + targetPath;
             Trace.WriteLine("Hitting the target url:" + url);
@@ -966,11 +969,15 @@ namespace E2ETests
             {
                 var response = await client.GetStringAsync(url);
                 Trace.WriteLine("Actual Response text: " + response.ToString());
+                success = true;
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("Exception occured:" + ex.Message);
+                success = false;
+                Trace.WriteLine("Exception occured:" + ex.Message);                
             }
+
+            return success;
         }
 
         private void ValidateDependency(DependencyTelemetry expectedDependencyTelemetry,
