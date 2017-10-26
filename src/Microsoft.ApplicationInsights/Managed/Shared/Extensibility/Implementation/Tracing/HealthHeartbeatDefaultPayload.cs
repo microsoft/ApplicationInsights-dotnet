@@ -14,7 +14,7 @@
             "appinsightsSdkVer"
         };
 
-        private List<string> disabledProperties;
+        private List<string> enabledProperties;
 
         public HealthHeartbeatDefaultPayload() : this(null)
         {
@@ -22,7 +22,7 @@
 
         public HealthHeartbeatDefaultPayload(IEnumerable<string> disableFields)
         {
-            this.DisabledProperties = disableFields;
+            this.SetEnabledProperties(disableFields);
         }
 
         public string Name => "HealthHeartbeat";
@@ -32,19 +32,10 @@
             get { return 0; }
         }
 
-        public IEnumerable<string> DisabledProperties
-        {
-            get => this.disabledProperties;
-            set
-            {
-                this.disabledProperties = value?.ToList();
-            }
-        }
-
         public IEnumerable<KeyValuePair<string, object>> GetPayloadProperties()
         {
             var payload = new Dictionary<string, object>();
-            foreach (string fieldName in DefaultFields)
+            foreach (string fieldName in this.enabledProperties)
             {
                 switch (fieldName)
                 {
@@ -65,11 +56,28 @@
             return payload;
         }
 
+        private void SetEnabledProperties(IEnumerable<string> disabledFields)
+        {
+            if (disabledFields == null || disabledFields.Count() <= 0)
+            {
+                this.enabledProperties = DefaultFields.ToList();
+            }
+            else
+            {
+                this.enabledProperties = new List<string>();
+                foreach (string fieldName in DefaultFields)
+                {
+                    if (!disabledFields.Contains(fieldName, StringComparer.OrdinalIgnoreCase))
+                    {
+                        this.enabledProperties.Add(fieldName);
+                    }
+                }
+            }
+        }
+
         private bool IsFieldEnabled(string fieldName)
         {
-            return this.disabledProperties == null 
-                || this.disabledProperties.Count <= 0
-                || this.disabledProperties.Any(a => a.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
+            return this.enabledProperties.Contains(fieldName, StringComparer.OrdinalIgnoreCase);
         }
 
         private string GetTargetFrameworkVer()

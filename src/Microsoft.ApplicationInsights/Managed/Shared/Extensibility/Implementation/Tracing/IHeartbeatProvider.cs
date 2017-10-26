@@ -8,6 +8,6 @@
     {
         void RegisterHeartbeatPayload(IHealthHeartbeatPayloadExtension payloadProvider);
 
-        bool Initialize(TelemetryConfiguration configuration, TimeSpan? heartbeatDelay = null, IEnumerable<string> allowedPayloadFields = null);
+        bool Initialize(TelemetryConfiguration configuration, TimeSpan? heartbeatDelay = null, IEnumerable<string> disabledDefaultFields = null);
     }
 }

@@ -1,5 +1,5 @@
-Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.AllowedHeartbeatProperties.get -> System.Collections.Generic.IEnumerable<string>
-Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.AllowedHeartbeatProperties.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.DisableHeartbeatProperties.get -> System.Collections.Generic.IEnumerable<string>
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.DisableHeartbeatProperties.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.TimeSpanBetweenHeartbeats.get -> System.TimeSpan
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.TimeSpanBetweenHeartbeats.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.RegisterHeartbeatPayload(Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHealthHeartbeatPayloadExtension payloadProvider) -> void

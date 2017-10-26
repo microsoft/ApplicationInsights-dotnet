@@ -37,7 +37,7 @@
             using (var hbeat = new HealthHeartbeatProvider())
             {
                 hbeat.Initialize(configuration: null);
-                Assert.AreEqual(HealthHeartbeatProvider.DefaultAllowedFieldsInHeartbeatPayload, hbeat.EnabledPayloadFields);
+                Assert.IsNull(hbeat.DisabledHeartbeatProperties);
                 Assert.AreEqual(HealthHeartbeatProvider.DefaultHeartbeatIntervalMs, hbeat.HeartbeatInterval.TotalMilliseconds);
             }
         }
@@ -59,16 +59,8 @@
         {
             using (var hbeat = new HealthHeartbeatProvider())
             {
-                try
-                {
-                    hbeat.Initialize(configuration: null, timeBetweenHeartbeats: TimeSpan.FromMilliseconds(10000), allowedPayloadFields: null);
-                    Assert.Fail("Initialization without allowed payload fields should throw.");
-                }
-                catch (Exception)
-                {
-                    // all good
-                }
-
+                bool initResult = hbeat.Initialize(configuration: null, timeBetweenHeartbeats: TimeSpan.FromMilliseconds(10000), disabledDefaultFields: null);
+                Assert.IsTrue(initResult, "Initialization without allowed dissallowed fields should be fine.");
             }
         }
 
@@ -77,7 +69,7 @@
         {
             using (var hbeat = new HealthHeartbeatProvider())
             {
-                bool initResult = hbeat.Initialize(configuration: null, timeBetweenHeartbeats: TimeSpan.FromMilliseconds(0), allowedPayloadFields: HealthHeartbeatProvider.DefaultAllowedFieldsInHeartbeatPayload);
+                bool initResult = hbeat.Initialize(configuration: null, timeBetweenHeartbeats: TimeSpan.FromMilliseconds(0), disabledDefaultFields: null);
                 Assert.IsFalse(initResult, "Initialization without a valid delay value (0) should fail.");
             }
         }
@@ -191,8 +183,8 @@
             using (var hbeat = new HealthHeartbeatProviderMock())
             {
                 hbeat.Initialize(configuration: null, timeBetweenHeartbeats: null, allowedPayloadFields: specificFieldsToEnable);
-                Assert.AreEqual(hbeat.EnabledPayloadFields.Count(), specificFieldsToEnable.Count);
-                foreach (string fld in hbeat.EnabledPayloadFields)
+                Assert.AreEqual(hbeat.DisabledHeartbeatProperties.Count(), specificFieldsToEnable.Count);
+                foreach (string fld in hbeat.DisabledHeartbeatProperties)
                 {
                     Assert.IsTrue(specificFieldsToEnable.Contains(fld));
                 }
