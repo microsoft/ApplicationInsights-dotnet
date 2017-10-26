@@ -214,20 +214,26 @@
         {
             using (var connection = new SqlConnection(connectionString))
             {
-                connection.Open();
-                SqlCommand command = connection.CreateCommand();
-                command.CommandText = commandText;
-                command.CommandType = commandType;
-                using (DbDataReader reader = await command.ExecuteReaderAsync())
-                {
-                    while (await reader.ReadAsync())
+                try
+                {                
+                    connection.Open();
+                    SqlCommand command = connection.CreateCommand();
+                    command.CommandText = commandText;
+                    command.CommandType = commandType;
+                    using (DbDataReader reader = await command.ExecuteReaderAsync())
                     {
-                        for (int i = 0; i < reader.FieldCount; i++)
+                        while (await reader.ReadAsync())
                         {
-                            // Process each column as appropriate
-                            object obj = await reader.GetFieldValueAsync<object>(i);
+                            for (int i = 0; i < reader.FieldCount; i++)
+                            {
+                                // Process each column as appropriate
+                                object obj = await reader.GetFieldValueAsync<object>(i);
+                            }
                         }
                     }
+                }catch(Exception)
+                {
+                 // dont do anything.   
                 }
             }
         }
@@ -236,11 +242,19 @@
         {
             using (var connection = new SqlConnection(connectionString))
             {
-                await connection.OpenAsync();
+                object obj = null;
+                try
+                {
+                    await connection.OpenAsync();
 
-                SqlCommand command = connection.CreateCommand();
-                command.CommandText = commandText;
-                object obj = await command.ExecuteScalarAsync();
+                    SqlCommand command = connection.CreateCommand();
+                    command.CommandText = commandText;
+                    obj = await command.ExecuteScalarAsync();                    
+                }
+                catch(Exception)
+                {
+
+                }
                 return obj;
             }
         }
@@ -249,11 +263,18 @@
         {
             using (var connection = new SqlConnection(connectionString))
             {
-                await connection.OpenAsync();
+                try
+                {
+                    await connection.OpenAsync();
 
-                SqlCommand command = connection.CreateCommand();
-                command.CommandText = commandText;
-                await command.ExecuteNonQueryAsync();
+                    SqlCommand command = connection.CreateCommand();
+                    command.CommandText = commandText;
+                    await command.ExecuteNonQueryAsync();
+                }
+                catch(Exception)
+                {
+
+                }                
             }
         }
 
@@ -261,12 +282,19 @@
         {
             using (var connection = new SqlConnection(connectionString))
             {
-                await connection.OpenAsync();
-
-                SqlCommand command = connection.CreateCommand();
-                command.CommandText = commandText;
-                using (var reader = await command.ExecuteXmlReaderAsync())
+                try
                 {
+                    await connection.OpenAsync();
+
+                    SqlCommand command = connection.CreateCommand();
+                    command.CommandText = commandText;
+                    using (var reader = await command.ExecuteXmlReaderAsync())
+                    {
+                    }
+                }    
+                catch(Exception)
+                {
+
                 }
             }
         }

@@ -985,7 +985,7 @@ namespace E2ETests
             catch (Exception ex)
             {
                 success = false;
-                Trace.WriteLine("Exception occured:" + ex.Message);                
+                Trace.WriteLine("Exception occured:" + ex);                
             }
 
             return success;
