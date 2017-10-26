@@ -6,7 +6,7 @@
 
     internal interface IHeartbeatProvider
     {
-        void RegisterHeartbeatPayload(IHealthHeartbeatPayloadExtension payloadProvider);
+        bool RegisterHeartbeatPayload(IHealthHeartbeatPayloadExtension payloadProvider);
 
         bool Initialize(TelemetryConfiguration configuration, TimeSpan? heartbeatDelay = null, IEnumerable<string> disabledDefaultFields = null);
     }

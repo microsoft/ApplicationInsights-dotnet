@@ -51,6 +51,9 @@
 
         /// <summary>
         /// Gets or sets property names that are not to be sent with the health heartbeats. null/empty list means allow all default properties through.
+        /// <remarks>
+        /// TODO: this comment should list known properties
+        /// </remarks>
         /// </summary>
         public IEnumerable<string> DisableHeartbeatProperties { get; set; }
 
@@ -165,12 +168,22 @@
         /// file.
         /// </summary>
         /// <param name="payloadProvider">Extension payload to include in Health Heartbeat payloads</param>
-        public void RegisterHeartbeatPayload(IHealthHeartbeatPayloadExtension payloadProvider)
+        /// <returns>True if the payload provider was added, false otherwise.</returns>
+        public bool RegisterHeartbeatPayload(IHealthHeartbeatPayloadExtension payloadProvider)
         {
             if (this.HeartbeatProvider != null)
             {
-                this.HeartbeatProvider.RegisterHeartbeatPayload(payloadProvider);
+                try
+                {
+                    this.HeartbeatProvider.RegisterHeartbeatPayload(payloadProvider);
+                    return true;
+                }
+                catch (Exception)
+                {
+                }
             }
+
+            return false;
         }
 
         /// <summary>

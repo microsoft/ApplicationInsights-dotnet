@@ -385,5 +385,19 @@
             }
             throw new NotImplementedException();
         }
+
+        [TestMethod]
+        public void EnsureAllTargetFrameworksRepresented()
+        {
+            var defaultHeartbeatPayload = new HealthHeartbeatDefaultPayload();
+            var props = defaultHeartbeatPayload.GetPayloadProperties();
+            foreach (var kvp in props)
+            {
+                if (kvp.Key.Equals("targetFramework", StringComparison.Ordinal))
+                {
+                    Assert.IsFalse(string.Compare("undefined", kvp.Value as string, true) < 0);
+                }
+            }
+        }
     }
 }

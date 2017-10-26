@@ -10,8 +10,7 @@
         public static readonly string[] DefaultFields = 
         {
             "runtimeFramework",
-            "targetFramework",
-            "appinsightsSdkVer"
+            "targetFramework"
         };
 
         private List<string> enabledProperties;
@@ -45,9 +44,6 @@
                     case "targetFramework":
                         payload.Add(fieldName, this.GetTargetFrameworkVer());
                         break;
-                    case "appinsightsSdkVer":
-                        payload.Add(fieldName, this.GetAppInsightsSdkVer());
-                        break;
                     default:
                         throw new NotImplementedException(string.Format(CultureInfo.CurrentCulture, "No default handler implemented for field named '{0}'.", fieldName));
                 }
@@ -75,11 +71,6 @@
             }
         }
 
-        private bool IsFieldEnabled(string fieldName)
-        {
-            return this.enabledProperties.Contains(fieldName, StringComparer.OrdinalIgnoreCase);
-        }
-
         private string GetTargetFrameworkVer()
         {
 #if NET45
@@ -89,13 +80,8 @@
 #elif NETCORE
             return "netstandard1.3";
 #else 
-            return "Undefined";
+            return "undefined";
 #endif
-        }
-
-        private string GetAppInsightsSdkVer()
-        {
-            return SdkVersionUtils.GetSdkVersion(string.Empty);
         }
 
         private string GetRuntimeFrameworkVer()

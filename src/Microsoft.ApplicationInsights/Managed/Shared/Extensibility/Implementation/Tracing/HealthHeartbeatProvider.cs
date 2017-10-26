@@ -42,7 +42,7 @@
         {
             this.disabledDefaultFields = disabledDefaultFields?.ToList();
             this.heartbeatInterval = heartbeatInterval;
-            this.payloadItems = new Dictionary<string, IHealthHeartbeatPayloadExtension>();
+            this.payloadItems = new Dictionary<string, IHealthHeartbeatPayloadExtension>(StringComparer.OrdinalIgnoreCase);
             this.heartbeatsSent = 0; // count up from construction time
         }
 
@@ -79,19 +79,15 @@
             return true;
         }
 
-        public void RegisterHeartbeatPayload(IHealthHeartbeatPayloadExtension payloadProvider)
+        public bool RegisterHeartbeatPayload(IHealthHeartbeatPayloadExtension payloadProvider)
         {
-            if (payloadProvider == null)
+            if (payloadProvider == null || string.IsNullOrEmpty(payloadProvider.Name) || this.payloadItems.ContainsKey(payloadProvider.Name))
             {
-                throw new ArgumentNullException(nameof(payloadProvider));
+                this.payloadItems.Add(payloadProvider.Name, payloadProvider);
+                return true;
             }
 
-            if (string.IsNullOrEmpty(payloadProvider.Name) || this.payloadItems.ContainsKey(payloadProvider.Name))
-            {
-                throw new ArgumentNullException(nameof(payloadProvider), "Name member of IHealthHeartbeatPayloadExtension must be set to a unique value and cannot be empty");
-            }
-
-            this.payloadItems.Add(payloadProvider.Name, payloadProvider);
+            return false;
         }
 
         public void UnregisterHeartbeatPayload(string providerName)
@@ -104,19 +100,9 @@
 
         #region IDisposable Support
 
-        // Override the finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~HealthHeartbeatProvider() {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
-
-        // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             this.Dispose(true);
-            // uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -131,9 +117,6 @@
                     }
                 }
 
-                // free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // set large fields to null.
-
                 this.disposedValue = true;
             }
         }
@@ -144,23 +127,19 @@
         {
             try
             {
-                var heartbeatPayload = this.GatherData();
-                if (heartbeatPayload.Properties != null && heartbeatPayload.Count > 0)
+                if (!ThreadResourceLock.IsResourceLocked)
                 {
-                    if (!ThreadResourceLock.IsResourceLocked)
+                    using (var portalSenderLock = new ThreadResourceLock())
                     {
-                        using (var portalSenderLock = new ThreadResourceLock())
+                        try
                         {
-                            try
-                            {
-                                this.InternalSendHealthHeartbeat(heartbeatPayload);
-                            }
-                            catch (Exception exp)
-                            {
-                                // This message will not be sent to the portal because we have infinite loop protection
-                                // But it will be available in PerfView or StatusMonitor
-                                CoreEventSource.Log.LogError("Failed to send health heartbeat to the portal: " + exp.ToInvariantString());
-                            }
+                            this.InternalSendHealthHeartbeat(this.GatherData());
+                        }
+                        catch (Exception exp)
+                        {
+                            // This message will not be sent to the portal because we have infinite loop protection
+                            // But it will be available in PerfView or StatusMonitor
+                            CoreEventSource.Log.LogError("Failed to send health heartbeat to the portal: " + exp.ToInvariantString());
                         }
                     }
                 }
@@ -203,14 +182,7 @@
 
         protected void AddDefaultPayloadItems(IDictionary<string, IHealthHeartbeatPayloadExtension> heartbeatPayloadItems)
         {
-            try
-            {
-                heartbeatPayloadItems[string.Empty] = new HealthHeartbeatDefaultPayload(this.disabledDefaultFields);
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentException("HealthHeartbeatProvider::AddDefaultPayloadItems : Unable to add default payload items to health heartbeat", nameof(heartbeatPayloadItems), e);
-            }
+            heartbeatPayloadItems[string.Empty] = new HealthHeartbeatDefaultPayload(this.disabledDefaultFields);
         }
 
         private void HeartbeatPulse(object state)
@@ -218,19 +190,15 @@
             if (state is HealthHeartbeatProvider)
             {
                 HealthHeartbeatProvider hp = state as HealthHeartbeatProvider;
-                // we are being called from a different thread here. We will need to block access to the list of payload providers
-                lock (this.payloadItems)
-                {
-                    // we will be prone to overlap if any extension payload provider takes a longer time to process than our timer
-                    // interval. Best that we reset the timer each time round.
-                    this.HeartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                    hp.Send();
-                    this.HeartbeatTimer.Change(this.heartbeatInterval, this.heartbeatInterval);
-                }
+                // we will be prone to overlap if any extension payload provider takes a longer time to process than our timer
+                // interval. Best that we reset the timer each time round.
+                this.HeartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                hp.Send();
+                this.HeartbeatTimer.Change(this.heartbeatInterval, this.heartbeatInterval);
             }
             else
             {
-                throw new ArgumentException("Heartbeat pulse being sent without valid instance of HealthHeartbeatProvider as its state");
+                CoreEventSource.Log.LogError("Heartbeat pulse being sent without valid instance of HealthHeartbeatProvider as its state");
             }
         }
 
