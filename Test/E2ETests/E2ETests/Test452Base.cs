@@ -152,6 +152,12 @@ namespace E2ETests
                 localDbHelper.CreateDatabase("dependencytest", "c:\\dependencytest.mdf");
             }
             localDbHelper.ExecuteScript("dependencytest", "Helpers\\TestDatabase.sql");
+
+
+            if (!localDbHelper.CheckDatabaseExists("dependencytest"))
+            {
+                throw new Exception($"Failed to create database: 'dependencytest'");
+            }
         }
 
         private static bool HealthCheckAndRemoveImageIfNeededAllApp()
