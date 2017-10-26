@@ -11,11 +11,17 @@ namespace E2ETests.Helpers
 {
     public class LocalDbHelper
     {
-        internal const string ConnectionString = @"Server =sql-server;User Id = sa; Password=MSDNm4g4z!n4";
+        internal const string ConnectionStringFormat = @"Server ={0};User Id = sa; Password=MSDNm4g4z!n4";
+        string ConnectionString;
 
-        public static bool CheckDatabaseExists(string databaseName)
+        public LocalDbHelper(string serverIp)
         {
-            string connectionString = string.Format(CultureInfo.InvariantCulture, ConnectionString, "master");
+            this.ConnectionString = string.Format(ConnectionStringFormat, serverIp);
+        }
+
+        public bool CheckDatabaseExists(string databaseName)
+        {
+            string connectionString = string.Format(CultureInfo.InvariantCulture, this.ConnectionString, "master");
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
@@ -31,24 +37,21 @@ namespace E2ETests.Helpers
             return false;
         }
 
-        public static void CreateDatabase(string databaseName, string databaseFileName)
+        public void CreateDatabase(string databaseName, string databaseFileName)
         {
-            string connectionString = string.Format(CultureInfo.InvariantCulture, ConnectionString, "master");
+            string connectionString = string.Format(CultureInfo.InvariantCulture, this.ConnectionString, "master");
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
                 string commandStr = $"CREATE DATABASE {databaseName} ON (NAME = N'{databaseName}', FILENAME = '{databaseFileName}')";
                 SqlCommand cmd = new SqlCommand(commandStr, connection);
-
-                //cmd.Parameters.Add(new SqlParameter("@databaseName", databaseName));
-                //cmd.Parameters.Add(new SqlParameter("@databaseFileName", databaseFileName));
                 cmd.ExecuteNonQuery();
             }
         }
 
-        public static void ExecuteScript(string databaseName, string scriptName)
+        public void ExecuteScript(string databaseName, string scriptName)
         {
-            string connectionString = string.Format(CultureInfo.InvariantCulture, ConnectionString, databaseName);            
+            string connectionString = string.Format(CultureInfo.InvariantCulture, this.ConnectionString, databaseName);            
             var file = new FileInfo(scriptName);
             string script = file.OpenText().ReadToEnd();
 

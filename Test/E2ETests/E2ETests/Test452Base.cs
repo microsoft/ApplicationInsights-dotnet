@@ -87,12 +87,9 @@ namespace E2ETests
         {
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
             Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));
-
-
-            InitializeDatabase();
+            
             // Windows Server Machines dont have docker-compose installed.
             GetDockerCompose();
-
 
             //DockerUtils.RemoveDockerImage(Apps[WebAppName].imageName, true);
             //DockerUtils.RemoveDockerContainer(Apps[WebAppName].containerName, true);
@@ -121,6 +118,8 @@ namespace E2ETests
 
             dataendpointClient = new DataEndpointClient(new Uri("http://" + Apps[IngestionName].ipAddress));
 
+            InitializeDatabase();
+
             Thread.Sleep(5000);
             Trace.WriteLine(".Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
@@ -146,11 +145,13 @@ namespace E2ETests
 
         private static void InitializeDatabase()
         {
-            if (!LocalDbHelper.CheckDatabaseExists("dependencytest"))
+            var ip = DockerUtils.FindIpDockerContainer("e2etests_sql-server_1");
+            LocalDbHelper localDbHelper = new LocalDbHelper(ip);
+            if (!localDbHelper.CheckDatabaseExists("dependencytest"))
             {
-                LocalDbHelper.CreateDatabase("dependencytest", "c:\\dependencytest.mdf");
+                localDbHelper.CreateDatabase("dependencytest", "c:\\dependencytest.mdf");
             }
-            LocalDbHelper.ExecuteScript("dependencytest", "Helpers\\TestDatabase.sql");
+            localDbHelper.ExecuteScript("dependencytest", "Helpers\\TestDatabase.sql");
         }
 
         private static bool HealthCheckAndRemoveImageIfNeededAllApp()
