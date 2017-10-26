@@ -15,6 +15,14 @@ services:
         depends_on:
             - e2etestwebapi
             - sql-server
+
+      e2etestwebapp:
+        build: 
+            context: ./../TestApps/Net452/E2ETestApp/Publish
+            dockerfile: DockerFile462
+        depends_on:
+            - e2etestwebapi
+            - sql-server
             
     ingestionservice:
         build:
