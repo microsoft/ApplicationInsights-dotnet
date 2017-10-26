@@ -6,7 +6,7 @@
 // Shared HTTP helper class to make outbound http calls for DOT NET FW 4.0
 // </summary>
 
-namespace FW40Shared
+namespace HttpSQLHelpers
 {
     using System;
     using System.Diagnostics;
@@ -28,7 +28,7 @@ namespace FW40Shared
     /// Contains static methods to help make outbound http calls
     /// </summary>
     [ComVisible(false)]
-    public class HttpHelper40
+    public class HttpHelpers
     {
         /// <summary>
         /// Invalid endpoint to trigger exception being thrown
@@ -60,6 +60,31 @@ namespace FW40Shared
                     }
                 }
                 myHttpWebResponse.Close();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine("Exception occured:" + ex);
+            }
+        }
+
+        /// <summary>
+        /// Make async http calls.
+        /// Async, Await keywords are used to achieve async calls. 
+        /// </summary>                  
+        public static async void MakeHttpCallAsyncAwait1(string targetUrl)
+        {
+            try
+            {
+                Uri ourUri = new Uri(targetUrl);
+                WebRequest wr = WebRequest.Create(ourUri);
+                var response = await wr.GetResponseAsync();
+                using (var stm = response.GetResponseStream())
+                {
+                    using (var reader = new StreamReader(stm))
+                    {
+                        var content = await reader.ReadToEndAsync();
+                    }
+                }
             }
             catch (Exception ex)
             {

@@ -1,4 +1,4 @@
-﻿namespace FW45Shared
+﻿namespace HttpSQLHelpers
 {
     using System;
     using System.Data;

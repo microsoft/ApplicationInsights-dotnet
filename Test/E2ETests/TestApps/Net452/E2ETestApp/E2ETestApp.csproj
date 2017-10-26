@@ -289,9 +289,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\helpersfortestapp\FW40Shared\FW45Shared.csproj">
+    <ProjectReference Include="..\..\helpersfortestapp\FW40Shared\HttpSQLHelpers.csproj">
       <Project>{0b686082-d66c-438d-8b44-032654b69c22}</Project>
-      <Name>FW45Shared</Name>
+      <Name>HttpSQLHelpers</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

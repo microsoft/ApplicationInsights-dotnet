@@ -74,8 +74,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HttpHelper40.cs" />
-    <Compile Include="HttpHelper45.cs" />
+    <Compile Include="HttpHelpers.cs" />
     <Compile Include="SqlCommandHelper.cs" />
   </ItemGroup>
   <ItemGroup>

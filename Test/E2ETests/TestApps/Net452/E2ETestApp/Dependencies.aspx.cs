@@ -1,5 +1,4 @@
-﻿using FW40Shared;
-using FW45Shared;
+﻿using HttpSQLHelpers;
 using Microsoft.ApplicationInsights.Extensibility;
 using System;
 using System.Collections.Generic;
@@ -99,52 +98,52 @@ namespace E2ETestApp
                             Thread.Sleep(3000);
                             break;
                     case "httpsyncgoogle":
-                        HttpHelper40.MakeHttpCallSync(UrlGoogle);
+                        HttpHelpers.MakeHttpCallSync(UrlGoogle);
                         break;
                     case "httpsync":
-                        HttpHelper40.MakeHttpCallSync(UrlTestWebApiGetCall);
+                        HttpHelpers.MakeHttpCallSync(UrlTestWebApiGetCall);
                         break;
                     case "httpasynchttpclient":
-                        HttpHelper40.MakeHttpCallUsingHttpClient(UrlTestWebApiGetCall);
+                        HttpHelpers.MakeHttpCallUsingHttpClient(UrlTestWebApiGetCall);
                         break;
                     case "httppost":
-                        HttpHelper40.MakeHttpPostCallSync(UrlTestWebApiGetCall);
+                        HttpHelpers.MakeHttpPostCallSync(UrlTestWebApiGetCall);
                         break;
                     case "httpfailedwithexception":
-                        HttpHelper40.MakeHttpCallUsingHttpClient(UrlWhichThrowException);
+                        HttpHelpers.MakeHttpCallUsingHttpClient(UrlWhichThrowException);
                         break;
                     case "httpfailedwithinvaliddns":
-                        HttpHelper40.MakeHttpCallUsingHttpClient(UrlWithNonexistentHostName);
+                        HttpHelpers.MakeHttpCallUsingHttpClient(UrlWithNonexistentHostName);
                         break;
                     case "httpasync1":
-                        HttpHelper40.MakeHttpCallAsync1(UrlTestWebApiGetCall);
+                        HttpHelpers.MakeHttpCallAsync1(UrlTestWebApiGetCall);
                         break;
                     case "failedhttpasync1":
-                        HttpHelper40.MakeHttpCallAsync1(UrlWhichThrowException);
+                        HttpHelpers.MakeHttpCallAsync1(UrlWhichThrowException);
                         break;
                     case "httpasync2":
-                        HttpHelper40.MakeHttpCallAsync2(UrlTestWebApiGetCall);
+                        HttpHelpers.MakeHttpCallAsync2(UrlTestWebApiGetCall);
                         break;
                     case "failedhttpasync2":
-                        HttpHelper40.MakeHttpCallAsync2(UrlWhichThrowException);
+                        HttpHelpers.MakeHttpCallAsync2(UrlWhichThrowException);
                         break;
                     case "httpasync3":
-                        HttpHelper40.MakeHttpCallAsync3(UrlTestWebApiGetCall);
+                        HttpHelpers.MakeHttpCallAsync3(UrlTestWebApiGetCall);
                         break;
                     case "failedhttpasync3":
-                        HttpHelper40.MakeHttpCallAsync3(UrlWhichThrowException);
+                        HttpHelpers.MakeHttpCallAsync3(UrlWhichThrowException);
                         break;
                     case "httpasync4":
-                        HttpHelper40.MakeHttpCallAsync4(UrlTestWebApiGetCall);
+                        HttpHelpers.MakeHttpCallAsync4(UrlTestWebApiGetCall);
                         break;
                     case "failedhttpasync4":
-                        HttpHelper40.MakeHttpCallAsync4(UrlWhichThrowException);
+                        HttpHelpers.MakeHttpCallAsync4(UrlWhichThrowException);
                         break;
                     case "httpasyncawait1":
-                        HttpHelper45.MakeHttpCallAsyncAwait1(UrlTestWebApiGetCall);
+                        HttpHelpers.MakeHttpCallAsyncAwait1(UrlTestWebApiGetCall);
                         break;
                     case "failedhttpasyncawait1":
-                        HttpHelper45.MakeHttpCallAsyncAwait1(UrlWhichThrowException);
+                        HttpHelpers.MakeHttpCallAsyncAwait1(UrlWhichThrowException);
                         break;
                     case "azuresdkblob":
                         string containerName = "rddtest";
@@ -155,11 +154,11 @@ namespace E2ETestApp
                             blobName = Request.QueryString["blobName"];
                         }
                         catch (Exception) { }
-                        HttpHelper40.MakeAzureCallToWriteToBlobWithSdk(containerName, blobName);
-                        HttpHelper40.MakeAzureCallToReadBlobWithSdk(containerName, blobName);
+                        HttpHelpers.MakeAzureCallToWriteToBlobWithSdk(containerName, blobName);
+                        HttpHelpers.MakeAzureCallToReadBlobWithSdk(containerName, blobName);
                         break;
                     case "azuresdkqueue":
-                        HttpHelper40.MakeAzureCallToWriteQueueWithSdk();
+                        HttpHelpers.MakeAzureCallToWriteQueueWithSdk();
                         break;
                     case "azuresdktable":
                         string tableName = "people";
@@ -168,8 +167,8 @@ namespace E2ETestApp
                             tableName = Request.QueryString["tablename"];
                         }
                         catch (Exception) { }
-                        HttpHelper40.MakeAzureCallToWriteTableWithSdk(tableName);
-                        HttpHelper40.MakeAzureCallToReadTableWithSdk(tableName);
+                        HttpHelpers.MakeAzureCallToWriteTableWithSdk(tableName);
+                        HttpHelpers.MakeAzureCallToReadTableWithSdk(tableName);
                         break;
                     case "ExecuteReaderAsync":
                         SqlCommandHelper.ExecuteReaderAsync(LocalDbConnectionString, (success == true)
