@@ -15,7 +15,7 @@
         /// <summary>
         /// The default fields to include in every heartbeat sent. Note that setting the value to '*' includes all default fields.
         /// </summary>
-        public static string DefaultAllowedFieldsInHeartbeatPayload = "*";
+        public static string[] DefaultAllowedFieldsInHeartbeatPayload = { "*" };
 
         /// <summary>
         /// The default interval between heartbeats if not specified by the user
@@ -23,9 +23,9 @@
         public static int DefaultHeartbeatIntervalMs = 5000;
 
         /// <summary>
-        /// The name of the health heartbeat metric item and operation context.
+        /// The name of the health heartbeat metric item and operation context. 
         /// </summary>
-        private static string heartbeatSyntheticMetricName = "SDKHeartbeat";
+        private static string heartbeatSyntheticMetricName = "HealthState";
 
         /// <summary>
         /// The payload items to send out with each health heartbeat.
@@ -33,56 +33,61 @@
         private Dictionary<string, IHealthHeartbeatPayloadExtension> payloadItems;
         
         private bool disposedValue = false; // To detect redundant calls to dispose
-        private int intervalBetweenHeartbeatsMs; // time between heartbeats emitted specified in milliseconds
-        private string enabledHeartbeatPayloadFields; // string containing fields that are enabled in the payload. * means everything available.
+        private TimeSpan heartbeatInterval; // time between heartbeats emitted specified in milliseconds
+        private List<string> enabledHeartbeatPayloadFields; // string containing fields that are enabled in the payload. * means everything available.
         private TelemetryClient telemetryClient; // client to use in sending our heartbeat
         private int heartbeatsSent; // counter of all heartbeats
 
-        public HealthHeartbeatProvider() : this(DefaultHeartbeatIntervalMs, DefaultAllowedFieldsInHeartbeatPayload)
+        public HealthHeartbeatProvider() : this(TimeSpan.FromMilliseconds(DefaultHeartbeatIntervalMs), DefaultAllowedFieldsInHeartbeatPayload)
         {
         }
 
-        public HealthHeartbeatProvider(int delayMs) : this(delayMs, DefaultAllowedFieldsInHeartbeatPayload)
+        public HealthHeartbeatProvider(TimeSpan delayMs) : this(delayMs, DefaultAllowedFieldsInHeartbeatPayload)
         {
         }
 
-        public HealthHeartbeatProvider(string allowedPayloadFields) : this(DefaultHeartbeatIntervalMs, allowedPayloadFields)
+        public HealthHeartbeatProvider(IEnumerable<string> allowedPayloadFields) : this(TimeSpan.FromMilliseconds(DefaultHeartbeatIntervalMs), allowedPayloadFields)
         {
         }
 
-        public HealthHeartbeatProvider(int delayMs, string allowedPayloadFields)
+        public HealthHeartbeatProvider(TimeSpan heartbeatInterval, IEnumerable<string> allowedPayloadFields)
         {
-            this.enabledHeartbeatPayloadFields = allowedPayloadFields;
-            this.intervalBetweenHeartbeatsMs = delayMs;
+            this.enabledHeartbeatPayloadFields = new List<string>(allowedPayloadFields);
+            this.heartbeatInterval = heartbeatInterval;
             this.payloadItems = new Dictionary<string, IHealthHeartbeatPayloadExtension>();
             this.heartbeatsSent = 0; // count up from construction time
         }
 
-        public int HeartbeatIntervalMs => this.intervalBetweenHeartbeatsMs;
+        public TimeSpan HeartbeatInterval => this.heartbeatInterval;
 
-        public string EnabledPayloadFields => this.enabledHeartbeatPayloadFields;
+        public IEnumerable<string> EnabledPayloadFields => this.enabledHeartbeatPayloadFields;
 
         protected Timer HeartbeatTimer { get; set; } // timer that will send each heartbeat in intervals
 
-        public virtual bool Initialize(TelemetryConfiguration configuration, int? delayMs = null, string allowedPayloadFields = null)
+        public virtual bool Initialize(TelemetryConfiguration configuration, TimeSpan? timeBetweenHeartbeats = null, IEnumerable<string> allowedPayloadFields = null)
         {
+            if (timeBetweenHeartbeats != null && timeBetweenHeartbeats?.TotalMilliseconds == 0)
+            {
+                return false;
+            }
+
             if (this.telemetryClient == null)
             {
                 this.telemetryClient = new TelemetryClient(configuration);
             }
 
-            this.intervalBetweenHeartbeatsMs = delayMs.GetValueOrDefault(this.intervalBetweenHeartbeatsMs);
+            this.heartbeatInterval = timeBetweenHeartbeats ?? this.heartbeatInterval; // only change the current interval if the interval is specified in the call
 
-            if (!string.IsNullOrEmpty(allowedPayloadFields))
+            if (allowedPayloadFields != null)
             {
-                this.enabledHeartbeatPayloadFields = allowedPayloadFields;
+                this.enabledHeartbeatPayloadFields = new List<string>(allowedPayloadFields);
             }
 
             this.AddDefaultPayloadItems(this.payloadItems);
             // Note: if this is a subsequent initialization, the interval between heartbeats will be updated in the next cycle so no .Change call necessary here
             if (this.HeartbeatTimer == null)
             {
-                this.HeartbeatTimer = new Timer(this.HeartbeatPulse, this, this.intervalBetweenHeartbeatsMs, this.intervalBetweenHeartbeatsMs);
+                this.HeartbeatTimer = new Timer(this.HeartbeatPulse, this, this.heartbeatInterval, this.heartbeatInterval);
             }
 
             return true;
@@ -234,7 +239,7 @@
                     // interval. Best that we reset the timer each time round.
                     this.HeartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
                     hp.Send();
-                    this.HeartbeatTimer.Change(this.intervalBetweenHeartbeatsMs, this.intervalBetweenHeartbeatsMs);
+                    this.HeartbeatTimer.Change(this.heartbeatInterval, this.heartbeatInterval);
                 }
             }
             else

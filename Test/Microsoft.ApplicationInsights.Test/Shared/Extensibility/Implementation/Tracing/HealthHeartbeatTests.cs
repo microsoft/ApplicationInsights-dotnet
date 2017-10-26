@@ -38,19 +38,19 @@
             {
                 hbeat.Initialize(configuration: null);
                 Assert.AreEqual(HealthHeartbeatProvider.DefaultAllowedFieldsInHeartbeatPayload, hbeat.EnabledPayloadFields);
-                Assert.AreEqual(HealthHeartbeatProvider.DefaultHeartbeatIntervalMs, hbeat.HeartbeatIntervalMs);
+                Assert.AreEqual(HealthHeartbeatProvider.DefaultHeartbeatIntervalMs, hbeat.HeartbeatInterval.TotalMilliseconds);
             }
         }
 
         [TestMethod]
         public void InitializeHealthHeartbeatWithNonDefaultInterval()
         {
-            int nonDefaultInterval = 10000;
+            TimeSpan nonDefaultInterval = TimeSpan.FromMilliseconds(10000);
 
             using (var hbeat = new HealthHeartbeatProvider())
             {
-                hbeat.Initialize(configuration: null, delayMs: nonDefaultInterval);
-                Assert.AreEqual(nonDefaultInterval, hbeat.HeartbeatIntervalMs);
+                hbeat.Initialize(configuration: null, timeBetweenHeartbeats: nonDefaultInterval);
+                Assert.AreEqual(nonDefaultInterval, hbeat.HeartbeatInterval.TotalMilliseconds);
             }
         }
 
@@ -61,7 +61,7 @@
             {
                 try
                 {
-                    hbeat.Initialize(configuration: null, delayMs: 10000, allowedPayloadFields: null);
+                    hbeat.Initialize(configuration: null, timeBetweenHeartbeats: TimeSpan.FromMilliseconds(10000), allowedPayloadFields: null);
                     Assert.Fail("Initialization without allowed payload fields should throw.");
                 }
                 catch (Exception)
@@ -77,16 +77,8 @@
         {
             using (var hbeat = new HealthHeartbeatProvider())
             {
-                try
-                {
-                    hbeat.Initialize(configuration: null, delayMs: 0, allowedPayloadFields: HealthHeartbeatProvider.DefaultAllowedFieldsInHeartbeatPayload);
-                    Assert.Fail("Initialization without a valid delay value (0) should throw.");
-                }
-                catch (Exception)
-                {
-                    // all good
-                }
-
+                bool initResult = hbeat.Initialize(configuration: null, timeBetweenHeartbeats: TimeSpan.FromMilliseconds(0), allowedPayloadFields: HealthHeartbeatProvider.DefaultAllowedFieldsInHeartbeatPayload);
+                Assert.IsFalse(initResult, "Initialization without a valid delay value (0) should fail.");
             }
         }
 
@@ -113,15 +105,15 @@
         [TestMethod]
         public void CanSetDelayBetweenHeartbeats()
         {
-            int userSetInterval = 7252;
+            TimeSpan userSetInterval = TimeSpan.FromMilliseconds(7252.0);
 
             using (var hbeat = new HealthHeartbeatProviderMock())
             {
                 hbeat.Initialize(configuration: null);
-                Assert.AreNotEqual(userSetInterval, hbeat.HeartbeatIntervalMs);
+                Assert.AreNotEqual(userSetInterval, hbeat.HeartbeatInterval.TotalMilliseconds);
 
-                hbeat.Initialize(configuration: null, delayMs: userSetInterval);
-                Assert.AreEqual(userSetInterval, hbeat.HeartbeatIntervalMs);
+                hbeat.Initialize(configuration: null, timeBetweenHeartbeats: userSetInterval);
+                Assert.AreEqual(userSetInterval, hbeat.HeartbeatInterval);
             }
         }
 
@@ -187,12 +179,23 @@
         [TestMethod]
         public void HeartbeatPayloadContainsOnlyAllowedDefaultPayloadFields()
         {
-            string specificFieldsToEnable = string.Concat(HealthHeartbeatDefaultPayload.FieldRuntimeFrameworkVer, ",", HealthHeartbeatDefaultPayload.FieldAppInsightsSdkVer);
+            List<string> specificFieldsToEnable = new List<string>();
+            for (int i = 0; i < HealthHeartbeatDefaultPayload.DefaultFields.Length; ++i)
+            {
+                if (i % 2 == 0)
+                {
+                    specificFieldsToEnable.Add(HealthHeartbeatDefaultPayload.DefaultFields[i]);
+                }
+            }
 
             using (var hbeat = new HealthHeartbeatProviderMock())
             {
-                hbeat.Initialize(configuration: null, delayMs: null, allowedPayloadFields: specificFieldsToEnable);
-                Assert.AreEqual(0, String.CompareOrdinal(hbeat.EnabledPayloadFields, specificFieldsToEnable));
+                hbeat.Initialize(configuration: null, timeBetweenHeartbeats: null, allowedPayloadFields: specificFieldsToEnable);
+                Assert.AreEqual(hbeat.EnabledPayloadFields.Count(), specificFieldsToEnable.Count);
+                foreach (string fld in hbeat.EnabledPayloadFields)
+                {
+                    Assert.IsTrue(specificFieldsToEnable.Contains(fld));
+                }
 
                 hbeat.SimulateSend();
 
@@ -201,7 +204,7 @@
 
                 foreach (var kvp in sentHeartBeat.Properties)
                 {
-                    Assert.IsTrue(specificFieldsToEnable.IndexOf(kvp.Key, 0, StringComparison.OrdinalIgnoreCase) >= 0, "Dissallowed field found in payload");
+                    Assert.IsTrue(specificFieldsToEnable.Contains(kvp.Key), string.Format(CultureInfo.CurrentCulture, "Dissallowed field '{0}' found in payload", kvp.Key));
                 }
             }
         }
@@ -268,9 +271,9 @@
             
             using (var hbeat = new HealthHeartbeatProviderMock(disableBaseHeartbeatTimer: false))
             {
-                hbeat.Initialize(configuration: null, delayMs: 100);
+                hbeat.Initialize(configuration: null, timeBetweenHeartbeats: TimeSpan.FromMilliseconds(100));
                 Thread.Sleep(150);
-                hbeat.Initialize(configuration: null, delayMs: 100000);
+                hbeat.Initialize(configuration: null, timeBetweenHeartbeats: TimeSpan.FromMilliseconds(100000));
                 Thread.Sleep(150);
                 messages = hbeat.sentMessages.ToArray();
             }
@@ -319,12 +322,16 @@
             {
                 hbeat.Initialize(configuration: null);
 
-                HealthHeartbeatPayloadMock payloadOne = new HealthHeartbeatPayloadMock();
-                payloadOne.currentUnhealthyCount = 1;
+                HealthHeartbeatPayloadMock payloadOne = new HealthHeartbeatPayloadMock()
+                {
+                    currentUnhealthyCount = 1
+                };
                 payloadOne.customProperties.Push(new KeyValuePair<string, object>("foo", "stringData1"));
 
-                HealthHeartbeatPayloadMock payloadTwo = new HealthHeartbeatPayloadMock();
-                payloadTwo.currentUnhealthyCount = 1;
+                HealthHeartbeatPayloadMock payloadTwo = new HealthHeartbeatPayloadMock()
+                {
+                    currentUnhealthyCount = 1
+                };
                 payloadTwo.customProperties.Push(new KeyValuePair<string, object>("bar", "stringData2"));
 
                 hbeat.RegisterHeartbeatPayload(payloadOne);
@@ -386,31 +393,5 @@
             }
             throw new NotImplementedException();
         }
-
-        [TestMethod]
-        public void DefaultPayloadIncludesAppInsightsSdkVersion()
-        {
-            var defaultPayload = new HealthHeartbeatDefaultPayload("*");
-            var defaultProps = defaultPayload.GetPayloadProperties();
-            Assert.IsTrue(
-                defaultProps.Any(a =>
-                { return a.Key.Equals(HealthHeartbeatDefaultPayload.FieldAppInsightsSdkVer, StringComparison.Ordinal); }));
-        }
-
-        [TestMethod]
-        public void DefaultPayloadIncludesOnlySpecifiedProperties()
-        {
-            string allowedProps = string.Concat(HealthHeartbeatDefaultPayload.FieldAppInsightsSdkVer, ",", HealthHeartbeatDefaultPayload.FieldTargetFramework);
-            var defaultPayload = new HealthHeartbeatDefaultPayload(allowedProps);
-            var defaultProps = defaultPayload.GetPayloadProperties();
-            Assert.IsTrue(
-                defaultProps.All(a =>
-                {
-                    return a.Key.Equals(HealthHeartbeatDefaultPayload.FieldAppInsightsSdkVer, StringComparison.Ordinal)
-                      ||
-                      a.Key.Equals(HealthHeartbeatDefaultPayload.FieldTargetFramework, StringComparison.Ordinal);
-                }));
-        }
-
     }
 }

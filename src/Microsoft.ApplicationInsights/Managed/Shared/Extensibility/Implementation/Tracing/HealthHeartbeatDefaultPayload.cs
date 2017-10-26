@@ -2,61 +2,64 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
 
     internal class HealthHeartbeatDefaultPayload : IHealthHeartbeatPayloadExtension
     {
-        public Enum DefaultFields
+        public static readonly string[] DefaultFields = 
         {
-            FieldRuntimeFrameworkVer = "runtimeFramework",
-            FieldTargetFramework = "targetFramework",
-            FieldAppInsightsSdkVer = "appinsightsSdkVer"
+            "runtimeFramework",
+            "targetFramework",
+            "appinsightsSdkVer"
         };
 
-        private string enabledProperties;
+        private List<string> disabledProperties;
 
-        public HealthHeartbeatDefaultPayload(string enabledProperties)
+        public HealthHeartbeatDefaultPayload() : this(null)
         {
-            this.EnabledProperties = enabledProperties;
         }
 
-        public string Name => "SDKHealthHeartbeat";
+        public HealthHeartbeatDefaultPayload(IEnumerable<string> disableFields)
+        {
+            this.DisabledProperties = disableFields;
+        }
+
+        public string Name => "HealthHeartbeat";
 
         public int CurrentUnhealthyCount
         {
             get { return 0; }
         }
 
-        public string EnabledProperties
+        public IEnumerable<string> DisabledProperties
         {
-            get => this.enabledProperties;
+            get => this.disabledProperties;
             set
             {
-                if (string.IsNullOrEmpty(value))
-                {
-                    throw new ArgumentNullException("EnabledProperties", "Cannot set enabled properties to null or the empty string. Set the catch-all value '*' or some valid string to capture actual properties with.");
-                }
-
-                this.enabledProperties = value;
+                this.disabledProperties = value?.ToList();
             }
         }
 
         public IEnumerable<KeyValuePair<string, object>> GetPayloadProperties()
         {
             var payload = new Dictionary<string, object>();
-            if (this.IsFieldEnabled(FieldTargetFramework))
+            foreach (string fieldName in DefaultFields)
             {
-                payload.Add(FieldTargetFramework, this.GetTargetFrameworkVer());
-            }
-
-            if (this.IsFieldEnabled(FieldAppInsightsSdkVer))
-            {
-                payload.Add(FieldAppInsightsSdkVer, this.GetAppInsightsSdkVer());
-            }
-
-            if (this.IsFieldEnabled(FieldRuntimeFrameworkVer))
-            {
-                payload.Add(FieldRuntimeFrameworkVer, this.GetRuntimeFrameworkVer());
+                switch (fieldName)
+                {
+                    case "runtimeFramework":
+                        payload.Add(fieldName, this.GetRuntimeFrameworkVer());
+                        break;
+                    case "targetFramework":
+                        payload.Add(fieldName, this.GetTargetFrameworkVer());
+                        break;
+                    case "appinsightsSdkVer":
+                        payload.Add(fieldName, this.GetAppInsightsSdkVer());
+                        break;
+                    default:
+                        throw new NotImplementedException(string.Format(CultureInfo.CurrentCulture, "No default handler implemented for field named '{0}'.", fieldName));
+                }
             }
 
             return payload;
@@ -64,20 +67,21 @@
 
         private bool IsFieldEnabled(string fieldName)
         {
-            if (!this.EnabledProperties.Equals("*", StringComparison.OrdinalIgnoreCase))
-            {
-                return this.EnabledProperties.IndexOf(fieldName, StringComparison.OrdinalIgnoreCase) >= 0;
-            }
-
-            return true;
+            return this.disabledProperties == null 
+                || this.disabledProperties.Count <= 0
+                || this.disabledProperties.Any(a => a.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
         }
 
         private string GetTargetFrameworkVer()
         {
 #if NET45
             return "net45";
-#else
+#elif NET46
+            return "net46";
+#elif NETCORE
             return "netstandard1.3";
+#else 
+            return "Undefined";
 #endif
         }
 

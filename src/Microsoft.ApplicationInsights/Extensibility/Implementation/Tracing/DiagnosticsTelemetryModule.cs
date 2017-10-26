@@ -32,8 +32,8 @@
 
             this.EventListener = new DiagnosticsListener(this.Senders);
 
-            this.MillisecondsBetweenHeartbeats = HealthHeartbeatProvider.DefaultHeartbeatIntervalMs;
-            this.AllowedHeartbeatProperties = HealthHeartbeatProvider.DefaultAllowedFieldsInHeartbeatPayload;
+            this.TimeSpanBetweenHeartbeats = TimeSpan.FromMilliseconds(HealthHeartbeatProvider.DefaultHeartbeatIntervalMs);
+            this.AllowedHeartbeatProperties = new List<string>(HealthHeartbeatProvider.DefaultAllowedFieldsInHeartbeatPayload);
         }
 
         /// <summary>
@@ -47,12 +47,12 @@
         /// <summary>
         /// Gets or sets the delay between heartbeats in milliseconds.
         /// </summary>
-        public int MillisecondsBetweenHeartbeats { get; set; }
+        public TimeSpan TimeSpanBetweenHeartbeats { get; set; }
 
         /// <summary>
         /// Gets or sets property names that are allowed to be sent along with the health heartbeats. * means allow all default properties through.
         /// </summary>
-        public string AllowedHeartbeatProperties { get; set; }
+        public IEnumerable<string> AllowedHeartbeatProperties { get; set; }
 
         /// <summary>
         /// Gets or sets diagnostics Telemetry Module LogLevel configuration setting. 
@@ -150,7 +150,7 @@
                             this.HeartbeatProvider = new HealthHeartbeatProvider();
                         }
 
-                        this.HeartbeatProvider.Initialize(configuration, this.MillisecondsBetweenHeartbeats, this.AllowedHeartbeatProperties);
+                        this.HeartbeatProvider.Initialize(configuration, this.TimeSpanBetweenHeartbeats, this.AllowedHeartbeatProperties);
 
                         this.isInitialized = true;
                     }
