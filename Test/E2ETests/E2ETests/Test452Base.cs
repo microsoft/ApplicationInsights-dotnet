@@ -235,7 +235,7 @@ namespace E2ETests
 
             ValidateXComponentWebAppToWebApi(Apps[WebAppName].ipAddress, "/Dependencies?type=httpsync",
                 expectedRequestTelemetryWebApp, expectedDependencyTelemetryWebApp, expectedRequestTelemetryWebApi,
-                Apps[WebAppName].ikey, Apps[WebApiName].ikey);
+                Apps[WebAppName].ikey, Apps[WebApiName].ikey).Wait();
         }
 
         public void TestSyncHttpDependency(string expectedPrefix, string appname, string path)
@@ -949,10 +949,11 @@ namespace E2ETests
             }
         }
 
-        private async Task ValidateAzureDependencyAsync(string targetInstanceIp, string targetPath,
+        private void ValidateAzureDependencyAsync(string targetInstanceIp, string targetPath,
             DependencyTelemetry expectedDependencyTelemetry, string ikey, int minCount, string expectedPrefix, int additionalSleepTimeMsec = 0)
-        {
-            await ExecuteWebRequestToTarget(targetInstanceIp, targetPath);
+        {            
+            var success = ExecuteWebRequestToTarget(targetInstanceIp, targetPath).Result;
+            Assert.IsTrue(success, "Web App did not respond with success. Failing test. Check exception from logs.");
             Thread.Sleep(AISDKBufferFlushTime + additionalSleepTimeMsec);
 
             var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
