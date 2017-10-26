@@ -11,7 +11,7 @@ namespace E2ETests.Helpers
 {
     public class LocalDbHelper
     {
-        internal const string ConnectionString = @"Server =172.20.46.25;User Id = sa; Password=MSDNm4g4z!n4";
+        internal const string ConnectionString = @"Server =sql-server;User Id = sa; Password=MSDNm4g4z!n4";
 
         public static bool CheckDatabaseExists(string databaseName)
         {
