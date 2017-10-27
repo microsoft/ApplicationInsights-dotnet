@@ -96,7 +96,7 @@ namespace E2ETests
 
             InitializeDatabase();
 
-            Thread.Sleep(5000);
+            Thread.Sleep(2000);
             Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
 
