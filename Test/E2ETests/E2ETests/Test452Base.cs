@@ -125,15 +125,20 @@ namespace E2ETests
             LocalDbHelper localDbHelper = new LocalDbHelper(ip);
             if (!localDbHelper.CheckDatabaseExists("dependencytest"))
             {
+                Trace.WriteLine(DateTime.UtcNow.ToLongTimeString() + "Database not exist, will be created.");
                 localDbHelper.CreateDatabase("dependencytest", "c:\\dependencytest.mdf");
+                Trace.WriteLine(DateTime.UtcNow.ToLongTimeString() + "Database created.");
             }
+            Trace.WriteLine(DateTime.UtcNow.ToLongTimeString() + "Database table creation begin..");
             localDbHelper.ExecuteScript("dependencytest", "Helpers\\TestDatabase.sql");
+            Trace.WriteLine(DateTime.UtcNow.ToLongTimeString() + "Database table creation end..");
 
 
             if (!localDbHelper.CheckDatabaseExists("dependencytest"))
             {
                 throw new Exception($"Failed to create database: 'dependencytest'");
             }
+            Trace.WriteLine(DateTime.UtcNow.ToLongTimeString() + "Database successfully created");
         }
 
         private static bool HealthCheckAndRemoveImageIfNeededAllApp()
