@@ -780,7 +780,7 @@ namespace E2ETests
             Thread.Sleep(5 * AISDKBufferFlushTime);            
 
             var requestsSource = WaitForReceiveRequestItemsFromDataIngestion(sourceInstanceIp, sourceIKey);            
-            var dependenciesSource = WaitForReceiveDependencyItemsFromDataIngestion(targetInstanceIp, sourceIKey);
+            var dependenciesSource = WaitForReceiveDependencyItemsFromDataIngestion(sourceInstanceIp, sourceIKey);
             var requestsTarget = WaitForReceiveRequestItemsFromDataIngestion(targetInstanceIp, targetIKey);
 
             PrintApplicationTraces(sourceIKey);
