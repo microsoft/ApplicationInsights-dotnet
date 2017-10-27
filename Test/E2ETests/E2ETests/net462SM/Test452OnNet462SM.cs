@@ -37,6 +37,11 @@ namespace E2ETests.Net462SMSM
                 healthCheckPath = TestConstants.WebAppHealthCheckPath,
                 flushPath = TestConstants.WebAppFlushPath
             });
+
+            // Forcefully remove the image to ensure SM gets installed properly.
+            DockerUtils.RemoveDockerImage(Apps[AppNameBeingTested].imageName, true);
+            DockerUtils.RemoveDockerContainer(Apps[AppNameBeingTested].containerName, true);
+
             MyClassInitializeBase();
         }
 
