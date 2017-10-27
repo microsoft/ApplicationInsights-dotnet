@@ -14,10 +14,8 @@ namespace E2ETestAppCore20.Controllers
         // GET api/values
         [HttpGet]
         public IEnumerable<string> Get()
-        {
-            HttpClient client = new HttpClient();
-            var res = client.GetStringAsync("http://bing.com").Result.ToString();
-            return new string[] { "value1", "value2", TelemetryConfiguration.Active.TelemetryChannel.EndpointAddress, res };
+        {            
+            return new string[] { "value1", "value2", TelemetryConfiguration.Active.TelemetryChannel.EndpointAddress};
         }
 
         // GET api/values/5
