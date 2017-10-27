@@ -999,6 +999,7 @@ namespace E2ETests
                 Trace.WriteLine("deps.data.baseData.name:" + deps.data.baseData.name);
                 Trace.WriteLine("deps.tags[ai.operation.id]:" + deps.tags["ai.operation.id"]);
                 Trace.WriteLine("deps.data.baseData.type:" + deps.data.baseData.type);
+                Trace.WriteLine("deps.data.baseData.data:" + deps.data.baseData.data);                
                 Trace.WriteLine("deps.data.baseData.success:" + deps.data.baseData.success);
                 Trace.WriteLine("deps.data.baseData.duration:" + deps.data.baseData.duration);
                 Trace.WriteLine("deps.data.baseData.resultCode:" + deps.data.baseData.resultCode);
