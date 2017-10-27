@@ -29,14 +29,17 @@ namespace E2ETests.netcore20
             VersionPrefix = "rdddsc";
             VersionPrefixSql = "rdddsc";
             AppNameBeingTested = TestConstants.WebAppCore20Name;
-            Apps.Add(AppNameBeingTested, new DeployedApp
+            if(!Apps.ContainsKey(AppNameBeingTested))
             {
-                ikey = TestConstants.WebAppCore20NameInstrumentationKey,
-                containerName = TestConstants.WebAppCore20ContainerName,
-                imageName = TestConstants.WebAppCore20ImageName,
-                healthCheckPath = TestConstants.WebAppCore20HealthCheckPath,
-                flushPath = TestConstants.WebAppCore20FlushPath
-            });            
+                Apps.Add(AppNameBeingTested, new DeployedApp
+                {
+                    ikey = TestConstants.WebAppCore20NameInstrumentationKey,
+                    containerName = TestConstants.WebAppCore20ContainerName,
+                    imageName = TestConstants.WebAppCore20ImageName,
+                    healthCheckPath = TestConstants.WebAppCore20HealthCheckPath,
+                    flushPath = TestConstants.WebAppCore20FlushPath
+                });
+            }            
             MyClassInitializeBase();
         }
 
