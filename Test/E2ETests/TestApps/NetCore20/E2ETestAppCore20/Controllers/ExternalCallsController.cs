@@ -70,8 +70,7 @@ namespace E2ETestAppCore20.Controllers
             {
                 case "flush":
                     title = response = "Flushed telemetry channel";
-                    TelemetryConfiguration.Active.TelemetryChannel.Flush();
-                    Thread.Sleep(3000);
+                    TelemetryConfiguration.Active.TelemetryChannel.Flush();                    
                     break;
                 case "http":
                     title = "Made Sync GET HTTP call to bing";

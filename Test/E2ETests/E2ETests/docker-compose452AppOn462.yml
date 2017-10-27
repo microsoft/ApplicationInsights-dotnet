@@ -7,6 +7,14 @@ services:
             dockerfile: DockerFile462
         depends_on:
             - ingestionservice
+    
+    e2etestwebappcore20:
+        build: 
+            context: ./../TestApps/NetCore20/E2ETestAppCore20/netcoreapp2.0/Publish
+            dockerfile: DockerFile20
+        depends_on:
+            - e2etestwebapi
+            - sql-server
             
     e2etestwebapp:
         build: 
