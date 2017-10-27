@@ -248,7 +248,6 @@
     <Compile Include="Dependencies.aspx.designer.cs">
       <DependentUpon>Dependencies.aspx</DependentUpon>
     </Compile>
-    <Compile Include="DependencyCallHelpers.cs" />
     <Compile Include="DiagnosticsEventListener.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

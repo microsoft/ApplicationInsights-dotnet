@@ -34,7 +34,8 @@ namespace E2ETests
                         ikey = TestConstants.WebApiInstrumentationKey,
                         containerName = TestConstants.WebApiContainerName,
                         imageName = TestConstants.WebApiImageName,
-                        healthCheckPath = TestConstants.WebApiHealthCheckPath
+                        healthCheckPath = TestConstants.WebApiHealthCheckPath,
+                        flushPath = TestConstants.WebApiFlushPath
                     }
             },
 
@@ -45,7 +46,8 @@ namespace E2ETests
                         ikey = "dummy",
                         containerName = TestConstants.IngestionContainerName,
                         imageName = TestConstants.IngestionImageName,
-                        healthCheckPath = TestConstants.IngestionHealthCheckPath
+                        healthCheckPath = TestConstants.IngestionHealthCheckPath,
+                        flushPath = TestConstants.IngestionFlushPath
                     }
             }
         };
@@ -207,7 +209,8 @@ namespace E2ETests
             var expectedRequestTelemetryWebApi = new RequestTelemetry();
             expectedRequestTelemetryWebApi.ResponseCode = "200";
 
-            ValidateXComponentWebAppToWebApi(Apps[AppNameBeingTested].ipAddress, "/Dependencies?type=httpsync",
+            ValidateXComponentWebAppToWebApi(Apps[AppNameBeingTested].ipAddress, Apps[TestConstants.WebApiName].ipAddress,
+                "/Dependencies?type=httpsync",
                 expectedRequestTelemetryWebApp, expectedDependencyTelemetryWebApp, expectedRequestTelemetryWebApi,
                 Apps[AppNameBeingTested].ikey, Apps[TestConstants.WebApiName].ikey).Wait();
         }
@@ -763,7 +766,7 @@ namespace E2ETests
 
 
 
-        private async Task ValidateXComponentWebAppToWebApi(string sourceInstanceIp, string sourcePath,
+        private async Task ValidateXComponentWebAppToWebApi(string sourceInstanceIp, string targetInstanceIp, string sourcePath,
             RequestTelemetry expectedRequestTelemetrySource,
             DependencyTelemetry expectedDependencyTelemetrySource,
             RequestTelemetry expectedRequestTelemetryTarget,
@@ -774,10 +777,11 @@ namespace E2ETests
             Trace.WriteLine("Hitting the target url:" + url);
             var response = await client.GetAsync(url);
             Trace.WriteLine("Actual Response code: " + response.StatusCode);
-            Thread.Sleep(5 * AISDKBufferFlushTime);
-            var requestsSource = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(sourceIKey);
-            var dependenciesSource = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(sourceIKey);
-            var requestsTarget = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(targetIKey);
+            Thread.Sleep(5 * AISDKBufferFlushTime);            
+
+            var requestsSource = WaitForReceiveRequestItemsFromDataIngestion(sourceInstanceIp, sourceIKey);            
+            var dependenciesSource = WaitForReceiveDependencyItemsFromDataIngestion(targetInstanceIp, sourceIKey);
+            var requestsTarget = WaitForReceiveRequestItemsFromDataIngestion(targetInstanceIp, targetIKey);
 
             PrintApplicationTraces(sourceIKey);
             PrintApplicationTraces(targetIKey);
@@ -794,6 +798,9 @@ namespace E2ETests
             var requestSource = requestsSource[0];
             var requestTarget = requestsTarget[0];
             var dependencySource = dependenciesSource[0];
+            PrintDependencies(dependenciesSource);
+            PrintRequests(requestsSource);
+            PrintRequests(requestsTarget);
 
             Assert.IsTrue(requestSource.tags["ai.operation.id"].Equals(requestTarget.tags["ai.operation.id"]),
                 "Operation id for request telemetry in source and target must be same.");
@@ -809,7 +816,7 @@ namespace E2ETests
             await ExecuteWebRequestToTarget(targetInstanceIp, targetPath);
             //Thread.Sleep(AISDKBufferFlushTime);
             //var requestsWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(ikey);
-            var requestsWebApp = WaitForReceiveRequestItemsFromDataIngestion(ikey);
+            var requestsWebApp = WaitForReceiveRequestItemsFromDataIngestion(targetInstanceIp, ikey);
 
             Trace.WriteLine("RequestCount for WebApp:" + requestsWebApp.Count);
             PrintApplicationTraces(ikey);
@@ -860,7 +867,7 @@ namespace E2ETests
             return items;
         }
 
-        private IList<TelemetryItem<RequestData>> WaitForReceiveRequestItemsFromDataIngestion(string ikey)
+        private IList<TelemetryItem<RequestData>> WaitForReceiveRequestItemsFromDataIngestion(string targetInstanceIp, string ikey)
         {
             int receivedItemCount = 0;
             int iteration = 0;
@@ -872,6 +879,10 @@ namespace E2ETests
                 items = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(ikey);
                 receivedItemCount = items.Count;
                 iteration++;
+                if (receivedItemCount == 0)
+                {
+                    ExecuteWebRequestToTarget(targetInstanceIp, Apps[AppNameBeingTested].flushPath).Wait();
+                }
             }
 
             Trace.WriteLine("Items received in iteration: " + iteration);
@@ -981,6 +992,7 @@ namespace E2ETests
                 Trace.WriteLine("deps.iKey: " + deps.iKey);
                 Trace.WriteLine("deps.name: " + deps.name);
                 Trace.WriteLine("deps.data.baseData.name:" + deps.data.baseData.name);
+                Trace.WriteLine("deps.tags[ai.operation.id]:" + deps.tags["ai.operation.id"]);
                 Trace.WriteLine("deps.data.baseData.type:" + deps.data.baseData.type);
                 Trace.WriteLine("deps.data.baseData.success:" + deps.data.baseData.success);
                 Trace.WriteLine("deps.data.baseData.duration:" + deps.data.baseData.duration);
@@ -988,6 +1000,26 @@ namespace E2ETests
                 Trace.WriteLine("deps.data.baseData.id:" + deps.data.baseData.id);
                 Trace.WriteLine("deps.data.baseData.target:" + deps.data.baseData.target);
                 Trace.WriteLine("InternalSdkVersion:" + deps.tags[new ContextTagKeys().InternalSdkVersion]);
+                Trace.WriteLine("--------------------------------------");
+            }
+        }
+
+        private void PrintRequests(IList<TelemetryItem<AI.RequestData>> requests)
+        {
+            foreach (var req in requests)
+            {
+                Trace.WriteLine("Dependency Item Details");
+                Trace.WriteLine("req.time: " + req.time);
+                Trace.WriteLine("req.iKey: " + req.iKey);
+                Trace.WriteLine("req.name: " + req.name);
+                Trace.WriteLine("req.data.baseData.name:" + req.data.baseData.name);
+                Trace.WriteLine("req.tags[ai.operation.id]:" + req.tags["ai.operation.id"]); 
+                Trace.WriteLine("req.data.baseData.responseCode:" + req.data.baseData.responseCode);
+                Trace.WriteLine("req.data.baseData.success:" + req.data.baseData.success);
+                Trace.WriteLine("req.data.baseData.duration:" + req.data.baseData.duration);                
+                Trace.WriteLine("req.data.baseData.id:" + req.data.baseData.id);
+                Trace.WriteLine("req.data.baseData.url:" + req.data.baseData.url);
+                Trace.WriteLine("InternalSdkVersion:" + req.tags[new ContextTagKeys().InternalSdkVersion]);
                 Trace.WriteLine("--------------------------------------");
             }
         }
@@ -1035,7 +1067,7 @@ namespace E2ETests
             try
             {
                 url = "http://" + app.ipAddress + app.healthCheckPath;
-                Trace.WriteLine(string.Format("Request fired against {0} using url: {1}", app.containerName, url));
+                Trace.WriteLine(string.Format("{2}:Request fired against {0} using url: {1}", app.containerName, url, DateTime.UtcNow.ToLongTimeString()));
                 var response = new HttpClient().GetAsync(url);
                 Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result.StatusCode));
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
@@ -1047,7 +1079,7 @@ namespace E2ETests
             {
                 isHealthy = false;
                 Trace.WriteLine(string.Format("Exception occuring hitting {0} : {1}", url, ex));
-            }
+            }            
             return isHealthy;
         }
     }

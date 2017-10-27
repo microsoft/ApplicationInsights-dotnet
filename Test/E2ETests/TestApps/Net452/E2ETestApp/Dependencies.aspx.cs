@@ -81,6 +81,8 @@ namespace E2ETestApp
                             }
                         }).Start();
                         etwEnabled = true;
+                        TelemetryConfiguration.Active.TelemetryChannel.Flush();
+                        Thread.Sleep(1000);
                         break;
                     case "etwlogs":
                         string MyDirectoryPath = "c:\\mylogs";
@@ -307,7 +309,7 @@ namespace E2ETestApp
                 this.lblRequestedAction.Text = this.lblRequestedAction.Text + "  Exception occured: " + ex;
             }
 
-            TelemetryConfiguration.Active.TelemetryChannel.Flush();
+            TelemetryConfiguration.Active.TelemetryChannel.Flush();            
         }
     }
 }

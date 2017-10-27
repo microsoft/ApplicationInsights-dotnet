@@ -32,6 +32,8 @@ namespace TestUtils.TestConstants
 
         public const string WebAppFlushPath = "/Dependencies?type=flush";
         public const string WebAppCore20FlushPath = "/external/calls?type=flush";
+        public const string WebApiFlushPath = "/api/values";
+        public const string IngestionFlushPath = "/api/Data/HealthCheck?name=cijo";
 
     }
 }
