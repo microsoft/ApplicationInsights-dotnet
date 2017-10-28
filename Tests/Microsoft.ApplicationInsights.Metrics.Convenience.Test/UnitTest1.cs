@@ -27,7 +27,6 @@ namespace SomeCustomerNamespace
             Metric cowsSold = aiClient.GetMetric("Cows Sold");
             cowsSold.TrackValue(42);
 
-
             aiClient.GetMetric("Cows Sold").TrackValue(18);
 
 

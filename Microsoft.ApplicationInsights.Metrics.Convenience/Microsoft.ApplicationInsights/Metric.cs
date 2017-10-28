@@ -22,6 +22,7 @@ namespace Microsoft.ApplicationInsights
         private readonly string _objectId;
         private readonly int _hashCode;
         private readonly MetricSeries _zeroDimSeries;
+        private readonly IReadOnlyList<KeyValuePair<string[], MetricSeries>> _zeroDimSeriesList;
         private readonly string[] _dimensionNames;
 
         //private readonly MultidimensionalCube<string, MetricSeries> _metricSeries;
@@ -90,6 +91,10 @@ namespace Microsoft.ApplicationInsights
             }
 
             _zeroDimSeries = CreateNewMetricSeries(dimensionValues: null);
+
+            _zeroDimSeriesList = (dimCount == 0)
+                    ? new KeyValuePair<string[], MetricSeries>[1] { new KeyValuePair<string[], MetricSeries>(new string[0], _zeroDimSeries) }
+                    : null;
         }
 
         /// <summary>
@@ -140,6 +145,11 @@ namespace Microsoft.ApplicationInsights
                                                 Justification = "Completes with non-trivial effort. Method is approproiate.")]
         public IReadOnlyList<KeyValuePair<string[], MetricSeries>> GetAllSeries()
         {
+            if (DimensionsCount == 0)
+            {
+                return _zeroDimSeriesList;
+            }
+
             var series = new List<KeyValuePair<string[], MetricSeries>>(SeriesCount);
             series.Add(new KeyValuePair<string[], MetricSeries>(new string[0], _zeroDimSeries));
             _metricSeries.GetAllPoints(series);
