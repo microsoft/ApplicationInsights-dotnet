@@ -160,22 +160,22 @@
                 }
             }
         }
-        
+
         /// <summary>
-        /// Allows consumers of the DiagosticsTelemetryModule register an extension for the health heartbeat payload.
+        /// Allows consumers of the DiagosticsTelemetryModule to set (add/update) a health indication property to the health heartbeat payload.
         /// 
-        /// This can also be done by adding the IHealthHeartbeatProperty implementation within the ApplicationInsights.config
-        /// file.
+        /// Each HealthHeartbeatProperty set into the health heartbeat will be sent with the value given until it is updated by the user.
+        /// 
         /// </summary>
-        /// <param name="payloadProvider">Extension payload to include in Health Heartbeat payloads</param>
+        /// <param name="payloadItem">Payload to include in Health Heartbeat telemetry item</param>
         /// <returns>True if the payload provider was added, false otherwise.</returns>
-        public bool RegisterHeartbeatPayload(IHealthHeartbeatPayloadExtension payloadProvider)
+        public bool SetHealthProperty(HealthHeartbeatProperty payloadItem)
         {
             if (this.HeartbeatProvider != null)
             {
                 try
                 {
-                    this.HeartbeatProvider.RegisterHeartbeatPayload(payloadProvider);
+                    this.HeartbeatProvider.SetHealthProperty(payloadItem);
                     return true;
                 }
                 catch (Exception)

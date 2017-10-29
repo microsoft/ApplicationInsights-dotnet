@@ -5,12 +5,15 @@
     using System.Globalization;
     using System.Linq;
 
-    internal class HealthHeartbeatDefaultPayload : IHealthHeartbeatPayloadExtension
+    internal class HealthHeartbeatDefaultPayload
     {
+        public const string UpdatedFieldsPropertyKey = "updatedFields";
+
         public static readonly string[] DefaultFields = 
         {
             "runtimeFramework",
-            "targetFramework"
+            "targetFramework",
+            UpdatedFieldsPropertyKey
         };
 
         private List<string> enabledProperties;
@@ -24,31 +27,46 @@
             this.SetEnabledProperties(disableFields);
         }
 
-        public string Name => "HealthHeartbeat";
-
-        public int CurrentUnhealthyCount
+        public IDictionary<string, HealthHeartbeatPropertyPayload> GetPayloadProperties()
         {
-            get { return 0; }
-        }
-
-        public IEnumerable<KeyValuePair<string, object>> GetPayloadProperties()
-        {
-            var payload = new Dictionary<string, object>();
+            var payload = new Dictionary<string, HealthHeartbeatPropertyPayload>();
             foreach (string fieldName in this.enabledProperties)
             {
                 switch (fieldName)
                 {
                     case "runtimeFramework":
-                        payload.Add(fieldName, this.GetRuntimeFrameworkVer());
+                        payload.Add(fieldName, new HealthHeartbeatPropertyPayload()
+                        {
+                            IsHealthy = true,
+                            PayloadValue = this.GetRuntimeFrameworkVer()
+                        });
                         break;
                     case "targetFramework":
-                        payload.Add(fieldName, this.GetTargetFrameworkVer());
+                        payload.Add(fieldName, new HealthHeartbeatPropertyPayload()
+                        {
+                            IsHealthy = true,
+                            PayloadValue = this.GetTargetFrameworkVer()
+                        });
+                        break;
+                    case UpdatedFieldsPropertyKey:
+                        var updatedFieldItem = new HealthHeartbeatPropertyPayload()
+                        {
+                            IsHealthy = true,
+                            PayloadValue = string.Empty
+                        };
+                        updatedFieldItem.IsUpdated = false; // always set this to false
+                        payload.Add(fieldName, updatedFieldItem);
                         break;
                     default:
-                        throw new NotImplementedException(string.Format(CultureInfo.CurrentCulture, "No default handler implemented for field named '{0}'.", fieldName));
+                        payload.Add(fieldName, new HealthHeartbeatPropertyPayload()
+                        {
+                            IsHealthy = false,
+                            PayloadValue = "UNDEFINED"
+                        });
+                        break;
                 }
             }
-
+            
             return payload;
         }
 

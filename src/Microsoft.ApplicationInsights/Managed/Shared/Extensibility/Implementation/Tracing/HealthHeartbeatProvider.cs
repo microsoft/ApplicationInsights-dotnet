@@ -26,8 +26,9 @@
         /// <summary>
         /// The payload items to send out with each health heartbeat.
         /// </summary>
-        private Dictionary<string, IHealthHeartbeatPayloadExtension> payloadItems;
-        
+        private Dictionary<string, HealthHeartbeatPropertyPayload> payloadItems;
+
+        private HealthHeartbeatDefaultPayload defaultPayload; // default items to add to the payload (minus any discluded items)
         private bool disposedValue = false; // To detect redundant calls to dispose
         private TimeSpan heartbeatInterval; // time between heartbeats emitted specified in milliseconds
         private List<string> disabledDefaultFields; // string containing fields that are not to be sent with the payload. null means send everything available.
@@ -40,9 +41,10 @@
 
         public HealthHeartbeatProvider(TimeSpan heartbeatInterval, IEnumerable<string> disabledDefaultFields)
         {
+            this.defaultPayload = new HealthHeartbeatDefaultPayload(disabledDefaultFields);
             this.disabledDefaultFields = disabledDefaultFields?.ToList();
             this.heartbeatInterval = heartbeatInterval;
-            this.payloadItems = new Dictionary<string, IHealthHeartbeatPayloadExtension>(StringComparer.OrdinalIgnoreCase);
+            this.payloadItems = new Dictionary<string, HealthHeartbeatPropertyPayload>(StringComparer.OrdinalIgnoreCase);
             this.heartbeatsSent = 0; // count up from construction time
         }
 
@@ -66,9 +68,12 @@
 
             this.heartbeatInterval = timeBetweenHeartbeats ?? this.heartbeatInterval;
 
-            this.disabledDefaultFields = disabledDefaultFields?.ToList();
+            if (disabledDefaultFields != null)
+            {
+                this.disabledDefaultFields = disabledDefaultFields.Count() > 0 ? disabledDefaultFields.ToList() : null;
+            }
 
-            this.AddDefaultPayloadItems(this.payloadItems);
+            this.SetDefaultPayloadItems(this.payloadItems);
 
             // Note: if this is a subsequent initialization, the interval between heartbeats will be updated in the next cycle so no .Change call necessary here
             if (this.HeartbeatTimer == null)
@@ -79,12 +84,26 @@
             return true;
         }
 
-        public bool RegisterHeartbeatPayload(IHealthHeartbeatPayloadExtension payloadProvider)
+        public bool SetHealthProperty(HealthHeartbeatProperty payloadItem)
         {
-            if (payloadProvider == null || string.IsNullOrEmpty(payloadProvider.Name) || this.payloadItems.ContainsKey(payloadProvider.Name))
+            if (payloadItem != null && !string.IsNullOrEmpty(payloadItem.Name))
             {
-                this.payloadItems.Add(payloadProvider.Name, payloadProvider);
-                return true;
+                using (var portalSenderLock = new ThreadResourceLock())
+                {
+                    try
+                    {
+                        this.SetHealthPropertyInternal(payloadItem.Name, payloadItem.Value.ToString(), payloadItem.IsHealthy);
+                        return true;
+                    }
+                    catch (Exception e)
+                    {
+                        CoreEventSource.Log.LogError(
+                            string.Format(CultureInfo.CurrentCulture,
+                            "Failed to set a health heartbeat property named '{0}'. Exception: {1}",
+                                payloadItem.Name,
+                                e.ToInvariantString()));
+                    }
+                }
             }
 
             return false;
@@ -127,62 +146,92 @@
         {
             try
             {
-                if (!ThreadResourceLock.IsResourceLocked)
-                {
-                    using (var portalSenderLock = new ThreadResourceLock())
-                    {
-                        try
-                        {
-                            this.InternalSendHealthHeartbeat(this.GatherData());
-                        }
-                        catch (Exception exp)
-                        {
-                            // This message will not be sent to the portal because we have infinite loop protection
-                            // But it will be available in PerfView or StatusMonitor
-                            CoreEventSource.Log.LogError("Failed to send health heartbeat to the portal: " + exp.ToInvariantString());
-                        }
-                    }
-                }
+                this.InternalSendHealthHeartbeat(this.GatherData());
             }
-            catch (Exception)
+            catch (Exception exp)
             {
-                // We were trying to send heartbeats out and failed. 
-                // No reason to try to send it out again, users can deduce the missing packets via sequence (or that 
-                // they simply don't get them any longer)
+                // This message will not be sent to the portal because we have infinite loop protection
+                // But it will be available in PerfView or StatusMonitor
+                CoreEventSource.Log.LogError("Failed to send health heartbeat to the portal: " + exp.ToInvariantString());
             }
         }
 
         protected virtual MetricTelemetry GatherData()
         {
             var heartbeat = new MetricTelemetry(heartbeatSyntheticMetricName, 0.0);
+            string updatedKeys = string.Empty;
+            string comma = string.Empty;
 
-            foreach (var payloadItem in this.payloadItems)
+            if (!ThreadResourceLock.IsResourceLocked)
             {
-                try
+                using (var payloadLock = new ThreadResourceLock())
                 {
-                    var props = payloadItem.Value.GetPayloadProperties();
-                    foreach (var kvp in props)
+                    foreach (var payloadItem in this.payloadItems)
                     {
-                        heartbeat.Properties.Add(kvp.Key, kvp.Value.ToString());
+                        try
+                        {
+                            heartbeat.Properties.Add(payloadItem.Key, payloadItem.Value.PayloadValue);
+                            heartbeat.Sum += payloadItem.Value.IsHealthy ? 0 : 1;
+                            if (payloadItem.Value.IsUpdated)
+                            {
+                                string.Concat(updatedKeys, comma, payloadItem.Key);
+                                comma = ",";
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            // skip sending this payload item out, no need to interrupt other payloads. Log it to core.
+                            CoreEventSource.Log.LogError(string.Format(CultureInfo.CurrentCulture, "Failed to send payload for item {0}.", payloadItem.Key));
+                        }
                     }
-
-                    heartbeat.Sum += payloadItem.Value.CurrentUnhealthyCount;
-                }
-                catch (Exception)
-                {
-                    // skip sending this payload item out, no need to interrupt other payloads. Log it to core.
-                    CoreEventSource.Log.LogError(string.Format(CultureInfo.CurrentCulture, "Failed to send payload for item {0}.", payloadItem.Key));
                 }
             }
 
-            heartbeat.Sequence = string.Format(CultureInfo.InvariantCulture, "{0}", this.heartbeatsSent++);
+            // update the special 'updated keys' property with the names of keys that have been updated.
+            if (!string.IsNullOrEmpty(updatedKeys))
+            {
+                heartbeat.Properties[HealthHeartbeatDefaultPayload.UpdatedFieldsPropertyKey] = updatedKeys;
+            }
+
+            heartbeat.Sequence = string.Format(CultureInfo.CurrentCulture, "{0}", this.heartbeatsSent++);
 
             return heartbeat;
         }
 
-        protected void AddDefaultPayloadItems(IDictionary<string, IHealthHeartbeatPayloadExtension> heartbeatPayloadItems)
+        protected void SetDefaultPayloadItems(IDictionary<string, HealthHeartbeatPropertyPayload> heartbeatPayloadItems)
         {
-            heartbeatPayloadItems[string.Empty] = new HealthHeartbeatDefaultPayload(this.disabledDefaultFields);
+            IDictionary<string, HealthHeartbeatPropertyPayload> defaultProps = this.defaultPayload.GetPayloadProperties();
+
+            using (new ThreadResourceLock())
+            {
+                // in case we are changing the disabled fields due to re-initialization, remove all defaults and start over
+                foreach (string fieldName in HealthHeartbeatDefaultPayload.DefaultFields)
+                {
+                    this.payloadItems.Remove(fieldName);
+                }
+
+                foreach (var kvpProp in defaultProps)
+                {
+                    this.SetHealthPropertyInternal(kvpProp.Key, kvpProp.Value.PayloadValue, kvpProp.Value.IsHealthy);
+                }                
+            }
+        }
+
+        private void SetHealthPropertyInternal(string name, string payloadValue, bool isHealthy)
+        {
+            if (this.payloadItems.ContainsKey(name))
+            {
+                this.payloadItems[name].IsHealthy = isHealthy;
+                this.payloadItems[name].PayloadValue = payloadValue;
+            }
+            else
+            {
+                this.payloadItems.Add(name, new HealthHeartbeatPropertyPayload()
+                {
+                    IsHealthy = isHealthy,
+                    PayloadValue = payloadValue
+                });
+            }
         }
 
         private void HeartbeatPulse(object state)

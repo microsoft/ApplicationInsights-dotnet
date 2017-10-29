@@ -80,16 +80,18 @@
             using (var hbeat = new HealthHeartbeatProvider())
             {
                 hbeat.Initialize(configuration: null);
-                HealthHeartbeatPayloadMock payloadProperties = new HealthHeartbeatPayloadMock();
 
                 try
                 {
-                    hbeat.RegisterHeartbeatPayload(payloadProperties);
+                    hbeat.SetHealthProperty(new HealthHeartbeatProperty("test01", "this is a value", true));
+                    hbeat.SetHealthProperty(new HealthHeartbeatProperty("test02", DateTime.Now, true));
+                    hbeat.SetHealthProperty(new HealthHeartbeatProperty("test03", 245.678, true));
+                    hbeat.SetHealthProperty(new HealthHeartbeatProperty("test04", new List<string>() { "one", "two", "three" }, true));
                 }
                 catch (Exception e)
                 {
                     
-                    Assert.Fail(string.Format(CultureInfo.CurrentCulture, "Registration of a heartbeat payload provider throws exception '{0}', message: {1}", e.GetType(), e.Message));
+                    Assert.Fail(string.Format(CultureInfo.CurrentCulture, "Registration of a heartbeat payload provider throws exception '{0}", e.ToInvariantString()));
                 }
             }
         }
@@ -148,12 +150,8 @@
             using (var hbeat = new HealthHeartbeatProviderMock())
             {
                 hbeat.Initialize(configuration: null);
-                HealthHeartbeatPayloadMock payloadProperties = new HealthHeartbeatPayloadMock();
-                payloadProperties.currentUnhealthyCount = 0;
                 string testerKey = "tester123";
-                payloadProperties.customProperties.Push(new KeyValuePair<string, object>(testerKey, "stringData"));
-
-                hbeat.RegisterHeartbeatPayload(payloadProperties);
+                hbeat.SetHealthProperty(new HealthHeartbeatProperty(testerKey, "test", true));
                 hbeat.SimulateSend();
                 bool contentFound = false;
                 foreach (var msg in hbeat.sentMessages)
@@ -243,12 +241,8 @@
             using (var hbeat = new HealthHeartbeatProviderMock())
             {
                 hbeat.Initialize(configuration: null);
-                HealthHeartbeatPayloadMock payloadProperties = new HealthHeartbeatPayloadMock();
-                payloadProperties.currentUnhealthyCount = 1;
                 string testerKey = "tester123";
-                payloadProperties.customProperties.Push(new KeyValuePair<string, object>(testerKey, "stringData"));
-                
-                hbeat.RegisterHeartbeatPayload(payloadProperties);
+                hbeat.SetHealthProperty(new HealthHeartbeatProperty(testerKey, "test", false));
                 hbeat.SimulateSend();
                 Assert.IsTrue(hbeat.sentMessages.Any(a => a.Sum >= 1.0));
             }
@@ -313,22 +307,12 @@
             using (var hbeat = new HealthHeartbeatProviderMock())
             {
                 hbeat.Initialize(configuration: null);
+                hbeat.SimulateSend();
+                Assert.IsTrue(hbeat.sentMessages.First()?.Sum == 0.0);
+                hbeat.sentMessages.Clear();
 
-                HealthHeartbeatPayloadMock payloadOne = new HealthHeartbeatPayloadMock()
-                {
-                    currentUnhealthyCount = 1
-                };
-                payloadOne.customProperties.Push(new KeyValuePair<string, object>("foo", "stringData1"));
-
-                HealthHeartbeatPayloadMock payloadTwo = new HealthHeartbeatPayloadMock()
-                {
-                    currentUnhealthyCount = 1
-                };
-                payloadTwo.customProperties.Push(new KeyValuePair<string, object>("bar", "stringData2"));
-
-                hbeat.RegisterHeartbeatPayload(payloadOne);
-                hbeat.RegisterHeartbeatPayload(payloadTwo);
-
+                hbeat.SetHealthProperty(new HealthHeartbeatProperty("tester01", "test failure 1", false));
+                hbeat.SetHealthProperty(new HealthHeartbeatProperty("tester02", "test failure 2", false));
                 hbeat.SimulateSend();
 
                 Assert.IsTrue(hbeat.sentMessages.First()?.Sum == 2.0);
@@ -395,7 +379,7 @@
             {
                 if (kvp.Key.Equals("targetFramework", StringComparison.Ordinal))
                 {
-                    Assert.IsFalse(string.Compare("undefined", kvp.Value as string, true) < 0);
+                    Assert.IsFalse(kvp.Value.PayloadValue.Equals("undefined", StringComparison.OrdinalIgnoreCase));
                 }
             }
         }
