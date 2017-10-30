@@ -1,4 +1,5 @@
-﻿IF (NOT EXISTS (select * from sysobjects where name='Messages' and xtype='U'))
+﻿USE dependencytest;
+IF (NOT EXISTS (select * from sysobjects where name='Messages' and xtype='U'))
 BEGIN
 CREATE TABLE [dbo].[Messages] (
 	[ID] [int] IDENTITY(1, 1) NOT NULL,
