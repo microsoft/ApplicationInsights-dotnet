@@ -4,12 +4,13 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using System.Reflection;
 
     internal class HealthHeartbeatDefaultPayload
     {
         public const string UpdatedFieldsPropertyKey = "updatedFields";
 
-        public static readonly string[] DefaultFields = 
+        public static readonly string[] DefaultFields =
         {
             "runtimeFramework",
             "targetFramework",
@@ -66,7 +67,7 @@
                         break;
                 }
             }
-            
+
             return payload;
         }
 
@@ -104,24 +105,21 @@
 
         private string GetRuntimeFrameworkVer()
         {
-#if NET45
-            return System.Environment.Version.ToString();
-#elif NETCORE
-            // this crazy slice of code came from here: https://github.com/dotnet/BenchmarkDotNet/issues/448
-            // I believe we will have more to do here, it would seem this is not something that the .NET Core makes easy
-
-            var assembly = typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly;
-            var assemblyPath = assembly.CodeBase.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
-            int netCoreAppIndex = Array.IndexOf(assemblyPath, "Microsoft.NETCore.App");
-            if (netCoreAppIndex > 0 && netCoreAppIndex < assemblyPath.Length - 2)
+            // taken from https://github.com/Azure/azure-sdk-for-net/blob/f097add680f37908995fa2fbf6b7c73f11652ec7/src/SdkCommon/ClientRuntime/ClientRuntime/ServiceClient.cs#L214
+            try
             {
-                return assemblyPath[netCoreAppIndex + 1];
+                Assembly assembly = typeof(Object).GetTypeInfo().Assembly;
+
+                AssemblyFileVersionAttribute objectAssemblyFileVer =
+                            assembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute)) as AssemblyFileVersionAttribute;
+
+                return objectAssemblyFileVer != null ? objectAssemblyFileVer.Version : "undefined";
             }
-            return string.Empty;
-#else
-            // is there any other framework we want to handle? 
-            return "unknown";
-#endif
+            catch
+            {
+            }
+
+            return "undefined";
         }
     }
 }
