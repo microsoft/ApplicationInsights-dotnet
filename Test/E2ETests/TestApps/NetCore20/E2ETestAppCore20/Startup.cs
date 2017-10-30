@@ -40,7 +40,7 @@ namespace E2ETestAppCore20
             teleConfig.TelemetryChannel.DeveloperMode = true;
 
             // Fake endpoint.
-            teleConfig.TelemetryChannel.EndpointAddress = "http://172.20.45.192/api/Data/PushItem";
+            teleConfig.TelemetryChannel.EndpointAddress = "http://e2etests_ingestionservice_1/api/Data/PushItem";
             teleConfig.InstrumentationKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8";
 
             new DependencyTrackingTelemetryModule().Initialize(TelemetryConfiguration.Active);
