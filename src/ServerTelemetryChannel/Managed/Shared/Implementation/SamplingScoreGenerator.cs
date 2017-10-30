@@ -36,7 +36,7 @@
 
         internal static int GetSamplingHashCode(this string input)
         {
-            if (input == null)
+            if (string.IsNullOrEmpty(input))
             {
                 return 0;
             }
