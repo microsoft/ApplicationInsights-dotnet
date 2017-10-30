@@ -26,17 +26,20 @@ namespace E2ETests.Net462
         public static void MyClassInitialize(TestContext testContext)
         {
             DockerComposeFileName = "docker-compose452AppOn462.yml";
-            AppNameBeingTested = "WebApp";
+            AppNameBeingTested = TestConstants.WebAppName;
             VersionPrefix = "rdddsd";
             VersionPrefixSql = "rddf";
-            Apps.Add(TestConstants.WebAppName, new DeployedApp
+            if (!Apps.ContainsKey(AppNameBeingTested))
             {
-                ikey = TestConstants.WebAppInstrumentationKey,
-                containerName = TestConstants.WebAppContainerName,
-                imageName = TestConstants.WebAppImageName,
-                healthCheckPath = TestConstants.WebAppHealthCheckPath,
-                flushPath = TestConstants.WebAppFlushPath
-            });
+                Apps.Add(AppNameBeingTested, new DeployedApp
+                {
+                    ikey = TestConstants.WebAppInstrumentationKey,
+                    containerName = TestConstants.WebAppContainerName,
+                    imageName = TestConstants.WebAppImageName,
+                    healthCheckPath = TestConstants.WebAppHealthCheckPath,
+                    flushPath = TestConstants.WebAppFlushPath
+                });
+            }
             MyClassInitializeBase();
         }
           
