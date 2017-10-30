@@ -7,10 +7,8 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-#if NET451
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
-#endif
     using Microsoft.Extensions.Options;
 
     /// <summary>
@@ -59,7 +57,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 configuration.TelemetryProcessorChainBuilder.Build();
             }
 
-            this.AddTelemetryChannelAndProcessorsForFullFramework(configuration);
+            this.AddTelemetryChannelAndProcessors(configuration);
+            (configuration.TelemetryChannel as ITelemetryModule)?.Initialize(configuration);
+
+            configuration.TelemetryProcessorChainBuilder.Build();
+
 
             configuration.TelemetryChannel = this.telemetryChannel ?? configuration.TelemetryChannel;
 
@@ -93,40 +95,31 @@ namespace Microsoft.Extensions.DependencyInjection
             }
         }
 
-        private void AddTelemetryChannelAndProcessorsForFullFramework(TelemetryConfiguration configuration)
+        private void AddTelemetryChannelAndProcessors(TelemetryConfiguration configuration)
         {
-#if NET451
-            // Adding Server Telemetry Channel if services doesn't have an existing channel
             configuration.TelemetryChannel = this.telemetryChannel ?? new ServerTelemetryChannel();
+
             if (configuration.TelemetryChannel is ServerTelemetryChannel)
             {
-                // Enabling Quick Pulse Metric Stream
                 if (this.applicationInsightsServiceOptions.EnableQuickPulseMetricStream)
                 {
                     var quickPulseModule = new QuickPulseTelemetryModule();
                     quickPulseModule.Initialize(configuration);
 
                     QuickPulseTelemetryProcessor processor = null;
-                    configuration.TelemetryProcessorChainBuilder.Use((next) => {
+                    configuration.TelemetryProcessorChainBuilder.Use((next) =>
+                    {
                         processor = new QuickPulseTelemetryProcessor(next);
                         quickPulseModule.RegisterTelemetryProcessor(processor);
                         return processor;
                     });
                 }
 
-                // Enabling Adaptive Sampling and initializing server telemetry channel with configuration
-                if (configuration.TelemetryChannel.GetType() == typeof(ServerTelemetryChannel))
+                if (this.applicationInsightsServiceOptions.EnableAdaptiveSampling)
                 {
-                    if (this.applicationInsightsServiceOptions.EnableAdaptiveSampling)
-                    {
-                        configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
-                    }
-                    (configuration.TelemetryChannel as ServerTelemetryChannel).Initialize(configuration);
+                    configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
                 }
-
-                configuration.TelemetryProcessorChainBuilder.Build();
             }
-#endif
         }
     }
 }

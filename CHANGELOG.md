@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 2.2.0-beta1
+
+- Project is upgraded to work with Visual Studio 2017. Also projects are modified to use csproj instead of project.json.
+- Adaptive sampling enabled for both - full framework and .NET Core applications.
+- ServerTelemetryChannel is enabled and set as default channel for both - full framework and .NET Core applications.
+- Live metrics collection is enabled by default for .NET Core applications (was already enabled for full .NET applications).
+- Updated Web/Base SDK version dependency to 2.5.0-beta1.
+- DependencyCollector referred from 2.5.0-beta1 supports collecting SQL dependency calls in .NET Core Applications using EntityFramework.
+
 ## Version 2.1.1
 
 - [Address the issue where DependencyCollection breaks Azure Storage Emulator calls](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/488)

@@ -5,10 +5,14 @@
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
+    using Xunit.Abstractions;
 
     public class RequestTelemetryEmptyAppTests : TelemetryTestsBase
     {
         private const string assemblyName = "EmptyApp.FunctionalTests";
+        public RequestTelemetryEmptyAppTests(ITestOutputHelper output) : base(output)
+        {
+        }
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingBasicPage()

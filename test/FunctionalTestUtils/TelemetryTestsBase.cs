@@ -13,7 +13,8 @@
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
-#if NET451
+    using Xunit.Abstractions;
+#if NET451 || NET46
     using System.Net;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -23,6 +24,11 @@
     {
         protected const int TestTimeoutMs = 10000;
         private object noParallelism = new object();
+        protected readonly ITestOutputHelper output;
+        public TelemetryTestsBase(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
 
         [MethodImpl(MethodImplOptions.NoOptimization)]
         public void ValidateBasicRequest(InProcessServer server, string requestPath, RequestTelemetry expected)
@@ -119,7 +125,7 @@
 #endif
         }
 
-#if NET451
+#if NET451 || NET46
         public void ValidatePerformanceCountersAreCollected(string assemblyName, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
             using (var server = new InProcessServer(assemblyName, configureHost))

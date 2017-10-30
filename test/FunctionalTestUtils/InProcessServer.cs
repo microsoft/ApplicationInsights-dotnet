@@ -58,6 +58,7 @@
             {
                 builder = configureHost(builder);
             }
+
             this.hostingEngine = builder.Build();
 
             this.hostingEngine.Start();
