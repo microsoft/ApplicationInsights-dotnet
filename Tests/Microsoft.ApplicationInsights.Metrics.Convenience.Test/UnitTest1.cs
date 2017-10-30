@@ -7,6 +7,7 @@ using Microsoft.ApplicationInsights.Metrics;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
+using System.Collections.Generic;
 
 namespace SomeCustomerNamespace
 {
@@ -69,12 +70,13 @@ namespace SomeCustomerNamespace
             MetricManager manager = TelemetryConfiguration.Active.Metrics();
 
             IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false);
-            MetricSeries series1 = TelemetryConfiguration.Active.Metrics().CreateNewSeries("Cows Sold", config);
+            MetricSeries series1 = TelemetryConfiguration.Active.Metrics().CreateNewSeries(
+                                                                                "Cows Sold",
+                                                                                new Dictionary<string, string> { ["Color of Cow"] = "Red",
+                                                                                                                 ["Gender of Cow"] = "Female"},
+                                                                                config);
 
             series1.TrackValue(42);
-
-            series1.Context.Properties["Color of Cow"] = "Red";
-            series1.Context.Properties["Gender of Cow"] = "Female";
 
             series1.TrackValue(1);
             series1.TrackValue(1);

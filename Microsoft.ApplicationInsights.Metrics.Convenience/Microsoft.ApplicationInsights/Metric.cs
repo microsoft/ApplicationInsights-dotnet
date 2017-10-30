@@ -472,9 +472,12 @@ namespace Microsoft.ApplicationInsights
 
         private MetricSeries CreateNewMetricSeries(string[] dimensionValues)
         {
-            MetricSeries series = _metricManager.CreateNewSeries(MetricId, _configuration.SeriesConfig);
+            KeyValuePair<string, string>[] dimValsNames = null;
+            
             if (dimensionValues != null)
             {
+                dimValsNames = new KeyValuePair<string, string>[dimensionValues.Length];
+
                 for (int d = 0; d < dimensionValues.Length; d++)
                 {
                     string dimensionName = _dimensionNames[d];
@@ -490,10 +493,12 @@ namespace Microsoft.ApplicationInsights
                         throw new ArgumentNullException($"The value for dimension number {d} is empty or white-space.");
                     }
 
-                    series.Context.Properties[dimensionName] = dimensionValue;
+
+                    dimValsNames[d] = new KeyValuePair<string, string>(dimensionName, dimensionValue);
                 }
             }
 
+            MetricSeries series = _metricManager.CreateNewSeries(MetricId, dimValsNames, _configuration.SeriesConfig);
             return series;
         }
 

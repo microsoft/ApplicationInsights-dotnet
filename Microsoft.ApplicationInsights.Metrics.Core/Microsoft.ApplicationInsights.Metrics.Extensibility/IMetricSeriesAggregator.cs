@@ -37,14 +37,14 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// </summary>
         /// <param name="periodEnd"></param>
         /// <returns></returns>
-        ITelemetry CompleteAggregation(DateTimeOffset periodEnd);
+        MetricAggregate CompleteAggregation(DateTimeOffset periodEnd);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="periodEnd"></param>
         /// <returns></returns>
-        ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd);
+        MetricAggregate CreateAggregateUnsafe(DateTimeOffset periodEnd);
 
         /// <summary>
         /// 

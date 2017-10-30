@@ -35,7 +35,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        public override ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd)
+        public override MetricAggregate CreateAggregateUnsafe(DateTimeOffset periodEnd)
         {
             SnapAggragetionToIntValues();
             return base.CreateAggregateUnsafe(periodEnd);

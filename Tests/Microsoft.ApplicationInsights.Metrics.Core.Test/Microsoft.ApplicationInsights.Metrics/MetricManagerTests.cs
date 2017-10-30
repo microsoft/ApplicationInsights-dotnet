@@ -90,17 +90,17 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 Assert.AreEqual(3, metricsCollector.Count);
 
-                Assert.AreEqual(1, metricsCollector.Where( (item) => (item as MetricTelemetry).Name.Equals("Measurement 1") ).Count());
-                Assert.AreEqual(3, (metricsCollector.First( (item) => (item as MetricTelemetry).Name.Equals("Measurement 1") ) as MetricTelemetry).Count);
-                Assert.AreEqual(3, (metricsCollector.First( (item) => (item as MetricTelemetry).Name.Equals("Measurement 1") ) as MetricTelemetry).Sum);
+                Assert.AreEqual(1, metricsCollector.Where( (item) => item.MetricId.Equals("Measurement 1") ).Count());
+                Assert.AreEqual(3, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 1") )).AggregateData["Count"]);
+                Assert.AreEqual(3.0, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 1") )).AggregateData["Sum"]);
 
-                Assert.AreEqual(1, metricsCollector.Where( (item) => (item as MetricTelemetry).Name.Equals("Measurement 2") ).Count());
-                Assert.AreEqual(3, (metricsCollector.First( (item) => (item as MetricTelemetry).Name.Equals("Measurement 2") ) as MetricTelemetry).Count);
-                Assert.AreEqual(-3, (metricsCollector.First( (item) => (item as MetricTelemetry).Name.Equals("Measurement 2") ) as MetricTelemetry).Sum);
+                Assert.AreEqual(1, metricsCollector.Where( (item) => item.MetricId.Equals("Measurement 2") ).Count());
+                Assert.AreEqual(3, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 2") )).AggregateData["Count"]);
+                Assert.AreEqual(-3.0, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 2") )).AggregateData["Sum"]);
 
-                Assert.AreEqual(1, metricsCollector.Where( (item) => (item as MetricTelemetry).Name.Equals("Counter 1") ).Count());
-                Assert.AreEqual(3, (metricsCollector.First( (item) => (item as MetricTelemetry).Name.Equals("Counter 1") ) as MetricTelemetry).Count);
-                Assert.AreEqual(0, (metricsCollector.First( (item) => (item as MetricTelemetry).Name.Equals("Counter 1") ) as MetricTelemetry).Sum);
+                Assert.AreEqual(1, metricsCollector.Where( (item) => item.MetricId.Equals("Counter 1") ).Count());
+                Assert.AreEqual(3, (metricsCollector.First( (item) => item.MetricId.Equals("Counter 1") )).AggregateData["Count"]);
+                Assert.AreEqual(0.0, (metricsCollector.First( (item) => item.MetricId.Equals("Counter 1") )).AggregateData["Sum"]);
 
                 metricsCollector.Clear();
                 Assert.AreEqual(0, metricsCollector.Count);
@@ -109,9 +109,9 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 Assert.AreEqual(1, metricsCollector.Count);
 
-                Assert.AreEqual(1, metricsCollector.Where((item) => (item as MetricTelemetry).Name.Equals("Counter 1")).Count());
-                Assert.AreEqual(3, (metricsCollector.First((item) => (item as MetricTelemetry).Name.Equals("Counter 1")) as MetricTelemetry).Count);
-                Assert.AreEqual(0, (metricsCollector.First((item) => (item as MetricTelemetry).Name.Equals("Counter 1")) as MetricTelemetry).Sum);
+                Assert.AreEqual(1, metricsCollector.Where( (item) => item.MetricId.Equals("Counter 1") ).Count());
+                Assert.AreEqual(3, (metricsCollector.First( (item) => item.MetricId.Equals("Counter 1") )).AggregateData["Count"]);
+                Assert.AreEqual(0.0, (metricsCollector.First( (item) => item.MetricId.Equals("Counter 1") )).AggregateData["Sum"]);
 
                 Util.CompleteDefaultAggregationCycle(manager);
             }

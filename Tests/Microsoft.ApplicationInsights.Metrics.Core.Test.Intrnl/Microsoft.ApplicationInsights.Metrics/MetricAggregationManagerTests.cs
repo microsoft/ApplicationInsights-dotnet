@@ -32,11 +32,13 @@ namespace Microsoft.ApplicationInsights.Metrics
             var measurementMetric = new MetricSeries(
                                             aggregationManager,
                                             "Measurement Metric",
+                                            null,
                                             new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
 
             var counterMetric = new MetricSeries(
                                             aggregationManager,
                                             "Counter Metric",
+                                            null,
                                             new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
 
             measurementMetric.TrackValue(1);
@@ -48,14 +50,14 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.IsNotNull(defaultPeriod.PersistentAggregates);
 
             Assert.AreEqual(1, defaultPeriod.NonpersistentAggregates.Count);
-            Assert.AreEqual("Measurement Metric", ((MetricTelemetry) defaultPeriod.NonpersistentAggregates[0]).Name);
-            Assert.AreEqual(1, ((MetricTelemetry) defaultPeriod.NonpersistentAggregates[0]).Count);
-            Assert.AreEqual(1, ((MetricTelemetry) defaultPeriod.NonpersistentAggregates[0]).Sum);
+            Assert.AreEqual("Measurement Metric", (defaultPeriod.NonpersistentAggregates[0]).MetricId);
+            Assert.AreEqual(1, defaultPeriod.NonpersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(1.0, defaultPeriod.NonpersistentAggregates[0].AggregateData["Sum"]);
 
             Assert.AreEqual(1, defaultPeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", ((MetricTelemetry) defaultPeriod.PersistentAggregates[0]).Name);
-            Assert.AreEqual(1, ((MetricTelemetry) defaultPeriod.PersistentAggregates[0]).Count);
-            Assert.AreEqual(2, ((MetricTelemetry) defaultPeriod.PersistentAggregates[0]).Sum);
+            Assert.AreEqual("Counter Metric", defaultPeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual(1, defaultPeriod.PersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(2.0, defaultPeriod.PersistentAggregates[0].AggregateData["Sum"]);
 
             AggregationPeriodSummary customPeriod = aggregationManager.StartOrCycleAggregators(MetricAggregationCycleKind.Custom, dto, futureFilter: null);
             Assert.IsNotNull(customPeriod);
@@ -65,9 +67,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreEqual(0, customPeriod.NonpersistentAggregates.Count);
 
             Assert.AreEqual(1, customPeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", ((MetricTelemetry) customPeriod.PersistentAggregates[0]).Name);
-            Assert.AreEqual(1, ((MetricTelemetry) customPeriod.PersistentAggregates[0]).Count);
-            Assert.AreEqual(2, ((MetricTelemetry) customPeriod.PersistentAggregates[0]).Sum);
+            Assert.AreEqual("Counter Metric", customPeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual(1, customPeriod.PersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(2.0, customPeriod.PersistentAggregates[0].AggregateData["Sum"]);
 
             AggregationPeriodSummary quickpulsePeriod = aggregationManager.StartOrCycleAggregators(MetricAggregationCycleKind.QuickPulse, dto, futureFilter: null);
             Assert.IsNotNull(quickpulsePeriod);
@@ -77,9 +79,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreEqual(0, quickpulsePeriod.NonpersistentAggregates.Count);
 
             Assert.AreEqual(1, quickpulsePeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", ((MetricTelemetry) quickpulsePeriod.PersistentAggregates[0]).Name);
-            Assert.AreEqual(1, ((MetricTelemetry) quickpulsePeriod.PersistentAggregates[0]).Count);
-            Assert.AreEqual(2, ((MetricTelemetry) quickpulsePeriod.PersistentAggregates[0]).Sum);
+            Assert.AreEqual("Counter Metric", quickpulsePeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual(1, quickpulsePeriod.PersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(2.0, quickpulsePeriod.PersistentAggregates[0].AggregateData["Sum"]);
         }
 
         /// <summary />
@@ -107,11 +109,13 @@ namespace Microsoft.ApplicationInsights.Metrics
             var measurementMetric = new MetricSeries(
                                             aggregationManager,
                                             "Measurement Metric",
+                                            null,
                                             new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
 
             var counterMetric = new MetricSeries(
                                             aggregationManager,
                                             "Counter Metric",
+                                            null,
                                             new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
 
             // Cycle once, get nothing:
@@ -136,16 +140,16 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreEqual(1, period.NonpersistentAggregates.Count);
             Assert.AreEqual(1, period.PersistentAggregates.Count);
 
-            Assert.IsInstanceOfType(period.NonpersistentAggregates[0], typeof(MetricTelemetry));
-            Assert.IsInstanceOfType(period.PersistentAggregates[0], typeof(MetricTelemetry));
+            Assert.IsNotNull(period.NonpersistentAggregates[0]);
+            Assert.IsNotNull(period.PersistentAggregates[0]);
 
-            Assert.AreEqual("Measurement Metric", ((MetricTelemetry) period.NonpersistentAggregates[0]).Name);
-            Assert.AreEqual(1, ((MetricTelemetry) period.NonpersistentAggregates[0]).Count);
-            Assert.AreEqual(1, ((MetricTelemetry) period.NonpersistentAggregates[0]).Sum);
+            Assert.AreEqual("Measurement Metric", period.NonpersistentAggregates[0].MetricId);
+            Assert.AreEqual(1, period.NonpersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(1.0, period.NonpersistentAggregates[0].AggregateData["Sum"]);
 
-            Assert.AreEqual("Counter Metric", ((MetricTelemetry) period.PersistentAggregates[0]).Name);
-            Assert.AreEqual(1, ((MetricTelemetry) period.PersistentAggregates[0]).Count);
-            Assert.AreEqual(2, ((MetricTelemetry) period.PersistentAggregates[0]).Sum);
+            Assert.AreEqual("Counter Metric", period.PersistentAggregates[0].MetricId);
+            Assert.AreEqual(1, period.PersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(2.0, period.PersistentAggregates[0].AggregateData["Sum"]);
 
             // Now we should be empty again for non-persistent. Persistent stays:
 
@@ -157,11 +161,11 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreEqual(0, period.NonpersistentAggregates.Count);
             Assert.AreEqual(1, period.PersistentAggregates.Count);
 
-            Assert.IsInstanceOfType(period.PersistentAggregates[0], typeof(MetricTelemetry));
+            Assert.IsNotNull(period.PersistentAggregates[0]);
 
-            Assert.AreEqual("Counter Metric", ((MetricTelemetry) period.PersistentAggregates[0]).Name);
-            Assert.AreEqual(1, ((MetricTelemetry) period.PersistentAggregates[0]).Count);
-            Assert.AreEqual(2, ((MetricTelemetry) period.PersistentAggregates[0]).Sum);
+            Assert.AreEqual("Counter Metric", period.PersistentAggregates[0].MetricId);
+            Assert.AreEqual(1, period.PersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(2.0, period.PersistentAggregates[0].AggregateData["Sum"]);
 
             // Now set a deny filter. Track. Expect to get nothng.
             // Note: for persistent, values tracked under Deny filter should persist for the future, for non-persistent they are just discarded.
@@ -199,11 +203,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(0, period.NonpersistentAggregates.Count);
                 Assert.AreEqual(1, period.PersistentAggregates.Count);
 
-                Assert.IsInstanceOfType(period.PersistentAggregates[0], typeof(MetricTelemetry));
+                Assert.IsNotNull(period.PersistentAggregates[0]);
 
-                Assert.AreEqual("Counter Metric", ((MetricTelemetry) period.PersistentAggregates[0]).Name);
-                Assert.AreEqual(2, ((MetricTelemetry) period.PersistentAggregates[0]).Count);
-                Assert.AreEqual(6, ((MetricTelemetry) period.PersistentAggregates[0]).Sum);
+                Assert.AreEqual("Counter Metric", period.PersistentAggregates[0].MetricId);
+                Assert.AreEqual(2, period.PersistentAggregates[0].AggregateData["Count"]);
+                Assert.AreEqual(6.0, period.PersistentAggregates[0].AggregateData["Sum"]);
 
                 // Validate that deny filter was removed:
 
@@ -218,16 +222,16 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(1, period.NonpersistentAggregates.Count);
                 Assert.AreEqual(1, period.PersistentAggregates.Count);
 
-                Assert.IsInstanceOfType(period.PersistentAggregates[0], typeof(MetricTelemetry));
-                Assert.IsInstanceOfType(period.NonpersistentAggregates[0], typeof(MetricTelemetry));
+                Assert.IsNotNull(period.PersistentAggregates[0]);
+                Assert.IsNotNull(period.NonpersistentAggregates[0]);
 
-                Assert.AreEqual("Counter Metric", ((MetricTelemetry) period.PersistentAggregates[0]).Name);
-                Assert.AreEqual(3, ((MetricTelemetry) period.PersistentAggregates[0]).Count);
-                Assert.AreEqual(12, ((MetricTelemetry) period.PersistentAggregates[0]).Sum);
+                Assert.AreEqual("Counter Metric", period.PersistentAggregates[0].MetricId);
+                Assert.AreEqual(3, period.PersistentAggregates[0].AggregateData["Count"]);
+                Assert.AreEqual(12.0, period.PersistentAggregates[0].AggregateData["Sum"]);
 
-                Assert.AreEqual("Measurement Metric", ((MetricTelemetry) period.NonpersistentAggregates[0]).Name);
-                Assert.AreEqual(1, ((MetricTelemetry) period.NonpersistentAggregates[0]).Count);
-                Assert.AreEqual(5, ((MetricTelemetry) period.NonpersistentAggregates[0]).Sum);
+                Assert.AreEqual("Measurement Metric", period.NonpersistentAggregates[0].MetricId);
+                Assert.AreEqual(1, period.NonpersistentAggregates[0].AggregateData["Count"]);
+                Assert.AreEqual(5.0, period.NonpersistentAggregates[0].AggregateData["Sum"]);
             }
         }
 
@@ -242,11 +246,13 @@ namespace Microsoft.ApplicationInsights.Metrics
             var measurementMetric = new MetricSeries(
                                             aggregationManager,
                                             "Measurement Metric",
+                                            null,
                                             new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
 
             var counterMetric = new MetricSeries(
                                             aggregationManager,
                                             "Counter Metric",
+                                            null,
                                             new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
 
             // Cannot stop default:
@@ -283,9 +289,9 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreEqual(0, customPeriod.NonpersistentAggregates.Count);
             Assert.AreEqual(1, customPeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", ((MetricTelemetry) customPeriod.PersistentAggregates[0]).Name);
-            Assert.AreEqual(1, ((MetricTelemetry) customPeriod.PersistentAggregates[0]).Count);
-            Assert.AreEqual(2, ((MetricTelemetry) customPeriod.PersistentAggregates[0]).Sum);
+            Assert.AreEqual("Counter Metric", customPeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual(1, customPeriod.PersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(2.0, customPeriod.PersistentAggregates[0].AggregateData["Sum"]);
 
             quickpulsePeriod = aggregationManager.StopAggregators(MetricAggregationCycleKind.QuickPulse, dto);
             Assert.IsNotNull(quickpulsePeriod);
@@ -294,9 +300,9 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreEqual(0, quickpulsePeriod.NonpersistentAggregates.Count);
             Assert.AreEqual(1, quickpulsePeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", ((MetricTelemetry) quickpulsePeriod.PersistentAggregates[0]).Name);
-            Assert.AreEqual(1, ((MetricTelemetry) quickpulsePeriod.PersistentAggregates[0]).Count);
-            Assert.AreEqual(2, ((MetricTelemetry) quickpulsePeriod.PersistentAggregates[0]).Sum);
+            Assert.AreEqual("Counter Metric", quickpulsePeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual(1, quickpulsePeriod.PersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(2.0, quickpulsePeriod.PersistentAggregates[0].AggregateData["Sum"]);
 
             // Now start cycles, track values and stop them again. Observe that values were tracked:
 
@@ -312,14 +318,14 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.IsNotNull(customPeriod.PersistentAggregates);
 
             Assert.AreEqual(1, customPeriod.NonpersistentAggregates.Count);
-            Assert.AreEqual("Measurement Metric", ((MetricTelemetry) customPeriod.NonpersistentAggregates[0]).Name);
-            Assert.AreEqual(1, ((MetricTelemetry) customPeriod.NonpersistentAggregates[0]).Count);
-            Assert.AreEqual(3, ((MetricTelemetry) customPeriod.NonpersistentAggregates[0]).Sum);
+            Assert.AreEqual("Measurement Metric", customPeriod.NonpersistentAggregates[0].MetricId);
+            Assert.AreEqual(1, customPeriod.NonpersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(3.0, customPeriod.NonpersistentAggregates[0].AggregateData["Sum"]);
 
             Assert.AreEqual(1, customPeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", ((MetricTelemetry) customPeriod.PersistentAggregates[0]).Name);
-            Assert.AreEqual(2, ((MetricTelemetry) customPeriod.PersistentAggregates[0]).Count);
-            Assert.AreEqual(6, ((MetricTelemetry) customPeriod.PersistentAggregates[0]).Sum);
+            Assert.AreEqual("Counter Metric", customPeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual(2, customPeriod.PersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(6.0, customPeriod.PersistentAggregates[0].AggregateData["Sum"]);
 
             quickpulsePeriod = aggregationManager.StopAggregators(MetricAggregationCycleKind.QuickPulse, dto);
             Assert.IsNotNull(quickpulsePeriod);
@@ -327,14 +333,14 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.IsNotNull(quickpulsePeriod.PersistentAggregates);
 
             Assert.AreEqual(1, quickpulsePeriod.NonpersistentAggregates.Count);
-            Assert.AreEqual("Measurement Metric", ((MetricTelemetry) quickpulsePeriod.NonpersistentAggregates[0]).Name);
-            Assert.AreEqual(1, ((MetricTelemetry) quickpulsePeriod.NonpersistentAggregates[0]).Count);
-            Assert.AreEqual(3, ((MetricTelemetry) quickpulsePeriod.NonpersistentAggregates[0]).Sum);
+            Assert.AreEqual("Measurement Metric", quickpulsePeriod.NonpersistentAggregates[0].MetricId);
+            Assert.AreEqual(1, quickpulsePeriod.NonpersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(3.0, quickpulsePeriod.NonpersistentAggregates[0].AggregateData["Sum"]);
 
             Assert.AreEqual(1, quickpulsePeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", ((MetricTelemetry) quickpulsePeriod.PersistentAggregates[0]).Name);
-            Assert.AreEqual(2, ((MetricTelemetry) quickpulsePeriod.PersistentAggregates[0]).Count);
-            Assert.AreEqual(6, ((MetricTelemetry) quickpulsePeriod.PersistentAggregates[0]).Sum);
+            Assert.AreEqual("Counter Metric", quickpulsePeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual(2, quickpulsePeriod.PersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(6.0, quickpulsePeriod.PersistentAggregates[0].AggregateData["Sum"]);
 
             measurementMetric.TrackValue(5);
             counterMetric.TrackValue(6);
@@ -346,9 +352,9 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreEqual(0, quickpulsePeriod.NonpersistentAggregates.Count);
             Assert.AreEqual(1, customPeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", ((MetricTelemetry) customPeriod.PersistentAggregates[0]).Name);
-            Assert.AreEqual(2, ((MetricTelemetry) customPeriod.PersistentAggregates[0]).Count);
-            Assert.AreEqual(6, ((MetricTelemetry) customPeriod.PersistentAggregates[0]).Sum);
+            Assert.AreEqual("Counter Metric", customPeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual(2, customPeriod.PersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(6.0, customPeriod.PersistentAggregates[0].AggregateData["Sum"]);
 
             quickpulsePeriod = aggregationManager.StopAggregators(MetricAggregationCycleKind.QuickPulse, dto);
             Assert.IsNotNull(quickpulsePeriod);
@@ -357,9 +363,9 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreEqual(0, quickpulsePeriod.NonpersistentAggregates.Count);
             Assert.AreEqual(1, quickpulsePeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", ((MetricTelemetry) quickpulsePeriod.PersistentAggregates[0]).Name);
-            Assert.AreEqual(3, ((MetricTelemetry) quickpulsePeriod.PersistentAggregates[0]).Count);
-            Assert.AreEqual(12, ((MetricTelemetry) quickpulsePeriod.PersistentAggregates[0]).Sum);
+            Assert.AreEqual("Counter Metric", quickpulsePeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual(3, quickpulsePeriod.PersistentAggregates[0].AggregateData["Count"]);
+            Assert.AreEqual(12.0, quickpulsePeriod.PersistentAggregates[0].AggregateData["Sum"]);
         }
 
         private class AcceptAllFilter : IMetricSeriesFilter

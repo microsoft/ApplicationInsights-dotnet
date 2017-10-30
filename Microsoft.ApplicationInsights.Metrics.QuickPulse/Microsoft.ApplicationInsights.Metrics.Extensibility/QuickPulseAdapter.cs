@@ -25,7 +25,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <param name="tactTimestamp"></param>
         /// <returns></returns>
         public static
-                    Tuple<IReadOnlyList<ITelemetry>, IReadOnlyList<ITelemetry>>
+                    Tuple<IReadOnlyList<MetricAggregate>, IReadOnlyList<MetricAggregate>>
                     StopAggregators(
                                     object metricManager,
                                     int aggregationCycleKind,
@@ -49,7 +49,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <param name="metricSeriesFilter"></param>
         /// <returns></returns>
         public static
-                    Tuple<IReadOnlyList<ITelemetry>, IReadOnlyList<ITelemetry>>
+                    Tuple<IReadOnlyList<MetricAggregate>, IReadOnlyList<MetricAggregate>>
                     StartOrCycleAggregators(
                                      object metricManager,
                                      int aggregationCycleKind,

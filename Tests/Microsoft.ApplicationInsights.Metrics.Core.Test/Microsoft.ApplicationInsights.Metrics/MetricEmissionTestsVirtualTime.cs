@@ -101,21 +101,23 @@ namespace SomeCustomerNamespace
                                                                                                     futureFilter: null);
                     Assert.IsNotNull(aggregatedMetrics);
 
-                    IReadOnlyList<ITelemetry> aggregates = aggregatedMetrics.NonpersistentAggregates;
+                    IReadOnlyList<MetricAggregate> aggregates = aggregatedMetrics.NonpersistentAggregates;
                     Assert.IsNotNull(aggregates);
                     Assert.AreEqual(1, aggregates.Count);
-                    
-                    MetricTelemetry aggregate = (MetricTelemetry) aggregates[0];
+
+                    MetricAggregate aggregate = aggregates[0];
                     Assert.IsNotNull(aggregates);
 
-                    Assert.AreEqual(1, aggregate.Min);
-                    Assert.AreEqual(4, aggregate.Max);
-                    Assert.AreEqual(operationsCount, aggregate.Count);
-                    Assert.AreEqual("Item Add duration", aggregate.Name);
-                    Assert.IsNotNull(aggregate.Properties);
-                    Assert.AreEqual(1, aggregate.Properties.Count);  // The aggregation interval.
-                    Assert.AreEqual(intervalSecs, aggregate.Sum);
-                    Assert.AreEqual(experimentStart.AddSeconds(totalSecs - intervalSecs), aggregate.Timestamp);
+                    Assert.AreEqual(1.0, aggregate.AggregateData["Min"]);
+                    Assert.AreEqual(4.0, aggregate.AggregateData["Max"]);
+                    Assert.AreEqual(operationsCount, aggregate.AggregateData["Count"]);
+                    Assert.AreEqual("Item Add duration", aggregate.MetricId);
+                    Assert.IsNotNull(aggregate.Dimensions);
+                    Assert.IsNotNull(aggregate.AdditionalDataContext);
+                    Assert.AreEqual(0, aggregate.Dimensions.Count);
+                    Assert.AreEqual(0, (aggregate.AdditionalDataContext as TelemetryContext).Properties.Count);
+                    Assert.AreEqual((double) intervalSecs, aggregate.AggregateData["Sum"]);
+                    Assert.AreEqual(experimentStart.AddSeconds(totalSecs - intervalSecs), aggregate.AggregationPeriodStart);
 
                     intervalSecs %= IntervalLengthSecs;
                     operationsCount = 0;
@@ -130,7 +132,7 @@ namespace SomeCustomerNamespace
                                                                                                         futureFilter: null);
                 Assert.IsNotNull(aggregatedMetrics);
 
-                IReadOnlyList<ITelemetry> aggregates = aggregatedMetrics.NonpersistentAggregates;
+                IReadOnlyList<MetricAggregate> aggregates = aggregatedMetrics.NonpersistentAggregates;
                 Assert.IsNotNull(aggregates);
                 Assert.AreEqual(0, aggregates.Count);
             }
@@ -146,20 +148,22 @@ namespace SomeCustomerNamespace
                                                                                                     experimentStart.AddSeconds(totalSecs));
                 Assert.IsNotNull(aggregatedMetrics);
 
-                IReadOnlyList<ITelemetry> aggregates = aggregatedMetrics.NonpersistentAggregates;
+                IReadOnlyList<MetricAggregate> aggregates = aggregatedMetrics.NonpersistentAggregates;
                 Assert.IsNotNull(aggregates);
 
-                MetricTelemetry aggregate = (MetricTelemetry) aggregates[0];
+                MetricAggregate aggregate = aggregates[0];
                 Assert.IsNotNull(aggregates);
 
-                Assert.AreEqual(7, aggregate.Min);
-                Assert.AreEqual(9, aggregate.Max);
-                Assert.AreEqual(3, aggregate.Count);
-                Assert.AreEqual("Item Add duration", aggregate.Name);
-                Assert.IsNotNull(aggregate.Properties);
-                Assert.AreEqual(1, aggregate.Properties.Count); // The aggregation interval
-                Assert.AreEqual(24, aggregate.Sum);
-                Assert.AreEqual(experimentStart.AddSeconds(totalSecs - 24), aggregate.Timestamp);
+                Assert.AreEqual(7.0, aggregate.AggregateData["Min"]);
+                Assert.AreEqual(9.0, aggregate.AggregateData["Max"]);
+                Assert.AreEqual(3, aggregate.AggregateData["Count"]);
+                Assert.AreEqual("Item Add duration", aggregate.MetricId);
+                Assert.IsNotNull(aggregate.Dimensions);
+                Assert.IsNotNull(aggregate.AdditionalDataContext);
+                Assert.AreEqual(0, aggregate.Dimensions.Count);
+                Assert.AreEqual(0, (aggregate.AdditionalDataContext as TelemetryContext).Properties.Count);
+                Assert.AreEqual(24.0, aggregate.AggregateData["Sum"]);
+                Assert.AreEqual(experimentStart.AddSeconds(totalSecs - 24), aggregate.AggregationPeriodStart);
             }
         }
 

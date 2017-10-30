@@ -27,9 +27,9 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreEqual("Foo Bar", series.MetricId);
 
-            Assert.IsNotNull(series.Context);
-            Assert.IsNotNull(series.Context.Properties);
-            Assert.AreEqual(0, series.Context.Properties.Count);
+            Assert.IsNotNull(series.AdditionalDataContext);
+            Assert.IsNotNull(series.AdditionalDataContext.Properties);
+            Assert.AreEqual(0, series.AdditionalDataContext.Properties.Count);
 
             Assert.AreEqual(config, series.GetConfiguration());
             Assert.AreSame(config, series.GetConfiguration());
@@ -62,10 +62,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             DateTimeOffset endTSRounded = DateTimeOffset.Now;
             endTSRounded = new DateTimeOffset(endTSRounded.Year, endTSRounded.Month, endTSRounded.Day, endTSRounded.Hour, endTSRounded.Minute, endTSRounded.Second, 0, endTSRounded.Offset);
 
-
-            Assert.IsInstanceOfType(aggregateCollector[0], typeof(MetricTelemetry));
-
-            Util.ValidateNumericAggregateValues((ITelemetry) aggregateCollector[0], name: "Foo Bar", count: 3, sum: 1.16, max: 0.8, min: -0.04, stdDev: 0.343058142140496);
+            Util.ValidateNumericAggregateValues(aggregateCollector[0], name: "Foo Bar", count: 3, sum: 1.16, max: 0.8, min: -0.04, stdDev: 0.343058142140496);
 
             // Timestamp checks have to be approximate, since we have no possibilityt to get exact timetamps snapped internally.
 
@@ -75,12 +72,12 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreEqual(
                         new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                        ((ITelemetry) aggregateCollector[0]).Timestamp);
+                        aggregateCollector[0].AggregationPeriodStart);
 
             const int millisecsTollerance = 50;
-            string durationMs = ((ITelemetry) aggregateCollector[0]).Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey];
-            Assert.IsNotNull(durationMs);
-            Assert.IsTrue(Math.Abs(Int64.Parse(durationMs) - (endTSRounded - ((ITelemetry) aggregateCollector[0]).Timestamp).TotalMilliseconds) < millisecsTollerance);
+            long durationMs = (long) aggregateCollector[0].AggregationPeriodDuration.TotalMilliseconds;
+
+            Assert.IsTrue(Math.Abs(durationMs - (endTSRounded - aggregateCollector[0].AggregationPeriodStart).TotalMilliseconds) < millisecsTollerance);
 
             Assert.AreEqual(1, aggregateCollector.Count);
             aggregateCollector.Clear();
@@ -118,9 +115,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             DateTimeOffset endTSRounded = DateTimeOffset.Now;
             endTSRounded = new DateTimeOffset(endTSRounded.Year, endTSRounded.Month, endTSRounded.Day, endTSRounded.Hour, endTSRounded.Minute, endTSRounded.Second, 0, endTSRounded.Offset);
 
-            Assert.IsInstanceOfType(aggregateCollector[0], typeof(MetricTelemetry));
-
-            Util.ValidateNumericAggregateValues((ITelemetry) aggregateCollector[0], name: "Foo Bar", count: 3, sum: 1.16, max: 0.8, min: -0.04, stdDev: 0.343058142140496);
+            Util.ValidateNumericAggregateValues(aggregateCollector[0], name: "Foo Bar", count: 3, sum: 1.16, max: 0.8, min: -0.04, stdDev: 0.343058142140496);
 
             // Timestamp checks have to be approximate, since we have no possibilityt to get exact timetamps snapped internally.
 
@@ -130,12 +125,11 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreEqual(
                         new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                        ((ITelemetry) aggregateCollector[0]).Timestamp);
+                        aggregateCollector[0].AggregationPeriodStart);
 
             const int millisecsTollerance = 50;
-            string durationMs = ((ITelemetry) aggregateCollector[0]).Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey];
-            Assert.IsNotNull(durationMs);
-            Assert.IsTrue(Math.Abs(Int64.Parse(durationMs) - (endTSRounded - ((ITelemetry) aggregateCollector[0]).Timestamp).TotalMilliseconds) < millisecsTollerance);
+            long durationMs = (long) aggregateCollector[0].AggregationPeriodDuration.TotalMilliseconds;
+            Assert.IsTrue(Math.Abs(durationMs - (endTSRounded - aggregateCollector[0].AggregationPeriodStart).TotalMilliseconds) < millisecsTollerance);
 
             Util.CompleteDefaultAggregationCycle(manager);
         }
@@ -179,9 +173,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             DateTimeOffset endTS = DateTimeOffset.Now;
 
-            Assert.IsInstanceOfType(aggregateCollector[0], typeof(MetricTelemetry));
-
-            Util.ValidateNumericAggregateValues((ITelemetry) aggregateCollector[0], name: "Foo Bar", count: 4, sum: 1.41, max: 1.07, min: -0.15, stdDev: 0.447681527427702);
+            Util.ValidateNumericAggregateValues(aggregateCollector[0], name: "Foo Bar", count: 4, sum: 1.41, max: 1.07, min: -0.15, stdDev: 0.447681527427702);
 
             // The following might break sometimes!
             // There is a little chance that second boundary is crossed between startTS and the aggregation timestamps are snapped.
@@ -189,11 +181,11 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreNotEqual(
                         new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                        ((ITelemetry) aggregateCollector[0]).Timestamp);
+                        aggregateCollector[0].AggregationPeriodStart);
 
             Assert.AreEqual(
                         new DateTimeOffset(resetTS.Year, resetTS.Month, resetTS.Day, resetTS.Hour, resetTS.Minute, resetTS.Second, 0, resetTS.Offset),
-                        ((ITelemetry) aggregateCollector[0]).Timestamp);
+                        aggregateCollector[0].AggregationPeriodStart);
 
             Util.CompleteDefaultAggregationCycle(manager);
         }
@@ -237,9 +229,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             DateTimeOffset endTS = DateTimeOffset.Now;
 
-            Assert.IsInstanceOfType(aggregateCollector[0], typeof(MetricTelemetry));
-
-            Util.ValidateNumericAggregateValues((ITelemetry) aggregateCollector[0], name: "Foo Bar", count: 4, sum: 1.41, max: 1.07, min: -0.15, stdDev: 0.447681527427702);
+            Util.ValidateNumericAggregateValues(aggregateCollector[0], name: "Foo Bar", count: 4, sum: 1.41, max: 1.07, min: -0.15, stdDev: 0.447681527427702);
 
             // The following might break sometimes!
             // There is a little chance that second boundary is crossed between startTS and the aggregation timestamps are snapped.
@@ -247,11 +237,11 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreNotEqual(
                         new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                        ((ITelemetry) aggregateCollector[0]).Timestamp);
+                        aggregateCollector[0].AggregationPeriodStart);
 
             Assert.AreEqual(
                         new DateTimeOffset(resetTS.Year, resetTS.Month, resetTS.Day, resetTS.Hour, resetTS.Minute, resetTS.Second, 0, resetTS.Offset),
-                        ((ITelemetry) aggregateCollector[0]).Timestamp);
+                        aggregateCollector[0].AggregationPeriodStart);
 
             Util.CompleteDefaultAggregationCycle(manager);
         }
@@ -281,7 +271,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             MetricSeries series = manager.CreateNewSeries("Foo Bar", seriesConfig);
 
             {
-                ITelemetry aggregate = series.GetCurrentAggregateUnsafe();
+                MetricAggregate aggregate = series.GetCurrentAggregateUnsafe();
                 Assert.IsNull(aggregate);
             }
 
@@ -290,9 +280,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             series.TrackValue(-2);
 
             {
-                ITelemetry aggregate = series.GetCurrentAggregateUnsafe();
-                Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
-
+                MetricAggregate aggregate = series.GetCurrentAggregateUnsafe();
                 Util.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 3, sum: 0.4, max: 2, min: -2, stdDev: 1.64384373412506);
 
                 // The following might break sometimes!
@@ -301,7 +289,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 Assert.AreEqual(
                             new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                            aggregate.Timestamp);
+                            aggregate.AggregationPeriodStart);
             }
 
             series.TrackValue(0.17);
@@ -310,8 +298,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             series.TrackValue(1.07);
 
             {
-                ITelemetry aggregate = series.GetCurrentAggregateUnsafe();
-                Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
+                MetricAggregate aggregate = series.GetCurrentAggregateUnsafe();
 
                 Util.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 7, sum: 1.81, max: 2, min: -2, stdDev: 1.13330652229191);
 
@@ -321,7 +308,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 Assert.AreEqual(
                             new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                            aggregate.Timestamp);
+                            aggregate.AggregationPeriodStart);
             }
 
             Thread.Sleep(1500);
@@ -330,8 +317,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             if (seriesConfig.RequiresPersistentAggregation)
             {
-                ITelemetry aggregate = series.GetCurrentAggregateUnsafe();
-                Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
+                MetricAggregate aggregate = series.GetCurrentAggregateUnsafe();
 
                 Util.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 7, sum: 1.81, max: 2, min: -2, stdDev: 1.13330652229191);
 
@@ -341,19 +327,18 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 Assert.AreEqual(
                             new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                            aggregate.Timestamp);
+                            aggregate.AggregationPeriodStart);
             }
             else
             {
-                ITelemetry aggregate = series.GetCurrentAggregateUnsafe();
+                MetricAggregate aggregate = series.GetCurrentAggregateUnsafe();
                 Assert.IsNull(aggregate);
             }
 
             series.TrackValue(0);
 
             {
-                ITelemetry aggregate = series.GetCurrentAggregateUnsafe();
-                Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
+                MetricAggregate aggregate = series.GetCurrentAggregateUnsafe();
 
                 if (seriesConfig.RequiresPersistentAggregation)
                 {
@@ -372,13 +357,13 @@ namespace Microsoft.ApplicationInsights.Metrics
                 {
                     Assert.AreEqual(
                              new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                             aggregate.Timestamp);
+                             aggregate.AggregationPeriodStart);
                 }
                 else
                 {
                     Assert.AreEqual(
                              new DateTimeOffset(flushTS.Year, flushTS.Month, flushTS.Day, flushTS.Hour, flushTS.Minute, flushTS.Second, 0, flushTS.Offset),
-                             aggregate.Timestamp);
+                             aggregate.AggregationPeriodStart);
                 }
             }
 
@@ -413,7 +398,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             DateTimeOffset stepTSRounded = new DateTimeOffset(stepTS.Year, stepTS.Month, stepTS.Day, stepTS.Hour, stepTS.Minute, stepTS.Second, 0, stepTS.Offset);
 
             {
-                ITelemetry aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.Default, stepTS);
+                MetricAggregate aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.Default, stepTS);
                 Assert.IsNull(aggregate);
 
                 aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.Custom, stepTS);
@@ -432,19 +417,18 @@ namespace Microsoft.ApplicationInsights.Metrics
 
 
             {
-                ITelemetry aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.Default, stepTS);
-                Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
+                MetricAggregate aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.Default, stepTS);
 
                 Util.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 3, sum: 0.4, max: 2, min: -2, stdDev: 1.64384373412506);
 
                 // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
                 Assert.AreEqual(
                             new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                            aggregate.Timestamp);
+                            aggregate.AggregationPeriodStart);
 
                 Assert.AreEqual(
-                            (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                            aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                            (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                            aggregate.AggregationPeriodDuration.TotalMilliseconds);
 
                 if (seriesConfig.RequiresPersistentAggregation)
                 {
@@ -454,11 +438,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
                     Assert.AreEqual(
                                 new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                                aggregate.Timestamp);
+                                aggregate.AggregationPeriodStart);
 
                     Assert.AreEqual(
-                                (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                                aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                                (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                                aggregate.AggregationPeriodDuration.TotalMilliseconds);
 
 
                     aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.QuickPulse, stepTS);
@@ -467,11 +451,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
                     Assert.AreEqual(
                                 new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                                aggregate.Timestamp);
+                                aggregate.AggregationPeriodStart);
 
                     Assert.AreEqual(
-                                (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                                aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                                (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                                aggregate.AggregationPeriodDuration.TotalMilliseconds);
                 }
                 else
                 {
@@ -495,8 +479,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             stepTSRounded = new DateTimeOffset(stepTS.Year, stepTS.Month, stepTS.Day, stepTS.Hour, stepTS.Minute, stepTS.Second, 0, stepTS.Offset);
 
             {
-                ITelemetry aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.Default, stepTS);
-                Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
+                MetricAggregate aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.Default, stepTS);
 
                 Util.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 7, sum: 1.81, max: 2, min: -2, stdDev: 1.13330652229191);
 
@@ -504,29 +487,28 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 Assert.AreEqual(
                             new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                            aggregate.Timestamp);
+                            aggregate.AggregationPeriodStart);
 
                 Assert.AreEqual(
-                            (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                            aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                            (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                            aggregate.AggregationPeriodDuration.TotalMilliseconds);
 
 
                 aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.Custom, stepTS);
 
                 if (seriesConfig.RequiresPersistentAggregation)
                 {
-                    Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
                     Util.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 7, sum: 1.81, max: 2, min: -2, stdDev: 1.13330652229191);
 
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
 
                     Assert.AreEqual(
                                 new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                                aggregate.Timestamp);
+                                aggregate.AggregationPeriodStart);
 
                     Assert.AreEqual(
-                                (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                                aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                                (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                                aggregate.AggregationPeriodDuration.TotalMilliseconds);
                 }
                 else
                 {
@@ -536,15 +518,14 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                     Assert.AreEqual(
                                 new DateTimeOffset(customCycleStartTS.Year, customCycleStartTS.Month, customCycleStartTS.Day, customCycleStartTS.Hour, customCycleStartTS.Minute, customCycleStartTS.Second, 0, customCycleStartTS.Offset),
-                                aggregate.Timestamp);
+                                aggregate.AggregationPeriodStart);
 
                     Assert.AreEqual(
-                                (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                                aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                                (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                                aggregate.AggregationPeriodDuration.TotalMilliseconds);
                 }
 
                 aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.QuickPulse, stepTS);
-                Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
 
                 if (seriesConfig.RequiresPersistentAggregation)
                 {
@@ -554,11 +535,11 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                     Assert.AreEqual(
                                 new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                                aggregate.Timestamp);
+                                aggregate.AggregationPeriodStart);
 
                     Assert.AreEqual(
-                                (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                                aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                                (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                                aggregate.AggregationPeriodDuration.TotalMilliseconds);
                 }
                 else
                 {
@@ -578,23 +559,21 @@ namespace Microsoft.ApplicationInsights.Metrics
             stepTSRounded = new DateTimeOffset(stepTS.Year, stepTS.Month, stepTS.Day, stepTS.Hour, stepTS.Minute, stepTS.Second, 0, stepTS.Offset);
 
             {
-                ITelemetry aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.Default, stepTS);
+                MetricAggregate aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.Default, stepTS);
 
                 if (seriesConfig.RequiresPersistentAggregation)
                 {
-                    Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
-
                     Util.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 7, sum: 1.81, max: 2, min: -2, stdDev: 1.13330652229191);
 
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
 
                     Assert.AreEqual(
                                 new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                                aggregate.Timestamp);
+                                aggregate.AggregationPeriodStart);
 
                     Assert.AreEqual(
-                                (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                                aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                                (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                                aggregate.AggregationPeriodDuration.TotalMilliseconds);
                 }
                 else
                 {
@@ -606,19 +585,17 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 if (seriesConfig.RequiresPersistentAggregation)
                 {
-                    Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
-
                     Util.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 7, sum: 1.81, max: 2, min: -2, stdDev: 1.13330652229191);
 
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
 
                     Assert.AreEqual(
                                 new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                                aggregate.Timestamp);
+                                aggregate.AggregationPeriodStart);
 
                     Assert.AreEqual(
-                                (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                                aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                                (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                                aggregate.AggregationPeriodDuration.TotalMilliseconds);
                 }
                 else
                 {
@@ -628,11 +605,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
                     Assert.AreEqual(
                                 new DateTimeOffset(customCycleStartTS.Year, customCycleStartTS.Month, customCycleStartTS.Day, customCycleStartTS.Hour, customCycleStartTS.Minute, customCycleStartTS.Second, 0, customCycleStartTS.Offset),
-                                aggregate.Timestamp);
+                                aggregate.AggregationPeriodStart);
 
                     Assert.AreEqual(
-                                (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                                aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                                (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                                aggregate.AggregationPeriodDuration.TotalMilliseconds);
 
                     manager.StartOrCycleAggregators(MetricAggregationCycleKind.Custom, flushTS, null);
 
@@ -645,19 +622,17 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 if (seriesConfig.RequiresPersistentAggregation)
                 {
-                    Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
-
                     Util.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 7, sum: 1.81, max: 2, min: -2, stdDev: 1.13330652229191);
 
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
 
                     Assert.AreEqual(
                                 new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                                aggregate.Timestamp);
+                                aggregate.AggregationPeriodStart);
 
                     Assert.AreEqual(
-                                (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                                aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                                (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                                aggregate.AggregationPeriodDuration.TotalMilliseconds);
                 }
                 else
                 {
@@ -674,35 +649,33 @@ namespace Microsoft.ApplicationInsights.Metrics
             manager.StopAggregators(MetricAggregationCycleKind.Custom, stepTS);
 
             {
-                ITelemetry aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.Default, stepTS);
+                MetricAggregate aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.Default, stepTS);
 
                 if (seriesConfig.RequiresPersistentAggregation)
                 {
-                    Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
                     Util.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 8, sum: 1.81, max: 2, min: -2, stdDev: 1.06355462365597);
 
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
                     Assert.AreEqual(
                              new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                             aggregate.Timestamp);
+                             aggregate.AggregationPeriodStart);
 
                     Assert.AreEqual(
-                            (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                            aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                                (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                                aggregate.AggregationPeriodDuration.TotalMilliseconds);
                 }
                 else
                 {
-                    Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
                     Util.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 1, sum: 0, max: 0, min: 0, stdDev: 0);
 
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
                     Assert.AreEqual(
                              new DateTimeOffset(flushTS.Year, flushTS.Month, flushTS.Day, flushTS.Hour, flushTS.Minute, flushTS.Second, 0, flushTS.Offset),
-                             aggregate.Timestamp);
+                             aggregate.AggregationPeriodStart);
 
                     Assert.AreEqual(
-                            (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                            aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                                (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                                aggregate.AggregationPeriodDuration.TotalMilliseconds);
                 }
 
 
@@ -710,17 +683,16 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 if (seriesConfig.RequiresPersistentAggregation)
                 {
-                    Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
                     Util.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 8, sum: 1.81, max: 2, min: -2, stdDev: 1.06355462365597);
 
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
                     Assert.AreEqual(
                              new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                             aggregate.Timestamp);
+                             aggregate.AggregationPeriodStart);
 
                     Assert.AreEqual(
-                            (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                            aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                                (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                                aggregate.AggregationPeriodDuration.TotalMilliseconds);
                 }
                 else
                 {
@@ -732,31 +704,29 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 if (seriesConfig.RequiresPersistentAggregation)
                 {
-                    Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
                     Util.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 8, sum: 1.81, max: 2, min: -2, stdDev: 1.06355462365597);
 
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
                     Assert.AreEqual(
                              new DateTimeOffset(startTS.Year, startTS.Month, startTS.Day, startTS.Hour, startTS.Minute, startTS.Second, 0, startTS.Offset),
-                             aggregate.Timestamp);
+                             aggregate.AggregationPeriodStart);
 
                     Assert.AreEqual(
-                            (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                            aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                                (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                                aggregate.AggregationPeriodDuration.TotalMilliseconds);
                 }
                 else
                 {
-                    Assert.IsInstanceOfType(aggregate, typeof(MetricTelemetry));
                     Util.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 1, sum: 0, max: 0, min: 0, stdDev: 0);
 
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
                     Assert.AreEqual(
                              new DateTimeOffset(quickPulseCycleStartTS.Year, quickPulseCycleStartTS.Month, quickPulseCycleStartTS.Day, quickPulseCycleStartTS.Hour, quickPulseCycleStartTS.Minute, quickPulseCycleStartTS.Second, 0, quickPulseCycleStartTS.Offset),
-                             aggregate.Timestamp);
+                             aggregate.AggregationPeriodStart);
 
                     Assert.AreEqual(
-                            (stepTSRounded - aggregate.Timestamp).TotalMilliseconds.ToString(),
-                            aggregate.Context?.Properties?[Util.AggregationIntervalMonikerPropertyKey]);
+                                (stepTSRounded - aggregate.AggregationPeriodStart).TotalMilliseconds,
+                                aggregate.AggregationPeriodDuration.TotalMilliseconds);
                 }
             }
 

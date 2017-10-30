@@ -158,14 +158,14 @@ namespace Microsoft.ApplicationInsights.Metrics
                 prevAggregators = Interlocked.Exchange(ref aggregators, nextAggregators);
             }
 
-            List<ITelemetry> persistentValsAggregations = GetPersistentAggregations(tactTimestamp, prevAggregators?.Filter);
-            List<ITelemetry> nonpersistentAggregations = GetNonpersistentAggregations(tactTimestamp, prevAggregators);
+            List<MetricAggregate> persistentValsAggregations = GetPersistentAggregations(tactTimestamp, prevAggregators?.Filter);
+            List<MetricAggregate> nonpersistentAggregations = GetNonpersistentAggregations(tactTimestamp, prevAggregators);
 
             var summary = new AggregationPeriodSummary(persistentValsAggregations, nonpersistentAggregations);
             return summary;
         }
 
-        private List<ITelemetry> GetPersistentAggregations(DateTimeOffset tactTimestamp, IMetricSeriesFilter previousFilter)
+        private List<MetricAggregate> GetPersistentAggregations(DateTimeOffset tactTimestamp, IMetricSeriesFilter previousFilter)
         {
             // Complete each persistent aggregator:
             // The Enumerator of GrowingCollection is a thread-safe lock-free implementation that operates on a "snapshot" of a collection taken at the
@@ -173,7 +173,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // enumerator's Count property which is constsent with the data in the snapshot.
 
             GrowingCollection<IMetricSeriesAggregator>.Enumerator persistentValsAggregators = _aggregatorsForPersistent.Aggregators.GetEnumerator();
-            List<ITelemetry> persistentValsAggregations = new List<ITelemetry>(capacity: persistentValsAggregators.Count);
+            List<MetricAggregate> persistentValsAggregations = new List<MetricAggregate>(capacity: persistentValsAggregators.Count);
             try
             {
                 while (persistentValsAggregators.MoveNext())
@@ -190,7 +190,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                (previousFilter.WillConsume(aggregator.DataSeries, out unusedValueFilter));
                         if (satisfiesFilter)
                         {
-                            ITelemetry aggregate = aggregator.CompleteAggregation(tactTimestamp);
+                            MetricAggregate aggregate = aggregator.CompleteAggregation(tactTimestamp);
                             persistentValsAggregations.Add(aggregate);
                         }
                     }
@@ -204,7 +204,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             return persistentValsAggregations;
         }
 
-        private List<ITelemetry> GetNonpersistentAggregations(DateTimeOffset tactTimestamp, AggregatorCollection aggregators)
+        private List<MetricAggregate> GetNonpersistentAggregations(DateTimeOffset tactTimestamp, AggregatorCollection aggregators)
         {
             // Complete each non-persistent aggregator:
             // (we snapshotted the entire collection, so Count is stable)
@@ -213,16 +213,16 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             if (null == actualAggregators || 0 == actualAggregators.Count)
             {
-                return new List<ITelemetry>(capacity: 0);
+                return new List<MetricAggregate>(capacity: 0);
             }
 
-            List<ITelemetry> nonpersistentAggregations = new List<ITelemetry>(capacity: actualAggregators.Count);
+            List<MetricAggregate> nonpersistentAggregations = new List<MetricAggregate>(capacity: actualAggregators.Count);
 
             foreach (IMetricSeriesAggregator aggregator in actualAggregators)
             {
                 if (aggregator != null)
                 {
-                    ITelemetry aggregate = aggregator.CompleteAggregation(tactTimestamp);
+                    MetricAggregate aggregate = aggregator.CompleteAggregation(tactTimestamp);
                     nonpersistentAggregations.Add(aggregate);
                 }
             }

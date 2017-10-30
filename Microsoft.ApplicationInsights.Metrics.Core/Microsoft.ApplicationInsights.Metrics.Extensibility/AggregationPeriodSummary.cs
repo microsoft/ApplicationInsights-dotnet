@@ -14,7 +14,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// </summary>
         /// <param name="persistentAggregates"></param>
         /// <param name="nonpersistentAggregates"></param>
-        public AggregationPeriodSummary(IReadOnlyList<ITelemetry> persistentAggregates, IReadOnlyList<ITelemetry> nonpersistentAggregates)
+        public AggregationPeriodSummary(IReadOnlyList<MetricAggregate> persistentAggregates, IReadOnlyList<MetricAggregate> nonpersistentAggregates)
         {
             PersistentAggregates = persistentAggregates;
             NonpersistentAggregates = nonpersistentAggregates;
@@ -23,11 +23,11 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <summary>
         /// 
         /// </summary>
-        public IReadOnlyList<ITelemetry> PersistentAggregates { get; }
+        public IReadOnlyList<MetricAggregate> PersistentAggregates { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        public IReadOnlyList<ITelemetry> NonpersistentAggregates { get; }
+        public IReadOnlyList<MetricAggregate> NonpersistentAggregates { get; }
     }
 }

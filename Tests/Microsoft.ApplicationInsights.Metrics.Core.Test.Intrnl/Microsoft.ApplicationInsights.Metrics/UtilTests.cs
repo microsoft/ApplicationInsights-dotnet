@@ -72,7 +72,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 TelemetryContext source = new TelemetryContext();
                 TelemetryContext target = new TelemetryContext();
 
-#pragma warning disable 618     // Even Obsolete Context fields must be copied correctly!
+#pragma warning disable 618     // Even Obsolete AdditionalDataContext fields must be copied correctly!
                 source.Cloud.RoleInstance = "A";
                 source.Cloud.RoleName = "B";
                 source.Component.Version = "C";
@@ -115,7 +115,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual("I", target.Device.OperatingSystem);
                 Assert.AreEqual("J", target.Device.ScreenResolution);
                 Assert.AreEqual("K", target.Device.Type);
-                Assert.AreEqual(String.Empty, target.InstrumentationKey);
+                Assert.AreEqual("L", target.InstrumentationKey);
                 Assert.AreEqual("M", target.Location.Ip);
                 Assert.AreEqual("N", target.Operation.Id);
                 Assert.AreEqual("O", target.Operation.Name);

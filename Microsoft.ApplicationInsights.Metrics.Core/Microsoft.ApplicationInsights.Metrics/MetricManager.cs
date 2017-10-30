@@ -62,7 +62,23 @@ namespace Microsoft.ApplicationInsights.Metrics
             Util.ValidateNotNull(metricId, nameof(metricId));
             Util.ValidateNotNull(config, nameof(config));
 
-            var dataSeries = new MetricSeries(_aggregationManager, metricId, config);
+            var dataSeries = new MetricSeries(_aggregationManager, metricId, null, config);
+            return dataSeries;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricId"></param>
+        /// <param name="dimensionNamesAndValues"></param>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public MetricSeries CreateNewSeries(string metricId, IEnumerable<KeyValuePair<string, string>> dimensionNamesAndValues, IMetricSeriesConfiguration config)
+        {
+            Util.ValidateNotNull(metricId, nameof(metricId));
+            Util.ValidateNotNull(config, nameof(config));
+
+            var dataSeries = new MetricSeries(_aggregationManager, metricId, dimensionNamesAndValues, config);
             return dataSeries;
         }
 
@@ -98,7 +114,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             if (nonpersistentAggregatesCount != 0)
             {
-                foreach (ITelemetry telemetryItem in aggregates.NonpersistentAggregates)
+                foreach (MetricAggregate telemetryItem in aggregates.NonpersistentAggregates)
                 {
                     if (telemetryItem != null)
                     {
@@ -110,7 +126,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             if (aggregates.PersistentAggregates != null && aggregates.PersistentAggregates.Count != 0)
             {
-                foreach (ITelemetry telemetryItem in aggregates.PersistentAggregates)
+                foreach (MetricAggregate telemetryItem in aggregates.PersistentAggregates)
                 {
                     if (telemetryItem != null)
                     {

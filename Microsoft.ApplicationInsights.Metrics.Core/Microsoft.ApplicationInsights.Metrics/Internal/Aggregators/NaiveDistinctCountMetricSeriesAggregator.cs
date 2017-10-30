@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using System.Collections.Concurrent;
 using System.Threading;
+
+using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -42,21 +39,22 @@ namespace Microsoft.ApplicationInsights.Metrics
             _caseSensitive = configuration.IsCaseSensitiveDistinctions;
         }
 
-        public override ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd)
+        public override MetricAggregate CreateAggregateUnsafe(DateTimeOffset periodEnd)
         {
             int uniqueValuesCount = _uniqueValues.Count;
             int totalValuesCount = Volatile.Read(ref _totalValuesCount);
 
-            MetricTelemetry aggregate = new MetricTelemetry(
-                                                    name: DataSeries?.MetricId ?? Util.NullString,
-                                                    count: totalValuesCount,
-                                                    sum: uniqueValuesCount,
-                                                    min: 0,
-                                                    max: 0,
-                                                    standardDeviation: 0);
+            MetricAggregate aggregate = new MetricAggregate(
+                                                DataSeries?.MetricId ?? Util.NullString,
+                                                MetricAggregationKinds.SimpleMeasurement.Moniker);
 
-            StampTimingInfo(aggregate, periodEnd);
-            StampVersionAndContextInfo(aggregate);
+            aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Count] = totalValuesCount;
+            aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Sum] = (double) uniqueValuesCount;
+            aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Min] = 0.0;
+            aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Max] = 0.0;
+            aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.StdDev] = 0.0;
+
+            AddInfo_Timing_Dimensions_Context(aggregate, periodEnd);
 
             return aggregate;
         }

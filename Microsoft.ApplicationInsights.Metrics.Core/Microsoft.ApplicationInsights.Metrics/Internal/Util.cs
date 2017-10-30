@@ -85,6 +85,13 @@ namespace Microsoft.ApplicationInsights.Metrics
                     }
                 }
             }
+
+            // Copy iKey:
+
+            if (source.InstrumentationKey != null)
+            {
+                target.InstrumentationKey = source.InstrumentationKey;
+            }
         }
 
         public static void StampSdkVersionToContext(ITelemetry aggregate)

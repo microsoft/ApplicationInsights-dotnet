@@ -48,7 +48,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void CaseSensitivity()
         {
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
-            var periodString = ((long) ((endTS - default(DateTimeOffset)).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
+            long periodMillis = (long) (endTS - default(DateTimeOffset)).TotalMilliseconds;
 
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
@@ -62,8 +62,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 aggregator.TrackValue("bar");
                 aggregator.TrackValue("Foo");
 
-                ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 5, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                MetricAggregate aggregate = aggregator.CreateAggregateUnsafe(endTS);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 5, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
             }
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
@@ -77,8 +77,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 aggregator.TrackValue("bar");
                 aggregator.TrackValue("Foo");
 
-                ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 5, sum: 4, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                MetricAggregate aggregate = aggregator.CreateAggregateUnsafe(endTS);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 5, sum: 4, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
             }
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
@@ -92,8 +92,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 aggregator.TrackValue("bar");
                 aggregator.TrackValue("Foo");
 
-                ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 5, sum: 4, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                MetricAggregate aggregate = aggregator.CreateAggregateUnsafe(endTS);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 5, sum: 4, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
             }
         }
 
@@ -102,7 +102,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void TrackValueDouble()
         {
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
-            var periodString = ((long) ((endTS - default(DateTimeOffset)).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
+            long periodMillis = (long) (endTS - default(DateTimeOffset)).TotalMilliseconds;
 
             var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                 new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false),
@@ -111,49 +111,49 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             aggregator.TrackValue(-42);
 
-            ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
-            ValidateNumericAggregateValues(aggregate, name: "null", count: 1, sum: 1, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodString);
+            MetricAggregate aggregate = aggregator.CreateAggregateUnsafe(endTS);
+            ValidateNumericAggregateValues(aggregate, name: "null", count: 1, sum: 1, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
             aggregator.TrackValue(58 - 100);
             aggregator.TrackValue("-42");
 
             aggregate = aggregator.CreateAggregateUnsafe(endTS);
-            ValidateNumericAggregateValues(aggregate, name: "null", count: 3, sum: 1, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodString);
+            ValidateNumericAggregateValues(aggregate, name: "null", count: 3, sum: 1, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
             aggregator.TrackValue(-42.0);
 
             aggregate = aggregator.CreateAggregateUnsafe(endTS);
-            ValidateNumericAggregateValues(aggregate, name: "null", count: 4, sum: 1, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodString);
+            ValidateNumericAggregateValues(aggregate, name: "null", count: 4, sum: 1, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
             aggregator.TrackValue(-42.0000);
             aggregator.TrackValue(58.0 - 100);
             aggregator.TrackValue(58.5 - 100.5);
 
             aggregate = aggregator.CreateAggregateUnsafe(endTS);
-            ValidateNumericAggregateValues(aggregate, name: "null", count: 7, sum: 1, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodString);
+            ValidateNumericAggregateValues(aggregate, name: "null", count: 7, sum: 1, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
             aggregator.TrackValue("-42.0");
 
             aggregate = aggregator.CreateAggregateUnsafe(endTS);
-            ValidateNumericAggregateValues(aggregate, name: "null", count: 8, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodString);
+            ValidateNumericAggregateValues(aggregate, name: "null", count: 8, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
             aggregator.TrackValue(42);
 
             aggregate = aggregator.CreateAggregateUnsafe(endTS);
-            ValidateNumericAggregateValues(aggregate, name: "null", count: 9, sum: 3, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodString);
+            ValidateNumericAggregateValues(aggregate, name: "null", count: 9, sum: 3, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
             aggregator.TrackValue("42");
             aggregator.TrackValue("   42 \t");
 
             aggregate = aggregator.CreateAggregateUnsafe(endTS);
-            ValidateNumericAggregateValues(aggregate, name: "null", count: 11, sum: 3, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodString);
+            ValidateNumericAggregateValues(aggregate, name: "null", count: 11, sum: 3, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
             aggregator.TrackValue(Double.NaN);
             aggregator.TrackValue(Double.PositiveInfinity);
             aggregator.TrackValue(Double.NegativeInfinity);
 
             aggregate = aggregator.CreateAggregateUnsafe(endTS);
-            ValidateNumericAggregateValues(aggregate, name: "null", count: 14, sum: 6, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodString);
+            ValidateNumericAggregateValues(aggregate, name: "null", count: 14, sum: 6, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
         }
 
         /// <summary />
@@ -161,7 +161,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void TrackValueObject()
         {
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
-            var periodString = ((long) ((endTS - default(DateTimeOffset)).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
+            long periodMillis = (long) (endTS - default(DateTimeOffset)).TotalMilliseconds;
 
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
@@ -169,61 +169,61 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
-                ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0.0, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                MetricAggregate aggregate = aggregator.CreateAggregateUnsafe(endTS);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0.0, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
                 aggregator.TrackValue(null);
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 1, sum: 1, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 1, sum: 1, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
                 aggregator.TrackValue("null");
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 2, sum: 1, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 2, sum: 1, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
                 aggregator.TrackValue("Foo");
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 3, sum: 2, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 3, sum: 2, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
                 aggregator.TrackValue(" Foo\n");
                 aggregator.TrackValue(" \t Foo\n\r");
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 5, sum: 2, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 5, sum: 2, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
                 aggregator.TrackValue(new Stringer( () => "Foo" ));
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 6, sum: 2, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 6, sum: 2, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
                 aggregator.TrackValue(new Stringer( () => "BAR" ));
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 7, sum: 3, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 7, sum: 3, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
                 aggregator.TrackValue('\n' + "BAR" + "   ");
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 8, sum: 3, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 8, sum: 3, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
                 aggregator.TrackValue(new Stringer( () => "" ));
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 9, sum: 4, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 9, sum: 4, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
                 aggregator.TrackValue(new Stringer( () => String.Empty ));
                 aggregator.TrackValue(new Stringer( () => "    " ));
                 aggregator.TrackValue(new Stringer( () => "\t" ));
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 12, sum: 4, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 12, sum: 4, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
                 aggregator.TrackValue(new Stringer( () => "\0" ));
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 13, sum: 5, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 13, sum: 5, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
             }
             {
@@ -232,8 +232,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
-                ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0.0, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                MetricAggregate aggregate = aggregator.CreateAggregateUnsafe(endTS);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0.0, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
                 for (int i = 0; i < 100000; i++)
                 {
@@ -255,7 +255,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 10000000, sum: 100, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 10000000, sum: 100, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
             }
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
@@ -263,8 +263,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
-                ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0.0, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                MetricAggregate aggregate = aggregator.CreateAggregateUnsafe(endTS);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0.0, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
 
                 for (int i = 0; i < 100000; i++)
                 {
@@ -286,11 +286,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 10000000, sum: 50, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodString);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 10000000, sum: 50, max: 0.0, min: 0.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodMillis);
             }
         }
 
-        private static void ValidateNumericAggregateValues(ITelemetry aggregate, string name, int count, double sum, double max, double min, double stdDev, DateTimeOffset timestamp, string periodMs)
+        private static void ValidateNumericAggregateValues(MetricAggregate aggregate, string name, int count, double sum, double max, double min, double stdDev, DateTimeOffset timestamp, long periodMs)
         {
             TestUtil.Util.ValidateNumericAggregateValues(aggregate, name, count, sum, max, min, stdDev, timestamp, periodMs);
         }
@@ -301,7 +301,14 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             var aggregationManager = new MetricAggregationManager();
             var seriesConfig = new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false);
-            var metric = new MetricSeries(aggregationManager, "Distinct Cows Sold", seriesConfig);
+            var metric = new MetricSeries(
+                                aggregationManager,
+                                "Distinct Cows Sold",
+                                new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("Dim 1", "DV1"),
+                                                                     new KeyValuePair<string, string>("Dim 2", "DV2"),
+                                                                     new KeyValuePair<string, string>("Dim 3", "DV3"),
+                                                                     new KeyValuePair<string, string>("Dim 2", "DV2a")},
+                                seriesConfig);
 
             var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     (NaiveDistinctCountMetricSeriesConfiguration) metric.GetConfiguration(),
@@ -313,59 +320,70 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             aggregator.Reset(startTS, valueFilter: null);
 
-            metric.Context.Component.Version = "C";
-            metric.Context.Device.Id = "D";
-            metric.Context.InstrumentationKey = "L";
-            metric.Context.Location.Ip = "M";
-            metric.Context.Operation.Id = "N";
-            metric.Context.Session.Id = "R";
-            metric.Context.User.AccountId = "S";
-            metric.Context.Properties["Dim 1"] = "W";
-            metric.Context.Properties["Dim 2"] = "X";
-            metric.Context.Properties["Dim 3"] = "Y";
+            metric.AdditionalDataContext.Component.Version = "C";
+            metric.AdditionalDataContext.Device.Id = "D";
+            metric.AdditionalDataContext.InstrumentationKey = "L";
+            metric.AdditionalDataContext.Location.Ip = "M";
+            metric.AdditionalDataContext.Operation.Id = "N";
+            metric.AdditionalDataContext.Session.Id = "R";
+            metric.AdditionalDataContext.User.AccountId = "S";
+            metric.AdditionalDataContext.Properties["Prop 1"] = "W";
+            metric.AdditionalDataContext.Properties["Prop 2"] = "X";
+            metric.AdditionalDataContext.Properties["Dim 1"] = "Y";
 
             aggregator.TrackValue("Foo");
             aggregator.TrackValue("Bar");
             aggregator.TrackValue("Foo");
 
-            ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
+            MetricAggregate aggregate = aggregator.CreateAggregateUnsafe(endTS);
             Assert.IsNotNull(aggregate);
 
-            MetricTelemetry metricAggregate = aggregate as MetricTelemetry;
-            Assert.IsNotNull(metricAggregate);
+            Assert.AreEqual("Distinct Cows Sold", aggregate.MetricId, "aggregate.MetricId mismatch");
+            Assert.AreEqual(3, aggregate.AggregateData["Count"], "aggregate.AggregateData[Count] mismatch");
+            Assert.AreEqual(2, (double) aggregate.AggregateData["Sum"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.AggregateData[Sum] mismatch");
+            Assert.AreEqual(0, (double) aggregate.AggregateData["Max"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.AggregateData[Max] mismatch");
+            Assert.AreEqual(0, (double) aggregate.AggregateData["Min"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.AggregateData[Min] mismatch");
+            Assert.AreEqual(0, (double) aggregate.AggregateData["StdDev"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.AggregateData[StdDev] mismatch");
 
-            Assert.AreEqual("Distinct Cows Sold", metricAggregate.Name, "metricAggregate.Name mismatch");
-            Assert.AreEqual(3, metricAggregate.Count, "metricAggregate.Count mismatch");
-            Assert.AreEqual(2, metricAggregate.Sum, TestUtil.Util.MaxAllowedPrecisionError, "metricAggregate.Sum mismatch");
-            Assert.AreEqual(0, metricAggregate.Max.Value, TestUtil.Util.MaxAllowedPrecisionError, "metricAggregate.Max mismatch");
-            Assert.AreEqual(0, metricAggregate.Min.Value, TestUtil.Util.MaxAllowedPrecisionError, "metricAggregate.Min mismatch");
-            Assert.AreEqual(0, metricAggregate.StandardDeviation.Value, TestUtil.Util.MaxAllowedPrecisionError, "metricAggregate.StandardDeviation mismatch");
-
-            Assert.AreEqual(startTS, metricAggregate.Timestamp, "metricAggregate.Timestamp mismatch");
+            Assert.AreEqual(startTS, aggregate.AggregationPeriodStart, "metricAggregate.Timestamp mismatch");
             Assert.AreEqual(
-                        ((long) ((endTS - startTS).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture),
-                        metricAggregate?.Properties?[TestUtil.Util.AggregationIntervalMonikerPropertyKey],
-                        "metricAggregate.Properties[AggregationIntervalMonikerPropertyKey] mismatch");
+                        (endTS - startTS).TotalMilliseconds,
+                        aggregate.AggregationPeriodDuration.TotalMilliseconds,
+                        "aggregate.AggregationPeriodDuration mismatch");
 
-            Assert.AreEqual("C", metricAggregate.Context.Component.Version);
-            Assert.AreEqual("D", metricAggregate.Context.Device.Id);
-            Assert.AreEqual(String.Empty, metricAggregate.Context.InstrumentationKey);
-            Assert.AreEqual("M", metricAggregate.Context.Location.Ip);
-            Assert.AreEqual("N", metricAggregate.Context.Operation.Id);
-            Assert.AreEqual("R", metricAggregate.Context.Session.Id);
-            Assert.AreEqual("S", metricAggregate.Context.User.AccountId);
+            Assert.IsNotNull(aggregate.AdditionalDataContext);
+            Assert.IsInstanceOfType(aggregate.AdditionalDataContext, typeof(TelemetryContext));
 
-            Assert.IsTrue(metricAggregate.Context.Properties.ContainsKey("Dim 1"));
-            Assert.AreEqual("W", metricAggregate.Context.Properties["Dim 1"]);
+            Assert.AreEqual("C", ((TelemetryContext) aggregate.AdditionalDataContext).Component.Version);
+            Assert.AreEqual("D", ((TelemetryContext) aggregate.AdditionalDataContext).Device.Id);
+            Assert.AreEqual("L", ((TelemetryContext) aggregate.AdditionalDataContext).InstrumentationKey);
+            Assert.AreEqual("M", ((TelemetryContext) aggregate.AdditionalDataContext).Location.Ip);
+            Assert.AreEqual("N", ((TelemetryContext) aggregate.AdditionalDataContext).Operation.Id);
+            Assert.AreEqual("R", ((TelemetryContext) aggregate.AdditionalDataContext).Session.Id);
+            Assert.AreEqual("S", ((TelemetryContext) aggregate.AdditionalDataContext).User.AccountId);
 
-            Assert.IsTrue(metricAggregate.Context.Properties.ContainsKey("Dim 2"));
-            Assert.AreEqual("X", metricAggregate.Context.Properties["Dim 2"]);
+            Assert.AreEqual(3, ((TelemetryContext) aggregate.AdditionalDataContext).Properties.Count);
 
-            Assert.IsTrue(metricAggregate.Context.Properties.ContainsKey("Dim 3"));
-            Assert.AreEqual("Y", metricAggregate.Context.Properties["Dim 3"]);
+            Assert.IsTrue(((TelemetryContext) aggregate.AdditionalDataContext).Properties.ContainsKey("Prop 1"));
+            Assert.AreEqual("W", ((TelemetryContext) aggregate.AdditionalDataContext).Properties["Prop 1"]);
 
-            Assert.IsNotNull(metricAggregate.Context.GetInternalContext());
-            TestUtil.Util.ValidateSdkVersionString(metricAggregate.Context.GetInternalContext().SdkVersion);
+            Assert.IsTrue(((TelemetryContext) aggregate.AdditionalDataContext).Properties.ContainsKey("Prop 2"));
+            Assert.AreEqual("X", ((TelemetryContext) aggregate.AdditionalDataContext).Properties["Prop 2"]);
+
+            Assert.IsTrue(((TelemetryContext) aggregate.AdditionalDataContext).Properties.ContainsKey("Dim 1"));
+            Assert.AreEqual("Y", ((TelemetryContext) aggregate.AdditionalDataContext).Properties["Dim 1"]);
+
+            Assert.AreEqual(3, aggregate.Dimensions.Count);
+
+            Assert.IsTrue(aggregate.Dimensions.ContainsKey("Dim 1"));
+            Assert.AreEqual("DV1", aggregate.Dimensions["Dim 1"]);
+
+            Assert.IsTrue(aggregate.Dimensions.ContainsKey("Dim 2"));
+            Assert.AreEqual("DV2a", aggregate.Dimensions["Dim 2"]);
+
+            Assert.IsTrue(aggregate.Dimensions.ContainsKey("Dim 3"));
+            Assert.AreEqual("DV3", aggregate.Dimensions["Dim 3"]);
+
         }
 
         /// <summary />
@@ -385,8 +403,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
 
-            var periodStringDef = ((long) ((endTS - default(DateTimeOffset)).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
-            var periodStringStart = ((long) ((endTS - startTS).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
+            long periodMillisDef = (long) (endTS - default(DateTimeOffset)).TotalMilliseconds;
+            long periodMillisStart = (long) (endTS - startTS).TotalMilliseconds;
 
 
             {
@@ -396,20 +414,20 @@ namespace Microsoft.ApplicationInsights.Metrics
                 measurementAggregator.TrackValue(20);
                 measurementAggregator.TrackValue(10);
 
-                ITelemetry aggregate = measurementAggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodStringStart);
+                MetricAggregate aggregate = measurementAggregator.CreateAggregateUnsafe(endTS);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodMillisStart);
 
                 bool canRecycle = measurementAggregator.TryRecycle();
                 Assert.IsTrue(canRecycle);
 
                 aggregate = measurementAggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodStringDef);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillisDef);
 
                 canRecycle = measurementAggregator.TryRecycle();
                 Assert.IsTrue(canRecycle);
 
                 aggregate = measurementAggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodStringDef);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillisDef);
             }
             {
                 counterAggregator.Reset(startTS, valueFilter: null);
@@ -418,14 +436,14 @@ namespace Microsoft.ApplicationInsights.Metrics
                 counterAggregator.TrackValue(-20);
                 counterAggregator.TrackValue(-10);
 
-                ITelemetry aggregate = counterAggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodStringStart);
+                MetricAggregate aggregate = counterAggregator.CreateAggregateUnsafe(endTS);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodMillisStart);
 
                 bool canRecycle = counterAggregator.TryRecycle();
                 Assert.IsFalse(canRecycle);
 
                 aggregate = counterAggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodStringStart);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodMillisStart);
             }
         }
 
@@ -435,7 +453,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             var aggregationManager = new MetricAggregationManager();
             var seriesConfig = new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false);
-            var metric = new MetricSeries(aggregationManager, "Cows Sold", seriesConfig);
+            var metric = new MetricSeries(aggregationManager, "Cows Sold", null, seriesConfig);
 
             var aggregatorForConcreteSeries = new NaiveDistinctCountMetricSeriesAggregator(
                                                     (NaiveDistinctCountMetricSeriesConfiguration) metric.GetConfiguration(),
@@ -460,8 +478,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
 
-            var periodStringDef = ((long) ((endTS - default(DateTimeOffset)).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
-            var periodStringStart = ((long) ((endTS - startTS).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
+            long periodMillisDef = (long) (endTS - default(DateTimeOffset)).TotalMilliseconds;
+            long periodMillisStart = (long) (endTS - startTS).TotalMilliseconds;
 
             {
                 // Measurement:
@@ -477,8 +495,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 aggregator.TrackValue("Cow 2");
                 aggregator.TrackValue("Cow 2");
 
-                ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodStringDef);
+                MetricAggregate aggregate = aggregator.CreateAggregateUnsafe(endTS);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillisDef);
                 Assert.AreEqual(0, filterDoubleInvocationsCount);
                 Assert.AreEqual(0, filterObjectInvocationsCount);
 
@@ -489,7 +507,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                                                filterFunctionObject: (s, v) => { filterObjectInvocationsCount++; return true; }));
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodStringStart);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodMillisStart);
                 Assert.AreEqual(0, filterDoubleInvocationsCount);
                 Assert.AreEqual(0, filterObjectInvocationsCount);
 
@@ -499,7 +517,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 aggregator.TrackValue("Cow 4");
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 4, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodStringStart);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 4, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodMillisStart);
                 Assert.AreEqual(0, filterDoubleInvocationsCount);
                 Assert.AreEqual(4, filterObjectInvocationsCount);
             }
@@ -517,8 +535,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 aggregator.TrackValue("Cow 2");
                 aggregator.TrackValue("Cow 2");
 
-                ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodStringDef);
+                MetricAggregate aggregate = aggregator.CreateAggregateUnsafe(endTS);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodMillisDef);
                 Assert.AreEqual(0, filterDoubleInvocationsCount);
                 Assert.AreEqual(0, filterObjectInvocationsCount);
 
@@ -529,7 +547,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                                                filterFunctionObject: (s, v) => { filterObjectInvocationsCount++; return true; }));
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodStringStart);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodMillisStart);
                 Assert.AreEqual(0, filterDoubleInvocationsCount);
                 Assert.AreEqual(0, filterObjectInvocationsCount);
 
@@ -539,7 +557,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 aggregator.TrackValue("Cow 4");
 
                 aggregate = aggregator.CreateAggregateUnsafe(endTS);
-                ValidateNumericAggregateValues(aggregate, name: "null", count: 4, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodStringStart);
+                ValidateNumericAggregateValues(aggregate, name: "null", count: 4, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodMillisStart);
                 Assert.AreEqual(0, filterDoubleInvocationsCount);
                 Assert.AreEqual(4, filterObjectInvocationsCount);
             }
@@ -553,7 +571,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var aggregationManager = new MetricAggregationManager();
 
             var mesurementConfig = new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false);
-            var measurementMetric = new MetricSeries(aggregationManager, "Unique Cows Sold", mesurementConfig);
+            var measurementMetric = new MetricSeries(aggregationManager, "Unique Cows Sold", null, mesurementConfig);
 
             var measurementAggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     (NaiveDistinctCountMetricSeriesConfiguration) measurementMetric.GetConfiguration(),
@@ -561,7 +579,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                     CycleKind.Custom);
 
             var counterConfig = new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: true);
-            var counterMetric = new MetricSeries(aggregationManager, "Unique Cows Sold", counterConfig);
+            var counterMetric = new MetricSeries(aggregationManager, "Unique Cows Sold", null, counterConfig);
 
             var counterAggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     (NaiveDistinctCountMetricSeriesConfiguration) counterMetric.GetConfiguration(),
@@ -570,7 +588,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
-            var periodString = ((long) ((endTS - startTS).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
+            long periodMillis = (long) (endTS - startTS).TotalMilliseconds;
 
             int filterDoubleInvocationsCount = 0;
             int filterObjectInvocationsCount = 0;
@@ -588,8 +606,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             measurementAggregator.TrackValue("2");
             measurementAggregator.TrackValue(2);
 
-            ITelemetry aggregate = measurementAggregator.CompleteAggregation(endTS);
-            ValidateNumericAggregateValues(aggregate, name: "Unique Cows Sold", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodString);
+            MetricAggregate aggregate = measurementAggregator.CompleteAggregation(endTS);
+            ValidateNumericAggregateValues(aggregate, name: "Unique Cows Sold", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodMillis);
             Assert.AreEqual(2, filterDoubleInvocationsCount);
             Assert.AreEqual(1, filterObjectInvocationsCount);
 
@@ -597,7 +615,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             measurementAggregator.TrackValue(4);
 
             aggregate = measurementAggregator.CompleteAggregation(endTS);
-            ValidateNumericAggregateValues(aggregate, name: "Unique Cows Sold", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodString);
+            ValidateNumericAggregateValues(aggregate, name: "Unique Cows Sold", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodMillis);
             Assert.AreEqual(2, filterDoubleInvocationsCount);
             Assert.AreEqual(1, filterObjectInvocationsCount);
 
@@ -618,7 +636,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             counterAggregator.TrackValue("1");
 
             aggregate = counterAggregator.CompleteAggregation(endTS);
-            ValidateNumericAggregateValues(aggregate, name: "Unique Cows Sold", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodString);
+            ValidateNumericAggregateValues(aggregate, name: "Unique Cows Sold", count: 3, sum: 2, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodMillis);
             Assert.AreEqual(1, filterDoubleInvocationsCount);
             Assert.AreEqual(2, filterObjectInvocationsCount);
 
@@ -626,7 +644,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             counterAggregator.TrackValue(4);
 
             aggregate = counterAggregator.CompleteAggregation(endTS);
-            ValidateNumericAggregateValues(aggregate, name: "Unique Cows Sold", count: 5, sum: 4, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodString);
+            ValidateNumericAggregateValues(aggregate, name: "Unique Cows Sold", count: 5, sum: 4, max: 0, min: 0, stdDev: 0, timestamp: startTS, periodMs: periodMillis);
             Assert.AreEqual(2, filterDoubleInvocationsCount);
             Assert.AreEqual(3, filterObjectInvocationsCount);
         }

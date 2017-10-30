@@ -11,108 +11,127 @@ using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Metrics.TestUtil;
 using System.Globalization;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
+using System.Linq;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
     /// <summary />
     internal static class CommonSimpleDataSeriesAggregatorTests
     {
-        public static void CreateAggregateUnsafe(IMetricSeriesAggregator aggregator, MetricSeries metric)
+        public static void CreateAggregateUnsafe(
+                                        IMetricSeriesAggregator aggregator,
+                                        MetricSeries metric,
+                                        IEnumerable<KeyValuePair<string, string>> expectedDimensionNamesValues)
         {
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
 
             aggregator.Reset(startTS, valueFilter: null);
 
-#pragma warning disable 618     // Even Obsolete Context fields must be copied correctly!
-            metric.Context.Cloud.RoleInstance = "A";
-            metric.Context.Cloud.RoleName = "B";
-            metric.Context.Component.Version = "C";
-            metric.Context.Device.Id = "D";
-            metric.Context.Device.Language = "E";
-            metric.Context.Device.Model = "F";
-            metric.Context.Device.NetworkType = "G";
-            metric.Context.Device.OemName = "H";
-            metric.Context.Device.OperatingSystem = "I";
-            metric.Context.Device.ScreenResolution = "J";
-            metric.Context.Device.Type = "K";
-            metric.Context.InstrumentationKey = "L";
-            metric.Context.Location.Ip = "M";
-            metric.Context.Operation.Id = "N";
-            metric.Context.Operation.Name = "O";
-            metric.Context.Operation.ParentId = "P";
-            metric.Context.Operation.SyntheticSource = "Q";
-            metric.Context.Session.Id = "R";
-            metric.Context.Session.IsFirst = true;
-            metric.Context.User.AccountId = "S";
-            metric.Context.User.AuthenticatedUserId = "T";
-            metric.Context.User.Id = "U";
-            metric.Context.User.UserAgent = "V";
+#pragma warning disable 618     // Even Obsolete AdditionalDataContext fields must be copied correctly!
+            metric.AdditionalDataContext.Cloud.RoleInstance = "A";
+            metric.AdditionalDataContext.Cloud.RoleName = "B";
+            metric.AdditionalDataContext.Component.Version = "C";
+            metric.AdditionalDataContext.Device.Id = "D";
+            metric.AdditionalDataContext.Device.Language = "E";
+            metric.AdditionalDataContext.Device.Model = "F";
+            metric.AdditionalDataContext.Device.NetworkType = "G";
+            metric.AdditionalDataContext.Device.OemName = "H";
+            metric.AdditionalDataContext.Device.OperatingSystem = "I";
+            metric.AdditionalDataContext.Device.ScreenResolution = "J";
+            metric.AdditionalDataContext.Device.Type = "K";
+            metric.AdditionalDataContext.InstrumentationKey = "L";
+            metric.AdditionalDataContext.Location.Ip = "M";
+            metric.AdditionalDataContext.Operation.Id = "N";
+            metric.AdditionalDataContext.Operation.Name = "O";
+            metric.AdditionalDataContext.Operation.ParentId = "P";
+            metric.AdditionalDataContext.Operation.SyntheticSource = "Q";
+            metric.AdditionalDataContext.Session.Id = "R";
+            metric.AdditionalDataContext.Session.IsFirst = true;
+            metric.AdditionalDataContext.User.AccountId = "S";
+            metric.AdditionalDataContext.User.AuthenticatedUserId = "T";
+            metric.AdditionalDataContext.User.Id = "U";
+            metric.AdditionalDataContext.User.UserAgent = "V";
 #pragma warning restore 618
-            metric.Context.Properties["Dim 1"] = "W";
-            metric.Context.Properties["Dim 2"] = "X";
-            metric.Context.Properties["Dim 3"] = "Y";
+            metric.AdditionalDataContext.Properties["Prop 1"] = "W";
+            metric.AdditionalDataContext.Properties["Prop 2"] = "X";
+            metric.AdditionalDataContext.Properties["Dim 1"] = "Y";
 
 
             aggregator.TrackValue(42);
             aggregator.TrackValue(43);
 
-            ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
+            MetricAggregate aggregate = aggregator.CreateAggregateUnsafe(endTS);
             Assert.IsNotNull(aggregate);
 
-            MetricTelemetry metricAggregate = aggregate as MetricTelemetry;
-            Assert.IsNotNull(metricAggregate);
+            Assert.AreEqual("Cows Sold", aggregate.MetricId, "aggregate.MetricId mismatch");
+            Assert.AreEqual(2, aggregate.AggregateData["Count"], "aggregate.AggregateData[Count] mismatch");
+            Assert.AreEqual(85, (double) aggregate.AggregateData["Sum"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.AggregateData[Sum] mismatch");
+            Assert.AreEqual(43, (double) aggregate.AggregateData["Max"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.AggregateData[Max] mismatch");
+            Assert.AreEqual(42, (double) aggregate.AggregateData["Min"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.AggregateData[Min] mismatch");
+            Assert.AreEqual(0.5, (double) aggregate.AggregateData["StdDev"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.AggregateData[StdDev] mismatch");
 
-            Assert.AreEqual("Cows Sold", metricAggregate.Name, "metricAggregate.Name mismatch");
-            Assert.AreEqual(2, metricAggregate.Count, "metricAggregate.Count mismatch");
-            Assert.AreEqual(85, metricAggregate.Sum, TestUtil.Util.MaxAllowedPrecisionError, "metricAggregate.Sum mismatch");
-            Assert.AreEqual(43, metricAggregate.Max.Value, TestUtil.Util.MaxAllowedPrecisionError, "metricAggregate.Max mismatch");
-            Assert.AreEqual(42, metricAggregate.Min.Value, TestUtil.Util.MaxAllowedPrecisionError, "metricAggregate.Min mismatch");
-            Assert.AreEqual(0.5, metricAggregate.StandardDeviation.Value, TestUtil.Util.MaxAllowedPrecisionError, "metricAggregate.StandardDeviation mismatch");
-
-            Assert.AreEqual(startTS, metricAggregate.Timestamp, "metricAggregate.Timestamp mismatch");
+            Assert.AreEqual(startTS, aggregate.AggregationPeriodStart, "aggregate.AggregationPeriodStart mismatch");
             Assert.AreEqual(
-                        ((long) ((endTS - startTS).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture),
-                        metricAggregate?.Properties?[TestUtil.Util.AggregationIntervalMonikerPropertyKey],
-                        "metricAggregate.Properties[AggregationIntervalMonikerPropertyKey] mismatch");
+                        (endTS - startTS).TotalMilliseconds,
+                        aggregate.AggregationPeriodDuration.TotalMilliseconds,
+                        "aggregate.AggregationPeriodDuration mismatch");
 
 #pragma warning disable 618
-            Assert.AreEqual("A", metricAggregate.Context.Cloud.RoleInstance);
-            Assert.AreEqual("B", metricAggregate.Context.Cloud.RoleName);
-            Assert.AreEqual("C", metricAggregate.Context.Component.Version);
-            Assert.AreEqual("D", metricAggregate.Context.Device.Id);
-            Assert.AreEqual("E", metricAggregate.Context.Device.Language);
-            Assert.AreEqual("F", metricAggregate.Context.Device.Model);
-            Assert.AreEqual("G", metricAggregate.Context.Device.NetworkType);
-            Assert.AreEqual("H", metricAggregate.Context.Device.OemName);
-            Assert.AreEqual("I", metricAggregate.Context.Device.OperatingSystem);
-            Assert.AreEqual("J", metricAggregate.Context.Device.ScreenResolution);
-            Assert.AreEqual("K", metricAggregate.Context.Device.Type);
-            Assert.AreEqual(String.Empty, metricAggregate.Context.InstrumentationKey);
-            Assert.AreEqual("M", metricAggregate.Context.Location.Ip);
-            Assert.AreEqual("N", metricAggregate.Context.Operation.Id);
-            Assert.AreEqual("O", metricAggregate.Context.Operation.Name);
-            Assert.AreEqual("P", metricAggregate.Context.Operation.ParentId);
-            Assert.AreEqual("Q", metricAggregate.Context.Operation.SyntheticSource);
-            Assert.AreEqual("R", metricAggregate.Context.Session.Id);
-            Assert.AreEqual(true, metricAggregate.Context.Session.IsFirst);
-            Assert.AreEqual("S", metricAggregate.Context.User.AccountId);
-            Assert.AreEqual("T", metricAggregate.Context.User.AuthenticatedUserId);
-            Assert.AreEqual("U", metricAggregate.Context.User.Id);
-            Assert.AreEqual("V", metricAggregate.Context.User.UserAgent);
+            Assert.IsNotNull(aggregate.AdditionalDataContext);
+            Assert.IsInstanceOfType(aggregate.AdditionalDataContext, typeof(TelemetryContext));
+            Assert.AreEqual("A", ((TelemetryContext) aggregate.AdditionalDataContext).Cloud.RoleInstance);
+            Assert.AreEqual("B", ((TelemetryContext) aggregate.AdditionalDataContext).Cloud.RoleName);
+            Assert.AreEqual("C", ((TelemetryContext) aggregate.AdditionalDataContext).Component.Version);
+            Assert.AreEqual("D", ((TelemetryContext) aggregate.AdditionalDataContext).Device.Id);
+            Assert.AreEqual("E", ((TelemetryContext) aggregate.AdditionalDataContext).Device.Language);
+            Assert.AreEqual("F", ((TelemetryContext) aggregate.AdditionalDataContext).Device.Model);
+            Assert.AreEqual("G", ((TelemetryContext) aggregate.AdditionalDataContext).Device.NetworkType);
+            Assert.AreEqual("H", ((TelemetryContext) aggregate.AdditionalDataContext).Device.OemName);
+            Assert.AreEqual("I", ((TelemetryContext) aggregate.AdditionalDataContext).Device.OperatingSystem);
+            Assert.AreEqual("J", ((TelemetryContext) aggregate.AdditionalDataContext).Device.ScreenResolution);
+            Assert.AreEqual("K", ((TelemetryContext) aggregate.AdditionalDataContext).Device.Type);
+            Assert.AreEqual("L", ((TelemetryContext) aggregate.AdditionalDataContext).InstrumentationKey);
+            Assert.AreEqual("M", ((TelemetryContext) aggregate.AdditionalDataContext).Location.Ip);
+            Assert.AreEqual("N", ((TelemetryContext) aggregate.AdditionalDataContext).Operation.Id);
+            Assert.AreEqual("O", ((TelemetryContext) aggregate.AdditionalDataContext).Operation.Name);
+            Assert.AreEqual("P", ((TelemetryContext) aggregate.AdditionalDataContext).Operation.ParentId);
+            Assert.AreEqual("Q", ((TelemetryContext) aggregate.AdditionalDataContext).Operation.SyntheticSource);
+            Assert.AreEqual("R", ((TelemetryContext) aggregate.AdditionalDataContext).Session.Id);
+            Assert.AreEqual(true, ((TelemetryContext) aggregate.AdditionalDataContext).Session.IsFirst);
+            Assert.AreEqual("S", ((TelemetryContext) aggregate.AdditionalDataContext).User.AccountId);
+            Assert.AreEqual("T", ((TelemetryContext) aggregate.AdditionalDataContext).User.AuthenticatedUserId);
+            Assert.AreEqual("U", ((TelemetryContext) aggregate.AdditionalDataContext).User.Id);
+            Assert.AreEqual("V", ((TelemetryContext) aggregate.AdditionalDataContext).User.UserAgent);
 #pragma warning restore 618
 
-            Assert.IsTrue(metricAggregate.Context.Properties.ContainsKey("Dim 1"));
-            Assert.AreEqual("W", metricAggregate.Context.Properties["Dim 1"]);
+            Assert.IsTrue(((TelemetryContext) aggregate.AdditionalDataContext).Properties.ContainsKey("Prop 1"));
+            Assert.AreEqual("W", ((TelemetryContext) aggregate.AdditionalDataContext).Properties["Prop 1"]);
 
-            Assert.IsTrue(metricAggregate.Context.Properties.ContainsKey("Dim 2"));
-            Assert.AreEqual("X", metricAggregate.Context.Properties["Dim 2"]);
+            Assert.IsTrue(((TelemetryContext) aggregate.AdditionalDataContext).Properties.ContainsKey("Prop 2"));
+            Assert.AreEqual("X", ((TelemetryContext) aggregate.AdditionalDataContext).Properties["Prop 2"]);
 
-            Assert.IsTrue(metricAggregate.Context.Properties.ContainsKey("Dim 3"));
-            Assert.AreEqual("Y", metricAggregate.Context.Properties["Dim 3"]);
+            Assert.IsTrue(((TelemetryContext) aggregate.AdditionalDataContext).Properties.ContainsKey("Dim 1"));
+            Assert.AreEqual("Y", ((TelemetryContext) aggregate.AdditionalDataContext).Properties["Dim 1"]);
 
-            Assert.IsNotNull(metricAggregate.Context.GetInternalContext());
-            TestUtil.Util.ValidateSdkVersionString(metricAggregate.Context.GetInternalContext().SdkVersion);
+            // We checked the explicitly set properties above.
+            // But for some reason, TelemetryContext chooses to store some of its explicit members as properties as well.
+            // Whatever sense it may or may not make, all we need to verify here is that we have correctly copies ALL properties:
+
+            Assert.AreEqual(metric.AdditionalDataContext.Properties.Count, ((TelemetryContext) aggregate.AdditionalDataContext).Properties.Count);
+            foreach (KeyValuePair<string, string> prop in metric.AdditionalDataContext.Properties)
+            {
+                Assert.IsTrue(((TelemetryContext) aggregate.AdditionalDataContext).Properties.ContainsKey(prop.Key));
+                Assert.AreEqual(prop.Value, ((TelemetryContext) aggregate.AdditionalDataContext).Properties[prop.Key]);
+            }
+
+            Assert.AreEqual(expectedDimensionNamesValues.Count(), aggregate.Dimensions.Count);
+
+            foreach(KeyValuePair<string, string> dimNameValue in expectedDimensionNamesValues)
+            {
+                Assert.IsTrue(aggregate.Dimensions.ContainsKey(dimNameValue.Key), $"missing aggregate.Dimensions[{dimNameValue.Key}]");
+                Assert.AreEqual(dimNameValue.Value, aggregate.Dimensions[dimNameValue.Key], $"wrong aggregate.Dimensions[{dimNameValue.Key}]");
+            }
         }
 
         
@@ -121,13 +140,13 @@ namespace Microsoft.ApplicationInsights.Metrics
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
 
-            var periodStringDef = ((long) ((endTS - default(DateTimeOffset)).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
-            var periodStringStart = ((long) ((endTS - startTS).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
+            long periodStringDef = (long) (endTS - default(DateTimeOffset)).TotalMilliseconds;
+            long periodStringStart = (long) (endTS - startTS).TotalMilliseconds;
 
             {
                 measurementAggregator.TrackValue(10);
 
-                ITelemetry aggregate = measurementAggregator.CreateAggregateUnsafe(endTS);
+                MetricAggregate aggregate = measurementAggregator.CreateAggregateUnsafe(endTS);
                 TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 1, sum: 10.0, max: 10.0, min: 10.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodStringDef);
 
                 measurementAggregator.Reset(startTS, valueFilter: null);
@@ -155,7 +174,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 counterAggregator.TrackValue(10);
 
-                ITelemetry aggregate = counterAggregator.CreateAggregateUnsafe(endTS);
+                MetricAggregate aggregate = counterAggregator.CreateAggregateUnsafe(endTS);
                 TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 1, sum: 10.0, max: 10.0, min: 10.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodStringDef);
 
                 counterAggregator.Reset(startTS, valueFilter: null);
@@ -188,12 +207,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
 
-            var periodStringDef = ((long) ((endTS - default(DateTimeOffset)).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
-            var periodStringStart = ((long) ((endTS - startTS).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
+            long periodStringDef = (long) (endTS - default(DateTimeOffset)).TotalMilliseconds;
+            long periodStringStart = (long) (endTS - startTS).TotalMilliseconds;
 
             int filterInvocationsCount = 0;
 
-            ITelemetry aggregate = aggregator.CreateAggregateUnsafe(endTS);
+            MetricAggregate aggregate = aggregator.CreateAggregateUnsafe(endTS);
             TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodStringDef);
 
             aggregator.Reset(startTS, valueFilter: null);
@@ -249,7 +268,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
-            var periodString = ((long) ((endTS - startTS).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
+            long periodString = (long) (endTS - startTS).TotalMilliseconds;
 
             int filterInvocationsCount = 0;
 
@@ -260,7 +279,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             measurementAggregator.TrackValue(1);
             measurementAggregator.TrackValue("2");
 
-            ITelemetry aggregate = measurementAggregator.CompleteAggregation(endTS);
+            MetricAggregate aggregate = measurementAggregator.CompleteAggregation(endTS);
             TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 2, sum: 3, max: 2, min: 1, stdDev: 0.5, timestamp: startTS, periodMs: periodString);
             Assert.AreEqual(2, filterInvocationsCount);
 

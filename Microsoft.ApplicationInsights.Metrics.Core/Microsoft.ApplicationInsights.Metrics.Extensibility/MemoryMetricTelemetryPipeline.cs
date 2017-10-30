@@ -9,7 +9,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
     /// <summary>
     /// </summary>
-    public class MemoryMetricTelemetryPipeline : IMetricTelemetryPipeline, IReadOnlyList<object>
+    public class MemoryMetricTelemetryPipeline : IMetricTelemetryPipeline, IReadOnlyList<MetricAggregate>
     {
         /// <summary>
         /// </summary>
@@ -18,7 +18,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         private readonly Task _completedTask = Task.FromResult(true);
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1);
 
-        private readonly IList<object> _metricAgregates = new List<object>();
+        private readonly IList<MetricAggregate> _metricAgregates = new List<MetricAggregate>();
 
         /// <summary>
         /// </summary>
@@ -67,11 +67,11 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public object this[int index]
+        public MetricAggregate this[int index]
         {
             get
             {
-                object metricAggregate;
+                MetricAggregate metricAggregate;
                 _lock.WaitAsync().GetAwaiter().GetResult();
                 try
                 {
@@ -105,7 +105,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <param name="metricAggregate"></param>
         /// <param name="cancelToken"></param>
         /// <returns></returns>
-        public async Task TrackAsync(object metricAggregate, CancellationToken cancelToken)
+        public async Task TrackAsync(MetricAggregate metricAggregate, CancellationToken cancelToken)
         {
             Util.ValidateNotNull(metricAggregate, nameof(metricAggregate));
 
@@ -134,9 +134,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             return Task.FromResult(true);
         }
 
-        IEnumerator<object> IEnumerable<object>.GetEnumerator()
+        IEnumerator<MetricAggregate> IEnumerable<MetricAggregate>.GetEnumerator()
         {
-            IEnumerator<object> enumerator;
+            IEnumerator<MetricAggregate> enumerator;
             _lock.WaitAsync().GetAwaiter().GetResult();
             try
             {
@@ -151,7 +151,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable<object>) this).GetEnumerator();
+            return ((IEnumerable<MetricAggregate>) this).GetEnumerator();
         }
     }
 }

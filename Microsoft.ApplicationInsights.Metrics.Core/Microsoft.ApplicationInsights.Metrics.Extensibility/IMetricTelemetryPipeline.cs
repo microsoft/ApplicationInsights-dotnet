@@ -20,7 +20,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         ///     telemetry destination type represented by this instance of <c>IMetricTelemetryPipeline</c>.</exception>
         /// <exception cref="OperationCanceledException">The specified <c>cancelToken</c> has had cancellation requested.</exception>
         /// <returns></returns>
-        Task TrackAsync(object metricAggregate, CancellationToken cancelToken);
+        Task TrackAsync(MetricAggregate metricAggregate, CancellationToken cancelToken);
 
         /// <summary>
         /// </summary>
