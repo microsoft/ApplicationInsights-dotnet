@@ -161,6 +161,18 @@
             }
         }
 
+        /// <summary>
+        /// Add a new Health Heartbeat property to the payload sent with each heartbeat.
+        /// 
+        /// To update the value of the property you are adding to the health heartbeat, 
+        /// <see cref="DiagnosticsTelemetryModule.SetHealthProperty"/>.
+        /// 
+        /// Note that you cannot add a HealthHeartbeatProperty with a name that already exists in the HealthHeartbeat
+        /// payload, including (but not limited to) the name of SDK-default items.
+        /// 
+        /// </summary>
+        /// <param name="payloadItem">Name, value, and health indicator of the value to add</param>
+        /// <returns>True if the new payload item is successfully added, false otherwise.</returns>
         public bool AddHealthProperty(HealthHeartbeatProperty payloadItem)
         {
             if (this.HeartbeatProvider != null)
@@ -181,11 +193,13 @@
         /// <summary>
         /// Allows consumers of the DiagosticsTelemetryModule to set an updated value into an existing property of the health heartbeat.
         /// 
-        /// Each HealthHeartbeatProperty set into the health heartbeat will be sent with the latest value set into it.
+        /// After the new HealthHeartbeatProperty has been added (<see cref="DiagnosticsTelemetryModule.AddHealthProperty"/>) to the 
+        /// heartbeat payload, the value represented by that item can be updated using this method at any time.
         /// 
         /// </summary>
         /// <param name="payloadItem">Payload to include in Health Heartbeat telemetry item</param>
-        /// <returns>True if the payload provider was added, false otherwise.</returns>
+        /// <returns>True if the payload provider was added, false if it hasn't been added yet 
+        /// (<see cref="DiagnosticsTelemetryModule.AddHealthProperty"/>).</returns>
         public bool SetHealthProperty(HealthHeartbeatProperty payloadItem)
         {
             if (this.HeartbeatProvider != null)
