@@ -32,6 +32,9 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
             SeverityLevel.Verbose       // EventLevel.Verbose == 5
         };
 
+        private static readonly string ProviderNameProperty = "ProviderName";
+        private static readonly string ProviderGuidProperty = "ProviderGuid";
+
         /// <summary>
         /// Creates a TraceTelemetry out of an EventSource event.
         /// </summary>
@@ -61,7 +64,9 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
         /// <param name="telemetry">Telemetry item to populate with properties.</param>
         /// <param name="eventSourceEvent">Event to extract values from.</param>
         public static TraceTelemetry PopulateStandardProperties(this TraceTelemetry telemetry, EventWrittenEventArgs eventSourceEvent)
-        { 
+        {
+            telemetry.AddProperty(ProviderNameProperty, eventSourceEvent.EventSource.Name);
+            telemetry.AddProperty(ProviderGuidProperty, eventSourceEvent.EventSource.Guid.ToString());
             telemetry.AddProperty(nameof(EventWrittenEventArgs.EventId), eventSourceEvent.EventId.ToString(CultureInfo.InvariantCulture));
             telemetry.AddProperty(nameof(EventWrittenEventArgs.EventName), eventSourceEvent.EventName);
             if (eventSourceEvent.ActivityId != default(Guid))

@@ -188,6 +188,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
                 module.Initialize(GetTestTelemetryConfiguration());
 
+                Guid providerGuid = new Guid("497c5589-4f7f-56de-ea19-ea0604d23948");
                 Guid eventId = new Guid("30ba9220-89a4-41e4-987c-9e27ade44b74");
                 Guid activityId = new Guid("0724a028-27d7-40a9-a299-acf79ff0db94");
                 EventSource.SetCurrentThreadActivityId(activityId);
@@ -195,6 +196,8 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
                 TraceTelemetry expected = new TraceTelemetry("Blah blah", SeverityLevel.Verbose);
                 expected.Properties.Add("uniqueId", eventId.ToString());
+                expected.Properties.Add("ProviderName", TestEventSource.ProviderName);
+                expected.Properties.Add("ProviderGuid", providerGuid.ToString());
                 expected.Properties.Add("EventId", TestEventSource.ComplexEventId.ToString());
                 expected.Properties.Add("EventName", nameof(TestEventSource.ComplexEvent));
                 expected.Properties.Add("ActivityId", activityId.ToString());
