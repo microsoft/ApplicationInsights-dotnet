@@ -25,12 +25,12 @@ namespace E2ETestAppCore20.Controllers
         /// <summary>
         /// Valid SQL Query. The wait for delay of 6 ms is used to prevent access time of less than 1 ms. SQL is not accurate below 3, so used 6 ms delay.
         /// </summary>         
-        private const string ValidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:007';select * from dbo.Messages";
+        private const string ValidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:007';select name from master.dbo.sysdatabases";
 
         /// <summary>
         /// Valid SQL Query to get count.
         /// </summary> 
-        private const string ValidSqlQueryCountToApmDatabase = "WAITFOR DELAY '00:00:00:007';select count(*) from dbo.Messages";
+        private const string ValidSqlQueryCountToApmDatabase = "WAITFOR DELAY '00:00:00:007';select count(*) from dbo.sysdatabases";
 
         /// <summary>
         /// Invalid SQL Query.
