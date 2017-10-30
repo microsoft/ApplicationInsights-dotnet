@@ -18,7 +18,7 @@
             set
             {
                 string safeVal = value ?? string.Empty; // ensure we are setting a non-null value
-                if (this.value.Equals(safeVal, System.StringComparison.Ordinal))
+                if (!this.value.Equals(safeVal, System.StringComparison.Ordinal))
                 {
                     this.IsUpdated = true;
                     this.value = safeVal;

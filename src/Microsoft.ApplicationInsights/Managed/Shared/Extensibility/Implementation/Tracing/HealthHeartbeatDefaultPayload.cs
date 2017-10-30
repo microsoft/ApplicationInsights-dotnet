@@ -96,7 +96,7 @@
             return "net45";
 #elif NET46
             return "net46";
-#elif NETCORE
+#elif NETSTANDARD1_3
             return "netstandard1.3";
 #else 
             return "undefined";
