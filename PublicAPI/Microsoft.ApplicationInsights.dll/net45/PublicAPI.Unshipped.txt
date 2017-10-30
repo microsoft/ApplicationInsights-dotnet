@@ -1,3 +1,4 @@
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.AddHealthProperty(Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.HealthHeartbeatProperty payloadItem) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.DisableHeartbeatProperties.get -> System.Collections.Generic.IEnumerable<string>
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.DisableHeartbeatProperties.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.SetHealthProperty(Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.HealthHeartbeatProperty payloadItem) -> bool

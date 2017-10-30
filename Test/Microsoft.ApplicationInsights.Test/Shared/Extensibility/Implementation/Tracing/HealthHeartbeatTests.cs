@@ -34,7 +34,7 @@
         [TestMethod]
         public void InitializeHealthHeartbeatDefaultsAreSetProperly()
         {
-            using (var hbeat = new HealthHeartbeatProvider())
+            using (var hbeat = new HealthHeartbeatProviderMock())
             {
                 hbeat.Initialize(configuration: null);
                 Assert.IsNull(hbeat.DisabledHeartbeatProperties);
@@ -50,7 +50,7 @@
             using (var hbeat = new HealthHeartbeatProvider())
             {
                 hbeat.Initialize(configuration: null, timeBetweenHeartbeats: nonDefaultInterval);
-                Assert.AreEqual(nonDefaultInterval, hbeat.HeartbeatInterval.TotalMilliseconds);
+                Assert.AreEqual(nonDefaultInterval, hbeat.HeartbeatInterval);
             }
         }
 
@@ -77,20 +77,20 @@
         [TestMethod]
         public void CanExtendHeartbeatPayload()
         {
+
             using (var hbeat = new HealthHeartbeatProvider())
             {
-                hbeat.Initialize(configuration: null);
+                hbeat.Initialize(configuration: new TelemetryConfiguration());
 
                 try
                 {
-                    hbeat.SetHealthProperty(new HealthHeartbeatProperty("test01", "this is a value", true));
-                    hbeat.SetHealthProperty(new HealthHeartbeatProperty("test02", DateTime.Now, true));
-                    hbeat.SetHealthProperty(new HealthHeartbeatProperty("test03", 245.678, true));
-                    hbeat.SetHealthProperty(new HealthHeartbeatProperty("test04", new List<string>() { "one", "two", "three" }, true));
+                    Assert.IsTrue(hbeat.AddHealthProperty(new HealthHeartbeatProperty("test01", "this is a value", true)));
+                    Assert.IsTrue(hbeat.AddHealthProperty(new HealthHeartbeatProperty("test02", DateTime.Now, true)));
+                    Assert.IsTrue(hbeat.AddHealthProperty(new HealthHeartbeatProperty("test03", 245.678, true)));
+                    Assert.IsTrue(hbeat.AddHealthProperty(new HealthHeartbeatProperty("test04", new List<string>() { "one", "two", "three" }, true)));
                 }
                 catch (Exception e)
                 {
-                    
                     Assert.Fail(string.Format(CultureInfo.CurrentCulture, "Registration of a heartbeat payload provider throws exception '{0}", e.ToInvariantString()));
                 }
             }
@@ -141,7 +141,6 @@
                 var hbeatPayloadData = hbeat.GetGatheredDataProperties();
                 Assert.IsNotNull(hbeatPayloadData);
             }
-            throw new NotImplementedException();
         }
 
         [TestMethod]
@@ -151,7 +150,7 @@
             {
                 hbeat.Initialize(configuration: null);
                 string testerKey = "tester123";
-                hbeat.SetHealthProperty(new HealthHeartbeatProperty(testerKey, "test", true));
+                hbeat.AddHealthProperty(new HealthHeartbeatProperty(testerKey, "test", true));
                 hbeat.SimulateSend();
                 bool contentFound = false;
                 foreach (var msg in hbeat.sentMessages)
@@ -169,22 +168,22 @@
         [TestMethod]
         public void HeartbeatPayloadContainsOnlyAllowedDefaultPayloadFields()
         {
-            List<string> specificFieldsToEnable = new List<string>();
+            List<string> disableHbProps = new List<string>();
             for (int i = 0; i < HealthHeartbeatDefaultPayload.DefaultFields.Length; ++i)
             {
                 if (i % 2 == 0)
                 {
-                    specificFieldsToEnable.Add(HealthHeartbeatDefaultPayload.DefaultFields[i]);
+                    disableHbProps.Add(HealthHeartbeatDefaultPayload.DefaultFields[i]);
                 }
             }
 
             using (var hbeat = new HealthHeartbeatProviderMock())
             {
-                hbeat.Initialize(configuration: null, timeBetweenHeartbeats: null, allowedPayloadFields: specificFieldsToEnable);
-                Assert.AreEqual(hbeat.DisabledHeartbeatProperties.Count(), specificFieldsToEnable.Count);
+                hbeat.Initialize(configuration: null, timeBetweenHeartbeats: null, disabledFields: disableHbProps);
+                Assert.AreEqual(hbeat.DisabledHeartbeatProperties.Count(), disableHbProps.Count);
                 foreach (string fld in hbeat.DisabledHeartbeatProperties)
                 {
-                    Assert.IsTrue(specificFieldsToEnable.Contains(fld));
+                    Assert.IsTrue(disableHbProps.Contains(fld));
                 }
 
                 hbeat.SimulateSend();
@@ -194,14 +193,14 @@
 
                 foreach (var kvp in sentHeartBeat.Properties)
                 {
-                    Assert.IsTrue(specificFieldsToEnable.Contains(kvp.Key), string.Format(CultureInfo.CurrentCulture, "Dissallowed field '{0}' found in payload", kvp.Key));
+                    Assert.IsFalse(disableHbProps.Contains(kvp.Key), string.Format(CultureInfo.CurrentCulture, "Dissallowed field '{0}' found in payload", kvp.Key));
                 }
             }
         }
 
         [TestMethod]
         [Ignore("I don't know how to modify the config file during tests yet")]
-        public void HeartbeatPayloadContainsOnlyAllowedDefaultPayloadFieldsSpecifiedInConfig()
+        public void HeartbeatPayloadContainsFieldsSpecifiedInConfig()
         {
             // FROM: HeartbeatPayloadContainsOnlyAllowedDefaultPayloadFields below...
 
@@ -242,40 +241,9 @@
             {
                 hbeat.Initialize(configuration: null);
                 string testerKey = "tester123";
-                hbeat.SetHealthProperty(new HealthHeartbeatProperty(testerKey, "test", false));
+                hbeat.AddHealthProperty(new HealthHeartbeatProperty(testerKey, "test", false));
                 hbeat.SimulateSend();
                 Assert.IsTrue(hbeat.sentMessages.Any(a => a.Sum >= 1.0));
-            }
-        }
-
-        [TestMethod]
-        [Ignore("Not a stable unit test to say the least. Perhaps this test can be made functional?")]
-        public void HeartbeatSentAtProperIntervals()
-        {
-            DataContracts.MetricTelemetry[] messages = null;
-            long testStartTicks = DateTimeOffset.Now.Ticks;
-            
-            using (var hbeat = new HealthHeartbeatProviderMock(disableBaseHeartbeatTimer: false))
-            {
-                hbeat.Initialize(configuration: null, timeBetweenHeartbeats: TimeSpan.FromMilliseconds(100));
-                Thread.Sleep(150);
-                hbeat.Initialize(configuration: null, timeBetweenHeartbeats: TimeSpan.FromMilliseconds(100000));
-                Thread.Sleep(150);
-                messages = hbeat.sentMessages.ToArray();
-            }
-
-            if (messages != null)
-            {
-                long tolerance = 10;
-                var avg = messages.Average(a => a.Timestamp.Ticks);
-                var max = messages.Max(a => a.Timestamp.Ticks);
-                var min = messages.Min(a => a.Timestamp.Ticks);
-
-                // tolerance for messages received makes this test slightly more robust
-
-                Assert.IsTrue(Math.Abs(avg - min) < tolerance);
-                Assert.IsTrue(Math.Abs(avg - max) < tolerance);
-
             }
         }
 
@@ -311,8 +279,8 @@
                 Assert.IsTrue(hbeat.sentMessages.First()?.Sum == 0.0);
                 hbeat.sentMessages.Clear();
 
-                hbeat.SetHealthProperty(new HealthHeartbeatProperty("tester01", "test failure 1", false));
-                hbeat.SetHealthProperty(new HealthHeartbeatProperty("tester02", "test failure 2", false));
+                hbeat.AddHealthProperty(new HealthHeartbeatProperty("tester01", "test failure 1", false));
+                hbeat.AddHealthProperty(new HealthHeartbeatProperty("tester02", "test failure 2", false));
                 hbeat.SimulateSend();
 
                 Assert.IsTrue(hbeat.sentMessages.First()?.Sum == 2.0);
@@ -344,30 +312,58 @@
         }
 
         [TestMethod]
-        [Ignore("Not ready yet")]
-        public void PayloadExtensionHandlesSingleFieldNameCollision()
+        public void PayloadExtensionHandlesExtensionPayloadNameCollision()
         {
-            string fieldName1 = "osType";
-
             using (var hbeat = new HealthHeartbeatProvider())
             {
+                hbeat.Initialize(configuration: null);
 
+                Assert.IsTrue(hbeat.AddHealthProperty(new HealthHeartbeatProperty("test01", "some test value", true)));
+                Assert.IsFalse(hbeat.AddHealthProperty(new HealthHeartbeatProperty("test01", "some other test value", true)));
             }
-            throw new NotImplementedException();
         }
 
         [TestMethod]
-        [Ignore("Not ready yet")]
-        public void PayloadExtensionHandlesMultipleFieldNameCollision()
+        public void CannotSetPayloadExtensionWithoutAddingItFirst()
         {
-            string fieldName1 = "payloadEx";
-            string fieldName2 = "payloadEx";
-
             using (var hbeat = new HealthHeartbeatProvider())
             {
+                hbeat.Initialize(configuration: null);
 
+                Assert.IsFalse(hbeat.SetHealthProperty(new HealthHeartbeatProperty("test01", "some other test value", true)));
+                Assert.IsTrue(hbeat.AddHealthProperty(new HealthHeartbeatProperty("test01", "some test value", true)));
+                Assert.IsTrue(hbeat.SetHealthProperty(new HealthHeartbeatProperty("test01", "some other test value", true)));
             }
-            throw new NotImplementedException();
+        }
+
+        [TestMethod]
+        public void CannotSetValueOfDefaultPayloadProperties()
+        {
+            using (var hbeat = new HealthHeartbeatProvider())
+            {
+                hbeat.Initialize(configuration: null);
+
+                foreach (string key in HealthHeartbeatDefaultPayload.DefaultFields)
+                {
+                    var prop = new HealthHeartbeatProperty(key, "test", true);
+                    Assert.IsFalse(hbeat.SetHealthProperty(prop));
+                }
+            }
+        }
+
+        [TestMethod]
+        public void CannotAddPayloadItemNamedOfDefaultPayloadProperties()
+        {
+            using (var hbeat = new HealthHeartbeatProvider())
+            {
+                hbeat.Initialize(configuration: null);
+
+                foreach (string key in HealthHeartbeatDefaultPayload.DefaultFields)
+                {
+                    var prop = new HealthHeartbeatProperty(key, "test", true);
+                    Assert.IsFalse(hbeat.AddHealthProperty(prop));
+                }
+            }
         }
 
         [TestMethod]

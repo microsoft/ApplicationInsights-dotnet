@@ -10,6 +10,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Moc
     class HealthHeartbeatProviderMock : HealthHeartbeatProvider
     {
         public List<MetricTelemetry> sentMessages = new List<MetricTelemetry>();
+
+        public IEnumerable<string> DisabledHeartbeatProperties => this.disabledDefaultFields;
+
         private bool disableHeartbeatTimer;
 
         public HealthHeartbeatProviderMock(bool disableBaseHeartbeatTimer = true) : base()
@@ -28,13 +31,13 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Moc
             this.sentMessages.Add(heartbeat);
         }
 
-        public override bool Initialize(TelemetryConfiguration configuration, TimeSpan? timeBetweenHeartbeats = null, IEnumerable<string> allowedPayloadFields = null)
+        public override bool Initialize(TelemetryConfiguration configuration, TimeSpan? timeBetweenHeartbeats = null, IEnumerable<string> disabledFields = null)
         {
             if (this.disableHeartbeatTimer)
             {
                 this.HeartbeatTimer = new Timer(this.MockTimerCallback, this.sentMessages, Timeout.Infinite, Timeout.Infinite);
             }
-            return base.Initialize(configuration, timeBetweenHeartbeats, allowedPayloadFields);
+            return base.Initialize(configuration, timeBetweenHeartbeats, disabledFields);
         }
 
         private void MockTimerCallback(object state)

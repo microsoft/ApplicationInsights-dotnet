@@ -161,10 +161,27 @@
             }
         }
 
+        public bool AddHealthProperty(HealthHeartbeatProperty payloadItem)
+        {
+            if (this.HeartbeatProvider != null)
+            {
+                try
+                {
+                    return this.HeartbeatProvider.AddHealthProperty(payloadItem);
+                }
+                catch (Exception e)
+                {
+                    CoreEventSource.Log.LogError("Could not add heartbeat property. Exception: " + e.ToInvariantString());
+                }
+            }
+
+            return false;
+        }
+
         /// <summary>
-        /// Allows consumers of the DiagosticsTelemetryModule to set (add/update) a health indication property to the health heartbeat payload.
+        /// Allows consumers of the DiagosticsTelemetryModule to set an updated value into an existing property of the health heartbeat.
         /// 
-        /// Each HealthHeartbeatProperty set into the health heartbeat will be sent with the value given until it is updated by the user.
+        /// Each HealthHeartbeatProperty set into the health heartbeat will be sent with the latest value set into it.
         /// 
         /// </summary>
         /// <param name="payloadItem">Payload to include in Health Heartbeat telemetry item</param>
@@ -175,11 +192,11 @@
             {
                 try
                 {
-                    this.HeartbeatProvider.SetHealthProperty(payloadItem);
-                    return true;
+                    return this.HeartbeatProvider.SetHealthProperty(payloadItem);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    CoreEventSource.Log.LogError("Could not set heartbeat property. Exception: " + e.ToInvariantString());
                 }
             }
 
