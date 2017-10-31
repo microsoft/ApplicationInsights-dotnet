@@ -20,6 +20,9 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
     /// </summary>
     public static class EventDataExtensions
     {
+        private const string ProviderNameProperty = "ProviderName";
+        private const string ProviderGuidProperty = "ProviderGuid";
+
         private static Lazy<Random> random = new Lazy<Random>();
 
         private static SeverityLevel[] eventLevelToSeverityLevel = new SeverityLevel[]
@@ -31,9 +34,6 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
             SeverityLevel.Information,  // EventLevel.Informational == 4
             SeverityLevel.Verbose       // EventLevel.Verbose == 5
         };
-
-        private const string ProviderNameProperty = "ProviderName";
-        private const string ProviderGuidProperty = "ProviderGuid";
 
         /// <summary>
         /// Creates a TraceTelemetry out of an EventSource event.
