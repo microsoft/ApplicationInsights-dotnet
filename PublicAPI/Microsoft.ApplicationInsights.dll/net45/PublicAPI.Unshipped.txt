@@ -1,6 +1,12 @@
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.AddHealthProperty(Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.HealthHeartbeatProperty payloadItem) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.DisableHeartbeatProperties.get -> System.Collections.Generic.IEnumerable<string>
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.DisableHeartbeatProperties.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.HeartbeatHealthState.get -> int
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.HeartbeatHealthState.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.HeartbeatMetadata.get -> System.Collections.Generic.IDictionary<string, string>
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.HeartbeatMetadata.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.RemoveHealthProperty(string payloadItemName) -> bool
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.RemoveHealthProperty(string payloadItemName) -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.SetHealthProperty(Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.HealthHeartbeatProperty payloadItem) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.TimeSpanBetweenHeartbeats.get -> System.TimeSpan
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.TimeSpanBetweenHeartbeats.set -> void

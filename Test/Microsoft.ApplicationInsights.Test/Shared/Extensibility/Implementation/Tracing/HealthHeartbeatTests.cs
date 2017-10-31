@@ -383,7 +383,7 @@
             var props = defaultHeartbeatPayload.GetPayloadProperties();
             foreach (var kvp in props)
             {
-                if (kvp.Key.Equals("targetFramework", StringComparison.Ordinal))
+                if (kvp.Key.Equals("baseSdkTargetFramework", StringComparison.Ordinal))
                 {
                     Assert.IsFalse(kvp.Value.PayloadValue.Equals("undefined", StringComparison.OrdinalIgnoreCase));
                 }

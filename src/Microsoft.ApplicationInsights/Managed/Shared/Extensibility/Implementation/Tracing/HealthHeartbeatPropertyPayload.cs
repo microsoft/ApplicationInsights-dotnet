@@ -6,22 +6,22 @@
     /// </summary>
     internal class HealthHeartbeatPropertyPayload
     {
-        private string value = string.Empty; // the current value of this property, ready for transmission
-        private bool healthy = true; // is this a healthy value or not
+        private string payloadValue = string.Empty; // the current value of this property, ready for transmission
+        private bool isHealthy = true; // is this a healthy value or not
 
         /// <summary>
         /// Gets or sets the payload value at the time the property item was added, as a string
         /// </summary>
         public string PayloadValue
         {
-            get => this.value;
+            get => this.payloadValue;
             set
             {
                 string safeVal = value ?? string.Empty; // ensure we are setting a non-null value
-                if (!this.value.Equals(safeVal, System.StringComparison.Ordinal))
+                if (!this.payloadValue.Equals(safeVal, System.StringComparison.Ordinal))
                 {
                     this.IsUpdated = true;
-                    this.value = safeVal;
+                    this.payloadValue = safeVal;
                 }
             }
         }
@@ -31,11 +31,11 @@
         /// </summary>
         public bool IsHealthy
         {
-            get => this.healthy;
+            get => this.isHealthy;
             set
             {
-                this.IsUpdated = this.healthy != value;
-                this.healthy = value;
+                this.IsUpdated = this.isHealthy != value;
+                this.isHealthy = value;
             }
         }
 

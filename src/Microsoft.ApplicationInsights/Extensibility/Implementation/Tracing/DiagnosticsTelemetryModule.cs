@@ -32,8 +32,8 @@
 
             this.EventListener = new DiagnosticsListener(this.Senders);
 
-            this.TimeSpanBetweenHeartbeats = TimeSpan.FromMilliseconds(HealthHeartbeatProvider.DefaultHeartbeatIntervalMs);
-            this.DisableHeartbeatProperties = null;
+            this.HeartbeatInterval = TimeSpan.FromMilliseconds(HealthHeartbeatProvider.DefaultHeartbeatIntervalMs);
+            this.ExcludedHeartbeatProperties = null;
         }
 
         /// <summary>
@@ -45,9 +45,9 @@
         }
 
         /// <summary>
-        /// Gets or sets the delay between heartbeats in milliseconds.
+        /// Gets or sets the delay between heartbeats.
         /// </summary>
-        public TimeSpan TimeSpanBetweenHeartbeats { get; set; }
+        public TimeSpan HeartbeatInterval { get; set; }
 
         /// <summary>
         /// Gets or sets property names that are not to be sent with the health heartbeats. null/empty list means allow all default properties through.
@@ -55,7 +55,7 @@
         /// TODO: this comment should list known properties
         /// </remarks>
         /// </summary>
-        public IEnumerable<string> DisableHeartbeatProperties { get; set; }
+        public IEnumerable<string> ExcludedHeartbeatProperties { get; set; }
 
         /// <summary>
         /// Gets or sets diagnostics Telemetry Module LogLevel configuration setting. 
@@ -105,6 +105,12 @@
                     {
                         portalSender.DiagnosticsInstrumentationKey = this.instrumentationKey;
                     }
+
+                    // set it into the heartbeat provider as well
+                    if (this.HeartbeatProvider != null)
+                    {
+                        this.HeartbeatProvider.DiagnosticsInstrumentationKey = this.instrumentationKey;
+                    }
                 }
             }
         }
@@ -153,7 +159,7 @@
                             this.HeartbeatProvider = new HealthHeartbeatProvider();
                         }
 
-                        this.HeartbeatProvider.Initialize(configuration, this.TimeSpanBetweenHeartbeats, this.DisableHeartbeatProperties);
+                        this.HeartbeatProvider.Initialize(configuration, this.DiagnosticsInstrumentationKey, this.HeartbeatInterval, this.ExcludedHeartbeatProperties);
 
                         this.isInitialized = true;
                     }
@@ -191,7 +197,7 @@
         }
 
         /// <summary>
-        /// Allows consumers of the DiagosticsTelemetryModule to set an updated value into an existing property of the health heartbeat.
+        /// Set an updated value into an existing property of the health heartbeat.
         /// 
         /// After the new HealthHeartbeatProperty has been added (<see cref="DiagnosticsTelemetryModule.AddHealthProperty"/>) to the 
         /// heartbeat payload, the value represented by that item can be updated using this method at any time.
@@ -207,6 +213,30 @@
                 try
                 {
                     return this.HeartbeatProvider.SetHealthProperty(payloadItem);
+                }
+                catch (Exception e)
+                {
+                    CoreEventSource.Log.LogError("Could not set heartbeat property. Exception: " + e.ToInvariantString());
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Remove a payload property from the health heartbeat.
+        /// 
+        /// After the new HealthHeartbeatProperty has been removed, the property will no longer be sent with subsequent heartbeats.
+        /// </summary>
+        /// <param name="payloadItemName">The name of the property to remove</param>
+        /// <returns>True if the property was removed successfully, false otherwise (no property with this name exists)</returns>
+        public bool RemoveHealthProperty(string payloadItemName)
+        {
+            if (this.HeartbeatProvider != null)
+            {
+                try
+                {
+                    return this.HeartbeatProvider.RemoveHealthProperty(payloadItemName);
                 }
                 catch (Exception e)
                 {

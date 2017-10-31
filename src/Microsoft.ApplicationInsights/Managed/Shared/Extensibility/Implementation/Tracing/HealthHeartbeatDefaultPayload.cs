@@ -13,7 +13,7 @@
         public static readonly string[] DefaultFields =
         {
             "runtimeFramework",
-            "targetFramework",
+            "baseSdkTargetFramework",
             UpdatedFieldsPropertyKey
         };
 
@@ -42,7 +42,7 @@
                             PayloadValue = this.GetRuntimeFrameworkVer()
                         });
                         break;
-                    case "targetFramework":
+                    case "baseSdkTargetFramework":
                         payload.Add(fieldName, new HealthHeartbeatPropertyPayload()
                         {
                             IsHealthy = true,
@@ -98,7 +98,8 @@
             return "net46";
 #elif NETSTANDARD1_3
             return "netstandard1.3";
-#else 
+#else
+#error Unrecognized framework
             return "undefined";
 #endif
         }
@@ -111,7 +112,9 @@
                 Assembly assembly = typeof(Object).GetTypeInfo().Assembly;
 
                 AssemblyFileVersionAttribute objectAssemblyFileVer =
-                            assembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute)) as AssemblyFileVersionAttribute;
+                            assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute))
+                                    .Cast<AssemblyFileVersionAttribute>()
+                                    .FirstOrDefault();
 
                 return objectAssemblyFileVer != null ? objectAssemblyFileVer.Version : "undefined";
             }

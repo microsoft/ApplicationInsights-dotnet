@@ -15,7 +15,7 @@
     internal class HealthHeartbeatProvider : IDisposable, IHeartbeatProvider
     {
         /// <summary>
-        /// The default interval between heartbeats if not specified by the user
+        /// The default interval between heartbeats if not specified by the user. Left public for use in unit tests.
         /// </summary>
         public static int DefaultHeartbeatIntervalMs = 5000;
 
@@ -56,15 +56,25 @@
             this.heartbeatsSent = 0; // count up from construction time
         }
 
+        /// <summary>
+        /// Gets the currently defined interval between heartbeats (primarily used in unit testing scenarios)
+        /// </summary>
         public TimeSpan HeartbeatInterval => this.heartbeatInterval;
+
+        public string DiagnosticsInstrumentationKey { get; set; }
 
         protected Timer HeartbeatTimer { get; set; } // timer that will send each heartbeat in intervals
 
-        public virtual bool Initialize(TelemetryConfiguration configuration, TimeSpan? timeBetweenHeartbeats = null, IEnumerable<string> disabledDefaultFields = null)
+        public virtual bool Initialize(TelemetryConfiguration configuration, string instrumentationKey = null, TimeSpan? timeBetweenHeartbeats = null, IEnumerable<string> disabledDefaultFields = null)
         {
             if (timeBetweenHeartbeats != null && timeBetweenHeartbeats?.TotalMilliseconds == 0)
             {
                 return false;
+            }
+
+            if (instrumentationKey != null)
+            {
+                this.DiagnosticsInstrumentationKey = instrumentationKey;
             }
 
             if (this.telemetryClient == null)
@@ -128,6 +138,27 @@
                         string.Format(CultureInfo.CurrentCulture,
                         "Failed to set a health heartbeat property named '{0}'. Exception: {1}",
                             payloadItem.Name,
+                            e.ToInvariantString()));
+                }
+            }
+
+            return false;
+        }
+
+        public bool RemoveHealthProperty(string payloadItemName)
+        {
+            if (!string.IsNullOrEmpty(payloadItemName))
+            {
+                try
+                {
+                    return this.payloadItems.TryRemove(payloadItemName, out HealthHeartbeatPropertyPayload removedItem);
+                }
+                catch (Exception e)
+                {
+                    CoreEventSource.Log.LogError(
+                        string.Format(CultureInfo.CurrentCulture,
+                        "Failed to remove a health heartbeat property named '{0}'. Exception: {1}",
+                            payloadItemName,
                             e.ToInvariantString()));
                 }
             }
@@ -299,6 +330,11 @@
             }
 
             eventData.Context.Operation.SyntheticSource = heartbeatSyntheticMetricName;
+
+            if (!string.IsNullOrEmpty(this.DiagnosticsInstrumentationKey))
+            {
+                eventData.Context.InstrumentationKey = this.DiagnosticsInstrumentationKey;
+            }
 
             this.telemetryClient.TrackMetric(eventData);
         }
