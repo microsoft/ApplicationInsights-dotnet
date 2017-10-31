@@ -17,7 +17,7 @@ namespace Microsoft.ApplicationInsights
     {
         private const string NullMetricObjectId = "null";
 
-        private static readonly char[] InvalidMetricChars = new char[] { '\0', '"', '\'', '(', ')', '[', ']', '{', '}', '=', ',' };
+        private static readonly char[] InvalidMetricChars = new char[] { '\0', '"', '\'', '(', ')', '[', ']', '{', '}', '<', '>', '=', ',' };
         
         private readonly string _objectId;
         private readonly int _hashCode;

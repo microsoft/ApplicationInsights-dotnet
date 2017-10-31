@@ -84,17 +84,18 @@
 
         private static void ResetDataStructure()
         {
-            throw new NotImplementedException();
+            // Do stuff
         }
 
         private static (int count, string species) ReadSpeciesFromUserInput()
         {
-            throw new NotImplementedException();
+            return (18, "Cows");
         }
 
         private static int AddItemsToDataStructure()
         {
-            throw new NotImplementedException();
+            // Do stuff
+            return 5;
         }
     }
 }
@@ -219,6 +220,11 @@ namespace User.Namespace.Example02
                 MetricSeries currentBookInfo = seriesKvp.Value;
                 MetricAggregate currentBookKind = currentBookInfo.GetCurrentAggregateUnsafe();
 
+                if (currentBookKind == null)
+                {
+                    continue;
+                }
+
                 if (mostPopularBookKind == null)
                 {
                     mostPopularBookKind = currentBookKind;
@@ -288,22 +294,25 @@ namespace User.Namespace.Example02
 
         private static int GetCurrentRequestSize()
         {
-            throw new NotImplementedException();
+            // Do stuff
+            return 11000;
         }
 
         private static void DisplayMostPopularBook(MetricAggregate mostPopularBookKind)
         {
-            throw new NotImplementedException();
+            // Do stuff
         }
 
         private static int AddItemsToDataStructure()
         {
-            throw new NotImplementedException();
+            // Do stuff
+            return 3;
         }
 
         private static string ReadSpeciesFromUserInput()
         {
-            throw new NotImplementedException();
+            // Do stuff
+            return "Chicken";
         }
     }
 }
@@ -356,9 +365,9 @@ namespace User.Namespace.Example03
             // E.g., all three of counterMetric2, counterMetric2a and counterMetric2b below are Counters.
             // (In fact, they are all references to the same object.)
 
-            Metric counterMetric2 = client.GetMetric("Items in a Data Structure (2)", MetricConfigurations.Counter);
-            Metric counterMetric2a = client.GetMetric("Items in a Data Structure (2)");
-            Metric counterMetric2b = client.GetMetric("Items in a Data Structure (2)", metricConfiguration: null);
+            Metric counterMetric2 = client.GetMetric("Items in a Data Structure 2", MetricConfigurations.Counter);
+            Metric counterMetric2a = client.GetMetric("Items in a Data Structure 2");
+            Metric counterMetric2b = client.GetMetric("Items in a Data Structure 2", metricConfiguration: null);
 
             // On contrary, metric3 and metric3a are Measurements, becasue no configuration was specified during the first call:
 
@@ -369,7 +378,7 @@ namespace User.Namespace.Example03
 
             try
             {
-                Metric counterMetric2c = client.GetMetric("Items in a Data Structure (2)", MetricConfigurations.Measurement);
+                Metric counterMetric2c = client.GetMetric("Items in a Data Structure 2", MetricConfigurations.Measurement);
             }
             catch(ArgumentException)
             {
@@ -411,9 +420,7 @@ namespace User.Namespace.Example03
             // restrictToUInt32Values can be used to force a metric to consume integer values only. Certain integer-only auto-collected system
             // metrics are stored in the cloud in an optimized, more efficient manner. Custom metrics are currently always stored as doubles.
 
-            // In fact, the above customConfiguredMeasurement is how MetricConfigurations.Measurement is defined by default:
-            Assert.AreNotSame(MetricConfigurations.Measurement, customConfiguredMeasurement);
-            Assert.AreEqual(MetricConfigurations.Measurement, customConfiguredMeasurement);
+            // In fact, the above customConfiguredMeasurement is how MetricConfigurations.Measurement is defined by default.
 
             // If you want to change some of the above configuration values for all metrics in your application without the need to specify 
             // a custom configuration every time, you can do so by using MetricConfigurations.FutureDefaults.
@@ -481,7 +488,7 @@ namespace User.Namespace.Example04
 
             MetricSeries itemCounter = metrics.CreateNewSeries(
                                                     "Items in Queue",
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: true));
+                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
 
             itemCounter.TrackValue(1);
             itemCounter.TrackValue(1);
@@ -520,12 +527,8 @@ namespace User.Namespace.Example04
 namespace User.Namespace.Example05
 {
     using System;
-    using System.Collections.Generic;
 
     using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.Extensibility;
-
-    using TraceSeveretyLevel = Microsoft.ApplicationInsights.DataContracts.SeverityLevel;
 
     /// <summary>
     /// In this example we cover AggregationScope.
@@ -559,9 +562,14 @@ namespace User.Namespace.Example05
             }
 
             {
-                // ...
-                (new TelemetryClient()).TrackTrace("Some code path was taken", TraceSeveretyLevel.Verbose);
-                // ...
+                try
+                {
+                    RunSomeCode();
+                }
+                catch (ApplicationException apEx)
+                {
+                    (new TelemetryClient()).TrackException(apEx);
+                }
             }
 
             // We wanted to support this pattern and to allow users to write code like this:
@@ -606,9 +614,586 @@ namespace User.Namespace.Example05
             // manager at the TelemetryConfiguration scope, but to create and use a metric manager at the respecive cleint scope instead.
         }
 
+        private static void RunSomeCode()
+        {
+            throw new ApplicationException();
+        }
+
         private static int GetCurrentRequestSize()
         {
-            throw new NotImplementedException();
+            // Do stuff
+            return 11000;
+        }
+    }
+}
+// ----------- ----------- ----------- ----------- ----------- ----------- ----------- ----------- -----------
+namespace User.Namespace.Example06ab
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using TraceSeveretyLevel = Microsoft.ApplicationInsights.DataContracts.SeverityLevel;
+    
+    /// <summary>
+    /// In this example we discuss how to write unit tests that validate that metrics are sent correctly
+    /// We will consider two approaches:
+    ///  a) Capturing all telemetry emitted by a method, including, but not limited to Metric Telemetry,
+    ///     where a telemetry client can be injected.
+    ///  b) Capturing all telemetry emitted by a method, including, but not limited to Metric Telemetry,
+    ///     where the (new TelemetryClient()).TrackXxx(..) pattern in used in-line.
+    ///  c) Capturing metric aggregates only.
+    /// </summary>
+    public class Sample06ab
+    {
+        /// <summary />
+        public static void ExecA()
+        {
+            // *** UNIT TESTS: CAPTURING APLICATION INSIGHTS TELEMETRY BY INJECTING A TELEMETRY CLIENT ***
+
+            // Here we will use a common unit test to capture and verify all Application Insights telemetry emitted by a
+            // method SellPurpleDucks() of class ServiceClassA. We also assume that the class has been prepared for testing by allowing
+            // to specify a telemetry client using dependency injection. The code for the class is listed below.
+
+            // In a production application the class will probably be instantiated and called like this:
+
+            {
+                ServiceClassA serviceA = new ServiceClassA(new TelemetryClient());
+                serviceA.SellPurpleDucks(42);
+            }
+
+            // In a unit test you will need to create a custom telemetry configuration that routs the emitted telemetry into a
+            // datastructure for later inspection. There is a TestUtil class below that shows how to do that. Here is the unit test:
+
+            {
+                // Create the test pipeline and client:
+                IList<ITelemetry> telemetrySentToChannel;
+                TelemetryConfiguration telemetryPipeline = TestUtil.CreateApplicationInsightsTelemetryConfiguration(out telemetrySentToChannel);
+                using (telemetryPipeline)
+                { 
+                    TelemetryClient telemetryClient = new TelemetryClient(telemetryPipeline);
+
+                    // Invoke method bein tested:
+                    ServiceClassA serviceA = new ServiceClassA(telemetryClient);
+                    serviceA.SellPurpleDucks(42);
+
+                    // Make sure all telemetry is collected:
+                    telemetryClient.Flush();
+
+                    // Flushing the MetricManager is particularly important since the aggregation period of 1 minute has just started:
+                    telemetryPipeline.Metrics().Flush();
+
+                    // Verify that the right telemetry was sent:
+                    Assert.AreEqual(2, telemetrySentToChannel.Count);
+
+                    TraceTelemetry[] traceItems = telemetrySentToChannel.Where( (t) => ((t != null) && (t is TraceTelemetry)) )
+                                                                        .Select( (t) => ((TraceTelemetry) t) )
+                                                                        .ToArray();
+                    Assert.AreEqual(1, traceItems.Length);
+                    Assert.AreEqual("Stuff #1 completed", traceItems[0].Message);
+                    Assert.AreEqual(TraceSeveretyLevel.Information, traceItems[0].SeverityLevel);
+
+                    MetricTelemetry[] metricItems = telemetrySentToChannel.Where( (t) => ((t != null) && (t is MetricTelemetry)) )
+                                                                          .Select( (t) => ((MetricTelemetry) t) )
+                                                                          .ToArray();
+                    Assert.AreEqual(1, metricItems.Length);
+                    Assert.AreEqual("Ducks Sold", metricItems[0].Name);
+                    Assert.AreEqual(1, metricItems[0].Count);
+                    Assert.AreEqual(42, metricItems[0].Sum);
+                    Assert.AreEqual(42, metricItems[0].Min);
+                    Assert.AreEqual(42, metricItems[0].Max);
+                    Assert.AreEqual(0, metricItems[0].StandardDeviation);
+                    Assert.AreEqual(2, metricItems[0].Properties.Count);
+                    Assert.IsTrue(metricItems[0].Properties.ContainsKey("_MS.AggregationIntervalMs"));
+                    Assert.IsTrue(metricItems[0].Properties.ContainsKey("Color"));
+                    Assert.AreEqual("Purple", metricItems[0].Properties["Color"]);
+
+                    // Note that this test requires understanding how metric dimensions and other information such as aggregation period will
+                    // be serielized into the Properties of the MetricTelemetry item. We will see how to avoid diving into these low level details
+                    // when we see how to unit test by capturing the metric aggregates directly.
+                }
+            }
+        }
+
+        /// <summary />
+        public static void ExecB()
+        {
+            // *** UNIT TESTS: CAPTURING APLICATION INSIGHTS TELEMETRY BY SUBSTITUTING THE TELEMETRY CHANNEL ***
+
+            // Previously we used dependency injection to provide a custom telemetry client to test a method.
+
+            // Consider now a slightly modified class ServiceClassB that does not expect a a custom telemetry client.
+            // We can test it by substituting the channel used in the the default telemetry pipeline. 
+
+            // In a production application the class will probably be instantiated and called like this:
+
+            {
+                ServiceClassB serviceB = new ServiceClassB();
+                serviceB.SellPurpleDucks(42);
+            }
+
+            // Here is the unit test:
+
+            {
+                // Do not forget to set the InstrumentationKey to some value, otherwise the pipeline will not send any telemetry to the channel.
+                TelemetryConfiguration.Active.InstrumentationKey = Guid.NewGuid().ToString("D");
+
+                // Although this approach is more widely applicable, and does not require to prepare yor code for injection of the telemetry client,
+                // in this model different unit tests can interfere with each other via the static default telemetry pipeline.
+                // Such interference may be non-trivial. For this simple test, we need to flush out all the tracked values from the code that just run.
+                // This will flush out all Measurements, but not counters, since they persist between flushes. This can unit testing with this method quite complex.
+                // Otherwise they will interfere with the counts assertions below.
+                TelemetryConfiguration.Active.Metrics().Flush();
+                (new TelemetryClient(TelemetryConfiguration.Active)).Flush();
+
+                // Create the test pipeline and client.
+                StubTelemetryChannel telemetryCollector = new StubTelemetryChannel();
+                TelemetryConfiguration.Active.TelemetryChannel = telemetryCollector;
+                TelemetryConfiguration.Active.InstrumentationKey = Guid.NewGuid().ToString("D");
+
+                // Invoke method bein tested:
+                ServiceClassB serviceB = new ServiceClassB();
+                serviceB.SellPurpleDucks(42);
+
+                // Flushing the MetricManager is particularly important since the aggregation period of 1 minute has just started:
+                TelemetryConfiguration.Active.Metrics().Flush();
+
+                // As mentioned, tests using this approach interfere with each other.
+                // For example, when running all the exaples after each other, counters from previous examples are still associated with the
+                // metric manager at TelemetryConfiguration.Active.Metrics(). Luckily, all their names begin with "Items", so we can filter them out.
+
+                ITelemetry[] telemetryFromThisTest = telemetryCollector.TelemetryItems
+                                                                       .Where( (t) => !((t is MetricTelemetry) && ((MetricTelemetry) t).Name.StartsWith("Items")) )
+                                                                       .ToArray();
+
+                // Verify that the right telemetry was sent:
+
+                Assert.AreEqual(2, telemetryFromThisTest.Length);
+
+                TraceTelemetry[] traceItems = telemetryFromThisTest.Where( (t) => ((t != null) && (t is TraceTelemetry)) )
+                                                                   .Select( (t) => ((TraceTelemetry) t) )
+                                                                   .ToArray();
+                Assert.AreEqual(1, traceItems.Length);
+                Assert.AreEqual("Stuff #1 completed", traceItems[0].Message);
+                Assert.AreEqual(TraceSeveretyLevel.Information, traceItems[0].SeverityLevel);
+
+                MetricTelemetry[] metricItems = telemetryFromThisTest.Where( (t) => ((t != null) && (t is MetricTelemetry)) )
+                                                                     .Select( (t) => ((MetricTelemetry) t) )
+                                                                     .ToArray();
+                Assert.AreEqual(1, metricItems.Length);
+                Assert.AreEqual("Ducks Sold", metricItems[0].Name);
+                Assert.AreEqual(1, metricItems[0].Count);
+                Assert.AreEqual(42, metricItems[0].Sum);
+                Assert.AreEqual(42, metricItems[0].Min);
+                Assert.AreEqual(42, metricItems[0].Max);
+                Assert.AreEqual(0, metricItems[0].StandardDeviation);
+                Assert.AreEqual(2, metricItems[0].Properties.Count);
+                Assert.IsTrue(metricItems[0].Properties.ContainsKey("_MS.AggregationIntervalMs"));
+                Assert.IsTrue(metricItems[0].Properties.ContainsKey("Color"));
+                Assert.AreEqual("Purple", metricItems[0].Properties["Color"]);
+
+                // Note that this test requires understanding how metric dimensions and other information such as aggregation period will
+                // be serielized into the Properties of the MetricTelemetry item. We will see how to avoid diving into these low level details
+                // when we see how to unit test by capturing the metric aggregates directly.
+            }
+        }
+
+        /// <summary />
+        public static void ExecC()
+        {
+            // *** UNIT TESTS: CAPTURING METRIC AGGREGATES ***
+
+            // Previously described test approaches intercept all application insights telemetry.
+            // There are some drawbacks to such tests that are rare, but cab be significant in some circumstances:
+            //  - Tests using channel substitution (model b) can interfere with each other (see above), making testing overly complex.
+            //  - Since all telemetry is intercepted, such testing is suibale for unit tests only, but not for some integration or
+            //    production test scenarios were telemetry needs to be actually sent to the cloud.
+            //  - It is not applicable in the advanced scenarios where metric aggregates are sent to a consumer other that the
+            //    Application Insights cloud endpoint.
+            //  - It requires insights in how MetricAggregates are seriealized to MetricTelemetry items. Such seerialization may
+            //    change over time if new metric aggregation kinds are supported by the processing backend.
+            // Here, we use a custom aggregation cycle to bypass this limitation.
+
+            // Consider now a slightly modified class ServiceClassB that does not expect a a custom telemetry client.
+            // We can test it by substituting the channel used in the the default telemetry pipeline. 
+
+            // In a production application the class will probably be instantiated and called like this:
+
+            {
+                ServiceClassB serviceB = new ServiceClassB();
+                serviceB.SellPurpleDucks(42);
+            }
+
+            // Here is the unit test:
+
+            {
+                // Flush out all the tracked values from the code that just run. Otherwise they will interfere with the counts assertions below.
+                TelemetryConfiguration.Active.Metrics().Flush();
+
+                // Create the test pipeline and client.
+                // Do not forget to set the InstrumentationKey to some value, otherwise the pipeline will not send any telemetry to the channel.
+                StubTelemetryChannel telemetryCollector = new StubTelemetryChannel();
+                TelemetryConfiguration.Active.TelemetryChannel = telemetryCollector;
+                TelemetryConfiguration.Active.InstrumentationKey = Guid.NewGuid().ToString("D");
+
+                // Invoke method bein tested:
+                ServiceClassB serviceB = new ServiceClassB();
+                serviceB.SellPurpleDucks(42);
+
+                // Flushing the MetricManager is particularly important since the aggregation period of 1 minute has just started:
+                TelemetryConfiguration.Active.Metrics().Flush();
+
+                // Verify that the right telemetry was sent:
+                Assert.AreEqual(2, telemetryCollector.TelemetryItems.Count);
+
+                TraceTelemetry[] traceItems = telemetryCollector.TelemetryItems.Where( (t) => ((t != null) && (t is TraceTelemetry)) )
+                                                                                 .Select( (t) => ((TraceTelemetry) t) )
+                                                                                 .ToArray();
+                Assert.AreEqual(1, traceItems.Length);
+                Assert.AreEqual("Stuff #1 completed", traceItems[0].Message);
+                Assert.AreEqual(TraceSeveretyLevel.Information, traceItems[0].SeverityLevel);
+
+                MetricTelemetry[] metricItems = telemetryCollector.TelemetryItems.Where( (t) => ((t != null) && (t is MetricTelemetry)) )
+                                                                                   .Select( (t) => ((MetricTelemetry) t) )
+                                                                                   .ToArray();
+                Assert.AreEqual(1, metricItems.Length);
+                Assert.AreEqual("Ducks Sold", metricItems[0].Name);
+                Assert.AreEqual(1, metricItems[0].Count);
+                Assert.AreEqual(42, metricItems[0].Sum);
+                Assert.AreEqual(42, metricItems[0].Min);
+                Assert.AreEqual(42, metricItems[0].Max);
+                Assert.AreEqual(0, metricItems[0].StandardDeviation);
+                Assert.AreEqual(2, metricItems[0].Properties.Count);
+                Assert.IsTrue(metricItems[0].Properties.ContainsKey("_MS.AggregationIntervalMs"));
+                Assert.IsTrue(metricItems[0].Properties.ContainsKey("Color"));
+                Assert.AreEqual("Purple", metricItems[0].Properties["Color"]);
+
+                // Note that this test requires understanding how metric dimensions and other information such as aggregation period will
+                // be serielized into the Properties of the MetricTelemetry item. We will see how to avoid diving into these low level details
+                // when we see how to unit test by capturing the metric aggregates directly.
+            }
+        }
+    }
+
+    internal class ServiceClassA
+    {
+        private TelemetryClient _telemetryClient = null;
+
+        public ServiceClassA(TelemetryClient telemetryClient)
+        {
+            if (telemetryClient == null)
+            {
+                throw new ArgumentNullException(nameof(telemetryClient));
+            }
+
+            _telemetryClient = telemetryClient;
+        }
+
+        public void SellPurpleDucks(int count)
+        {
+            // Do some stuff #1...
+            _telemetryClient.TrackTrace("Stuff #1 completed", TraceSeveretyLevel.Information);
+
+            // Do more stuff...
+            _telemetryClient.GetMetric("Ducks Sold", "Color").TryTrackValue(count, "Purple");
+        }
+    }
+
+    internal class ServiceClassB
+    {
+        public ServiceClassB()
+        {
+        }
+
+        public void SellPurpleDucks(int count)
+        {
+            // Do some stuff #1...
+            (new TelemetryClient()).TrackTrace("Stuff #1 completed", TraceSeveretyLevel.Information);
+
+            // Do more stuff...
+            (new TelemetryClient()).GetMetric("Ducks Sold", "Color").TryTrackValue(count, "Purple");
+        }
+    }
+
+    internal class TestUtil
+    {
+        public static TelemetryConfiguration CreateApplicationInsightsTelemetryConfiguration(out IList<ITelemetry> telemetrySentToChannel)
+        {
+            StubTelemetryChannel channel = new StubTelemetryChannel();
+            string iKey = Guid.NewGuid().ToString("D");
+            TelemetryConfiguration telemetryConfig = new TelemetryConfiguration(iKey, channel);
+
+            var channelBuilder = new TelemetryProcessorChainBuilder(telemetryConfig);
+            channelBuilder.Build();
+
+            foreach (ITelemetryProcessor initializer in telemetryConfig.TelemetryInitializers)
+            {
+                ITelemetryModule m = initializer as ITelemetryModule;
+                if (m != null)
+                {
+                    m.Initialize(telemetryConfig);
+                }
+            }
+
+            foreach (ITelemetryProcessor processor in telemetryConfig.TelemetryProcessors)
+            {
+                ITelemetryModule m = processor as ITelemetryModule;
+                if (m != null)
+                {
+                    m.Initialize(telemetryConfig);
+                }
+            }
+
+            telemetrySentToChannel = channel.TelemetryItems;
+            return telemetryConfig;
+        }
+    }
+
+    internal class StubTelemetryChannel : ITelemetryChannel
+    {
+        public StubTelemetryChannel()
+        {
+            TelemetryItems = new List<ITelemetry>();
+        }
+
+        public bool? DeveloperMode { get; set; }
+
+        public string EndpointAddress { get; set; }
+
+        public IList<ITelemetry> TelemetryItems { get; }
+
+        public void Send(ITelemetry item)
+        {
+            TelemetryItems.Add(item);
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public void Flush()
+        {
+        }
+    }
+}
+// ----------- ----------- ----------- ----------- ----------- ----------- ----------- ----------- -----------
+namespace User.Namespace.Example06c
+{
+    using System;
+
+    using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility;
+
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using TraceSeveretyLevel = Microsoft.ApplicationInsights.DataContracts.SeverityLevel;
+    
+    /// <summary>
+    /// In this example we discuss how to write unit tests that validate that metrics are sent correctly
+    /// We will consider an advanced unit test approach:
+    ///  c) Capturing metric aggregates only.
+    /// </summary>
+    public class Sample06c
+    {
+        /// <summary />
+        public static void ExecC()
+        {
+            // *** UNIT TESTS: CAPTURING METRIC AGGREGATES ***
+
+            // Previously described test approaches intercept all application insights telemetry.
+            // There are some drawbacks to such tests that are rare, but cab be significant in some circumstances:
+            //  - Since all telemetry is intercepted, such testing is suibale for unit tests only, but not for some integration or
+            //    production test scenarios were telemetry needs to be actually sent to the cloud.
+            //  - It is not applicable in the advanced scenarios where metric aggregates are sent to a consumer other that the
+            //    Application Insights cloud endpoint.
+            //  - It requires insights in how MetricAggregates are seriealized to MetricTelemetry items. Such seerialization may
+            //    change over time if new metric aggregation kinds are supported by the processing backend.
+            // Here, we use a custom aggregation cycle to bypass these limitations.
+
+            // Previousy we mentioned that a MetricManager encapsulates a managed thread that drives the default aggregation cycle and sends
+            // metric aggregates to the cloud every minute.
+            // In fact, there are 3 aggregation cycles. Beyond the default cycle, there is a custom cycle and an additional cycle dedicated
+            // specifically for QuickPulse/LiveMetrics integration. Users should not me using the QuickPulse cycle for their code.
+            // Here we discuss the custom aggregation cycle.
+            // Aggregation cycles other than Default do not add additional threads.
+            // Instead, they track values into additional aggregators and allow users to pull data when desired. Thus, user have full controll
+            // over timing issues.
+
+            // In the context of testing, users can use "virtual time", i.e. they can specify any timestamps in a test that
+            // runs only for milliseconds, thus testing varous timing scenarios.
+
+            DateTimeOffset testStartTime = new DateTimeOffset(2017, 11, 1, 13, 0, 0, TimeSpan.FromHours(8));
+
+            // In order to use custom aggregation cycles and other advanced metrics features, import the following namespace:
+            // using Microsoft.ApplicationInsights.Metrics.Extensibility;
+
+            // By default all non-default aggregation cycles are inactive. To activate the custom cycle, request the custom cycle aggregates:
+
+            MetricManager defaultMetricManager = TelemetryConfiguration.Active.Metrics();
+            AggregationPeriodSummary lastCycle = defaultMetricManager.StartOrCycleAggregators(
+                                                                                MetricAggregationCycleKind.Custom,
+                                                                                testStartTime,
+                                                                                ExcludeCountersFromPreviousTestsFilter.Instance);
+
+            // If the cycle was inactive so far, it will be started up and aggregation into the cycle will begin. Other cycles will be unaffected.
+            // Since this was the first invocation, the received AggregationPeriodSummary is empty:
+
+            Assert.AreEqual(0, lastCycle.NonpersistentAggregates.Count);
+
+            // Now we can call the methos being tested.
+            
+            ServiceClassC serviceC = new ServiceClassC();
+            serviceC.SellPurpleDucks(42);
+
+            // Now we can pull the data again. Let us pretend that 1 full minute has passed:
+
+            lastCycle = defaultMetricManager.StartOrCycleAggregators(
+                                                    MetricAggregationCycleKind.Custom,
+                                                    testStartTime.AddMinutes(1),
+                                                    ExcludeCountersFromPreviousTestsFilter.Instance);
+
+            // Now we can verify that metrics were tracked correctly:
+
+            Assert.AreEqual(1, lastCycle.NonpersistentAggregates.Count, "One Measurement should be tracked");
+            Assert.AreEqual(0, lastCycle.PersistentAggregates.Count, "No Counters should be tracked");
+
+            Assert.AreEqual("Ducks Sold", lastCycle.NonpersistentAggregates[0].MetricId);
+            Assert.AreEqual(MetricAggregateKinds.SimpleStatistics.Moniker, lastCycle.NonpersistentAggregates[0].AggregationKindMoniker);
+            Assert.AreEqual(testStartTime, lastCycle.NonpersistentAggregates[0].AggregationPeriodStart);
+            Assert.AreEqual(TimeSpan.FromMinutes(1), lastCycle.NonpersistentAggregates[0].AggregationPeriodDuration);
+            Assert.AreEqual(1, lastCycle.NonpersistentAggregates[0].Dimensions.Count);
+            Assert.AreEqual("Purple", lastCycle.NonpersistentAggregates[0].Dimensions["Color"]);
+            Assert.AreEqual(1, lastCycle.NonpersistentAggregates[0].GetAggregateData<int>(MetricAggregateKinds.SimpleStatistics.DataKeys.Count, -1));
+            Assert.AreEqual(42, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Sum, -1));
+            Assert.AreEqual(42, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Min, -1));
+            Assert.AreEqual(42, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Max, -1));
+            Assert.AreEqual(0, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.StdDev, -1));
+
+            // Note that becasue "Ducks Sold" is a Measurement, the and we cycled the cycle aggregators, the current aggregator is not empty.
+            // However, if it was a counter, it would keep the values tracked thus far. To help differentiate between thes two cases, Measurement-like
+            // aggregates are contained within AggregationPeriodSummary.NonpersistentAggregates and  Counter-like aggregates are contained within
+            // AggregationPeriodSummary.PersistentAggregates.
+
+            // Let's call the tested API again, now twice:
+
+            serviceC.SellPurpleDucks(11);
+            serviceC.SellPurpleDucks(12);
+
+            // Since we are now done, we will gracefully shut down the custom aggregation cycle. We will receive the last aggregates:
+
+            lastCycle = defaultMetricManager.StopAggregators(MetricAggregationCycleKind.Custom, testStartTime.AddMinutes(2));
+
+            Assert.AreEqual(1, lastCycle.NonpersistentAggregates.Count, "One Measurement should be tracked (with two values)");
+            Assert.AreEqual(0, lastCycle.PersistentAggregates.Count, "No Counters should be tracked");
+
+            Assert.AreEqual("Ducks Sold", lastCycle.NonpersistentAggregates[0].MetricId);
+            Assert.AreEqual(MetricAggregateKinds.SimpleStatistics.Moniker, lastCycle.NonpersistentAggregates[0].AggregationKindMoniker);
+            Assert.AreEqual(testStartTime.AddMinutes(1), lastCycle.NonpersistentAggregates[0].AggregationPeriodStart);
+            Assert.AreEqual(TimeSpan.FromMinutes(1), lastCycle.NonpersistentAggregates[0].AggregationPeriodDuration);
+            Assert.AreEqual(1, lastCycle.NonpersistentAggregates[0].Dimensions.Count);
+            Assert.AreEqual("Purple", lastCycle.NonpersistentAggregates[0].Dimensions["Color"]);
+            Assert.AreEqual(2, lastCycle.NonpersistentAggregates[0].GetAggregateData<int>(MetricAggregateKinds.SimpleStatistics.DataKeys.Count, -1));
+            Assert.AreEqual(23, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Sum, -1));
+            Assert.AreEqual(11, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Min, -1));
+            Assert.AreEqual(12, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Max, -1));
+            Assert.AreEqual(0.5, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.StdDev, -1));
+        }
+    }
+
+    internal class ServiceClassC
+    {
+        public ServiceClassC()
+        {
+        }
+
+        public void SellPurpleDucks(int count)
+        {
+            // Do some stuff #1...
+            (new TelemetryClient()).TrackTrace("Stuff #1 completed", TraceSeveretyLevel.Information);
+
+            // Do more stuff...
+            (new TelemetryClient()).GetMetric("Ducks Sold", "Color").TryTrackValue(count, "Purple");
+        }
+    }
+
+    internal class ExcludeCountersFromPreviousTestsFilter : IMetricSeriesFilter
+    {
+        public static readonly ExcludeCountersFromPreviousTestsFilter Instance = new ExcludeCountersFromPreviousTestsFilter();
+
+        public bool WillConsume(MetricSeries dataSeries, out IMetricValueFilter valueFilter)
+        {
+            valueFilter = null;
+            return !dataSeries.MetricId.StartsWith("Items");
+        }
+    }
+
+}
+// ----------- ----------- ----------- ----------- ----------- ----------- ----------- ----------- -----------
+namespace Microsoft.ApplicationInsights.Metrics.Examples
+{
+    using System;
+
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    /// <summary>
+    /// This class runs all examples.
+    /// </summary>
+    [TestClass]
+    public class RunAllExamples
+    {
+        /// <summary />
+        [TestMethod]
+        public void Example01()
+        {
+            User.Namespace.Example01.Sample01.Exec();
+        }
+
+        /// <summary />
+        [TestMethod]
+        public void Example02()
+        {
+            User.Namespace.Example02.Sample02.Exec();
+        }
+
+        /// <summary />
+        [TestMethod]
+        public void Example03()
+        {
+            User.Namespace.Example03.Sample03.Exec();
+        }
+
+        /// <summary />
+        [TestMethod]
+        public void Example04()
+        {
+            User.Namespace.Example04.Sample04.Exec();
+        }
+
+        /// <summary />
+        [TestMethod]
+        public void Example05()
+        {
+            User.Namespace.Example05.Sample05.Exec();
+        }
+
+        /// <summary />
+        [TestMethod]
+        public void Example06()
+        {
+            //User.Namespace.Example06ab.Sample06ab.ExecA();
+            User.Namespace.Example06ab.Sample06ab.ExecB();
+            //User.Namespace.Example06c.Sample06c.ExecC();
         }
     }
 }
