@@ -82,7 +82,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     {
                         cancelControl.Cancel();
                         await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => pipelineAdapter.TrackAsync(
-                                                                                new MetricAggregate("mid", MetricAggregationKinds.SimpleMeasurement.Moniker),
+                                                                                new MetricAggregate("mid", MetricAggregateKinds.SimpleStatistics.Moniker),
                                                                                 cancelControl.Token));
                     }
                 }
@@ -95,24 +95,24 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
                     {
-                        var agregate = new MetricAggregate("M1", MetricAggregationKinds.SimpleMeasurement.Moniker);
+                        var agregate = new MetricAggregate("M1", MetricAggregateKinds.SimpleStatistics.Moniker);
                         agregate.AggregateData["Count"] = 1;
                         agregate.AggregateData["Sum"] = 10;
                         await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
                     }
                     {
-                        var agregate = new MetricAggregate("M2", MetricAggregationKinds.SimpleMeasurement.Moniker);
+                        var agregate = new MetricAggregate("M2", MetricAggregateKinds.SimpleStatistics.Moniker);
                         agregate.AggregateData["Count"] = 0;
                         agregate.AggregateData["Sum"] = 20;
                         await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
                     }
                     {
-                        var agregate = new MetricAggregate("M3", MetricAggregationKinds.SimpleMeasurement.Moniker);
+                        var agregate = new MetricAggregate("M3", MetricAggregateKinds.SimpleStatistics.Moniker);
                         agregate.AggregateData["Sum"] = 30;
                         await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
                     }
                     {
-                        var agregate = new MetricAggregate("M4", MetricAggregationKinds.SimpleMeasurement.Moniker);
+                        var agregate = new MetricAggregate("M4", MetricAggregateKinds.SimpleStatistics.Moniker);
                         agregate.AggregateData["Count"] = 2.9;
                         agregate.AggregateData["Sum"] = -40;
                         await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
@@ -173,7 +173,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleMeasurement");
+                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleStatistics");
                     await pipelineAdapter.TrackAsync(aggregate, CancellationToken.None);
 
                     Assert.AreEqual(1, telemetrySentToChannel.Count);
@@ -204,7 +204,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleMeasurement");
+                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleStatistics");
 
                     aggregate.AggregationPeriodStart = new DateTimeOffset(2017, 10, 30, 0, 1, 0, TimeSpan.FromHours(8));
                     aggregate.AggregationPeriodDuration = TimeSpan.FromSeconds(90);
@@ -244,7 +244,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleMeasurement");
+                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleStatistics");
 
                     aggregate.AggregationPeriodStart = new DateTimeOffset(2017, 10, 30, 0, 1, 0, TimeSpan.FromHours(8));
                     aggregate.AggregationPeriodDuration = TimeSpan.FromSeconds(90);
@@ -286,17 +286,18 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleMeasurement");
+                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleStatistics");
 
                     aggregate.AggregationPeriodStart = new DateTimeOffset(2017, 10, 30, 0, 1, 0, TimeSpan.FromHours(8));
                     aggregate.AggregationPeriodDuration = TimeSpan.FromSeconds(90);
 
                     aggregate.AggregateData["Murr"] = "Miau";
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Count] = 1.2;
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Sum] = "one";
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Min] = "2.3";
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Max] = "-4";
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.StdDev] = 5;
+                    aggregate.AggregateData["Purr"] = null;
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Count] = 1.2;
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Sum] = "one";
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Min] = "2.3";
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Max] = "-4";
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.StdDev] = 5;
 
                     await pipelineAdapter.TrackAsync(aggregate, CancellationToken.None);
 
@@ -328,17 +329,17 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleMeasurement");
+                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleStatistics");
 
                     aggregate.AggregationPeriodStart = new DateTimeOffset(2017, 10, 30, 0, 1, 0, TimeSpan.FromHours(8));
                     aggregate.AggregationPeriodDuration = TimeSpan.FromSeconds(90);
 
                     aggregate.AggregateData["Murr"] = "Miau";
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Count] = -3.7;
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Sum] = "-100";
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Min] = -10000000000;
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Max] = ((double) Int32.MaxValue) + 100;
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.StdDev] = -2;
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Count] = -3.7;
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Sum] = "-100";
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Min] = -10000000000;
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Max] = ((double) Int32.MaxValue) + 100;
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.StdDev] = -2;
 
                     aggregate.Dimensions["Dim 1"] = "DV1";
                     aggregate.Dimensions["Dim 2"] = "DV2";
@@ -428,17 +429,17 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleMeasurement");
+                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleStatistics");
 
                     aggregate.AggregationPeriodStart = new DateTimeOffset(2017, 10, 30, 0, 1, 0, TimeSpan.FromHours(8));
                     aggregate.AggregationPeriodDuration = TimeSpan.FromSeconds(90);
 
                     aggregate.AggregateData["Murr"] = "Miau";
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Count] = -3.7;
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Sum] = "-100";
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Min] = -10000000000;
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Max] = ((double) Int32.MaxValue) + 100;
-                    aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.StdDev] = -2;
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Count] = -3.7;
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Sum] = null;
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Min] = -10000000000;
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Max] = ((double) Int32.MaxValue) + 100;
+                    aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.StdDev] = -2;
 
                     aggregate.Dimensions["Dim 1"] = "DV1";
                     aggregate.Dimensions["Dim 2"] = "DV2";
@@ -479,7 +480,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                                                     metricTelemetry,
                                                     "mid-foobar",
                                                     expectedCount,
-                                                    sum:        -100,
+                                                    sum:        0,
                                                     max:        ((double) Int32.MaxValue) + 100,
                                                     min:        -10000000000,
                                                     stdDev:     -2,

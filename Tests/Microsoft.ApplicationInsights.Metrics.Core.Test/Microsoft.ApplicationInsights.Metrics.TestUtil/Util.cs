@@ -177,7 +177,7 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtil
         {
             Assert.IsNotNull(aggregate);
 
-            Assert.AreEqual("Microsoft.ApplicationInsights.SimpleMeasurement", aggregate.AggregationKindMoniker);
+            Assert.AreEqual("Microsoft.ApplicationInsights.SimpleStatistics", aggregate.AggregationKindMoniker);
 
             Assert.AreEqual(name, aggregate.MetricId, "aggregate.Name mismatch");
             Assert.AreEqual(count, aggregate.AggregateData["Count"], "aggregate.Count mismatch");

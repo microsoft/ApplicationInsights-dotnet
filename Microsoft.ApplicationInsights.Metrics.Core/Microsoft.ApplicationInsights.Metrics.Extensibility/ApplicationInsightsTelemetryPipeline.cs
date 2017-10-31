@@ -68,11 +68,11 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             Util.ValidateNotNull(metricAggregate, nameof(metricAggregate));
             Util.ValidateNotNull(metricAggregate.AggregationKindMoniker, nameof(metricAggregate.AggregationKindMoniker));
 
-            if (! metricAggregate.AggregationKindMoniker.Equals(MetricAggregationKinds.SimpleMeasurement.Moniker, StringComparison.OrdinalIgnoreCase))
+            if (! metricAggregate.AggregationKindMoniker.Equals(MetricAggregateKinds.SimpleStatistics.Moniker, StringComparison.OrdinalIgnoreCase))
             {
                 throw new ArgumentException($"This {nameof(IMetricTelemetryPipeline)} implementation ({nameof(ApplicationInsightsTelemetryPipeline)})"
                                           + $" can only accept {nameof(MetricAggregate)}-objects with the AggregationKindMoniker"
-                                          + $" '{MetricAggregationKinds.SimpleMeasurement.Moniker}'."
+                                          + $" '{MetricAggregateKinds.SimpleStatistics.Moniker}'."
                                           + $" However, the specified aggregate has a different moniker: '{metricAggregate.AggregationKindMoniker}'. ");
             }
         }
@@ -84,11 +84,11 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             // Set data values:
 
             telemetryItem.Name = aggregate.MetricId;
-            telemetryItem.Count = SafeGetData<int>(aggregate, MetricAggregationKinds.SimpleMeasurement.DataKeys.Count, 0);
-            telemetryItem.Sum = SafeGetData<double>(aggregate, MetricAggregationKinds.SimpleMeasurement.DataKeys.Sum, 0.0);
-            telemetryItem.Min = SafeGetData<double>(aggregate, MetricAggregationKinds.SimpleMeasurement.DataKeys.Min, 0.0);
-            telemetryItem.Max = SafeGetData<double>(aggregate, MetricAggregationKinds.SimpleMeasurement.DataKeys.Max, 0.0);
-            telemetryItem.StandardDeviation = SafeGetData<double>(aggregate, MetricAggregationKinds.SimpleMeasurement.DataKeys.StdDev, 0.0);
+            telemetryItem.Count = aggregate.GetAggregateData<int>(MetricAggregateKinds.SimpleStatistics.DataKeys.Count, 0);
+            telemetryItem.Sum = aggregate.GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Sum, 0.0);
+            telemetryItem.Min = aggregate.GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Min, 0.0);
+            telemetryItem.Max = aggregate.GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Max, 0.0);
+            telemetryItem.StandardDeviation = aggregate.GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.StdDev, 0.0);
 
             // Set timing values:
 
@@ -128,25 +128,6 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             Util.StampSdkVersionToContext(telemetryItem);
 
             return telemetryItem;
-        }
-
-        private static T SafeGetData<T>(MetricAggregate aggregate, string dataKey, T defaultValue)
-        {
-            object dataValue;
-            if (aggregate.AggregateData.TryGetValue(dataKey, out dataValue))
-            {
-                try
-                {
-                    T value = (T) Convert.ChangeType(dataValue, typeof(T));
-                    return value;
-                }
-                catch
-                {
-                    return defaultValue;
-                }
-            }
-
-            return defaultValue;
         }
     }
 }

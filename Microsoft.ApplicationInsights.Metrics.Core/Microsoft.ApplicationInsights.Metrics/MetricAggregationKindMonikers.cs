@@ -1,15 +1,15 @@
 ﻿using System;
 
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+namespace Microsoft.ApplicationInsights.Metrics
 {
     /// <summary />
-    public static class MetricAggregationKinds
+    public static class MetricAggregateKinds
     {
         /// <summary />
-        public static class SimpleMeasurement
+        public static class SimpleStatistics
         {
             /// <summary />
-            public const string Moniker = "Microsoft.ApplicationInsights.SimpleMeasurement";
+            public const string Moniker = "Microsoft.ApplicationInsights.SimpleStatistics";
 
             /// <summary />
             public static class DataKeys

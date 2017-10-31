@@ -46,13 +46,13 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             MetricAggregate aggregate = new MetricAggregate(
                                                 DataSeries?.MetricId ?? Util.NullString,
-                                                MetricAggregationKinds.SimpleMeasurement.Moniker);
+                                                MetricAggregateKinds.SimpleStatistics.Moniker);
 
-            aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Count] = totalValuesCount;
-            aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Sum] = (double) uniqueValuesCount;
-            aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Min] = 0.0;
-            aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.Max] = 0.0;
-            aggregate.AggregateData[MetricAggregationKinds.SimpleMeasurement.DataKeys.StdDev] = 0.0;
+            aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Count] = totalValuesCount;
+            aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Sum] = (double) uniqueValuesCount;
+            aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Min] = 0.0;
+            aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.Max] = 0.0;
+            aggregate.AggregateData[MetricAggregateKinds.SimpleStatistics.DataKeys.StdDev] = 0.0;
 
             AddInfo_Timing_Dimensions_Context(aggregate, periodEnd);
 

@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+namespace Microsoft.ApplicationInsights.Metrics
 {
     /// <summary>
     /// </summary>
@@ -111,6 +111,33 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     _additionalDataContext = value;
                 }
             }
+        }
+
+        /// <summary>
+        /// This is aconvenience method to retrieve the object at <c>AggregateData[dataKey]</c>.
+        /// It attempts to convert that object to the specified type <c>T</c>. If the conversion fails, the specified <c>defaultValue</c> is returned.
+        /// </summary>
+        /// <typeparam name="T">Type to which to convert the object at <c>AggregateData[dataKey]</c>.</typeparam>
+        /// <param name="dataKey">Key for the data item.</param>
+        /// <param name="defaultValue">The value to return if conversion fails.</param>
+        /// <returns></returns>
+        public T GetAggregateData<T>(string dataKey, T defaultValue)
+        {
+            object dataValue;
+            if (AggregateData.TryGetValue(dataKey, out dataValue))
+            {
+                try
+                {
+                    T value = (T) Convert.ChangeType(dataValue, typeof(T));
+                    return value;
+                }
+                catch
+                {
+                    return defaultValue;
+                }
+            }
+
+            return defaultValue;
         }
     }
 }
