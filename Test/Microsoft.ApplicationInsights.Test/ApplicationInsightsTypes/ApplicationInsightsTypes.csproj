@@ -16,9 +16,8 @@
     <RootNamespace>ApplicationInsightsTypes</RootNamespace>
     <AssemblyName>ApplicationInsightsTypes</AssemblyName>
     <BondOptions>--collection-interfaces --using="DateTimeOffset=System.DateTimeOffset" --using="TimeSpan=System.TimeSpan" --using="Guid=System.Guid"</BondOptions>
+    <BondOutputDirectory>$(MSBuildThisFileDirectory)\Generated</BondOutputDirectory>
   </PropertyGroup>
-  <ItemGroup>
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MicroBuild.Core" Version="0.2.0">
       <IncludeAssets>All</IncludeAssets>
@@ -29,7 +28,7 @@
       <PrivateAssets>build</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="$(OS) == 'Windows_NT'">
     <BondCodegen Include="..\..\..\Schema\PublicSchema\AvailabilityData.bond">
       <Link>StackFrame.bond</Link>
     </BondCodegen>
