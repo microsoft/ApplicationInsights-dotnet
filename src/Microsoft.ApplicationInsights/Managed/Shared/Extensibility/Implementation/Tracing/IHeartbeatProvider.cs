@@ -8,9 +8,9 @@
     {
         string DiagnosticsInstrumentationKey { set; }
 
-        bool AddHealthProperty(HealthHeartbeatProperty payloadItem);
+        bool AddHealthProperty(string name, string value, bool isHealthy);
 
-        bool SetHealthProperty(HealthHeartbeatProperty payloadItem);
+        bool SetHealthProperty(string name, string value = null, bool? isHealthy = null);
 
         bool RemoveHealthProperty(string payloadItemName);
 

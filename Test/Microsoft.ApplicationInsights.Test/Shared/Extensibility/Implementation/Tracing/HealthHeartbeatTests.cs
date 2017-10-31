@@ -13,7 +13,7 @@
     public class HealthHeartbeatTests
     {
         [TestMethod]
-        public void InitializeHealthHeartbeat()
+        public void InitializeHealthHeartbeatDoesntThrow()
         {
             using (var hbeat = new HealthHeartbeatProvider())
             {
@@ -84,10 +84,7 @@
 
                 try
                 {
-                    Assert.IsTrue(hbeat.AddHealthProperty(new HealthHeartbeatProperty("test01", "this is a value", true)));
-                    Assert.IsTrue(hbeat.AddHealthProperty(new HealthHeartbeatProperty("test02", DateTime.Now, true)));
-                    Assert.IsTrue(hbeat.AddHealthProperty(new HealthHeartbeatProperty("test03", 245.678, true)));
-                    Assert.IsTrue(hbeat.AddHealthProperty(new HealthHeartbeatProperty("test04", new List<string>() { "one", "two", "three" }, true)));
+                    Assert.IsTrue(hbeat.AddHealthProperty("test01", "this is a value", true));
                 }
                 catch (Exception e)
                 {
@@ -150,7 +147,7 @@
             {
                 hbeat.Initialize(configuration: null);
                 string testerKey = "tester123";
-                hbeat.AddHealthProperty(new HealthHeartbeatProperty(testerKey, "test", true));
+                Assert.IsTrue(hbeat.AddHealthProperty(testerKey, "test", true));
                 hbeat.SimulateSend();
                 bool contentFound = false;
                 foreach (var msg in hbeat.sentMessages)
@@ -241,7 +238,7 @@
             {
                 hbeat.Initialize(configuration: null);
                 string testerKey = "tester123";
-                hbeat.AddHealthProperty(new HealthHeartbeatProperty(testerKey, "test", false));
+                hbeat.AddHealthProperty(testerKey, "test", false);
                 hbeat.SimulateSend();
                 Assert.IsTrue(hbeat.sentMessages.Any(a => a.Sum >= 1.0));
             }
@@ -279,8 +276,8 @@
                 Assert.IsTrue(hbeat.sentMessages.First()?.Sum == 0.0);
                 hbeat.sentMessages.Clear();
 
-                hbeat.AddHealthProperty(new HealthHeartbeatProperty("tester01", "test failure 1", false));
-                hbeat.AddHealthProperty(new HealthHeartbeatProperty("tester02", "test failure 2", false));
+                hbeat.AddHealthProperty("tester01", "test failure 1", false);
+                hbeat.AddHealthProperty("tester02", "test failure 2", false);
                 hbeat.SimulateSend();
 
                 Assert.IsTrue(hbeat.sentMessages.First()?.Sum == 2.0);
@@ -328,8 +325,8 @@
             {
                 hbeat.Initialize(configuration: null);
 
-                Assert.IsTrue(hbeat.AddHealthProperty(new HealthHeartbeatProperty("test01", "some test value", true)));
-                Assert.IsFalse(hbeat.AddHealthProperty(new HealthHeartbeatProperty("test01", "some other test value", true)));
+                Assert.IsTrue(hbeat.AddHealthProperty("test01", "some test value", true));
+                Assert.IsFalse(hbeat.AddHealthProperty("test01", "some other test value", true));
             }
         }
 
@@ -340,9 +337,9 @@
             {
                 hbeat.Initialize(configuration: null);
 
-                Assert.IsFalse(hbeat.SetHealthProperty(new HealthHeartbeatProperty("test01", "some other test value", true)));
-                Assert.IsTrue(hbeat.AddHealthProperty(new HealthHeartbeatProperty("test01", "some test value", true)));
-                Assert.IsTrue(hbeat.SetHealthProperty(new HealthHeartbeatProperty("test01", "some other test value", true)));
+                Assert.IsFalse(hbeat.SetHealthProperty("test01", "some other test value", true));
+                Assert.IsTrue(hbeat.AddHealthProperty("test01", "some test value", true));
+                Assert.IsTrue(hbeat.SetHealthProperty("test01", "some other test value", true));
             }
         }
 
@@ -355,8 +352,7 @@
 
                 foreach (string key in HealthHeartbeatDefaultPayload.DefaultFields)
                 {
-                    var prop = new HealthHeartbeatProperty(key, "test", true);
-                    Assert.IsFalse(hbeat.SetHealthProperty(prop));
+                    Assert.IsFalse(hbeat.SetHealthProperty(key, "test", true));
                 }
             }
         }
@@ -370,8 +366,7 @@
 
                 foreach (string key in HealthHeartbeatDefaultPayload.DefaultFields)
                 {
-                    var prop = new HealthHeartbeatProperty(key, "test", true);
-                    Assert.IsFalse(hbeat.AddHealthProperty(prop));
+                    Assert.IsFalse(hbeat.AddHealthProperty(key, "test", true));
                 }
             }
         }
@@ -387,6 +382,72 @@
                 {
                     Assert.IsFalse(kvp.Value.PayloadValue.Equals("undefined", StringComparison.OrdinalIgnoreCase));
                 }
+            }
+        }
+
+        [TestMethod]
+        public void CanSetHealthHeartbeatPayloadValueWithoutHealthyFlag()
+        {
+            using (var hbeat = new HealthHeartbeatProviderMock())
+            {
+                hbeat.Initialize(configuration: null);
+                string key = "setValueTest";
+
+                Assert.IsTrue(hbeat.AddHealthProperty(key, "value01", true));
+                Assert.IsTrue(hbeat.SetHealthProperty(key, "value02"));
+                hbeat.SimulateSend();
+                var messages = hbeat.sentMessages.First();
+                Assert.IsNotNull(messages);
+                Assert.IsTrue(messages.Properties.ContainsKey(key));
+                Assert.IsTrue(messages.Properties[key].Equals("value02", StringComparison.Ordinal));
+            }
+        }
+
+        [TestMethod]
+        public void CanSetHealthHeartbeatPayloadHealthIndicatorWithoutSettingValue()
+        {
+            using (var hbeat = new HealthHeartbeatProviderMock())
+            {
+                hbeat.Initialize(configuration: null);
+                string key = "healthSettingTest";
+
+                Assert.IsTrue(hbeat.AddHealthProperty(key, "value01", true));
+                Assert.IsTrue(hbeat.SetHealthProperty(key, null, false));
+                hbeat.SimulateSend();
+                var messages = hbeat.sentMessages.First();
+                Assert.IsNotNull(messages);
+                Assert.IsTrue(messages.Properties.ContainsKey(key));
+                Assert.IsTrue(messages.Properties[key].Equals("value01", StringComparison.Ordinal));
+                Assert.IsTrue(messages.Sum == 1.0); // one false message in payload only
+            }
+        }
+
+        [TestMethod]
+        public void CanRemoveHeartbeatPayloadProperty()
+        {
+            using (var hbeat = new HealthHeartbeatProviderMock())
+            {
+                hbeat.Initialize(configuration: null);
+                string key = "removePayloadItemTest";
+
+                Assert.IsTrue(hbeat.AddHealthProperty(key, "value01", true));
+                
+                hbeat.SimulateSend();
+
+                // ensure it is there the first time
+                var msg = hbeat.sentMessages.First();
+                Assert.IsNotNull(msg);
+                Assert.IsTrue(msg.Properties.ContainsKey(key));
+
+                // remove it
+                hbeat.sentMessages.Clear();
+                Assert.IsTrue(hbeat.RemoveHealthProperty(key));
+                hbeat.SimulateSend();
+
+                // ensure it is no longer there
+                msg = hbeat.sentMessages.First();
+                Assert.IsNotNull(msg);
+                Assert.IsFalse(msg.Properties.ContainsKey(key));
             }
         }
     }

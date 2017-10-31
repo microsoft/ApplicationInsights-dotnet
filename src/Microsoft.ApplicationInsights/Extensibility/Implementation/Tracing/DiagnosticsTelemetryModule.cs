@@ -177,15 +177,17 @@
         /// payload, including (but not limited to) the name of SDK-default items.
         /// 
         /// </summary>
-        /// <param name="payloadItem">Name, value, and health indicator of the value to add</param>
+        /// <param name="name">Name of the health heartbeat value to add</param>
+        /// <param name="value">Current value of the health heartbeat value to add</param>
+        /// <param name="isHealthy">Flag indicating whether or not the property represents a healthy value</param>
         /// <returns>True if the new payload item is successfully added, false otherwise.</returns>
-        public bool AddHealthProperty(HealthHeartbeatProperty payloadItem)
+        public bool AddHealthProperty(string name, string value, bool isHealthy)
         {
             if (this.HeartbeatProvider != null)
             {
                 try
                 {
-                    return this.HeartbeatProvider.AddHealthProperty(payloadItem);
+                    return this.HeartbeatProvider.AddHealthProperty(name, value, isHealthy);
                 }
                 catch (Exception e)
                 {
@@ -203,16 +205,18 @@
         /// heartbeat payload, the value represented by that item can be updated using this method at any time.
         /// 
         /// </summary>
-        /// <param name="payloadItem">Payload to include in Health Heartbeat telemetry item</param>
+        /// <param name="name">Name of the health heartbeat payload item property to set the value and/or health status of.</param>
+        /// <param name="value">Value of the health heartbeat payload item. If this is null, the current value in the item is left unchanged.</param>
+        /// <param name="isHealthy">Health status of the health heartbeat payload item. If this is set to null the health status is left unchanged.</param>
         /// <returns>True if the payload provider was added, false if it hasn't been added yet 
         /// (<see cref="DiagnosticsTelemetryModule.AddHealthProperty"/>).</returns>
-        public bool SetHealthProperty(HealthHeartbeatProperty payloadItem)
+        public bool SetHealthProperty(string name, string value = null, bool? isHealthy = null)
         {
-            if (this.HeartbeatProvider != null)
+            if (this.HeartbeatProvider != null && !string.IsNullOrEmpty(name) && (value != null || isHealthy != null))
             {
                 try
                 {
-                    return this.HeartbeatProvider.SetHealthProperty(payloadItem);
+                    return this.HeartbeatProvider.SetHealthProperty(name, value, isHealthy);
                 }
                 catch (Exception e)
                 {
@@ -226,7 +230,7 @@
         /// <summary>
         /// Remove a payload property from the health heartbeat.
         /// 
-        /// After the new HealthHeartbeatProperty has been removed, the property will no longer be sent with subsequent heartbeats.
+        /// After the new heartbeat property has been removed, the property will no longer be sent with subsequent heartbeats.
         /// </summary>
         /// <param name="payloadItemName">The name of the property to remove</param>
         /// <returns>True if the property was removed successfully, false otherwise (no property with this name exists)</returns>

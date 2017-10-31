@@ -118,8 +118,9 @@
 
                 return objectAssemblyFileVer != null ? objectAssemblyFileVer.Version : "undefined";
             }
-            catch
+            catch (Exception ex)
             {
+                CoreEventSource.Log.LogError("GetRuntimeFrameworkVer did not obtain the current runtime framework version due to exception: " + ex.ToInvariantString());
             }
 
             return "undefined";
