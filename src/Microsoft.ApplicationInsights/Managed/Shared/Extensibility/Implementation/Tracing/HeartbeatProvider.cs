@@ -12,7 +12,7 @@
     /// <summary>
     /// Implementation of health heartbeat functionality.
     /// </summary>
-    internal class HealthHeartbeatProvider : IDisposable, IHeartbeatProvider
+    internal class HeartbeatProvider : IDisposable, IHeartbeatProvider
     {
         /// <summary>
         /// The default interval between heartbeats if not specified by the user. Left public for use in unit tests.
@@ -29,28 +29,28 @@
         /// <summary>
         /// The SDK supplied 'default' payload items to send out with each health heartbeat.
         /// </summary>
-        private ConcurrentDictionary<string, HealthHeartbeatPropertyPayload> sdkPayloadItems;
+        private ConcurrentDictionary<string, HeartbeatPropertyPayload> sdkPayloadItems;
 
         /// <summary>
         /// The extended payload items to send out with each health heartbeat.
         /// </summary>
-        private ConcurrentDictionary<string, HealthHeartbeatPropertyPayload> extendPayloadItems;
+        private ConcurrentDictionary<string, HeartbeatPropertyPayload> extendPayloadItems;
 
         private bool disposedValue = false; // To detect redundant calls to dispose
         private TimeSpan heartbeatInterval; // time between heartbeats emitted specified in milliseconds
         private TelemetryClient telemetryClient; // client to use in sending our heartbeat
         private int heartbeatsSent; // counter of all heartbeats
 
-        public HealthHeartbeatProvider() : this(TimeSpan.FromMilliseconds(DefaultHeartbeatIntervalMs), null)
+        public HeartbeatProvider() : this(TimeSpan.FromMilliseconds(DefaultHeartbeatIntervalMs), null)
         {
         }
 
-        public HealthHeartbeatProvider(TimeSpan heartbeatInterval, IEnumerable<string> disabledDefaultFields)
+        public HeartbeatProvider(TimeSpan heartbeatInterval, IEnumerable<string> disabledDefaultFields)
         {
             this.disabledDefaultFields = disabledDefaultFields?.ToList();
             this.heartbeatInterval = heartbeatInterval;
-            this.extendPayloadItems = new ConcurrentDictionary<string, HealthHeartbeatPropertyPayload>(StringComparer.OrdinalIgnoreCase);
-            this.sdkPayloadItems = new ConcurrentDictionary<string, HealthHeartbeatPropertyPayload>(StringComparer.OrdinalIgnoreCase);
+            this.extendPayloadItems = new ConcurrentDictionary<string, HeartbeatPropertyPayload>(StringComparer.OrdinalIgnoreCase);
+            this.sdkPayloadItems = new ConcurrentDictionary<string, HeartbeatPropertyPayload>(StringComparer.OrdinalIgnoreCase);
             this.heartbeatsSent = 0; // count up from construction time
         }
 
@@ -102,7 +102,7 @@
         {
             if (name != null && 
                 !string.IsNullOrEmpty(name) && 
-                !HealthHeartbeatDefaultPayload.DefaultFields.Any(key => key.Equals(name, StringComparison.OrdinalIgnoreCase)))
+                !HeartbeatDefaultPayload.DefaultFields.Any(key => key.Equals(name, StringComparison.OrdinalIgnoreCase)))
             {
                 try
                 {
@@ -148,7 +148,7 @@
             {
                 try
                 {
-                    return this.extendPayloadItems.TryRemove(payloadItemName, out HealthHeartbeatPropertyPayload removedItem);
+                    return this.extendPayloadItems.TryRemove(payloadItemName, out HeartbeatPropertyPayload removedItem);
                 }
                 catch (Exception e)
                 {
@@ -218,8 +218,8 @@
 
         protected void SetDefaultPayloadItems()
         {
-            HealthHeartbeatDefaultPayload defaultPayload = new HealthHeartbeatDefaultPayload(this.disabledDefaultFields);
-            IDictionary<string, HealthHeartbeatPropertyPayload> defaultProps = defaultPayload.GetPayloadProperties();
+            HeartbeatDefaultPayload defaultPayload = new HeartbeatDefaultPayload(this.disabledDefaultFields);
+            IDictionary<string, HeartbeatPropertyPayload> defaultProps = defaultPayload.GetPayloadProperties();
 
             this.sdkPayloadItems.Clear();
             foreach (var kvpProp in defaultProps)
@@ -228,7 +228,7 @@
             }                
         }
 
-        private void AddPropertiesToHeartbeat(MetricTelemetry hbeat, ConcurrentDictionary<string, HealthHeartbeatPropertyPayload> props)
+        private void AddPropertiesToHeartbeat(MetricTelemetry hbeat, ConcurrentDictionary<string, HeartbeatPropertyPayload> props)
         {
             string updatedKeys = string.Empty;
             string comma = hbeat.Properties.Count <= 0 ? string.Empty : ",";
@@ -258,11 +258,11 @@
             // update the special 'updated keys' property with the names of keys that have been updated.
             if (!string.IsNullOrEmpty(updatedKeys))
             {
-                hbeat.Properties[HealthHeartbeatDefaultPayload.UpdatedFieldsPropertyKey] = updatedKeys;
+                hbeat.Properties[HeartbeatDefaultPayload.UpdatedFieldsPropertyKey] = updatedKeys;
             }
         }
 
-        private bool SetHealthPropertyInternal(ConcurrentDictionary<string, HealthHeartbeatPropertyPayload> properties, string name, string payloadValue, bool? isHealthy)
+        private bool SetHealthPropertyInternal(ConcurrentDictionary<string, HeartbeatPropertyPayload> properties, string name, string payloadValue, bool? isHealthy)
         {
             try
             {
@@ -293,13 +293,13 @@
             return true;
         }
 
-        private bool AddHealthPropertyInternal(ConcurrentDictionary<string, HealthHeartbeatPropertyPayload> properties, string name, string payloadValue, bool isHealthy)
+        private bool AddHealthPropertyInternal(ConcurrentDictionary<string, HeartbeatPropertyPayload> properties, string name, string payloadValue, bool isHealthy)
         {
             bool isAdded = false;
             var existingProp = properties.GetOrAdd(name, (key) =>
             {
                 isAdded = true;
-                return new HealthHeartbeatPropertyPayload()
+                return new HeartbeatPropertyPayload()
                 {
                     IsHealthy = isHealthy,
                     PayloadValue = payloadValue
@@ -311,9 +311,9 @@
 
         private void HeartbeatPulse(object state)
         {
-            if (state is HealthHeartbeatProvider)
+            if (state is HeartbeatProvider)
             {
-                HealthHeartbeatProvider hp = state as HealthHeartbeatProvider;
+                HeartbeatProvider hp = state as HeartbeatProvider;
                 // we will be prone to overlap if any extension payload provider takes a longer time to process than our timer
                 // interval. Best that we reset the timer each time round.
                 this.HeartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);

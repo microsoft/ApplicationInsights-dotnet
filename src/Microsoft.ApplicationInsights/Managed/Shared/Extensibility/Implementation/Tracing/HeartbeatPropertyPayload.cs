@@ -4,7 +4,7 @@
     /// Payload stored and used to transmit Health Heartbeat properties with, allowing for user to push updates
     /// as they deem necessary.
     /// </summary>
-    internal class HealthHeartbeatPropertyPayload
+    internal class HeartbeatPropertyPayload
     {
         private string payloadValue = string.Empty; // the current value of this property, ready for transmission
         private bool isHealthy = true; // is this a healthy value or not

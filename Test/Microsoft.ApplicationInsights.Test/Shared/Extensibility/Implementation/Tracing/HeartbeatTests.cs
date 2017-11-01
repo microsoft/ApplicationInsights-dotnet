@@ -15,7 +15,7 @@
         [TestMethod]
         public void InitializeHealthHeartbeatDoesntThrow()
         {
-            using (var hbeat = new HealthHeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider())
             {
                 hbeat.Initialize(configuration: null);
             }
@@ -24,7 +24,7 @@
         [TestMethod]
         public void InitializeHealthHeartbeatTwiceDoesntFail()
         {
-            using (var hbeat = new HealthHeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider())
             {
                 hbeat.Initialize(configuration: null);
                 hbeat.Initialize(configuration: null);
@@ -38,7 +38,7 @@
             {
                 hbeat.Initialize(configuration: null);
                 Assert.IsNull(hbeat.DisabledHeartbeatProperties);
-                Assert.AreEqual(HealthHeartbeatProvider.DefaultHeartbeatIntervalMs, hbeat.HeartbeatInterval.TotalMilliseconds);
+                Assert.AreEqual(HeartbeatProvider.DefaultHeartbeatIntervalMs, hbeat.HeartbeatInterval.TotalMilliseconds);
             }
         }
 
@@ -47,7 +47,7 @@
         {
             TimeSpan nonDefaultInterval = TimeSpan.FromMilliseconds(10000);
 
-            using (var hbeat = new HealthHeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider())
             {
                 hbeat.Initialize(configuration: null, timeBetweenHeartbeats: nonDefaultInterval);
                 Assert.AreEqual(nonDefaultInterval, hbeat.HeartbeatInterval);
@@ -57,7 +57,7 @@
         [TestMethod]
         public void InitializeHealthHeartbeatWithNullFieldsFails()
         {
-            using (var hbeat = new HealthHeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider())
             {
                 bool initResult = hbeat.Initialize(configuration: null, timeBetweenHeartbeats: TimeSpan.FromMilliseconds(10000), disabledDefaultFields: null);
                 Assert.IsTrue(initResult, "Initialization without allowed dissallowed fields should be fine.");
@@ -67,7 +67,7 @@
         [TestMethod]
         public void InitializeHealthHeartbeatWithZeroIntervalFails()
         {
-            using (var hbeat = new HealthHeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider())
             {
                 bool initResult = hbeat.Initialize(configuration: null, timeBetweenHeartbeats: TimeSpan.FromMilliseconds(0), disabledDefaultFields: null);
                 Assert.IsFalse(initResult, "Initialization without a valid delay value (0) should fail.");
@@ -78,7 +78,7 @@
         public void CanExtendHeartbeatPayload()
         {
 
-            using (var hbeat = new HealthHeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider())
             {
                 hbeat.Initialize(configuration: new TelemetryConfiguration());
 
@@ -112,7 +112,7 @@
         [Ignore("Not ready yet")]
         public void CanSetDelayBetweenHeartbeatsViaConfig()
         {
-            using (var hbeat = new HealthHeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider())
             {
 
             }
@@ -166,11 +166,11 @@
         public void HeartbeatPayloadContainsOnlyAllowedDefaultPayloadFields()
         {
             List<string> disableHbProps = new List<string>();
-            for (int i = 0; i < HealthHeartbeatDefaultPayload.DefaultFields.Length; ++i)
+            for (int i = 0; i < HeartbeatDefaultPayload.DefaultFields.Length; ++i)
             {
                 if (i % 2 == 0)
                 {
-                    disableHbProps.Add(HealthHeartbeatDefaultPayload.DefaultFields[i]);
+                    disableHbProps.Add(HeartbeatDefaultPayload.DefaultFields[i]);
                 }
             }
 
@@ -248,7 +248,7 @@
         [Ignore("No test yet, I don't know how to setup multiple ikey's to send to yet.")]
         public void HeartbeatSentToMultipleConfiguredComponents()
         {
-            using (var hbeat = new HealthHeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider())
             {
 
             }
@@ -259,7 +259,7 @@
         [Ignore("I don't know how to alter the config file during unit tests yet.")]
         public void HealthHeartbeatDisabledInConfig()
         {
-            using (var hbeat = new HealthHeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider())
             {
 
             }
@@ -294,13 +294,13 @@
                 MetricTelemetry sentMsg = hbeat.sentMessages.First();
                 Assert.IsNotNull(sentMsg);
 
-                foreach (string field in HealthHeartbeatDefaultPayload.DefaultFields)
+                foreach (string field in HeartbeatDefaultPayload.DefaultFields)
                 {
                     try
                     {
                         var fieldPayload = sentMsg.Properties.Single(a => string.Compare(a.Key, field) == 0);
                         Assert.IsNotNull(fieldPayload);
-                        if (field.Equals(HealthHeartbeatDefaultPayload.UpdatedFieldsPropertyKey, StringComparison.OrdinalIgnoreCase))
+                        if (field.Equals(HeartbeatDefaultPayload.UpdatedFieldsPropertyKey, StringComparison.OrdinalIgnoreCase))
                         {
                             Assert.IsTrue(string.IsNullOrEmpty(fieldPayload.Value)); // updated fields should be empty for sdk default fields
                         }
@@ -321,7 +321,7 @@
         [TestMethod]
         public void PayloadExtensionHandlesExtensionPayloadNameCollision()
         {
-            using (var hbeat = new HealthHeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider())
             {
                 hbeat.Initialize(configuration: null);
 
@@ -333,7 +333,7 @@
         [TestMethod]
         public void CannotSetPayloadExtensionWithoutAddingItFirst()
         {
-            using (var hbeat = new HealthHeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider())
             {
                 hbeat.Initialize(configuration: null);
 
@@ -346,11 +346,11 @@
         [TestMethod]
         public void CannotSetValueOfDefaultPayloadProperties()
         {
-            using (var hbeat = new HealthHeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider())
             {
                 hbeat.Initialize(configuration: null);
 
-                foreach (string key in HealthHeartbeatDefaultPayload.DefaultFields)
+                foreach (string key in HeartbeatDefaultPayload.DefaultFields)
                 {
                     Assert.IsFalse(hbeat.SetHealthProperty(key, "test", true));
                 }
@@ -360,11 +360,11 @@
         [TestMethod]
         public void CannotAddPayloadItemNamedOfDefaultPayloadProperties()
         {
-            using (var hbeat = new HealthHeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider())
             {
                 hbeat.Initialize(configuration: null);
 
-                foreach (string key in HealthHeartbeatDefaultPayload.DefaultFields)
+                foreach (string key in HeartbeatDefaultPayload.DefaultFields)
                 {
                     Assert.IsFalse(hbeat.AddHealthProperty(key, "test", true));
                 }
@@ -374,7 +374,7 @@
         [TestMethod]
         public void EnsureAllTargetFrameworksRepresented()
         {
-            var defaultHeartbeatPayload = new HealthHeartbeatDefaultPayload();
+            var defaultHeartbeatPayload = new HeartbeatDefaultPayload();
             var props = defaultHeartbeatPayload.GetPayloadProperties();
             foreach (var kvp in props)
             {

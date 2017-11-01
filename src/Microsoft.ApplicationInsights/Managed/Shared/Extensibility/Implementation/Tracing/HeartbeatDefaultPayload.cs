@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Reflection;
 
-    internal class HealthHeartbeatDefaultPayload
+    internal class HeartbeatDefaultPayload
     {
         public const string UpdatedFieldsPropertyKey = "updatedFields";
 
@@ -19,38 +19,38 @@
 
         private List<string> enabledProperties;
 
-        public HealthHeartbeatDefaultPayload() : this(null)
+        public HeartbeatDefaultPayload() : this(null)
         {
         }
 
-        public HealthHeartbeatDefaultPayload(IEnumerable<string> disableFields)
+        public HeartbeatDefaultPayload(IEnumerable<string> disableFields)
         {
             this.SetEnabledProperties(disableFields);
         }
 
-        public IDictionary<string, HealthHeartbeatPropertyPayload> GetPayloadProperties()
+        public IDictionary<string, HeartbeatPropertyPayload> GetPayloadProperties()
         {
-            var payload = new Dictionary<string, HealthHeartbeatPropertyPayload>();
+            var payload = new Dictionary<string, HeartbeatPropertyPayload>();
             foreach (string fieldName in this.enabledProperties)
             {
                 switch (fieldName)
                 {
                     case "runtimeFramework":
-                        payload.Add(fieldName, new HealthHeartbeatPropertyPayload()
+                        payload.Add(fieldName, new HeartbeatPropertyPayload()
                         {
                             IsHealthy = true,
                             PayloadValue = this.GetRuntimeFrameworkVer()
                         });
                         break;
                     case "baseSdkTargetFramework":
-                        payload.Add(fieldName, new HealthHeartbeatPropertyPayload()
+                        payload.Add(fieldName, new HeartbeatPropertyPayload()
                         {
                             IsHealthy = true,
                             PayloadValue = this.GetTargetFrameworkVer()
                         });
                         break;
                     case UpdatedFieldsPropertyKey:
-                        var updatedFieldItem = new HealthHeartbeatPropertyPayload()
+                        var updatedFieldItem = new HeartbeatPropertyPayload()
                         {
                             IsHealthy = true,
                             PayloadValue = string.Empty
@@ -59,7 +59,7 @@
                         payload.Add(fieldName, updatedFieldItem);
                         break;
                     default:
-                        payload.Add(fieldName, new HealthHeartbeatPropertyPayload()
+                        payload.Add(fieldName, new HeartbeatPropertyPayload()
                         {
                             IsHealthy = false,
                             PayloadValue = "UNDEFINED"

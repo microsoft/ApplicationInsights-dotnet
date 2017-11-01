@@ -7,7 +7,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Moc
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
-    class HealthHeartbeatProviderMock : HealthHeartbeatProvider
+    class HealthHeartbeatProviderMock : HeartbeatProvider
     {
         public List<MetricTelemetry> sentMessages = new List<MetricTelemetry>();
 

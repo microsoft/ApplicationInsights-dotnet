@@ -32,7 +32,7 @@
 
             this.EventListener = new DiagnosticsListener(this.Senders);
 
-            this.HeartbeatInterval = TimeSpan.FromMilliseconds(HealthHeartbeatProvider.DefaultHeartbeatIntervalMs);
+            this.HeartbeatInterval = TimeSpan.FromMilliseconds(Tracing.HeartbeatProvider.DefaultHeartbeatIntervalMs);
             this.ExcludedHeartbeatProperties = null;
         }
 
@@ -156,7 +156,7 @@
                         // set up heartbeat
                         if (this.HeartbeatProvider == null)
                         {
-                            this.HeartbeatProvider = new HealthHeartbeatProvider();
+                            this.HeartbeatProvider = new HeartbeatProvider();
                         }
 
                         this.HeartbeatProvider.Initialize(configuration, this.DiagnosticsInstrumentationKey, this.HeartbeatInterval, this.ExcludedHeartbeatProperties);
