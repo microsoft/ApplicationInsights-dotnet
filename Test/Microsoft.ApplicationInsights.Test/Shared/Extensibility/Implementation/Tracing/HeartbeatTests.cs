@@ -108,16 +108,16 @@
             }
         }
 
-        [TestMethod]
-        [Ignore("Not ready yet")]
-        public void CanSetDelayBetweenHeartbeatsViaConfig()
-        {
-            using (var hbeat = new HeartbeatProvider())
-            {
+        //[TestMethod]
+        //[Ignore("Not ready yet")]
+        //public void CanSetDelayBetweenHeartbeatsViaConfig()
+        //{
+        //    using (var hbeat = new HeartbeatProvider())
+        //    {
 
-            }
-            throw new NotImplementedException();
-        }
+        //    }
+        //    throw new NotImplementedException();
+        //}
 
         [TestMethod]
         public void DiagnosticsTelemetryModuleCreatesHeartbeatModule()
@@ -195,30 +195,30 @@
             }
         }
 
-        [TestMethod]
-        [Ignore("I don't know how to modify the config file during tests yet")]
-        public void HeartbeatPayloadContainsFieldsSpecifiedInConfig()
-        {
-            // FROM: HeartbeatPayloadContainsOnlyAllowedDefaultPayloadFields below...
+        //[TestMethod]
+        //[Ignore("I don't know how to modify the config file during tests yet")]
+        //public void HeartbeatPayloadContainsFieldsSpecifiedInConfig()
+        //{
+        //    // FROM: HeartbeatPayloadContainsOnlyAllowedDefaultPayloadFields below...
 
-            //string specificFieldsToEnable = string.Concat(HealthHeartbeatDefaultPayload.FieldRuntimeFrameworkVer, ",", HealthHeartbeatDefaultPayload.FieldAppInsightsSdkVer);
+        //    //string specificFieldsToEnable = string.Concat(HealthHeartbeatDefaultPayload.FieldRuntimeFrameworkVer, ",", HealthHeartbeatDefaultPayload.FieldAppInsightsSdkVer);
 
-            //using (var hbeat = new HealthHeartbeatProviderMock())
-            //{
-            //    hbeat.Initialize(configuration: null, delayMs: null, allowedPayloadFields: specificFieldsToEnable);
-            //    Assert.AreEqual(0, String.CompareOrdinal(hbeat.EnabledPayloadFields, specificFieldsToEnable));
+        //    //using (var hbeat = new HealthHeartbeatProviderMock())
+        //    //{
+        //    //    hbeat.Initialize(configuration: null, delayMs: null, allowedPayloadFields: specificFieldsToEnable);
+        //    //    Assert.AreEqual(0, String.CompareOrdinal(hbeat.EnabledPayloadFields, specificFieldsToEnable));
 
-            //    hbeat.SimulateSend();
+        //    //    hbeat.SimulateSend();
 
-            //    var sentHeartBeat = hbeat.sentMessages.First();
-            //    Assert.IsNotNull(sentHeartBeat);
+        //    //    var sentHeartBeat = hbeat.sentMessages.First();
+        //    //    Assert.IsNotNull(sentHeartBeat);
 
-            //    foreach (var kvp in sentHeartBeat.Properties)
-            //    {
-            //        Assert.IsTrue(specificFieldsToEnable.IndexOf(kvp.Key, 0, StringComparison.OrdinalIgnoreCase) >= 0, "Dissallowed field found in payload");
-            //    }
-            //}
-        }
+        //    //    foreach (var kvp in sentHeartBeat.Properties)
+        //    //    {
+        //    //        Assert.IsTrue(specificFieldsToEnable.IndexOf(kvp.Key, 0, StringComparison.OrdinalIgnoreCase) >= 0, "Dissallowed field found in payload");
+        //    //    }
+        //    //}
+        //}
 
         [TestMethod]
         public void HeartbeatMetricIsZeroForNoFailureConditionPresent()
@@ -244,27 +244,27 @@
             }
         }
 
-        [TestMethod]
-        [Ignore("No test yet, I don't know how to setup multiple ikey's to send to yet.")]
-        public void HeartbeatSentToMultipleConfiguredComponents()
-        {
-            using (var hbeat = new HeartbeatProvider())
-            {
+        //[TestMethod]
+        //[Ignore("No test yet, I don't know how to setup multiple ikey's to send to yet.")]
+        //public void HeartbeatSentToMultipleConfiguredComponents()
+        //{
+        //    using (var hbeat = new HeartbeatProvider())
+        //    {
 
-            }
-            throw new NotImplementedException();
-        }
+        //    }
+        //    throw new NotImplementedException();
+        //}
 
-        [TestMethod]
-        [Ignore("I don't know how to alter the config file during unit tests yet.")]
-        public void HealthHeartbeatDisabledInConfig()
-        {
-            using (var hbeat = new HeartbeatProvider())
-            {
+        //[TestMethod]
+        //[Ignore("I don't know how to alter the config file during unit tests yet.")]
+        //public void HealthHeartbeatDisabledInConfig()
+        //{
+        //    using (var hbeat = new HeartbeatProvider())
+        //    {
 
-            }
-            throw new NotImplementedException();
-        }
+        //    }
+        //    throw new NotImplementedException();
+        //}
 
         [TestMethod]
         public void HeartbeatMetricCountAccountsForAllFailures()
