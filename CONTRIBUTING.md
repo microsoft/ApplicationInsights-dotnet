@@ -6,7 +6,7 @@ If you're interested in contributing, take a look at the general [contributer's 
 
 To successfully run all the unit tests on your machine, make sure you've installed the following prerequisites:
 
-* Visual Studio 2015 Community or Enterprise
+* Visual Studio 2017 Community or Enterprise
 * .NET 4.6
 
 Several tests also require that you configure a strong name verification exception for Microsoft.WindowsAzure.ServiceRuntime.dll using the [Strong Name Tool](https://msdn.microsoft.com/en-us/library/k5b5tt23(v=vs.110).aspx). Run this command from the repository root to configure the exception (after building Microsoft.ApplicationInsights.Web.sln):
@@ -26,28 +26,16 @@ You can remove the strong name verification exception by running this command:
 To execute the functional tests, you need to install some additional prerequisites:
 
 * IIS (Make sure Internet Information Services > World Wide Web Services > Application Development Features > ASP.NET 4.6 is enabled)
-* SQL Express 2014
-* Microsoft Azure Storage Emulator v4.2
 
-You also need to configure the Azure Storage Emulator to use specific ports. Edit the file ```%ProgramFiles(x86)%\Microsoft SDKs\Azure\Storage Emulator\AzureStorageEmulator.exe.config``` and change the ```<services>``` section to the following:
+To execute the functional tests for DependencyCollector, you need to install Docker as well (Windows 10 or Windows Server 2016 required), as all these tests deploy every dependencies into Docker containers locally.
 
-    <StorageEmulatorConfig>
-        <services>
-          <service name="Blob" url="http://127.0.0.1:11000/"/>
-          <service name="Queue" url="http://127.0.0.1:11001/"/>
-          <service name="Table" url="http://127.0.0.1:11002/"/>
-        </services>
-    ...
-    </StorageEmulatorConfig>
+* Docker for Windows (https://docs.docker.com/docker-for-windows/install/). After installation switch Docker engine to Windows Containers.(https://blogs.msdn.microsoft.com/webdev/2017/09/07/getting-started-with-windows-containers/)
 
 After you've done this, execute the ```runFunctionalTests.cmd``` script as administrator in the repository root. You can also run and debug the functional tests from Visual Studio by opening the solutions under the Test directory in the repository root.
 
-If all or most of the Dependency Collector functional tests fail with messages like "Assert.AreEqual failed. Expected:<1>. Actual<0>.", these steps might help you troubleshoot:
-
-* Open Test\DependencyCollector\FunctionalTests.sln
-* Set a breakpoint in MyClassInitialize() after this line: ```aspx451TestWebApplicationWin32.Deploy(true);``` in [RDDTests.cs](https://github.com/Microsoft/ApplicationInsights-server-dotnet/blob/develop/Test/DependencyCollector/FunctionalTests/FuncTest/RDDTests.cs) and debug one of the failing tests.
-* When the breakpoint is hit, go to this url in your browser: [http://localhost:789/ExternalCalls.aspx?type=sql](http://localhost:789/ExternalCalls.aspx?type=sql)
-* If you see a 500 error or exception message, that is likely the cause of the test failures.
+If all or most of the Dependency Collector functional tests fail with messages like "Assert.AreEqual failed. Expected:<1>. Actual<0>." or "All apps are not healthy", then its likely that Docker installation has some issues.
+Please make sure you can run docker run hello-world successfully to confirm that your machine is Docker ready.
+Also, the very first time DependencyCollector tests are run, all Docker images are downloaded from web and this could potentially take an hour or so. This is only one time per machine.
 
 ## Debugging the SDK
 
