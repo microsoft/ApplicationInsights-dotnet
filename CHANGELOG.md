@@ -2,6 +2,9 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.5.0-beta2
+
+
 ## Version 2.5.0-beta1
 - Method `Sanitize` on classes implementing `ITelemetry` no longer modifies the `TelemetryContext` fields. Serialized event json and ETW event will still have context tags sanitized.
 - Application Insights SDK supports multiple telemetry sinks. You can configure more than one channel for telemetry now.
