@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.5.0-beta2
+
+
 ## Version 2.5.0-beta1
 - Removed `net40` targets from all packages. Use the version 2.4 of SDK if your application is still compiled with the framework 4.0.
 - Adds ADO SQL dependency collection for SqlClient (System.Data.SqlClient) on .NET Core versions 1.0 and 2.0.
