@@ -19,23 +19,23 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.ApplicationInsights.Web.Implementation;
 
     internal class HttpCoreDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
-    {
+    {        
         private const string DependencyErrorPropertyKey = "Error";
         private const string HttpOutEventName = "System.Net.Http.HttpRequestOut";
         private const string HttpOutStartEventName = "System.Net.Http.HttpRequestOut.Start";
         private const string HttpOutStopEventName = "System.Net.Http.HttpRequestOut.Stop";
         private const string HttpExceptionEventName = "System.Net.Http.Exception";
         private const string DeprecatedRequestEventName = "System.Net.Http.Request";
-        private const string DeprecatedResponseEventName = "System.Net.Http.Response";
+        private const string DeprecatedResponseEventName = "System.Net.Http.Response";        
 
         private readonly IEnumerable<string> correlationDomainExclusionList;
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
         private readonly bool setComponentCorrelationHttpHeaders;
         private readonly ICorrelationIdLookupHelper correlationIdLookupHelper;
-        private readonly TelemetryClient client;
-        private bool isNetCore20HttpClient;
+        private readonly TelemetryClient client;        
         private readonly TelemetryConfiguration configuration;
         private readonly HttpCoreDiagnosticSourceSubscriber subscriber;
+        
         #region fetchers
 
         private readonly PropertyFetcher startRequestFetcher = new PropertyFetcher("Request");
@@ -56,6 +56,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         private readonly ConcurrentDictionary<string, Exception> pendingExceptions =
             new ConcurrentDictionary<string, Exception>();
+
+        private bool isNetCore20HttpClient;
 
         public HttpCoreDiagnosticSourceListener(
             TelemetryConfiguration configuration,
@@ -187,11 +189,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                     case DeprecatedRequestEventName:
                         {
-                            if(this.isNetCore20HttpClient)
+                            if (this.isNetCore20HttpClient)
                             {
                                 // 2.0 publishes new events, and this should be just ignored to prevent duplicates.
                                 break;
                             }
+
                             var request = this.deprecatedRequestFetcher.Fetch(evnt.Value) as HttpRequestMessage;
                             var loggingRequestIdString = this.deprecatedRequestGuidFetcher.Fetch(evnt.Value).ToString();
                             Guid loggingRequestId;
@@ -221,6 +224,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                                 // 2.0 publishes new events, and this should be just ignored to prevent duplicates.
                                 break;
                             }
+
                             var response = this.deprecatedResponseFetcher.Fetch(evnt.Value) as HttpResponseMessage;
                             var loggingRequestIdString = this.deprecatedResponseGuidFetcher.Fetch(evnt.Value).ToString();
                             Guid loggingRequestId;
