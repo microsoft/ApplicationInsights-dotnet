@@ -78,7 +78,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.correlationIdLookupHelper = correlationIdLookupHelper ?? new CorrelationIdLookupHelper(effectiveProfileQueryEndpoint);
             this.correlationDomainExclusionList = correlationDomainExclusionList ?? Enumerable.Empty<string>();
 
-            this.subscriber = new HttpCoreDiagnosticSourceSubscriber(this, this.applicationInsightsUrlFilter);
+            this.subscriber = new HttpCoreDiagnosticSourceSubscriber(this, this.applicationInsightsUrlFilter, this.isNetCore20HttpClient);
         }
 
         /// <summary>
@@ -536,13 +536,15 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             private IDisposable eventSubscription;
 
-            internal HttpCoreDiagnosticSourceSubscriber(HttpCoreDiagnosticSourceListener listener, ApplicationInsightsUrlFilter applicationInsightsUrlFilter)
+            internal HttpCoreDiagnosticSourceSubscriber(
+                HttpCoreDiagnosticSourceListener listener,
+                ApplicationInsightsUrlFilter applicationInsightsUrlFilter,
+                bool isNetCore20HttpClient)
             {
                 this.httpDiagnosticListener = listener;
                 this.applicationInsightsUrlFilter = applicationInsightsUrlFilter;
 
-                var httpClientVersion = typeof(HttpClient).GetTypeInfo().Assembly.GetName().Version;
-                this.isNetCore20HttpClient = httpClientVersion.CompareTo(new Version(4, 2)) >= 0;
+                this.isNetCore20HttpClient = isNetCore20HttpClient;
 
                 try
                 {
