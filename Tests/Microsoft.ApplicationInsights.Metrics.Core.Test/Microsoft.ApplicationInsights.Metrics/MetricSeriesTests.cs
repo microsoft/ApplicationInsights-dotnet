@@ -27,10 +27,6 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreEqual("Foo Bar", series.MetricId);
 
-            Assert.IsNotNull(series.AdditionalDataContext);
-            Assert.IsNotNull(series.AdditionalDataContext.Properties);
-            Assert.AreEqual(0, series.AdditionalDataContext.Properties.Count);
-
             Assert.AreEqual(config, series.GetConfiguration());
             Assert.AreSame(config, series.GetConfiguration());
 

@@ -712,7 +712,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                             series[0],
                             expectedKeys:                       new string[0],
                             expectedMetricId:                   "Foo",
-                            expectedContextProperties:          new Dictionary<string, string> { },
                             expectedDimensionNamesAndValues:    new Dictionary<string, string> { },
                             expectedCount:                      null,
                             expectedSum:                        null);
@@ -736,7 +735,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                             sortedSeries[0],
                             expectedKeys:                       new string[0],
                             expectedMetricId:                   "Foo",
-                            expectedContextProperties:          new Dictionary<string, string> { },
                             expectedDimensionNamesAndValues:    new Dictionary<string, string> { },
                             expectedCount:                      2,
                             expectedSum:                        3);
@@ -745,7 +743,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                             sortedSeries[1],
                             expectedKeys:                       new string[] { "a", "B" },
                             expectedMetricId:                   "Foo",
-                            expectedContextProperties:          new Dictionary<string, string> { }, 
                             expectedDimensionNamesAndValues:    new Dictionary<string, string> { ["D1"] = "a", ["D2"] = "B" },
                             expectedCount:                      1,
                             expectedSum:                        4);
@@ -754,7 +751,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                             sortedSeries[2],
                             expectedKeys:                       new string[] { "A", "B" },
                             expectedMetricId:                   "Foo",
-                            expectedContextProperties:          new Dictionary<string, string> { }, 
                             expectedDimensionNamesAndValues:    new Dictionary<string, string> { ["D1"] = "A", ["D2"] = "B" },
                             expectedCount:                      2,
                             expectedSum:                        11);
@@ -763,7 +759,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                             sortedSeries[3],
                             expectedKeys:                       new string[] { "X", "B" },
                             expectedMetricId:                   "Foo",
-                            expectedContextProperties:          new Dictionary<string, string> { },
                             expectedDimensionNamesAndValues:    new Dictionary<string, string> { ["D1"] = "X", ["D2"] = "B" },
                             expectedCount:                      1,
                             expectedSum:                        5);
@@ -772,7 +767,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                             sortedSeries[4],
                             expectedKeys:                       new string[] { "Y", "C" },
                             expectedMetricId:                   "Foo",
-                            expectedContextProperties:          new Dictionary<string, string> { },
                             expectedDimensionNamesAndValues:    new Dictionary<string, string> { ["D1"] = "Y", ["D2"] = "C" },
                             expectedCount:                      1,
                             expectedSum:                        7);
@@ -785,7 +779,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                                     KeyValuePair<string[], MetricSeries> series,
                                     string[] expectedKeys,
                                     string expectedMetricId,
-                                    IDictionary<string, string> expectedContextProperties,
                                     IDictionary<string, string> expectedDimensionNamesAndValues,
                                     int? expectedCount,
                                     double? expectedSum)
@@ -804,12 +797,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             foreach (KeyValuePair<string, string> dimNameValue in expectedDimensionNamesAndValues)
             {
                 Assert.AreEqual(dimNameValue.Value, series.Value.DimensionNamesAndValues[dimNameValue.Key]);
-            }
-
-            Assert.AreEqual(expectedContextProperties.Count, series.Value.AdditionalDataContext.Properties.Count);
-            foreach (KeyValuePair<string, string> property in expectedContextProperties)
-            {
-                Assert.AreEqual(property.Value, series.Value.AdditionalDataContext.Properties[property.Key]);
             }
 
             MetricAggregate currentAggregate = series.Value.GetCurrentAggregateUnsafe();
@@ -842,7 +829,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.IsTrue(success);
                 Assert.IsNotNull(series);
                 Assert.AreEqual("Foo", series.MetricId);
-                Assert.AreEqual(0, series.AdditionalDataContext?.Properties?.Count);
 
                 Assert.AreEqual(0, telemetryCollector.Count);
 
@@ -855,7 +841,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(1.0, telemetryCollector[0].AggregateData["Sum"]);
                 Assert.AreEqual("Foo", telemetryCollector[0].MetricId);
                 Assert.AreEqual(0, telemetryCollector[0].Dimensions.Count);
-                Assert.AreEqual(0, (telemetryCollector[0].AdditionalDataContext as TelemetryContext)?.Properties?.Count);
 
                 Assert.ThrowsException<InvalidOperationException>( () => metric.TryGetDataSeries(out series, "Dim1Value") );
                 Assert.ThrowsException<InvalidOperationException>( () => metric.TryGetDataSeries(out series, "Dim1Value", createIfNotExists: true) );
@@ -882,7 +867,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.IsTrue(success);
                 Assert.IsNotNull(series);
                 Assert.AreEqual("Foo", series.MetricId);
-                Assert.AreEqual(0, series.AdditionalDataContext?.Properties?.Count);
 
                 Assert.AreEqual(0, telemetryCollector.Count);
 
@@ -895,7 +879,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(2.0, telemetryCollector[0].AggregateData["Sum"]);
                 Assert.AreEqual("Foo", telemetryCollector[0].MetricId);
                 Assert.AreEqual(0, telemetryCollector[0].Dimensions.Count);
-                Assert.AreEqual(0, (telemetryCollector[0].AdditionalDataContext as TelemetryContext)?.Properties?.Count);
 
                 telemetryCollector.Clear();
                 MetricSeries series1, series2, series3, series4;
@@ -947,7 +930,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(60.0, telemetryCollector[0].AggregateData["Sum"]);
 
                 Assert.AreEqual(1, telemetryCollector[0].Dimensions.Count);
-                Assert.AreEqual(0, (telemetryCollector[0].AdditionalDataContext as TelemetryContext)?.Properties?.Count);
                 Assert.IsTrue(telemetryCollector[0].Dimensions.ContainsKey("Bar"));
                 Assert.AreEqual("Dim1Value", telemetryCollector[0].Dimensions["Bar"]);
 
@@ -956,7 +938,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(40.0, telemetryCollector[1].AggregateData["Sum"]);
 
                 Assert.AreEqual(1, telemetryCollector[1].Dimensions.Count);
-                Assert.AreEqual(0, (telemetryCollector[1].AdditionalDataContext as TelemetryContext)?.Properties?.Count);
                 Assert.IsTrue(telemetryCollector[1].Dimensions.ContainsKey("Bar"));
                 Assert.AreEqual("Dim1ValueX", telemetryCollector[1].Dimensions["Bar"]);
 
@@ -981,7 +962,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.IsTrue(success);
                 Assert.IsNotNull(series);
                 Assert.AreEqual("Foo", series.MetricId);
-                Assert.AreEqual(0, series.AdditionalDataContext?.Properties?.Count);
 
                 Assert.AreEqual(0, telemetryCollector.Count);
 
@@ -994,7 +974,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(2.0, telemetryCollector[0].AggregateData["Sum"]);
                 Assert.AreEqual("Foo", telemetryCollector[0].MetricId);
                 Assert.AreEqual(0, telemetryCollector[0].Dimensions.Count);
-                Assert.AreEqual(0, (telemetryCollector[0].AdditionalDataContext as TelemetryContext)?.Properties?.Count);
 
                 Assert.ThrowsException<InvalidOperationException>( () => metric.TryGetDataSeries(out series, "Dim1Value") );
                 Assert.ThrowsException<InvalidOperationException>( () => metric.TryGetDataSeries(out series, "Dim1Value", createIfNotExists: true) );
@@ -1072,7 +1051,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(60.0, telemetryCollector[0].AggregateData["Sum"]);
                 
                 Assert.AreEqual(2, telemetryCollector[0].Dimensions.Count);
-                Assert.AreEqual(0, (telemetryCollector[0].AdditionalDataContext as TelemetryContext)?.Properties?.Count);
                 Assert.IsTrue(telemetryCollector[0].Dimensions.ContainsKey("Bar"));
                 Assert.AreEqual("Dim1Value", telemetryCollector[0].Dimensions["Bar"]);
                 Assert.AreEqual("Dim2Value", telemetryCollector[0].Dimensions["Poo"]);
@@ -1082,7 +1060,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(40.0, telemetryCollector[1].AggregateData["Sum"]);
 
                 Assert.AreEqual(2, telemetryCollector[1].Dimensions.Count);
-                Assert.AreEqual(0, (telemetryCollector[1].AdditionalDataContext as TelemetryContext)?.Properties?.Count);
                 Assert.IsTrue(telemetryCollector[1].Dimensions.ContainsKey("Bar"));
                 Assert.AreEqual("Dim1ValueX", telemetryCollector[1].Dimensions["Bar"]);
                 Assert.AreEqual("Dim2ValueX", telemetryCollector[1].Dimensions["Poo"]);
@@ -1092,7 +1069,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(50.0, telemetryCollector[2].AggregateData["Sum"]);
 
                 Assert.AreEqual(2, telemetryCollector[2].Dimensions.Count);
-                Assert.AreEqual(0, (telemetryCollector[2].AdditionalDataContext as TelemetryContext)?.Properties?.Count);
                 Assert.IsTrue(telemetryCollector[2].Dimensions.ContainsKey("Bar"));
                 Assert.AreEqual("Dim1ValueX", telemetryCollector[2].Dimensions["Bar"]);
                 Assert.AreEqual("Dim2Value", telemetryCollector[2].Dimensions["Poo"]);
@@ -1102,7 +1078,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(60.0, telemetryCollector[3].AggregateData["Sum"]);
 
                 Assert.AreEqual(2, telemetryCollector[3].Dimensions.Count);
-                Assert.AreEqual(0, (telemetryCollector[3].AdditionalDataContext as TelemetryContext)?.Properties?.Count);
                 Assert.IsTrue(telemetryCollector[3].Dimensions.ContainsKey("Bar"));
                 Assert.AreEqual("Dim1Value", telemetryCollector[3].Dimensions["Bar"]);
                 Assert.AreEqual("Dim2ValueX", telemetryCollector[3].Dimensions["Poo"]);
@@ -1149,7 +1124,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(-57.3, telemetryCollector[0].AggregateData["Sum"]);
 
                 Assert.AreEqual(0, telemetryCollector[0].Dimensions.Count);
-                Assert.AreEqual(0, (telemetryCollector[0].AdditionalDataContext as TelemetryContext)?.Properties?.Count);
             }
             telemetryCollector.Clear();
             {
@@ -1176,7 +1150,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(-57.3, telemetryCollector[0].AggregateData["Sum"]);
 
                 Assert.AreEqual(0, telemetryCollector[0].Dimensions.Count);
-                Assert.AreEqual(0, (telemetryCollector[0].AdditionalDataContext as TelemetryContext)?.Properties?.Count);
             }
 
             Util.CompleteDefaultAggregationCycle(metricManager);

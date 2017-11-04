@@ -452,18 +452,14 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     aggregate.Dimensions[" "] = "DVb2";
                     Assert.ThrowsException<ArgumentNullException>( () => { aggregate.Dimensions[null] = "DVb2"; } );
 
-                    Assert.IsNull(aggregate.AdditionalDataContext);
-                    var telemetryContext = new TelemetryContext();
-                    telemetryContext.InstrumentationKey = "Aggregate's Instrumentsion Key";
-                    telemetryContext.Properties["Prop 1"] = "PV1";
-                    telemetryContext.Properties["Prop 2"] = "PV2";
-                    telemetryContext.Properties["Dim 1"] = "PV3";
-                    telemetryContext.Operation.Id = "OpId xx";
-                    telemetryContext.Operation.Name = "OpName xx";
-                    telemetryContext.User.UserAgent = "UA xx";
-                    telemetryContext.Cloud.RoleName = "RN xx";
-                    aggregate.AdditionalDataContext = telemetryContext;
-
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.InstrumentationKey] = "Aggregate's Instrumentsion Key";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Property("Prop 1")] = "PV1";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Property("Prop 2")] = "PV2";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Property("Dim 1")] = "Dim V 1";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Operation.Id] = "OpId xx";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Operation.Name] = "OpName xx";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.User.UserAgent] = "UA xx";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Cloud.RoleName] = "RN xx";
 
                     await pipelineAdapter.TrackAsync(aggregate, CancellationToken.None);
 
@@ -552,6 +548,240 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
                     Assert.AreEqual("Aggregate's Instrumentsion Key", metricTelemetry.Context.InstrumentationKey);
                     Util.ValidateSdkVersionString(metricTelemetry.Context.GetInternalContext().SdkVersion);
+                }
+            }
+        }
+
+        /// <summary />
+        [TestMethod]
+        public async Task TrackAsync_CorrectlyCopiesTelemetryContextDimensions()
+        {
+            const string mockInstrumentationKey = "103CFCEC-BDA6-4EBC-B1F0-2652654DC6FD";
+
+            {
+                IList<ITelemetry> telemetrySentToChannel;
+                TelemetryConfiguration telemetryPipeline = Util.CreateAITelemetryConfig(out telemetrySentToChannel);
+                using (telemetryPipeline)
+                {
+                    telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
+                    var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
+
+                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleStatistics");
+
+                    aggregate.AggregationPeriodStart = new DateTimeOffset(1492, 10, 12, 0, 0, 0, TimeSpan.Zero);
+
+                    aggregate.Dimensions["Dim 1"] = "DV1";
+                    aggregate.Dimensions["Dim 2"] = "DV2";
+                    aggregate.Dimensions["Dim 3"] = "DV3";
+                    aggregate.Dimensions["Dim 2"] = "DV2a";
+                    aggregate.Dimensions["Dim 4"] = "";
+                    aggregate.Dimensions["Dim 5"] = null;
+                    aggregate.Dimensions["Dim 6"] = "  ";
+                    aggregate.Dimensions[""] = "DVb1";
+                    aggregate.Dimensions[" "] = "DVb2";
+                    Assert.ThrowsException<ArgumentNullException>(() => { aggregate.Dimensions[null] = "DVb2"; });
+
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.InstrumentationKey] = "Aggregate's Instrumentsion Key";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Property("Prop 1")] = "PV1";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Property("Prop 2")] = "PV2";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Property("Dim 1")] = "Dim V 1";
+
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Cloud.RoleInstance] = "A";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Cloud.RoleName] = "B";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Component.Version] = "C";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Device.Id] = "D";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Device.Language] = "E";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Device.Model] = "F";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Device.NetworkType] = "G";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Device.OemName] = "H";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Device.OperatingSystem] = "I";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Device.ScreenResolution] = "J";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Device.Type] = "K";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Location.Ip] = "L";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Operation.CorrelationVector] = "M";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Operation.Id] = "N";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Operation.Name] = "O";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Operation.ParentId] = "P";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Operation.SyntheticSource] = "R";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Session.Id] = "S";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Session.IsFirst] = "TRUE";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.User.AccountId] = "U";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.User.AuthenticatedUserId] = "V";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.User.Id] = "W";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.User.UserAgent] = "X";
+
+                    await pipelineAdapter.TrackAsync(aggregate, CancellationToken.None);
+
+                    Assert.AreEqual(1, telemetrySentToChannel.Count);
+                    Assert.IsInstanceOfType(telemetrySentToChannel[0], typeof(MetricTelemetry));
+                    MetricTelemetry metricTelemetry = (MetricTelemetry) telemetrySentToChannel[0];
+
+                    // This is super strange. Count is changed from 0 to 1 in MetricTelemetry.Sanitize(). But it seems to happen only in Debug mode!
+                    // This needs to be investigated! (@ToDo)
+                    // It would indicate that we are sending different telemetry from exactly the same code depending on whether the app
+                    // runs under a debugger. That wouldn't be good. (Noticed with SDK 2.3)
+                    int expectedCount = Debugger.IsAttached ? 1 : 0;
+                    Util.ValidateNumericAggregateValues(
+                                                    metricTelemetry,
+                                                    "mid-foobar",
+                                                    expectedCount,
+                                                    sum:    0,
+                                                    max:    0,
+                                                    min:    0,
+                                                    stdDev: 0,
+                                                    timestamp:  new DateTimeOffset(1492, 10, 12, 0, 0, 0, TimeSpan.Zero),
+                                                    periodMs:   "0");
+
+                    string props = $"metricTelemetry.Properties[{metricTelemetry.Properties.Count}] {{ ";
+                    foreach (KeyValuePair<string, string> kvp in metricTelemetry.Properties)
+                    {
+                        props = props + $"[\"{kvp.Key}\"]=\"{kvp.Value}\", ";
+                    }
+                    props = props + " }";
+
+                    // This is another super strange case where we seem to be gettin gdifferent results depending on whether a dubugger is attached.
+                    // It seems to be the same Sanitization issue as above (@ToDo)
+                    if (Debugger.IsAttached)
+                    {
+                        Assert.AreEqual(9, metricTelemetry.Properties.Count, props);
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey(Util.AggregationIntervalMonikerPropertyKey));
+
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey("Dim 1"));
+                        Assert.AreEqual("DV1", metricTelemetry.Properties["Dim 1"]);
+
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey("Dim 2"));
+                        Assert.AreEqual("DV2a", metricTelemetry.Properties["Dim 2"]);
+
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey("Dim 3"));
+                        Assert.AreEqual("DV3", metricTelemetry.Properties["Dim 3"]);
+
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey("Prop 1"));
+                        Assert.AreEqual("PV1", metricTelemetry.Properties["Prop 1"]);
+
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey("Prop 2"));
+                        Assert.AreEqual("PV2", metricTelemetry.Properties["Prop 2"]);
+                    }
+                    else
+                    {
+                        Assert.AreEqual(11, metricTelemetry.Properties.Count, props);
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey(Util.AggregationIntervalMonikerPropertyKey));
+
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey("Dim 1"));
+                        Assert.AreEqual("DV1", metricTelemetry.Properties["Dim 1"]);
+
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey("Dim 2"));
+                        Assert.AreEqual("DV2a", metricTelemetry.Properties["Dim 2"]);
+
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey("Dim 3"));
+                        Assert.AreEqual("DV3", metricTelemetry.Properties["Dim 3"]);
+
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey("Dim 4"));
+                        Assert.AreEqual("", metricTelemetry.Properties["Dim 4"]);
+
+                        Assert.IsFalse(metricTelemetry.Properties.ContainsKey("Dim 5"));
+
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey("Dim 6"));
+                        Assert.AreEqual("  ", metricTelemetry.Properties["Dim 6"]);
+
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey("Prop 1"));
+                        Assert.AreEqual("PV1", metricTelemetry.Properties["Prop 1"]);
+
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey("Prop 2"));
+                        Assert.AreEqual("PV2", metricTelemetry.Properties["Prop 2"]);
+                    }
+
+                    Util.ValidateSdkVersionString(metricTelemetry.Context.GetInternalContext().SdkVersion);
+                    Assert.AreEqual("Aggregate's Instrumentsion Key", metricTelemetry.Context.InstrumentationKey);
+
+                    Assert.AreEqual("A", metricTelemetry.Context.Cloud.RoleInstance);
+                    Assert.AreEqual("B", metricTelemetry.Context.Cloud.RoleName);
+                    Assert.AreEqual("C", metricTelemetry.Context.Component.Version);
+                    Assert.AreEqual("D", metricTelemetry.Context.Device.Id);
+#pragma warning disable CS0618 // Type or member is obsolete
+                    Assert.AreEqual("E", metricTelemetry.Context.Device.Language);
+#pragma warning restore CS0618 // Type or member is obsolete
+                    Assert.AreEqual("F", metricTelemetry.Context.Device.Model);
+#pragma warning disable CS0618 // Type or member is obsolete
+                    Assert.AreEqual("G", metricTelemetry.Context.Device.NetworkType);
+#pragma warning restore CS0618 // Type or member is obsolete
+                    Assert.AreEqual("H", metricTelemetry.Context.Device.OemName);
+                    Assert.AreEqual("I", metricTelemetry.Context.Device.OperatingSystem);
+#pragma warning disable CS0618 // Type or member is obsolete
+                    Assert.AreEqual("J", metricTelemetry.Context.Device.ScreenResolution);
+#pragma warning restore CS0618 // Type or member is obsolete
+                    Assert.AreEqual("K", metricTelemetry.Context.Device.Type);
+                    Assert.AreEqual("L", metricTelemetry.Context.Location.Ip);
+                    Assert.AreEqual("M", metricTelemetry.Context.Operation.CorrelationVector);
+                    Assert.AreEqual("N", metricTelemetry.Context.Operation.Id);
+                    Assert.AreEqual("O", metricTelemetry.Context.Operation.Name);
+                    Assert.AreEqual("P", metricTelemetry.Context.Operation.ParentId);
+                    Assert.AreEqual("R", metricTelemetry.Context.Operation.SyntheticSource);
+                    Assert.AreEqual("S", metricTelemetry.Context.Session.Id);
+                    Assert.AreEqual(true, metricTelemetry.Context.Session.IsFirst);
+                    Assert.AreEqual("U", metricTelemetry.Context.User.AccountId);
+                    Assert.AreEqual("V", metricTelemetry.Context.User.AuthenticatedUserId);
+                    Assert.AreEqual("W", metricTelemetry.Context.User.Id);
+                    Assert.AreEqual("X", metricTelemetry.Context.User.UserAgent);
+                }
+            }
+            {
+                IList<ITelemetry> telemetrySentToChannel;
+                TelemetryConfiguration telemetryPipeline = Util.CreateAITelemetryConfig(out telemetrySentToChannel);
+                using (telemetryPipeline)
+                {
+                    telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
+                    var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
+
+                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleStatistics");
+
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Cloud.RoleName] = "";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Device.Model] = null;
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Location.Ip] = "  ";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Session.IsFirst] = "0";
+
+                    await pipelineAdapter.TrackAsync(aggregate, CancellationToken.None);
+
+                    Assert.AreEqual(1, telemetrySentToChannel.Count);
+                    Assert.IsInstanceOfType(telemetrySentToChannel[0], typeof(MetricTelemetry));
+                    MetricTelemetry metricTelemetry = (MetricTelemetry) telemetrySentToChannel[0];
+
+                    Assert.AreEqual(1, metricTelemetry.Properties.Count);
+                    Assert.IsTrue(metricTelemetry.Properties.ContainsKey(Util.AggregationIntervalMonikerPropertyKey));
+
+                    Util.ValidateSdkVersionString(metricTelemetry.Context.GetInternalContext().SdkVersion);
+
+                    Assert.AreEqual(null, metricTelemetry.Context.Cloud.RoleName);
+                    Assert.AreEqual(null, metricTelemetry.Context.Device.Model);
+                    Assert.AreEqual("  ", metricTelemetry.Context.Location.Ip);
+                    Assert.AreEqual(false, metricTelemetry.Context.Session.IsFirst);
+                }
+            }
+            {
+                IList<ITelemetry> telemetrySentToChannel;
+                TelemetryConfiguration telemetryPipeline = Util.CreateAITelemetryConfig(out telemetrySentToChannel);
+                using (telemetryPipeline)
+                {
+                    telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
+                    var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
+
+                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.ApplicationInsights.SimpleStatistics");
+                    
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Session.Id] = "some string";
+                    aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Session.IsFirst] = "bad string";
+
+                    await pipelineAdapter.TrackAsync(aggregate, CancellationToken.None);
+
+                    Assert.AreEqual(1, telemetrySentToChannel.Count);
+                    Assert.IsInstanceOfType(telemetrySentToChannel[0], typeof(MetricTelemetry));
+                    MetricTelemetry metricTelemetry = (MetricTelemetry) telemetrySentToChannel[0];
+
+                    Assert.AreEqual(1, metricTelemetry.Properties.Count);
+                    Assert.IsTrue(metricTelemetry.Properties.ContainsKey(Util.AggregationIntervalMonikerPropertyKey));
+
+                    Util.ValidateSdkVersionString(metricTelemetry.Context.GetInternalContext().SdkVersion);
+
+                    Assert.AreEqual("some string", metricTelemetry.Context.Session.Id);
+                    Assert.AreEqual(null, metricTelemetry.Context.Session.IsFirst);
                 }
             }
         }

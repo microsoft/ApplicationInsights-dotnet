@@ -13,7 +13,6 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         private DateTimeOffset _aggregationPeriodStart;
         private TimeSpan _aggregationPeriodDuration;
-        private object _additionalDataContext;
 
         /// <summary>
         /// </summary>
@@ -32,8 +31,6 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Dimensions = new ConcurrentDictionary<string, string>();
             AggregateData = new ConcurrentDictionary<string, object>();
-
-            _additionalDataContext = null;
         }
 
         /// <summary>
@@ -92,26 +89,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// </summary>
         public IDictionary<string, object> AggregateData { get; }
-
-        /// <summary>
-        /// </summary>
-        public object AdditionalDataContext
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _additionalDataContext;
-                }
-            }
-            set
-            {
-                lock (_lock)
-                {
-                    _additionalDataContext = value;
-                }
-            }
-        }
 
         /// <summary>
         /// This is aconvenience method to retrieve the object at <c>AggregateData[dataKey]</c>.

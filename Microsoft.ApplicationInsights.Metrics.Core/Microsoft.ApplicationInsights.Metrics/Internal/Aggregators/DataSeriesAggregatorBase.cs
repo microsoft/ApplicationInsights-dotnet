@@ -206,29 +206,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                         aggregate.Dimensions[dimNameVal.Key] = dimNameVal.Value;
                     }
                 }
-
-                // Stamp additional data context:
-                if (DataSeries.AdditionalDataContext != null)
-                {
-                    object aggregateContext = aggregate.AdditionalDataContext;
-
-                    // If aggregateContext already exists and it is not a TelemetryContext, we will need to skip the copy.
-                    if (aggregateContext == null || (aggregateContext is TelemetryContext))
-                    {
-                        TelemetryContext aggregateTelemetryContext;
-                        if (aggregateContext == null)
-                        {
-                            aggregateTelemetryContext = new TelemetryContext();
-                            aggregate.AdditionalDataContext = aggregateTelemetryContext;
-                        }
-                        else
-                        {
-                            aggregateTelemetryContext = (TelemetryContext) aggregate.AdditionalDataContext;
-                        }
-
-                        Util.CopyTelemetryContext(DataSeries.AdditionalDataContext, aggregateTelemetryContext);
-                    }
-                }
             }
         }
 

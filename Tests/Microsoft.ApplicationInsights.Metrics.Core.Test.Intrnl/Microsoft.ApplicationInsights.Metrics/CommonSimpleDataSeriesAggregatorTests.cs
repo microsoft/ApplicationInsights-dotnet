@@ -28,36 +28,6 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             aggregator.Reset(startTS, valueFilter: null);
 
-#pragma warning disable 618     // Even Obsolete AdditionalDataContext fields must be copied correctly!
-            metric.AdditionalDataContext.Cloud.RoleInstance = "A";
-            metric.AdditionalDataContext.Cloud.RoleName = "B";
-            metric.AdditionalDataContext.Component.Version = "C";
-            metric.AdditionalDataContext.Device.Id = "D";
-            metric.AdditionalDataContext.Device.Language = "E";
-            metric.AdditionalDataContext.Device.Model = "F";
-            metric.AdditionalDataContext.Device.NetworkType = "G";
-            metric.AdditionalDataContext.Device.OemName = "H";
-            metric.AdditionalDataContext.Device.OperatingSystem = "I";
-            metric.AdditionalDataContext.Device.ScreenResolution = "J";
-            metric.AdditionalDataContext.Device.Type = "K";
-            metric.AdditionalDataContext.InstrumentationKey = "L";
-            metric.AdditionalDataContext.Location.Ip = "M";
-            metric.AdditionalDataContext.Operation.Id = "N";
-            metric.AdditionalDataContext.Operation.Name = "O";
-            metric.AdditionalDataContext.Operation.ParentId = "P";
-            metric.AdditionalDataContext.Operation.SyntheticSource = "Q";
-            metric.AdditionalDataContext.Session.Id = "R";
-            metric.AdditionalDataContext.Session.IsFirst = true;
-            metric.AdditionalDataContext.User.AccountId = "S";
-            metric.AdditionalDataContext.User.AuthenticatedUserId = "T";
-            metric.AdditionalDataContext.User.Id = "U";
-            metric.AdditionalDataContext.User.UserAgent = "V";
-#pragma warning restore 618
-            metric.AdditionalDataContext.Properties["Prop 1"] = "W";
-            metric.AdditionalDataContext.Properties["Prop 2"] = "X";
-            metric.AdditionalDataContext.Properties["Dim 1"] = "Y";
-
-
             aggregator.TrackValue(42);
             aggregator.TrackValue(43);
 
@@ -76,54 +46,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                         (endTS - startTS).TotalMilliseconds,
                         aggregate.AggregationPeriodDuration.TotalMilliseconds,
                         "aggregate.AggregationPeriodDuration mismatch");
-
-#pragma warning disable 618
-            Assert.IsNotNull(aggregate.AdditionalDataContext);
-            Assert.IsInstanceOfType(aggregate.AdditionalDataContext, typeof(TelemetryContext));
-            Assert.AreEqual("A", ((TelemetryContext) aggregate.AdditionalDataContext).Cloud.RoleInstance);
-            Assert.AreEqual("B", ((TelemetryContext) aggregate.AdditionalDataContext).Cloud.RoleName);
-            Assert.AreEqual("C", ((TelemetryContext) aggregate.AdditionalDataContext).Component.Version);
-            Assert.AreEqual("D", ((TelemetryContext) aggregate.AdditionalDataContext).Device.Id);
-            Assert.AreEqual("E", ((TelemetryContext) aggregate.AdditionalDataContext).Device.Language);
-            Assert.AreEqual("F", ((TelemetryContext) aggregate.AdditionalDataContext).Device.Model);
-            Assert.AreEqual("G", ((TelemetryContext) aggregate.AdditionalDataContext).Device.NetworkType);
-            Assert.AreEqual("H", ((TelemetryContext) aggregate.AdditionalDataContext).Device.OemName);
-            Assert.AreEqual("I", ((TelemetryContext) aggregate.AdditionalDataContext).Device.OperatingSystem);
-            Assert.AreEqual("J", ((TelemetryContext) aggregate.AdditionalDataContext).Device.ScreenResolution);
-            Assert.AreEqual("K", ((TelemetryContext) aggregate.AdditionalDataContext).Device.Type);
-            Assert.AreEqual("L", ((TelemetryContext) aggregate.AdditionalDataContext).InstrumentationKey);
-            Assert.AreEqual("M", ((TelemetryContext) aggregate.AdditionalDataContext).Location.Ip);
-            Assert.AreEqual("N", ((TelemetryContext) aggregate.AdditionalDataContext).Operation.Id);
-            Assert.AreEqual("O", ((TelemetryContext) aggregate.AdditionalDataContext).Operation.Name);
-            Assert.AreEqual("P", ((TelemetryContext) aggregate.AdditionalDataContext).Operation.ParentId);
-            Assert.AreEqual("Q", ((TelemetryContext) aggregate.AdditionalDataContext).Operation.SyntheticSource);
-            Assert.AreEqual("R", ((TelemetryContext) aggregate.AdditionalDataContext).Session.Id);
-            Assert.AreEqual(true, ((TelemetryContext) aggregate.AdditionalDataContext).Session.IsFirst);
-            Assert.AreEqual("S", ((TelemetryContext) aggregate.AdditionalDataContext).User.AccountId);
-            Assert.AreEqual("T", ((TelemetryContext) aggregate.AdditionalDataContext).User.AuthenticatedUserId);
-            Assert.AreEqual("U", ((TelemetryContext) aggregate.AdditionalDataContext).User.Id);
-            Assert.AreEqual("V", ((TelemetryContext) aggregate.AdditionalDataContext).User.UserAgent);
-#pragma warning restore 618
-
-            Assert.IsTrue(((TelemetryContext) aggregate.AdditionalDataContext).Properties.ContainsKey("Prop 1"));
-            Assert.AreEqual("W", ((TelemetryContext) aggregate.AdditionalDataContext).Properties["Prop 1"]);
-
-            Assert.IsTrue(((TelemetryContext) aggregate.AdditionalDataContext).Properties.ContainsKey("Prop 2"));
-            Assert.AreEqual("X", ((TelemetryContext) aggregate.AdditionalDataContext).Properties["Prop 2"]);
-
-            Assert.IsTrue(((TelemetryContext) aggregate.AdditionalDataContext).Properties.ContainsKey("Dim 1"));
-            Assert.AreEqual("Y", ((TelemetryContext) aggregate.AdditionalDataContext).Properties["Dim 1"]);
-
-            // We checked the explicitly set properties above.
-            // But for some reason, TelemetryContext chooses to store some of its explicit members as properties as well.
-            // Whatever sense it may or may not make, all we need to verify here is that we have correctly copies ALL properties:
-
-            Assert.AreEqual(metric.AdditionalDataContext.Properties.Count, ((TelemetryContext) aggregate.AdditionalDataContext).Properties.Count);
-            foreach (KeyValuePair<string, string> prop in metric.AdditionalDataContext.Properties)
-            {
-                Assert.IsTrue(((TelemetryContext) aggregate.AdditionalDataContext).Properties.ContainsKey(prop.Key));
-                Assert.AreEqual(prop.Value, ((TelemetryContext) aggregate.AdditionalDataContext).Properties[prop.Key]);
-            }
 
             Assert.AreEqual(expectedDimensionNamesValues.Count(), aggregate.Dimensions.Count);
 

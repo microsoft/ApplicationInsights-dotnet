@@ -320,17 +320,6 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             aggregator.Reset(startTS, valueFilter: null);
 
-            metric.AdditionalDataContext.Component.Version = "C";
-            metric.AdditionalDataContext.Device.Id = "D";
-            metric.AdditionalDataContext.InstrumentationKey = "L";
-            metric.AdditionalDataContext.Location.Ip = "M";
-            metric.AdditionalDataContext.Operation.Id = "N";
-            metric.AdditionalDataContext.Session.Id = "R";
-            metric.AdditionalDataContext.User.AccountId = "S";
-            metric.AdditionalDataContext.Properties["Prop 1"] = "W";
-            metric.AdditionalDataContext.Properties["Prop 2"] = "X";
-            metric.AdditionalDataContext.Properties["Dim 1"] = "Y";
-
             aggregator.TrackValue("Foo");
             aggregator.TrackValue("Bar");
             aggregator.TrackValue("Foo");
@@ -350,28 +339,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                         (endTS - startTS).TotalMilliseconds,
                         aggregate.AggregationPeriodDuration.TotalMilliseconds,
                         "aggregate.AggregationPeriodDuration mismatch");
-
-            Assert.IsNotNull(aggregate.AdditionalDataContext);
-            Assert.IsInstanceOfType(aggregate.AdditionalDataContext, typeof(TelemetryContext));
-
-            Assert.AreEqual("C", ((TelemetryContext) aggregate.AdditionalDataContext).Component.Version);
-            Assert.AreEqual("D", ((TelemetryContext) aggregate.AdditionalDataContext).Device.Id);
-            Assert.AreEqual("L", ((TelemetryContext) aggregate.AdditionalDataContext).InstrumentationKey);
-            Assert.AreEqual("M", ((TelemetryContext) aggregate.AdditionalDataContext).Location.Ip);
-            Assert.AreEqual("N", ((TelemetryContext) aggregate.AdditionalDataContext).Operation.Id);
-            Assert.AreEqual("R", ((TelemetryContext) aggregate.AdditionalDataContext).Session.Id);
-            Assert.AreEqual("S", ((TelemetryContext) aggregate.AdditionalDataContext).User.AccountId);
-
-            Assert.AreEqual(3, ((TelemetryContext) aggregate.AdditionalDataContext).Properties.Count);
-
-            Assert.IsTrue(((TelemetryContext) aggregate.AdditionalDataContext).Properties.ContainsKey("Prop 1"));
-            Assert.AreEqual("W", ((TelemetryContext) aggregate.AdditionalDataContext).Properties["Prop 1"]);
-
-            Assert.IsTrue(((TelemetryContext) aggregate.AdditionalDataContext).Properties.ContainsKey("Prop 2"));
-            Assert.AreEqual("X", ((TelemetryContext) aggregate.AdditionalDataContext).Properties["Prop 2"]);
-
-            Assert.IsTrue(((TelemetryContext) aggregate.AdditionalDataContext).Properties.ContainsKey("Dim 1"));
-            Assert.AreEqual("Y", ((TelemetryContext) aggregate.AdditionalDataContext).Properties["Dim 1"]);
 
             Assert.AreEqual(3, aggregate.Dimensions.Count);
 

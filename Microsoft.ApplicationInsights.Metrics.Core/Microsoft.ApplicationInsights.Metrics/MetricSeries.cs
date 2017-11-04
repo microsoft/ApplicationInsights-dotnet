@@ -21,7 +21,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly bool _requiresPersistentAggregator;
         private readonly string _metricId;
         private readonly IReadOnlyDictionary<string, string> _dimensionNamesAndValues;
-        private readonly TelemetryContext _additionalDataContext;
 
         private IMetricSeriesAggregator _aggregatorPersistent;
         private WeakReference<IMetricSeriesAggregator> _aggregatorDefault;
@@ -48,7 +47,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             _metricId = metricId;
             _configuration = configuration;
             _requiresPersistentAggregator = configuration.RequiresPersistentAggregation;
-            _additionalDataContext = new TelemetryContext();
 
             var dimNameVals = new Dictionary<string, string>();
             if (dimensionNamesAndValues != null)
@@ -92,11 +90,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// 
         /// </summary>
         public IReadOnlyDictionary<string, string> DimensionNamesAndValues { get { return _dimensionNamesAndValues; } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public TelemetryContext AdditionalDataContext { get { return _additionalDataContext; } }
 
         /// <summary>
         /// 

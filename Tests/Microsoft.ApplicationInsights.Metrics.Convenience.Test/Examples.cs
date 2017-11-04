@@ -261,7 +261,7 @@ namespace User.Namespace.Example02
             //    statistic may not yet be updated. These errors are small and not statistically significant. However you should use
             //    unsafe aggregates for what they are - statistical summaries, rather than exact counters.
 
-            // *** ADDITIONAL DATA CONTEXT ***
+            // *** SPECIAL DIMENSION NAMES ***
 
             // Note that metrics do not usually respect the TelemetryContext of the TelemetryClient used to access the metric.
             // There is a detailed discussion of the reasons and workarounds in a latter example. For now, just a clarification:
@@ -274,22 +274,27 @@ namespace User.Namespace.Example02
 
             // Metric aggregates sent by the above specialOpsRequestSizeStats-metric will NOT have their Context.Operation.Name set to "Special Operation".
 
-            // However, MetricSeries objects have their owns data context which WILL be respected. Consider the following code:
-
-            MetricSeries specialOpsRequestSize, someOtherOpsRequestSize;
-
-            client.GetMetric("Request Size", "Operation Name").TryGetDataSeries(out specialOpsRequestSize, "Special Operation");
-            client.GetMetric("Request Size", "Operation Name").TryGetDataSeries(out someOtherOpsRequestSize, "Some Other Operation");
-
-            specialOpsRequestSize.AdditionalDataContext.Operation.Name = "Special Operation";
-            someOtherOpsRequestSize.AdditionalDataContext.Operation.Name = "Some Other Operation";
-
+            // However, you can use special dimension names in order to specify TelemetryContext values. For example
+            
+            MetricSeries specialOpsRequestSize;
+            client.GetMetric("Request Size", "TelemetryContext.Operation.Name").TryGetDataSeries(out specialOpsRequestSize, "Special Operation");
             specialOpsRequestSize.TrackValue(120000);
+
+            // When the metric aggregate is sent to the Application Insights cloud endpoint, its 'Context.Operation.Name' data field
+            // will be set to "Special Operation".
+            // Note: the values of this special dimension will be copied into the TelemetryContext and not be used as a 'normal' dimension.
+            // If you want to also keep an operation name dimension for normal metric exploration, you need to create a separate dimension
+            // for that purpose:
+
+            MetricSeries someOtherOpsRequestSize;
+            client.GetMetric("Request Size", MetricDimensionNames.TelemetryContext.Operation.Name, "Operation Name")
+                  .TryGetDataSeries(out someOtherOpsRequestSize, "Some Other Operation", "Some Other Operation");
             someOtherOpsRequestSize.TrackValue(64000);
 
-            // In this case, metric aggregates produced by the specialOpsRequestSize-series will have
-            // their Context.Operation.Name set to "Special Operation". And the aggregates of the someOtherOpsRequestSize-series
-            // will have their Context.Operation.Name set to "Some Other Operation".
+            // In this case, the aggregates of the someOtherOpsRequestSize-series will have a dimension "Operation Name" with the
+            // value "Some Other Operation", and, in addition, their Context.Operation.Name will be set to "Some Other Operation".
+
+            // The static class MetricDimensionNames contains a list of constants for all special dimension names.
         }
 
         private static int GetCurrentRequestSize()
@@ -542,7 +547,7 @@ namespace User.Namespace.Example05
             // *** AGGREGATION SCOPE ***
 
             // Previously we saw that metrics do not use the Telemetry Context of the Telemetry Client used to access them.
-            // We learned that MetricSeries.AdditionalDataContext is the best workaround for this limitation.
+            // We learned that using special dimension names available as constants in MetricDimensionNames is the best workaround for this limitation.
             // Here, we discuss the reasons for the limitation and other possible workarounds.
 
             // Recall the problem description:
@@ -595,7 +600,7 @@ namespace User.Namespace.Example05
             // However, if different TelemetryClient instances return the name Metric instance, then what client's Context should the Metric respect?
             // To avoid confusion, it respects none.
 
-            // The best workaround for this circumstance was mentioned in a previous example - use the MetricSeries.AdditionalDataContext property.
+            // The best workaround for this circumstance was mentioned in a previous example - use the special dimension names in the MetricDimensionNames class.
             // However, sometimes it is inconvenient. For example, if you already created a cached TelemetryClient for a specific scope and set some custom 
             // Context properties. 
             // It is actually possible to create a metric that is only scoped to a single TelemetryClient instance. This will cause the creation of a special

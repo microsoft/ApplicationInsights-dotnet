@@ -113,9 +113,7 @@ namespace SomeCustomerNamespace
                     Assert.AreEqual(operationsCount, aggregate.AggregateData["Count"]);
                     Assert.AreEqual("Item Add duration", aggregate.MetricId);
                     Assert.IsNotNull(aggregate.Dimensions);
-                    Assert.IsNotNull(aggregate.AdditionalDataContext);
                     Assert.AreEqual(0, aggregate.Dimensions.Count);
-                    Assert.AreEqual(0, (aggregate.AdditionalDataContext as TelemetryContext).Properties.Count);
                     Assert.AreEqual((double) intervalSecs, aggregate.AggregateData["Sum"]);
                     Assert.AreEqual(experimentStart.AddSeconds(totalSecs - intervalSecs), aggregate.AggregationPeriodStart);
 
@@ -159,9 +157,7 @@ namespace SomeCustomerNamespace
                 Assert.AreEqual(3, aggregate.AggregateData["Count"]);
                 Assert.AreEqual("Item Add duration", aggregate.MetricId);
                 Assert.IsNotNull(aggregate.Dimensions);
-                Assert.IsNotNull(aggregate.AdditionalDataContext);
                 Assert.AreEqual(0, aggregate.Dimensions.Count);
-                Assert.AreEqual(0, (aggregate.AdditionalDataContext as TelemetryContext).Properties.Count);
                 Assert.AreEqual(24.0, aggregate.AggregateData["Sum"]);
                 Assert.AreEqual(experimentStart.AddSeconds(totalSecs - 24), aggregate.AggregationPeriodStart);
             }
