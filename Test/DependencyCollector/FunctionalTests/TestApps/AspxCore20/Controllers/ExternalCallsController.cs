@@ -10,9 +10,9 @@ namespace AspxCore20.Controllers
 {
     [Route("external/calls")]
     public class ExternalCallsController : Controller
-    {/// <summary>
-     /// Invalid Hostname to trigger exception being thrown
-     /// </summary>
+    {       /// <summary>
+         /// Invalid Hostname to trigger exception being thrown
+         /// </summary>
         private const string InvalidHostName = "http://www.zzkaodkoakdahdjghejajdnad.com";
 
         /// <summary>

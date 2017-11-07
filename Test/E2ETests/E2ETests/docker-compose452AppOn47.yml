@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+    e2etestwebapi:
+        build:
+            context: ./../TestApps/Net452/E2ETestWebApi/Publish
+            dockerfile: DockerFile47
+        depends_on:
+            - ingestionservice
+            
+    e2etestwebapp:
+        build: 
+            context: ./../TestApps/Net452/E2ETestApp/Publish
+            dockerfile: DockerFile47
+        depends_on:
+            - e2etestwebapi
+            - sql-server
+
+    ingestionservice:
+        build:
+            context: ./../IngestionService/Publish
+            dockerfile: DockerFile              
+
+    azureemulator:
+        build:
+            context: ./AzureEmulator
+            dockerfile: DockerFile        
+
+    sql-server:
+        image: microsoft/mssql-server-windows-express
+        environment:            
+            sa_password: MSDNm4g4z!n4
+            accept_eula: "Y"
+networks:
+  default:
+    external:
+      name: nat        

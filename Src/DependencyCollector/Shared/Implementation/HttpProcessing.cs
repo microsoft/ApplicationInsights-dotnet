@@ -89,7 +89,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         internal object OnBegin(object thisObj, bool injectCorrelationHeaders = true)
         {
             try
-            {
+            {                
                 if (thisObj == null)
                 {
                     DependencyCollectorEventSource.Log.NotExpectedCallback(0, "OnBeginHttp", "thisObj == null");

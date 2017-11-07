@@ -76,7 +76,7 @@
             {
                 switch (eventData.EventId)
                 {
-                    case BeginGetResponseEventId:
+                    case BeginGetResponseEventId:                        
                         if (!DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated)
                         {
                             // request is handled by Desktop DiagnosticSource Listener
