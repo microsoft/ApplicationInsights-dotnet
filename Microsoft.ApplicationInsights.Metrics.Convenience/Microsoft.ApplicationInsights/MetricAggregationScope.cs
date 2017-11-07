@@ -3,7 +3,9 @@
 namespace Microsoft.ApplicationInsights
 {
     /// <summary>
-    /// Used when getting or creating a <see cref="Metric" /> to optionally specify the scope across which the values for the metric are to be aggregated in memory.
+    /// Used when getting or creating a <see cref="Metric" /> to optionally specify the scope across which the values for the metric are to be aggregated in memory.<br />
+    /// Intended for advanced scenarios.
+    /// The default "<see cref="TelemetryConfiguration" />" is used whenever <c>MetricAggregationScope</c> is not specified explicitly.
     /// </summary>
     /// <seealso cref="MetricAggregationScope.TelemetryConfiguration" />
     /// <seealso cref="MetricAggregationScope.TelemetryClient" />

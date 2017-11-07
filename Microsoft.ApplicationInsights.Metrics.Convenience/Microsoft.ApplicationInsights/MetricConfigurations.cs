@@ -24,18 +24,25 @@ namespace Microsoft.ApplicationInsights
 
         /// <summary>
         /// <para>Use to measure attributes and/or counts of items. Also, use to measure attributes and/or rates of events.<br />
-        /// Will produce aggregates that contain simple statistics about tracked values per time period: Count, Sum, Min, Max.<br />
+        /// Produces aggregates that contain simple statistics about tracked values per time period: Count, Sum, Min, Max.<br />
         /// (This is the most commonly used metric configuration and is the default unless otherwise specified.)</para>
         /// 
-        /// <para>For example, use <c>MetricConfigurations.Measurement</c> to measure:<br />
-        /// Size and number of server requests per time period, Duration and rate of database calls per time period,
-        /// Number of sale events and number of items sold per sale event over a time period, etc.    
-        /// </para>
+        /// <para>For example, use this metric configuration to measure:<br />
+        /// Size and number of server requests per time period; Duration and rate of database calls per time period;
+        /// Number of sale events and number of items sold per sale event over a time period, etc.</para>
         /// </summary>
         public static IMetricConfiguration Measurement { get { return s_measurementDouble; } }
 
         /// <summary>
+        /// <para>Use for measuring and accumulating differences between states of an entity that exists over a long period of time.<br />
+        /// Will keep the accumulated state and will not automatically reset at the end of each time period.<br />
+        /// Produces aggregates that contain accumulated statistics about tracked Deltas over the entire life-time of the
+        /// metric in memory (or since an explicit reset): Sum, Min, Max.</para>
         /// 
+        /// <para>For example, use this metric configuration to measure:<br />
+        /// Number of service invocations in-flight (.TrackValue(1) / .TrackValue(-1) when invocations begin/end);<br />
+        /// Count of items in a memory data structure (.TrackValue(n) / .TrackValue(-m) when items are added / removed);<br />
+        /// Volume of water in a container (.TrackValue(litersIn) / .TrackValue(-litersOut) when water flows in or out).</para>
         /// </summary>
         public static IMetricConfiguration Accumulator { get { return s_accumulatorDouble; } }
 
@@ -65,7 +72,7 @@ namespace Microsoft.ApplicationInsights
         #region class Defaults
 
         /// <summary>
-        /// 
+        /// Used to change the default attributes of the static members of <see cref="MetricConfigurations" />.
         /// </summary>
         public static class FutureDefaults
         {
@@ -76,7 +83,8 @@ namespace Microsoft.ApplicationInsights
             private static int s_valuesPerDimensionLimit = 100;
 
             /// <summary>
-            /// 
+            /// The max number of time series per metric for metrics that use <see cref="MetricConfigurations.Measurement" />
+            /// or <see cref="MetricConfigurations.Accumulator" /> configurations.
             /// </summary>
             public static int SeriesCountLimit
             {
@@ -98,7 +106,8 @@ namespace Microsoft.ApplicationInsights
             }
 
             /// <summary>
-            /// 
+            /// The max number of distinct values per dimension for metrics that use <see cref="MetricConfigurations.Measurement" />
+            /// or <see cref="MetricConfigurations.Accumulator" /> configurations.
             /// </summary>
             public static int ValuesPerDimensionLimit
             {

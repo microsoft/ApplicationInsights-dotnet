@@ -13,7 +13,12 @@ using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggr
 namespace Microsoft.ApplicationInsights.Metrics
 {
     /// <summary>
-    /// 
+    /// Represents a data time series of metric values.
+    /// One or more <c>MetricSeries</c> are grouped into a single <c>Metric</c>.
+    /// Use <c>MetricSeries</c> to track, aggregate and send values without the overhead of looking them up from the
+    /// corresponding <c>Metric</c> object.
+    /// Each <c>Metric</c> object contains a special zero-dimension series, plus, for multi-dimensional metrics, one
+    /// series per unique dimension-values combination.
     /// </summary>
     public sealed class MetricSeries
     {
@@ -97,9 +102,12 @@ namespace Microsoft.ApplicationInsights.Metrics
         public string MetricId { get { return _metricId; } }
 
         /// <summary>
-        /// 
+        /// Tracks the specified value.<br />
+        /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.<br />
+        /// <para>When non-default aggregation cycles are active, additional aggregates may be obtained by cycling respective aggregators.
+        /// See @ToDo to learn more about this advanced use case.</para>
         /// </summary>
-        /// <param name="metricValue"></param>
+        /// <param name="metricValue">The value to be aggregated.</param>
         public void TrackValue(double metricValue)
         {
             List<Exception> errors = null;
@@ -136,9 +144,12 @@ namespace Microsoft.ApplicationInsights.Metrics
         }
 
         /// <summary>
-        /// 
+        /// Tracks the specified value.<br />
+        /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.<br />
+        /// <para>When non-default aggregation cycles are active, additional aggregates may be obtained by cycling respective aggregators.
+        /// See @ToDo to learn more about this advanced use case.</para>
         /// </summary>
-        /// <param name="metricValue"></param>
+        /// <param name="metricValue">The value to be aggregated.</param>
         public void TrackValue(object metricValue)
         {
             List<Exception> errors = null;

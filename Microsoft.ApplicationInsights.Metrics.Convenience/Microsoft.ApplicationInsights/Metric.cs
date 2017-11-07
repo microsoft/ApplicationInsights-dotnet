@@ -16,7 +16,7 @@ namespace Microsoft.ApplicationInsights
     /// A <c>Metric</c> instance groups one or more <c>MetricSeries</c> that actually track and aggregate values along with
     /// naming and configuration attributes that identify the metric and define how it will be aggregated. 
     /// </summary>
-    public class Metric : IEquatable<Metric>
+    public sealed class Metric : IEquatable<Metric>
     {
         private const string NullMetricObjectId = "null";
 
@@ -101,25 +101,26 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// 
+        /// The ID (name) of this metric.
         /// </summary>
         public string MetricId { get; }
 
         /// <summary>
-        /// 
+        /// The dimensionality of this metric.
         /// </summary>
         public int DimensionsCount { get; }
 
         /// <summary>
-        /// 
+        /// The current number of metric series contained in this metric. 
+        /// Each metric contains a special zero-dimension series, plus one series per unique dimension-values combination.
         /// </summary>
         public int SeriesCount { get { return 1 + (_metricSeries?.TotalPointsCount ?? 0); } }
 
         /// <summary>
-        /// 
+        /// Gets the name of a dimension identified by the specified 1-based dimension index.
         /// </summary>
         /// <param name="dimensionNumber">1-based dimension number. Currently it can be <c>1</c> or <c>2</c>.</param>
-        /// <returns></returns>
+        /// <returns>The name of the specified dimension.</returns>
         public string GetDimensionName(int dimensionNumber)
         {
             ValidateDimensionNumberForGetter(dimensionNumber);
@@ -127,9 +128,10 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
+        /// Gets the values known for dimension identified by the specified 1-based dimension index.
         /// </summary>
-        /// <param name="dimensionNumber"></param>
-        /// <returns></returns>
+        /// <param name="dimensionNumber">1-based dimension number. Currently it can be <c>1</c> or <c>2</c>.</param>
+        /// <returns>The values known for the specified dimension.</returns>
         public IReadOnlyCollection<string> GetDimensionValues(int dimensionNumber)
         {
             ValidateDimensionNumberForGetter(dimensionNumber);
@@ -139,7 +141,8 @@ namespace Microsoft.ApplicationInsights
         }
         
         /// <summary>
-        /// 
+        /// Gets all metric series contained in this metric.
+        /// Each metric contains a special zero-dimension series, plus one series per unique dimension-values combination.
         /// </summary>
         /// <returns></returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage(
@@ -160,10 +163,12 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// 
+        /// Gets a <c>MetricSeries</c> associated with this metric.<br />
+        /// This overload gets the zero-dimensional <c>MetricSeries</c> associated with this metric.
+        /// Every metric, regardless of its dimensionality, has such a zero-dimensional <c>MetricSeries</c>.
         /// </summary>
-        /// <param name="series"></param>
-        /// <returns></returns>
+        /// <param name="series">Will be set to the zero-dimensional <c>MetricSeries</c> associated with this metric</param>
+        /// <returns><c>True</c>.</returns>
         public bool TryGetDataSeries(out MetricSeries series)
         {
             series = _zeroDimSeries;
@@ -171,23 +176,32 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// 
+        /// Gets or creates the <c>MetricSeries</c> associated with the specified dimension value.<br />
+        /// This overload may only be used with 1-dimensional metrics. Use other overloads to specify a matching number of dimension values for this metric.
         /// </summary>
-        /// <param name="series"></param>
-        /// <param name="dimension1Value"></param>
-        /// <returns></returns>
+        /// <param name="series">If this method returns <c>True</c>: Will be set to the <c>MetricSeries</c> associated with the specified dimension value.<br />
+        /// Otherwise: Will be set to <c>null</c>.</param>
+        /// <param name="dimension1Value">The value of the 1st dimension.</param>
+        /// <returns><c>True</c> if the <c>MetricSeries</c> indicated by the specified dimension name could be retrieved (or created);
+        /// <c>False</c> if the indicated series could not be retrieved or created because a dimension cap or a metric series cap was reached.</returns>
+        /// <exception cref="InvalidOperationException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TryGetDataSeries(out MetricSeries series, string dimension1Value)
         {
             return TryGetDataSeries(out series, dimension1Value, createIfNotExists: true);
         }
 
         /// <summary>
-        /// 
+        /// Gets or creates the <c>MetricSeries</c> associated with the specified dimension value.<br />
+        /// This overload may only be used with 1-dimensional metrics. Use other overloads to specify a matching number of dimension values for this metric.
         /// </summary>
-        /// <param name="series"></param>
-        /// <param name="dimension1Value"></param>
-        /// <param name="createIfNotExists"></param>
-        /// <returns></returns>
+        /// <param name="series">If this method returns <c>True</c>: Will be set to the <c>MetricSeries</c> associated with the specified dimension value.<br />
+        /// Otherwise: Will be set to <c>null</c>.</param>
+        /// <param name="dimension1Value">The value of the 1st dimension.</param>
+        /// <param name="createIfNotExists">Whether to attempt creating a metric series for the specified dimension value if it does not exist.</param>
+        /// <returns><c>True</c> if the <c>MetricSeries</c> indicated by the specified dimension name could be retrieved or created;
+        /// <c>False</c> if the indicated series does not could not be retrieved or created because <c>createIfNotExists</c> is <c>false</c>
+        /// or because a dimension cap or a metric series cap was reached.</returns>
+        /// <exception cref="InvalidOperationException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TryGetDataSeries(out MetricSeries series, string dimension1Value, bool createIfNotExists)
         {
             series = GetMetricSeries(createIfNotExists, dimension1Value);
@@ -195,25 +209,34 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// 
+        /// Gets or creates the <c>MetricSeries</c> associated with the specified dimension values.<br />
+        /// This overload may only be used with 2-dimensional metrics. Use other overloads to specify a matching number of dimension values for this metric.
         /// </summary>
-        /// <param name="series"></param>
-        /// <param name="dimension1Value"></param>
-        /// <param name="dimension2Value"></param>
-        /// <returns></returns>
+        /// <param name="series">If this method returns <c>True</c>: Will be set to the <c>MetricSeries</c> associated with the specified dimension value.<br />
+        /// Otherwise: Will be set to <c>null</c>.</param>
+        /// <param name="dimension1Value">The value of the 1st dimension.</param>
+        /// <param name="dimension2Value">The value of the 2nd dimension.</param>
+        /// <returns><c>True</c> if the <c>MetricSeries</c> indicated by the specified dimension name could be retrieved (or created);
+        /// <c>False</c> if the indicated series could not be retrieved or created because a dimension cap or a metric series cap was reached.</returns>
+        /// <exception cref="InvalidOperationException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TryGetDataSeries(out MetricSeries series, string dimension1Value, string dimension2Value)
         {
             return TryGetDataSeries(out series, dimension1Value, dimension2Value, createIfNotExists: true);
         }
 
         /// <summary>
-        /// 
+        /// Gets or creates the <c>MetricSeries</c> associated with the specified dimension values.<br />
+        /// This overload may only be used with 2-dimensional metrics. Use other overloads to specify a matching number of dimension values for this metric.
         /// </summary>
-        /// <param name="series"></param>
-        /// <param name="dimension1Value"></param>
-        /// <param name="dimension2Value"></param>
-        /// <param name="createIfNotExists"></param>
-        /// <returns></returns>
+        /// <param name="series">If this method returns <c>True</c>: Will be set to the <c>MetricSeries</c> associated with the specified dimension value.<br />
+        /// Otherwise: Will be set to <c>null</c>.</param>
+        /// <param name="dimension1Value">The value of the 1st dimension.</param>
+        /// <param name="dimension2Value">The value of the 2nd dimension.</param>
+        /// <param name="createIfNotExists">Whether to attempt creating a metric series for the specified dimension values if it does not exist.</param>
+        /// <returns><c>True</c> if the <c>MetricSeries</c> indicated by the specified dimension name could be retrieved or created;
+        /// <c>False</c> if the indicated series does not could not be retrieved or created because <c>createIfNotExists</c> is <c>false</c>
+        /// or because a dimension cap or a metric series cap was reached.</returns>
+        /// <exception cref="InvalidOperationException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TryGetDataSeries(out MetricSeries series, string dimension1Value, string dimension2Value, bool createIfNotExists)
         {
             series = GetMetricSeries(createIfNotExists, dimension1Value, dimension2Value);
@@ -221,18 +244,24 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// 
+        /// Tracks the specified value.<br />
+        /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.<br />
+        /// This method uses the zero-dimensional <c>MetricSeries</c> associated with this metric.
+        /// Use <c>TryTrackValue(..)</c> to track values into <c>MetricSeries</c> associated with specific dimension-values in multi-dimensional metrics.
         /// </summary>
-        /// <param name="metricValue"></param>
+        /// <param name="metricValue">The value to be aggregated.</param>
         public void TrackValue(double metricValue)
         {
             _zeroDimSeries.TrackValue(metricValue);
         }
 
         /// <summary>
-        /// 
+        /// Tracks the specified value.<br />
+        /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.<br />
+        /// This method uses the zero-dimensional <c>MetricSeries</c> associated with this metric.
+        /// Use <c>TryTrackValue(..)</c> to track values into <c>MetricSeries</c> associated with specific dimension-values in multi-dimensional metrics.
         /// </summary>
-        /// <param name="metricValue"></param>
+        /// <param name="metricValue">The value to be aggregated.</param>
         public void TrackValue(object metricValue)
         {
             _zeroDimSeries.TrackValue(metricValue);
@@ -240,11 +269,15 @@ namespace Microsoft.ApplicationInsights
 
 
         /// <summary>
-        /// 
+        /// Tracks the specified value using the <c>MetricSeries</c> associated with the specified dimension value.<br />
+        /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.
+        /// This overload may only be used with 1-dimensional metrics. Use other overloads to specify a matching number of dimension values for this metric.
         /// </summary>
-        /// <param name="metricValue"></param>
-        /// <param name="dimension1Value"></param>
-        /// <returns></returns>
+        /// <param name="metricValue">The value to be aggregated.</param>
+        /// <param name="dimension1Value">The value of the 1st dimension.</param>
+        /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
+        /// <exception cref="InvalidOperationException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TryTrackValue(double metricValue, string dimension1Value)
         {
             MetricSeries series = GetMetricSeries(true, dimension1Value);
@@ -253,11 +286,15 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// 
+        /// Tracks the specified value using the <c>MetricSeries</c> associated with the specified dimension value.<br />
+        /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.
+        /// This overload may only be used with 1-dimensional metrics. Use other overloads to specify a matching number of dimension values for this metric.
         /// </summary>
-        /// <param name="metricValue"></param>
-        /// <param name="dimension1Value"></param>
-        /// <returns></returns>
+        /// <param name="metricValue">The value to be aggregated.</param>
+        /// <param name="dimension1Value">The value of the 1st dimension.</param>
+        /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
+        /// <exception cref="InvalidOperationException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TryTrackValue(object metricValue, string dimension1Value)
         {
             MetricSeries series = GetMetricSeries(true, dimension1Value);
@@ -266,12 +303,16 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// 
+        /// Tracks the specified value using the <c>MetricSeries</c> associated with the specified dimension values.<br />
+        /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.
+        /// This overload may only be used with 2-dimensional metrics. Use other overloads to specify a matching number of dimension values for this metric.
         /// </summary>
-        /// <param name="metricValue"></param>
-        /// <param name="dimension1Value"></param>
-        /// <param name="dimension2Value"></param>
-        /// <returns></returns>
+        /// <param name="metricValue">The value to be aggregated.</param>
+        /// <param name="dimension1Value">The value of the 1st dimension.</param>
+        /// <param name="dimension2Value">The value of the 2nd dimension.</param>
+        /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
+        /// <exception cref="InvalidOperationException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TryTrackValue(double metricValue, string dimension1Value, string dimension2Value)
         {
             MetricSeries series = GetMetricSeries(true, dimension1Value, dimension2Value);
@@ -280,12 +321,16 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// 
+        /// Tracks the specified value using the <c>MetricSeries</c> associated with the specified dimension values.<br />
+        /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.
+        /// This overload may only be used with 2-dimensional metrics. Use other overloads to specify a matching number of dimension values for this metric.
         /// </summary>
-        /// <param name="metricValue"></param>
-        /// <param name="dimension1Value"></param>
-        /// <param name="dimension2Value"></param>
-        /// <returns></returns>
+        /// <param name="metricValue">The value to be aggregated.</param>
+        /// <param name="dimension1Value">The value of the 1st dimension.</param>
+        /// <param name="dimension2Value">The value of the 2nd dimension.</param>
+        /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
+        /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
+        /// <exception cref="InvalidOperationException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TryTrackValue(object metricValue, string dimension1Value, string dimension2Value)
         {
             MetricSeries series = GetMetricSeries(true, dimension1Value, dimension2Value);
@@ -294,10 +339,12 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// 
+        /// Determines whether the specified object is a metric that is equal to this metric based on the respective metric IDs and
+        /// the number and the names of dimensions.
         /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
+        /// <param name="obj">Another object.</param>
+        /// <returns>Whether the specified other metric is equal to this metric based on the respective metric IDs and the number and
+        /// the names of dimensions.</returns>
         public override bool Equals(object obj)
         {
             if (obj == null)
@@ -310,10 +357,12 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// 
+        /// Determines whether the specified other metric is equal to this metric based on the respective metric IDs and the number and 
+        /// the names of dimensions.
         /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
+        /// <param name="other">Another metric.</param>
+        /// <returns>Whether the specified other metric is equal to this metric based on the respective metric IDs and the number and the
+        /// names of dimensions.</returns>
         public bool Equals(Metric other)
         {
             if (other == null)
@@ -325,9 +374,9 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// 
+        /// Gets the hash code for this <c>Metric</c> instance.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Hash code for this <c>Metric</c> instance.</returns>
         public override int GetHashCode()
         {
             return _hashCode;
