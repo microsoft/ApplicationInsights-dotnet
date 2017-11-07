@@ -8,7 +8,6 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
     /// Base class with all processing logic to generate dependencies from the callbacks received from Profiler instrumentation for SQL.    
