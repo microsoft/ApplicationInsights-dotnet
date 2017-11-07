@@ -28,19 +28,19 @@
             // To mark this difference, we use a pattern that is similar, but different from the established TrackXxx(..) pattern that sends telemetry right away:
             client.GetMetric("CowsSold").TrackValue(42);
 
-            // *** MEASUREMENTS AND COUNTERS ***
+            // *** MEASUREMENTS AND ACCUMULATORS ***
 
-            // We support different kinds of aggregation types. For now, we include two: Measurements and Counters.
+            // We support different kinds of aggregation types. For now, we include two: Measurements and Accumulators.
             // Measurements aggregate tracked values and reduce them to {Count, Sum, Min, Max, StdDev} of all values tracked during each minute. 
             // They are particularly useful if you are measuring something like the number of items sold, the completion time of an operation, or similar.
 
-            // Counters are also sent to the cloud each minute.
+            // Accumulators are also sent to the cloud each minute.
             // But rather than aggregating values across a time period, they aggregate values across their entire life time (or until you reset them).
             // They are particularly useful when you are counting the number of items in a data structure.
 
-            // By default, metrics are aggregated as Measurements. Here is how you can define a metric to be aggregated as a Counter instead:
+            // By default, metrics are aggregated as Measurements. Here is how you can define a metric to be aggregated as an Accumulator instead:
 
-            Metric itemsInDatastructure = client.GetMetric("ItemsInDatastructure", MetricConfigurations.Counter);
+            Metric itemsInDatastructure = client.GetMetric("ItemsInDatastructure", MetricConfigurations.Accumulator);
 
             int itemsAdded = AddItemsToDataStructure();
             itemsInDatastructure.TrackValue(itemsAdded);
@@ -48,7 +48,7 @@
             int itemsRemoved = AddItemsToDataStructure();
             itemsInDatastructure.TrackValue(-itemsRemoved);
 
-            // Here is how you can reset a counter:
+            // Here is how you can reset an accumulator:
             ResetDataStructure();
             itemsInDatastructure.GetAllSeries()[0].Value.ResetAggregation();
 
@@ -207,7 +207,7 @@ namespace User.Namespace.Example02
             epicTragedyInRussianSold.ResetAggregation();    // Now we have 0 Epic Tragedies in Russian
 
             // For Measurements, resetting will not make a lot of sense in most cases.
-            // However, for Counters this may be necessary once in a while, for example when you cleared a data structure for
+            // However, for Accumulators this may be necessary once in a while, for example when you cleared a data structure for
             // which you were counting the contained items.
 
             // Another powerful example for interacting with aggregated metric data is the ability to inspect the aggregation.
@@ -260,7 +260,7 @@ namespace User.Namespace.Example02
             //    of the aggregation period, but it may be lagging behind a few milliseconds at other times or it may be inconsistent.
             //    E.g., following a TrackValue(..) invocation the Count statistic of an aggregate may already be updated, but its Sum
             //    statistic may not yet be updated. These errors are small and not statistically significant. However you should use
-            //    unsafe aggregates for what they are - statistical summaries, rather than exact counters.
+            //    unsafe aggregates for what they are - statistical summaries, rather than exact counts.
 
             // *** SPECIAL DIMENSION NAMES ***
 
@@ -344,7 +344,7 @@ namespace User.Namespace.Example03
         {
             // *** SEPARATION OF CONCERNS: TRACKING METRICS AND CONFIGURING AGGREGATIONS ARE INDEPENDENT ***
 
-            // Recall from an earlier example that a metric can be configured for aggregation as a Measurement or as a Counter.
+            // Recall from an earlier example that a metric can be configured for aggregation as a Measurement or as an Accumulator.
             // A strong architectural conviction of this Metrics SDK is that metrics tracking and metrics aggregation are distinct concepts
             // that must be kept separate. This means that a metric is ALWAYS tracked in the same way:
 
@@ -356,24 +356,24 @@ namespace User.Namespace.Example03
             // If you want to affect the way a metric is aggregated, you need to do this in the one place where the metric is initialized:
 
             Metric measurementMetric = client.GetMetric("Items Processed per Minute", MetricConfigurations.Measurement);
-            Metric counterMetric = client.GetMetric("Items in a Data Structure", MetricConfigurations.Counter);
+            Metric accumulatorMetric = client.GetMetric("Items in a Data Structure", MetricConfigurations.Accumulator);
 
             measurementMetric.TrackValue(10);
             measurementMetric.TrackValue(20);
-            counterMetric.TrackValue(1);
-            counterMetric.TrackValue(-1);
+            accumulatorMetric.TrackValue(1);
+            accumulatorMetric.TrackValue(-1);
 
             // Note that this is an important and intentional difference to some other metric aggregation libraries
             // that declare a strongly typed metric object class for different aggregators.
 
             // If you prefer not to cache the metric reference, you can simply avoid specifying the metric configuration in all except the first call.
             // However, you MUST specify a configuration when you initialize the metric for the first time, or we will assume a Measurement.
-            // E.g., all three of counterMetric2, counterMetric2a and counterMetric2b below are Counters.
+            // E.g., all three of accumulatorMetric2, accumulatorMetric2a and accumulatorMetric2b below are Accumulators.
             // (In fact, they are all references to the same object.)
 
-            Metric counterMetric2 = client.GetMetric("Items in a Data Structure 2", MetricConfigurations.Counter);
-            Metric counterMetric2a = client.GetMetric("Items in a Data Structure 2");
-            Metric counterMetric2b = client.GetMetric("Items in a Data Structure 2", metricConfiguration: null);
+            Metric AccumulatorMetric2 = client.GetMetric("Items in a Data Structure 2", MetricConfigurations.Accumulator);
+            Metric accumulatorMetric2a = client.GetMetric("Items in a Data Structure 2");
+            Metric accumulatorMetric2b = client.GetMetric("Items in a Data Structure 2", metricConfiguration: null);
 
             // On contrary, metric3 and metric3a are Measurements, because no configuration was specified during the first call:
 
@@ -384,7 +384,7 @@ namespace User.Namespace.Example03
 
             try
             {
-                Metric counterMetric2c = client.GetMetric("Items in a Data Structure 2", MetricConfigurations.Measurement);
+                Metric accumulatorMetric2c = client.GetMetric("Items in a Data Structure 2", MetricConfigurations.Measurement);
             }
             catch(ArgumentException)
             {
@@ -400,7 +400,7 @@ namespace User.Namespace.Example03
 
             // *** CUSTOM METRIC CONFIGURATIONS ***
 
-            // Above we have seen two fixed presets for metric configurations: MetricConfigurations.Measurement and MetricConfigurations.Counter.
+            // Above we have seen two fixed presets for metric configurations: MetricConfigurations.Measurement and MetricConfigurations.Accumulator.
             // Both are static objects of class SimpleMetricConfiguration which in turn implements the IMetricConfiguration interface.
             // You can provide your own implementations of IMetricConfiguration if you want to implement your own custom aggregators; that
             // is covered elsewhere.
@@ -415,14 +415,14 @@ namespace User.Namespace.Example03
                                                                     seriesCountLimit:           1000,
                                                                     valuesPerDimensionLimit:    100,
                                                                     seriesConfig:               new SimpleMetricSeriesConfiguration(
-                                                                                                        lifetimeCounter: false,
+                                                                                                        usePersistentAggregation: false,
                                                                                                         restrictToUInt32Values: false)));
 
             // seriesCountLimit is the max total number of series the metric can contain before TryTrackValue(..) and TryGetDataSeries(..) stop
             // creating new data series and start returning false.
             // valuesPerDimensionLimit limits the number of distinct values per dimension in a similar manner.
-            // lifetimeCounter specifies whether the aggregator for each time series will be replaced at the end of each aggregation cycle (false)
-            // or not (true). This corresponds to the Measurement and the Counter aggregations respectively.
+            // usePersistentAggregation specifies whether the aggregator for each time series will be replaced at the end of each aggregation cycle (false)
+            // or not (true). This corresponds to the Measurement and the Accumulator aggregations respectively.
             // restrictToUInt32Values can be used to force a metric to consume non-negtive integer values only. Certain ono-negative-integer-only
             // auto-collected system metrics are stored in the cloud in an optimized, more efficient manner. Custom metrics are currently always
             // stored as doubles.
@@ -433,23 +433,23 @@ namespace User.Namespace.Example03
             // a custom configuration every time, you can do so by using MetricConfigurations.FutureDefaults.
             // Note that this will only affect metrics created after the change:
 
-            Metric someCounter1 = client.GetMetric("Some Counter 1", MetricConfigurations.Counter); 
+            Metric someAccumulator1 = client.GetMetric("Some Accumulator 1", MetricConfigurations.Accumulator); 
 
             MetricConfigurations.FutureDefaults.SeriesCountLimit = 10000;
             MetricConfigurations.FutureDefaults.ValuesPerDimensionLimit = 5000;
 
-            Metric someCounter2 = client.GetMetric("Some Counter 2", MetricConfigurations.Counter);
+            Metric someAccumulator2 = client.GetMetric("Some Accumulator 2", MetricConfigurations.Accumulator);
 
-            // someCounter1 has SeriesCountLimit = 1000 and ValuesPerDimensionLimit = 100.
-            // someCounter2 has SeriesCountLimit = 10000 and ValuesPerDimensionLimit = 5000.
+            // someAccumulator1 has SeriesCountLimit = 1000 and ValuesPerDimensionLimit = 100.
+            // someAccumulator2 has SeriesCountLimit = 10000 and ValuesPerDimensionLimit = 5000.
 
             try
             {
-                Metric someCounter1a = client.GetMetric("Some Counter 1", MetricConfigurations.Counter);
+                Metric someAccumulator1a = client.GetMetric("Some Accumulator 1", MetricConfigurations.Accumulator);
             }
             catch(ArgumentException)
             {
-                // This exception will always occur because the configuration object behind MetricConfigurations.Counter
+                // This exception will always occur because the configuration object behind MetricConfigurations.Accumulator
                 // has changed when MetricConfigurations.FutureDefaults when was modified.
             }
         }
@@ -493,13 +493,13 @@ namespace User.Namespace.Example04
 
             MetricManager metrics = TelemetryConfiguration.Active.Metrics();
 
-            MetricSeries itemCounter = metrics.CreateNewSeries(
+            MetricSeries itemAccumulator = metrics.CreateNewSeries(
                                                     "Items in Queue",
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
+                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
 
-            itemCounter.TrackValue(1);
-            itemCounter.TrackValue(1);
-            itemCounter.TrackValue(-1);
+            itemAccumulator.TrackValue(1);
+            itemAccumulator.TrackValue(1);
+            itemAccumulator.TrackValue(-1);
 
             // Note that MetricManager.CreateNewSeries(..) will ALWAYS create a new metric series. It is your responsibility to keep a reference
             // to it so that you can access it later. If you do not want to worry about keeping that reference, just use Metric.
@@ -511,12 +511,12 @@ namespace User.Namespace.Example04
             MetricSeries purpleCowsSold = metrics.CreateNewSeries(
                                              "Animals Sold",
                                              new Dictionary<string, string>() { ["Species"] = "Cows", ["Color"] = "Purple" },
-                                             new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                                             new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
 
             MetricSeries yellowHorsesSold = metrics.CreateNewSeries(
                                              "Animals Sold",
                                              new[] { new KeyValuePair<string, string>("Species", "Horses"), new KeyValuePair<string, string>("Color", "Yellow") },
-                                             new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                                             new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
 
             purpleCowsSold.TrackValue(42);
             yellowHorsesSold.TrackValue(132);
@@ -758,7 +758,7 @@ namespace User.Namespace.Example06ab
                 // This approach is more widely applicable, and does not require to prepare your code for injection of a telemetry client.
                 // However, a significant drawback is that in this model different unit tests can interfere with each other via the static default
                 // telemetry pipeline. Such interference may be non-trivial. E.g., for this simple test, we need to flush out all the tracked values
-                // from the code that just run. This will flush out all Measurements, but not Counters, since they persist between flushes.
+                // from the code that just run. This will flush out all Measurements, but not Accumulators, since they persist between flushes.
                 // This can make unit testing with this method quite complex.
                 TelemetryConfiguration.Active.Metrics().Flush();
                 (new TelemetryClient(TelemetryConfiguration.Active)).Flush();
@@ -776,7 +776,7 @@ namespace User.Namespace.Example06ab
                 TelemetryConfiguration.Active.Metrics().Flush();
 
                 // As mentioned, tests using this approach interfere with each other.
-                // For example, when running all the examples here after each other, counters from previous examples are still associated with the
+                // For example, when running all the examples here after each other, accumulators from previous examples are still associated with the
                 // metric manager at TelemetryConfiguration.Active.Metrics(). Luckily, all their names begin with "Items", so we can filter them out.
 
                 ITelemetry[] telemetryFromThisTest = telemetryCollector.TelemetryItems
@@ -978,7 +978,7 @@ namespace User.Namespace.Example06c
             AggregationPeriodSummary lastCycle = defaultMetricManager.StartOrCycleAggregators(
                                                                                 MetricAggregationCycleKind.Custom,
                                                                                 testStartTime,
-                                                                                ExcludeCountersFromPreviousTestsFilter.Instance);
+                                                                                ExcludeAccumulatorsFromPreviousTestsFilter.Instance);
 
             // If the cycle was inactive so far, it will be started up and aggregation into the cycle will begin. Other cycles will be unaffected.
             // Since this was the first invocation, the received AggregationPeriodSummary is empty:
@@ -995,12 +995,12 @@ namespace User.Namespace.Example06c
             lastCycle = defaultMetricManager.StartOrCycleAggregators(
                                                     MetricAggregationCycleKind.Custom,
                                                     testStartTime.AddMinutes(1),
-                                                    ExcludeCountersFromPreviousTestsFilter.Instance);
+                                                    ExcludeAccumulatorsFromPreviousTestsFilter.Instance);
 
             // Now we can verify that metrics were tracked correctly:
 
             Assert.AreEqual(1, lastCycle.NonpersistentAggregates.Count, "One Measurement should be tracked");
-            Assert.AreEqual(0, lastCycle.PersistentAggregates.Count, "No Counters should be tracked");
+            Assert.AreEqual(0, lastCycle.PersistentAggregates.Count, "No Accumulators should be tracked");
 
             Assert.AreEqual("Ducks Sold", lastCycle.NonpersistentAggregates[0].MetricId);
             Assert.AreEqual(MetricAggregateKinds.SimpleStatistics.Moniker, lastCycle.NonpersistentAggregates[0].AggregationKindMoniker);
@@ -1015,8 +1015,8 @@ namespace User.Namespace.Example06c
             Assert.AreEqual(0, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.StdDev, -1));
 
             // Note that because "Ducks Sold" is a Measurement, and because we cycled the custom aggregators, the current aggregator is now empty.
-            // However, if it was a Counter, it would keep the values tracked thus far. To help differentiate between these two cases, Measurement-like
-            // aggregates are contained within AggregationPeriodSummary.NonpersistentAggregates and  Counter-like aggregates are contained within
+            // However, if it was an Accumulator, it would keep the values tracked thus far. To help differentiate between these two cases, Measurement-like
+            // aggregates are contained within AggregationPeriodSummary.NonpersistentAggregates and  Accumulator-like aggregates are contained within
             // AggregationPeriodSummary.PersistentAggregates.
 
             // Let's call the tested API again, now twice:
@@ -1029,7 +1029,7 @@ namespace User.Namespace.Example06c
             lastCycle = defaultMetricManager.StopAggregators(MetricAggregationCycleKind.Custom, testStartTime.AddMinutes(2));
 
             Assert.AreEqual(1, lastCycle.NonpersistentAggregates.Count, "One Measurement should be tracked (with two values)");
-            Assert.AreEqual(0, lastCycle.PersistentAggregates.Count, "No Counters should be tracked");
+            Assert.AreEqual(0, lastCycle.PersistentAggregates.Count, "No Accumulators should be tracked");
 
             Assert.AreEqual("Ducks Sold", lastCycle.NonpersistentAggregates[0].MetricId);
             Assert.AreEqual(MetricAggregateKinds.SimpleStatistics.Moniker, lastCycle.NonpersistentAggregates[0].AggregationKindMoniker);
@@ -1061,9 +1061,9 @@ namespace User.Namespace.Example06c
         }
     }
 
-    internal class ExcludeCountersFromPreviousTestsFilter : IMetricSeriesFilter
+    internal class ExcludeAccumulatorsFromPreviousTestsFilter : IMetricSeriesFilter
     {
-        public static readonly ExcludeCountersFromPreviousTestsFilter Instance = new ExcludeCountersFromPreviousTestsFilter();
+        public static readonly ExcludeAccumulatorsFromPreviousTestsFilter Instance = new ExcludeAccumulatorsFromPreviousTestsFilter();
 
         public bool WillConsume(MetricSeries dataSeries, out IMetricValueFilter valueFilter)
         {

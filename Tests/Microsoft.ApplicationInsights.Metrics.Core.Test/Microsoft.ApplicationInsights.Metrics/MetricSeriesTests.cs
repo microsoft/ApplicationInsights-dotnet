@@ -22,7 +22,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void Properties()
         {
             var manager = new MetricManager(new MemoryMetricTelemetryPipeline());
-            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false);
+            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false);
             MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
 
             Assert.AreEqual("Foo Bar", series.MetricId);
@@ -42,7 +42,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
-            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false);
+            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false);
             MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
 
             Thread.Sleep(1500);
@@ -94,7 +94,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
-            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false);
+            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false);
             MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
 
             Assert.ThrowsException<ArgumentException>( () => series.TrackValue("xxx") );
@@ -146,7 +146,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
-            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false);
+            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false);
             MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
 
             series.TrackValue(0.4);
@@ -202,7 +202,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
-            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false);
+            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false);
             MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
 
             series.TrackValue(0.4);
@@ -247,8 +247,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void GetCurrentAggregateUnsafe()
         {
-            GetCurrentAggregateUnsafeTest(new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
-            GetCurrentAggregateUnsafeTest(new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
+            GetCurrentAggregateUnsafeTest(new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
+            GetCurrentAggregateUnsafeTest(new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
         }
 
         private static void GetCurrentAggregateUnsafeTest(IMetricSeriesConfiguration seriesConfig)
@@ -371,8 +371,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void GetCurrentAggregateUnsafe_MetricAggregationCycleKind_DateTimeOffset()
         {
-            GetCurrentAggregateUnsafeTest_MetricAggregationCycleKind_DateTimeOffset(new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
-            GetCurrentAggregateUnsafeTest_MetricAggregationCycleKind_DateTimeOffset(new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
+            GetCurrentAggregateUnsafeTest_MetricAggregationCycleKind_DateTimeOffset(new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
+            GetCurrentAggregateUnsafeTest_MetricAggregationCycleKind_DateTimeOffset(new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
         }
 
         private static void GetCurrentAggregateUnsafeTest_MetricAggregationCycleKind_DateTimeOffset(IMetricSeriesConfiguration seriesConfig)

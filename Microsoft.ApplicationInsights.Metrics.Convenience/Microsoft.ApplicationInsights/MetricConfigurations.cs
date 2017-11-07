@@ -12,7 +12,7 @@ namespace Microsoft.ApplicationInsights
     public static class MetricConfigurations
     {
         private static IMetricConfiguration s_measurementDouble;
-        private static IMetricConfiguration s_counterDouble;
+        private static IMetricConfiguration s_accumulatorDouble;
 
         static MetricConfigurations()
         {
@@ -37,7 +37,7 @@ namespace Microsoft.ApplicationInsights
         /// <summary>
         /// 
         /// </summary>
-        public static IMetricConfiguration Counter { get { return s_counterDouble; } }
+        public static IMetricConfiguration Accumulator { get { return s_accumulatorDouble; } }
 
 
         private static void ReInitialize()
@@ -48,16 +48,16 @@ namespace Microsoft.ApplicationInsights
                                                         //FutureDefaults.NewSeriesCreationRetryDelay,
                                                         //FutureDefaults.NewSeriesCreationTimeout,
                                                         new SimpleMetricSeriesConfiguration(
-                                                                        lifetimeCounter: false,
+                                                                        usePersistentAggregation: false,
                                                                         restrictToUInt32Values: false));
 
-            s_counterDouble = new SimpleMetricConfiguration(
+            s_accumulatorDouble = new SimpleMetricConfiguration(
                                                         FutureDefaults.SeriesCountLimit,
                                                         FutureDefaults.ValuesPerDimensionLimit,
                                                         //FutureDefaults.NewSeriesCreationRetryDelay,
                                                         //FutureDefaults.NewSeriesCreationTimeout,
                                                         new SimpleMetricSeriesConfiguration(
-                                                                        lifetimeCounter: true,
+                                                                        usePersistentAggregation: true,
                                                                         restrictToUInt32Values: false));
         }
 

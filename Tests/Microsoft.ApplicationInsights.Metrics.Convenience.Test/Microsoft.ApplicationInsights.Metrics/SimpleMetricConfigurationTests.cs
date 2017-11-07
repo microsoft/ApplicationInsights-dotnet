@@ -20,7 +20,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var config = new SimpleMetricConfiguration(
                                     seriesCountLimit:           1000,
                                     valuesPerDimensionLimit:    100,
-                                    seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                                    seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
                 Assert.IsNotNull(config);
                 Assert.AreEqual(1000, config.SeriesCountLimit);
                 Assert.AreEqual(100, config.ValuesPerDimensionLimit);
@@ -33,7 +33,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var config = new SimpleMetricConfiguration(
                                     seriesCountLimit:           1,
                                     valuesPerDimensionLimit:    0,
-                                    seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: true));
+                                    seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: true));
                 Assert.IsNotNull(config);
                 Assert.AreEqual(1, config.SeriesCountLimit);
                 Assert.AreEqual(0, config.ValuesPerDimensionLimit);
@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var config = new SimpleMetricConfiguration(
                                     seriesCountLimit:           Int32.MaxValue,
                                     valuesPerDimensionLimit:    Int32.MaxValue,
-                                    seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
+                                    seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
                 Assert.IsNotNull(config);
                 Assert.AreEqual(Int32.MaxValue, config.SeriesCountLimit);
                 Assert.AreEqual(Int32.MaxValue, config.ValuesPerDimensionLimit);
@@ -59,19 +59,19 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => new SimpleMetricConfiguration(
                                     seriesCountLimit:           0,
                                     valuesPerDimensionLimit:    100,
-                                    seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false)) );
+                                    seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false)) );
             }
             { 
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => new SimpleMetricConfiguration(
                                     seriesCountLimit:           -1,
                                     valuesPerDimensionLimit:    100,
-                                    seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false)) );
+                                    seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false)) );
             }
             { 
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => new SimpleMetricConfiguration(
                                     seriesCountLimit:           1000,
                                     valuesPerDimensionLimit:    -1,
-                                    seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false)) );
+                                    seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false)) );
             }
             {
                 Assert.ThrowsException<ArgumentNullException>(() => new SimpleMetricConfiguration(
@@ -112,14 +112,14 @@ namespace Microsoft.ApplicationInsights.Metrics
             var config1 = new SimpleMetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
-                                seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                                seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
 
             Assert.IsTrue(config1.Equals(config1));
 
             var config2 = new SimpleMetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
-                                seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                                seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
 
             Assert.IsTrue(config1.Equals(config2));
             Assert.IsTrue(config2.Equals(config1));
@@ -127,7 +127,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             config2 = new SimpleMetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
-                                seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: true));
+                                seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: true));
 
             Assert.IsFalse(config1.Equals(config2));
             Assert.IsFalse(config2.Equals(config1));
@@ -135,7 +135,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             config2 = new SimpleMetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
-                                seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
+                                seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
 
             Assert.IsFalse(config1.Equals(config2));
             Assert.IsFalse(config2.Equals(config1));
@@ -143,7 +143,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             config2 = new SimpleMetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    101,
-                                seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                                seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
 
             Assert.IsFalse(config1.Equals(config2));
             Assert.IsFalse(config2.Equals(config1));
@@ -151,7 +151,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             config2 = new SimpleMetricConfiguration(
                                 seriesCountLimit:           1001,
                                 valuesPerDimensionLimit:    100,
-                                seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                                seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
 
             Assert.IsFalse(config1.Equals(config2));
             Assert.IsFalse(config2.Equals(config1));
@@ -164,21 +164,21 @@ namespace Microsoft.ApplicationInsights.Metrics
             var config1 = new SimpleMetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
-                                seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                                seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
 
             Assert.AreNotEqual(0, config1.GetHashCode());
 
             var config2 = new SimpleMetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
-                                seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                                seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
 
             Assert.AreEqual(config1.GetHashCode(), config2.GetHashCode());
 
             config2 = new SimpleMetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
-                                seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: true));
+                                seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: true));
 
             Assert.AreNotEqual(config1.GetHashCode(), config2.GetHashCode());
             Assert.AreNotEqual(0, config2.GetHashCode());
@@ -186,7 +186,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             config2 = new SimpleMetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
-                                seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
+                                seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
 
             Assert.AreNotEqual(config1.GetHashCode(), config2.GetHashCode());
             Assert.AreNotEqual(0, config2.GetHashCode());
@@ -194,7 +194,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             config2 = new SimpleMetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    101,
-                                seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                                seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
 
             Assert.AreNotEqual(config1.GetHashCode(), config2.GetHashCode());
             Assert.AreNotEqual(0, config2.GetHashCode());
@@ -202,7 +202,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             config2 = new SimpleMetricConfiguration(
                                 seriesCountLimit:           1001,
                                 valuesPerDimensionLimit:    100,
-                                seriesConfig:               new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                                seriesConfig:               new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
 
             Assert.AreNotEqual(config1.GetHashCode(), config2.GetHashCode());
             Assert.AreNotEqual(0, config2.GetHashCode());

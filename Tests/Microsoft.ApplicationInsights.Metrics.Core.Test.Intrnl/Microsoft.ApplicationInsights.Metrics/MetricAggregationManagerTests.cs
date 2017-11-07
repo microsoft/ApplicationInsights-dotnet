@@ -33,16 +33,16 @@ namespace Microsoft.ApplicationInsights.Metrics
                                             aggregationManager,
                                             "Measurement Metric",
                                             null,
-                                            new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                                            new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
 
-            var counterMetric = new MetricSeries(
+            var accumulatorMetric = new MetricSeries(
                                             aggregationManager,
-                                            "Counter Metric",
+                                            "Accumulator Metric",
                                             null,
-                                            new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
+                                            new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
 
             measurementMetric.TrackValue(1);
-            counterMetric.TrackValue(2);
+            accumulatorMetric.TrackValue(2);
             
             AggregationPeriodSummary defaultPeriod = aggregationManager.StartOrCycleAggregators(MetricAggregationCycleKind.Default, dto, futureFilter: null);
             Assert.IsNotNull(defaultPeriod);
@@ -55,7 +55,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreEqual(1.0, defaultPeriod.NonpersistentAggregates[0].AggregateData["Sum"]);
 
             Assert.AreEqual(1, defaultPeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", defaultPeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual("Accumulator Metric", defaultPeriod.PersistentAggregates[0].MetricId);
             Assert.AreEqual(1, defaultPeriod.PersistentAggregates[0].AggregateData["Count"]);
             Assert.AreEqual(2.0, defaultPeriod.PersistentAggregates[0].AggregateData["Sum"]);
 
@@ -67,7 +67,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreEqual(0, customPeriod.NonpersistentAggregates.Count);
 
             Assert.AreEqual(1, customPeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", customPeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual("Accumulator Metric", customPeriod.PersistentAggregates[0].MetricId);
             Assert.AreEqual(1, customPeriod.PersistentAggregates[0].AggregateData["Count"]);
             Assert.AreEqual(2.0, customPeriod.PersistentAggregates[0].AggregateData["Sum"]);
 
@@ -79,7 +79,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreEqual(0, quickpulsePeriod.NonpersistentAggregates.Count);
 
             Assert.AreEqual(1, quickpulsePeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", quickpulsePeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual("Accumulator Metric", quickpulsePeriod.PersistentAggregates[0].MetricId);
             Assert.AreEqual(1, quickpulsePeriod.PersistentAggregates[0].AggregateData["Count"]);
             Assert.AreEqual(2.0, quickpulsePeriod.PersistentAggregates[0].AggregateData["Sum"]);
         }
@@ -110,13 +110,13 @@ namespace Microsoft.ApplicationInsights.Metrics
                                             aggregationManager,
                                             "Measurement Metric",
                                             null,
-                                            new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                                            new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
 
-            var counterMetric = new MetricSeries(
+            var accumulatorMetric = new MetricSeries(
                                             aggregationManager,
-                                            "Counter Metric",
+                                            "Accumulator Metric",
                                             null,
-                                            new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
+                                            new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
 
             // Cycle once, get nothing:
             AggregationPeriodSummary period = aggregationManager.StartOrCycleAggregators(cycleKind, dto, futureFilter: null);
@@ -130,7 +130,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // Record something, cycle, check for it:
 
             measurementMetric.TrackValue(1);
-            counterMetric.TrackValue(2);
+            accumulatorMetric.TrackValue(2);
 
             period = aggregationManager.StartOrCycleAggregators(cycleKind, dto, futureFilter: null);
             Assert.IsNotNull(period);
@@ -147,7 +147,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreEqual(1, period.NonpersistentAggregates[0].AggregateData["Count"]);
             Assert.AreEqual(1.0, period.NonpersistentAggregates[0].AggregateData["Sum"]);
 
-            Assert.AreEqual("Counter Metric", period.PersistentAggregates[0].MetricId);
+            Assert.AreEqual("Accumulator Metric", period.PersistentAggregates[0].MetricId);
             Assert.AreEqual(1, period.PersistentAggregates[0].AggregateData["Count"]);
             Assert.AreEqual(2.0, period.PersistentAggregates[0].AggregateData["Sum"]);
 
@@ -163,7 +163,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.IsNotNull(period.PersistentAggregates[0]);
 
-            Assert.AreEqual("Counter Metric", period.PersistentAggregates[0].MetricId);
+            Assert.AreEqual("Accumulator Metric", period.PersistentAggregates[0].MetricId);
             Assert.AreEqual(1, period.PersistentAggregates[0].AggregateData["Count"]);
             Assert.AreEqual(2.0, period.PersistentAggregates[0].AggregateData["Sum"]);
 
@@ -185,7 +185,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.IsNotNull(period.PersistentAggregates);
 
                 measurementMetric.TrackValue(3);
-                counterMetric.TrackValue(4);
+                accumulatorMetric.TrackValue(4);
 
                 period = aggregationManager.StartOrCycleAggregators(cycleKind, dto, futureFilter: null);
                 Assert.IsNotNull(period);
@@ -205,14 +205,14 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 Assert.IsNotNull(period.PersistentAggregates[0]);
 
-                Assert.AreEqual("Counter Metric", period.PersistentAggregates[0].MetricId);
+                Assert.AreEqual("Accumulator Metric", period.PersistentAggregates[0].MetricId);
                 Assert.AreEqual(2, period.PersistentAggregates[0].AggregateData["Count"]);
                 Assert.AreEqual(6.0, period.PersistentAggregates[0].AggregateData["Sum"]);
 
                 // Validate that deny filter was removed:
 
                 measurementMetric.TrackValue(5);
-                counterMetric.TrackValue(6);
+                accumulatorMetric.TrackValue(6);
 
                 period = aggregationManager.StartOrCycleAggregators(cycleKind, dto, futureFilter: null);
                 Assert.IsNotNull(period);
@@ -225,7 +225,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.IsNotNull(period.PersistentAggregates[0]);
                 Assert.IsNotNull(period.NonpersistentAggregates[0]);
 
-                Assert.AreEqual("Counter Metric", period.PersistentAggregates[0].MetricId);
+                Assert.AreEqual("Accumulator Metric", period.PersistentAggregates[0].MetricId);
                 Assert.AreEqual(3, period.PersistentAggregates[0].AggregateData["Count"]);
                 Assert.AreEqual(12.0, period.PersistentAggregates[0].AggregateData["Sum"]);
 
@@ -247,13 +247,13 @@ namespace Microsoft.ApplicationInsights.Metrics
                                             aggregationManager,
                                             "Measurement Metric",
                                             null,
-                                            new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false));
+                                            new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
 
-            var counterMetric = new MetricSeries(
+            var accumulatorMetric = new MetricSeries(
                                             aggregationManager,
-                                            "Counter Metric",
+                                            "Accumulator Metric",
                                             null,
-                                            new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false));
+                                            new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
 
             // Cannot stop default:
 
@@ -280,7 +280,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // Track a value. Stop cycles that never started again. Observe that persistent cycle was active by default:
 
             measurementMetric.TrackValue(1);
-            counterMetric.TrackValue(2);
+            accumulatorMetric.TrackValue(2);
 
             customPeriod = aggregationManager.StopAggregators(MetricAggregationCycleKind.Custom, dto);
             Assert.IsNotNull(customPeriod);
@@ -289,7 +289,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreEqual(0, customPeriod.NonpersistentAggregates.Count);
             Assert.AreEqual(1, customPeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", customPeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual("Accumulator Metric", customPeriod.PersistentAggregates[0].MetricId);
             Assert.AreEqual(1, customPeriod.PersistentAggregates[0].AggregateData["Count"]);
             Assert.AreEqual(2.0, customPeriod.PersistentAggregates[0].AggregateData["Sum"]);
 
@@ -300,7 +300,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreEqual(0, quickpulsePeriod.NonpersistentAggregates.Count);
             Assert.AreEqual(1, quickpulsePeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", quickpulsePeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual("Accumulator Metric", quickpulsePeriod.PersistentAggregates[0].MetricId);
             Assert.AreEqual(1, quickpulsePeriod.PersistentAggregates[0].AggregateData["Count"]);
             Assert.AreEqual(2.0, quickpulsePeriod.PersistentAggregates[0].AggregateData["Sum"]);
 
@@ -310,7 +310,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             aggregationManager.StartOrCycleAggregators(MetricAggregationCycleKind.QuickPulse, dto, futureFilter: null);
 
             measurementMetric.TrackValue(3);
-            counterMetric.TrackValue(4);
+            accumulatorMetric.TrackValue(4);
 
             customPeriod = aggregationManager.StopAggregators(MetricAggregationCycleKind.Custom, dto);
             Assert.IsNotNull(customPeriod);
@@ -323,7 +323,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreEqual(3.0, customPeriod.NonpersistentAggregates[0].AggregateData["Sum"]);
 
             Assert.AreEqual(1, customPeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", customPeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual("Accumulator Metric", customPeriod.PersistentAggregates[0].MetricId);
             Assert.AreEqual(2, customPeriod.PersistentAggregates[0].AggregateData["Count"]);
             Assert.AreEqual(6.0, customPeriod.PersistentAggregates[0].AggregateData["Sum"]);
 
@@ -338,12 +338,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreEqual(3.0, quickpulsePeriod.NonpersistentAggregates[0].AggregateData["Sum"]);
 
             Assert.AreEqual(1, quickpulsePeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", quickpulsePeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual("Accumulator Metric", quickpulsePeriod.PersistentAggregates[0].MetricId);
             Assert.AreEqual(2, quickpulsePeriod.PersistentAggregates[0].AggregateData["Count"]);
             Assert.AreEqual(6.0, quickpulsePeriod.PersistentAggregates[0].AggregateData["Sum"]);
 
             measurementMetric.TrackValue(5);
-            counterMetric.TrackValue(6);
+            accumulatorMetric.TrackValue(6);
 
             quickpulsePeriod = aggregationManager.StopAggregators(MetricAggregationCycleKind.Custom, dto);
             Assert.IsNotNull(quickpulsePeriod);
@@ -352,7 +352,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreEqual(0, quickpulsePeriod.NonpersistentAggregates.Count);
             Assert.AreEqual(1, customPeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", customPeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual("Accumulator Metric", customPeriod.PersistentAggregates[0].MetricId);
             Assert.AreEqual(2, customPeriod.PersistentAggregates[0].AggregateData["Count"]);
             Assert.AreEqual(6.0, customPeriod.PersistentAggregates[0].AggregateData["Sum"]);
 
@@ -363,7 +363,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreEqual(0, quickpulsePeriod.NonpersistentAggregates.Count);
             Assert.AreEqual(1, quickpulsePeriod.PersistentAggregates.Count);
-            Assert.AreEqual("Counter Metric", quickpulsePeriod.PersistentAggregates[0].MetricId);
+            Assert.AreEqual("Accumulator Metric", quickpulsePeriod.PersistentAggregates[0].MetricId);
             Assert.AreEqual(3, quickpulsePeriod.PersistentAggregates[0].AggregateData["Count"]);
             Assert.AreEqual(12.0, quickpulsePeriod.PersistentAggregates[0].AggregateData["Sum"]);
         }

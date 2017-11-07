@@ -10,23 +10,23 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// </summary>
     public class SimpleMetricSeriesConfiguration : IMetricSeriesConfiguration
     {
-        private readonly bool _lifetimeCounter;
+        private readonly bool _usePersistentAggregation;
         private readonly bool _restrictToUInt32Values;
         private readonly int _hashCode;
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="lifetimeCounter"></param>
+        /// <param name="usePersistentAggregation"></param>
         /// <param name="restrictToUInt32Values"></param>
-        public SimpleMetricSeriesConfiguration(bool lifetimeCounter, bool restrictToUInt32Values)
+        public SimpleMetricSeriesConfiguration(bool usePersistentAggregation, bool restrictToUInt32Values)
         {
-            _lifetimeCounter = lifetimeCounter;
+            _usePersistentAggregation = usePersistentAggregation;
             _restrictToUInt32Values = restrictToUInt32Values;
 
             unchecked
             {
-                _hashCode = (((17 * 23) + _lifetimeCounter.GetHashCode()) * 23) + _restrictToUInt32Values.GetHashCode();
+                _hashCode = (((17 * 23) + _usePersistentAggregation.GetHashCode()) * 23) + _restrictToUInt32Values.GetHashCode();
             }
         }
 
@@ -36,7 +36,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public bool RequiresPersistentAggregation
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return _lifetimeCounter; }
+            get { return _usePersistentAggregation; }
         }
 
         /// <summary>

@@ -27,25 +27,25 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.ThrowsException<ArgumentNullException>(() => new SimpleDoubleDataSeriesAggregator(configuration: null, dataSeries: null, aggregationCycleKind: CycleKind.Custom));
 
             Assert.ThrowsException<ArgumentException>(() => new SimpleDoubleDataSeriesAggregator(
-                                                                           new NaiveDistinctCountMetricSeriesConfiguration(lifetimeCounter: false),
+                                                                           new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false),
                                                                            dataSeries: null,
                                                                            aggregationCycleKind: CycleKind.Custom));
 
             Assert.ThrowsException<ArgumentException>(() => new SimpleDoubleDataSeriesAggregator(
-                                                                            new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: true),
+                                                                            new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: true),
                                                                             dataSeries: null,
                                                                             aggregationCycleKind: CycleKind.Custom));
 
             {
                 var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
                 Assert.IsNotNull(aggregator);
             }
             {
                 var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false),
+                                                new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
                 Assert.IsNotNull(aggregator);
@@ -62,7 +62,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Empty aggregator:
                 var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -72,7 +72,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Zero value:
                 var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -84,7 +84,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Non zero value:
                 var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -96,7 +96,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Two values:
                 var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -109,7 +109,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // 3 values:
                 var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
                 aggregator.TrackValue(1800000);
@@ -122,7 +122,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // NaNs:
                 var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
                 aggregator.TrackValue(Double.NaN);
@@ -135,7 +135,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Infinity:
                 var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -180,7 +180,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Very large numbers:
                 var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -236,7 +236,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Large number of small values:
                 var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -254,7 +254,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Large number of large values:
                 var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -279,7 +279,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             long periodMillis = (long) (endTS - default(DateTimeOffset)).TotalMilliseconds;
 
             var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
 
@@ -381,7 +381,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             long periodMillis = (long) (endTS - default(DateTimeOffset)).TotalMilliseconds;
 
             var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
 
@@ -459,7 +459,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void CreateAggregateUnsafe()
         {
             var aggregationManager = new MetricAggregationManager();
-            var seriesConfig = new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false);
+            var seriesConfig = new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false);
 
             IEnumerable<KeyValuePair<string, string>> setDimensionNamesValues = new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("Dim 1", "DV1"),
                                                                                                                      new KeyValuePair<string, string>("Dim 2", "DV2"),
@@ -485,17 +485,17 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void TryRecycle()
         {
             var measurementAggregator = new SimpleDoubleDataSeriesAggregator(
-                                                new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
 
-            var counterAggregator = new SimpleDoubleDataSeriesAggregator(
-                                                new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false),
+            var accumulatorAggregator = new SimpleDoubleDataSeriesAggregator(
+                                                new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
 
 
-            CommonSimpleDataSeriesAggregatorTests.TryRecycle(measurementAggregator, counterAggregator);
+            CommonSimpleDataSeriesAggregatorTests.TryRecycle(measurementAggregator, accumulatorAggregator);
         }
 
         /// <summary />
@@ -503,7 +503,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void GetDataSeries()
         {
             var aggregationManager = new MetricAggregationManager();
-            var seriesConfig = new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false);
+            var seriesConfig = new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false);
             var metric = new MetricSeries(aggregationManager, "Cows Sold", null, seriesConfig);
 
             var aggregatorForConcreteSeries = new SimpleDoubleDataSeriesAggregator(
@@ -512,7 +512,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                     aggregationCycleKind: CycleKind.Custom);
 
             var aggregatorForNullSeries = new SimpleDoubleDataSeriesAggregator(
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -525,7 +525,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             {
                 var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false),
+                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -533,7 +533,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             {
                 var aggregator = new SimpleDoubleDataSeriesAggregator(
-                                                    new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false),
+                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -548,7 +548,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             var aggregationManager = new MetricAggregationManager();
 
-            var mesurementConfig = new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false);
+            var mesurementConfig = new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false);
             var measurementMetric = new MetricSeries(aggregationManager, "Cows Sold", null, mesurementConfig);
 
             var measurementAggregator = new SimpleDoubleDataSeriesAggregator(
@@ -556,15 +556,15 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                     measurementMetric,
                                                     CycleKind.Custom);
 
-            var counterConfig = new SimpleMetricSeriesConfiguration(lifetimeCounter: true, restrictToUInt32Values: false);
-            var counterMetric = new MetricSeries(aggregationManager, "Cows Sold", null, counterConfig);
+            var accumulatorConfig = new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false);
+            var accumulatorMetric = new MetricSeries(aggregationManager, "Cows Sold", null, accumulatorConfig);
 
-            var counterAggregator = new SimpleDoubleDataSeriesAggregator(
-                                                    counterMetric.GetConfiguration(),
-                                                    counterMetric,
+            var accumulatorAggregator = new SimpleDoubleDataSeriesAggregator(
+                                                    accumulatorMetric.GetConfiguration(),
+                                                    accumulatorMetric,
                                                     CycleKind.Custom);
 
-            CommonSimpleDataSeriesAggregatorTests.CompleteAggregation(measurementAggregator, counterAggregator);
+            CommonSimpleDataSeriesAggregatorTests.CompleteAggregation(measurementAggregator, accumulatorAggregator);
         }
     }
 }

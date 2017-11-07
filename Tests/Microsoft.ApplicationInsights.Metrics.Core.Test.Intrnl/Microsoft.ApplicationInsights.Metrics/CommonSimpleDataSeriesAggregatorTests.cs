@@ -57,7 +57,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         }
 
         
-        public static void TryRecycle(IMetricSeriesAggregator measurementAggregator, IMetricSeriesAggregator counterAggregator)
+        public static void TryRecycle(IMetricSeriesAggregator measurementAggregator, IMetricSeriesAggregator accumulatorAggregator)
         {
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
@@ -94,24 +94,24 @@ namespace Microsoft.ApplicationInsights.Metrics
                 TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodStringDef);
             }
             {
-                counterAggregator.TrackValue(10);
+                accumulatorAggregator.TrackValue(10);
 
-                MetricAggregate aggregate = counterAggregator.CreateAggregateUnsafe(endTS);
+                MetricAggregate aggregate = accumulatorAggregator.CreateAggregateUnsafe(endTS);
                 TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 1, sum: 10.0, max: 10.0, min: 10.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodStringDef);
 
-                counterAggregator.Reset(startTS, valueFilter: null);
+                accumulatorAggregator.Reset(startTS, valueFilter: null);
 
-                counterAggregator.TrackValue(10);
-                counterAggregator.TrackValue(20);
+                accumulatorAggregator.TrackValue(10);
+                accumulatorAggregator.TrackValue(20);
 
-                aggregate = counterAggregator.CreateAggregateUnsafe(endTS);
+                aggregate = accumulatorAggregator.CreateAggregateUnsafe(endTS);
                 TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 2, sum: 30.0, max: 20.0, min: 10.0, stdDev: 5.0, timestamp: startTS, periodMs: periodStringStart);
 
-                bool canRecycle = counterAggregator.TryRecycle();
+                bool canRecycle = accumulatorAggregator.TryRecycle();
 
                 Assert.IsFalse(canRecycle);
 
-                aggregate = counterAggregator.CreateAggregateUnsafe(endTS);
+                aggregate = accumulatorAggregator.CreateAggregateUnsafe(endTS);
                 TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 2, sum: 30.0, max: 20.0, min: 10.0, stdDev: 5.0, timestamp: startTS, periodMs: periodStringStart);
             }
         }
@@ -186,7 +186,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreEqual(6, filterInvocationsCount);
         }
 
-        public static void CompleteAggregation(IMetricSeriesAggregator measurementAggregator, IMetricSeriesAggregator counterAggregator)
+        public static void CompleteAggregation(IMetricSeriesAggregator measurementAggregator, IMetricSeriesAggregator accumulatorAggregator)
         {
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
@@ -218,25 +218,25 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             filterInvocationsCount = 0;
 
-            counterAggregator.Reset(startTS, valueFilter: new CustomDoubleValueFilter((s, v) => { filterInvocationsCount++; return true; }));
+            accumulatorAggregator.Reset(startTS, valueFilter: new CustomDoubleValueFilter((s, v) => { filterInvocationsCount++; return true; }));
 
             Assert.AreEqual(0, filterInvocationsCount);
 
-            counterAggregator.TrackValue(1);
-            counterAggregator.TrackValue("2");
+            accumulatorAggregator.TrackValue(1);
+            accumulatorAggregator.TrackValue("2");
 
-            aggregate = counterAggregator.CompleteAggregation(endTS);
+            aggregate = accumulatorAggregator.CompleteAggregation(endTS);
             TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 2, sum: 3, max: 2, min: 1, stdDev: 0.5, timestamp: startTS, periodMs: periodString);
             Assert.AreEqual(2, filterInvocationsCount);
 
-            counterAggregator.TrackValue("3");
-            counterAggregator.TrackValue(4);
+            accumulatorAggregator.TrackValue("3");
+            accumulatorAggregator.TrackValue(4);
 
-            aggregate = counterAggregator.CompleteAggregation(endTS);
+            aggregate = accumulatorAggregator.CompleteAggregation(endTS);
             TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 4, sum: 10, max: 4, min: 1, stdDev: 1.11803398874989, timestamp: startTS, periodMs: periodString);
             Assert.AreEqual(4, filterInvocationsCount);
 
-            aggregate = counterAggregator.CreateAggregateUnsafe(endTS);
+            aggregate = accumulatorAggregator.CreateAggregateUnsafe(endTS);
             TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 4, sum: 10, max: 4, min: 1, stdDev: 1.11803398874989, timestamp: startTS, periodMs: periodString);
         }
 

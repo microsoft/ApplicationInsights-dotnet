@@ -31,7 +31,7 @@ namespace SomeCustomerNamespace
             aiClient.GetMetric("Cows Sold").TrackValue(18);
 
 
-            Metric itemsInQueue = aiClient.GetMetric("Items in Queue", MetricConfigurations.Counter);
+            Metric itemsInQueue = aiClient.GetMetric("Items in Queue", MetricConfigurations.Accumulator);
 
             itemsInQueue.TrackValue(5);     // 5
             itemsInQueue.TrackValue(3);     // 8
@@ -69,7 +69,7 @@ namespace SomeCustomerNamespace
 
             MetricManager manager = TelemetryConfiguration.Active.Metrics();
 
-            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(lifetimeCounter: false, restrictToUInt32Values: false);
+            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false);
             MetricSeries series1 = TelemetryConfiguration.Active.Metrics().CreateNewSeries(
                                                                                 "Cows Sold",
                                                                                 new Dictionary<string, string> { ["Color of Cow"] = "Red",

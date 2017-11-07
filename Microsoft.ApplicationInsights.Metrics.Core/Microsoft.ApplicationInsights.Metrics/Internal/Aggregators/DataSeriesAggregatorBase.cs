@@ -59,7 +59,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // Aggregators may transiently have inconsistent state in order to avoid locking.
             // We wait until ongoing updates are complete and then prevent the aggregator from further updating.
             // However, we do NOT do this for persistent aggregators, so they may transinetly inconsistent aggregates.
-            // However this is benign. For example, a persistent counter may have sum and count mismatching because the one was updated and the other not yet.
+            // However this is benign. For example, a persistent accumulator may have sum and count mismatching because the one was updated and the other not yet.
             // But each atomic internal value should be valid. So derived statistics (like Average) may be transiently incorrect, however:
             //  - In the context of large numbers errors tend to be insignificant
             //  - The small differences in potential errors at different time periods make them look like minimal noise rather than a significant error.

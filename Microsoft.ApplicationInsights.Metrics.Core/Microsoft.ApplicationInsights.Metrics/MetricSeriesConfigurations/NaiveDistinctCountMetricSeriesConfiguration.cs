@@ -28,36 +28,36 @@ namespace Microsoft.ApplicationInsights.Metrics
             Justification = "Needed for internal verification.")]
     public class NaiveDistinctCountMetricSeriesConfiguration : IMetricSeriesConfiguration
     {
-        private readonly bool _lifetimeCounter;
+        private readonly bool _usePersistentAggregation;
         private readonly bool _caseSensitive;
         private readonly int _hashCode;
 
         /// <summary>
         /// </summary>
-        /// <param name="lifetimeCounter"></param>
-        public NaiveDistinctCountMetricSeriesConfiguration(bool lifetimeCounter)
-            : this(lifetimeCounter, caseSensitiveDistinctions: true)
+        /// <param name="usePersistentAggregation"></param>
+        public NaiveDistinctCountMetricSeriesConfiguration(bool usePersistentAggregation)
+            : this(usePersistentAggregation, caseSensitiveDistinctions: true)
         {
         }
 
         /// <summary>
         /// </summary>
-        /// <param name="lifetimeCounter"></param>
+        /// <param name="usePersistentAggregation"></param>
         /// <param name="caseSensitiveDistinctions"></param>
-        public NaiveDistinctCountMetricSeriesConfiguration(bool lifetimeCounter, bool caseSensitiveDistinctions)
+        public NaiveDistinctCountMetricSeriesConfiguration(bool usePersistentAggregation, bool caseSensitiveDistinctions)
         {
-            _lifetimeCounter = lifetimeCounter;
+            _usePersistentAggregation = usePersistentAggregation;
             _caseSensitive = caseSensitiveDistinctions;
 
             unchecked
             {
-                _hashCode = ((17 * 23) + (_lifetimeCounter.GetHashCode() * 23) + _caseSensitive.GetHashCode());
+                _hashCode = ((17 * 23) + (_usePersistentAggregation.GetHashCode() * 23) + _caseSensitive.GetHashCode());
             }
         }
 
         /// <summary>
         /// </summary>
-        public bool RequiresPersistentAggregation { get { return _lifetimeCounter; } }
+        public bool RequiresPersistentAggregation { get { return _usePersistentAggregation; } }
 
         /// <summary>
         /// </summary>
