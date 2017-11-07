@@ -11,7 +11,10 @@ using Microsoft.ApplicationInsights.Metrics;
 namespace Microsoft.ApplicationInsights
 {
     /// <summary>
-    /// 
+    /// Represents a zero- or multi-dimensional metric.<br />
+    /// Contains convenience methods to track, aggregate and send values.<br />
+    /// A <c>Metric</c> instance groups one or more <c>MetricSeries</c> that actually track and aggregate values along with
+    /// naming and configuration attributes that identify the metric and define how it will be aggregated. 
     /// </summary>
     public class Metric : IEquatable<Metric>
     {

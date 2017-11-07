@@ -60,6 +60,7 @@
             // Here is an example for a one-dimensional metric:
 
             Metric animalsSold = client.GetMetric("AnimalsSold", "Species");
+
             animalsSold.TryTrackValue(42, "Pigs");
             animalsSold.TryTrackValue(24, "Horses");
 

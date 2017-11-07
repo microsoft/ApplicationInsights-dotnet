@@ -7,7 +7,7 @@ using Microsoft.ApplicationInsights.Metrics;
 namespace Microsoft.ApplicationInsights
 {
     /// <summary>
-    /// 
+    /// Static container for the most commonly used metric configurations.
     /// </summary>
     public static class MetricConfigurations
     {
@@ -19,12 +19,18 @@ namespace Microsoft.ApplicationInsights
             ReInitialize();
         }
 
-        /// <summary>
-        /// </summary>
         internal static IMetricConfiguration Default { get { return Measurement; } }
 
 
         /// <summary>
+        /// <para>Use to measure attributes and/or counts of items. Also, use to measure attributes and/or rates of events.<br />
+        /// Will produce aggregates that contain simple statistics about tracked values per time period: Count, Sum, Min, Max.<br />
+        /// (This is the most commonly used metric configuration and is the default unless otherwise specified.)</para>
+        /// 
+        /// <para>For example, use <c>MetricConfigurations.Measurement</c> to measure:<br />
+        /// Size and number of server requests per time period, Duration and rate of database calls per time period,
+        /// Number of sale events and number of items sold per sale event over a time period, etc.    
+        /// </para>
         /// </summary>
         public static IMetricConfiguration Measurement { get { return s_measurementDouble; } }
 
