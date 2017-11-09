@@ -1,4 +1,10 @@
-﻿using System.Text.RegularExpressions;
+﻿//-----------------------------------------------------------------------
+// <copyright file="StringExtensions.cs" company="Microsoft">
+//     Copyright (c) Microsoft Corporation. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+using System.Text.RegularExpressions;
 
 namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
 {

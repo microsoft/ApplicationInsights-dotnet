@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     /// <summary>
     /// Represents a request to listen to specific EventSource.
     /// </summary>
-    public class EventSourceListeningRequest
+    public class EventSourceListeningRequest : EventSourceNamingMatchRuleBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="EventSourceListeningRequest"/> class.
@@ -24,16 +24,6 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             this.Level = EventLevel.LogAlways;
             this.Keywords = (EventKeywords)~0;
         }
-
-        /// <summary>
-        /// Gets or sets the name of the EventSource to listen to.
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether allows wildcards in <see cref="Name" />.
-        /// </summary>
-        public bool IsWildcard { get; set; }
 
         /// <summary>
         /// Gets or sets the minimum level of an event that will be traced.

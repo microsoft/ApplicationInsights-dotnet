@@ -56,6 +56,8 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             }
 
             this.Sources = new List<EventSourceListeningRequest>();
+            this.DisabledSources = new List<DisableEventSourceRequest>();
+
             this.enabledEventSources = new ConcurrentQueue<EventSource>();
             this.onEventWrittenHandler = onEventWrittenHandler;
         }
@@ -64,6 +66,11 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         /// Gets the list of EventSource listening requests (information about which EventSources should be traced).
         /// </summary>
         public IList<EventSourceListeningRequest> Sources { get; private set; }
+
+        /// <summary>
+        /// Gets the list of the EventSource disalbing rules in cases there's known event source that is causing issues.
+        /// </summary>
+        public IList<DisableEventSourceRequest> DisabledSources { get; private set; }
 
         /// <summary>
         /// Initializes the telemetry module and starts tracing EventSources specified via <see cref="Sources"/> property.
@@ -131,7 +138,10 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             {
                 try
                 {
-                    this.onEventWrittenHandler(eventData, this.client);
+                    if (DisabledSources.Count == 0 || !IsDroppingEvent(eventData))
+                    {
+                        this.onEventWrittenHandler(eventData, this.client);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -195,7 +205,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             }
             else
             {
-                EventSourceListeningRequest listeningRequest = this.Sources?.FirstOrDefault(request => IsEventSourceMatch(eventSource, request));
+                EventSourceListeningRequest listeningRequest = this.Sources?.FirstOrDefault(request => IsEventSourceNameMatch(eventSource, request));
                 if (listeningRequest != null)
                 {
                     // LIMITATION: There is a known issue where if we listen to the FrameworkEventSource, the dataflow pipeline may hang when it
@@ -222,27 +232,64 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         }
 
         /// <summary>
-        /// Returns true when eventSource matches the request; false otherwise. When either of the eventSource or the request is null, returns false.
+        /// Returns true when eventSource satisfied the rule; false otherwise. Returns false when either is null.
         /// </summary>
         /// <param name="eventSource">The target event source.</param>
-        /// <param name="request">The request to be used for matching.</param>
-        /// <returns></returns>
-        private bool IsEventSourceMatch(EventSource eventSource, EventSourceListeningRequest request)
+        /// <param name="rule">The naming rule to be used for matching.</param>
+        private bool IsEventSourceNameMatch(EventSource eventSource, EventSourceNamingMatchRuleBase rule)
         {
-            if (request == null || eventSource == null)
+            if (rule == null || eventSource == null)
             {
                 return false;
             }
 
-            if (!request.IsWildcard)
+            if (!rule.IsWildcard)
             {
-                return string.Equals(eventSource.Name, request.Name, StringComparison.Ordinal);
+                return string.Equals(eventSource.Name, rule.Name, StringComparison.Ordinal);
             }
             else
             {
-                string pattern = request.Name.WildCardToRegex();
-                return Regex.IsMatch(request.Name, pattern);
+                return IsEventSourceNameMatch(eventSource?.Name, rule?.Name);
             }
+        }
+
+        /// <summary>
+        /// Returns true when eventSourceName satisfied the rule; false otherwise. Returns false when either is null.
+        /// </summary>
+        /// <param name="eventSourceName"></param>
+        /// <param name="rule"></param>
+        /// <returns></returns>
+        internal bool IsEventSourceNameMatch(string eventSourceName, string rule)
+        {
+            if (string.IsNullOrEmpty(eventSourceName) || string.IsNullOrEmpty(rule))
+            {
+                return false;
+            }
+
+            string pattern = rule.WildCardToRegex();
+            return Regex.IsMatch(eventSourceName, pattern);
+        }
+
+        /// <summary>
+        /// When the event comes from a EventSource that matches the rule of DisabledSource, it should be dropped, unless the event source name matches one of the 
+        /// name exactly in the enabling rule.
+        /// </summary>
+        /// <param name="eventData">The event data to test.</param>
+        private bool IsDroppingEvent(EventWrittenEventArgs eventData)
+        {
+            string eventSourceName = eventData?.EventSource?.Name;
+            if (string.IsNullOrEmpty(eventSourceName))
+            {
+                throw new ArgumentNullException(nameof(eventSourceName));
+            }
+
+            // Do NOT drop the event when it matches one of the request by name exactly.
+            if (Sources.Any(request => string.Equals(request.Name, eventSourceName, StringComparison.Ordinal)))
+            {
+                return false;
+            }
+
+            return DisabledSources.Any(rule => IsEventSourceNameMatch(eventData?.EventSource, rule));
         }
     }
 }
