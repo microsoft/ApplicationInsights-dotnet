@@ -51,7 +51,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                 return false;
             }
 
-            return this.Name == other.Name && this.Level == other.Level && this.Keywords == other.Keywords && this.IsWildcard == other.IsWildcard;
+            return this.Name == other.Name && this.Level == other.Level && this.Keywords == other.Keywords && this.PrefixMatch == other.PrefixMatch;
         }
 
         /// <summary>

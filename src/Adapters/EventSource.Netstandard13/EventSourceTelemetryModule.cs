@@ -11,7 +11,6 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
     using System.Linq;
-    using System.Text.RegularExpressions;
     using Microsoft.ApplicationInsights.EventSourceListener.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -244,7 +243,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                 return false;
             }
 
-            if (!rule.IsWildcard)
+            if (!rule.PrefixMatch)
             {
                 return string.Equals(eventSource.Name, rule.Name, StringComparison.Ordinal);
             }
@@ -267,8 +266,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                 return false;
             }
 
-            string pattern = rule.WildCardToRegex();
-            return Regex.IsMatch(eventSourceName, pattern);
+            return eventSourceName.StartsWith(rule);
         }
 
         /// <summary>

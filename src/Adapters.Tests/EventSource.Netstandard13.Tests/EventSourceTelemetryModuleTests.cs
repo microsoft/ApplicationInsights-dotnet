@@ -91,8 +91,8 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
             {
                 var listeningRequest = new EventSourceListeningRequest()
                 {
-                    Name = TestEventSource.ProviderName.Substring(0, TestEventSource.ProviderName.Length - 2) + "*",
-                    IsWildcard = true
+                    Name = TestEventSource.ProviderName.Substring(0, TestEventSource.ProviderName.Length - 2),
+                    PrefixMatch = true
                 };
                 module.Sources.Add(listeningRequest);
 
@@ -409,20 +409,9 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
             {
                 // Scenarios for *
                 Assert.IsTrue(module.IsEventSourceNameMatch("abc", "abc"));
-                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "a*"));
-                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "*c"));
-                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "*b*"));
-                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "*c*"));
-                Assert.IsFalse(module.IsEventSourceNameMatch("abc", "d"));
+                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "a"));
 
-                // Scenarios for ?
-                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "ab?"));
-                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "a?c"));
-                Assert.IsFalse(module.IsEventSourceNameMatch("abc", "abc?"));
-
-                // Null or empty
-                Assert.IsFalse(module.IsEventSourceNameMatch("", "d"));
-                Assert.IsFalse(module.IsEventSourceNameMatch("", ""));
+                Assert.IsFalse(module.IsEventSourceNameMatch("abc", "bc"));
             }
         }
 

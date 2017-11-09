@@ -20,6 +20,6 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         /// <summary>
         /// Gets or sets whether allows wildcards in <see cref="Name" />.
         /// </summary>
-        public bool IsWildcard { get; set; }
+        public bool PrefixMatch { get; set; }
     }
 }
