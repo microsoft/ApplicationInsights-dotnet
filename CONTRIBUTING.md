@@ -45,6 +45,12 @@ The test apps refers to the Web SDK assemblies from your local build. After maki
 in either IISExpress or IIS, and attach debugger to it. Open the .cs file you want your breakpoint in and set it. Now triggering a request to the application will hit the breakpoint.
 The exact request to be triggered depends on what you are doing. If investigating functional test failures locally, then the tests logs should contain the url it hit to trigger scenarios.
 
+<TODO>
+	Dependency Collector tests deploy the test apps, along with dependencies (Fake Ingestion, SQL etc) to Docker containers inside same network, so that apps can access the dependencies with their names. However, if 
+	the test apps are deployed to IIS or IISExpress, it won't be able to access dependencies without using their IP Address.
+	(Todo is to write a small PS script, which can find ip addresses and replace them in Web.config or applicationinsights.config)
+</TODO>
+
 Following pre-requisite is needed to deploy to IIS locally.
 * IIS (Make sure Internet Information Services > World Wide Web Services > Application Development Features > ASP.NET 4.6 is enabled)
 
