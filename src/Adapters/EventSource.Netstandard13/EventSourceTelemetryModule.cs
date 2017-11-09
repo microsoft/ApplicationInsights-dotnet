@@ -11,6 +11,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using Microsoft.ApplicationInsights.EventSourceListener.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -35,7 +36,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         private bool initialized; // Relying on the fact that default value in .NET Framework is false
         private ConcurrentQueue<EventSource> appDomainEventSources;
         private ConcurrentQueue<EventSource> enabledEventSources;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="EventSourceTelemetryModule"/> class.
         /// </summary>
@@ -194,7 +195,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             }
             else
             {
-                EventSourceListeningRequest listeningRequest = this.Sources?.FirstOrDefault(s => s.Name == eventSource.Name);
+                EventSourceListeningRequest listeningRequest = this.Sources?.FirstOrDefault(request => IsEventSourceMatch(eventSource, request));
                 if (listeningRequest != null)
                 {
                     // LIMITATION: There is a known issue where if we listen to the FrameworkEventSource, the dataflow pipeline may hang when it
@@ -217,6 +218,30 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                     this.EnableEvents(eventSource, listeningRequest.Level, keywords);
                     this.enabledEventSources.Enqueue(eventSource);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Returns true when eventSource matches the request; false otherwise. When either of the eventSource or the request is null, returns false.
+        /// </summary>
+        /// <param name="eventSource">The target event source.</param>
+        /// <param name="request">The request to be used for matching.</param>
+        /// <returns></returns>
+        private bool IsEventSourceMatch(EventSource eventSource, EventSourceListeningRequest request)
+        {
+            if (request == null || eventSource == null)
+            {
+                return false;
+            }
+
+            if (!request.IsWildcard)
+            {
+                return string.Equals(eventSource.Name, request.Name, StringComparison.Ordinal);
+            }
+            else
+            {
+                string pattern = request.Name.WildCardToRegex();
+                return Regex.IsMatch(request.Name, pattern);
             }
         }
     }

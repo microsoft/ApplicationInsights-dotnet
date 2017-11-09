@@ -31,6 +31,11 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         public string Name { get; set; }
 
         /// <summary>
+        /// Gets or sets whether allows wildcards in <see cref="Name" />.
+        /// </summary>
+        public bool IsWildcard { get; set; }
+
+        /// <summary>
         /// Gets or sets the minimum level of an event that will be traced.
         /// </summary>
         /// <remarks>
@@ -56,7 +61,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                 return false;
             }
 
-            return this.Name == other.Name && this.Level == other.Level && this.Keywords == other.Keywords;
+            return this.Name == other.Name && this.Level == other.Level && this.Keywords == other.Keywords && this.IsWildcard == other.IsWildcard;
         }
 
         /// <summary>
