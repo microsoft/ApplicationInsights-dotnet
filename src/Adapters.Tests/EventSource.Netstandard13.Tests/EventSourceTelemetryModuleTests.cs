@@ -85,6 +85,89 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
         [TestMethod]
         [TestCategory("EventSourceListener")]
+        public void WildcardMatchEnablingEventSource()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                var listeningRequest = new EventSourceListeningRequest()
+                {
+                    Name = TestEventSource.ProviderName.Substring(0, TestEventSource.ProviderName.Length - 2) + "*",
+                    IsWildcard = true
+                };
+                module.Sources.Add(listeningRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                TestEventSource.Default.InfoEvent("Hey!");
+
+                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.Single();
+                Assert.AreEqual("Hey!", telemetry.Message);
+                Assert.AreEqual("Hey!", telemetry.Properties["information"]);
+                Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
+                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(EventSourceTelemetryModule), prefix: "evl:");
+                Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void EnablingEventSourceRequestTakesOverDisablingEventSourceRequest()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                var listeningRequest = new EventSourceListeningRequest()
+                {
+                    Name = TestEventSource.ProviderName
+                };
+                module.Sources.Add(listeningRequest);
+
+                var disablingRule = new DisableEventSourceRequest()
+                {
+                    Name = TestEventSource.ProviderName
+                };
+                module.DisabledSources.Add(disablingRule);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                TestEventSource.Default.InfoEvent("Hey!");
+
+                int sentCount = this.adapterHelper.Channel.SentItems.Count();
+                Assert.AreEqual(1, sentCount);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void DisablingEventFromEventSource()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                var listeningRequest = new EventSourceListeningRequest()
+                {
+                    Name = TestEventSource.ProviderName
+                };
+                module.Sources.Add(listeningRequest);
+
+                var disablingRule = new DisableEventSourceRequest()
+                {
+                    Name = TestEventSource.ProviderName
+                };
+                module.DisabledSources.Add(disablingRule);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                // Trick: remove the matched event source in enabling list.
+                module.Sources.Remove(listeningRequest);
+
+                TestEventSource.Default.InfoEvent("Hey!");
+
+                int sentCount = this.adapterHelper.Channel.SentItems.Count();
+                Assert.AreEqual(0, sentCount);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
         public void ReportsSingleEventFromSourceCreatedAfterModuleCreated()
         {
             using (var module = new EventSourceTelemetryModule())
@@ -105,7 +188,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                     Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
                     string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(EventSourceTelemetryModule), prefix: "evl:");
                     Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
-                }                    
+                }
             }
         }
 
@@ -315,6 +398,31 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 }
 
                 Assert.AreEqual(0, this.adapterHelper.Channel.SentItems.Length);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void WildCardMatchTest()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                // Scenarios for *
+                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "abc"));
+                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "a*"));
+                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "*c"));
+                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "*b*"));
+                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "*c*"));
+                Assert.IsFalse(module.IsEventSourceNameMatch("abc", "d"));
+
+                // Scenarios for ?
+                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "ab?"));
+                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "a?c"));
+                Assert.IsFalse(module.IsEventSourceNameMatch("abc", "abc?"));
+
+                // Null or empty
+                Assert.IsFalse(module.IsEventSourceNameMatch("", "d"));
+                Assert.IsFalse(module.IsEventSourceNameMatch("", ""));
             }
         }
 
