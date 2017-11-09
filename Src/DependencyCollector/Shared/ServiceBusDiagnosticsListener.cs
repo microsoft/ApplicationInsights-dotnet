@@ -89,7 +89,7 @@
             telemetry.Url = (Uri)urlFetcher.Fetch(payload);
 
             PropertyFetcher entityFetcher = this.GetOrCreatePropertyFetcher(name, EntityPropertyName);
-            telemetry.Source = (string)entityFetcher.Fetch(payload);
+            telemetry.Source = "roleName:" + (string)entityFetcher.Fetch(payload);
 
             this.telemetryClient.TrackRequest(telemetry);
         }

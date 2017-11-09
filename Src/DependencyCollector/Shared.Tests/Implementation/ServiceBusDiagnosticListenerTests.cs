@@ -9,7 +9,11 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+#if !NETCORE
     using Microsoft.ApplicationInsights.Web.TestFramework;
+#else
+    using Microsoft.ApplicationInsights.Tests;
+#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -105,7 +109,7 @@
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Process", telemetry.Name);
-                Assert.AreEqual("queueName", telemetry.Source);
+                Assert.AreEqual("roleName:queueName", telemetry.Source);
                 Assert.AreEqual("sb://queuename.myservicebus.com/", telemetry.Url.ToString());
                 Assert.IsTrue(telemetry.Success.Value);
 
