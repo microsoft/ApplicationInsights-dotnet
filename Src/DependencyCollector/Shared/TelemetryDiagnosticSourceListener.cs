@@ -19,7 +19,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private readonly Dictionary<string, HashSet<string>> includedDiagnosticSourceActivities 
             = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-        private readonly Dictionary<string, HandleDiagnosticsEvent<HashSet<string>>> customEventHanlers = new Dictionary<string, HandleDiagnosticsEvent<HashSet<string>>>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, HandleDiagnosticsEvent<HashSet<string>>> customEventHandlers = new Dictionary<string, HandleDiagnosticsEvent<HashSet<string>>>(StringComparer.OrdinalIgnoreCase);
 
         public TelemetryDiagnosticSourceListener(TelemetryConfiguration configuration, ICollection<string> includeDiagnosticSourceActivities) 
             : base(configuration)
@@ -30,7 +30,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         internal void RegisterHandler(string diagnosticSourceName, HandleDiagnosticsEvent<HashSet<string>> eventHandler)
         {
-            this.customEventHanlers[diagnosticSourceName] = eventHandler;
+            this.customEventHandlers[diagnosticSourceName] = eventHandler;
         }
 
         internal override bool IsSourceEnabled(DiagnosticListener value)
@@ -212,7 +212,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         protected override HandleDiagnosticsEvent<HashSet<string>> GetEventHandler(DiagnosticListener diagnosticListener)
         {
             HandleDiagnosticsEvent<HashSet<string>> eventHandler;
-            if (this.customEventHanlers.TryGetValue(diagnosticListener.Name, out eventHandler))
+            if (this.customEventHandlers.TryGetValue(diagnosticListener.Name, out eventHandler))
             {
                 return eventHandler;
             }

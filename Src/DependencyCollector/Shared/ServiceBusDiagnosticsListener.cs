@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading.Tasks;
@@ -30,8 +31,7 @@
         // when we first receive an event and require particular property, we cache fetcher for it
         // There are just a few (~10) events we can receive and each will a have a few payload fetchers
         // I.e. this dictionary is quite small, does not grow up after service warm-up and does not require clean up
-        private readonly Dictionary<string, Dictionary<string, PropertyFetcher>> propertyFetchers =
-            new Dictionary<string, Dictionary<string, PropertyFetcher>>();
+        private readonly ConcurrentDictionary<Property, PropertyFetcher> propertyFetchers = new ConcurrentDictionary<Property, PropertyFetcher>();
 
         internal ServiceBusDiagnosticsEventHandler(TelemetryConfiguration configuration)
         {
@@ -74,15 +74,11 @@
 
             this.SetCommonProperties(name, payload, activity, telemetry);
 
-            PropertyFetcher urlFetcher = this.GetOrCreatePropertyFetcher(name, EndpointPropertyName);
-
             // Endpoint is URL of particular ServiceBus, e.g. sb://myservicebus.servicebus.windows.net/
-            telemetry.Data = ((Uri)urlFetcher.Fetch(payload)).ToString();
-
-            PropertyFetcher entityFetcher = this.GetOrCreatePropertyFetcher(name, EntityPropertyName);
+            telemetry.Data = this.FetchPayloadProperty<Uri>(name, EndpointPropertyName, payload)?.ToString();
 
             // Queue/Topic name, e.g. myqueue/mytopic
-            telemetry.Target = (string)entityFetcher.Fetch(payload);
+            telemetry.Target = this.FetchPayloadProperty<string>(name, EntityPropertyName, payload);
 
             this.telemetryClient.TrackDependency(telemetry);
         }
@@ -93,24 +89,21 @@
 
             this.SetCommonProperties(name, payload, activity, telemetry);
 
-            PropertyFetcher urlFetcher = this.GetOrCreatePropertyFetcher(name, EndpointPropertyName);
-
             // Endpoint is URL of particular ServiceBus, e.g. sb://myservicebus.servicebus.windows.net/
-            telemetry.Url = (Uri)urlFetcher.Fetch(payload);
+            telemetry.Url = this.FetchPayloadProperty<Uri>(name, EndpointPropertyName, payload);
 
-            PropertyFetcher entityFetcher = this.GetOrCreatePropertyFetcher(name, EntityPropertyName);
-            
+            // Entity 
             // We want to make Source field extendable at the beginning as we may add
-            // multi ikey support and also build some special UI for requests coming from the queues.
-            telemetry.Source = "roleName:" + (string)entityFetcher.Fetch(payload);
+            // multi ikey support and also build some special UI for requests coming from the queues
+            // so the Source looks like roleName:queueName (using the multi ikey schema).
+            telemetry.Source = "roleName:" + this.FetchPayloadProperty<string>(name, EntityPropertyName, payload);
 
             this.telemetryClient.TrackRequest(telemetry);
         }
 
         private void OnException(string name, object payload)
         {
-            PropertyFetcher exceptionFetcher = this.GetOrCreatePropertyFetcher(name, ExceptionPropertyName);
-            Exception ex = (Exception)exceptionFetcher.Fetch(payload);
+            Exception ex = this.FetchPayloadProperty<Exception>(name, ExceptionPropertyName, payload);
 
             this.telemetryClient.TrackException(ex);
         }
@@ -119,10 +112,12 @@
         {
             // activity name looks like 'Microsoft.Azure.ServiceBus.<Name>'
             // as namespace is too verbose, we'll just take the last node from the activity name as telemetry name
-            string[] activityNameSegments = activity.OperationName.Split('.');
-            if (activityNameSegments.Length > 0)
+            string activityName = activity.OperationName;
+            int lastDotIndex = activityName.LastIndexOf('.');
+            if (lastDotIndex > 0)
             {
-                telemetry.Name = activityNameSegments[activityNameSegments.Length - 1];
+                int length = activityName.Length - lastDotIndex - 1;
+                telemetry.Name = activityName.Substring(lastDotIndex + 1, length);
             }
 
             telemetry.Duration = activity.Duration;
@@ -147,25 +142,31 @@
                 }
             }
 
-            PropertyFetcher statusFetcher = this.GetOrCreatePropertyFetcher(eventName, StatusPropertyName);
-            telemetry.Success = (TaskStatus)statusFetcher.Fetch(eventPayload) == TaskStatus.RanToCompletion;
+            telemetry.Success = this.FetchPayloadProperty<TaskStatus>(eventName, StatusPropertyName, eventPayload) == TaskStatus.RanToCompletion;
         }
 
-        private PropertyFetcher GetOrCreatePropertyFetcher(string eventName, string propertyName)
+        private T FetchPayloadProperty<T>(string eventName, string propertyName, object payload)
         {
-            if (!this.propertyFetchers.TryGetValue(eventName, out Dictionary<string, PropertyFetcher> fetchers))
+            Property property = new Property(eventName, propertyName);
+            var fetcher = this.propertyFetchers.GetOrAdd(property, prop => new PropertyFetcher(prop.PropertyName));
+            return (T)fetcher.Fetch(payload);
+        }
+
+        private struct Property
+        {
+            public readonly string PropertyName;
+            private readonly string eventName;
+
+            public Property(string eventName, string propertyName)
             {
-                fetchers = new Dictionary<string, PropertyFetcher>();
-                this.propertyFetchers.Add(eventName, fetchers);
+                this.eventName = eventName;
+                this.PropertyName = propertyName;
             }
 
-            if (!fetchers.TryGetValue(propertyName, out PropertyFetcher fetcher))
+            public override int GetHashCode()
             {
-                fetcher = new PropertyFetcher(propertyName);
-                fetchers.Add(propertyName, fetcher);
+                return this.eventName.GetHashCode() ^ this.PropertyName.GetHashCode();
             }
-
-            return fetcher;
         }
     }
 }
