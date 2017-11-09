@@ -18,6 +18,10 @@
         private const string EntityPropertyName = "Entity";
         private const string EndpointPropertyName = "Endpoint";
         private const string ExceptionPropertyName = "Exception";
+
+        // We want to reflect in the dependency type that it's one of the queue operations.
+        // This way, UI could have special representation for all kinds of queues
+        // Not knowing particular service
         private const string DependencyType = "Queue.ServiceBus";
 
         private readonly TelemetryClient telemetryClient;
@@ -71,9 +75,13 @@
             this.SetCommonProperties(name, payload, activity, telemetry);
 
             PropertyFetcher urlFetcher = this.GetOrCreatePropertyFetcher(name, EndpointPropertyName);
+
+            // Endpoint is URL of particular ServiceBus, e.g. sb://myservicebus.servicebus.windows.net/
             telemetry.Data = ((Uri)urlFetcher.Fetch(payload)).ToString();
 
             PropertyFetcher entityFetcher = this.GetOrCreatePropertyFetcher(name, EntityPropertyName);
+
+            // Queue/Topic name, e.g. myqueue/mytopic
             telemetry.Target = (string)entityFetcher.Fetch(payload);
 
             this.telemetryClient.TrackDependency(telemetry);
@@ -86,9 +94,14 @@
             this.SetCommonProperties(name, payload, activity, telemetry);
 
             PropertyFetcher urlFetcher = this.GetOrCreatePropertyFetcher(name, EndpointPropertyName);
+
+            // Endpoint is URL of particular ServiceBus, e.g. sb://myservicebus.servicebus.windows.net/
             telemetry.Url = (Uri)urlFetcher.Fetch(payload);
 
             PropertyFetcher entityFetcher = this.GetOrCreatePropertyFetcher(name, EntityPropertyName);
+            
+            // We want to make Source field extendable at the beginning as we may add
+            // multi ikey support and also build some special UI for requests coming from the queues.
             telemetry.Source = "roleName:" + (string)entityFetcher.Fetch(payload);
 
             this.telemetryClient.TrackRequest(telemetry);
