@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.ApplicationInsights.Extensibility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,6 +12,8 @@ namespace E2ETestWebApi
 {
     public class WebApiApplication : System.Web.HttpApplication
     {
+        public static string EndPointAddressFormat = "http://{0}/api/Data/PushItem";
+
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
@@ -18,6 +21,9 @@ namespace E2ETestWebApi
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            var ingestionhostname = Microsoft.Azure.CloudConfigurationManager.GetSetting("ingestionhostname");
+            TelemetryConfiguration.Active.TelemetryChannel.EndpointAddress = string.Format(EndPointAddressFormat, ingestionhostname);
         }
     }
 }
