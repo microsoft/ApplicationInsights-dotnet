@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.DependencyCollector;
+using System.IO;
 
 namespace E2ETestAppCore20
 {
@@ -18,6 +19,12 @@ namespace E2ETestAppCore20
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            var configBuilder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json");
+
+            Configuration = configBuilder.Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -39,8 +46,11 @@ namespace E2ETestAppCore20
             var teleConfig = TelemetryConfiguration.Active;
             teleConfig.TelemetryChannel.DeveloperMode = true;
 
+
+            var endpoint = Configuration.GetValue<string>("applicationinsights:endpoint");
+
             // Fake endpoint.
-            teleConfig.TelemetryChannel.EndpointAddress = "http://e2etests_ingestionservice_1/api/Data/PushItem";
+            teleConfig.TelemetryChannel.EndpointAddress = endpoint;
             teleConfig.InstrumentationKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8";
 
             new DependencyTrackingTelemetryModule().Initialize(TelemetryConfiguration.Active);
