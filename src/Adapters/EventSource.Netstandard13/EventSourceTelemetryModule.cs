@@ -138,6 +138,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             {
                 try
                 {
+                    // We can't deal with disabled sources until event is raised due to: https://github.com/dotnet/coreclr/issues/14434
                     if (DisabledSources.Count == 0 || !IsDroppingEvent(eventData))
                     {
                         this.onEventWrittenHandler(eventData, this.client);
