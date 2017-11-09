@@ -45,14 +45,8 @@ namespace E2ETestAppCore20
             var teleConfig = TelemetryConfiguration.Active;
             teleConfig.TelemetryChannel.DeveloperMode = true;
 
-
-            var endpoint = Configuration.GetValue<string>("applicationinsights:endpoint");
-
-            var ss = options.Value.EndPoint;
-            var ss1 = options.Value.SqlConnectionString;
-
             // Fake endpoint.
-            teleConfig.TelemetryChannel.EndpointAddress = options.Value.EndPoint;
+            teleConfig.TelemetryChannel.EndpointAddress = string.Format(Program.EndPointAddressFormat, options.Value.EndPoint);
             teleConfig.InstrumentationKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8";
 
             new DependencyTrackingTelemetryModule().Initialize(TelemetryConfiguration.Active);

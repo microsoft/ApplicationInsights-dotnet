@@ -6,6 +6,6 @@
         {            
         }
         public string EndPoint { get; set; }
-        public string SqlConnectionString { get; set; }
+        public string SqlServerInstance { get; set; }
     }
 }

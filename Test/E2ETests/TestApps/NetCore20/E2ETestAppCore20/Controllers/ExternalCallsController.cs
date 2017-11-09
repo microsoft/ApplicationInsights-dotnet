@@ -19,9 +19,14 @@ namespace E2ETestAppCore20.Controllers
         private const string InvalidHostName = "http://www.zzkaodkoakdahdjghejajdnad.com";
 
         /// <summary>
+        /// Connection string format.
+        /// </summary>         
+        public string ConnectionStringFormat = "Server = {0};Initial Catalog=dependencytest;User Id = sa; Password=MSDNm4g4z!n4";
+
+        /// <summary>
         /// Connection string to local database.
         /// </summary>         
-        public string ConnectionString;
+        public static string ConnectionString;
 
         /// <summary>
         /// Valid SQL Query. The wait for delay of 6 ms is used to prevent access time of less than 1 ms. SQL is not accurate below 3, so used 6 ms delay.
@@ -50,7 +55,10 @@ namespace E2ETestAppCore20.Controllers
 
         public ExternalCallsController(IOptions<AppInsightsOptions> options)
         {
-            ConnectionString = options.Value.SqlConnectionString;
+            if (string.IsNullOrEmpty(ConnectionString))
+            {
+                ConnectionString = string.Format(ConnectionStringFormat, options.Value.SqlServerInstance);
+            }
         }
 
         // GET external/calls
@@ -78,6 +86,33 @@ namespace E2ETestAppCore20.Controllers
                     title = response = "Flushed telemetry channel";
                     TelemetryConfiguration.Active.TelemetryChannel.Flush();                    
                     break;
+                case "setsqlserverinstance":
+                    string sqlServerInstance = GetQueryValue("server");
+                    if(!string.IsNullOrEmpty(sqlServerInstance))
+                    {
+                        ConnectionString = string.Format(ConnectionStringFormat, sqlServerInstance);
+                        title = response = "Update SQL Server Instance to: " + sqlServerInstance;
+                    }
+                    else
+                    {
+                        title = response = "SQL Server Instance not updated. ";
+                    }                    
+                    
+                    break;
+                case "setchannelendpoint":
+                    string endPoint = GetQueryValue("endpoint");
+                    if (!string.IsNullOrEmpty(endPoint))
+                    {
+                        TelemetryConfiguration.Active.TelemetryChannel.EndpointAddress = string.Format(Program.EndPointAddressFormat, endPoint);
+                        title = response = "Update Endpoint to: " + TelemetryConfiguration.Active.TelemetryChannel.EndpointAddress;
+                    }
+                    else
+                    {
+                        title = response = "Endpoint not updated. ";
+                    }
+
+                    break;
+
                 case "http":
                     title = "Made Sync GET HTTP call to bing";
                     MakeHttpGetCallSync(count, "bing");
