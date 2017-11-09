@@ -31,13 +31,13 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Moc
             this.sentMessages.Add(heartbeat);
         }
 
-        public override bool Initialize(TelemetryConfiguration configuration, string instrumentationKey = null, TimeSpan? timeBetweenHeartbeats = null, IEnumerable<string> disabledFields = null)
+        public override bool Initialize(TelemetryConfiguration configuration, string instrumentationKey = null, TimeSpan? timeBetweenHeartbeats = null, IEnumerable<string> disabledFields = null, bool isEnabled = true)
         {
             if (this.disableHeartbeatTimer)
             {
                 this.HeartbeatTimer = new Timer(this.MockTimerCallback, this.sentMessages, Timeout.Infinite, Timeout.Infinite);
             }
-            return base.Initialize(configuration, instrumentationKey, timeBetweenHeartbeats, disabledFields);
+            return base.Initialize(configuration, instrumentationKey, timeBetweenHeartbeats, disabledFields, isEnabled);
         }
 
         private void MockTimerCallback(object state)

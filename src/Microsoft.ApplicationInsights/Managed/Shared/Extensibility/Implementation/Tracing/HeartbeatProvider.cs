@@ -40,6 +40,7 @@
         private TimeSpan heartbeatInterval; // time between heartbeats emitted specified in milliseconds
         private TelemetryClient telemetryClient; // client to use in sending our heartbeat
         private int heartbeatsSent; // counter of all heartbeats
+        private bool isEnabled; // no need for locks or volatile here, we can skip/add a beat if the module is disabled between heartbeats
 
         public HeartbeatProvider() : this(TimeSpan.FromMilliseconds(DefaultHeartbeatIntervalMs), null)
         {
@@ -52,6 +53,7 @@
             this.extendPayloadItems = new ConcurrentDictionary<string, HeartbeatPropertyPayload>(StringComparer.OrdinalIgnoreCase);
             this.sdkPayloadItems = new ConcurrentDictionary<string, HeartbeatPropertyPayload>(StringComparer.OrdinalIgnoreCase);
             this.heartbeatsSent = 0; // count up from construction time
+            this.isEnabled = false; // wait until Initialize is called before this means anything
         }
 
         /// <summary>
@@ -59,11 +61,23 @@
         /// </summary>
         public TimeSpan HeartbeatInterval => this.heartbeatInterval;
 
+        /// <summary>
+        /// Gets or sets the current Instrumentation key being used to send heartbeat data to
+        /// </summary>
         public string DiagnosticsInstrumentationKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether or not heartbeats are enabled
+        /// </summary>
+        public bool IsEnabled
+        {
+            get => this.isEnabled;
+            set => this.isEnabled = value;
+        }
 
         protected Timer HeartbeatTimer { get; set; } // timer that will send each heartbeat in intervals
 
-        public virtual bool Initialize(TelemetryConfiguration configuration, string instrumentationKey = null, TimeSpan? timeBetweenHeartbeats = null, IEnumerable<string> disabledDefaultFields = null)
+        public virtual bool Initialize(TelemetryConfiguration configuration, string instrumentationKey = null, TimeSpan? timeBetweenHeartbeats = null, IEnumerable<string> disabledDefaultFields = null, bool isEnabled = true)
         {
             if (timeBetweenHeartbeats != null && timeBetweenHeartbeats?.TotalMilliseconds == 0)
             {
@@ -89,8 +103,10 @@
 
             this.SetDefaultPayloadItems();
 
+            this.isEnabled = isEnabled;
+
             // Note: if this is a subsequent initialization, the interval between heartbeats will be updated in the next cycle so no .Change call necessary here
-            if (this.HeartbeatTimer == null)
+            if (this.HeartbeatTimer == null && isEnabled == true)
             {
                 this.HeartbeatTimer = new Timer(this.HeartbeatPulse, this, this.heartbeatInterval, this.heartbeatInterval);
             }
@@ -318,7 +334,10 @@
                 // interval. Best that we reset the timer each time round.
                 this.HeartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
                 hp.Send();
-                this.HeartbeatTimer.Change(this.heartbeatInterval, this.heartbeatInterval);
+                if (this.isEnabled)
+                {
+                    this.HeartbeatTimer.Change(this.heartbeatInterval, this.heartbeatInterval);
+                }
             }
             else
             {

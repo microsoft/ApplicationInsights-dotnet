@@ -8,12 +8,14 @@
     {
         string DiagnosticsInstrumentationKey { set; }
 
+        bool IsEnabled { get; set; }
+
         bool AddHealthProperty(string name, string value, bool isHealthy);
 
         bool SetHealthProperty(string name, string value = null, bool? isHealthy = null);
 
         bool RemoveHealthProperty(string payloadItemName);
 
-        bool Initialize(TelemetryConfiguration configuration, string instrumentationKey, TimeSpan? heartbeatDelay = null, IEnumerable<string> disabledDefaultFields = null);
+        bool Initialize(TelemetryConfiguration configuration, string instrumentationKey, TimeSpan? heartbeatDelay = null, IEnumerable<string> disabledDefaultFields = null, bool isEnabled = true);
     }
 }

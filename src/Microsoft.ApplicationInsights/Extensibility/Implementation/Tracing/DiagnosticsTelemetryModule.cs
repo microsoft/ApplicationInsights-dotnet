@@ -19,6 +19,8 @@
         private readonly object lockObject = new object();
         private readonly IDiagnoisticsEventThrottlingScheduler throttlingScheduler = new DiagnoisticsEventThrottlingScheduler();
         private volatile bool disposed = false;
+        private IList<string> excludedHeartbeatProps = new List<string>();
+        private bool isHeartbeatEnabled = true;
         private string instrumentationKey;
         private bool isInitialized = false;
 
@@ -33,7 +35,6 @@
             this.EventListener = new DiagnosticsListener(this.Senders);
 
             this.HeartbeatInterval = TimeSpan.FromMilliseconds(Tracing.HeartbeatProvider.DefaultHeartbeatIntervalMs);
-            this.ExcludedHeartbeatProperties = null;
         }
 
         /// <summary>
@@ -45,17 +46,46 @@
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether or not the Health Heartbeat feature is disabled.
+        /// </summary>
+        public bool IsHeartbeatEnabled
+        {
+            get
+            {
+                return this.isHeartbeatEnabled;
+            }
+
+            set
+            {
+                this.isHeartbeatEnabled = value;
+                if (this.HeartbeatProvider != null)
+                {
+                    this.HeartbeatProvider.IsEnabled = this.isHeartbeatEnabled;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the delay between heartbeats.
         /// </summary>
         public TimeSpan HeartbeatInterval { get; set; }
 
         /// <summary>
-        /// Gets or sets property names that are not to be sent with the health heartbeats. null/empty list means allow all default properties through.
+        /// Gets property names that are not to be sent with the health heartbeats. null/empty list means allow all default properties through.
+        /// 
         /// <remarks>
-        /// TODO: this comment should list known properties
+        /// Default properties supplied by the Application Insights SDK:
+        /// - runtimeFramework
+        /// - baseSdkTargetFramework
         /// </remarks>
         /// </summary>
-        public IEnumerable<string> ExcludedHeartbeatProperties { get; set; }
+        public IList<string> ExcludedHeartbeatProperties
+        {
+            get
+            {
+                return this.excludedHeartbeatProps;
+            }
+        }
 
         /// <summary>
         /// Gets or sets diagnostics Telemetry Module LogLevel configuration setting. 
@@ -159,7 +189,7 @@
                             this.HeartbeatProvider = new HeartbeatProvider();
                         }
 
-                        this.HeartbeatProvider.Initialize(configuration, this.DiagnosticsInstrumentationKey, this.HeartbeatInterval, this.ExcludedHeartbeatProperties);
+                        this.HeartbeatProvider.Initialize(configuration, this.DiagnosticsInstrumentationKey, this.HeartbeatInterval, this.ExcludedHeartbeatProperties, this.isHeartbeatEnabled);
 
                         this.isInitialized = true;
                     }
