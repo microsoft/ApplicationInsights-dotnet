@@ -7,6 +7,7 @@ using System.Text;
 using HttpSQLHelpers;
 using Microsoft.ApplicationInsights.Extensibility;
 using System.Threading;
+using Microsoft.Extensions.Options;
 
 namespace E2ETestAppCore20.Controllers
 {    
@@ -20,7 +21,7 @@ namespace E2ETestAppCore20.Controllers
         /// <summary>
         /// Connection string to local database.
         /// </summary>         
-        public const string ConnectionString = @"Server =sql-server;Initial Catalog=dependencytest;User Id = sa; Password=MSDNm4g4z!n4";
+        public string ConnectionString;
 
         /// <summary>
         /// Valid SQL Query. The wait for delay of 6 ms is used to prevent access time of less than 1 ms. SQL is not accurate below 3, so used 6 ms delay.
@@ -45,6 +46,11 @@ namespace E2ETestAppCore20.Controllers
         private string GetQueryValue(string valueKey)
         {
             return Request.Query[valueKey].ToString();
+        }
+
+        public ExternalCallsController(IOptions<AppInsightsOptions> options)
+        {
+            ConnectionString = options.Value.SqlConnectionString;
         }
 
         // GET external/calls
