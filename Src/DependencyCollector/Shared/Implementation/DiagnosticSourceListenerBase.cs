@@ -6,6 +6,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
+    internal delegate void HandleDiagnosticsEvent<in TContext>(KeyValuePair<string, object> evnt, DiagnosticListener listener, TContext context);
+
     /// <summary>
     /// Base implementation of DiagnosticSource listener. 
     /// Takes care of managing subscriptions to multiple sources and their events.
@@ -51,7 +53,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 return;
             }
 
-            var individualListener = new IndividualDiagnosticSourceListener(value, this, this.GetListenerContext(value));
+            var individualListener = new IndividualDiagnosticSourceListener(value, this.GetEventHandler(value), this.GetListenerContext(value));
             IDisposable subscription = value.Subscribe(
                 individualListener,
                 (evnt, input1, input2) => this.IsEventEnabled(evnt, input1, input2, value, individualListener.Context));
@@ -116,14 +118,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         internal abstract bool IsEventEnabled(string evnt, object arg1, object arg2, DiagnosticListener diagnosticListener, TContext context);
 
         /// <summary>
-        /// Handles the event.
-        /// </summary>
-        /// <param name="evnt">The event (name-payload pair).</param>
-        /// <param name="diagnosticListener">The diagnostic source.</param>
-        /// <param name="context">The diagnostic source-specific context (<see cref="GetListenerContext(DiagnosticListener)"/>).</param>
-        internal abstract void HandleEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener, TContext context);
-
-        /// <summary>
         /// Gets diagnostic source-specific context for processing events from that source.
         /// </summary>
         /// <param name="diagnosticListener">The diagnostic source.</param>
@@ -134,24 +128,47 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         }
 
         /// <summary>
+        /// Gets event handler for specific diagnostic source.
+        /// </summary>
+        /// <param name="diagnosticListener">The diagnostic source.</param>
+        /// <returns>Event handler.</returns>
+        protected abstract HandleDiagnosticsEvent<TContext> GetEventHandler(DiagnosticListener diagnosticListener);
+
+        /// <summary>
         /// Event listener for a single Diagnostic Source.
         /// </summary>
         internal sealed class IndividualDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>
         {
             internal readonly TContext Context;
             private readonly DiagnosticListener diagnosticListener;
-            private readonly DiagnosticSourceListenerBase<TContext> telemetryDiagnosticSourceListener;
+            private readonly HandleDiagnosticsEvent<TContext> eventHandler;
 
-            internal IndividualDiagnosticSourceListener(DiagnosticListener diagnosticListener, DiagnosticSourceListenerBase<TContext> telemetryDiagnosticSourceListener, TContext context)
+            internal IndividualDiagnosticSourceListener(DiagnosticListener diagnosticListener, HandleDiagnosticsEvent<TContext> eventHandler, TContext context)
             {
                 this.diagnosticListener = diagnosticListener;
-                this.telemetryDiagnosticSourceListener = telemetryDiagnosticSourceListener;
+                this.eventHandler = eventHandler;
                 this.Context = context;
             }
 
             public void OnNext(KeyValuePair<string, object> evnt)
             {
-                this.telemetryDiagnosticSourceListener.HandleEvent(evnt, this.diagnosticListener, this.Context);
+                Activity currentActivity = Activity.Current;
+                if (currentActivity == null)
+                {
+                    DependencyCollectorEventSource.Log.CurrentActivityIsNull();
+                    return;
+                }
+
+                DependencyCollectorEventSource.Log.TelemetryDiagnosticSourceListenerEvent(evnt.Key,  currentActivity.Id);
+
+                try
+                {
+                    this.eventHandler(evnt, this.diagnosticListener, this.Context);
+                }
+                catch (Exception ex)
+                {
+                    DependencyCollectorEventSource.Log.TelemetryDiagnosticSourceCallbackException(evnt.Key, currentActivity.Id, ex.ToInvariantString());
+                }
             }
 
             /// <summary>

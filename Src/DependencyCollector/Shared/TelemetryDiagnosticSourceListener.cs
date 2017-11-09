@@ -19,11 +19,18 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private readonly Dictionary<string, HashSet<string>> includedDiagnosticSourceActivities 
             = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
+        private readonly Dictionary<string, HandleDiagnosticsEvent<HashSet<string>>> customEventHanlers = new Dictionary<string, HandleDiagnosticsEvent<HashSet<string>>>(StringComparer.OrdinalIgnoreCase);
+
         public TelemetryDiagnosticSourceListener(TelemetryConfiguration configuration, ICollection<string> includeDiagnosticSourceActivities) 
             : base(configuration)
         {
             this.Client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceListener + ":");
             this.PrepareInclusionLists(includeDiagnosticSourceActivities);
+        }
+
+        internal void RegisterHandler(string diagnosticSourceName, HandleDiagnosticsEvent<HashSet<string>> eventHandler)
+        {
+            this.customEventHanlers[diagnosticSourceName] = eventHandler;
         }
 
         internal override bool IsSourceEnabled(DiagnosticListener value)
@@ -43,7 +50,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             return includedActivities == null || includedActivities.Contains(activityName);
         }
 
-        internal override void HandleEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener, HashSet<string> context)
+        internal void DefaultHandleEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener, HashSet<string> context)
         {
             if (!this.IsActivityIncluded(evnt.Key, context)
                 || !evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase))
@@ -52,13 +59,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
 
             Activity currentActivity = Activity.Current;
-            if (currentActivity == null)
-            {
-                DependencyCollectorEventSource.Log.CurrentActivityIsNull();
-                return;
-            }
-
-            DependencyCollectorEventSource.Log.TelemetryDiagnosticSourceListenerActivityStopped(currentActivity.Id, currentActivity.OperationName);
 
             // extensibility point - can chain more telemetry extraction methods here
             ITelemetry telemetry = this.ExtractDependencyTelemetry(diagnosticListener, currentActivity);
@@ -207,6 +207,17 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
 
             return includedActivities;
+        }
+
+        protected override HandleDiagnosticsEvent<HashSet<string>> GetEventHandler(DiagnosticListener diagnosticListener)
+        {
+            HandleDiagnosticsEvent<HashSet<string>> eventHandler;
+            if (this.customEventHanlers.TryGetValue(diagnosticListener.Name, out eventHandler))
+            {
+                return eventHandler;
+            }
+
+            return this.DefaultHandleEvent;
         }
 
         private void PrepareInclusionLists(ICollection<string> includeDiagnosticSourceActivities)

@@ -35,5 +35,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RetryPolicyTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TestUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServiceBusDiagnosticListenerTests.cs" />
   </ItemGroup>
 </Project>
