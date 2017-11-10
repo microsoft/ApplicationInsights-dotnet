@@ -114,10 +114,9 @@
             // as namespace is too verbose, we'll just take the last node from the activity name as telemetry name
             string activityName = activity.OperationName;
             int lastDotIndex = activityName.LastIndexOf('.');
-            if (lastDotIndex > 0)
+            if (lastDotIndex >= 0)
             {
-                int length = activityName.Length - lastDotIndex - 1;
-                telemetry.Name = activityName.Substring(lastDotIndex + 1, length);
+                telemetry.Name = activityName.Substring(lastDotIndex + 1);
             }
 
             telemetry.Duration = activity.Duration;
@@ -152,7 +151,7 @@
             return (T)fetcher.Fetch(payload);
         }
 
-        private struct Property
+        private struct Property : IEquatable<Property>
         {
             public readonly string PropertyName;
             private readonly string eventName;
@@ -161,6 +160,21 @@
             {
                 this.eventName = eventName;
                 this.PropertyName = propertyName;
+            }
+
+            public bool Equals(Property other)
+            {
+                return this.eventName == other.eventName && this.PropertyName == other.PropertyName;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj == null)
+                {
+                    return false;
+                }
+
+                return obj is Property && this.Equals((Property)obj);
             }
 
             public override int GetHashCode()
