@@ -20,6 +20,9 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
     /// </summary>
     public static class EventDataExtensions
     {
+        private const string ProviderNameProperty = "ProviderName";
+        private const string ProviderGuidProperty = "ProviderGuid";
+
         private static Lazy<Random> random = new Lazy<Random>();
 
         private static SeverityLevel[] eventLevelToSeverityLevel = new SeverityLevel[]
@@ -29,7 +32,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
             SeverityLevel.Error,        // EventLevel.Error == 2
             SeverityLevel.Warning,      // EventLevel.Warning == 3
             SeverityLevel.Information,  // EventLevel.Informational == 4
-            SeverityLevel.Verbose // EventLevel.Verbose == 5
+            SeverityLevel.Verbose,      // EventLevel.Verbose == 5
         };
 
         /// <summary>
@@ -62,7 +65,17 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
         /// <param name="telemetry">Telemetry item to populate with properties.</param>
         /// <param name="eventSourceEvent">Event to extract values from.</param>
         public static TraceTelemetry PopulateStandardProperties(this TraceTelemetry telemetry, EventWrittenEventArgs eventSourceEvent)
-        { 
+        {
+            if (!string.IsNullOrWhiteSpace(eventSourceEvent.EventSource.Name))
+            {
+                telemetry.AddProperty(ProviderNameProperty, eventSourceEvent.EventSource.Name);
+            }
+
+            if (eventSourceEvent.EventSource.Guid != Guid.Empty)
+            {
+                telemetry.AddProperty(ProviderGuidProperty, eventSourceEvent.EventSource.Guid.ToString());
+            }
+
             telemetry.AddProperty(nameof(EventWrittenEventArgs.EventId), eventSourceEvent.EventId.ToString(CultureInfo.InvariantCulture));
             telemetry.AddProperty(nameof(EventWrittenEventArgs.EventName), eventSourceEvent.EventName);
             if (eventSourceEvent.ActivityId != default(Guid))
