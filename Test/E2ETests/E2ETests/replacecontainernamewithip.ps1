@@ -18,6 +18,4 @@ $azureContainerName = "e2etests_azureemulator_1"
 (Get-Content ..\\TestApps\\Net452\\E2ETestApp\\Publish\Web.config).replace($sqlContainerName, $sqlIp) | Set-Content ..\\TestApps\\Net452\\E2ETestApp\\Publish\Web.config
 (Get-Content ..\\TestApps\\Net452\\E2ETestApp\\Publish\Web.config).replace($azureContainerName, $azureIP) | Set-Content ..\\TestApps\\Net452\\E2ETestApp\\Publish\Web.config
 (Get-Content ..\\TestApps\\Net452\\E2ETestApp\\Publish\Web.config).replace($webapiContainerName, $webapiIp) | Set-Content ..\\TestApps\\Net452\\E2ETestApp\\Publish\Web.config
-
-#WebApi
-(Get-Content ..\\TestApps\\Net452\\E2ETestWebApi\\Publish\Web.config).replace($ingestionContainerName, $ingestionIP) | Set-Content ..\\TestApps\\Net452\\E2ETestWebApi\\Publish\Web.config
+(Get-Content ..\\TestApps\\Net452\\E2ETestApp\\Publish\ApplicationInsights.config).replace($azureContainerName, $azureIP) | Set-Content ..\\TestApps\\Net452\\E2ETestApp\\Publish\ApplicationInsights.config
