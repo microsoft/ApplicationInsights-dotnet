@@ -1,13 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    using System.Threading;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Mocks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using System.Collections.Generic;
-    using Microsoft.ApplicationInsights.DataContracts;
 
     [TestClass]
     public class HealthHeartbeatTests
@@ -108,17 +107,6 @@
             }
         }
 
-        //[TestMethod]
-        //[Ignore("Not ready yet")]
-        //public void CanSetDelayBetweenHeartbeatsViaConfig()
-        //{
-        //    using (var hbeat = new HeartbeatProvider())
-        //    {
-
-        //    }
-        //    throw new NotImplementedException();
-        //}
-
         [TestMethod]
         public void DiagnosticsTelemetryModuleCreatesHeartbeatModule()
         {
@@ -195,31 +183,6 @@
             }
         }
 
-        //[TestMethod]
-        //[Ignore("I don't know how to modify the config file during tests yet")]
-        //public void HeartbeatPayloadContainsFieldsSpecifiedInConfig()
-        //{
-        //    // FROM: HeartbeatPayloadContainsOnlyAllowedDefaultPayloadFields below...
-
-        //    //string specificFieldsToEnable = string.Concat(HealthHeartbeatDefaultPayload.FieldRuntimeFrameworkVer, ",", HealthHeartbeatDefaultPayload.FieldAppInsightsSdkVer);
-
-        //    //using (var hbeat = new HealthHeartbeatProviderMock())
-        //    //{
-        //    //    hbeat.Initialize(configuration: null, delayMs: null, allowedPayloadFields: specificFieldsToEnable);
-        //    //    Assert.AreEqual(0, String.CompareOrdinal(hbeat.EnabledPayloadFields, specificFieldsToEnable));
-
-        //    //    hbeat.SimulateSend();
-
-        //    //    var sentHeartBeat = hbeat.sentMessages.First();
-        //    //    Assert.IsNotNull(sentHeartBeat);
-
-        //    //    foreach (var kvp in sentHeartBeat.Properties)
-        //    //    {
-        //    //        Assert.IsTrue(specificFieldsToEnable.IndexOf(kvp.Key, 0, StringComparison.OrdinalIgnoreCase) >= 0, "Dissallowed field found in payload");
-        //    //    }
-        //    //}
-        //}
-
         [TestMethod]
         public void HeartbeatMetricIsZeroForNoFailureConditionPresent()
         {
@@ -243,28 +206,6 @@
                 Assert.IsTrue(hbeat.sentMessages.Any(a => a.Sum >= 1.0));
             }
         }
-
-        //[TestMethod]
-        //[Ignore("No test yet, I don't know how to setup multiple ikey's to send to yet.")]
-        //public void HeartbeatSentToMultipleConfiguredComponents()
-        //{
-        //    using (var hbeat = new HeartbeatProvider())
-        //    {
-
-        //    }
-        //    throw new NotImplementedException();
-        //}
-
-        //[TestMethod]
-        //[Ignore("I don't know how to alter the config file during unit tests yet.")]
-        //public void HealthHeartbeatDisabledInConfig()
-        //{
-        //    using (var hbeat = new HeartbeatProvider())
-        //    {
-
-        //    }
-        //    throw new NotImplementedException();
-        //}
 
         [TestMethod]
         public void HeartbeatMetricCountAccountsForAllFailures()
