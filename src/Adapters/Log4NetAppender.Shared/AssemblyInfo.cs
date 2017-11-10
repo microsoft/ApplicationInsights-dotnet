@@ -31,7 +31,6 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("599daa99-7d0b-4cae-81b8-3a73509f2efa")]
 
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Log4NetAppender.Net40.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Log4NetAppender.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
 internal static class AssemblyInfo

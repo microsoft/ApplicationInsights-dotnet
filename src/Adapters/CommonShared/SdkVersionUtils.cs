@@ -15,7 +15,7 @@ namespace Microsoft.ApplicationInsights.Implementation
     {
         internal static string GetSdkVersion(string versionPrefix)
         {
-#if NET40 || NET45 || NET46
+#if NET45 || NET46
             string versionStr = typeof(SdkVersionUtils).Assembly.GetCustomAttributes(false).OfType<AssemblyFileVersionAttribute>().First().Version;
 #else
             string versionStr = typeof(SdkVersionUtils).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>().First().Version;

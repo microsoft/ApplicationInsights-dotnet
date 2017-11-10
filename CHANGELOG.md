@@ -1,5 +1,12 @@
 # Changelog 
 
+### Version 2.5.0-beta1
+- Update Application Insights API reference to [2.5.0-beta1]
+- Removed framework 4.0 support
+
+### Version 2.4.0
+- Update Application Insights API reference to [2.4.0]
+
 ### Version 2.4.0-beta1/2
 Update Application Insights API reference to [2.4.0-beta3]
 Added support for logs from EventSource, ETW and Diagnostic Source.

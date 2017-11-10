@@ -24,10 +24,6 @@
   </metadata>
   <files>
     <!-- Binaries for .NET -->
-    <file src="$configuration$\src\Adapters\Log4NetAppender.Net40\Microsoft.ApplicationInsights.Log4NetAppender.dll" target="lib\net40" />
-    <file src="$configuration$\src\Adapters\Log4NetAppender.Net40\Microsoft.ApplicationInsights.Log4NetAppender.pdb" target="lib\net40" />
-    <file src="$configuration$\src\Adapters\Log4NetAppender.Net40\Microsoft.ApplicationInsights.Log4NetAppender.xml" target="lib\net40" />
-
     <file src="$configuration$\src\Adapters\Log4NetAppender.Net45\Microsoft.ApplicationInsights.Log4NetAppender.dll" target="lib\net45" />
     <file src="$configuration$\src\Adapters\Log4NetAppender.Net45\Microsoft.ApplicationInsights.Log4NetAppender.pdb" target="lib\net45" />
     <file src="$configuration$\src\Adapters\Log4NetAppender.Net45\Microsoft.ApplicationInsights.Log4NetAppender.xml" target="lib\net45" />

@@ -23,10 +23,6 @@
   </metadata>
   <files>
     <!-- Binaries for .NET -->
-    <file src="$configuration$\src\Adapters\TraceListener.Net40\Microsoft.ApplicationInsights.TraceListener.dll" target="lib\net40" />
-    <file src="$configuration$\src\Adapters\TraceListener.Net40\Microsoft.ApplicationInsights.TraceListener.pdb" target="lib\net40" />
-    <file src="$configuration$\src\Adapters\TraceListener.Net40\Microsoft.ApplicationInsights.TraceListener.xml" target="lib\net40" />
-
     <file src="$configuration$\src\Adapters\TraceListener.Net45\Microsoft.ApplicationInsights.TraceListener.dll" target="lib\net45" />
     <file src="$configuration$\src\Adapters\TraceListener.Net45\Microsoft.ApplicationInsights.TraceListener.pdb" target="lib\net45" />
     <file src="$configuration$\src\Adapters\TraceListener.Net45\Microsoft.ApplicationInsights.TraceListener.xml" target="lib\net45" />

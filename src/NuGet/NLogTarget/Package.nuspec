@@ -24,10 +24,6 @@
   </metadata>
   <files>
     <!-- Binaries for .NET -->
-    <file src="$configuration$\src\Adapters\NLogTarget.Net40\Microsoft.ApplicationInsights.NLogTarget.dll" target="lib\net40" />
-    <file src="$configuration$\src\Adapters\NLogTarget.Net40\Microsoft.ApplicationInsights.NLogTarget.pdb" target="lib\net40" />
-    <file src="$configuration$\src\Adapters\NLogTarget.Net40\Microsoft.ApplicationInsights.NLogTarget.xml" target="lib\net40" />
-
     <file src="$configuration$\src\Adapters\NLogTarget.Net45\Microsoft.ApplicationInsights.NLogTarget.dll" target="lib\net45" />
     <file src="$configuration$\src\Adapters\NLogTarget.Net45\Microsoft.ApplicationInsights.NLogTarget.pdb" target="lib\net45" />
     <file src="$configuration$\src\Adapters\NLogTarget.Net45\Microsoft.ApplicationInsights.NLogTarget.xml" target="lib\net45" />

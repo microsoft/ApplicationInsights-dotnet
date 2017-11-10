@@ -16,7 +16,7 @@
     <NoWarn>2008</NoWarn>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <PackageSpecFile>$(MSBuildProjectDirectory)\Package.nuspec</PackageSpecFile>
-    <PackageVersionFile>$(BinRoot)\$(Configuration)\src\Adapters\NLogTarget.Net40\Microsoft.ApplicationInsights.NLogTarget.dll</PackageVersionFile>
+    <PackageVersionFile>$(BinRoot)\$(Configuration)\src\Adapters\NLogTarget.Net45\Microsoft.ApplicationInsights.NLogTarget.dll</PackageVersionFile>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>

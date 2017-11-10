@@ -75,7 +75,7 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation
             string name;
             try
             {
-#if NET40 || NET45 || NET46
+#if NET45 || NET46
                 name = AppDomain.CurrentDomain.FriendlyName;
 #else
                 name = string.Empty;
