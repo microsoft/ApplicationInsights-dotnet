@@ -40,6 +40,11 @@ namespace HttpSQLHelpers
         /// </summary>
         private const string UrlWithNonexistentHostName = "http://abcdefzzzzeeeeadadad.com";
 
+        public static CloudStorageAccount storageAccount =
+                CloudStorageAccount.Parse(
+                    string.Format(CloudConfigurationManager.GetSetting("StorageConnectionString"),
+                CloudConfigurationManager.GetSetting("azureemulatorhostname")));
+
         /// <summary>
         /// Make sync http calls
         /// </summary>                
@@ -229,11 +234,7 @@ namespace HttpSQLHelpers
         /// Make azure call to read Blob
         /// </summary>                
         public static void MakeAzureCallToReadBlobWithSdk(string containerName, string blobName)
-        {
-            // Retrieve storage account from connection string.
-            CloudStorageAccount storageAccount =
-                CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
-
+        {            
             // Create the blob client.
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
@@ -263,10 +264,6 @@ namespace HttpSQLHelpers
         /// </summary>                
         public static void MakeAzureCallToWriteToBlobWithSdk(string containerName, string blobName)
         {
-            // Retrieve storage account from connection string.
-            CloudStorageAccount storageAccount =
-                CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
-
             // Create the blob client.
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
@@ -301,11 +298,7 @@ namespace HttpSQLHelpers
         /// Make azure call to write to Table
         /// </summary>                
         public static void MakeAzureCallToWriteTableWithSdk(string tableName)
-        {
-            // Retrieve storage account from connection string.
-            CloudStorageAccount storageAccount =
-                CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
-
+        {            
             // Create the table client.
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
@@ -338,11 +331,7 @@ namespace HttpSQLHelpers
         /// Make azure call to read from Table
         /// </summary>                
         public static void MakeAzureCallToReadTableWithSdk(string tableName)
-        {
-            // Retrieve storage account from connection string.
-            CloudStorageAccount storageAccount =
-                CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
-
+        {            
             // Create the table client.
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
@@ -374,11 +363,7 @@ namespace HttpSQLHelpers
         /// Make azure call to write to Queue
         /// </summary>                
         public static void MakeAzureCallToWriteQueueWithSdk()
-        {
-            // Retrieve storage account from connection string.
-            CloudStorageAccount storageAccount =
-                CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
-
+        {        
             // Create the queue client
             CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
 

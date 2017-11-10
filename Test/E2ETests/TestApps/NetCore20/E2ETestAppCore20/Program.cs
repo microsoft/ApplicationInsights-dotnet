@@ -9,9 +9,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace E2ETestAppCore20
-{
+{   
     public class Program
     {
+        public static string EndPointAddressFormat = "http://{0}/api/Data/PushItem";
         public static void Main(string[] args)
         {
             IWebHostBuilder builder = new WebHostBuilder()

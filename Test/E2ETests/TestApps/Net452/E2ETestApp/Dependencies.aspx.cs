@@ -18,13 +18,15 @@ using System.Web.UI.WebControls;
 namespace E2ETestApp
 {
     public partial class Dependencies : System.Web.UI.Page
-    {        
-        public const string LocalDbConnectionString = @"Server =sql-server;Initial Catalog=dependencytest;User Id = sa; Password=MSDNm4g4z!n4";
+    {
+        public static string ConnectionStringFormat = "Server = {0};Initial Catalog=dependencytest;User Id = sa; Password=MSDNm4g4z!n4";
+        public static string LocalDbConnectionString;
         public const string InvalidAccountConnectionString = @"Server =sql-server;User Id = sa; Password=thisiswrong";
         public const string InvalidServerConnectionString = @"Server =sql-server-dontexist;User Id = sa; Password=MSDNm4g4z!n4";
         private string SqlQuerySuccess = "WAITFOR DELAY '00:00:00:007';select * from dbo.Messages";
         private string SqlQueryError = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabasesunknown";
         private string SqlStoredProcedureName = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabases";
+        public static string EndPointAddressFormat = "http://{0}/api/Data/PushItem";
 
         private const string UrlTestWebApiGetCallTemplate = "http://{0}:80/api/values";
         private const string UrlGoogle = "http://google.com";
@@ -41,6 +43,12 @@ namespace E2ETestApp
 
             var webApiHostName = Microsoft.Azure.CloudConfigurationManager.GetSetting("webapihostname");
             string UrlTestWebApiGetCall = string.Format(UrlTestWebApiGetCallTemplate, webApiHostName);
+
+            var ingestionhostname = Microsoft.Azure.CloudConfigurationManager.GetSetting("ingestionhostname");
+            TelemetryConfiguration.Active.TelemetryChannel.EndpointAddress = string.Format(EndPointAddressFormat, ingestionhostname);
+
+            var sqlhostname = Microsoft.Azure.CloudConfigurationManager.GetSetting("sqlhostname");
+            LocalDbConnectionString = string.Format(ConnectionStringFormat, sqlhostname);
 
             try
             {
