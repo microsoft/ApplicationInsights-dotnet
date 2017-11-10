@@ -8,7 +8,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
-    internal class TelemetryDiagnosticSourceListener : DiagnosticSourceListenerBase<HashSet<string>>
+    internal class TelemetryDiagnosticSourceListener : DiagnosticSourceListenerBase<HashSet<string>>, IDiagnosticEventHandler
     {
         internal const string ActivityStartNameSuffix = ".Start";
         internal const string ActivityStopNameSuffix = ".Stop";
@@ -19,7 +19,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private readonly Dictionary<string, HashSet<string>> includedDiagnosticSourceActivities 
             = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-        private readonly Dictionary<string, HandleDiagnosticsEvent<HashSet<string>>> customEventHandlers = new Dictionary<string, HandleDiagnosticsEvent<HashSet<string>>>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, IDiagnosticEventHandler> customEventHandlers = new Dictionary<string, IDiagnosticEventHandler>(StringComparer.OrdinalIgnoreCase);
 
         public TelemetryDiagnosticSourceListener(TelemetryConfiguration configuration, ICollection<string> includeDiagnosticSourceActivities) 
             : base(configuration)
@@ -28,32 +28,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.PrepareInclusionLists(includeDiagnosticSourceActivities);
         }
 
-        internal void RegisterHandler(string diagnosticSourceName, HandleDiagnosticsEvent<HashSet<string>> eventHandler)
+        public bool IsEventEnabled(string evnt, object input1, object input2)
         {
-            this.customEventHandlers[diagnosticSourceName] = eventHandler;
+            return !evnt.EndsWith(ActivityStartNameSuffix, StringComparison.OrdinalIgnoreCase);
         }
 
-        internal override bool IsSourceEnabled(DiagnosticListener value)
+        public void OnEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener)
         {
-            return this.includedDiagnosticSources.Contains(value.Name);
-        }
-
-        internal override bool IsEventEnabled(string evnt, object input1, object input2, DiagnosticListener diagnosticListener, HashSet<string> context)
-        {
-            return this.IsActivityIncluded(evnt, context)
-                && !evnt.EndsWith(ActivityStartNameSuffix, StringComparison.OrdinalIgnoreCase);
-        }
-
-        internal bool IsActivityIncluded(string activityName, HashSet<string> includedActivities)
-        {
-            // if no list of included activities then all are included
-            return includedActivities == null || includedActivities.Contains(activityName);
-        }
-
-        internal void DefaultHandleEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener, HashSet<string> context)
-        {
-            if (!this.IsActivityIncluded(evnt.Key, context)
-                || !evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase))
+            if (!evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
@@ -76,6 +58,22 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             telemetry.Context.Properties["Activity"] = currentActivity.OperationName;
 
             this.Client.Track(telemetry);
+        }
+
+        internal void RegisterHandler(string diagnosticSourceName, IDiagnosticEventHandler eventHandler)
+        {
+            this.customEventHandlers[diagnosticSourceName] = eventHandler;
+        }
+
+        internal override bool IsSourceEnabled(DiagnosticListener value)
+        {
+            return this.includedDiagnosticSources.Contains(value.Name);
+        }
+
+        internal override bool IsActivityEnabled(string activityName, HashSet<string> includedActivities)
+        {
+            // if no list of included activities then all are included
+            return includedActivities == null || includedActivities.Contains(activityName);
         }
 
         internal DependencyTelemetry ExtractDependencyTelemetry(DiagnosticListener diagnosticListener, Activity currentActivity)
@@ -209,15 +207,15 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             return includedActivities;
         }
 
-        protected override HandleDiagnosticsEvent<HashSet<string>> GetEventHandler(DiagnosticListener diagnosticListener)
+        protected override IDiagnosticEventHandler GetEventHandler(string diagnosticListenerName)
         {
-            HandleDiagnosticsEvent<HashSet<string>> eventHandler;
-            if (this.customEventHandlers.TryGetValue(diagnosticListener.Name, out eventHandler))
+            IDiagnosticEventHandler eventHandler;
+            if (this.customEventHandlers.TryGetValue(diagnosticListenerName, out eventHandler))
             {
                 return eventHandler;
             }
 
-            return this.DefaultHandleEvent;
+            return this;
         }
 
         private void PrepareInclusionLists(ICollection<string> includeDiagnosticSourceActivities)

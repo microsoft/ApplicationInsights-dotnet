@@ -235,10 +235,10 @@
             var inclusionList = new[] { "Test.A:Send", "Test.B" }.ToList();
             using (var telemetryListener = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
-                List<Tuple<string, KeyValuePair<string, object>>> handlerCalls =
-                    new List<Tuple<string, KeyValuePair<string, object>>>();
-                telemetryListener.RegisterHandler("Test.A", (evnt, dl, _) => handlerCalls.Add(new Tuple<string, KeyValuePair<string, object>>(dl.Name, evnt)));
-                telemetryListener.RegisterHandler("Test.B", (evnt, dl, _) => handlerCalls.Add(new Tuple<string, KeyValuePair<string, object>>(dl.Name, evnt)));
+                TestableEventHandler ahandler = new TestableEventHandler();
+                TestableEventHandler bhandler = new TestableEventHandler();
+                telemetryListener.RegisterHandler("Test.A", ahandler);
+                telemetryListener.RegisterHandler("Test.B", bhandler);
 
                 DiagnosticListener listenerA = new DiagnosticListener("Test.A");
                 DiagnosticListener listenerB = new DiagnosticListener("Test.B");
@@ -247,14 +247,15 @@
                 this.DoOperation(listenerA, "Receive");
                 this.DoOperation(listenerB, "Any");
 
-                Assert.AreEqual(2, handlerCalls.Count);
+                Assert.AreEqual(1, ahandler.EventCalls.Count);
 
-                var testASend = handlerCalls[0];
+                var testASend = ahandler.EventCalls[0];
                 Assert.AreEqual("Test.A", testASend.Item1);
                 Assert.AreEqual("Send.Stop", testASend.Item2.Key);
                 Assert.IsNull(testASend.Item2.Value);
 
-                var testBAny = handlerCalls[1];
+                Assert.AreEqual(1, bhandler.EventCalls.Count);
+                var testBAny = bhandler.EventCalls[0];
                 Assert.AreEqual("Test.B", testBAny.Item1);
                 Assert.AreEqual("Any.Stop", testBAny.Item2.Key);
                 Assert.IsNull(testBAny.Item2.Value);
@@ -300,6 +301,21 @@
 
             DependencyTelemetry telemetryItem = this.sentItems.Last() as DependencyTelemetry;
             return telemetryItem;
+        }
+
+        private class TestableEventHandler : IDiagnosticEventHandler
+        {
+            public readonly List<Tuple<string, KeyValuePair<string, object>>> EventCalls = new List<Tuple<string, KeyValuePair<string, object>>>();
+
+            public void OnEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener)
+            {
+                this.EventCalls.Add(new Tuple<string, KeyValuePair<string, object>>(diagnosticListener.Name, evnt));
+            }
+
+            public bool IsEventEnabled(string evnt, object arg1, object arg2)
+            {
+                return !evnt.EndsWith("Start");
+            }
         }
     }
 }

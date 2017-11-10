@@ -31,6 +31,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\DocumentDbHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\GenericServiceHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\HttpParsingHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\IDiagnosticEventHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ObjectInstanceBasedOperationHolder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\OperationWatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RDDSource.cs" />

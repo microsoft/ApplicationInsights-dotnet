@@ -12,7 +12,7 @@
     /// <summary>
     /// Implements ServiceBus DiagnosticSource events handling.
     /// </summary>
-    internal class ServiceBusDiagnosticsEventHandler
+    internal class ServiceBusDiagnosticsEventHandler : IDiagnosticEventHandler
     {
         public const string DiagnosticSourceName = "Microsoft.Azure.ServiceBus";
         private const string StatusPropertyName = "Status";
@@ -38,19 +38,13 @@
             this.telemetryClient = new TelemetryClient(configuration);
         }
 
-        /// <summary>
-        /// Gets custom handler <see cref="HandleDiagnosticsEvent{TContext}"/>delegate.
-        /// </summary>
-        internal HandleDiagnosticsEvent<HashSet<string>> EventHandler => this.HandleEvent;
-
-        private void HandleEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener, HashSet<string> context)
+        public bool IsEventEnabled(string evnt, object arg1, object arg2)
         {
-            // there is no guarantee IsEnabled was called in case there are multiple listeners in the system. i.e. we need to check it again
-            if (evnt.Key.EndsWith("Start", StringComparison.Ordinal))
-            {
-                return;
-            }
+            return !evnt.EndsWith("Start", StringComparison.Ordinal);
+        }
 
+        public void OnEvent(KeyValuePair<string, object> evnt, DiagnosticListener ignored)
+        {
             Activity currentActivity = Activity.Current;
 
             switch (evnt.Key)
