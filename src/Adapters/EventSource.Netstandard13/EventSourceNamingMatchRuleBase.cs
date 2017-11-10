@@ -4,7 +4,6 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-
 namespace Microsoft.ApplicationInsights.EventSourceListener
 {
     /// <summary>
@@ -18,8 +17,33 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets whether allows wildcards in <see cref="Name" />.
+        /// Gets or sets a value indicating whether allows wildcards in <see cref="Name" />.
         /// </summary>
         public bool PrefixMatch { get; set; }
+
+        /// <summary>
+        /// Tests for equality.
+        /// </summary>
+        /// <param name="obj">Object to compare with.</param>
+        /// <returns>True if the supplied object is equal to "this", otherwise false.</returns>
+        public override bool Equals(object obj)
+        {
+            var other = obj as EventSourceListeningRequest;
+            if (other == null)
+            {
+                return false;
+            }
+
+            return this.Name == other.Name && this.PrefixMatch == other.PrefixMatch;
+        }
+
+        /// <summary>
+        /// Gets the hash code for the event source name matching rule.
+        /// </summary>
+        /// <returns>Hash code.</returns>
+        public override int GetHashCode()
+        {
+            return this.Name.GetHashCode() ^ this.PrefixMatch.GetHashCode();
+        }
     }
 }

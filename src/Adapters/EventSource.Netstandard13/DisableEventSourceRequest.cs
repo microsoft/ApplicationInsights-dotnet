@@ -4,7 +4,6 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-
 namespace Microsoft.ApplicationInsights.EventSourceListener
 {
     /// <summary>

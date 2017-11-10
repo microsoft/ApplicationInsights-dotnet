@@ -401,20 +401,6 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
             }
         }
 
-        [TestMethod]
-        [TestCategory("EventSourceListener")]
-        public void WildCardMatchTest()
-        {
-            using (var module = new EventSourceTelemetryModule())
-            {
-                // Scenarios for *
-                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "abc"));
-                Assert.IsTrue(module.IsEventSourceNameMatch("abc", "a"));
-
-                Assert.IsFalse(module.IsEventSourceNameMatch("abc", "bc"));
-            }
-        }
-
         private async Task PerformActivityAsync(int requestId)
         {
             await Task.Run(async () =>

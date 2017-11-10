@@ -3,12 +3,13 @@
 //     Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-
 namespace Microsoft.ApplicationInsights.EventSourceListener
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Collections.Specialized;
     using System.Diagnostics.Tracing;
     using System.Linq;
     using Microsoft.ApplicationInsights.EventSourceListener.Implementation;
@@ -33,6 +34,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         private readonly OnEventWrittenHandler onEventWrittenHandler;
         private TelemetryClient client;
         private bool initialized; // Relying on the fact that default value in .NET Framework is false
+        private bool isDisabledSourcesEmpty;
         private ConcurrentQueue<EventSource> appDomainEventSources;
         private ConcurrentQueue<EventSource> enabledEventSources;
 
@@ -55,7 +57,10 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             }
 
             this.Sources = new List<EventSourceListeningRequest>();
-            this.DisabledSources = new List<DisableEventSourceRequest>();
+            ObservableCollection<DisableEventSourceRequest> disabledEventSources = new ObservableCollection<DisableEventSourceRequest>();
+            this.isDisabledSourcesEmpty = true;
+            this.DisabledSources = disabledEventSources;
+            disabledEventSources.CollectionChanged += this.DisabledEventSources_CollectionChanged;
 
             this.enabledEventSources = new ConcurrentQueue<EventSource>();
             this.onEventWrittenHandler = onEventWrittenHandler;
@@ -138,7 +143,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                 try
                 {
                     // We can't deal with disabled sources until event is raised due to: https://github.com/dotnet/coreclr/issues/14434
-                    if (DisabledSources.Count == 0 || !IsDroppingEvent(eventData))
+                    if (this.isDisabledSourcesEmpty || !this.IsDroppingEvent(eventData))
                     {
                         this.onEventWrittenHandler(eventData, this.client);
                     }
@@ -187,6 +192,21 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         }
 
         /// <summary>
+        /// Invokes when change happens in DisabledSources list.
+        /// </summary>
+        private void DisabledEventSources_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                case NotifyCollectionChangedAction.Remove:
+                case NotifyCollectionChangedAction.Reset:
+                    this.isDisabledSourcesEmpty = this.DisabledSources.Count == 0;
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Enables a single EventSource for tracing.
         /// </summary>
         /// <param name="eventSource">EventSource to enable.</param>
@@ -205,7 +225,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             }
             else
             {
-                EventSourceListeningRequest listeningRequest = this.Sources?.FirstOrDefault(request => IsEventSourceNameMatch(eventSource, request));
+                EventSourceListeningRequest listeningRequest = this.Sources?.FirstOrDefault(request => this.IsEventSourceNameMatch(eventSource, request));
                 if (listeningRequest != null)
                 {
                     // LIMITATION: There is a known issue where if we listen to the FrameworkEventSource, the dataflow pipeline may hang when it
@@ -238,7 +258,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         /// <param name="rule">The naming rule to be used for matching.</param>
         private bool IsEventSourceNameMatch(EventSource eventSource, EventSourceNamingMatchRuleBase rule)
         {
-            if (rule == null || eventSource == null)
+            if (string.IsNullOrEmpty(rule?.Name) || string.IsNullOrEmpty(eventSource?.Name))
             {
                 return false;
             }
@@ -249,24 +269,8 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             }
             else
             {
-                return IsEventSourceNameMatch(eventSource?.Name, rule?.Name);
+                return eventSource.Name.StartsWith(rule.Name, StringComparison.Ordinal);
             }
-        }
-
-        /// <summary>
-        /// Returns true when eventSourceName satisfied the rule; false otherwise. Returns false when either is null.
-        /// </summary>
-        /// <param name="eventSourceName"></param>
-        /// <param name="rule"></param>
-        /// <returns></returns>
-        internal bool IsEventSourceNameMatch(string eventSourceName, string rule)
-        {
-            if (string.IsNullOrEmpty(eventSourceName) || string.IsNullOrEmpty(rule))
-            {
-                return false;
-            }
-
-            return eventSourceName.StartsWith(rule);
         }
 
         /// <summary>
@@ -279,16 +283,17 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             string eventSourceName = eventData?.EventSource?.Name;
             if (string.IsNullOrEmpty(eventSourceName))
             {
-                throw new ArgumentNullException(nameof(eventSourceName));
+                EventSourceListenerEventSource.Log.NullReference(nameof(EventSourceListener.EventSourceTelemetryModule), nameof(eventSourceName), $"{nameof(eventSourceName)} can't be null.");
+                return false;
             }
 
             // Do NOT drop the event when it matches one of the request by name exactly.
-            if (Sources.Any(request => string.Equals(request.Name, eventSourceName, StringComparison.Ordinal)))
+            if (this.Sources.Any(request => string.Equals(request.Name, eventSourceName, StringComparison.Ordinal)))
             {
                 return false;
             }
 
-            return DisabledSources.Any(rule => IsEventSourceNameMatch(eventData?.EventSource, rule));
+            return this.DisabledSources.Any(rule => this.IsEventSourceNameMatch(eventData?.EventSource, rule));
         }
     }
 }

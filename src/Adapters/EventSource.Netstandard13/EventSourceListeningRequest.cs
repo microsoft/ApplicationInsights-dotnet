@@ -51,7 +51,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                 return false;
             }
 
-            return this.Name == other.Name && this.Level == other.Level && this.Keywords == other.Keywords && this.PrefixMatch == other.PrefixMatch;
+            return base.Equals(obj) && this.Level == other.Level && this.Keywords == other.Keywords;
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         /// <returns>Hash code.</returns>
         public override int GetHashCode()
         {
-            return this.Name.GetHashCode() ^ (int)this.Level ^ this.Keywords.GetHashCode();
+            return base.GetHashCode() ^ (int)this.Level ^ this.Keywords.GetHashCode();
         }
     }
 }
