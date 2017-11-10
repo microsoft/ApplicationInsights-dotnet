@@ -267,31 +267,23 @@
 
         private bool SetHealthPropertyInternal(ConcurrentDictionary<string, HeartbeatPropertyPayload> properties, string name, string payloadValue, bool? isHealthy)
         {
-            try
+            properties.AddOrUpdate(name, (key) => 
             {
-                properties.AddOrUpdate(name, (key) => 
+                throw new Exception("Not allowed to set a health property without adding it first.");
+            }, 
+            (key, property) =>
+            {
+                if (isHealthy != null)
                 {
-                    throw new Exception("Not allowed to set a health property without adding it first.");
-                }, 
-                (key, property) =>
+                    property.IsHealthy = isHealthy.Value;
+                }
+                if (payloadValue != null)
                 {
-                    if (isHealthy != null)
-                    {
-                        property.IsHealthy = isHealthy.Value;
-                    }
-                    if (payloadValue != null)
-                    {
-                        property.PayloadValue = payloadValue;
-                    }
+                    property.PayloadValue = payloadValue;
+                }
                     
-                    return property;
-                });
-            }
-            catch (Exception)
-            {
-                // swallow the exception and return false.
-                return false;
-            }
+                return property;
+            });
 
             return true;
         }
