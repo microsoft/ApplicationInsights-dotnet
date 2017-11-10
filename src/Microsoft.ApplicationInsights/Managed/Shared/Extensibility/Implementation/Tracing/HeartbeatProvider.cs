@@ -21,6 +21,8 @@
 
         protected List<string> disabledDefaultFields; // string containing fields that are not to be sent with the payload. null means send everything available.
 
+        protected UInt64 heartbeatsSent; // counter of all heartbeats
+
         /// <summary>
         /// The name of the health heartbeat metric item and operation context. 
         /// </summary>
@@ -39,17 +41,12 @@
         private bool disposedValue = false; // To detect redundant calls to dispose
         private TimeSpan heartbeatInterval; // time between heartbeats emitted specified in milliseconds
         private TelemetryClient telemetryClient; // client to use in sending our heartbeat
-        private int heartbeatsSent; // counter of all heartbeats
-        private bool isEnabled; // no need for locks or volatile here, we can skip/add a beat if the module is disabled between heartbeats
+        private volatile bool isEnabled; // no need for locks or volatile here, we can skip/add a beat if the module is disabled between heartbeats
 
-        public HeartbeatProvider() : this(TimeSpan.FromMilliseconds(DefaultHeartbeatIntervalMs), null)
+        public HeartbeatProvider()
         {
-        }
-
-        public HeartbeatProvider(TimeSpan heartbeatInterval, IEnumerable<string> disabledDefaultFields)
-        {
-            this.disabledDefaultFields = disabledDefaultFields?.ToList();
-            this.heartbeatInterval = heartbeatInterval;
+            this.disabledDefaultFields = null;
+            this.heartbeatInterval = TimeSpan.FromMilliseconds(DefaultHeartbeatIntervalMs);
             this.extendPayloadItems = new ConcurrentDictionary<string, HeartbeatPropertyPayload>(StringComparer.OrdinalIgnoreCase);
             this.sdkPayloadItems = new ConcurrentDictionary<string, HeartbeatPropertyPayload>(StringComparer.OrdinalIgnoreCase);
             this.heartbeatsSent = 0; // count up from construction time
@@ -194,6 +191,7 @@
                 {
                     if (this.HeartbeatTimer != null)
                     {
+                        this.isEnabled = false;
                         this.HeartbeatTimer.Dispose();
                     }
                 }
@@ -206,23 +204,12 @@
 
         protected virtual void Send()
         {
-            try
-            {
-                this.InternalSendHealthHeartbeat(this.GatherData());
-            }
-            catch (Exception exp)
-            {
-                // This message will not be sent to the portal because we have infinite loop protection
-                // But it will be available in PerfView or StatusMonitor
-                CoreEventSource.Log.LogError("Failed to send health heartbeat to the portal: " + exp.ToInvariantString());
-            }
+            this.InternalSendHealthHeartbeat(this.GatherData());
         }
 
         protected virtual MetricTelemetry GatherData()
         {
             var heartbeat = new MetricTelemetry(heartbeatSyntheticMetricName, 0.0);
-            string updatedKeys = string.Empty;
-            string comma = string.Empty;
 
             this.AddPropertiesToHeartbeat(heartbeat, this.sdkPayloadItems);
             this.AddPropertiesToHeartbeat(heartbeat, this.extendPayloadItems);
@@ -284,7 +271,7 @@
             {
                 properties.AddOrUpdate(name, (key) => 
                 {
-                    throw new Exception("Not allowed to set this!");
+                    throw new Exception("Not allowed to set a health property without adding it first.");
                 }, 
                 (key, property) =>
                 {
@@ -332,11 +319,21 @@
                 HeartbeatProvider hp = state as HeartbeatProvider;
                 // we will be prone to overlap if any extension payload provider takes a longer time to process than our timer
                 // interval. Best that we reset the timer each time round.
-                this.HeartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                hp.Send();
-                if (this.isEnabled)
+                try
                 {
-                    this.HeartbeatTimer.Change(this.heartbeatInterval, this.heartbeatInterval);
+                    this.HeartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
+
+                    hp.Send();
+
+                    if (this.isEnabled)
+                    {
+                        this.HeartbeatTimer.Change(this.heartbeatInterval, this.heartbeatInterval);
+                    }
+                }
+                catch (ObjectDisposedException)
+                {
+                    // swallow this uninteresting exception but log it just the same.
+                    CoreEventSource.Log.LogError("Heartbeat timer change during dispose occured.");
                 }
             }
             else

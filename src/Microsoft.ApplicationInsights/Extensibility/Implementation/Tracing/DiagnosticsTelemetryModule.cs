@@ -304,7 +304,7 @@
                     disposableSender.Dispose();
                 }
 
-                this.HeartbeatProvider.Dispose();
+                this.HeartbeatProvider = null;
 
                 GC.SuppressFinalize(this);
             }

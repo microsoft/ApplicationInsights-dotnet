@@ -118,6 +118,26 @@
         }
 
         [TestMethod]
+        public void HeartbeatSequenceCounterOverflow()
+        {
+            using (var hbeat = new HealthHeartbeatProviderMock())
+            {
+                hbeat.Initialize(configuration: null);
+
+                hbeat.SequenceCounter = UInt64.MaxValue;
+
+                try
+                {
+                    hbeat.SimulateSend();
+                }
+                catch (Exception e)
+                {
+                    Assert.Fail("Overflow of HeartbeatProvider's sequence counter not handled. Exception: " + e.ToInvariantString());
+                }
+            }
+        }
+
+        [TestMethod]
         public void HeartbeatPayloadContainsDataByDefault()
         {
             using (var hbeat = new HealthHeartbeatProviderMock())

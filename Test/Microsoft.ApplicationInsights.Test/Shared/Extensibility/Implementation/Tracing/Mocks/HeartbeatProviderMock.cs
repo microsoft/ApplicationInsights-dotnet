@@ -25,6 +25,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Moc
             this.Send();
         }
 
+        public UInt64 SequenceCounter
+        {
+            get => this.heartbeatsSent;
+            set => this.heartbeatsSent = value;
+        }
+
         protected new void Send()
         {
             var heartbeat = this.GatherData();
