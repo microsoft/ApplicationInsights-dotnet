@@ -38,14 +38,17 @@ If all or most of the Dependency Collector functional tests fail with messages l
 Please make sure you can run docker run hello-world successfully to confirm that your machine is Docker ready.
 Also, the very first time DependencyCollector tests are run, all Docker images are downloaded from web and this could potentially take an hour or so. This is only one time per machine.
 
+The test code intentionally does not clean up the containers it spun up. This is to enable fast re-runs of the tests. If the WebApp code is changed, then Docker-Compose will detect it, and re-build the container.
+If you want to do clean up all the containers created by the test, execute the ```dockercleanup.ps1``` from repository root.
+
 ## Debugging the functional tests
 It is important to note that since the test application is deployed as a separate process/container, debugging the tests itself will not help debug the application code. A debugger need to be attached
-to the process hosting the Application. (ISExpress or IIS)
+to the process hosting the Application. (IISExpress or IIS)
 The test apps refers to the Web SDK assemblies from your local build. After making the changes to product code, build locally (from Visual Studio or using ```buildDebug.cmd```). Then start the test application from its publish 
 folder in either IISExpress or IIS, and attach debugger to it. Open the .cs file you want your breakpoint in and set it. Now triggering a request to the application will hit the breakpoint.
 The exact request to be triggered depends on what you are doing. If investigating functional test failures locally, then the tests logs should contain the url it hit to trigger scenarios.
 
-Dependency Collector tests deploy the test apps, along with dependencies (Fake Ingestion, SQL etc) to Docker containers inside same network, so that apps can access the dependencies with their names. However, if 
+Dependency Collector tests deploy the test apps, along with dependencies (Fake Ingestion, SQL etc) to Docker containers inside same Docker virtual network, so that apps can access the dependencies with their names. However, if 
 the test apps are deployed to IIS or IISExpress, then they are outside the Docker virtual network of dependencies, and so it won't be able to access dependencies without using their IP Address. This is a Docker for windows limitation, and could be fixed in future.
 Until then, the test app need to address the dependencies using their IP Address. Instead of manually finding IP Addresses and replacing containers names with IP Address, its easy to just run the following script.
 This uses Docker commands to determine the IP Addresses, and replaces them in the necessary configs.
