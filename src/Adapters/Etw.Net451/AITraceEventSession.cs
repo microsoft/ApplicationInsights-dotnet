@@ -23,6 +23,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             {
                 throw new ArgumentNullException(nameof(traceEventSession));
             }
+
             this.session = traceEventSession;
         }
 

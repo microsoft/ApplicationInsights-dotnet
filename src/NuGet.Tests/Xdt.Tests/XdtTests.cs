@@ -5,11 +5,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace Xdt.Tests
 {
+    using System;
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
@@ -18,7 +16,7 @@ namespace Xdt.Tests
     using System.Xml;
     using System.Xml.Linq;
     using System.Xml.XPath;
-
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.Web.XmlTransform;
 
     [TestClass]

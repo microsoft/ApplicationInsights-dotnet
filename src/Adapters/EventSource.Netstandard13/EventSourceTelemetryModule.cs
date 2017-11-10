@@ -210,6 +210,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                         {
                             keywords = EventKeywords.All;
                         }
+
                         keywords &= (EventKeywords)~0x12;
                     }
 

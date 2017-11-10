@@ -1,5 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.NLogTarget.Tests
 {
+    using System;
+    using System.Linq;
+
     using Microsoft.ApplicationInsights.CommonTestShared;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -10,8 +13,6 @@
 
     using NLog;
     using NLog.Config;
-    using System;
-    using System.Linq;
 
     [TestClass]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable", Justification = "Disposing the object on the TestCleanup method")]

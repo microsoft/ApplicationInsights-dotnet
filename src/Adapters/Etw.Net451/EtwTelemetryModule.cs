@@ -57,6 +57,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             {
                 throw new ArgumentNullException(nameof(traceEventSessionFactory));
             }
+
             this.traceEventSessionFactory = traceEventSessionFactory;
         }
 

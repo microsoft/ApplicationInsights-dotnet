@@ -37,12 +37,12 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         }
 
         /// <summary>
-        /// The Application Insights instrumentationKey for your application. 
+        /// Gets or sets the Application Insights instrumentationKey for your application. 
         /// </summary>
         public string InstrumentationKey { get; set; }
 
         /// <summary>
-        /// The logging controller we will be using.
+        /// Gets the logging controller we will be using.
         /// </summary>
         internal TelemetryClient TelemetryClient
         {
@@ -159,8 +159,10 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                         {
                             continue;
                         }
+
                         key += "_1";
                     }
+
                     propertyBag.Add(key, value);
                 }
             }

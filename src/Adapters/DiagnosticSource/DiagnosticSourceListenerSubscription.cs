@@ -6,9 +6,9 @@
 
 namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
 {
-    using Microsoft.ApplicationInsights.DataContracts;
     using System;
     using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.DataContracts;
 
     internal class DiagnosticSourceListenerSubscription : IObserver<KeyValuePair<string, object>>
     {

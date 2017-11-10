@@ -29,7 +29,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
         private TelemetryClient telemetryClient;
 
         /// <summary>
-        /// Get/set The Application Insights instrumentationKey for your application. 
+        /// Gets or sets The Application Insights instrumentationKey for your application. 
         /// </summary>
         /// <remarks>
         /// This is normally pushed from when Appender is being initialized.
@@ -42,7 +42,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
         }
 
         /// <summary>
-        /// The <see cref="ApplicationInsightsAppender"/> requires a layout.
+        /// Gets a value indicating whether layout is required. The <see cref="ApplicationInsightsAppender"/> requires a layout.
         /// This Appender converts the LoggingEvent it receives into a text string and requires the layout format string to do so.
         /// </summary>
         protected override bool RequiresLayout

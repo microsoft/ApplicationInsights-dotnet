@@ -29,7 +29,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
             SeverityLevel.Error,        // EventLevel.Error == 2
             SeverityLevel.Warning,      // EventLevel.Warning == 3
             SeverityLevel.Information,  // EventLevel.Informational == 4
-            SeverityLevel.Verbose       // EventLevel.Verbose == 5
+            SeverityLevel.Verbose // EventLevel.Verbose == 5
         };
 
         /// <summary>
@@ -50,6 +50,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
                 {
                 }
             }
+
             return new TraceTelemetry(
                 formattedMessage,
                 eventLevelToSeverityLevel[(int)eventSourceEvent.Level]);
@@ -68,10 +69,12 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
             {
                 telemetry.AddProperty(nameof(EventWrittenEventArgs.ActivityId), ActivityPathDecoder.GetActivityPathString(eventSourceEvent.ActivityId));
             }
+
             if (eventSourceEvent.RelatedActivityId != default(Guid))
             {
                 telemetry.AddProperty(nameof(EventWrittenEventArgs.RelatedActivityId), ActivityPathDecoder.GetActivityPathString(eventSourceEvent.RelatedActivityId));
             }
+
             telemetry.AddProperty(nameof(EventWrittenEventArgs.Channel), eventSourceEvent.Channel.GetChannelName());
             telemetry.AddProperty(nameof(EventWrittenEventArgs.Keywords), GetHexRepresentation((long)eventSourceEvent.Keywords));
             telemetry.AddProperty(nameof(EventWrittenEventArgs.Opcode), eventSourceEvent.Opcode.GetOpcodeName());
@@ -79,6 +82,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
             {
                 telemetry.AddProperty(nameof(EventWrittenEventArgs.Tags), GetHexRepresentation((int)eventSourceEvent.Tags));
             }
+
             if (eventSourceEvent.Task != EventTask.None)
             {
                 telemetry.AddProperty(nameof(EventWrittenEventArgs.Task), GetHexRepresentation((int)eventSourceEvent.Task));

@@ -13,6 +13,7 @@ namespace Microsoft.ApplicationInsights
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+
     internal class CustomTelemetryChannel : ITelemetryChannel
     {
         private EventWaitHandle waitHandle;
@@ -48,7 +49,8 @@ namespace Microsoft.ApplicationInsights
 
             var rwh = ThreadPool.RegisterWaitForSingleObject(
                 this.waitHandle, 
-                (state, timedOut) => {
+                (state, timedOut) =>
+                {
                     if (timedOut)
                     {
                         tcs.SetResult(null);

@@ -50,6 +50,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
                 errorMessage = "ProviderGuid and ProviderName can't be null at the same time.";
                 return false;
             }
+
             errorMessage = null;
             return true;
         }

@@ -366,6 +366,7 @@ adapterComponentIdSnippet +
                 {
                     Console.WriteLine(log);
                 }
+
                 Assert.AreEqual(logCount, logs.Count);
                 if (exceptionType != null)
                 {

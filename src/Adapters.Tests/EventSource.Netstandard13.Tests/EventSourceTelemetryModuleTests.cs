@@ -341,6 +341,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
             {
                 configuration.TelemetryChannel = this.adapterHelper.Channel;
             }
+
             return configuration;
         }
     }
