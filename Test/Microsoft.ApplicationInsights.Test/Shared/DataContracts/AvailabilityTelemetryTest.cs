@@ -9,10 +9,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
-#if !NETCOREAPP1_1
     using KellermanSoftware.CompareNetObjects;
-#endif
 
     [TestClass]
     public class AvailabilityTelemetryTest
@@ -116,7 +113,6 @@
             Assert.AreEqual(telemetry.Data.success, false);
         }
 
-#if !NETCOREAPP1_1
         [TestMethod]
         public void AvailabilityTelemetryDeepCloneCopiesAllProperties()
         {
@@ -129,7 +125,6 @@
             ComparisonResult result = deepComparator.Compare(telemetry, other);            
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
-#endif
 
         private AvailabilityTelemetry CreateAvailabilityTelemetry()
         {

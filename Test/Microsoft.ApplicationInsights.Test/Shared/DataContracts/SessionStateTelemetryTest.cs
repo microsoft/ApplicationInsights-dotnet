@@ -4,9 +4,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
-#if !NETCOREAPP1_1
     using KellermanSoftware.CompareNetObjects;
-#endif
 
     [TestClass]
     public class SessionStateTelemetryTest
@@ -57,7 +55,6 @@
             Assert.AreEqual(2, envelope.data.baseData.ver);
         }
 
-#if !NETCOREAPP1_1
         [TestMethod]
         public void SessionStateTelemetryDeepCloneCopiesAllProperties()
         {
@@ -70,7 +67,6 @@
             var result = deepComparator.Compare(telemetry, other);
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
-#endif
 #pragma warning restore 618
     }
 }
