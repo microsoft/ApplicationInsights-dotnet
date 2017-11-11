@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -18,12 +19,6 @@
         private const string StatusPropertyName = "Status";
         private const string EntityPropertyName = "Entity";
         private const string EndpointPropertyName = "Endpoint";
-        private const string ExceptionPropertyName = "Exception";
-
-        // We want to reflect in the dependency type that it's one of the queue operations.
-        // This way, UI could have special representation for all kinds of queues
-        // Not knowing particular service
-        private const string DependencyType = "Queue.ServiceBus";
 
         private readonly TelemetryClient telemetryClient;
 
@@ -40,7 +35,7 @@
 
         public bool IsEventEnabled(string evnt, object arg1, object arg2)
         {
-            return !evnt.EndsWith("Start", StringComparison.Ordinal);
+            return !evnt.EndsWith(TelemetryDiagnosticSourceListener.ActivityStartNameSuffix, StringComparison.OrdinalIgnoreCase);
         }
 
         public void OnEvent(KeyValuePair<string, object> evnt, DiagnosticListener ignored)
@@ -54,7 +49,6 @@
                     this.OnRequest(evnt.Key, evnt.Value, currentActivity);
                     break;
                 case "Microsoft.Azure.ServiceBus.Exception":
-                    this.OnException(evnt.Key, evnt.Value);
                     break;
                 default:
                     this.OnDependency(evnt.Key, evnt.Value, currentActivity);
@@ -64,16 +58,19 @@
 
         private void OnDependency(string name, object payload, Activity activity)
         {
-            DependencyTelemetry telemetry = new DependencyTelemetry { Type = DependencyType };
+            DependencyTelemetry telemetry = new DependencyTelemetry { Type = RemoteDependencyConstants.AzureServiceBus };
 
             this.SetCommonProperties(name, payload, activity, telemetry);
-
+            
             // Endpoint is URL of particular ServiceBus, e.g. sb://myservicebus.servicebus.windows.net/
-            telemetry.Data = this.FetchPayloadProperty<Uri>(name, EndpointPropertyName, payload)?.ToString();
+            string endpoint = this.FetchPayloadProperty<Uri>(name, EndpointPropertyName, payload)?.ToString();
 
             // Queue/Topic name, e.g. myqueue/mytopic
-            telemetry.Target = this.FetchPayloadProperty<string>(name, EntityPropertyName, payload);
+            string queueName = this.FetchPayloadProperty<string>(name, EntityPropertyName, payload);
 
+            // Target uniquely identifies the resource, we use both: queueName and endpoint 
+            // with schema used for SQL-dependencies
+            telemetry.Target = string.Join(" | ", queueName, endpoint);
             this.telemetryClient.TrackDependency(telemetry);
         }
 
@@ -83,23 +80,17 @@
 
             this.SetCommonProperties(name, payload, activity, telemetry);
 
-            // Endpoint is URL of particular ServiceBus, e.g. sb://myservicebus.servicebus.windows.net/
-            telemetry.Url = this.FetchPayloadProperty<Uri>(name, EndpointPropertyName, payload);
+            string endpoint = this.FetchPayloadProperty<Uri>(name, EndpointPropertyName, payload)?.ToString();
 
-            // Entity 
+            // Queue/Topic name, e.g. myqueue/mytopic
+            string queueName = this.FetchPayloadProperty<string>(name, EntityPropertyName, payload);
+
             // We want to make Source field extendable at the beginning as we may add
             // multi ikey support and also build some special UI for requests coming from the queues
-            // so the Source looks like roleName:queueName (using the multi ikey schema).
-            telemetry.Source = "roleName:" + this.FetchPayloadProperty<string>(name, EntityPropertyName, payload);
+            // it follows Request.Source schema invented for multi ikey
+            telemetry.Source = string.Format(CultureInfo.InvariantCulture, "type:{0} | name:{1} | endpoint:{2}", RemoteDependencyConstants.AzureServiceBus, queueName, endpoint);
 
             this.telemetryClient.TrackRequest(telemetry);
-        }
-
-        private void OnException(string name, object payload)
-        {
-            Exception ex = this.FetchPayloadProperty<Exception>(name, ExceptionPropertyName, payload);
-
-            this.telemetryClient.TrackException(ex);
         }
 
         private void SetCommonProperties(string eventName, object eventPayload, Activity activity, OperationTelemetry telemetry)

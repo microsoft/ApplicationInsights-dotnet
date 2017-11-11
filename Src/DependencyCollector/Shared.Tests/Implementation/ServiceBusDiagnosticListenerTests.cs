@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 #if !NETCORE
@@ -55,9 +56,8 @@
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
-                Assert.AreEqual("Queue.ServiceBus", telemetry.Type);
-                Assert.AreEqual("queueName", telemetry.Target);
-                Assert.AreEqual("sb://queuename.myservicebus.com/", telemetry.Data);
+                Assert.AreEqual(RemoteDependencyConstants.AzureServiceBus, telemetry.Type);
+                Assert.AreEqual("queueName | sb://queuename.myservicebus.com/", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
                 Assert.AreEqual(parentActivity.Id, telemetry.Context.Operation.ParentId);
@@ -82,9 +82,8 @@
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
-                Assert.AreEqual("Queue.ServiceBus", telemetry.Type);
-                Assert.AreEqual("queueName", telemetry.Target);
-                Assert.AreEqual("sb://queuename.myservicebus.com/", telemetry.Data);
+                Assert.AreEqual(RemoteDependencyConstants.AzureServiceBus, telemetry.Type);
+                Assert.AreEqual("queueName | sb://queuename.myservicebus.com/", telemetry.Target);
                 Assert.IsFalse(telemetry.Success.Value);
 
                 Assert.AreEqual(parentActivity.Id, telemetry.Context.Operation.ParentId);
@@ -109,8 +108,7 @@
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Process", telemetry.Name);
-                Assert.AreEqual("roleName:queueName", telemetry.Source);
-                Assert.AreEqual("sb://queuename.myservicebus.com/", telemetry.Url.ToString());
+                Assert.AreEqual($"type:{RemoteDependencyConstants.AzureServiceBus} | name:queueName | endpoint:sb://queuename.myservicebus.com/", telemetry.Source);  
                 Assert.IsTrue(telemetry.Success.Value);
 
                 Assert.AreEqual(parentActivity.Id, telemetry.Context.Operation.ParentId);
@@ -121,7 +119,7 @@
         }
 
         [TestMethod]
-        public void ServiceBusExceptionHanding()
+        public void ServiceBusExceptionsAreIgnored()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
@@ -137,12 +135,7 @@
                     listener.Write("Microsoft.Azure.ServiceBus.Exception", new { Exception = new Exception("123") });
                 }
 
-                ExceptionTelemetry exceptionTelemetry = this.sentItems.Last() as ExceptionTelemetry;
-                Assert.IsNotNull(exceptionTelemetry);
-
-                Assert.AreEqual(parentActivity.Id, exceptionTelemetry.Context.Operation.ParentId);
-                Assert.AreEqual(parentActivity.RootId, exceptionTelemetry.Context.Operation.Id);
-                Assert.AreEqual("v1", exceptionTelemetry.Properties["k1"]);
+                Assert.IsFalse(this.sentItems.Any());
             }
         }
 
