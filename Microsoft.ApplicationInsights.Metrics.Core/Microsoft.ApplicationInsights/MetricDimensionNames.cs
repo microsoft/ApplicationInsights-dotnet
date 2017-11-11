@@ -1,14 +1,18 @@
 ﻿using System;
 using Microsoft.ApplicationInsights.Metrics;
 
-
 namespace Microsoft.ApplicationInsights
 {
     /// <summary>
+    /// Contains constants used to refer to metric dimensions with special significance.
     /// </summary>
     public static class MetricDimensionNames
     {
         /// <summary>
+        /// Contains constants used to refer to metric dimensions that will be mapped to fields
+        /// within the <see cref="Microsoft.ApplicationInsights.DataContracts.TelemetryContext"/> attached to Application
+        /// Insights metric telemetry that represents <see cref="MetricAggregate" /> objects sent to the Application Insights
+        /// cloud ingestion endpoint.
         /// </summary>
         public static class TelemetryContext
         {
