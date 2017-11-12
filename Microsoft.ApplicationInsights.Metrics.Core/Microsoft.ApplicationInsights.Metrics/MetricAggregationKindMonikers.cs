@@ -9,7 +9,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public static class SimpleStatistics
         {
             /// <summary />
-            public const string Moniker = "Microsoft.ApplicationInsights.SimpleStatistics";
+            public const string Moniker = "Microsoft.Azure.SimpleStatistics";
 
             /// <summary />
             public static class DataKeys
