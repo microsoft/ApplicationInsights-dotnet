@@ -85,7 +85,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
         [TestMethod]
         [TestCategory("EventSourceListener")]
-        public void WildcardMatchEnablingEventSource()
+        public void PrefixMatchEnablingEventSource()
         {
             using (var module = new EventSourceTelemetryModule())
             {
@@ -111,33 +111,6 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
         [TestMethod]
         [TestCategory("EventSourceListener")]
-        public void EnablingEventSourceRequestTakesOverDisablingEventSourceRequest()
-        {
-            using (var module = new EventSourceTelemetryModule())
-            {
-                var listeningRequest = new EventSourceListeningRequest()
-                {
-                    Name = TestEventSource.ProviderName
-                };
-                module.Sources.Add(listeningRequest);
-
-                var disablingRule = new DisableEventSourceRequest()
-                {
-                    Name = TestEventSource.ProviderName
-                };
-                module.DisabledSources.Add(disablingRule);
-
-                module.Initialize(GetTestTelemetryConfiguration());
-
-                TestEventSource.Default.InfoEvent("Hey!");
-
-                int sentCount = this.adapterHelper.Channel.SentItems.Count();
-                Assert.AreEqual(1, sentCount);
-            }
-        }
-
-        [TestMethod]
-        [TestCategory("EventSourceListener")]
         public void DisablingEventFromEventSource()
         {
             using (var module = new EventSourceTelemetryModule())
@@ -148,17 +121,14 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 };
                 module.Sources.Add(listeningRequest);
 
-                var disablingRule = new DisableEventSourceRequest()
+                var disablingRequest = new DisableEventSourceRequest()
                 {
                     Name = TestEventSource.ProviderName
                 };
-                module.DisabledSources.Add(disablingRule);
+                module.DisabledSources.Add(disablingRequest);
 
                 module.Initialize(GetTestTelemetryConfiguration());
-
-                // Trick: remove the matched event source in enabling list.
-                module.Sources.Remove(listeningRequest);
-
+                
                 TestEventSource.Default.InfoEvent("Hey!");
 
                 int sentCount = this.adapterHelper.Channel.SentItems.Count();

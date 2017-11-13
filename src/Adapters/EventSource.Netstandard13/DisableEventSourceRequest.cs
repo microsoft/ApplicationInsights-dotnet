@@ -9,7 +9,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     /// <summary>
     /// Represents a request to disable listening to a specific EventSource.
     /// </summary>
-    public class DisableEventSourceRequest : EventSourceNamingMatchRuleBase
+    public class DisableEventSourceRequest : EventSourceListeningRequestBase
     {
     }
 }

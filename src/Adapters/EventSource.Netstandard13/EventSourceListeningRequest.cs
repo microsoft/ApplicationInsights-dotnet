@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     /// <summary>
     /// Represents a request to listen to specific EventSource.
     /// </summary>
-    public class EventSourceListeningRequest : EventSourceNamingMatchRuleBase
+    public class EventSourceListeningRequest : EventSourceListeningRequestBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="EventSourceListeningRequest"/> class.

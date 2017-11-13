@@ -24,7 +24,6 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation
         private const int ModuleInitializationFailedEventId = 3;
         private const int UnauthorizedAccessEventId = 4;
         private const int OnEventWrittenHandlerFailure = 5;
-        private const int NullReferenceEventId = 6;
 
         private EventSourceListenerEventSource()
         {
@@ -68,12 +67,6 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation
         public void OnEventWrittenHandlerFailed(string moduleName, string details, string applicationName = null)
         {
             this.WriteEvent(OnEventWrittenHandlerFailure, moduleName, details, applicationName ?? this.ApplicationName);
-        }
-
-        [Event(NullReferenceEventId, Level =EventLevel.Error, Message ="Argument {1} is null in {0}.")]
-        public void NullReference(string moduleName, string argumentName, string details, string applicationName = null)
-        {
-            this.WriteEvent(NullReferenceEventId, moduleName, argumentName, details, applicationName ?? this.ApplicationName);
         }
 
         [NonEvent]

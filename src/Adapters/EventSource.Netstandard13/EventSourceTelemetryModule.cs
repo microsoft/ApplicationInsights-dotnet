@@ -8,8 +8,6 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Collections.Specialized;
     using System.Diagnostics.Tracing;
     using System.Linq;
     using Microsoft.ApplicationInsights.EventSourceListener.Implementation;
@@ -32,11 +30,13 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     public class EventSourceTelemetryModule : EventListener, ITelemetryModule
     {
         private readonly OnEventWrittenHandler onEventWrittenHandler;
+        private OnEventWrittenHandler eventWrittenHandlerPicker;
+
         private TelemetryClient client;
         private bool initialized; // Relying on the fact that default value in .NET Framework is false
-        private bool isDisabledSourcesEmpty;
         private ConcurrentQueue<EventSource> appDomainEventSources;
         private ConcurrentQueue<EventSource> enabledEventSources;
+        private ConcurrentDictionary<string, bool> enabledOrDisabledEventSourceTestResultCache;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventSourceTelemetryModule"/> class.
@@ -57,10 +57,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             }
 
             this.Sources = new List<EventSourceListeningRequest>();
-            ObservableCollection<DisableEventSourceRequest> disabledEventSources = new ObservableCollection<DisableEventSourceRequest>();
-            this.isDisabledSourcesEmpty = true;
-            this.DisabledSources = disabledEventSources;
-            disabledEventSources.CollectionChanged += this.DisabledEventSources_CollectionChanged;
+            this.DisabledSources = new List<DisableEventSourceRequest>();
 
             this.enabledEventSources = new ConcurrentQueue<EventSource>();
             this.onEventWrittenHandler = onEventWrittenHandler;
@@ -72,7 +69,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         public IList<EventSourceListeningRequest> Sources { get; private set; }
 
         /// <summary>
-        /// Gets the list of the EventSource disalbing rules in cases there's known event source that is causing issues.
+        /// Gets the list of the Disable EventSource Listening requests in case there's event source that causes issues.
         /// </summary>
         public IList<DisableEventSourceRequest> DisabledSources { get; private set; }
 
@@ -116,6 +113,17 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
 
                 if (this.appDomainEventSources != null)
                 {
+                    // Decide if there is disable event source listening requests
+                    if (this.DisabledSources.Any())
+                    {
+                        this.enabledOrDisabledEventSourceTestResultCache = new ConcurrentDictionary<string, bool>();
+                        this.eventWrittenHandlerPicker = this.OnEventWrittenIfSourceNotDisabled;
+                    }
+                    else
+                    {
+                        this.eventWrittenHandlerPicker = this.onEventWrittenHandler;
+                    }
+
                     // Enumeration over concurrent queue is thread-safe.
                     foreach (EventSource eventSourceToEnable in this.appDomainEventSources)
                     {
@@ -142,11 +150,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             {
                 try
                 {
-                    // We can't deal with disabled sources until event is raised due to: https://github.com/dotnet/coreclr/issues/14434
-                    if (this.isDisabledSourcesEmpty || !this.IsDroppingEvent(eventData))
-                    {
-                        this.onEventWrittenHandler(eventData, this.client);
-                    }
+                    this.eventWrittenHandlerPicker(eventData, this.client);
                 }
                 catch (Exception ex)
                 {
@@ -192,17 +196,16 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         }
 
         /// <summary>
-        /// Invokes when change happens in DisabledSources list.
+        /// Process a new EventSource event when the event source is not disabled by request.
         /// </summary>
-        private void DisabledEventSources_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        /// <param name="eventData">Event to proces.</param>
+        /// <param name="client">Telemetry client.</param>
+        private void OnEventWrittenIfSourceNotDisabled(EventWrittenEventArgs eventData, TelemetryClient client)
         {
-            switch (e.Action)
+            // We can't deal with disabled sources until event is raised due to: https://github.com/dotnet/coreclr/issues/14434
+            if (!this.IsDroppingEvent(eventData))
             {
-                case NotifyCollectionChangedAction.Add:
-                case NotifyCollectionChangedAction.Remove:
-                case NotifyCollectionChangedAction.Reset:
-                    this.isDisabledSourcesEmpty = this.DisabledSources.Count == 0;
-                    break;
+                this.onEventWrittenHandler(eventData, client);
             }
         }
 
@@ -256,7 +259,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         /// </summary>
         /// <param name="eventSource">The target event source.</param>
         /// <param name="rule">The naming rule to be used for matching.</param>
-        private bool IsEventSourceNameMatch(EventSource eventSource, EventSourceNamingMatchRuleBase rule)
+        private bool IsEventSourceNameMatch(EventSource eventSource, EventSourceListeningRequestBase rule)
         {
             if (string.IsNullOrEmpty(rule?.Name) || string.IsNullOrEmpty(eventSource?.Name))
             {
@@ -281,19 +284,18 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         private bool IsDroppingEvent(EventWrittenEventArgs eventData)
         {
             string eventSourceName = eventData?.EventSource?.Name;
-            if (string.IsNullOrEmpty(eventSourceName))
+
+            bool isDisabled = true;
+            if (!string.IsNullOrEmpty(eventSourceName))
             {
-                EventSourceListenerEventSource.Log.NullReference(nameof(EventSourceListener.EventSourceTelemetryModule), nameof(eventSourceName), $"{nameof(eventSourceName)} can't be null.");
-                return false;
+                if (!this.enabledOrDisabledEventSourceTestResultCache.TryGetValue(eventSourceName, out isDisabled))
+                {
+                    isDisabled = this.DisabledSources.Any(request => this.IsEventSourceNameMatch(eventData?.EventSource, request));
+                    this.enabledOrDisabledEventSourceTestResultCache[eventSourceName] = isDisabled;
+                }
             }
 
-            // Do NOT drop the event when it matches one of the request by name exactly.
-            if (this.Sources.Any(request => string.Equals(request.Name, eventSourceName, StringComparison.Ordinal)))
-            {
-                return false;
-            }
-
-            return this.DisabledSources.Any(rule => this.IsEventSourceNameMatch(eventData?.EventSource, rule));
+            return isDisabled;
         }
     }
 }

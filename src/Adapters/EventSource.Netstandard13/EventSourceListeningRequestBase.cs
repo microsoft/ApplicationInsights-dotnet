@@ -9,7 +9,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     /// <summary>
     /// Abstraction of a match rule for event source. To be inherited by either an enabling rule or a disabling rule, etc.
     /// </summary>
-    public abstract class EventSourceNamingMatchRuleBase
+    public abstract class EventSourceListeningRequestBase
     {
         /// <summary>
         /// Gets or sets the name of the EventSource to listen to.
@@ -28,7 +28,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         /// <returns>True if the supplied object is equal to "this", otherwise false.</returns>
         public override bool Equals(object obj)
         {
-            var other = obj as EventSourceListeningRequest;
+            var other = obj as EventSourceListeningRequestBase;
             if (other == null)
             {
                 return false;
