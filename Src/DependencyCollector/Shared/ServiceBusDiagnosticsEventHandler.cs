@@ -35,7 +35,7 @@
 
         public bool IsEventEnabled(string evnt, object arg1, object arg2)
         {
-            return !evnt.EndsWith(TelemetryDiagnosticSourceListener.ActivityStartNameSuffix, StringComparison.OrdinalIgnoreCase);
+            return !evnt.EndsWith(TelemetryDiagnosticSourceListener.ActivityStartNameSuffix, StringComparison.Ordinal);
         }
 
         public void OnEvent(KeyValuePair<string, object> evnt, DiagnosticListener ignored)

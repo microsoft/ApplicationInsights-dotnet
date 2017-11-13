@@ -30,12 +30,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         public bool IsEventEnabled(string evnt, object input1, object input2)
         {
-            return !evnt.EndsWith(ActivityStartNameSuffix, StringComparison.OrdinalIgnoreCase);
+            return !evnt.EndsWith(ActivityStartNameSuffix, StringComparison.Ordinal);
         }
 
         public void OnEvent(KeyValuePair<string, object> evnt, DiagnosticListener diagnosticListener)
         {
-            if (!evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase))
+            if (!evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.Ordinal))
             {
                 return;
             }
