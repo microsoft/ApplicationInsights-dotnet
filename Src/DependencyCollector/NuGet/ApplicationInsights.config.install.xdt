@@ -17,6 +17,9 @@
         <Add>localhost</Add>
         <Add>127.0.0.1</Add>
       </ExcludeComponentCorrelationHttpHeadersOnDomains>
+      <IncludeDiagnosticSourceActivities>
+        <Add>Microsoft.Azure.ServiceBus</Add>
+      </IncludeDiagnosticSourceActivities>
     </Add>
   </TelemetryModules>
 </ApplicationInsights>

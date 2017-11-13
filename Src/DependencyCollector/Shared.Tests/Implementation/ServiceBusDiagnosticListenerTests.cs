@@ -57,7 +57,7 @@
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
                 Assert.AreEqual(RemoteDependencyConstants.AzureServiceBus, telemetry.Type);
-                Assert.AreEqual("queueName | sb://queuename.myservicebus.com/", telemetry.Target);
+                Assert.AreEqual("sb://queuename.myservicebus.com/ | queueName", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
                 Assert.AreEqual(parentActivity.Id, telemetry.Context.Operation.ParentId);
@@ -83,7 +83,7 @@
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
                 Assert.AreEqual(RemoteDependencyConstants.AzureServiceBus, telemetry.Type);
-                Assert.AreEqual("queueName | sb://queuename.myservicebus.com/", telemetry.Target);
+                Assert.AreEqual("sb://queuename.myservicebus.com/ | queueName", telemetry.Target);
                 Assert.IsFalse(telemetry.Success.Value);
 
                 Assert.AreEqual(parentActivity.Id, telemetry.Context.Operation.ParentId);

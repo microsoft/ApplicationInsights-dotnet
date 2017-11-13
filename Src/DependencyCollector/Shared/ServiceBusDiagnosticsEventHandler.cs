@@ -70,7 +70,7 @@
 
             // Target uniquely identifies the resource, we use both: queueName and endpoint 
             // with schema used for SQL-dependencies
-            telemetry.Target = string.Join(" | ", queueName, endpoint);
+            telemetry.Target = string.Join(" | ", endpoint, queueName);
             this.telemetryClient.TrackDependency(telemetry);
         }
 
