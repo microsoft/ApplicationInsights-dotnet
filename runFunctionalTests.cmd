@@ -10,10 +10,10 @@ CALL "%VSTestPath%" /UseVsixExtensions:true "%BuildRoot%Test\PerformanceCollecto
 
 CALL "%VSTestPath%" /UseVsixExtensions:true "%BuildRoot%Test\Web\FunctionalTests\FunctionalTests\Functional.dll" /logger:trx
 
-CALL "%VSTestPath%" /UseVsixExtensions:true "%BuildRoot%Test\E2ETests\E2ETests\E2ETests.dll" /TestCaseFilter:"TestCategory=Core20" /logger:trx
+CALL "%VSTestPath%" /UseVsixExtensions:true "%BuildRoot%Test\E2ETests\E2ETests\DependencyCollectionTests.dll" /TestCaseFilter:"TestCategory=Core20" /logger:trx
 
-CALL "%VSTestPath%" /UseVsixExtensions:true "%BuildRoot%Test\E2ETests\E2ETests\E2ETests.dll" /TestCaseFilter:"TestCategory=Net452OnNet462" /logger:trx
+CALL "%VSTestPath%" /UseVsixExtensions:true "%BuildRoot%Test\E2ETests\E2ETests\DependencyCollectionTests.dll" /TestCaseFilter:"TestCategory=Net452OnNet462" /logger:trx
 
-CALL "%VSTestPath%" /UseVsixExtensions:true "%BuildRoot%Test\E2ETests\E2ETests\E2ETests.dll" /TestCaseFilter:"TestCategory=Net452OnNet462SM" /logger:trx
+CALL "%VSTestPath%" /UseVsixExtensions:true "%BuildRoot%Test\E2ETests\E2ETests\DependencyCollectionTests.dll" /TestCaseFilter:"TestCategory=Net452OnNet462SM" /logger:trx
 
 
