@@ -451,7 +451,10 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = success;
-            expectedDependencyTelemetry.ResultCode = "200";
+            if (!success)
+            {
+                expectedDependencyTelemetry.ResultCode = "208";
+            }
 
             ValidateBasicDependency(Apps[appname].ipAddress, path, expectedDependencyTelemetry,
                 Apps[appname].ikey, 1, expectedPrefix);
