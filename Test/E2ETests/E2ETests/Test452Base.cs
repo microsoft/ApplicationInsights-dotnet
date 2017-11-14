@@ -10,6 +10,8 @@ using TestUtils.TestConstants;
 using AI;
 using Microsoft.ApplicationInsights.DataContracts;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Net;
 
 namespace E2ETests
 {
@@ -220,11 +222,14 @@ namespace E2ETests
                 Apps[AppNameBeingTested].ikey, Apps[TestConstants.WebApiName].ikey).Wait();
         }
 
-        public void TestSyncHttpDependency(string expectedPrefix, string appname, string path)
+        public void TestHttpDependency(string expectedPrefix, string appname, string path,
+            string resultCodeExpected = "200",
+            bool successExpected = true)
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
-            expectedDependencyTelemetry.Success = true;
+            expectedDependencyTelemetry.Success = successExpected;
+            expectedDependencyTelemetry.ResultCode = resultCodeExpected;
 
             ValidateBasicDependency(Apps[appname].ipAddress, path, expectedDependencyTelemetry,
                 Apps[appname].ikey, 1, expectedPrefix);
@@ -232,7 +237,7 @@ namespace E2ETests
 
         public void TestSyncHttpDependency(string expectedPrefix)
         {
-            TestSyncHttpDependency(expectedPrefix, AppNameBeingTested, "/Dependencies.aspx?type=httpsync");            
+            TestHttpDependency(expectedPrefix, AppNameBeingTested, "/Dependencies.aspx?type=httpsync");            
         }
 
         public void TestAsyncWithHttpClientHttpDependency(string expectedPrefix)
@@ -240,6 +245,7 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
+            expectedDependencyTelemetry.ResultCode = "200";
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpasynchttpclient", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -249,7 +255,10 @@ namespace E2ETests
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
-            expectedDependencyTelemetry.Success = true;            
+            expectedDependencyTelemetry.Success = true;
+
+            // 204 as the webapi does not return anything
+            expectedDependencyTelemetry.ResultCode = "204";
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httppost", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -260,6 +269,7 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "500";
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpfailedwithexception", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -271,6 +281,9 @@ namespace E2ETests
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = false;
 
+            // Failed at DNS means status code not collected
+            //expectedDependencyTelemetry.ResultCode = "200";
+
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpfailedwithinvaliddns", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
@@ -280,6 +293,7 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
+            expectedDependencyTelemetry.ResultCode = "200";
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpasync1", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -290,6 +304,7 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "500";
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=failedhttpasync1", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -300,6 +315,7 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
+            expectedDependencyTelemetry.ResultCode = "200";
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpasync2", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -310,6 +326,7 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "500";
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=failedhttpasync2", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -320,6 +337,7 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
+            expectedDependencyTelemetry.ResultCode = "200";
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpasync3", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -330,6 +348,7 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "500";
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=failedhttpasync3", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -340,6 +359,7 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
+            expectedDependencyTelemetry.ResultCode = "200";
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpasync4", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -350,6 +370,7 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "500";
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=failedhttpasync4", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -360,6 +381,7 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = true;
+            expectedDependencyTelemetry.ResultCode = "200";
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=httpasyncawait1", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -370,6 +392,7 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = false;
+            expectedDependencyTelemetry.ResultCode = "500";
 
             ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=failedhttpasyncawait1", expectedDependencyTelemetry,
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
@@ -382,7 +405,7 @@ namespace E2ETests
             // Expected type is http instead of AzureTable as type is based on the target url which
             // will be a local url in case of emulator.
             expectedDependencyTelemetry.Type = "Http";
-            expectedDependencyTelemetry.Success = true;
+            expectedDependencyTelemetry.Success = true;            
 
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
@@ -397,7 +420,7 @@ namespace E2ETests
             // Expected type is http instead of AzureTable as type is based on the target url which
             // will be a local url in case of emulator.
             expectedDependencyTelemetry.Type = "Http";
-            expectedDependencyTelemetry.Success = true;
+            expectedDependencyTelemetry.Success = true;            
 
             // 2 dependency item is expected.
             // 1 from creating queue, and 1 from writing data to it.
@@ -412,7 +435,7 @@ namespace E2ETests
             // Expected type is http instead of AzureTable as type is based on the target url which
             // will be a local url in case of emulator.
             expectedDependencyTelemetry.Type = "Http";
-            expectedDependencyTelemetry.Success = true;
+            expectedDependencyTelemetry.Success = true;            
 
             // 2 dependency item is expected.
             // 1 from creating table, and 1 from writing data to it.
@@ -428,6 +451,7 @@ namespace E2ETests
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "SQL";
             expectedDependencyTelemetry.Success = success;
+            expectedDependencyTelemetry.ResultCode = "200";
 
             ValidateBasicDependency(Apps[appname].ipAddress, path, expectedDependencyTelemetry,
                 Apps[appname].ikey, 1, expectedPrefix);
@@ -831,7 +855,8 @@ namespace E2ETests
         }
 
         private void ValidateBasicDependency(string targetInstanceIp, string targetPath,
-            DependencyTelemetry expectedDependencyTelemetry, string ikey, int count, string expectedPrefix, int additionalSleepTimeMsec = 0)
+            DependencyTelemetry expectedDependencyTelemetry, string ikey, int count,
+            string expectedPrefix, int additionalSleepTimeMsec = 0)
         {
             var success = ExecuteWebRequestToTarget(targetInstanceIp, targetPath).Result;
             Assert.IsTrue(success, "Web App did not respond with success. Failing test. Check exception from logs.");
@@ -986,6 +1011,24 @@ namespace E2ETests
 
             string actualSdkVersion = actualDependencyTelemetry.tags[new ContextTagKeys().InternalSdkVersion];
             Assert.IsTrue(actualSdkVersion.Contains(expectedPrefix), "Actual version:" + actualSdkVersion);
+
+            if(!string.IsNullOrEmpty(expectedDependencyTelemetry.ResultCode))
+            {
+                Assert.AreEqual(expectedDependencyTelemetry.ResultCode, actualDependencyTelemetry.data.baseData.resultCode);
+            }
+
+            var depTime = TimeSpan.Parse(actualDependencyTelemetry.data.baseData.duration, CultureInfo.InvariantCulture);            
+            if (expectedDependencyTelemetry.Success.HasValue)
+            {
+                if(expectedDependencyTelemetry.Success.Value == true)
+                {
+                    Assert.IsTrue(depTime.TotalMilliseconds > 0, "Access time should be above zero");
+                }
+                else
+                {
+                    Assert.IsTrue(depTime.TotalMilliseconds >= 0, "Access time should be zero or above zero if success is false.");
+                }
+            }            
         }
 
         private void PrintDependencies(IList<TelemetryItem<AI.RemoteDependencyData>> dependencies)
@@ -1014,7 +1057,7 @@ namespace E2ETests
         {
             foreach (var req in requests)
             {
-                Trace.WriteLine("Dependency Item Details");
+                Trace.WriteLine("Request Item Details");
                 Trace.WriteLine("req.time: " + req.time);
                 Trace.WriteLine("req.iKey: " + req.iKey);
                 Trace.WriteLine("req.name: " + req.name);

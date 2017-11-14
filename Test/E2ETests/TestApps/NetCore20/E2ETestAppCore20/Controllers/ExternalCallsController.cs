@@ -13,10 +13,13 @@ namespace E2ETestAppCore20.Controllers
 {    
     [Route("external/calls")]
     public class ExternalCallsController : Controller
-    {       /// <summary>
-            /// Invalid Hostname to trigger exception being thrown
-            /// </summary>
-        private const string InvalidHostName = "http://www.zzkaodkoakdahdjghejajdnad.com";
+    {
+
+        private const string UrlWithNonexistentHostName = "http://abcdefzzzzeeeeadadad.com";
+        private const string UrlTestWebApiGetCallTemplate = "http://{0}:80/api/values";
+        public const string UrlWhichThrowExceptionFormat = "http://{0}:80/api/values/999";
+        public static string UrlTestWebApiGetCall;
+        public static string UrlWhichThrowException;
 
         /// <summary>
         /// Connection string format.
@@ -59,6 +62,11 @@ namespace E2ETestAppCore20.Controllers
             {
                 ConnectionString = string.Format(ConnectionStringFormat, options.Value.SqlServerInstance);
             }
+
+            var webApiHostName = options.Value.Webapihostname;
+            UrlTestWebApiGetCall = string.Format(UrlTestWebApiGetCallTemplate, webApiHostName);
+            UrlWhichThrowException = string.Format(UrlWhichThrowExceptionFormat, webApiHostName);
+
         }
 
         // GET external/calls
@@ -115,48 +123,50 @@ namespace E2ETestAppCore20.Controllers
 
                 case "http":
                     title = "Made Sync GET HTTP call to bing";
-                    MakeHttpGetCallSync(count, "bing");
+                    MakeHttpGetCallSync(count, UrlTestWebApiGetCall);
                     response = title;
                     break;
                 case "httppost":
                     title = "Made Sync POST HTTP call to bing";
-                    MakeHttpPostCallSync(count, "bing");
+                    MakeHttpPostCallSync(count, UrlTestWebApiGetCall);
                     response = title;
                     break;
                 case "failedhttp":
                     title = "Made failing Sync GET HTTP call to bing";
-                    MakeHttpCallSyncFailed(count);
+                    MakeHttpCallSyncFailed(count, UrlWhichThrowException);
                     response = title;
                     break;
                 case "ExecuteReaderAsync":
                     SqlCommandHelper.ExecuteReaderAsync(ConnectionString, sqlQueryTouse);
-                    response = QueryToExecuteLabel + sqlQueryTouse;
+                    response = QueryToExecuteLabel + sqlQueryTouse + ConnectionString;
                     break;
                 case "ExecuteScalarAsync":
                     SqlCommandHelper.ExecuteScalarAsync(ConnectionString, sqlQueryTouse);
-                    response = QueryToExecuteLabel + sqlQueryTouse;
+                    response = QueryToExecuteLabel + sqlQueryTouse + ConnectionString;
                     break;
                 case "ExecuteReaderStoredProcedureAsync":
                     this.ExecuteReaderStoredProcedureAsync();
-                    response = QueryToExecuteLabel + sqlQueryTouse;
+                    response = QueryToExecuteLabel + sqlQueryTouse + ConnectionString;
                     break;
                 case "TestExecuteReaderTwiceWithTasks":
                     SqlCommandHelper.AsyncExecuteReaderInTasks(ConnectionString, sqlQueryTouse);
-                    response = QueryToExecuteLabel + sqlQueryTouse;
+                    response = QueryToExecuteLabel + sqlQueryTouse + ConnectionString;
                     break;
                 case "ExecuteNonQueryAsync":
                     SqlCommandHelper.ExecuteNonQueryAsync(ConnectionString, sqlQueryTouse);
-                    response = QueryToExecuteLabel + sqlQueryTouse;
+                    response = QueryToExecuteLabel + sqlQueryTouse + ConnectionString;
                     break;
                 case "ExecuteXmlReaderAsync":
                     sqlQueryTouse += " FOR XML AUTO";
                     SqlCommandHelper.ExecuteXmlReaderAsync(ConnectionString, sqlQueryTouse);
+                    response = QueryToExecuteLabel + sqlQueryTouse + ConnectionString;
                     break;
                 case "SqlCommandExecuteScalar":
                     sqlQueryTouse = success
                                     ? ValidSqlQueryCountToApmDatabase
                                     : InvalidSqlQueryToApmDatabase;
                     SqlCommandHelper.ExecuteScalar(ConnectionString, sqlQueryTouse);
+                    response = QueryToExecuteLabel + sqlQueryTouse + ConnectionString;
                     break;
                 default:
                     title = $"Unrecognized request type '{type}'";
@@ -172,11 +182,11 @@ namespace E2ETestAppCore20.Controllers
         /// </summary>        
         /// <param name="count">no of GET calls to be made</param>        
         /// <param name="hostname">the GET call will be made to http://www.hostname.com</param>        
-        private static string MakeHttpGetCallSync(int count, string hostname)
+        private static string MakeHttpGetCallSync(int count, string target)
         {
             string result = "";
 
-            Uri ourUri = new Uri(string.Format("https://www.{0}.com", hostname));
+            Uri ourUri = new Uri(target);
             HttpClient client = new HttpClient();
             for (int i = 0; i < count; i++)
             {
@@ -191,17 +201,12 @@ namespace E2ETestAppCore20.Controllers
         /// </summary>        
         /// <param name="count">no of POST calls to be made</param>        
         /// <param name="hostname">the POST call will be made to http://www.hostname.com</param>        
-        private static string MakeHttpPostCallSync(int count, string hostname)
+        private static string MakeHttpPostCallSync(int count, string target)
         {
-            string result = "";
-
-            Uri ourUri = new Uri(string.Format("https://www.{0}.com", hostname));
+            string result = "";   
             HttpClient client = new HttpClient();
-            HttpContent content = new StringContent("thing1=hello&thing2=world", Encoding.ASCII);
-            for (int i = 0; i < count; i++)
-            {
-                result += $"Request {i + 1}:<BR/>{client.PostAsync(ourUri, content).Result}<BR/>";
-            }
+            var content = ("helloworld");
+            result += client.PostAsync(target, new StringContent(content.ToString(), Encoding.UTF8, "application/json")).Result;
 
             return result;
         }
@@ -210,11 +215,11 @@ namespace E2ETestAppCore20.Controllers
         /// Make sync http calls which fails
         /// </summary>        
         /// <param name="count">no of calls to be made</param>                
-        private static string MakeHttpCallSyncFailed(int count)
+        private static string MakeHttpCallSyncFailed(int count, string target)
         {
             string result = "";
 
-            Uri ourUri = new Uri(InvalidHostName);
+            Uri ourUri = new Uri(target);
             HttpClient client = new HttpClient();
             for (int i = 0; i < count; ++i)
             {

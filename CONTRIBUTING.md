@@ -44,8 +44,7 @@ If you want to do clean up all the containers created by the test, execute the `
 ## Debugging the functional tests
 It is important to note that since the test application is deployed as a separate process/container, debugging the tests itself will not help debug the application code. A debugger need to be attached
 to the process hosting the Application. (IISExpress or IIS)
-The test apps refers to the Web SDK assemblies from your local build. After making the changes to product code, build locally (from Visual Studio or using ```buildDebug.cmd```). Then start the test application from its publish 
-folder in either IISExpress or IIS, and attach debugger to it. Open the .cs file you want your breakpoint in and set it. Now triggering a request to the application will hit the breakpoint.
+The test apps refers to the Web SDK assemblies from your local build. After making the changes to product code, build locally (from Visual Studio or using ```buildDebug.cmd```). Then build and start the test application from its publish folder in either IISExpress or IIS, and attach debugger to it. Open the .cs file you want your breakpoint in and set it. Now triggering a request to the application will hit the breakpoint.
 The exact request to be triggered depends on what you are doing. If investigating functional test failures locally, then the tests logs should contain the url it hit to trigger scenarios.
 
 Dependency Collector tests deploy the test apps, along with dependencies (Fake Ingestion, SQL etc) to Docker containers inside same Docker virtual network, so that apps can access the dependencies with their names. However, if 

@@ -30,7 +30,7 @@ namespace E2ETestApp
 
         private const string UrlTestWebApiGetCallTemplate = "http://{0}:80/api/values";
         private const string UrlGoogle = "http://google.com";
-        public const string UrlWhichThrowException = "http://e2etestwebapi:80/api/values/999";
+        public const string UrlWhichThrowExceptionFormat = "http://{0}:80/api/values/999";
         private const string UrlWithNonexistentHostName = "http://abcdefzzzzeeeeadadad.com";
         private static bool etwEnabled = false;
 
@@ -43,6 +43,7 @@ namespace E2ETestApp
 
             var webApiHostName = Microsoft.Azure.CloudConfigurationManager.GetSetting("webapihostname");
             string UrlTestWebApiGetCall = string.Format(UrlTestWebApiGetCallTemplate, webApiHostName);
+            string UrlWhichThrowException = string.Format(UrlWhichThrowExceptionFormat, webApiHostName);
 
             var ingestionhostname = Microsoft.Azure.CloudConfigurationManager.GetSetting("ingestionhostname");
             TelemetryConfiguration.Active.TelemetryChannel.EndpointAddress = string.Format(EndPointAddressFormat, ingestionhostname);
