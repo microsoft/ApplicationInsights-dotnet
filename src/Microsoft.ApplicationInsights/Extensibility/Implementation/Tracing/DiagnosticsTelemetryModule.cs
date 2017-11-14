@@ -18,9 +18,7 @@
         internal IHeartbeatProvider HeartbeatProvider = null;
         private readonly object lockObject = new object();
         private readonly IDiagnoisticsEventThrottlingScheduler throttlingScheduler = new DiagnoisticsEventThrottlingScheduler();
-        private readonly IList<string> excludedHeartbeatProps = new List<string>();
         private volatile bool disposed = false;
-        private bool isHeartbeatEnabled = true;
         private TimeSpan heartbeatInterval;
         private string instrumentationKey;
         private bool isInitialized = false;
@@ -36,6 +34,8 @@
             this.EventListener = new DiagnosticsListener(this.Senders);
 
             this.heartbeatInterval = TimeSpan.FromMilliseconds(Tracing.HeartbeatProvider.DefaultHeartbeatIntervalMs);
+
+            this.HeartbeatProvider = new HeartbeatProvider();
         }
 
         /// <summary>
@@ -53,16 +53,12 @@
         {
             get
             {
-                return this.isHeartbeatEnabled;
+                return this.HeartbeatProvider.IsEnabled;
             }
 
             set
             {
-                this.isHeartbeatEnabled = value;
-                if (this.HeartbeatProvider != null)
-                {
-                    this.HeartbeatProvider.IsEnabled = this.isHeartbeatEnabled;
-                }
+                this.HeartbeatProvider.IsEnabled = value;
             }
         }
 
@@ -71,20 +67,12 @@
         /// </summary>
         public TimeSpan HeartbeatInterval
         {
-            get => this.heartbeatInterval;
-
-            set
-            {
-                this.heartbeatInterval = value;
-                if (this.HeartbeatProvider != null)
-                {
-                    this.HeartbeatProvider.Interval = this.heartbeatInterval;
-                }
-            }
+            get => this.HeartbeatProvider.Interval;
+            set => this.HeartbeatProvider.Interval = value;
         }
 
         /// <summary>
-        /// Gets property names that are not to be sent with the health heartbeats. null/empty list means allow all default properties through.
+        /// Gets or sets property names that are not to be sent with the health heartbeats. null/empty list means allow all default properties through.
         /// 
         /// <remarks>
         /// Default properties supplied by the Application Insights SDK:
@@ -96,7 +84,12 @@
         {
             get
             {
-                return this.excludedHeartbeatProps;
+                return this.HeartbeatProvider.DisabledDefaultFields.ToList();
+            }
+
+            set
+            {
+                this.HeartbeatProvider.DisabledDefaultFields = value;
             }
         }
 
@@ -149,11 +142,7 @@
                         portalSender.DiagnosticsInstrumentationKey = this.instrumentationKey;
                     }
 
-                    // set it into the heartbeat provider as well
-                    if (this.HeartbeatProvider != null)
-                    {
-                        this.HeartbeatProvider.DiagnosticsInstrumentationKey = this.instrumentationKey;
-                    }
+                    this.HeartbeatProvider.InstrumentationKey = this.instrumentationKey;
                 }
             }
         }
@@ -197,8 +186,7 @@
                         }
 
                         // set up heartbeat
-                        this.HeartbeatProvider = new HeartbeatProvider();
-                        if (!this.HeartbeatProvider.Initialize(configuration, this.DiagnosticsInstrumentationKey, this.HeartbeatInterval, this.ExcludedHeartbeatProperties, this.isHeartbeatEnabled))
+                        if (!this.HeartbeatProvider.Initialize(configuration))
                         {
                             CoreEventSource.Log.LogError("Unable to initialize Health Heartbeat module.");
                         }
@@ -225,16 +213,13 @@
         /// <returns>True if the new payload item is successfully added, false otherwise.</returns>
         public bool AddHealthProperty(string propertyName, string propertyValue, bool isHealthy)
         {
-            if (this.HeartbeatProvider != null)
+            try
             {
-                try
-                {
-                    return this.HeartbeatProvider.AddHealthProperty(propertyName, propertyValue, isHealthy);
-                }
-                catch (Exception e)
-                {
-                    CoreEventSource.Log.LogError("Could not add heartbeat property. Exception: " + e.ToInvariantString());
-                }
+                return this.HeartbeatProvider.AddHealthProperty(propertyName, propertyValue, isHealthy);
+            }
+            catch (Exception e)
+            {
+                CoreEventSource.Log.LogError("Could not add heartbeat property. Exception: " + e.ToInvariantString());
             }
 
             return false;
@@ -254,7 +239,7 @@
         /// (<see cref="DiagnosticsTelemetryModule.AddHealthProperty"/>).</returns>
         public bool SetHealthProperty(string propertyName, string propertyValue = null, bool? isHealthy = null)
         {
-            if (this.HeartbeatProvider != null && !string.IsNullOrEmpty(propertyName) && (propertyValue != null || isHealthy != null))
+            if (!string.IsNullOrEmpty(propertyName) && (propertyValue != null || isHealthy != null))
             {
                 try
                 {
@@ -278,16 +263,13 @@
         /// <returns>True if the property was removed successfully, false otherwise (no property with this name exists)</returns>
         public bool RemoveHealthProperty(string propertyName)
         {
-            if (this.HeartbeatProvider != null)
+            try
             {
-                try
-                {
-                    return this.HeartbeatProvider.RemoveHealthProperty(propertyName);
-                }
-                catch (Exception e)
-                {
-                    CoreEventSource.Log.LogError("Could not set heartbeat property. Exception: " + e.ToInvariantString());
-                }
+                return this.HeartbeatProvider.RemoveHealthProperty(propertyName);
+            }
+            catch (Exception e)
+            {
+                CoreEventSource.Log.LogError("Could not set heartbeat property. Exception: " + e.ToInvariantString());
             }
 
             return false;

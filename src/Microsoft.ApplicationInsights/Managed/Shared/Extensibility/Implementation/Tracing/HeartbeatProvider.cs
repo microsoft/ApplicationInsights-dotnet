@@ -54,18 +54,41 @@
         }
 
         /// <summary>
-        /// Gets or sets the currently defined interval between heartbeats (primarily used in unit testing scenarios)
+        /// Gets or sets the currently defined interval between heartbeats
         /// </summary>
         public TimeSpan Interval
         {
             get => this.heartbeatInterval;
-            set => this.heartbeatInterval = value;
+            set
+            {
+                if (value == null || value.TotalMilliseconds <= 0)
+                {
+                    this.heartbeatInterval = TimeSpan.FromMilliseconds(DefaultHeartbeatIntervalMs);
+                }
+                else
+                {
+                    this.heartbeatInterval = value;
+                }
+            }
         }
 
         /// <summary>
-        /// Gets or sets the current Instrumentation key being used to send heartbeat data to
+        /// Gets or sets the currently defined instrumentation key to send heartbeat telemetry items to.
+        /// 
+        /// Note that if the heartbeat provider has not been initialized yet, this key would get reset to 
+        /// whatever the telemetry configuration the heartbeat provider is initialized with.
         /// </summary>
-        public string DiagnosticsInstrumentationKey { get; set; }
+        public string InstrumentationKey
+        {
+            get => this.telemetryClient?.InstrumentationKey;
+            set
+            {
+                if (this.telemetryClient != null)
+                {
+                    this.telemetryClient.InstrumentationKey = value;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether or not heartbeats are enabled
@@ -73,41 +96,51 @@
         public bool IsEnabled
         {
             get => this.isEnabled;
-            set => this.isEnabled = value;
+            set
+            {
+                if (!this.isEnabled && value)
+                {
+                    // we need to start calling the timer again
+                    this.HeartbeatTimer.Change(this.heartbeatInterval, this.heartbeatInterval);
+                }
+
+                this.isEnabled = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a list of default field names that should not be sent with each heartbeat.
+        /// </summary>
+        public IEnumerable<string> DisabledDefaultFields
+        {
+            get => this.disabledDefaultFields;
+            set
+            {
+                this.disabledDefaultFields = null;
+                if (value != null)
+                {
+                    this.disabledDefaultFields = new List<string>(value);
+                }
+
+                this.SetDefaultPayloadItems();
+            }
         }
 
         protected Timer HeartbeatTimer { get; set; } // timer that will send each heartbeat in intervals
 
-        public virtual bool Initialize(TelemetryConfiguration configuration, string instrumentationKey = null, TimeSpan? timeBetweenHeartbeats = null, IEnumerable<string> disabledDefaultFields = null, bool isEnabled = true)
+        public virtual bool Initialize(TelemetryConfiguration configuration)
         {
-            if (timeBetweenHeartbeats != null && timeBetweenHeartbeats?.TotalMilliseconds == 0)
-            {
-                return false;
-            }
-
-            if (instrumentationKey != null)
-            {
-                this.DiagnosticsInstrumentationKey = instrumentationKey;
-            }
-
             if (this.telemetryClient == null)
             {
                 this.telemetryClient = new TelemetryClient(configuration);
             }
 
-            this.heartbeatInterval = timeBetweenHeartbeats ?? this.heartbeatInterval;
-
-            if (disabledDefaultFields != null)
-            {
-                this.disabledDefaultFields = disabledDefaultFields.Count() > 0 ? disabledDefaultFields.ToList() : null;
-            }
-
             this.SetDefaultPayloadItems();
 
-            this.isEnabled = isEnabled;
+            this.isEnabled = true;
 
             // Note: if this is a subsequent initialization, the interval between heartbeats will be updated in the next cycle so no .Change call necessary here
-            if (this.HeartbeatTimer == null && isEnabled == true)
+            if (this.HeartbeatTimer == null)
             {
                 this.HeartbeatTimer = new Timer(this.HeartbeatPulse, this, this.heartbeatInterval, this.heartbeatInterval);
             }
@@ -271,8 +304,11 @@
 
         private bool SetHealthPropertyInternal(ConcurrentDictionary<string, HeartbeatPropertyPayload> properties, string name, string payloadValue, bool? isHealthy)
         {
+            bool setResult = true;
+
             properties.AddOrUpdate(name, (key) => 
             {
+                setResult = false;
                 throw new Exception("Not allowed to set a health property without adding it first.");
             }, 
             (key, property) =>
@@ -289,7 +325,7 @@
                 return property;
             });
 
-            return true;
+            return setResult;
         }
 
         private bool AddHealthPropertyInternal(ConcurrentDictionary<string, HeartbeatPropertyPayload> properties, string name, string payloadValue, bool isHealthy)
@@ -319,10 +355,9 @@
                 {
                     this.HeartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
-                    hp.Send();
-
                     if (this.isEnabled)
                     {
+                        hp.Send();
                         this.HeartbeatTimer.Change(this.heartbeatInterval, this.heartbeatInterval);
                     }
                 }
@@ -347,10 +382,7 @@
 
             eventData.Context.Operation.SyntheticSource = heartbeatSyntheticMetricName;
 
-            if (!string.IsNullOrEmpty(this.DiagnosticsInstrumentationKey))
-            {
-                eventData.Context.InstrumentationKey = this.DiagnosticsInstrumentationKey;
-            }
+            eventData.Context.InstrumentationKey = this.InstrumentationKey;
 
             this.telemetryClient.TrackMetric(eventData);
         }

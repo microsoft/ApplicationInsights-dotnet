@@ -36,7 +36,7 @@
             using (var hbeat = new HealthHeartbeatProviderMock())
             {
                 hbeat.Initialize(configuration: null);
-                Assert.IsNull(hbeat.DisabledHeartbeatProperties);
+                Assert.IsTrue(hbeat.DisabledDefaultFields == null || hbeat.DisabledDefaultFields.Count() == 0);
                 Assert.AreEqual(HeartbeatProvider.DefaultHeartbeatIntervalMs, hbeat.Interval.TotalMilliseconds);
             }
         }
@@ -46,30 +46,20 @@
         {
             TimeSpan nonDefaultInterval = TimeSpan.FromMilliseconds(10000);
 
-            using (var hbeat = new HeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider() { Interval = nonDefaultInterval })
             {
-                hbeat.Initialize(configuration: null, timeBetweenHeartbeats: nonDefaultInterval);
+                hbeat.Initialize(configuration: null);
                 Assert.AreEqual(nonDefaultInterval, hbeat.Interval);
             }
         }
 
         [TestMethod]
-        public void InitializeHealthHeartbeatWithNullFieldsFails()
+        public void InitializeHealthHeartbeatWithZeroIntervalRevertsToDefault()
         {
-            using (var hbeat = new HeartbeatProvider())
+            using (var hbeat = new HeartbeatProvider() { Interval = TimeSpan.FromMilliseconds(0) })
             {
-                bool initResult = hbeat.Initialize(configuration: null, timeBetweenHeartbeats: TimeSpan.FromMilliseconds(10000), disabledDefaultFields: null);
-                Assert.IsTrue(initResult, "Initialization without allowed dissallowed fields should be fine.");
-            }
-        }
-
-        [TestMethod]
-        public void InitializeHealthHeartbeatWithZeroIntervalFails()
-        {
-            using (var hbeat = new HeartbeatProvider())
-            {
-                bool initResult = hbeat.Initialize(configuration: null, timeBetweenHeartbeats: TimeSpan.FromMilliseconds(0), disabledDefaultFields: null);
-                Assert.IsFalse(initResult, "Initialization without a valid delay value (0) should fail.");
+                bool initResult = hbeat.Initialize(configuration: null);
+                Assert.AreEqual(hbeat.Interval.TotalMilliseconds, HeartbeatProvider.DefaultHeartbeatIntervalMs);
             }
         }
 
@@ -102,7 +92,8 @@
                 hbeat.Initialize(configuration: null);
                 Assert.AreNotEqual(userSetInterval, hbeat.Interval.TotalMilliseconds);
 
-                hbeat.Initialize(configuration: null, timeBetweenHeartbeats: userSetInterval);
+                hbeat.Interval = userSetInterval;
+                hbeat.Initialize(configuration: null);
                 Assert.AreEqual(userSetInterval, hbeat.Interval);
             }
         }
@@ -182,15 +173,9 @@
                 }
             }
 
-            using (var hbeat = new HealthHeartbeatProviderMock())
+            using (var hbeat = new HealthHeartbeatProviderMock() { DisabledDefaultFields = disableHbProps })
             {
-                hbeat.Initialize(configuration: null, timeBetweenHeartbeats: null, disabledFields: disableHbProps);
-                Assert.AreEqual(hbeat.DisabledHeartbeatProperties.Count(), disableHbProps.Count);
-                foreach (string fld in hbeat.DisabledHeartbeatProperties)
-                {
-                    Assert.IsTrue(disableHbProps.Contains(fld));
-                }
-
+                hbeat.Initialize(configuration: null);
                 hbeat.SimulateSend();
 
                 var sentHeartBeat = hbeat.sentMessages.First();
@@ -198,7 +183,8 @@
 
                 foreach (var kvp in sentHeartBeat.Properties)
                 {
-                    Assert.IsFalse(disableHbProps.Contains(kvp.Key), string.Format(CultureInfo.CurrentCulture, "Dissallowed field '{0}' found in payload", kvp.Key));
+                    Assert.IsFalse(disableHbProps.Contains(kvp.Key), 
+                        string.Format(CultureInfo.CurrentCulture, "Dissallowed field '{0}' found in payload", kvp.Key));
                 }
             }
         }
