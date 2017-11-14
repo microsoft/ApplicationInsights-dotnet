@@ -5,15 +5,17 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    /// <summary />
-    public class SimpleMetricSeriesConfiguration : IMetricSeriesConfiguration
+    /// <summary>
+    /// 
+    /// </summary>
+    public class AccumulatorMetricSeriesConfiguration : IMetricSeriesConfiguration
     {
-        static SimpleMetricSeriesConfiguration()
+        static AccumulatorMetricSeriesConfiguration()
         {
             MetricAggregateToTelemetryPipelineConverters.Registry.Add(
                                                                     typeof(ApplicationInsightsTelemetryPipeline),
-                                                                    MetricAggregateKinds.SimpleStatistics.Moniker,
-                                                                    new MeasurementAggregateToApplicationInsightsPipelineConverter());
+                                                                    MetricAggregateKinds.Accumulator.Moniker,
+                                                                    new AccumulatorAggregateToApplicationInsightsPipelineConverter());
         }
 
         private readonly bool _restrictToUInt32Values;
@@ -21,7 +23,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         /// <summary />
         /// <param name="restrictToUInt32Values"></param>
-        public SimpleMetricSeriesConfiguration(bool restrictToUInt32Values)
+        public AccumulatorMetricSeriesConfiguration(bool restrictToUInt32Values)
         {
             _restrictToUInt32Values = restrictToUInt32Values;
 
@@ -35,7 +37,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public bool RequiresPersistentAggregation
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return false; }
+            get { return true; }
         }
 
         /// <summary />
@@ -51,7 +53,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <returns></returns>
         public IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
         {
-            IMetricSeriesAggregator aggregator = new MeasurementAggregator(this, dataSeries, aggregationCycleKind);
+            IMetricSeriesAggregator aggregator = new AccumulatorAggregator(this, dataSeries, aggregationCycleKind);
             return aggregator;
         }
 
@@ -62,7 +64,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             if (obj != null)
             {
-                var otherConfig = obj as SimpleMetricSeriesConfiguration;
+                var otherConfig = obj as AccumulatorMetricSeriesConfiguration;
                 if (otherConfig != null)
                 {
                     return Equals(otherConfig);
@@ -83,7 +85,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary />
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool Equals(SimpleMetricSeriesConfiguration other)
+        public bool Equals(AccumulatorMetricSeriesConfiguration other)
         {
             if (other == null)
             {

@@ -34,7 +34,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             var manager = new MetricManager(new MemoryMetricTelemetryPipeline());
 
-            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false);
+            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false);
 
             Assert.ThrowsException<ArgumentNullException>( () => manager.CreateNewSeries(null, config) );
             Assert.ThrowsException<ArgumentNullException>( () => manager.CreateNewSeries("Foo Bar", null) );
@@ -67,8 +67,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var metricsCollector = new MemoryMetricTelemetryPipeline();
                 var manager = new MetricManager(metricsCollector);
 
-                IMetricSeriesConfiguration measurementConfig = new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false);
-                IMetricSeriesConfiguration accumulatorConfig = new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false);
+                IMetricSeriesConfiguration measurementConfig = new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false);
+                IMetricSeriesConfiguration accumulatorConfig = new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: false);
 
                 MetricSeries series1 = manager.CreateNewSeries("Measurement 1", measurementConfig);
                 MetricSeries series2 = manager.CreateNewSeries("Measurement 2", measurementConfig);
@@ -99,7 +99,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(-3.0, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 2") )).AggregateData["Sum"]);
 
                 Assert.AreEqual(1, metricsCollector.Where( (item) => item.MetricId.Equals("Accumulator 1") ).Count());
-                Assert.AreEqual(3, (metricsCollector.First( (item) => item.MetricId.Equals("Accumulator 1") )).AggregateData["Count"]);
                 Assert.AreEqual(0.0, (metricsCollector.First( (item) => item.MetricId.Equals("Accumulator 1") )).AggregateData["Sum"]);
 
                 metricsCollector.Clear();
@@ -110,7 +109,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(1, metricsCollector.Count);
 
                 Assert.AreEqual(1, metricsCollector.Where( (item) => item.MetricId.Equals("Accumulator 1") ).Count());
-                Assert.AreEqual(3, (metricsCollector.First( (item) => item.MetricId.Equals("Accumulator 1") )).AggregateData["Count"]);
                 Assert.AreEqual(0.0, (metricsCollector.First( (item) => item.MetricId.Equals("Accumulator 1") )).AggregateData["Sum"]);
 
                 Util.CompleteDefaultAggregationCycle(manager);

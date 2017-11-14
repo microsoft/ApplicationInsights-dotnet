@@ -52,20 +52,12 @@ namespace Microsoft.ApplicationInsights
             s_measurementDouble = new SimpleMetricConfiguration(
                                                         FutureDefaults.SeriesCountLimit,
                                                         FutureDefaults.ValuesPerDimensionLimit,
-                                                        //FutureDefaults.NewSeriesCreationRetryDelay,
-                                                        //FutureDefaults.NewSeriesCreationTimeout,
-                                                        new SimpleMetricSeriesConfiguration(
-                                                                        usePersistentAggregation: false,
-                                                                        restrictToUInt32Values: false));
+                                                        new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false));
 
             s_accumulatorDouble = new SimpleMetricConfiguration(
                                                         FutureDefaults.SeriesCountLimit,
                                                         FutureDefaults.ValuesPerDimensionLimit,
-                                                        //FutureDefaults.NewSeriesCreationRetryDelay,
-                                                        //FutureDefaults.NewSeriesCreationTimeout,
-                                                        new SimpleMetricSeriesConfiguration(
-                                                                        usePersistentAggregation: true,
-                                                                        restrictToUInt32Values: false));
+                                                        new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: false));
         }
 
 
@@ -76,9 +68,6 @@ namespace Microsoft.ApplicationInsights
         /// </summary>
         public static class FutureDefaults
         {
-            //internal static readonly TimeSpan NewSeriesCreationRetryDelay = TimeSpan.FromMilliseconds(1);
-            //internal static readonly TimeSpan NewSeriesCreationTimeout = TimeSpan.FromMilliseconds(10);
-
             private static int s_seriesCountLimit = 1000;
             private static int s_valuesPerDimensionLimit = 100;
 

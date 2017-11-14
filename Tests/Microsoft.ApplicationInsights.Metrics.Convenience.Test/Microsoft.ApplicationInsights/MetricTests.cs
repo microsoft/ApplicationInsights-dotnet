@@ -216,9 +216,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 IMetricConfiguration customConfig = new SimpleMetricConfiguration(
                                                                     seriesCountLimit: 10,
                                                                     valuesPerDimensionLimit: 10,
-                                                                    seriesConfig: new SimpleMetricSeriesConfiguration(
-                                                                                                            usePersistentAggregation: true,
-                                                                                                            restrictToUInt32Values: true));
+                                                                    seriesConfig: new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: true));
 
                 Metric metric = InvokeMetricCtor(
                                     metricManager,
@@ -357,7 +355,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 IMetricConfiguration config = new SimpleMetricConfiguration(
                                                             5,
                                                             1000,
-                                                            new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
+                                                            new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false));
 
                 Metric metric = InvokeMetricCtor(
                                         metricManager,
@@ -550,7 +548,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 IMetricConfiguration config = new SimpleMetricConfiguration(
                                                             4,
                                                             1000,
-                                                            new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
+                                                            new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: false));
                 Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
@@ -586,7 +584,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 IMetricConfiguration config = new SimpleMetricConfiguration(
                                                             4,
                                                             1000,
-                                                            new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
+                                                            new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: false));
                 Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
@@ -619,7 +617,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 IMetricConfiguration config = new SimpleMetricConfiguration(
                                                             1000,
                                                             2,
-                                                            new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
+                                                            new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: false));
                 Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
@@ -656,7 +654,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 IMetricConfiguration config = new SimpleMetricConfiguration(
                                                             1000,
                                                             2,
-                                                            new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
+                                                            new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: false));
                 Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
@@ -697,7 +695,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 IMetricConfiguration config = new SimpleMetricConfiguration(
                                                             5,
                                                             1000,
-                                                            new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
+                                                            new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false));
 
                 Metric metric = InvokeMetricCtor(
                                         metricManager,
@@ -1167,7 +1165,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 IMetricConfiguration config = new SimpleMetricConfiguration(
                                                     seriesCountLimit: 10,
                                                     valuesPerDimensionLimit: 2,
-                                                    seriesConfig: new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
+                                                    seriesConfig: new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false));
                 Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
@@ -1257,7 +1255,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 IMetricConfiguration config = new SimpleMetricConfiguration(
                                                     seriesCountLimit: 4,
                                                     valuesPerDimensionLimit: 25,
-                                                    seriesConfig: new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
+                                                    seriesConfig: new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false));
                 Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",

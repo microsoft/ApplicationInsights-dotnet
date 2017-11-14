@@ -28,6 +28,14 @@ namespace Microsoft.ApplicationInsights.Metrics
             Justification = "Needed for internal verification.")]
     public class NaiveDistinctCountMetricSeriesConfiguration : IMetricSeriesConfiguration
     {
+        static NaiveDistinctCountMetricSeriesConfiguration()
+        {
+            MetricAggregateToTelemetryPipelineConverters.Registry.Add(
+                                                                    typeof(ApplicationInsightsTelemetryPipeline),
+                                                                    MetricAggregateKinds.NaiveDistinctCount.Moniker,
+                                                                    new NaiveDistinctCountAggregateToApplicationInsightsPipelineConverter());
+        }
+
         private readonly bool _usePersistentAggregation;
         private readonly bool _caseSensitive;
         private readonly int _hashCode;

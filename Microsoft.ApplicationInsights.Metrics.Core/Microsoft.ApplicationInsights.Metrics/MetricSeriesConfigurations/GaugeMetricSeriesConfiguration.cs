@@ -5,29 +5,36 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    /// <summary />
-    public class SimpleMetricSeriesConfiguration : IMetricSeriesConfiguration
+    /// <summary>
+    /// 
+    /// </summary>
+    public class GaugeMetricSeriesConfiguration : IMetricSeriesConfiguration
     {
-        static SimpleMetricSeriesConfiguration()
+        static GaugeMetricSeriesConfiguration()
         {
             MetricAggregateToTelemetryPipelineConverters.Registry.Add(
                                                                     typeof(ApplicationInsightsTelemetryPipeline),
-                                                                    MetricAggregateKinds.SimpleStatistics.Moniker,
-                                                                    new MeasurementAggregateToApplicationInsightsPipelineConverter());
+                                                                    MetricAggregateKinds.Gauge.Moniker,
+                                                                    new GaugeAggregateToApplicationInsightsPipelineConverter());
         }
 
+        private readonly bool _alwaysResendLastValue;
         private readonly bool _restrictToUInt32Values;
         private readonly int _hashCode;
 
-        /// <summary />
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="alwaysResendLastValue"></param>
         /// <param name="restrictToUInt32Values"></param>
-        public SimpleMetricSeriesConfiguration(bool restrictToUInt32Values)
+        public GaugeMetricSeriesConfiguration(bool alwaysResendLastValue, bool restrictToUInt32Values)
         {
+            _alwaysResendLastValue = alwaysResendLastValue;
             _restrictToUInt32Values = restrictToUInt32Values;
 
             unchecked
             {
-                _hashCode = (((17 * 23) + _restrictToUInt32Values.GetHashCode()) * 23);
+                _hashCode = (((17 * 23) + _alwaysResendLastValue.GetHashCode()) * 23) + _restrictToUInt32Values.GetHashCode();
             }
         }
 
@@ -35,7 +42,14 @@ namespace Microsoft.ApplicationInsights.Metrics
         public bool RequiresPersistentAggregation
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return false; }
+            get { return _alwaysResendLastValue; }
+        }
+
+        /// <summary />
+        public bool AlwaysResendLastValue
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return _alwaysResendLastValue; }
         }
 
         /// <summary />
@@ -51,7 +65,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <returns></returns>
         public IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
         {
-            IMetricSeriesAggregator aggregator = new MeasurementAggregator(this, dataSeries, aggregationCycleKind);
+            IMetricSeriesAggregator aggregator = new GaugeAggregator(this, dataSeries, aggregationCycleKind);
             return aggregator;
         }
 
@@ -62,7 +76,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             if (obj != null)
             {
-                var otherConfig = obj as SimpleMetricSeriesConfiguration;
+                var otherConfig = obj as GaugeMetricSeriesConfiguration;
                 if (otherConfig != null)
                 {
                     return Equals(otherConfig);
@@ -83,7 +97,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary />
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool Equals(SimpleMetricSeriesConfiguration other)
+        public bool Equals(GaugeMetricSeriesConfiguration other)
         {
             if (other == null)
             {
@@ -95,7 +109,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 return true;
             }
 
-            return (this.RestrictToUInt32Values == other.RestrictToUInt32Values);
+            return (this.AlwaysResendLastValue == other.AlwaysResendLastValue)
+                && (this.RestrictToUInt32Values == other.RestrictToUInt32Values);
         }
 
         /// <summary />

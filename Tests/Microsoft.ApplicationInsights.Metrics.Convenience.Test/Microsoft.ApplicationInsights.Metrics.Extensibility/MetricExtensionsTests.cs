@@ -36,7 +36,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreSame(MetricConfigurations.Measurement, metric.GetConfiguration());
             }
             {
-                IMetricConfiguration config = new SimpleMetricConfiguration(10, 5, new SimpleMetricSeriesConfiguration(false, false));
+                IMetricConfiguration config = new SimpleMetricConfiguration(10, 5, new SimpleMetricSeriesConfiguration(false));
                 Metric metric = client.GetMetric("ChickensSold", config);
                 Assert.AreEqual(config, metric.GetConfiguration());
                 Assert.AreSame(config, metric.GetConfiguration());

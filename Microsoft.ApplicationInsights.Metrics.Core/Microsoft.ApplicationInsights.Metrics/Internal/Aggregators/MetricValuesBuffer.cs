@@ -4,47 +4,155 @@ using System.Threading;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    internal class MetricValuesBuffer<TMetricValue>
+    internal abstract class MetricValuesBufferBase<TValue>
     {
-        private const int SizeLimit = 50;
+        private int _lastWriteIndex = -1;
+        private volatile int _nextFlushIndex = 0;
 
-        private int _count = 0;
-        private readonly TMetricValue[] _values = new TMetricValue[SizeLimit];
+        private readonly TValue[] _values;
 
-        public int Count
+        public MetricValuesBufferBase(int capacity)
         {
+            if (capacity < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(capacity));
+            }
+
+            _values = new TValue[capacity];
+            ResetValues(_values);
+        }
+
+        protected abstract void ResetValues(TValue[] values);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected abstract TValue GetAndResetValueOnce(TValue[] values, int index);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected abstract void WriteValueOnce(TValue[] values, int index, TValue value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected abstract bool IsInvalidValue(TValue value);
+
+        public int Capacity {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
+            get { return _values.Length; }
+        }
+
+        public int NextFlushIndex
+        {
+            get { return _nextFlushIndex; }
+            set { _nextFlushIndex = value; }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int IncWriteIndex()
+        {
+            return Interlocked.Increment(ref _lastWriteIndex);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int PeekLastWriteIndex()
+        {
+            return Volatile.Read(ref _lastWriteIndex);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void WriteValue(int index, TValue value)
+        {
+            WriteValueOnce(_values, index, value);
+        }
+
+        public void ResetIndices()
+        {
+            _nextFlushIndex = 0;
+            Interlocked.Exchange(ref _lastWriteIndex, -1);
+        }
+
+        public void ResetIndicesAndData()
+        {
+            Interlocked.Exchange(ref _lastWriteIndex, Capacity);
+            ResetValues(_values);
+            ResetIndices();
+        }
+
+        public TValue GetAndResetValue(int index)
+        {
+            TValue value = GetAndResetValueOnce(_values, index);
+
+            if (IsInvalidValue(value))
             {
-                return _count;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryAdd(TMetricValue metricValue)
-        {
-            int nextCount = Interlocked.Increment(ref _count);
-
-            if (nextCount >= SizeLimit)
-            {
-                return false;
+                var spinWait = new SpinWait();
+                value = GetAndResetValueOnce(_values, index);
+                while (IsInvalidValue(value))
+                {
+                    spinWait.SpinOnce();
+                    value = GetAndResetValueOnce(_values, index);
+                }
             }
 
-            _values[nextCount - 1] = metricValue;
-            return true;
+            return value;
+        }
+    }
+
+    internal class MetricValuesBuffer_Double : MetricValuesBufferBase<double>
+    {
+        public MetricValuesBuffer_Double(int capacity)
+            : base(capacity)
+        {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TMetricValue Get(int index)
+        protected override bool IsInvalidValue(double value)
         {
-            return _values[index];
+            return Double.IsNaN(value);
+        }
+
+        protected override void ResetValues(double[] values)
+        {
+            for (int i = 0; i < values.Length; Interlocked.Exchange(ref values[i++], Double.NaN)) ;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Reset()
+        protected override double GetAndResetValueOnce(double[] values, int index)
         {
-            Interlocked.Exchange(ref _count, 0);
+            return Interlocked.Exchange(ref values[index], Double.NaN);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void WriteValueOnce(double[] values, int index, double value)
+        {
+            Interlocked.Exchange(ref values[index], value);
+        }
+    }
+
+    internal class MetricValuesBuffer_Object : MetricValuesBufferBase<object>
+    {
+        public MetricValuesBuffer_Object(int capacity)
+            : base(capacity)
+        {
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override bool IsInvalidValue(object value)
+        {
+            return (value == null);
+        }
+
+        protected override void ResetValues(object[] values)
+        {
+            for (int i = 0; i < values.Length; Interlocked.Exchange(ref values[i++], null)) ;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override object GetAndResetValueOnce(object[] values, int index)
+        {
+            return Interlocked.Exchange(ref values[index], null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void WriteValueOnce(object[] values, int index, object value)
+        {
+            Interlocked.Exchange(ref values[index], value);
+        }
     }
 }

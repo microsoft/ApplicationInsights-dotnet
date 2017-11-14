@@ -4,9 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using Microsoft.ApplicationInsights.Channel;
 
 using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
 

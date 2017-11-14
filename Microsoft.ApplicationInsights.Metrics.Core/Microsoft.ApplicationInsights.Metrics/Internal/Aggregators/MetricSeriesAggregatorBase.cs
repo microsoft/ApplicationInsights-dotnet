@@ -3,29 +3,38 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    internal abstract class MetricSeriesAggregatorBase<TMetricValue> : IMetricSeriesAggregator
+    internal abstract class MetricSeriesAggregatorBase<TBufferedValue> : IMetricSeriesAggregator
     {
-
         private readonly MetricSeries _dataSeries;
         private readonly MetricAggregationCycleKind _aggregationCycleKind;
         private readonly bool _isPersistent;
+        private readonly Func<MetricValuesBufferBase<TBufferedValue>> _metricValuesBufferFactory;
 
         private DateTimeOffset _periodStart;
         private IMetricValueFilter _valueFilter;
 
-        private MetricValuesBuffer<TMetricValue> _metricValuesBuffer = null;
-        private MetricValuesBuffer<TMetricValue> _metricValuesBufferRecycle = null;
+        private volatile MetricValuesBufferBase<TBufferedValue> _metricValuesBuffer;
+        private volatile MetricValuesBufferBase<TBufferedValue> _metricValuesBufferRecycle = null;
 
-        public MetricSeriesAggregatorBase(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
+        public MetricSeriesAggregatorBase(
+                                        Func<MetricValuesBufferBase<TBufferedValue>> metricValuesBufferFactory,
+                                        IMetricSeriesConfiguration configuration,
+                                        MetricSeries dataSeries,
+                                        MetricAggregationCycleKind aggregationCycleKind)
         {
+            Util.ValidateNotNull(metricValuesBufferFactory, nameof(metricValuesBufferFactory));
             Util.ValidateNotNull(configuration, nameof(configuration));
 
             _dataSeries = dataSeries;
             _aggregationCycleKind = aggregationCycleKind;
             _isPersistent = configuration.RequiresPersistentAggregation;
+
+            _metricValuesBufferFactory = metricValuesBufferFactory;
+            _metricValuesBuffer = InvokeMetricValuesBufferFactory();
 
             Reset(default(DateTimeOffset), default(IMetricValueFilter));
         }
@@ -47,8 +56,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             _periodStart = periodStart;
 
-            MetricValuesBuffer<TMetricValue> prevBuffer = Interlocked.Exchange(ref _metricValuesBuffer, null);
-            Interlocked.CompareExchange(ref _metricValuesBufferRecycle, prevBuffer, null);
+            _metricValuesBuffer.ResetIndicesAndData();
 
             ResetAggregate();
         }
@@ -61,6 +69,11 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public void TrackValue(double metricValue)
         {
+            if (Double.IsNaN(metricValue))
+            {
+                return;
+            }
+
             try     // Respect the filter. Note: Filter may be user code. If user code is broken, assume we accept the value.
             {
                 if (false == _valueFilter?.WillConsume(_dataSeries, metricValue))
@@ -71,14 +84,18 @@ namespace Microsoft.ApplicationInsights.Metrics
             catch { }
 
             // Prepare the metric value. If it is invalid, ConvertMetricValue may throw. This wil be propagated to the user.
-            TMetricValue value = ConvertMetricValue(metricValue);
+
+            TBufferedValue value = ConvertMetricValue(metricValue);
             TrackFilteredConvertedValue(value);
         }
 
-
-
         public void TrackValue(object metricValue)
         {
+            if (metricValue == null)
+            {
+                return;
+            }
+
             try     // Respect the filter. Note: Filter may be user code. If user code is broken, assume we accept the value.
             {
                 if (false == _valueFilter?.WillConsume(_dataSeries, metricValue))
@@ -89,7 +106,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             catch { }
 
             // Prepare the metric value. If it is invalid, ConvertMetricValue may throw. This wil be propagated to the user.
-            TMetricValue value = ConvertMetricValue(metricValue);
+            TBufferedValue value = ConvertMetricValue(metricValue);
             TrackFilteredConvertedValue(value);
         }
 
@@ -106,7 +123,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public MetricAggregate CreateAggregateUnsafe(DateTimeOffset periodEnd)
         {
-            SnapAndFlushBuffer();
+            UpdateAggregate(_metricValuesBuffer);
+
             return CreateAggregate(periodEnd);
         }
 
@@ -115,11 +133,14 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         protected abstract void ResetAggregate();
 
-        protected abstract TMetricValue ConvertMetricValue(double metricValue);
+        protected abstract TBufferedValue ConvertMetricValue(double metricValue);
 
-        protected abstract TMetricValue ConvertMetricValue(object metricValue);
+        protected abstract TBufferedValue ConvertMetricValue(object metricValue);
 
-        protected abstract void UpdateAggregate(MetricValuesBuffer<TMetricValue> buffer);
+        protected abstract object UpdateAggregate_Stage1(MetricValuesBufferBase<TBufferedValue> buffer, int minFlushIndex, int maxFlushIndex);
+
+        protected abstract void UpdateAggregate_Stage2(object stage1Result);
+
         #endregion Abstract Methods
 
         protected void AddInfo_Timing_Dimensions_Context(MetricAggregate aggregate, DateTimeOffset periodEnd)
@@ -148,84 +169,189 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private void TrackFilteredConvertedValue(TMetricValue metricValue)
+#if DEBUG
+        public static volatile int s_countBufferWaitSpinEvents = 0;
+        public static volatile int s_countBufferWaitSpinCycles = 0;
+        public static volatile int s_timeBufferWaitSpinMillis = 0;
+        public static volatile int s_countBufferFlushes = 0;
+        public static volatile int s_countNewBufferObjectsCreated = 0;
+#endif
+
+        /// <summary>
+        /// This method is the meat of the lock-free aggregation logic.
+        /// </summary>
+        /// <param name="metricValue">Already filtered and conveted value to be tracked.
+        ///     We know that the value is not Double.NaN and not null and it passed trought any filters.</param>
+        private void TrackFilteredConvertedValue(TBufferedValue metricValue)
         {
-            MetricValuesBuffer<TMetricValue> buffer = GetOrCreateBuffer();
-            bool canAdd = buffer.TryAdd(metricValue);
+            // Get reference to the current buffer:
+            MetricValuesBufferBase<TBufferedValue> buffer = _metricValuesBuffer;
 
-            while (! canAdd)
+            // Get the index at which to store metricValue into the buffer:
+            int index = buffer.IncWriteIndex();
+
+            // Check to see whether we are past the end of the buffer. 
+            // If we are, it means that some *other* thread hit exactly the end (wrote the last value that fits into the buffer) and is currently flushing.
+            // If we are, we will spin and wait.
+            if (index >= buffer.Capacity)
             {
-                FlushBuffer(buffer);
+#if DEBUG
+                int startMillis = Environment.TickCount;
+#endif
+                var spinWait = new SpinWait();
 
-                buffer = GetOrCreateBuffer();
-                canAdd = buffer.TryAdd(metricValue);
+                // It could be that the thread that was flushing is done and has updated the buffer pointer.
+                // We refresh our local reference and see if we now have a valid index into the buffer.
+                buffer = _metricValuesBuffer;
+                index = buffer.IncWriteIndex();
+
+                while (index >= buffer.Capacity)
+                {
+                    // Still not valid index into the buffer. Spin and try again.
+                    spinWait.SpinOnce();
+#if DEBUG
+                    unchecked
+                    {
+                        Interlocked.Increment(ref s_countBufferWaitSpinCycles);
+                    }
+#endif
+                    // In tests (including stress tests) we always finished wating before 100 cycles. However, this is a protection
+                    // against en extreme case on a slow machine. We will back off and sleep for a few millisecs to give th emachine
+                    // a chance to finisah current tasks.
+                    if (spinWait.Count % 100 == 0)
+                    {
+                        Task.Delay(10).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
+                    }
+
+                    // Check to see whether the thread that was flushing is done and has updated the buffer pointer.
+                    // We refresh our local reference and see if we now have a valid index into the buffer.
+                    buffer = _metricValuesBuffer;
+                    index = buffer.IncWriteIndex();
+                }
+#if DEBUG
+                unchecked
+                {
+                    int periodMillis = Environment.TickCount - startMillis;
+                    int currentSpinMillis = s_timeBufferWaitSpinMillis;
+                    int prevSpinMillis = Interlocked.CompareExchange(ref s_timeBufferWaitSpinMillis, currentSpinMillis + periodMillis, currentSpinMillis);
+                    while (prevSpinMillis != currentSpinMillis)
+                    {
+                        currentSpinMillis = s_timeBufferWaitSpinMillis;
+                        prevSpinMillis = Interlocked.CompareExchange(ref s_timeBufferWaitSpinMillis, currentSpinMillis + periodMillis, currentSpinMillis);
+                    }
+
+                    Interlocked.Increment(ref s_countBufferWaitSpinEvents);
+                }
+#endif
+            }
+
+            // Ok, so now we know that (0 <= index = buffer.Capacity). Write the value to the buffer:
+            buffer.WriteValue(index, metricValue);
+
+            // If this was the last value that fits into the buffer, we must flush the buffer:
+            if (index == buffer.Capacity - 1)
+            {
+                // Before we begin flushing (which is can take time), we update the _metricValuesBuffer to a fresh buffer that is ready to take values.
+                // That way threads do notneed to spin and wait until we flush and can begin writing values.
+
+                // We try to recycle a previous buffer to lower stress on GC and to lower Gen-2 heap fragmentation.
+                // The lifetime of an buffer can easily be a minute or so and then it can get into Gen-2 GC heap.
+                // If we then, keep throwing such buffers away we can fragment the Gen-2 heap. To avoid this we employ
+                // a simple form of best-effort object pooling.
+
+                // Get buffer from pool and reset the pool:
+                MetricValuesBufferBase<TBufferedValue> newBufer = Interlocked.Exchange(ref _metricValuesBufferRecycle, null);
+                
+                if (newBufer != null)
+                {
+                    // If we were succesful in getting a recycled buffer from the pool, we will try to use it as the new buffer.
+                    // If we successfully the the recycled buffer to be the new buffer, we will reset it to prepare for data.
+                    // Otherwise we will just throw it away.
+
+                    MetricValuesBufferBase<TBufferedValue> prevBuffer = Interlocked.CompareExchange(ref _metricValuesBuffer, newBufer, buffer);
+                    if (prevBuffer == buffer)
+                    {
+                        newBufer.ResetIndices();
+                    }
+                }
+                else
+                {
+                    // If we were succesful in getting a recycled buffer from the pool, we will create a new one.
+
+                    newBufer = InvokeMetricValuesBufferFactory();
+                    Interlocked.CompareExchange(ref _metricValuesBuffer, newBufer, buffer);
+                }
+
+                // Ok, now we have either set a new buffer that is ready to be used, or we have determined using CompareExchange
+                // that another thread set a new buffer and we do not need to do it here.
+
+                // Now we can actually flush the buffer:
+
+                UpdateAggregate(buffer);
+
+                // The buffer is now flushed. If the slot for the best-effor object pooling is free, use it:
+                Interlocked.CompareExchange(ref _metricValuesBufferRecycle, buffer, null);
             }
         }
 
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private MetricValuesBuffer<TMetricValue> GetOrCreateBuffer()
+        /// <summary>
+        /// Flushes the values buffer to update the aggregate state held by subclasses.
+        /// </summary>
+        /// <param name="buffer"></param>
+        private void UpdateAggregate(MetricValuesBufferBase<TBufferedValue> buffer)
         {
-            MetricValuesBuffer<TMetricValue> existingBuffer = _metricValuesBuffer;
-
-            if (existingBuffer != null)
+            if (buffer == null)
             {
-                return existingBuffer;
-            }
-
-            return GetOrCreateNewBuffer();
-        }
-
-        private MetricValuesBuffer<TMetricValue> GetOrCreateNewBuffer()
-        {
-            // A buffer is a relatively small object that can easily live for a minute or so. So, it can get into the Gen-2 GC heap, and become
-            // garbage soon thereafter. This can lead to a fragmentation of the Gen-2 heap. To mitigate, we employ a simple form of best-effort object pooling.
-            MetricValuesBuffer<TMetricValue> newBuffer = Interlocked.Exchange(ref _metricValuesBufferRecycle, null);
-            if (newBuffer == null)
-            {
-                newBuffer = new MetricValuesBuffer<TMetricValue>();
-            }
-            else
-            {
-                newBuffer.Reset();
-            }
-
-            MetricValuesBuffer<TMetricValue> prevBuffer = Interlocked.CompareExchange(ref _metricValuesBuffer, newBuffer, null);
-            MetricValuesBuffer<TMetricValue> usefulBuffer = prevBuffer ?? newBuffer;
-
-            return usefulBuffer;
-        }
-        
-        private void SnapAndFlushBuffer()
-        {
-            MetricValuesBuffer<TMetricValue> snappedBufer = Interlocked.Exchange(ref _metricValuesBuffer, null);
-            FlushBuffer(snappedBufer);
-        }
-
-        private void SnapAndFlushBuffer(MetricValuesBuffer<TMetricValue> bufferToSnap)
-        {
-            MetricValuesBuffer<TMetricValue> prevBufer = Interlocked.CompareExchange(ref _metricValuesBuffer, null, bufferToSnap);
-
-            if (prevBufer != bufferToSnap)
-            {
-                // This means we lost a race for flushing the buffer and the current buffer is not the one we wanted to flush.
-                // In this case, there is nothing for us to do.
                 return;
             }
 
-            // Ok, we won the race to flush. The current buffer was 'bufferToSnap' and we are the only one thread that changed that to null.
-            // Now we can update the running aggregate. Every aggergator implementation can do this in its own way, and potentially under a lock.
-            FlushBuffer(bufferToSnap);
+#if DEBUG
+            unchecked
+            {
+                Interlocked.Increment(ref s_countBufferFlushes);
+            }
+#endif
+
+            object stage1Result;
+
+            // This lock is only contended is a user called CreateAggregateUnsafe or CompleteAggregation.
+            // This is very unlikely to be the case in a tight loop.
+            lock (buffer)
+            {
+                int maxFlushIndex = Math.Min(buffer.PeekLastWriteIndex(), buffer.Capacity - 1);
+                int minFlushIndex = buffer.NextFlushIndex;
+
+                if (minFlushIndex > maxFlushIndex)
+                {
+                    return;
+                }
+
+                stage1Result = UpdateAggregate_Stage1(buffer, minFlushIndex, maxFlushIndex);
+                
+                buffer.NextFlushIndex = maxFlushIndex + 1;
+            }
+
+            UpdateAggregate_Stage2(stage1Result);
         }
 
-        private void FlushBuffer(MetricValuesBuffer<TMetricValue> buffer)
+        private MetricValuesBufferBase<TBufferedValue> InvokeMetricValuesBufferFactory()
         {
-            UpdateAggregate(buffer);
+#if DEBUG
+            unchecked
+            {
+                Interlocked.Increment(ref s_countNewBufferObjectsCreated);
+            }
+#endif
+            MetricValuesBufferBase<TBufferedValue> buffer = _metricValuesBufferFactory();
 
-            // A buffer is a relatively small object that can easily live for a minute or so. So, it can get into the Gen-2 GC heap, and become
-            // garbage soon thereafter. This can lead to a fragmentation of the Gen-2 heap. To mitigate, we employ a simple form of best-effort object pooling.
-            Interlocked.CompareExchange(ref _metricValuesBufferRecycle, buffer, null);
+            if (buffer == null)
+            {
+                throw new InvalidOperationException($"{nameof(_metricValuesBufferFactory)}-delegate returned null. This is not allowed. Bad aggregator?");
+            }
 
+            return buffer;
         }
+
+
     }
 }

@@ -191,7 +191,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                         if (satisfiesFilter)
                         {
                             MetricAggregate aggregate = aggregator.CompleteAggregation(tactTimestamp);
-                            persistentValsAggregations.Add(aggregate);
+
+                            if (aggregate != null)
+                            {
+                                persistentValsAggregations.Add(aggregate);
+                            }
                         }
                     }
                 }
@@ -223,7 +227,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                 if (aggregator != null)
                 {
                     MetricAggregate aggregate = aggregator.CompleteAggregation(tactTimestamp);
-                    nonpersistentAggregations.Add(aggregate);
+
+                    if (aggregate != null)
+                    {
+                        nonpersistentAggregations.Add(aggregate);
+                    }
                 }
             }
 

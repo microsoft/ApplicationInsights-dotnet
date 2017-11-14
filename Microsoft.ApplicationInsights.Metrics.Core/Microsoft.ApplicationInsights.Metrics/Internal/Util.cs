@@ -14,6 +14,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     internal static class Util
     {
         public const string NullString = "null";
+        private const double MicroOne = 0.000001;
 
         private const string FallbackParemeterName = "specified parameter";
         private const string MetricsSdkVersionMonikerPrefix = "msdk-";
@@ -82,6 +83,120 @@ namespace Microsoft.ApplicationInsights.Metrics
                                 : (Double.IsNaN(x))
                                         ? 0.0
                                         : x;
+        }
+
+        public static double RoundAndValidateValue(double value)
+        {
+            if (Double.IsNaN(value))
+            {
+                throw new ArgumentException("Cannot process the specified value."
+                                          + " A non-negavite whole number was expected, but the specified value is Double.NaN."
+                                          + " Have you specified the correct metric configuration?");
+            }
+
+            if (value < -MicroOne)
+            {
+                throw new ArgumentException("Cannot process the specified value."
+                                          + " A non-negavite whole number was expected, but the specified value is"
+                                          +$" a negative double value ({value})."
+                                          + " Have you specified the correct metric configuration?");
+            }
+
+            double wholeValue = Math.Round(value);
+
+            if (wholeValue > UInt32.MaxValue)
+            {
+                throw new ArgumentException("Cannot process the specified value."
+                                         + " A non-negavite whole number was expected, but the specified value is"
+                                         +$" larger than the maximum accepted value ({value})."
+                                         + " Have you specified the correct metric configuration?");
+            }
+
+            double delta = Math.Abs(value - wholeValue);
+            if (delta > MicroOne)
+            {
+                throw new ArgumentException("Cannot process the specified value."
+                                          + " A non-negavite whole number was expected, but the specified value is"
+                                          +$" a double value that does not equal to a whole number ({value})."
+                                          + " Have you specified the correct metric configuration?");
+            }
+
+            return wholeValue;
+        }
+
+        public static double ConvertToDoubleValue(object metricValue)
+        {
+            if (metricValue == null)
+            {
+                return Double.NaN;
+            }
+
+            if (metricValue is SByte)
+            {
+                return (double) (SByte) metricValue;
+            }
+            else if (metricValue is Byte)
+            {
+                return (double) (Byte) metricValue;
+            }
+            else if (metricValue is Int16)
+            {
+                return (double) (Int16) metricValue;
+            }
+            else if (metricValue is UInt16)
+            {
+                return (double) (UInt16) metricValue;
+            }
+            else if (metricValue is Int32)
+            {
+                return (double) (Int32) metricValue;
+            }
+            else if (metricValue is UInt32)
+            {
+                return (double) (UInt32) metricValue;
+            }
+            else if (metricValue is Int64)
+            {
+                return (double) (Int64) metricValue;
+            }
+            else if (metricValue is UInt64)
+            {
+                return (double) (UInt64) metricValue;
+            }
+            else if (metricValue is Single)
+            {
+                return (double) (Single) metricValue;
+            }
+            else if (metricValue is Double)
+            {
+                return (double) (Double) metricValue;
+            }
+            else
+            {
+                string stringValue = metricValue as string;
+                if (stringValue != null)
+                {
+                    double doubleValue;
+                    if (Double.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out doubleValue))
+                    {
+                        return doubleValue;
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Cannot process the specified value."
+                                                  +$" A numeric value was expected, but the specified {nameof(metricValue)} is"
+                                                  +$" a String that cannot be parsed into a number (\"{metricValue}\")."
+                                                  + " Have you specified the correct metric configuration?");
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException("Cannot process the specified value."
+                                             +$" A numeric value was expected, but the specified {nameof(metricValue)} is"
+                                             +$" of type {metricValue.GetType().FullName}."
+                                             + " Have you specified the correct metric configuration?");
+                }
+            }
         }
 
         public static DateTimeOffset RoundDownToMinute(DateTimeOffset dto)

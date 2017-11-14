@@ -414,9 +414,7 @@ namespace User.Namespace.Example03
                                                         new SimpleMetricConfiguration(
                                                                     seriesCountLimit:           1000,
                                                                     valuesPerDimensionLimit:    100,
-                                                                    seriesConfig:               new SimpleMetricSeriesConfiguration(
-                                                                                                        usePersistentAggregation: false,
-                                                                                                        restrictToUInt32Values: false)));
+                                                                    seriesConfig:               new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false)));
 
             // seriesCountLimit is the max total number of series the metric can contain before TryTrackValue(..) and TryGetDataSeries(..) stop
             // creating new data series and start returning false.
@@ -495,7 +493,7 @@ namespace User.Namespace.Example04
 
             MetricSeries itemAccumulator = metrics.CreateNewSeries(
                                                     "Items in Queue",
-                                                    new SimpleMetricSeriesConfiguration(usePersistentAggregation: true, restrictToUInt32Values: false));
+                                                    new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: false));
 
             itemAccumulator.TrackValue(1);
             itemAccumulator.TrackValue(1);
@@ -511,12 +509,12 @@ namespace User.Namespace.Example04
             MetricSeries purpleCowsSold = metrics.CreateNewSeries(
                                              "Animals Sold",
                                              new Dictionary<string, string>() { ["Species"] = "Cows", ["Color"] = "Purple" },
-                                             new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
+                                             new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false));
 
             MetricSeries yellowHorsesSold = metrics.CreateNewSeries(
                                              "Animals Sold",
                                              new[] { new KeyValuePair<string, string>("Species", "Horses"), new KeyValuePair<string, string>("Color", "Yellow") },
-                                             new SimpleMetricSeriesConfiguration(usePersistentAggregation: false, restrictToUInt32Values: false));
+                                             new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false));
 
             purpleCowsSold.TrackValue(42);
             yellowHorsesSold.TrackValue(132);
@@ -1125,9 +1123,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Examples
         [TestMethod]
         public void Example06()
         {
-            //User.Namespace.Example06ab.Sample06ab.ExecA();
+            User.Namespace.Example06ab.Sample06ab.ExecA();
             User.Namespace.Example06ab.Sample06ab.ExecB();
-            //User.Namespace.Example06c.Sample06c.ExecC();
+            User.Namespace.Example06c.Sample06c.ExecC();
         }
     }
 }
