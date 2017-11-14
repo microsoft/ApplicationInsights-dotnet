@@ -31,11 +31,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\DocumentDbHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\GenericServiceHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\HttpParsingHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\IDiagnosticEventHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ObjectInstanceBasedOperationHolder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\OperationWatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RDDSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RemoteDependencyConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SdkVersionUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServiceBusDiagnosticsEventHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PropertyFetcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SanitizedHostList.cs" />
