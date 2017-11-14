@@ -44,9 +44,9 @@ Pre-requisites
 After you've done this, execute the ```runFunctionalTests.cmd``` script in the repository root. You can also run and debug the functional tests from Visual Studio by opening the respective solutions under the Test directory in the repository root.
 
 The following solutions contains the functional tests for various features.
-"\Test\Web\FunctionalTests.sln"  				 -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.Web
+"\Test\Web\FunctionalTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.Web
 "\Test\PerformanceCollector\FunctionalTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.PerfCounterCollector
-"\Test\E2ETests\DependencyCollectionTests.sln" 					 -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.DependencyCollector
+"\Test\E2ETests\DependencyCollectionTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.DependencyCollector
 
 ## Known issues/workarounds with running functional tests.
 
@@ -54,9 +54,9 @@ Web and PerformanceCollector fails with error related to 'Port conflicts' - its 
 	Workaround - Kill all running IISExpress processes and re-run tests.
 
 Dependency Collector functional tests fail with messages like "Assert.AreEqual failed. Expected:<1>. Actual<0>." or "All apps are not healthy", then its likely that Docker installation has some issues.
-	Workaround - Make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready. Also, the very first time DependencyCollector tests are run, all Docker images are downloaded from web and this could potentially take an hour or so. This is only one time per machine.
+	Workaround if you are trying first time - Make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready. Also, the very first time DependencyCollector tests are run, all Docker images are downloaded from web and this could potentially take an hour or so. This is only one time per machine.
 	
-	Alternate workaround - execute the ```dockercleanup.ps1``` from repository root to cleanup any containers from prior runs.
+	Alternate workaround if you have previously run the tests successfully atleast once - execute the ```dockercleanup.ps1``` from repository root to cleanup any containers from prior runs.
 
 The test code intentionally does not clean up the containers it spun up. This is to enable fast re-runs of the tests. If the WebApp code is changed, then Docker-Compose will detect it, and re-build the container.
 If you want to do clean up all the containers created by the test, execute the ```dockercleanup.ps1``` from repository root.

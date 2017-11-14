@@ -11,7 +11,8 @@ If you are reporting bug/issue, please provide detailed Repro instructions.
 
 
 ## Versions 
-SDK Version 						      :
-.NET version							  :	 							  
-OS 										  :
-Hosting Info (IIS/Azure WebApps/ etc)     :
+SDK Version :
+.NET Version :	 						
+How Application was onboarded with SDK(VisualStudio/StatusMonitor/Azure Extension) :
+OS :
+Hosting Info (IIS/Azure WebApps/ etc) :
