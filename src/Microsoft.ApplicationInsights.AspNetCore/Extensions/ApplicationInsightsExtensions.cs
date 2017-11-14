@@ -150,6 +150,9 @@ namespace Microsoft.Extensions.DependencyInjection
                     excludedDomains.Add("localhost");
                     excludedDomains.Add("127.0.0.1");
 
+                    var includedActivities = module.IncludeDiagnosticSourceActivities;
+                    includedActivities.Add("Microsoft.Azure.ServiceBus");
+
                     return module;
                 });
 
