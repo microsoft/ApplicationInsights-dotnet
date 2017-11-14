@@ -88,7 +88,7 @@ namespace E2ETests
                 DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
                 Thread.Sleep(5000);
                 DockerUtils.PrintDockerProcessStats("Docker-Compose -build retry");
-
+                PopulateIPAddresses();
                 allAppsHealthy = HealthCheckAndRemoveImageIfNeededAllApp();
             }            
 
