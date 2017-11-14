@@ -204,6 +204,43 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
         [TestMethod]
         [TestCategory("EventSourceListener")]
+        public void ReactsToConfigurationChangesWithDisabledEventSources()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                var listeningRequest = new EventSourceListeningRequest();
+                listeningRequest.Name = TestEventSource.ProviderName;
+                module.Sources.Add(listeningRequest);
+                var disableListeningRequest = new DisableEventSourceRequest()
+                {
+                    Name = TestEventSource.ProviderName
+                };
+
+                // Disabled
+                module.DisabledSources.Add(disableListeningRequest);
+                module.Initialize(GetTestTelemetryConfiguration());
+                TestEventSource.Default.InfoEvent("Hey!");
+                int sentCount = this.adapterHelper.Channel.SentItems.Count();
+                Assert.AreEqual(0, sentCount);
+
+                // From Disabled to Enabled
+                module.DisabledSources.Remove(disableListeningRequest);
+                module.Initialize(GetTestTelemetryConfiguration());
+                TestEventSource.Default.InfoEvent("Hey!");
+                sentCount = this.adapterHelper.Channel.SentItems.Count();
+                Assert.AreEqual(1, sentCount);
+
+                // From Enabled to Disabled
+                module.DisabledSources.Add(disableListeningRequest);
+                module.Initialize(GetTestTelemetryConfiguration());
+                TestEventSource.Default.InfoEvent("Hey!");
+                sentCount = this.adapterHelper.Channel.SentItems.Count();
+                Assert.AreEqual(0, sentCount);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
         public void ReportsSeverityLevel()
         {
             using (var module = new EventSourceTelemetryModule())
