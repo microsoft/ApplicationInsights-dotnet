@@ -1,42 +1,16 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
-    "version": "2.0.0",
+    "version": "0.1.0",
+    "command": "dotnet",
+    "isShellCommand": true,
+    "args": [],
     "tasks": [
         {
-            "label": "build",
-            "type": "shell",
-            "command": "msbuild",
+            "taskName": "build",
             "args": [
-                "${workspaceRoot}/Microsoft.ApplicationInsights.sln",
-                // Ask msbuild to generate full paths for file names.
-                "/property:GenerateFullPaths=true",
-                "/t:build"
+                "${workspaceRoot}/Test/Microsoft.ApplicationInsights.Test/netcoreapp11/Microsoft.ApplicationInsights.netcoreapp11.Tests.csproj"
             ],
-            "group": "build",
-            "presentation": {
-                // Reveal the output only if unrecognized errors occur.
-                "reveal": "always"
-            },
-            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "isBuildCommand": true,
             "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "test",
-            "type": "shell",
-            "command": "dotnet",
-            "args": [
-                "test",
-                "Test/ServerTelemetryChannel.Test/NetCore.Tests/TelemetryChannel.NetCore.Tests.csproj;Test/Microsoft.ApplicationInsights.Test/netcoreapp11/Microsoft.ApplicationInsights.netcoreapp11.Tests.csproj"
-            ],
-            "group": "test",
-            "presentation": {
-                // Reveal the output only if unrecognized errors occur.
-                "reveal": "always"
-            },
-            // Use the standard MS compiler pattern to detect errors, warnings and infos
-            "problemMatcher": "$msCompile"
-            //dotnet test Test/ServerTelemetryChannel.Test/NetCore.Tests/TelemetryChannel.NetCore.Tests.csproj 
         }
     ]
 }

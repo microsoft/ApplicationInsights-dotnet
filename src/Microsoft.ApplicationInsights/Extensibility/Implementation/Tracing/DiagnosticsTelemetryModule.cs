@@ -18,9 +18,10 @@
         internal IHeartbeatProvider HeartbeatProvider = null;
         private readonly object lockObject = new object();
         private readonly IDiagnoisticsEventThrottlingScheduler throttlingScheduler = new DiagnoisticsEventThrottlingScheduler();
+        private readonly IList<string> excludedHeartbeatProps = new List<string>();
         private volatile bool disposed = false;
-        private IList<string> excludedHeartbeatProps = new List<string>();
         private bool isHeartbeatEnabled = true;
+        private TimeSpan heartbeatInterval;
         private string instrumentationKey;
         private bool isInitialized = false;
 
@@ -34,7 +35,7 @@
 
             this.EventListener = new DiagnosticsListener(this.Senders);
 
-            this.HeartbeatInterval = TimeSpan.FromMilliseconds(Tracing.HeartbeatProvider.DefaultHeartbeatIntervalMs);
+            this.heartbeatInterval = TimeSpan.FromMilliseconds(Tracing.HeartbeatProvider.DefaultHeartbeatIntervalMs);
         }
 
         /// <summary>
@@ -68,7 +69,19 @@
         /// <summary>
         /// Gets or sets the delay between heartbeats.
         /// </summary>
-        public TimeSpan HeartbeatInterval { get; set; }
+        public TimeSpan HeartbeatInterval
+        {
+            get => this.heartbeatInterval;
+
+            set
+            {
+                this.heartbeatInterval = value;
+                if (this.HeartbeatProvider != null)
+                {
+                    this.HeartbeatProvider.Interval = this.heartbeatInterval;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets property names that are not to be sent with the health heartbeats. null/empty list means allow all default properties through.
@@ -184,12 +197,11 @@
                         }
 
                         // set up heartbeat
-                        if (this.HeartbeatProvider == null)
+                        this.HeartbeatProvider = new HeartbeatProvider();
+                        if (!this.HeartbeatProvider.Initialize(configuration, this.DiagnosticsInstrumentationKey, this.HeartbeatInterval, this.ExcludedHeartbeatProperties, this.isHeartbeatEnabled))
                         {
-                            this.HeartbeatProvider = new HeartbeatProvider();
+                            CoreEventSource.Log.LogError("Unable to initialize Health Heartbeat module.");
                         }
-
-                        this.HeartbeatProvider.Initialize(configuration, this.DiagnosticsInstrumentationKey, this.HeartbeatInterval, this.ExcludedHeartbeatProperties, this.isHeartbeatEnabled);
 
                         this.isInitialized = true;
                     }

@@ -37,7 +37,7 @@
             {
                 hbeat.Initialize(configuration: null);
                 Assert.IsNull(hbeat.DisabledHeartbeatProperties);
-                Assert.AreEqual(HeartbeatProvider.DefaultHeartbeatIntervalMs, hbeat.HeartbeatInterval.TotalMilliseconds);
+                Assert.AreEqual(HeartbeatProvider.DefaultHeartbeatIntervalMs, hbeat.Interval.TotalMilliseconds);
             }
         }
 
@@ -49,7 +49,7 @@
             using (var hbeat = new HeartbeatProvider())
             {
                 hbeat.Initialize(configuration: null, timeBetweenHeartbeats: nonDefaultInterval);
-                Assert.AreEqual(nonDefaultInterval, hbeat.HeartbeatInterval);
+                Assert.AreEqual(nonDefaultInterval, hbeat.Interval);
             }
         }
 
@@ -100,10 +100,10 @@
             using (var hbeat = new HealthHeartbeatProviderMock())
             {
                 hbeat.Initialize(configuration: null);
-                Assert.AreNotEqual(userSetInterval, hbeat.HeartbeatInterval.TotalMilliseconds);
+                Assert.AreNotEqual(userSetInterval, hbeat.Interval.TotalMilliseconds);
 
                 hbeat.Initialize(configuration: null, timeBetweenHeartbeats: userSetInterval);
-                Assert.AreEqual(userSetInterval, hbeat.HeartbeatInterval);
+                Assert.AreEqual(userSetInterval, hbeat.Interval);
             }
         }
 

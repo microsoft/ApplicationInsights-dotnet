@@ -10,6 +10,8 @@
 
         bool IsEnabled { get; set; }
 
+        TimeSpan Interval { get; set; }
+
         bool AddHealthProperty(string name, string value, bool isHealthy);
 
         bool SetHealthProperty(string name, string value = null, bool? isHealthy = null);

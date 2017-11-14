@@ -4,6 +4,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 2.5.0-beta2
 - Remove calculation of sampling-score based on Context.User.Id [Issue #625](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/625)
+- New sdk-driven "heartbeat" functionality added which sends health status at pre-configured intervals.
 - Fixes a bug in ServerTelemetryChannel which caused application to crash on non-windows platforms. 
 			[Details on fix and workaround #654] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/654)
 			Original issue (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/551)
@@ -17,7 +18,6 @@ This changelog will be used to generate documentation on [release notes page](ht
 - Instrumentation key is no longer required for TelemetryClient to send data to channel(s). This makes it easier to use the SDK with channels other than native Application Insights channels.
 - .NET 4.0 targets were removed. Please use the version 2.4.0 if you cannot upgrade your application to the latest framework version.
 - Removed `wp8`, `portable-win81+wpa81` and `uap10.0` targets.
-- New sdk-driven "heartbeat" functionality added which sends health status at pre-configured intervals.
 
 ## Version 2.4.0
 - Updated version of DiagnosticSource to 4.4.0 stable

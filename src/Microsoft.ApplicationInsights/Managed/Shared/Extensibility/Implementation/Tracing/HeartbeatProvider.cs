@@ -54,9 +54,13 @@
         }
 
         /// <summary>
-        /// Gets the currently defined interval between heartbeats (primarily used in unit testing scenarios)
+        /// Gets or sets the currently defined interval between heartbeats (primarily used in unit testing scenarios)
         /// </summary>
-        public TimeSpan HeartbeatInterval => this.heartbeatInterval;
+        public TimeSpan Interval
+        {
+            get => this.heartbeatInterval;
+            set => this.heartbeatInterval = value;
+        }
 
         /// <summary>
         /// Gets or sets the current Instrumentation key being used to send heartbeat data to
