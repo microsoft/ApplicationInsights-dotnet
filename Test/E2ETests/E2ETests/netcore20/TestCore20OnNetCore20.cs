@@ -11,6 +11,7 @@ using AI;
 using Microsoft.ApplicationInsights.DataContracts;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 
 namespace E2ETests.netcore20
 {
@@ -57,16 +58,23 @@ namespace E2ETests.netcore20
 
         [TestMethod]        
         [TestCategory("Core20")]
-        public void TestCore20OnNetCore20_SyncHttpDependency()
+        public void TestCore20OnNetCore20_HttpDependency()
         {
-            base.TestSyncHttpDependency(VersionPrefix, AppNameBeingTested, "/external/calls?type=http");
+            base.TestHttpDependency(VersionPrefix, AppNameBeingTested, "/external/calls?type=http", "200", true);
         }
 
         [TestMethod]
         [TestCategory("Core20")]
-        public void TestCore20OnNetCore20_SyncHttpPostDependency()
+        public void TestCore20OnNetCore20_HttpPostDependency()
         {
-            base.TestSyncHttpDependency(VersionPrefix, AppNameBeingTested, "/external/calls?type=httppost");
+            base.TestHttpDependency(VersionPrefix, AppNameBeingTested, "/external/calls?type=httppost", "204", true);
+        }
+
+        [TestMethod]
+        [TestCategory("Core20")]
+        public void TestCore20OnNetCore20_FailedHttpDependency()
+        {
+            base.TestHttpDependency(VersionPrefix, AppNameBeingTested, "/external/calls?type=failedhttp", "500", false);
         }
 
 
