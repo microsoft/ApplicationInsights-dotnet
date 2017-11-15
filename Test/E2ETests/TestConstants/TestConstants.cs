@@ -35,5 +35,19 @@ namespace TestUtils.TestConstants
         public const string WebApiFlushPath = "/api/values";
         public const string IngestionFlushPath = "/api/Data/HealthCheck?name=cijo";
 
+        public const string WebAppTargetNameToWebApi = "e2etestwebapi";
+        public const string WebAppTargetNameToInvalidHost = "abcdefzzzzeeeeadadad.com";
+        public const string WebAppUrlToInvalidHost = "http://abcdefzzzzeeeeadadad.com";        
+        public const string WebAppUrlToWebApiSuccess = "http://e2etestwebapi:80/api/values";
+        public const string WebAppUrlToWebApiException = "http://e2etestwebapi:80/api/values/999";
+
+        public const string WebAppTargetNameToSql = "sql-server | dependencytest";
+        public const string WebAppFullQueryToSqlException = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabasesunknown";
+        public const string WebAppFullQueryToSqlSuccess = "WAITFOR DELAY '00:00:00:007';select * from dbo.Messages";
+        public const string WebAppFullQueryToSqlSuccessXML = "WAITFOR DELAY '00:00:00:007';select * from dbo.Messages FOR XML AUTO";        
+
+        public const string WebAppTargetToEmulatorBlob = "e2etests_azureemulator_1:10000";
+        public const string WebAppTargetToEmulatorQueue = "e2etests_azureemulator_1:10001";
+        public const string WebAppTargetToEmulatorTable = "e2etests_azureemulator_1:10002";        
     }
 }
