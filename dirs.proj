@@ -5,7 +5,7 @@
     <Solution Include="Src\Microsoft.ApplicationInsights.Web.sln" />    
     <Solution Include="Test\PerformanceCollector\FunctionalTests.sln" />
     <Solution Include="Test\Web\FunctionalTests.sln" />
-	<Solution Include="Test\E2ETests\E2ETests.sln" />
+	<Solution Include="Test\E2ETests\DependencyCollectionTests.sln" />
   </ItemGroup>
   
   <Target Name="Build">
