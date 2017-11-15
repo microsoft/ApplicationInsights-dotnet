@@ -11,3 +11,5 @@ CALL "%VSTestPath%" /UseVsixExtensions:true "%BuildRoot%Src\PerformanceCollector
 set VSTestNetCorePath=%PROGRAMFILES(x86)%\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe
 
 CALL "%VSTestNetCorePath%" "%BuildRoot%Src\PerformanceCollector\NetCore.Tests\netcoreapp1.0\Microsoft.AI.PerformanceCollector.NetCore.Tests.dll" "%BuildRoot%Src\DependencyCollector\NetCore.Tests\netcoreapp1.0\Microsoft.AI.DependencyCollector.Tests.dll" "/Framework:FrameworkCore10" /logger:trx
+
+PAUSE
