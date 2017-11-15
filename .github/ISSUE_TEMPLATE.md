@@ -10,7 +10,7 @@ If you are reporting bug/issue, please provide detailed Repro instructions.
 ## Expected Behavior
 
 
-## Versions 
+## Version Info 
 SDK Version :
 .NET Version :	 						
 How Application was onboarded with SDK(VisualStudio/StatusMonitor/Azure Extension) :
