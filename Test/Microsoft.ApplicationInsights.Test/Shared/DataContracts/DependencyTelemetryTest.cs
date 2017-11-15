@@ -1,16 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
+    using KellermanSoftware.CompareNetObjects;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
-#if !NETCOREAPP1_1
-    using KellermanSoftware.CompareNetObjects;
-#endif
-    using System.Collections.Generic;
     using Microsoft.ApplicationInsights.TestFramework;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class DependencyTelemetryTest

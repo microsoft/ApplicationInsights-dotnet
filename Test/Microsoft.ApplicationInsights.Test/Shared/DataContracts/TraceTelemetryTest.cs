@@ -7,9 +7,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
-#if !NETCOREAPP1_1
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
-#endif
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.TestFramework;
 
@@ -148,7 +146,6 @@
             Assert.AreEqual(10, item.sampleRate);
         }
 
-#if !NETCOREAPP1_1
         [TestMethod]
         public void TraceTelemetryDeepCloneCopiesAllProperties()
         {
@@ -165,6 +162,5 @@
 
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
-#endif
     }
 }
