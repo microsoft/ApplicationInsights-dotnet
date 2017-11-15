@@ -24,8 +24,7 @@ namespace E2ETestApp
         public const string InvalidAccountConnectionString = @"Server =sql-server;User Id = sa; Password=thisiswrong";
         public const string InvalidServerConnectionString = @"Server =sql-server-dontexist;User Id = sa; Password=MSDNm4g4z!n4";
         private string SqlQuerySuccess = "WAITFOR DELAY '00:00:00:007';select * from dbo.Messages";
-        private string SqlQueryError = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabasesunknown";
-        private string SqlStoredProcedureName = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabases";
+        private string SqlQueryError = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabasesunknown";        
         public static string EndPointAddressFormat = "http://{0}/api/Data/PushItem";
 
         private const string UrlTestWebApiGetCallTemplate = "http://{0}:80/api/values";
