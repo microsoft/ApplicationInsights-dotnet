@@ -477,7 +477,7 @@ namespace E2ETests
         }
 
 
-        public void TestSqlDependency(string expectedPrefix, string appname, string path, bool success = true, bool storedProc = false)
+        public void TestSqlDependency(string expectedPrefix, string appname, string path, string expectedData, bool success = true)
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "SQL";
@@ -487,15 +487,8 @@ namespace E2ETests
                 expectedDependencyTelemetry.ResultCode = "208";
             }
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            if(storedProc)
-            {
-                expectedDependencyTelemetry.Data = TestConstants.WebAppStoredProcedureNameToSql;
-            }
-            else
-            {
-                expectedDependencyTelemetry.Data = (success) ? TestConstants.WebAppFullQueryToSqlSuccess : TestConstants.WebAppFullQueryToSqlException;
-            }
-
+            expectedDependencyTelemetry.Data = expectedData;
+            
             ValidateBasicDependency(Apps[appname].ipAddress, path, expectedDependencyTelemetry,
                 Apps[appname].ikey, 1, expectedPrefix);
         }

@@ -44,7 +44,7 @@ namespace E2ETestAppCore20.Controllers
         /// <summary>
         /// Invalid SQL Query.
         /// </summary> 
-        private const string InvalidSqlQueryToApmDatabase = "SELECT TOP 2 * FROM apm.[Database1212121]";
+        private const string InvalidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabasesunknown";
 
         /// <summary>
         /// Label used to identify the query being executed.
