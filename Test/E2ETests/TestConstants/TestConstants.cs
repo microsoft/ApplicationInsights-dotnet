@@ -44,6 +44,7 @@ namespace TestUtils.TestConstants
         public const string WebAppTargetNameToSql = "sql-server | dependencytest";
         public const string WebAppFullQueryToSqlException = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabasesunknown";
         public const string WebAppFullQueryToSqlSuccess = "WAITFOR DELAY '00:00:00:007';select * from dbo.Messages";
+        public const string WebAppStoredProcedureNameToSql = "GetTopTenMessages";
         public const string WebAppFullQueryToSqlSuccessXML = "WAITFOR DELAY '00:00:00:007';select * from dbo.Messages FOR XML AUTO";        
 
         public const string WebAppTargetToEmulatorBlob = "e2etests_azureemulator_1:10000";

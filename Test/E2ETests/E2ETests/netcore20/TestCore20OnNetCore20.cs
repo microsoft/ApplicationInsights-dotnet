@@ -124,7 +124,7 @@ namespace E2ETests.netcore20
         [TestCategory("Core20")]
         public void TestCore20OnNetCore20_SqlCommandExecuteReaderStoredProcedureAsync()
         {
-            base.TestSqlDependency(VersionPrefixSql, AppNameBeingTested, "/external/calls?type=ExecuteReaderStoredProcedureAsync&storedProcedureName=GetTopTenMessages&success=true", true);
+            base.TestSqlDependency(VersionPrefixSql, AppNameBeingTested, "/external/calls?type=ExecuteReaderStoredProcedureAsync&storedProcedureName=GetTopTenMessages&success=true", true, true);
         }
 
         [ClassCleanup]

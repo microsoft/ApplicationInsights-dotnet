@@ -59,7 +59,7 @@ Dependency Collector functional tests fail with messages like "Assert.AreEqual f
 	Alternate workaround if you have previously run the tests successfully atleast once - execute the ```dockercleanup.ps1``` from repository root to cleanup any containers from prior runs.
 
 The test code intentionally does not clean up the containers it spun up. This is to enable fast re-runs of the tests. If the WebApp code is changed, then Docker-Compose will detect it, and re-build the container.
-If you want to do clean up all the containers created by the test, execute the ```dockercleanup.ps1``` from repository root.
+If you want to do clean up all the containers created by the test, execute the ```dockercleanup.ps1``` from repository root. This is typically required if tests were aborted in the middle of a run for some reason.
 
 ## Debugging the functional tests.
 It is important to note that since the test application is deployed as a separate process/container, debugging the tests itself will not help debug the application code. A debugger need to be attached

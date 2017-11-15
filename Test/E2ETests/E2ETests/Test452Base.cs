@@ -477,7 +477,7 @@ namespace E2ETests
         }
 
 
-        public void TestSqlDependency(string expectedPrefix, string appname, string path, bool success = true)
+        public void TestSqlDependency(string expectedPrefix, string appname, string path, bool success = true, bool storedProc = false)
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "SQL";
@@ -487,7 +487,14 @@ namespace E2ETests
                 expectedDependencyTelemetry.ResultCode = "208";
             }
             expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
-            expectedDependencyTelemetry.Data = (success) ? TestConstants.WebAppFullQueryToSqlSuccess : TestConstants.WebAppFullQueryToSqlException;
+            if(storedProc)
+            {
+                expectedDependencyTelemetry.Data = TestConstants.WebAppStoredProcedureNameToSql;
+            }
+            else
+            {
+                expectedDependencyTelemetry.Data = (success) ? TestConstants.WebAppFullQueryToSqlSuccess : TestConstants.WebAppFullQueryToSqlException;
+            }
 
             ValidateBasicDependency(Apps[appname].ipAddress, path, expectedDependencyTelemetry,
                 Apps[appname].ikey, 1, expectedPrefix);
@@ -894,7 +901,17 @@ namespace E2ETests
                 Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
         }
 
+        public void TestSqlDependencyStoredProcedureName(string expectedPrefix)
+        {
+            var expectedDependencyTelemetry = new DependencyTelemetry();
+            expectedDependencyTelemetry.Type = "SQL";
+            expectedDependencyTelemetry.Success = true;            
+            expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToSql;
+            expectedDependencyTelemetry.Data = TestConstants.WebAppStoredProcedureNameToSql;
 
+            ValidateBasicDependency(Apps[AppNameBeingTested].ipAddress, "/Dependencies.aspx?type=ExecuteReaderStoredProcedureAsync&storedProcedureName=GetTopTenMessages", expectedDependencyTelemetry,
+                Apps[AppNameBeingTested].ikey, 1, expectedPrefix);
+        }
 
         private async Task ValidateXComponentWebAppToWebApi(string sourceInstanceIp, string targetInstanceIp, string sourcePath,
             RequestTelemetry expectedRequestTelemetrySource,

@@ -191,8 +191,14 @@ namespace E2ETestApp
                                         ? SqlQuerySuccess
                                         : SqlQueryError);
                         break;
-                    case "ExecuteReaderStoredProcedureAsync":
-                        SqlCommandHelper.ExecuteReaderAsync(LocalDbConnectionString, SqlStoredProcedureName, CommandType.StoredProcedure);
+                    case "ExecuteReaderStoredProcedureAsync":                        
+                        string storedProcedureName = "GetTopTenMessages";
+                        try
+                        {
+                            storedProcedureName = Request.QueryString["storedProcedureName"];
+                        }
+                        catch (Exception) { }
+                        SqlCommandHelper.ExecuteReaderAsync(LocalDbConnectionString, storedProcedureName, CommandType.StoredProcedure);
                         break;
                     case "TestExecuteReaderTwice":
                         SqlCommandHelper.TestExecuteReaderTwice(LocalDbConnectionString, (success == true)
