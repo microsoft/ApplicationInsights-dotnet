@@ -417,6 +417,15 @@ namespace E2ETests.Net462SMSM
             base.TestSqlDependencySqlCommandExecuteXmlReaderFailed(VersionPrefixSql);
         }
 
+        [TestMethod]
+        [TestCategory("Net452OnNet462SM")]
+        public void Test452OnNet462SM_SqlDependencyStoredProcedure()
+        {
+            base.TestSqlDependencyStoredProcedureName(VersionPrefixSql);
+        }
+
+        
+
         [ClassCleanup]
         public static void MyClassCleanup()
         {
