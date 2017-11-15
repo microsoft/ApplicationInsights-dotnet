@@ -74,7 +74,7 @@ namespace Microsoft.ApplicationInsights
 
         public void Flush()
         {
-            throw new System.NotImplementedException();
+            throw new Exception("Flush called");
         }
 
         public void Dispose()

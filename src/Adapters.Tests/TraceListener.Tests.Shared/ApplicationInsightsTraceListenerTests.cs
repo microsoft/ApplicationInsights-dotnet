@@ -367,6 +367,25 @@
             Assert.IsFalse(telemetry.Properties.ContainsKey("CallStack"));
         }
 
+        [TestMethod]
+        public void TraceListenerFlushesChannel()
+        {
+            TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+
+            using (var listener = new ApplicationInsightsTraceListener(Guid.NewGuid().ToString()))
+            {
+                try
+                {
+                    listener.Flush();
+                    Assert.Fail();
+                }
+                catch (Exception ex)
+                {
+                    Assert.AreEqual("Flush called", ex.Message);
+                }
+            }
+        }
+
         private void ValidateASingleMessageActionBased(
             Action<ApplicationInsightsTraceListener, TraceEventCache> callTraceAction,
             string instrumentationKey,

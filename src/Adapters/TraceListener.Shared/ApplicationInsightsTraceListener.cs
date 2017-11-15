@@ -175,6 +175,14 @@ namespace Microsoft.ApplicationInsights.TraceListener
             this.Write(message + Environment.NewLine);
         }
 
+        /// <summary>
+        /// Flushes the in-memory buffer.
+        /// </summary>
+        public override void Flush()
+        {
+            this.TelemetryClient.Flush();
+        }
+
         private void CreateTraceData(TraceEventCache eventCache, TraceEventType eventType, int? id, TraceTelemetry trace)
         {
             trace.SeverityLevel = this.GetSeverityLevel(eventType);
