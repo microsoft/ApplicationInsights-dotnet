@@ -3,7 +3,7 @@
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
 ## Version 2.5.0-beta2
-- Remove calculation of sampling-score based on Context.User.Id
+- Remove calculation of sampling-score based on Context.User.Id [For more information, please see issue #625](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/625)
 
 ## Version 2.5.0-beta1
 - Method `Sanitize` on classes implementing `ITelemetry` no longer modifies the `TelemetryContext` fields. Serialized event json and ETW event will still have context tags sanitized.
