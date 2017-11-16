@@ -18,11 +18,7 @@
         {
             double samplingScore = 0;
 
-            if (telemetry.Context.User.Id != null)
-            {
-                samplingScore = (double)telemetry.Context.User.Id.GetSamplingHashCode() / int.MaxValue;
-            }
-            else if (telemetry.Context.Operation.Id != null)
+            if (telemetry.Context.Operation.Id != null)
             {
                 samplingScore = (double)telemetry.Context.Operation.Id.GetSamplingHashCode() / int.MaxValue;
             }
