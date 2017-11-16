@@ -1,0 +1,4 @@
+Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.AdaptiveSamplingTelemetryProcessor.AllowSamplingBasedOnUserId.get -> bool
+Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.AdaptiveSamplingTelemetryProcessor.AllowSamplingBasedOnUserId.set -> void
+Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.SamplingTelemetryProcessor.AllowSamplingBasedOnUserId.get -> bool
+Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.SamplingTelemetryProcessor.AllowSamplingBasedOnUserId.set -> void

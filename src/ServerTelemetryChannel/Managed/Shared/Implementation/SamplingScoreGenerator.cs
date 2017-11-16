@@ -13,12 +13,13 @@
         /// Generates telemetry sampling score between 0 and 100.
         /// </summary>
         /// <param name="telemetry">Telemetry item to score.</param>
+        /// <param name="allowUserId">Sampling score can be determined by using the Context.User.Id information, default is false.</param>
         /// <returns>Item sampling score.</returns>
-        public static double GetSamplingScore(ITelemetry telemetry)
+        public static double GetSamplingScore(ITelemetry telemetry, bool allowUserId = false)
         {
             double samplingScore = 0;
 
-            if (telemetry.Context.User.Id != null)
+            if (allowUserId && telemetry.Context.User.Id != null)
             {
                 samplingScore = (double)telemetry.Context.User.Id.GetSamplingHashCode() / int.MaxValue;
             }
