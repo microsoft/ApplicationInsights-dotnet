@@ -85,6 +85,59 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
         [TestMethod]
         [TestCategory("EventSourceListener")]
+        public void PrefixMatchEnablingEventSource()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                var listeningRequest = new EventSourceListeningRequest()
+                {
+                    Name = TestEventSource.ProviderName.Substring(0, TestEventSource.ProviderName.Length - 2),
+                    PrefixMatch = true
+                };
+                module.Sources.Add(listeningRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                TestEventSource.Default.InfoEvent("Hey!");
+
+                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.Single();
+                Assert.AreEqual("Hey!", telemetry.Message);
+                Assert.AreEqual("Hey!", telemetry.Properties["information"]);
+                Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
+                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(EventSourceTelemetryModule), prefix: "evl:");
+                Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void DisablingEventFromEventSource()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                var listeningRequest = new EventSourceListeningRequest()
+                {
+                    Name = TestEventSource.ProviderName
+                };
+                module.Sources.Add(listeningRequest);
+
+                var disablingRequest = new DisableEventSourceRequest()
+                {
+                    Name = TestEventSource.ProviderName
+                };
+                module.DisabledSources.Add(disablingRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+                
+                TestEventSource.Default.InfoEvent("Hey!");
+
+                int sentCount = this.adapterHelper.Channel.SentItems.Count();
+                Assert.AreEqual(0, sentCount);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
         public void ReportsSingleEventFromSourceCreatedAfterModuleCreated()
         {
             using (var module = new EventSourceTelemetryModule())
@@ -105,7 +158,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                     Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
                     string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(EventSourceTelemetryModule), prefix: "evl:");
                     Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
-                }                    
+                }
             }
         }
 
@@ -146,6 +199,43 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 expectedTelemetry.Add(traceTelemetry);
 
                 CollectionAssert.AreEqual(expectedTelemetry, this.adapterHelper.Channel.SentItems, new TraceTelemetryComparer(), "Reported events are not what was expected");
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void ReactsToConfigurationChangesWithDisabledEventSources()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                var listeningRequest = new EventSourceListeningRequest();
+                listeningRequest.Name = TestEventSource.ProviderName;
+                module.Sources.Add(listeningRequest);
+                var disableListeningRequest = new DisableEventSourceRequest()
+                {
+                    Name = TestEventSource.ProviderName
+                };
+
+                // Disabled
+                module.DisabledSources.Add(disableListeningRequest);
+                module.Initialize(GetTestTelemetryConfiguration());
+                TestEventSource.Default.InfoEvent("Hey!");
+                int sentCount = this.adapterHelper.Channel.SentItems.Count();
+                Assert.AreEqual(0, sentCount);
+
+                // From Disabled to Enabled
+                module.DisabledSources.Remove(disableListeningRequest);
+                module.Initialize(GetTestTelemetryConfiguration());
+                TestEventSource.Default.InfoEvent("Hey!");
+                sentCount = this.adapterHelper.Channel.SentItems.Count();
+                Assert.AreEqual(1, sentCount);
+
+                // From Enabled to Disabled
+                module.DisabledSources.Add(disableListeningRequest);
+                module.Initialize(GetTestTelemetryConfiguration());
+                TestEventSource.Default.InfoEvent("Hey!");
+                sentCount = this.adapterHelper.Channel.SentItems.Count();
+                Assert.AreEqual(0, sentCount);
             }
         }
 

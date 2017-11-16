@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     /// <summary>
     /// Represents a request to listen to specific EventSource.
     /// </summary>
-    public class EventSourceListeningRequest
+    public class EventSourceListeningRequest : EventSourceListeningRequestBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="EventSourceListeningRequest"/> class.
@@ -24,11 +24,6 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             this.Level = EventLevel.LogAlways;
             this.Keywords = (EventKeywords)~0;
         }
-
-        /// <summary>
-        /// Gets or sets the name of the EventSource to listen to.
-        /// </summary>
-        public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the minimum level of an event that will be traced.
@@ -56,7 +51,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                 return false;
             }
 
-            return this.Name == other.Name && this.Level == other.Level && this.Keywords == other.Keywords;
+            return base.Equals(obj) && this.Level == other.Level && this.Keywords == other.Keywords;
         }
 
         /// <summary>
@@ -65,7 +60,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         /// <returns>Hash code.</returns>
         public override int GetHashCode()
         {
-            return this.Name.GetHashCode() ^ (int)this.Level ^ this.Keywords.GetHashCode();
+            return base.GetHashCode() ^ (int)this.Level ^ this.Keywords.GetHashCode();
         }
     }
 }
