@@ -6,6 +6,7 @@
     using System.Globalization;
     using System.Linq;
     using System.Threading;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -126,9 +127,9 @@
             }
         }
 
-        protected Timer HeartbeatTimer { get; set; } // timer that will send each heartbeat in intervals
+        private Timer HeartbeatTimer { get; set; } // timer that will send each heartbeat in intervals
 
-        public virtual bool Initialize(TelemetryConfiguration configuration)
+        public void Initialize(TelemetryConfiguration configuration)
         {
             if (this.telemetryClient == null)
             {
@@ -144,8 +145,6 @@
             {
                 this.HeartbeatTimer = new Timer(this.HeartbeatPulse, this, this.heartbeatInterval, this.heartbeatInterval);
             }
-
-            return true;
         }
 
         public bool AddHealthProperty(string name, string value, bool isHealthy)
@@ -220,31 +219,13 @@
             this.Dispose(true);
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposedValue)
-            {
-                if (disposing)
-                {
-                    if (this.HeartbeatTimer != null)
-                    {
-                        this.isEnabled = false;
-                        this.HeartbeatTimer.Dispose();
-                    }
-                }
-
-                this.disposedValue = true;
-            }
-        }
-
-        #endregion
-
-        protected virtual void Send()
-        {
-            this.InternalSendHealthHeartbeat(this.GatherData());
-        }
-
-        protected virtual MetricTelemetry GatherData()
+        /// <summary>
+        /// Get the metric telemetry item that will be sent.
+        /// 
+        /// Note: exposed to internal to allow inspection for testing.
+        /// </summary>
+        /// <returns>A MetricTelemtry item that contains the currently defined payload for a heartbeat 'pulse'.</returns>
+        internal ITelemetry GatherData()
         {
             var heartbeat = new MetricTelemetry(heartbeatSyntheticMetricName, 0.0);
 
@@ -256,7 +237,50 @@
             return heartbeat;
         }
 
-        protected void SetDefaultPayloadItems()
+        protected void Dispose(bool disposing)
+        {
+            if (!this.disposedValue)
+            {
+                if (disposing)
+                {
+                    if (this.HeartbeatTimer != null)
+                    {
+                        this.isEnabled = false;
+
+                        try
+                        {
+                            this.HeartbeatTimer.Dispose();
+                        }
+                        catch (Exception e)
+                        {
+                            CoreEventSource.Log.LogError("Disposing heartbeat timer results in an exception: " + e.ToInvariantString());
+                        }
+                    }
+                }
+
+                this.disposedValue = true;
+            }
+        }
+
+        #endregion
+
+        private void Send()
+        {
+            if (this.telemetryClient.TelemetryConfiguration.TelemetryChannel == null)
+            {
+                return;
+            }
+
+            var eventData = (MetricTelemetry)this.GatherData();
+
+            eventData.Context.Operation.SyntheticSource = heartbeatSyntheticMetricName;
+
+            eventData.Context.InstrumentationKey = this.InstrumentationKey;
+
+            this.telemetryClient.TrackMetric(eventData);
+        }
+
+        private void SetDefaultPayloadItems()
         {
             HeartbeatDefaultPayload defaultPayload = new HeartbeatDefaultPayload(this.disabledDefaultFields);
             IDictionary<string, HeartbeatPropertyPayload> defaultProps = defaultPayload.GetPayloadProperties();
@@ -371,20 +395,6 @@
             {
                 CoreEventSource.Log.LogError("Heartbeat pulse being sent without valid instance of HealthHeartbeatProvider as its state");
             }
-        }
-
-        private void InternalSendHealthHeartbeat(MetricTelemetry eventData)
-        {
-            if (this.telemetryClient.TelemetryConfiguration.TelemetryChannel == null)
-            {
-                return;
-            }
-
-            eventData.Context.Operation.SyntheticSource = heartbeatSyntheticMetricName;
-
-            eventData.Context.InstrumentationKey = this.InstrumentationKey;
-
-            this.telemetryClient.TrackMetric(eventData);
         }
     }
 }

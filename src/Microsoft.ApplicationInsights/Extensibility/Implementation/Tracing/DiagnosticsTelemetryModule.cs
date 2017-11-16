@@ -186,10 +186,7 @@
                         }
 
                         // set up heartbeat
-                        if (!this.HeartbeatProvider.Initialize(configuration))
-                        {
-                            CoreEventSource.Log.LogError("Unable to initialize Health Heartbeat module.");
-                        }
+                        this.HeartbeatProvider.Initialize(configuration);
 
                         this.isInitialized = true;
                     }
@@ -226,7 +223,8 @@
         }
 
         /// <summary>
-        /// Set an updated value into an existing property of the health heartbeat.
+        /// Set an updated value into an existing property of the health heartbeat. The propertyName must be non-null and non-empty
+        /// and at least one of the propertyValue and isHealthy parameters must be non-null.
         /// 
         /// After the new HealthHeartbeatProperty has been added (<see cref="DiagnosticsTelemetryModule.AddHealthProperty"/>) to the 
         /// heartbeat payload, the value represented by that item can be updated using this method at any time.
@@ -249,6 +247,10 @@
                 {
                     CoreEventSource.Log.LogError("Could not set heartbeat property. Exception: " + e.ToInvariantString());
                 }
+            }
+            else
+            {
+                CoreEventSource.Log.LogVerbose("Did not set a valid health property. Ensure you set a valid propertyName and one or both of the propertyValue and isHealthy parameters.");
             }
 
             return false;
@@ -298,7 +300,7 @@
                     disposableSender.Dispose();
                 }
 
-                this.HeartbeatProvider = null;
+                this.HeartbeatProvider.Dispose();
 
                 GC.SuppressFinalize(this);
             }

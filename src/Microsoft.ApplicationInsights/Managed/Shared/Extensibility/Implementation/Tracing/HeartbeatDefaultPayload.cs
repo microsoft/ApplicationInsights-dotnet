@@ -46,7 +46,7 @@
                         payload.Add(fieldName, new HeartbeatPropertyPayload()
                         {
                             IsHealthy = true,
-                            PayloadValue = this.GetTargetFrameworkVer()
+                            PayloadValue = this.GetBaseSdkTargetFramework()
                         });
                         break;
                     case UpdatedFieldsPropertyKey:
@@ -90,7 +90,7 @@
             }
         }
 
-        private string GetTargetFrameworkVer()
+        private string GetBaseSdkTargetFramework()
         {
 #if NET45
             return "net45";

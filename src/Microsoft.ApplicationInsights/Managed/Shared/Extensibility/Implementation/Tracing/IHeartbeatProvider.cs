@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.Extensibility;
 
-    internal interface IHeartbeatProvider
+    internal interface IHeartbeatProvider : IDisposable
     {
         string InstrumentationKey { get; set; }
 
@@ -20,6 +20,6 @@
 
         bool RemoveHealthProperty(string payloadItemName);
 
-        bool Initialize(TelemetryConfiguration configuration);
+        void Initialize(TelemetryConfiguration configuration);
     }
 }
