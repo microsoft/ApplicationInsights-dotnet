@@ -23,6 +23,8 @@
     {
         private const string ServiceEndpointPropertyName = "ServiceEndpoint";
 
+        private static readonly TimeSpan RequestProcessingTimeout = TimeSpan.FromSeconds(30.0);
+
         /// <summary>
         /// Tuple of (Timestamp, CollectionConfigurationETag, MonitoringDataPoint).
         /// </summary>
@@ -2073,7 +2075,7 @@
 
         private void WaitForProcessing(int requestCount)
         {
-            TimeSpan timeout = TimeSpan.FromSeconds(5.0);
+            TimeSpan timeout = QuickPulseServiceClientTests.RequestProcessingTimeout;
 
             Task<bool>[] waitTasks = Enumerable.Range(0, requestCount).Select(_ => Task.Run(() => this.assertionSync.Wait(timeout))).ToArray();
             Task.WhenAll(waitTasks);
