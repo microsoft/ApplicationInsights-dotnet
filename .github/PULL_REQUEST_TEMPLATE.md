@@ -5,4 +5,4 @@ For significant contributions please make sure you have completed the following 
 
 - [ ] Design discussion issue #
 - [ ] Changes in public surface reviewed
-- [ ] CHANGELOG.md updated
+- [ ] CHANGELOG.md updated with one line description of the fix, and a link to the original issue.
