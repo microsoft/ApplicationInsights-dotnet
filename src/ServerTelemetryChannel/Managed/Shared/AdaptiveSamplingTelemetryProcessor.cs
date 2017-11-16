@@ -15,7 +15,7 @@
         /// Fixed-rate sampling telemetry processor.
         /// </summary>
         private readonly SamplingTelemetryProcessor samplingProcessor;
-        
+
         /// <summary>
         /// Sampling percentage estimator settings.
         /// </summary>
@@ -217,6 +217,23 @@
             set
             {
                 this.estimatorSettings.MovingAverageRatio = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to enable sample scoring for telemetry items based on the Context.User.Id flag. Default
+        /// is false.
+        /// </summary>
+        public bool AllowSamplingBasedOnUserId
+        {
+            get
+            {
+                return this.samplingProcessor.AllowSamplingBasedOnUserId;
+            }
+
+            set
+            {
+                this.samplingProcessor.AllowSamplingBasedOnUserId = value;
             }
         }
 

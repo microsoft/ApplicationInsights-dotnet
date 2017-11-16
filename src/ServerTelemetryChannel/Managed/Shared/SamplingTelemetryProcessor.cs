@@ -56,6 +56,7 @@
                 { RequestTelemetryName, typeof(RequestTelemetry) },
                 { TraceTelemetryName, typeof(TraceTelemetry) },
             };
+            this.AllowSamplingBasedOnUserId = false;
         }
 
         /// <summary>
@@ -125,6 +126,17 @@
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether or not we should calculate sampling based on the Context.User.Id field.
+        /// Default is false.
+        /// 
+        /// <remarks>
+        /// Calculation of the sampling score based on user_Id field is disabled by default to ensure successful correlation across many 
+        /// services on operation_Id field.
+        /// </remarks>
+        /// </summary>
+        public bool AllowSamplingBasedOnUserId { get; set; }
+
+        /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100) for all <see cref="ITelemetry"/>
         /// objects logged in this <see cref="TelemetryClient"/>.
         /// </summary>
@@ -187,7 +199,7 @@
             //// Ok, now we can actually sample:
 
             samplingSupportingTelemetry.SamplingPercentage = samplingPercentage;
-            bool isSampledIn = SamplingScoreGenerator.GetSamplingScore(item) < samplingPercentage;
+            bool isSampledIn = SamplingScoreGenerator.GetSamplingScore(item, this.AllowSamplingBasedOnUserId) < samplingPercentage;
 
             if (isSampledIn)
             {

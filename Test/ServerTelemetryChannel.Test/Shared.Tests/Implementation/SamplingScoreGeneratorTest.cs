@@ -27,8 +27,8 @@
             requestTelemetry.Context.User.Id = userId;
             requestTelemetry.Context.Operation.Id = GenerateRandomOperaitonId();
 
-            var eventTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(eventTelemetry);
-            var requestTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(requestTelemetry);
+            var eventTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(eventTelemetry, true);
+            var requestTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(requestTelemetry, true);
 
             Assert.AreEqual(eventTelemetrySamplingScore, requestTelemetrySamplingScore, 12);
         }
@@ -44,10 +44,36 @@
             var requestTelemetry = new RequestTelemetry();
             requestTelemetry.Context.Operation.Id = operationId;
 
-            var eventTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(eventTelemetry);
-            var requestTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(requestTelemetry);
+            var eventTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(eventTelemetry, true);
+            var requestTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(requestTelemetry, true);
 
             Assert.AreEqual(eventTelemetrySamplingScore, requestTelemetrySamplingScore, 12);
+        }
+
+        [TestMethod]
+        public void SamplingScoreGeneratedSkipsUserId()
+        {
+            string operationId = GenerateRandomOperaitonId();
+            string userId = GenerateRandomUserId();
+
+            var eventTelemetry = new EventTelemetry();
+            eventTelemetry.Context.Operation.Id = operationId;
+            eventTelemetry.Context.User.Id = userId;
+
+            var requestTelemetry = new RequestTelemetry();
+            requestTelemetry.Context.Operation.Id = operationId;
+            requestTelemetry.Context.User.Id = userId;
+
+            var eventTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(eventTelemetry, true);
+            var requestTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(requestTelemetry, true);
+
+            Assert.AreEqual(eventTelemetrySamplingScore, requestTelemetrySamplingScore, 12);
+
+            var eventTelemetrySamplingScoreNoUserConfig = SamplingScoreGenerator.GetSamplingScore(eventTelemetry, true);
+            var requestTelemetrySamplingScoreNoUserConfig = SamplingScoreGenerator.GetSamplingScore(requestTelemetry, true);
+
+            Assert.AreNotEqual(eventTelemetrySamplingScore, eventTelemetrySamplingScoreNoUserConfig);
+            Assert.AreNotEqual(requestTelemetrySamplingScore, requestTelemetrySamplingScoreNoUserConfig);
         }
 
         [TestMethod]
@@ -56,8 +82,8 @@
             var eventTelemetry = new EventTelemetry();
             var traceTelemetry = new TraceTelemetry();
 
-            var eventTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(eventTelemetry);
-            var traceTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(traceTelemetry);
+            var eventTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(eventTelemetry, true);
+            var traceTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(traceTelemetry, true);
 
             Assert.AreNotEqual(eventTelemetrySamplingScore, traceTelemetrySamplingScore);
         }
