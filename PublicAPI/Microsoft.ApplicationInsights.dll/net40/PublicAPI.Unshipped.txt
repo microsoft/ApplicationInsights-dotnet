@@ -1,9 +1,7 @@
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.AddHealthProperty(string propertyName, string propertyValue, bool isHealthy) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.ExcludedHeartbeatProperties.get -> System.Collections.Generic.IList<string>
-Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.ExcludedHeartbeatProperties.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.HeartbeatInterval.get -> System.TimeSpan
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.HeartbeatInterval.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.IsHeartbeatEnabled.get -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.IsHeartbeatEnabled.set -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.RemoveHealthProperty(string propertyName) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.SetHealthProperty(string propertyName, string propertyValue = null, bool? isHealthy = null) -> bool

@@ -15,7 +15,7 @@
 
         internal readonly DiagnosticsListener EventListener;
 
-        internal IHeartbeatProvider HeartbeatProvider = null;
+        internal readonly IHeartbeatProvider HeartbeatProvider = null;
         private readonly object lockObject = new object();
         private readonly IDiagnoisticsEventThrottlingScheduler throttlingScheduler = new DiagnoisticsEventThrottlingScheduler();
         private volatile bool disposed = false;
@@ -72,7 +72,7 @@
         }
 
         /// <summary>
-        /// Gets or sets property names that are not to be sent with the health heartbeats. null/empty list means allow all default properties through.
+        /// Gets a list of property names that are not to be sent with the health heartbeats. null/empty list means allow all default properties through.
         /// 
         /// <remarks>
         /// Default properties supplied by the Application Insights SDK:
@@ -84,12 +84,7 @@
         {
             get
             {
-                return this.HeartbeatProvider.DisabledDefaultFields.ToList();
-            }
-
-            set
-            {
-                this.HeartbeatProvider.DisabledDefaultFields = value;
+                return this.HeartbeatProvider.DisabledDefaultFields;
             }
         }
 
@@ -210,16 +205,7 @@
         /// <returns>True if the new payload item is successfully added, false otherwise.</returns>
         public bool AddHealthProperty(string propertyName, string propertyValue, bool isHealthy)
         {
-            try
-            {
-                return this.HeartbeatProvider.AddHealthProperty(propertyName, propertyValue, isHealthy);
-            }
-            catch (Exception e)
-            {
-                CoreEventSource.Log.LogError("Could not add heartbeat property. Exception: " + e.ToInvariantString());
-            }
-
-            return false;
+            return this.HeartbeatProvider.AddHealthProperty(propertyName, propertyValue, isHealthy);
         }
 
         /// <summary>
@@ -239,39 +225,11 @@
         {
             if (!string.IsNullOrEmpty(propertyName) && (propertyValue != null || isHealthy != null))
             {
-                try
-                {
-                    return this.HeartbeatProvider.SetHealthProperty(propertyName, propertyValue, isHealthy);
-                }
-                catch (Exception e)
-                {
-                    CoreEventSource.Log.LogError("Could not set heartbeat property. Exception: " + e.ToInvariantString());
-                }
+                return this.HeartbeatProvider.SetHealthProperty(propertyName, propertyValue, isHealthy);
             }
             else
             {
                 CoreEventSource.Log.LogVerbose("Did not set a valid health property. Ensure you set a valid propertyName and one or both of the propertyValue and isHealthy parameters.");
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Remove a payload property from the health heartbeat.
-        /// 
-        /// After the new heartbeat property has been removed, the property will no longer be sent with subsequent heartbeats.
-        /// </summary>
-        /// <param name="propertyName">The name of the health heartbeat property to remove</param>
-        /// <returns>True if the property was removed successfully, false otherwise (no property with this name exists)</returns>
-        public bool RemoveHealthProperty(string propertyName)
-        {
-            try
-            {
-                return this.HeartbeatProvider.RemoveHealthProperty(propertyName);
-            }
-            catch (Exception e)
-            {
-                CoreEventSource.Log.LogError("Could not set heartbeat property. Exception: " + e.ToInvariantString());
             }
 
             return false;

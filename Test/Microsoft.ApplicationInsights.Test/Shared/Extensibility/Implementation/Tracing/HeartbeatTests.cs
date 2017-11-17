@@ -143,19 +143,22 @@
         [TestMethod]
         public void HeartbeatPayloadContainsOnlyAllowedDefaultPayloadFields()
         {
-            List<string> disableHbProps = new List<string>();
-            for (int i = 0; i < HeartbeatDefaultPayload.DefaultFields.Length; ++i)
+            using (var hbeat = new HeartbeatProvider())
             {
-                if (i % 2 == 0)
-                {
-                    disableHbProps.Add(HeartbeatDefaultPayload.DefaultFields[i]);
-                }
-            }
+                List<string> disableHbProps = new List<string>();
 
-            using (var hbeat = new HeartbeatProvider() { DisabledDefaultFields = disableHbProps })
-            {
+                for (int i = 0; i < HeartbeatDefaultPayload.DefaultFields.Length; ++i)
+                {
+                    if (i % 2 == 0)
+                    {
+                        disableHbProps.Add(HeartbeatDefaultPayload.DefaultFields[i]);
+                        hbeat.DisabledDefaultFields.Add(HeartbeatDefaultPayload.DefaultFields[i]);
+                    }
+                }
+
                 var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
                 hbeat.Initialize(configuration: config);
+
                 var sentHeartBeat = (MetricTelemetry)hbeat.GatherData();
 
                 Assert.IsNotNull(sentHeartBeat);
@@ -279,7 +282,8 @@
         {
             using (var hbeat = new HeartbeatProvider())
             {
-                hbeat.Initialize(configuration: null);
+                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
+                hbeat.Initialize(configuration: config);
 
                 foreach (string key in HeartbeatDefaultPayload.DefaultFields)
                 {
@@ -305,14 +309,15 @@
         [TestMethod]
         public void EnsureAllTargetFrameworksRepresented()
         {
-            var defaultHeartbeatPayload = new HeartbeatDefaultPayload();
-            var props = defaultHeartbeatPayload.GetPayloadProperties();
-            foreach (var kvp in props)
+            using (var hbeat = new HeartbeatProvider())
             {
-                if (kvp.Key.Equals("baseSdkTargetFramework", StringComparison.Ordinal))
-                {
-                    Assert.IsFalse(kvp.Value.PayloadValue.Equals("undefined", StringComparison.OrdinalIgnoreCase));
-                }
+                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
+                hbeat.Initialize(configuration: config);
+
+                var msg = (MetricTelemetry)hbeat.GatherData();
+
+                Assert.IsTrue(msg.Properties.ContainsKey("baseSdkTargetFramework"));
+                Assert.IsFalse(msg.Properties["baseSdkTargetFramework"].Equals("undefined", StringComparison.OrdinalIgnoreCase));
             }
         }
 
@@ -354,32 +359,6 @@
                 Assert.IsTrue(msg.Properties.ContainsKey(key));
                 Assert.IsTrue(msg.Properties[key].Equals("value01", StringComparison.Ordinal));
                 Assert.IsTrue(msg.Sum == 1.0); // one false message in payload only
-            }
-        }
-
-        [TestMethod]
-        public void CanRemoveHeartbeatPayloadProperty()
-        {
-            using (var hbeat = new HeartbeatProvider())
-            {
-                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-                hbeat.Initialize(configuration: config);
-
-                string key = "removePayloadItemTest";
-
-                Assert.IsTrue(hbeat.AddHealthProperty(key, "value01", true));
-                
-                var msg = (MetricTelemetry)hbeat.GatherData();
-                Assert.IsNotNull(msg);
-                Assert.IsTrue(msg.Properties.ContainsKey(key));
-
-                // remove it
-                Assert.IsTrue(hbeat.RemoveHealthProperty(key));
-                msg = (MetricTelemetry)hbeat.GatherData();
-
-                // ensure it is no longer there
-                Assert.IsNotNull(msg);
-                Assert.IsFalse(msg.Properties.ContainsKey(key));
             }
         }
     }

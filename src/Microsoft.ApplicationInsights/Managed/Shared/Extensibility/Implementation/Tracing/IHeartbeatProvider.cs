@@ -12,13 +12,11 @@
 
         TimeSpan Interval { get; set; }
 
-        IEnumerable<string> DisabledDefaultFields { get; set; }
+        IList<string> DisabledDefaultFields { get; }
 
         bool AddHealthProperty(string name, string value, bool isHealthy);
 
         bool SetHealthProperty(string name, string value = null, bool? isHealthy = null);
-
-        bool RemoveHealthProperty(string payloadItemName);
 
         void Initialize(TelemetryConfiguration configuration);
     }

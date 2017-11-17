@@ -2,11 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using System.Reflection;
 
-    internal class HeartbeatDefaultPayload
+    internal static class HeartbeatDefaultPayload
     {
         public const string UpdatedFieldsPropertyKey = "updatedFields";
 
@@ -17,80 +16,62 @@
             UpdatedFieldsPropertyKey
         };
 
-        private List<string> enabledProperties;
-
-        public HeartbeatDefaultPayload() : this(null)
+        public static void GetPayloadProperties(IEnumerable<string> disabledFields, IHeartbeatProvider provider)
         {
-        }
+            var enabledProperties = HeartbeatDefaultPayload.RemoveDisabledDefaultFields(disabledFields);
 
-        public HeartbeatDefaultPayload(IEnumerable<string> disableFields)
-        {
-            this.SetEnabledProperties(disableFields);
-        }
-
-        public IDictionary<string, HeartbeatPropertyPayload> GetPayloadProperties()
-        {
             var payload = new Dictionary<string, HeartbeatPropertyPayload>();
-            foreach (string fieldName in this.enabledProperties)
+            foreach (string fieldName in enabledProperties)
             {
-                switch (fieldName)
+                try
                 {
-                    case "runtimeFramework":
-                        payload.Add(fieldName, new HeartbeatPropertyPayload()
-                        {
-                            IsHealthy = true,
-                            PayloadValue = this.GetRuntimeFrameworkVer()
-                        });
-                        break;
-                    case "baseSdkTargetFramework":
-                        payload.Add(fieldName, new HeartbeatPropertyPayload()
-                        {
-                            IsHealthy = true,
-                            PayloadValue = this.GetBaseSdkTargetFramework()
-                        });
-                        break;
-                    case UpdatedFieldsPropertyKey:
-                        var updatedFieldItem = new HeartbeatPropertyPayload()
-                        {
-                            IsHealthy = true,
-                            PayloadValue = string.Empty
-                        };
-                        updatedFieldItem.IsUpdated = false; // always set this to false
-                        payload.Add(fieldName, updatedFieldItem);
-                        break;
-                    default:
-                        payload.Add(fieldName, new HeartbeatPropertyPayload()
-                        {
-                            IsHealthy = false,
-                            PayloadValue = "UNDEFINED"
-                        });
-                        break;
+                    switch (fieldName)
+                    {
+                        case "runtimeFramework":
+                            provider.AddHealthProperty(fieldName, HeartbeatDefaultPayload.GetRuntimeFrameworkVer(), true);
+                            break;
+                        case "baseSdkTargetFramework":
+                            provider.AddHealthProperty(fieldName, HeartbeatDefaultPayload.GetBaseSdkTargetFramework(), true);
+                            break;
+                        case UpdatedFieldsPropertyKey:
+                            provider.AddHealthProperty(fieldName, string.Empty, true);
+                            break;
+                        default:
+                            provider.AddHealthProperty(fieldName, "UNDEFINED", false);
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    CoreEventSource.Log.FailedToObtainDefaultHeartbeatProperty(fieldName, ex.ToString());
                 }
             }
-
-            return payload;
         }
 
-        private void SetEnabledProperties(IEnumerable<string> disabledFields)
+        private static List<string> RemoveDisabledDefaultFields(IEnumerable<string> disabledFields)
         {
+            List<string> enabledProperties = new List<string>();
+
             if (disabledFields == null || disabledFields.Count() <= 0)
             {
-                this.enabledProperties = DefaultFields.ToList();
+                enabledProperties = DefaultFields.ToList();
             }
             else
             {
-                this.enabledProperties = new List<string>();
+                enabledProperties = new List<string>();
                 foreach (string fieldName in DefaultFields)
                 {
                     if (!disabledFields.Contains(fieldName, StringComparer.OrdinalIgnoreCase))
                     {
-                        this.enabledProperties.Add(fieldName);
+                        enabledProperties.Add(fieldName);
                     }
                 }
             }
+
+            return enabledProperties;
         }
 
-        private string GetBaseSdkTargetFramework()
+        private static string GetBaseSdkTargetFramework()
         {
 #if NET45
             return "net45";
@@ -104,26 +85,17 @@
 #endif
         }
 
-        private string GetRuntimeFrameworkVer()
+        private static string GetRuntimeFrameworkVer()
         {
             // taken from https://github.com/Azure/azure-sdk-for-net/blob/f097add680f37908995fa2fbf6b7c73f11652ec7/src/SdkCommon/ClientRuntime/ClientRuntime/ServiceClient.cs#L214
-            try
-            {
-                Assembly assembly = typeof(Object).GetTypeInfo().Assembly;
+            Assembly assembly = typeof(Object).GetTypeInfo().Assembly;
 
-                AssemblyFileVersionAttribute objectAssemblyFileVer =
-                            assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute))
-                                    .Cast<AssemblyFileVersionAttribute>()
-                                    .FirstOrDefault();
+            AssemblyFileVersionAttribute objectAssemblyFileVer =
+                        assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute))
+                                .Cast<AssemblyFileVersionAttribute>()
+                                .FirstOrDefault();
 
-                return objectAssemblyFileVer != null ? objectAssemblyFileVer.Version : "undefined";
-            }
-            catch (Exception ex)
-            {
-                CoreEventSource.Log.LogError("GetRuntimeFrameworkVer did not obtain the current runtime framework version due to exception: " + ex.ToInvariantString());
-            }
-
-            return "undefined";
+            return objectAssemblyFileVer != null ? objectAssemblyFileVer.Version : "undefined";
         }
     }
 }

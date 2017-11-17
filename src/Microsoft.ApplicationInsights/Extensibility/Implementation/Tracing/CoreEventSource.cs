@@ -421,6 +421,48 @@
             this.WriteEvent(35, item ?? string.Empty, this.nameProvider.Name);
         }
 
+        [Event(
+            36,
+            Message = "Failed to obtain a value for default heartbeat payload property '{0}': Exception {1}.",
+            Level = EventLevel.Warning)]
+        public void FailedToObtainDefaultHeartbeatProperty(string heartbeatProperty, string ex, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                36,
+                heartbeatProperty ?? string.Empty,
+                ex ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            37,
+            Message = "Could not add heartbeat payload property '{0}' = {1}. Exception: {2}.",
+            Level = EventLevel.Warning)]
+        public void FailedToAddHeartbeatProperty(string heartbeatProperty, string heartbeatPropertyValue, string ex = null, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                37,
+                heartbeatProperty ?? string.Empty,
+                heartbeatPropertyValue ?? string.Empty,
+                ex ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            38,
+            Message = "Could not set heartbeat payload property '{0}' = {1}, healthy = {2}. Exception: {3}.",
+            Level = EventLevel.Warning)]
+        public void FailedToSetHeartbeatProperty(string heartbeatProperty, string heartbeatPropertyValue, string isHealthy, string ex = null, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                38,
+                heartbeatProperty ?? string.Empty,
+                heartbeatPropertyValue ?? string.Empty,
+                isHealthy ?? string.Empty,
+                ex ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
