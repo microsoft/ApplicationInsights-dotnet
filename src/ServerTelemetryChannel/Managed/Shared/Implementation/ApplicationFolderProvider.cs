@@ -1,5 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
-{
+{    
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -11,12 +11,14 @@
     using System.Security.Cryptography;
     using System.Security.Principal;
     using System.Text;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Shared.Implementation;    
 
     internal class ApplicationFolderProvider : IApplicationFolderProvider
     {
         private readonly IDictionary environment;
         private readonly string customFolderName;
-        private readonly WindowsIdentity currentIdentity = WindowsIdentity.GetCurrent();
+        // private readonly WindowsIdentity currentIdentity = WindowsIdentity.GetCurrent();
+        private IIdentityProvider identityProvider;
 
         public ApplicationFolderProvider(string folderName = null)
             : this(Environment.GetEnvironmentVariables(), folderName)
@@ -30,6 +32,16 @@
                 throw new ArgumentNullException("environment");
             }
 
+            try
+            {
+                WindowsIdentity.GetCurrent();
+                this.identityProvider = new WindowsIdentityProvider();
+            }
+            catch (Exception)
+            {
+                this.identityProvider = new LinuxIdentityProvider();                
+            }
+             
             this.environment = environment;
             this.customFolderName = folderName;
         }
@@ -60,7 +72,7 @@
 
             if (result == null)
             {
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors), this.currentIdentity.Name);
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors), this.identityProvider.GetName());
             }
 
             return result;
@@ -139,31 +151,31 @@
             catch (UnauthorizedAccessException exp)
             {
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.identityProvider.GetName());
             }
             catch (ArgumentException exp)
             {
                 // Path does not specify a valid file path or contains invalid DirectoryInfo characters.
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.identityProvider.GetName());
             }
             catch (DirectoryNotFoundException exp)
             {
                 // The specified path is invalid, such as being on an unmapped drive.
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.identityProvider.GetName());
             }
             catch (IOException exp)
             {
                 // The subdirectory cannot be created. -or- A file or directory already has the name specified by path. -or-  The specified path, file name, or both exceed the system-defined maximum length. .
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.identityProvider.GetName());
             }
             catch (SecurityException exp)
             {
                 // The caller does not have code access permission to create the directory.
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.identityProvider.GetName());
             }
 
             if (!string.IsNullOrEmpty(errorMessage))
@@ -184,7 +196,7 @@
             baseDirectory = AppContext.BaseDirectory;
 #endif
 
-            string appIdentity = this.currentIdentity.Name + "@" + Path.Combine(baseDirectory, Process.GetCurrentProcess().ProcessName);
+            string appIdentity = this.identityProvider.GetName() + "@" + Path.Combine(baseDirectory, Process.GetCurrentProcess().ProcessName);
             string subdirectoryName = GetSHA256Hash(appIdentity);
             string subdirectoryPath = Path.Combine(@"Microsoft\ApplicationInsights", subdirectoryName);
             DirectoryInfo subdirectory = root.CreateSubdirectory(subdirectoryPath);
@@ -203,7 +215,7 @@
 
             directorySecurity.AddAccessRule(
                 new FileSystemAccessRule(
-                        this.currentIdentity.Name,
+                        this.identityProvider.GetName(),
                         FileSystemRights.FullControl,
                         InheritanceFlags.None,
                         PropagationFlags.NoPropagateInherit,
