@@ -24,9 +24,9 @@
   </metadata>
   <files>
     <!-- Binaries for .NET -->
-    <file src="$configuration$\src\Adapters\NLogTarget.Net45\Microsoft.ApplicationInsights.NLogTarget.dll" target="lib\net45" />
-    <file src="$configuration$\src\Adapters\NLogTarget.Net45\Microsoft.ApplicationInsights.NLogTarget.pdb" target="lib\net45" />
-    <file src="$configuration$\src\Adapters\NLogTarget.Net45\Microsoft.ApplicationInsights.NLogTarget.xml" target="lib\net45" />
+    <file src="$configuration$\src\Adapters\NLogTarget.Net45\net45\Microsoft.ApplicationInsights.NLogTarget.dll" target="lib\net45" />
+    <file src="$configuration$\src\Adapters\NLogTarget.Net45\net45\Microsoft.ApplicationInsights.NLogTarget.pdb" target="lib\net45" />
+    <file src="$configuration$\src\Adapters\NLogTarget.Net45\net45\Microsoft.ApplicationInsights.NLogTarget.xml" target="lib\net45" />
     
     <!--- PowerShell scripts -->
     <file src="$configuration$\src\Nuget\NLogTarget\Install.ps1" target="tools"/>

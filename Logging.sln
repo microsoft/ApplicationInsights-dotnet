@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27009.1
+VisualStudioVersion = 15.0.27110.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapters", "Adapters", "{EE933574-C82B-4E59-A0D1-05328197B937}"
 EndProject
@@ -48,19 +48,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Test.props = Test.props
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log4NetAppender.Net45", "src\Adapters\Log4NetAppender.Net45\Log4NetAppender.Net45.csproj", "{CB555B89-94D7-4B38-92D9-9F497A796966}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Log4NetAppender.Net45", "src\Adapters\Log4NetAppender.Net45\Log4NetAppender.Net45.csproj", "{CB555B89-94D7-4B38-92D9-9F497A796966}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLogTarget.Net45", "src\Adapters\NLogTarget.Net45\NLogTarget.Net45.csproj", "{6C581DDA-88AF-4A64-984D-E275F2F21100}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLogTarget.Net45", "src\Adapters\NLogTarget.Net45\NLogTarget.Net45.csproj", "{6C581DDA-88AF-4A64-984D-E275F2F21100}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log4NetAppender.Net45.Tests", "src\Adapters.Tests\Log4NetAppender.Net45.Tests\Log4NetAppender.Net45.Tests.csproj", "{C537553E-C7D0-42E4-884F-10A9C6063D4A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLogTarget.Net45.Tests", "src\Adapters.Tests\NLogTarget.Net45.Tests\NLogTarget.Net45.Tests.csproj", "{BE1D6405-1930-4A19-A24C-027B008C5011}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceListener.Net45.Tests", "src\Adapters.Tests\TraceListener.Net45.Tests\TraceListener.Net45.Tests.csproj", "{E6F03762-6BD6-4B38-8798-42C189AAB18C}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Log4NetAppender.Shared", "src\Adapters\Log4NetAppender.Shared\Log4NetAppender.Shared.shproj", "{69B1C4D1-C8E9-44CA-BE2A-02B5D1929DC2}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "NLogTarget.Shared", "src\Adapters\NLogTarget.Shared\NLogTarget.Shared.shproj", "{EA4D9FBF-02F2-4791-9F78-DEB591545FEE}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Log4NetAppender.Tests.Shared", "src\Adapters.Tests\Log4NetAppender.Tests.Shared\Log4NetAppender.Tests.Shared.shproj", "{CDF1D886-ED10-4F99-BE94-3BB40A56052E}"
 EndProject
@@ -74,9 +70,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CommonTestShared", "src\Ada
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSource.Netstandard13.Tests", "src\Adapters.Tests\EventSource.Netstandard13.Tests\EventSource.Netstandard13.Tests.csproj", "{7030CAC6-4B94-4735-B146-C0FC3097ACA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Etw.Net451", "src\Adapters\Etw.Net451\Etw.Net451.csproj", "{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "EventSource.Shared", "src\Adapters\EventSource.Shared\EventSource.Shared\EventSource.Shared.shproj", "{A964DE6D-9750-4013-8BE2-79C2AFC056E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Etw.Net451", "src\Adapters\Etw.Net451\Etw.Net451.csproj", "{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Etw.Net451.Tests", "src\Adapters.Tests\Etw.Net451.Tests\Etw.Net451.Tests.csproj", "{15FA58D1-F397-4808-831C-7AE65EE640AF}"
 EndProject
@@ -93,9 +87,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSourceListener.Nu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSource.Tests", "src\Adapters.Tests\DiagnosticSource.Tests\DiagnosticSource.Tests.csproj", "{A716D37C-B736-4CF0-8DF5-36BDE57DA2A5}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TraceListener.Shared", "src\Adapters\TraceListener.Shared\TraceListener.Shared.shproj", "{FF6230F0-A69C-4ED3-B552-26CBE31324DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceListener.Net45", "src\Adapters\TraceListener.Net45\TraceListener.Net45.csproj", "{E3766DD1-F376-43F8-B242-6CF06E186179}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceListener.Net45", "src\Adapters\TraceListener.Net45\TraceListener.Net45.csproj", "{E3766DD1-F376-43F8-B242-6CF06E186179}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "EventSource.Shared", "src\Adapters\EventSource.Shared\EventSource.Shared\EventSource.Shared.shproj", "{A964DE6D-9750-4013-8BE2-79C2AFC056E5}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -104,7 +98,6 @@ Global
 		src\Adapters.Tests\TraceListener.Tests.Shared\TraceListener.Net40.Tests.Shared.projitems*{17ee52da-5460-4bd2-a70f-529d2a94c938}*SharedItemsImports = 13
 		src\Adapters.Tests\CommonTestShared\CommonTestShared.projitems*{3b9ab7fa-562d-4e4e-86e3-3348426bc0d9}*SharedItemsImports = 13
 		src\Adapters\CommonShared\CommonShared.projitems*{587b624b-8c64-498e-93d7-a2d2abc17eab}*SharedItemsImports = 13
-		src\Adapters\Log4NetAppender.Shared\Log4NetAppender.Shared.projitems*{69b1c4d1-c8e9-44ca-be2a-02b5d1929dc2}*SharedItemsImports = 13
 		src\Adapters\CommonShared\CommonShared.projitems*{6c581dda-88af-4a64-984d-e275f2f21100}*SharedItemsImports = 4
 		src\Adapters\NLogTarget.Shared\NLogTarget.Shared.projitems*{6c581dda-88af-4a64-984d-e275f2f21100}*SharedItemsImports = 4
 		src\Adapters.Tests\NLogTarget.Tests.Shared\NLogTarget.Net40.Tests.SharedProject.projitems*{6dd6f1c7-636d-41b5-8ac4-517c68f74d18}*SharedItemsImports = 13
@@ -129,9 +122,7 @@ Global
 		src\Adapters.Tests\CommonTestShared\CommonTestShared.projitems*{e6f03762-6bd6-4b38-8798-42c189aab18c}*SharedItemsImports = 4
 		src\Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{e6f03762-6bd6-4b38-8798-42c189aab18c}*SharedItemsImports = 4
 		src\Adapters.Tests\TraceListener.Tests.Shared\TraceListener.Net40.Tests.Shared.projitems*{e6f03762-6bd6-4b38-8798-42c189aab18c}*SharedItemsImports = 4
-		src\Adapters\NLogTarget.Shared\NLogTarget.Shared.projitems*{ea4d9fbf-02f2-4791-9f78-deb591545fee}*SharedItemsImports = 13
 		src\Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{fa775630-7917-4a99-a78c-fba46edf685c}*SharedItemsImports = 13
-		src\Adapters\TraceListener.Shared\TraceListener.Shared.projitems*{ff6230f0-a69c-4ed3-b552-26cbe31324db}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -308,8 +299,6 @@ Global
 		{C537553E-C7D0-42E4-884F-10A9C6063D4A} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{BE1D6405-1930-4A19-A24C-027B008C5011} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{E6F03762-6BD6-4B38-8798-42C189AAB18C} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
-		{69B1C4D1-C8E9-44CA-BE2A-02B5D1929DC2} = {EE933574-C82B-4E59-A0D1-05328197B937}
-		{EA4D9FBF-02F2-4791-9F78-DEB591545FEE} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{CDF1D886-ED10-4F99-BE94-3BB40A56052E} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{6DD6F1C7-636D-41B5-8AC4-517C68F74D18} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{17EE52DA-5460-4BD2-A70F-529D2A94C938} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
@@ -317,15 +306,14 @@ Global
 		{3B9AB7FA-562D-4E4E-86E3-3348426BC0D9} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{7030CAC6-4B94-4735-B146-C0FC3097ACA6} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813} = {EE933574-C82B-4E59-A0D1-05328197B937}
-		{A964DE6D-9750-4013-8BE2-79C2AFC056E5} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{15FA58D1-F397-4808-831C-7AE65EE640AF} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{F371663D-99DB-4722-BC38-55EC178A84EB} = {4765948E-1A4D-4F8E-974C-6078C746ABEC}
 		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{57F41D53-A8D1-42D6-AFBE-406436CFA7DF} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{9748B531-F7A8-4F35-8C8A-2B2916C5582E} = {4765948E-1A4D-4F8E-974C-6078C746ABEC}
 		{A716D37C-B736-4CF0-8DF5-36BDE57DA2A5} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
-		{FF6230F0-A69C-4ED3-B552-26CBE31324DB} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{E3766DD1-F376-43F8-B242-6CF06E186179} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{A964DE6D-9750-4013-8BE2-79C2AFC056E5} = {EE933574-C82B-4E59-A0D1-05328197B937}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC8888B1-0E98-49D7-BE15-EB97A6261C0D}

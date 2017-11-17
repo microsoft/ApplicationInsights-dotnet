@@ -24,9 +24,9 @@
   </metadata>
   <files>
     <!-- Binaries for .NET -->
-    <file src="$configuration$\src\Adapters\Etw.Net451\Microsoft.ApplicationInsights.EtwCollector.dll" target="lib\net451" />
-    <file src="$configuration$\src\Adapters\Etw.Net451\Microsoft.ApplicationInsights.EtwCollector.pdb" target="lib\net451" />
-    <file src="$configuration$\src\Adapters\Etw.Net451\Microsoft.ApplicationInsights.EtwCollector.xml" target="lib\net451" />
+    <file src="$configuration$\src\Adapters\Etw.Net451\net451\Microsoft.ApplicationInsights.EtwCollector.dll" target="lib\net451" />
+    <file src="$configuration$\src\Adapters\Etw.Net451\net451\Microsoft.ApplicationInsights.EtwCollector.pdb" target="lib\net451" />
+    <file src="$configuration$\src\Adapters\Etw.Net451\net451\Microsoft.ApplicationInsights.EtwCollector.xml" target="lib\net451" />
     <!-- XDT transformations -->
     <file src="$configuration$\src\Nuget\EtwCollector\ApplicationInsights.config.install.xdt" target="content"/>
     <file src="$configuration$\src\Nuget\EtwCollector\ApplicationInsights.config.uninstall.xdt" target="content"/>

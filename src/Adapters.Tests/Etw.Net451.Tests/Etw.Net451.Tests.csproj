@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Adapters\Etw.Net451\Etw.Net451.csproj">
-      <Project>{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813}</Project>
+      <Project>{9becfb0f-4f6d-4a84-931f-70da3e4e2813}</Project>
       <Name>Etw.Net451</Name>
     </ProjectReference>
   </ItemGroup>
