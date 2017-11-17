@@ -142,7 +142,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
         private void BuildCustomProperties(LoggingEvent loggingEvent, ITelemetry trace)
         {
             trace.Timestamp = loggingEvent.TimeStamp;
-            trace.Context.User.Id = loggingEvent.UserName;
+            trace.Context.User.AuthenticatedUserId = loggingEvent.UserName;
 
             IDictionary<string, string> metaData;
             

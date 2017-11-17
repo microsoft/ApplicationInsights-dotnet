@@ -19,17 +19,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Adapters\DiagnosticSource\DiagnosticSourceListener.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Identifies the project as test project -->
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Adapters\DiagnosticSource\DiagnosticSource.csproj">
-      <IncludeAssets>All</IncludeAssets>
-    </ProjectReference>
-  </ItemGroup>
 
   <Import Project="..\Shared\Adapters.Shared.Tests.projitems" Label="Shared" Condition="Exists('..\Shared\Adapters.Shared.Tests.projitems')" />
   <Import Project="..\CommonTestShared\CommonTestShared.projitems" Label="Shared" Condition="Exists('..\CommonTestShared\CommonTestShared.projitems')" />

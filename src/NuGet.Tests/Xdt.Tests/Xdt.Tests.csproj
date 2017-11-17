@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -63,22 +63,22 @@
     <EmbeddedResource Include="..\..\NuGet\NLogTarget\config.uninstall.xdt">
       <Link>Resources\NLog\config.uninstall.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\DiagnosticSourceListener\ApplicationInsights.config.install.xdt">
+    <EmbeddedResource Include="..\..\Adapters\DiagnosticSource\ApplicationInsights.config.install.xdt">
       <Link>Resources\DiagnosticSourceListener\ApplicationInsights.config.install.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\DiagnosticSourceListener\ApplicationInsights.config.uninstall.xdt">
+    <EmbeddedResource Include="..\..\Adapters\DiagnosticSource\ApplicationInsights.config.uninstall.xdt">
       <Link>Resources\DiagnosticSourceListener\ApplicationInsights.config.uninstall.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\EventSourceListener\ApplicationInsights.config.install.xdt">
+    <EmbeddedResource Include="..\..\Adapters\EventSource.Netstandard13\ApplicationInsights.config.install.xdt">
       <Link>Resources\EventSourceListener\ApplicationInsights.config.install.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\EventSourceListener\ApplicationInsights.config.uninstall.xdt">
+    <EmbeddedResource Include="..\..\Adapters\EventSource.Netstandard13\ApplicationInsights.config.uninstall.xdt">
       <Link>Resources\EventSourceListener\ApplicationInsights.config.uninstall.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\EtwCollector\ApplicationInsights.config.install.xdt">
+    <EmbeddedResource Include="..\..\Adapters\Etw.Net451\ApplicationInsights.config.install.xdt">
       <Link>Resources\EtwCollector\ApplicationInsights.config.install.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\EtwCollector\ApplicationInsights.config.uninstall.xdt">
+    <EmbeddedResource Include="..\..\Adapters\Etw.Net451\ApplicationInsights.config.uninstall.xdt">
       <Link>Resources\EtwCollector\ApplicationInsights.config.uninstall.xdt</Link>
     </EmbeddedResource>
     <None Include="packages.config">

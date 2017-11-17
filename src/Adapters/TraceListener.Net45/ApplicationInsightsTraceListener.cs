@@ -47,8 +47,13 @@ namespace Microsoft.ApplicationInsights.TraceListener
             this.TelemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("sd:");
         }
 
+        /// <summary>
+        /// Gets a value indicating whether trace listener is thread safe. This trace adapter is thread safe.
+        /// </summary>
+        public override bool IsThreadSafe => true;
+
         internal TelemetryClient TelemetryClient { get; set; }
-        
+
         /// <summary>
         /// Writes trace information, a message, and event information to the listener specific output.
         /// </summary>

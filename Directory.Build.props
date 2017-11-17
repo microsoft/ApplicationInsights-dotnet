@@ -56,10 +56,11 @@
         <OutputPath>$(BinRoot)\$(Configuration)\$(RelativeOutputPathBase)</OutputPath>
         <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
 
-        <!-- Collect all NuGet packages in the same folder for convenience during testing -->
-        <PackageOutputDir>$(BinRoot)\$(Configuration)\NuGet</PackageOutputDir>
-      
-        <AppxPackageDir>$(OutputPath)</AppxPackageDir>
+      <!-- Collect all NuGet packages in the same folder for convenience during testing -->
+      <PackageOutputDir>$(BinRoot)\$(Configuration)\NuGet</PackageOutputDir>
+      <PackageOutputPath>$(PackageOutputDir)</PackageOutputPath>
+
+      <AppxPackageDir>$(OutputPath)</AppxPackageDir>
 
         <IntermediateOutputPath>$(BaseIntermediateOutputPath)\$(Configuration)\$(RelativeOutputPathBase)</IntermediateOutputPath>
         <IntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(IntermediateOutputPath) ))\</IntermediateOutputPath>
