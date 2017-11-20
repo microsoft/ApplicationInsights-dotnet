@@ -181,12 +181,23 @@
 
         /// <summary>
         /// Gets or sets the folder to be used as a temporary storage for events that were not sent because of temporary connectivity issues. 
+        /// It is the user's responsibility to put appropriate security permissions to this folder.
         /// If folder was not provided or inaccessible. %LocalAppData% or %Temp% folder will be used.
         /// </summary>
         public string StorageFolder
         {
             get { return this.Transmitter.StorageFolder; }
             set { this.Transmitter.StorageFolder = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to store telemetry in temporary storage folder
+        /// even if User permissions for the folder could not be restricted to current user.        
+        /// </summary>
+        public bool AllowUnsecureLocalStorage
+        {
+            get { return this.Transmitter.AllowUnsecureLocalStorage; }
+            set { this.Transmitter.AllowUnsecureLocalStorage = value; }
         }
 
         /// <summary>

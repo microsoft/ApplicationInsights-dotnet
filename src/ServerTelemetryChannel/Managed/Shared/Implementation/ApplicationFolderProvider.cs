@@ -17,15 +17,17 @@
     {
         private readonly IDictionary environment;
         private readonly string customFolderName;
+        private readonly bool allowUnsecureLocalStorage;
+
         // private readonly WindowsIdentity currentIdentity = WindowsIdentity.GetCurrent();
         private IIdentityProvider identityProvider;
 
-        public ApplicationFolderProvider(string folderName = null)
-            : this(Environment.GetEnvironmentVariables(), folderName)
+        public ApplicationFolderProvider(string folderName = null, bool allowUnsecureLocalStorage)
+            : this(Environment.GetEnvironmentVariables(), folderName, allowUnsecureLocalStorage)
         {
         }
 
-        internal ApplicationFolderProvider(IDictionary environment, string folderName = null)
+        internal ApplicationFolderProvider(IDictionary environment, string folderName = null, bool allowUnsecureLocalStorage)
         {
             if (environment == null)
             {
@@ -39,11 +41,12 @@
             }
             catch (Exception)
             {
-                this.identityProvider = new LinuxIdentityProvider();                
+                this.identityProvider = new LinuxIdentityProvider(environment);                
             }
              
             this.environment = environment;
             this.customFolderName = folderName;
+            this.allowUnsecureLocalStorage = allowUnsecureLocalStorage;
         }
 
         public IPlatformFolder GetApplicationFolder()
@@ -69,7 +72,17 @@
                     result = this.CreateAndValidateApplicationFolder(temp.ToString(), createSubFolder: true, errors: errors);
                 }
             }
-
+            
+            if (result == null)
+            {
+                // Another way of obtaining temp folder which is non-windows friendly.
+                string tempPath = Path.GetTempPath();
+                if (tempPath != null)
+                {
+                    result = this.CreateAndValidateApplicationFolder(tempPath, createSubFolder: true, errors: errors);
+                }
+            }
+                                                
             if (result == null)
             {
                 TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors), this.identityProvider.GetName());
@@ -140,6 +153,17 @@
                     if (createSubFolder)
                     {
                         telemetryDirectory = this.CreateTelemetrySubdirectory(telemetryDirectory);
+                        if (!this.SetSecurityPermissionsToAdminAndCurrentUser(telemetryDirectory))
+                        {
+                            if (this.allowUnsecureLocalStorage)
+                            {
+                                TelemetryChannelEventSource.Log.WritingToUnsecuredStorageDirectory(telemetryDirectory.FullName);
+                            }
+                            else
+                            {
+                                throw new SecurityException("Unable to apply security restrictions to the storage directory.");
+                            }
+                        }                        
                     }
 
                     CheckAccessPermissions(telemetryDirectory);
@@ -198,35 +222,48 @@
 
             string appIdentity = this.identityProvider.GetName() + "@" + Path.Combine(baseDirectory, Process.GetCurrentProcess().ProcessName);
             string subdirectoryName = GetSHA256Hash(appIdentity);
-            string subdirectoryPath = Path.Combine(@"Microsoft\ApplicationInsights", subdirectoryName);
+            string subdirectoryPath = Path.Combine("Microsoft", "ApplicationInsightsSDK", subdirectoryName);
             DirectoryInfo subdirectory = root.CreateSubdirectory(subdirectoryPath);
-
-            var directorySecurity = subdirectory.GetAccessControl();
-
-            // Grant access only to admins and current user
-            var adminitrators = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
-            directorySecurity.AddAccessRule(
-                new FileSystemAccessRule(
-                        adminitrators,
-                        FileSystemRights.FullControl,
-                        InheritanceFlags.None,
-                        PropagationFlags.NoPropagateInherit,
-                        AccessControlType.Allow));
-
-            directorySecurity.AddAccessRule(
-                new FileSystemAccessRule(
-                        this.identityProvider.GetName(),
-                        FileSystemRights.FullControl,
-                        InheritanceFlags.None,
-                        PropagationFlags.NoPropagateInherit,
-                        AccessControlType.Allow));
-
-            // Do not inherit from parent folder
-            directorySecurity.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
-
-            subdirectory.SetAccessControl(directorySecurity);
-
+            
             return subdirectory;
+        }
+
+        private bool SetSecurityPermissionsToAdminAndCurrentUser(DirectoryInfo subdirectory)
+        {
+            try
+            {
+                var directorySecurity = subdirectory.GetAccessControl();
+
+                // Grant access only to admins and current user
+                var adminitrators = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
+                directorySecurity.AddAccessRule(
+                    new FileSystemAccessRule(
+                            adminitrators,
+                            FileSystemRights.FullControl,
+                            InheritanceFlags.None,
+                            PropagationFlags.NoPropagateInherit,
+                            AccessControlType.Allow));
+
+                directorySecurity.AddAccessRule(
+                    new FileSystemAccessRule(
+                            this.identityProvider.GetName(),
+                            FileSystemRights.FullControl,
+                            InheritanceFlags.None,
+                            PropagationFlags.NoPropagateInherit,
+                            AccessControlType.Allow));
+
+                // Do not inherit from parent folder
+                directorySecurity.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
+
+                subdirectory.SetAccessControl(directorySecurity);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                TelemetryChannelEventSource.Log.FailedToSetSecurityPermissionStorageDirectory(subdirectory.FullName, ex.Message);
+                return false;
+            }
         }
     }
 }

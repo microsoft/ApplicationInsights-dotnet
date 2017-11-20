@@ -57,6 +57,8 @@
 
         public string StorageFolder { get; set; }
 
+        public bool AllowUnsecureLocalStorage { get; set; }
+
         public int MaxBufferCapacity
         {
             get
@@ -133,7 +135,7 @@
 
         internal virtual void Initialize()
         {
-            this.Storage.Initialize(new ApplicationFolderProvider(this.StorageFolder));
+            this.Storage.Initialize(new ApplicationFolderProvider(this.StorageFolder, this.AllowUnsecureLocalStorage));
         }
 
         internal virtual void Enqueue(Transmission transmission)

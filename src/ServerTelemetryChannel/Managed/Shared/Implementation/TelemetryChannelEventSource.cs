@@ -92,7 +92,7 @@
             this.WriteEvent(10, telemetryType ?? string.Empty, this.ApplicationName);
         }
 
-        [Event(11, Message = "Storage folder: {0}.", Level = EventLevel.Verbose)]
+        [Event(11, Message = "Storage folder: {0}.", Level = EventLevel.Error)]
         public void StorageFolder(string folder, string appDomainName = "Incorrect")
         {
             this.WriteEvent(11, folder ?? string.Empty, this.ApplicationName);
@@ -479,6 +479,18 @@
         public void ItemRejectedNoInstrumentationKey(string item, string appDomainName = "Incorrect")
         {
             this.WriteEvent(67, item ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(68, Message = "Failed to set security permissions on storage directory {0}. Error : {1}.", Level = EventLevel.Warning)]
+        public void FailedToSetSecurityPermissionStorageDirectory(string directory, string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(68, directory, error, this.ApplicationName);
+        }
+
+        [Event(69, Message = "Though Storage directory {0} is not secured, telemetry will be stored as AllowUnsecureLocalStorage is set on ServerTelemetryChannel.", Level = EventLevel.Warning)]
+        public void WritingToUnsecuredStorageDirectory(string directory, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(69, directory, this.ApplicationName);
         }
 
         private string GetApplicationName()
