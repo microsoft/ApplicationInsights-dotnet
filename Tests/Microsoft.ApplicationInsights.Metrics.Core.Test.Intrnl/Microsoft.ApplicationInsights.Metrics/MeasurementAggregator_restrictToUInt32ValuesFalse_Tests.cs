@@ -20,7 +20,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 {
     /// <summary />
     [TestClass]
-    public class SimpleDoubleDataSeriesAggregatorTests
+    public class MeasurementAggregator_restrictToUInt32ValuesFalse_Tests
     {
         /// <summary />
         [TestMethod]

@@ -215,11 +215,12 @@ namespace Microsoft.ApplicationInsights.Metrics
                         Interlocked.Increment(ref s_countBufferWaitSpinCycles);
                     }
 #endif
-                    // In tests (including stress tests) we always finished wating before 100 cycles. However, this is a protection
-                    // against en extreme case on a slow machine. We will back off and sleep for a few millisecs to give th emachine
-                    // a chance to finisah current tasks.
                     if (spinWait.Count % 100 == 0)
                     {
+                        // In tests (including stress tests) we always finished wating before 100 cycles.
+                        // However, this is a protection against en extreme case on a slow machine.
+                        // We will back off and sleep for a few millisecs to give the machine a chance to finish current tasks.
+
                         Task.Delay(10).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
                     }
 

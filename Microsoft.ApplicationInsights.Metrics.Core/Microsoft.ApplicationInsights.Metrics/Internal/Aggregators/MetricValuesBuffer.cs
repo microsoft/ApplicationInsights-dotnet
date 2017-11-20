@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -86,6 +87,14 @@ namespace Microsoft.ApplicationInsights.Metrics
                 while (IsInvalidValue(value))
                 {
                     spinWait.SpinOnce();
+                    
+                    if (spinWait.Count % 100 == 0)
+                    {
+                        // In tests (including stress tests) we always finished wating before 100 cycles.
+                        // However, this is a protection against en extreme case on a slow machine. 
+                        Task.Delay(10).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
+                    }
+
                     value = GetAndResetValueOnce(_values, index);
                 }
             }

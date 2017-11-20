@@ -58,8 +58,8 @@
     <Compile Include="Microsoft.ApplicationInsights.Metrics\UtilTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\MetricAggregationManagerTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\NaiveDistinctCountMetricSeriesAggregatorTests.cs" />
-    <Compile Include="Microsoft.ApplicationInsights.Metrics\SimpleUInt32DataSeriesAggregatorTests.cs" />
-    <Compile Include="Microsoft.ApplicationInsights.Metrics\SimpleDoubleDataSeriesAggregatorTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\MeasurementAggregator_restrictToUInt32ValuesFalse_Tests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\MeasurementAggregator_restrictToUInt32ValuesTrue_Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -13,7 +13,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 {
     /// <summary />
     [TestClass]
-    public class SimpleUInt32DataSeriesAggregatorTests
+    public class MeasurementAggregator_restrictToUInt32ValuesTrue_Tests
     {
         /// <summary />
         [TestMethod]
