@@ -182,31 +182,31 @@
             catch (UnauthorizedAccessException exp)
             {
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.identityProvider.GetName());
+                TelemetryChannelEventSource.Log.TransmissionStorageIssuesWarning(errorMessage, this.identityProvider.GetName());
             }
             catch (ArgumentException exp)
             {
                 // Path does not specify a valid file path or contains invalid DirectoryInfo characters.
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.identityProvider.GetName());
+                TelemetryChannelEventSource.Log.TransmissionStorageIssuesWarning(errorMessage, this.identityProvider.GetName());
             }
             catch (DirectoryNotFoundException exp)
             {
                 // The specified path is invalid, such as being on an unmapped drive.
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.identityProvider.GetName());
+                TelemetryChannelEventSource.Log.TransmissionStorageIssuesWarning(errorMessage, this.identityProvider.GetName());
             }
             catch (IOException exp)
             {
                 // The subdirectory cannot be created. -or- A file or directory already has the name specified by path. -or-  The specified path, file name, or both exceed the system-defined maximum length. .
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.identityProvider.GetName());
+                TelemetryChannelEventSource.Log.TransmissionStorageIssuesWarning(errorMessage, this.identityProvider.GetName());
             }
             catch (SecurityException exp)
             {
                 // The caller does not have code access permission to create the directory.
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.identityProvider.GetName());
+                TelemetryChannelEventSource.Log.TransmissionStorageIssuesWarning(errorMessage, this.identityProvider.GetName());
             }
 
             if (!string.IsNullOrEmpty(errorMessage))
