@@ -12,6 +12,7 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
 
     <TargetFrameworks>net45;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.3</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 
     <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->

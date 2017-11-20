@@ -15,18 +15,14 @@
     <DebugSymbols>true</DebugSymbols> 
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj">
-      <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
-      <Name>Microsoft.ApplicationInsights</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj">
-      <Project>{4b0bc3b7-c7fc-4333-9e28-5790d9153f07}</Project>
-      <Name>ApplicationInsightsTypes</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <PropertyGroup Condition="$(OS) != 'Windows_NT'">
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TargetFrameworks>netstandard1.3</TargetFrameworks>
+  </PropertyGroup>
   
-  <ItemGroup>
+  <ItemGroup Condition="$(OS) == 'Windows_NT'">
+    <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj"/>
+    <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj"/>
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.0.0" />
     <Reference Include="Microsoft.CSharp" />
@@ -60,14 +56,12 @@
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.3.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
     <PackageReference Include="System.ValueTuple" Version="4.3.0" />
-    <Reference Include="System.Xml.Linq" />
     <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.0" />
     <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
     <PackageReference Include="System.Xml.XPath" Version="4.3.0" />
     <PackageReference Include="System.Xml.XPath.XDocument" Version="4.3.0" />
 
     <PackageReference Include="MicroBuild.Core" Version="0.2.0">
-      <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <Reference Include="System.Runtime.Serialization" />
