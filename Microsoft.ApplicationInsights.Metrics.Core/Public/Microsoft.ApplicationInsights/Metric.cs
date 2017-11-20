@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using Microsoft.ApplicationInsights.ConcurrentDatastructures;
+using Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures;
 using Microsoft.ApplicationInsights.Metrics;
 
 namespace Microsoft.ApplicationInsights

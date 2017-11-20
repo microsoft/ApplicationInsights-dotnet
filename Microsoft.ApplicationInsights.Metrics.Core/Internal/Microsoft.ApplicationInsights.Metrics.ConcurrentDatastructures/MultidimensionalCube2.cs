@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
+namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 {
     /// <summary>
     /// </summary>

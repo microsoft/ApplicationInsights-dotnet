@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 using Microsoft.ApplicationInsights.Metrics;
 
-namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
+namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 {
     /// <summary>
     /// Represents a multi-dimensional, discrete data cube.

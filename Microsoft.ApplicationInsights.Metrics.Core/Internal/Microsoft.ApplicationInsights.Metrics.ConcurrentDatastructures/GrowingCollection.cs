@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
+namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 {
     /// <summary>
     /// </summary>

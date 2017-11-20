@@ -4,7 +4,7 @@ using System.Threading;
 
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using Microsoft.ApplicationInsights.ConcurrentDatastructures;
+using Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures;
 
 using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
 

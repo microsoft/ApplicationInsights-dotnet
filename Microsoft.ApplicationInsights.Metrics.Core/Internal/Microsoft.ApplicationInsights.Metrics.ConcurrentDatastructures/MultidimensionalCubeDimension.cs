@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
+namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 {
     internal class MultidimensionalCubeDimension<TDimensionValue, TPoint>
     {

@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.ApplicationInsights.Metrics.TestUtil;
 
-namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
+
+namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 {
+    using Microsoft.ApplicationInsights.Metrics.TestUtil;
+
     /// <summary />
     [TestClass]
     public class MultidimensionalCubeTests

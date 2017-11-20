@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
-namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
+namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 {
     /// <summary />
     [TestClass]
