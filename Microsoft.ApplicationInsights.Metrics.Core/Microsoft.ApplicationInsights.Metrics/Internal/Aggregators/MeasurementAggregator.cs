@@ -25,7 +25,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly Data _data = new Data();
 
 
-        public MeasurementAggregator(SimpleMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
+        public MeasurementAggregator(MetricSeriesConfigurationForMeasurement configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
             : base(MetricValuesBufferFactory, configuration, dataSeries, aggregationCycleKind)
         {
             Util.ValidateNotNull(configuration, nameof(configuration));

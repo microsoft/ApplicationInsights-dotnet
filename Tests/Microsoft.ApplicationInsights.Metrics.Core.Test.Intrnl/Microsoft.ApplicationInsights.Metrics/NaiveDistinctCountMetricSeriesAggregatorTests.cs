@@ -29,14 +29,14 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false),
+                                                new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
                 Assert.IsNotNull(aggregator);
             }
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: true),
+                                                new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: true),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
                 Assert.IsNotNull(aggregator);
@@ -52,7 +52,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                    new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false, caseSensitiveDistinctions: false),
+                                                    new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false, caseSensitiveDistinctions: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -67,7 +67,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                    new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false, caseSensitiveDistinctions: true),
+                                                    new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false, caseSensitiveDistinctions: true),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -82,7 +82,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                    new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false),
+                                                    new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -105,7 +105,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             long periodMillis = (long) (endTS - default(DateTimeOffset)).TotalMilliseconds;
 
             var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false),
+                                                new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
 
@@ -174,7 +174,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                    new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false),
+                                                    new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -241,7 +241,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                    new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false, caseSensitiveDistinctions: true),
+                                                    new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false, caseSensitiveDistinctions: true),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -272,7 +272,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             {
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                    new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false, caseSensitiveDistinctions: false),
+                                                    new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false, caseSensitiveDistinctions: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -313,7 +313,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void CreateAggregateUnsafe()
         {
             var aggregationManager = new MetricAggregationManager();
-            var seriesConfig = new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false);
+            var seriesConfig = new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false);
             var metric = new MetricSeries(
                                 aggregationManager,
                                 "Distinct Cows Sold",
@@ -324,7 +324,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                 seriesConfig);
 
             var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                    (NaiveDistinctCountMetricSeriesConfiguration) metric.GetConfiguration(),
+                                                    (MetricSeriesConfigurationForNaiveDistinctCount) metric.GetConfiguration(),
                                                     metric,
                                                     CycleKind.Custom);
 
@@ -368,12 +368,12 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void TryRecycle()
         {
             var nonpersistentAggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false),
+                                                new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
 
             var persistentAggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: true),
+                                                new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: true),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
 
@@ -429,16 +429,16 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void GetDataSeries()
         {
             var aggregationManager = new MetricAggregationManager();
-            var seriesConfig = new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false);
+            var seriesConfig = new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false);
             var metric = new MetricSeries(aggregationManager, "Cows Sold", null, seriesConfig);
 
             var aggregatorForConcreteSeries = new NaiveDistinctCountMetricSeriesAggregator(
-                                                    (NaiveDistinctCountMetricSeriesConfiguration) metric.GetConfiguration(),
+                                                    (MetricSeriesConfigurationForNaiveDistinctCount) metric.GetConfiguration(),
                                                     dataSeries: metric,
                                                     aggregationCycleKind: CycleKind.Custom);
 
             var aggregatorForNullSeries = new NaiveDistinctCountMetricSeriesAggregator(
-                                                    new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false),
+                                                    new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -461,7 +461,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Measurement:
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                    new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false),
+                                                    new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -501,7 +501,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Accumulator:
                 var aggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                    new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: true),
+                                                    new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: true),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -547,19 +547,19 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             var aggregationManager = new MetricAggregationManager();
 
-            var nonPersistentConfig = new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: false);
+            var nonPersistentConfig = new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false);
             var nonPersistentMetric = new MetricSeries(aggregationManager, "Unique Cows Sold", null, nonPersistentConfig);
 
             var nonPersistentAggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                    (NaiveDistinctCountMetricSeriesConfiguration) nonPersistentMetric.GetConfiguration(),
+                                                    (MetricSeriesConfigurationForNaiveDistinctCount) nonPersistentMetric.GetConfiguration(),
                                                     nonPersistentMetric,
                                                     CycleKind.Custom);
 
-            var persistentConfig = new NaiveDistinctCountMetricSeriesConfiguration(usePersistentAggregation: true);
+            var persistentConfig = new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: true);
             var persistentMetric = new MetricSeries(aggregationManager, "Unique Cows Sold", null, persistentConfig);
 
             var persistentAggregator = new NaiveDistinctCountMetricSeriesAggregator(
-                                                    (NaiveDistinctCountMetricSeriesConfiguration) persistentMetric.GetConfiguration(),
+                                                    (MetricSeriesConfigurationForNaiveDistinctCount) persistentMetric.GetConfiguration(),
                                                     persistentMetric,
                                                     CycleKind.Custom);
 

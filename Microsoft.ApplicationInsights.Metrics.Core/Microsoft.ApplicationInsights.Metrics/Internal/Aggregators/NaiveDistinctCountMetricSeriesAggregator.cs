@@ -37,7 +37,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         private int _totalValuesCount = 0;
 
         public NaiveDistinctCountMetricSeriesAggregator(
-                                    NaiveDistinctCountMetricSeriesConfiguration configuration,
+                                    MetricSeriesConfigurationForNaiveDistinctCount configuration,
                                     MetricSeries dataSeries,
                                     MetricAggregationCycleKind aggregationCycleKind)
             : base(MetricValuesBufferFactory, configuration, dataSeries, aggregationCycleKind)

@@ -406,7 +406,7 @@ namespace User.Namespace.Example03
             // is covered elsewhere.
             // Here, let's focus on creating your own instances of SimpleMetricConfiguration to configure more options.
             // SimpleMetricConfiguration ctor takes some options on how to manage different series within the respective metric and an
-            // object of class SimpleMetricSeriesConfiguration : IMetricSeriesConfiguration that specifies aggregation behavior for
+            // object of class MetricSeriesConfigurationForMeasurement : IMetricSeriesConfiguration that specifies aggregation behavior for
             // each individual series of the metric:
 
             Metric customConfiguredMeasurement= client.GetMetric(
@@ -414,7 +414,7 @@ namespace User.Namespace.Example03
                                                         new SimpleMetricConfiguration(
                                                                     seriesCountLimit:           1000,
                                                                     valuesPerDimensionLimit:    100,
-                                                                    seriesConfig:               new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false)));
+                                                                    seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false)));
 
             // seriesCountLimit is the max total number of series the metric can contain before TryTrackValue(..) and TryGetDataSeries(..) stop
             // creating new data series and start returning false.
@@ -493,7 +493,7 @@ namespace User.Namespace.Example04
 
             MetricSeries itemAccumulator = metrics.CreateNewSeries(
                                                     "Items in Queue",
-                                                    new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: false));
+                                                    new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
 
             itemAccumulator.TrackValue(1);
             itemAccumulator.TrackValue(1);
@@ -509,12 +509,12 @@ namespace User.Namespace.Example04
             MetricSeries purpleCowsSold = metrics.CreateNewSeries(
                                              "Animals Sold",
                                              new Dictionary<string, string>() { ["Species"] = "Cows", ["Color"] = "Purple" },
-                                             new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false));
+                                             new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             MetricSeries yellowHorsesSold = metrics.CreateNewSeries(
                                              "Animals Sold",
                                              new[] { new KeyValuePair<string, string>("Species", "Horses"), new KeyValuePair<string, string>("Color", "Yellow") },
-                                             new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false));
+                                             new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             purpleCowsSold.TrackValue(42);
             yellowHorsesSold.TrackValue(132);

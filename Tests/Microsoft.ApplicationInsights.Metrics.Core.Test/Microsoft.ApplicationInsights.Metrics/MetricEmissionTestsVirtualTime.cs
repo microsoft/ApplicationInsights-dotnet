@@ -39,7 +39,7 @@ namespace SomeCustomerNamespace
         {
             MetricSeries durationMeric = telemetryPipeline.Metrics().CreateNewSeries(
                                                                         "Item Add duration",
-                                                                        new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false));
+                                                                        new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             MockContainerDataStructure dataStructure = new MockContainerDataStructure((c) => TimeSpan.FromSeconds(c));
 

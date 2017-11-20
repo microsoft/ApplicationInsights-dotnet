@@ -26,9 +26,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             "Microsoft.Performance",
             "CA1812: Avoid uninstantiated internal classes",
             Justification = "Needed for internal verification.")]
-    public class NaiveDistinctCountMetricSeriesConfiguration : IMetricSeriesConfiguration
+    public class MetricSeriesConfigurationForNaiveDistinctCount : IMetricSeriesConfiguration
     {
-        static NaiveDistinctCountMetricSeriesConfiguration()
+        static MetricSeriesConfigurationForNaiveDistinctCount()
         {
             MetricAggregateToTelemetryPipelineConverters.Registry.Add(
                                                                     typeof(ApplicationInsightsTelemetryPipeline),
@@ -43,7 +43,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// </summary>
         /// <param name="usePersistentAggregation"></param>
-        public NaiveDistinctCountMetricSeriesConfiguration(bool usePersistentAggregation)
+        public MetricSeriesConfigurationForNaiveDistinctCount(bool usePersistentAggregation)
             : this(usePersistentAggregation, caseSensitiveDistinctions: true)
         {
         }
@@ -52,7 +52,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         /// <param name="usePersistentAggregation"></param>
         /// <param name="caseSensitiveDistinctions"></param>
-        public NaiveDistinctCountMetricSeriesConfiguration(bool usePersistentAggregation, bool caseSensitiveDistinctions)
+        public MetricSeriesConfigurationForNaiveDistinctCount(bool usePersistentAggregation, bool caseSensitiveDistinctions)
         {
             _usePersistentAggregation = usePersistentAggregation;
             _caseSensitive = caseSensitiveDistinctions;
@@ -90,7 +90,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             if (other != null)
             {
-                var otherConfig = other as NaiveDistinctCountMetricSeriesConfiguration;
+                var otherConfig = other as MetricSeriesConfigurationForNaiveDistinctCount;
                 if (otherConfig != null)
                 {
                     return Equals(otherConfig);
@@ -113,7 +113,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool Equals(NaiveDistinctCountMetricSeriesConfiguration other)
+        public bool Equals(MetricSeriesConfigurationForNaiveDistinctCount other)
         {
             if (other == null)
             {

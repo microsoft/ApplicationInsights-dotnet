@@ -69,7 +69,7 @@ namespace SomeCustomerNamespace
 
             MetricManager manager = TelemetryConfiguration.Active.Metrics();
 
-            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false);
+            IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
             MetricSeries series1 = TelemetryConfiguration.Active.Metrics().CreateNewSeries(
                                                                                 "Cows Sold",
                                                                                 new Dictionary<string, string> { ["Color of Cow"] = "Red",

@@ -16,7 +16,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         private double _max;
         private double _sum;
 
-        public AccumulatorAggregator(AccumulatorMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
+        public AccumulatorAggregator(MetricSeriesConfigurationForAccumulator configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
             : base(MetricValuesBufferFactory, configuration, dataSeries, aggregationCycleKind)
         {
             Util.ValidateNotNull(configuration, nameof(configuration));

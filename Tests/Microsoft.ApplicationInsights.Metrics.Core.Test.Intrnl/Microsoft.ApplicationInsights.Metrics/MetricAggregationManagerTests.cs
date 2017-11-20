@@ -33,13 +33,13 @@ namespace Microsoft.ApplicationInsights.Metrics
                                             aggregationManager,
                                             "Measurement Metric",
                                             null,
-                                            new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false));
+                                            new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             var accumulatorMetric = new MetricSeries(
                                             aggregationManager,
                                             "Accumulator Metric",
                                             null,
-                                            new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: false));
+                                            new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
 
             measurementMetric.TrackValue(1);
             accumulatorMetric.TrackValue(2);
@@ -107,13 +107,13 @@ namespace Microsoft.ApplicationInsights.Metrics
                                             aggregationManager,
                                             "Measurement Metric",
                                             null,
-                                            new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false));
+                                            new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             var accumulatorMetric = new MetricSeries(
                                             aggregationManager,
                                             "Accumulator Metric",
                                             null,
-                                            new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: false));
+                                            new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
 
             // Cycle once, get nothing:
             AggregationPeriodSummary period = aggregationManager.StartOrCycleAggregators(cycleKind, dto, futureFilter: null);
@@ -239,13 +239,13 @@ namespace Microsoft.ApplicationInsights.Metrics
                                             aggregationManager,
                                             "Measurement Metric",
                                             null,
-                                            new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false));
+                                            new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             var accumulatorMetric = new MetricSeries(
                                             aggregationManager,
                                             "Accumulator Metric",
                                             null,
-                                            new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: false));
+                                            new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
 
             // Cannot stop default:
 

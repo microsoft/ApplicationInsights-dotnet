@@ -22,7 +22,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void Properties()
         {
             var manager = new MetricManager(new MemoryMetricTelemetryPipeline());
-            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false);
+            IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
             MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
 
             Assert.AreEqual("Foo Bar", series.MetricId);
@@ -42,7 +42,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
-            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false);
+            IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
             MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
 
             Thread.Sleep(1500);
@@ -94,7 +94,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
-            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false);
+            IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
             MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
 
             Assert.ThrowsException<ArgumentException>( () => series.TrackValue("xxx") );
@@ -146,7 +146,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
-            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false);
+            IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
             MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
 
             series.TrackValue(0.4);
@@ -202,7 +202,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
-            IMetricSeriesConfiguration config = new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false);
+            IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
             MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
 
             series.TrackValue(0.4);
@@ -247,7 +247,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void GetCurrentAggregateUnsafe_Measurement()
         {
-            IMetricSeriesConfiguration seriesConfig = new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false);
+            IMetricSeriesConfiguration seriesConfig = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
             const string aggregationKindMoniker = "Microsoft.Azure.SimpleStatistics";
 
             // Do not start this test in the last 10 secs or first 2 secs of a minute, to make sure the timings below are likely to work out.
@@ -339,7 +339,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void GetCurrentAggregateUnsafe_Accumulator()
         {
-            IMetricSeriesConfiguration seriesConfig = new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: false);
+            IMetricSeriesConfiguration seriesConfig = new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false);
             const string aggregationKindMoniker = "Microsoft.Azure.Accumulator";
 
             // Do not start this test in the last 10 secs or first 2 secs of a minute, to make sure the timings below are likely to work out.
@@ -439,7 +439,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void GetCurrentAggregateUnsafe_MetricAggregationCycleKind_DateTimeOffset_Measurement()
         {
-            IMetricSeriesConfiguration seriesConfig = new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false);
+            IMetricSeriesConfiguration seriesConfig = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
             const string aggregationKindMoniker = "Microsoft.Azure.SimpleStatistics";
 
             // Do not start this test in the last 10 secs or first 2 secs of a minute, to make sure the timings below are likely to work out.
@@ -670,7 +670,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void GetCurrentAggregateUnsafe_MetricAggregationCycleKind_DateTimeOffset_Accumulator()
         {
-            IMetricSeriesConfiguration seriesConfig = new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: false);
+            IMetricSeriesConfiguration seriesConfig = new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false);
             const string aggregationKindMoniker = "Microsoft.Azure.Accumulator";
 
             // Do not start this test in the last 10 secs or first 2 secs of a minute, to make sure the timings below are likely to work out.

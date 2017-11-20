@@ -52,12 +52,12 @@ namespace Microsoft.ApplicationInsights
             s_measurementDouble = new SimpleMetricConfiguration(
                                                         FutureDefaults.SeriesCountLimit,
                                                         FutureDefaults.ValuesPerDimensionLimit,
-                                                        new SimpleMetricSeriesConfiguration(restrictToUInt32Values: false));
+                                                        new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             s_accumulatorDouble = new SimpleMetricConfiguration(
                                                         FutureDefaults.SeriesCountLimit,
                                                         FutureDefaults.ValuesPerDimensionLimit,
-                                                        new AccumulatorMetricSeriesConfiguration(restrictToUInt32Values: false));
+                                                        new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
         }
 
 
