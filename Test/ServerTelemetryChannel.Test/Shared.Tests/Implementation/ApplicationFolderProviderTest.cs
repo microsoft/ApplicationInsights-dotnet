@@ -167,18 +167,58 @@
         }
 
         [TestMethod]
-        public void GetApplicationFolderReturnsNullWhenNeitherLocalAppDataNorTempFolderIsAccessible()
+        public void GetApplicationFolderReturnsNullWhenNeitherLocalAppDataNorTempFoldersAreAccessible()
         {
             var environmentVariables = new Hashtable 
             { 
                 { "LOCALAPPDATA", this.CreateTestDirectory(@"AppData\Local", FileSystemRights.CreateDirectories, AccessControlType.Deny).FullName },
                 { "TEMP", this.CreateTestDirectory("Temp", FileSystemRights.CreateDirectories, AccessControlType.Deny).FullName },
             };
+           
             var provider = new ApplicationFolderProvider(environmentVariables);
 
             IPlatformFolder applicationFolder = provider.GetApplicationFolder();
 
             Assert.IsNull(applicationFolder);
+        }
+
+        [TestMethod]
+        public void GetApplicationFolderReturnsNullWhenUnableToSetSecurityPolicyOnDirectory()
+        {
+            var environmentVariables = new Hashtable
+            {
+                { "LOCALAPPDATA", this.CreateTestDirectory(@"AppData\Local").FullName },
+                { "TEMP", this.CreateTestDirectory("Temp").FullName },
+            };
+
+            var provider = new ApplicationFolderProvider(environmentVariables, allowUnsecureLocalStorage : false);
+
+            // Override to return false indicating applying security failed.
+            provider.OverrideApplySecurityToDirectory( (dirInfo) => { return false; } );
+
+            IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+
+            Assert.IsNull(applicationFolder);
+        }
+
+        [TestMethod]
+        public void GetApplicationFolderReturnsValidWhenUnableToSetSecurityPolicyOnDirectoryButUserUverrides()
+        {
+            var environmentVariables = new Hashtable
+            {
+                { "LOCALAPPDATA", this.CreateTestDirectory(@"AppData\Local").FullName },
+                { "TEMP", this.CreateTestDirectory("Temp").FullName },
+            };
+
+            var provider = new ApplicationFolderProvider(environmentVariables, allowUnsecureLocalStorage: true);
+
+            // Override to return false indicating applying security failed.
+            provider.OverrideApplySecurityToDirectory((dirInfo) => { return false; });
+
+            IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+
+            // allowUnsecureLocalStorage is set to true, so even if security cannot be applied, folder would still be used. 
+            Assert.IsNotNull(applicationFolder);
         }
 
         [TestMethod]
@@ -266,7 +306,7 @@
         private void GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButNotAccessible(FileSystemRights rights)
         {
             DirectoryInfo localAppData = this.CreateTestDirectory(@"AppData\Local");
-            var environmentVariables = new Hashtable { { "LOCALAPPDATA", localAppData.FullName } };
+            var environmentVariables = new Hashtable { { "LOCALAPPDATA", localAppData.FullName }, { "TEMP", localAppData.FullName } };
             var provider = new ApplicationFolderProvider(environmentVariables);
 
             // Create the application folder and make it inaccessible

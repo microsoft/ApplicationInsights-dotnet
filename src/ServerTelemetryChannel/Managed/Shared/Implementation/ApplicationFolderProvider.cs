@@ -15,10 +15,12 @@
 
     internal class ApplicationFolderProvider : IApplicationFolderProvider
     {
+        internal Func<DirectoryInfo, bool> ApplySecurityToDirectory;
+
         private readonly IDictionary environment;
         private readonly string customFolderName;
         private readonly bool allowUnsecureLocalStorage;        
-        private IIdentityProvider identityProvider;
+        private IIdentityProvider identityProvider;        
 
         public ApplicationFolderProvider(string folderName = null, bool allowUnsecureLocalStorage = false)
             : this(Environment.GetEnvironmentVariables(), folderName, allowUnsecureLocalStorage)
@@ -47,6 +49,7 @@
             this.environment = environment;
             this.customFolderName = folderName;
             this.allowUnsecureLocalStorage = allowUnsecureLocalStorage;
+            this.ApplySecurityToDirectory = this.SetSecurityPermissionsToAdminAndCurrentUser;
         }
 
         public IPlatformFolder GetApplicationFolder()
@@ -71,24 +74,28 @@
                 {
                     result = this.CreateAndValidateApplicationFolder(temp.ToString(), createSubFolder: true, errors: errors);
                 }
-            }
-
-            if (result == null)
-            {
-                // Another way of obtaining temp folder which is non-windows friendly.
-                string tempPath = Path.GetTempPath();
-                if (tempPath != null)
+                else
                 {
-                    result = this.CreateAndValidateApplicationFolder(tempPath, createSubFolder: true, errors: errors);
+                    // Path.GetTempPath() works in Non-Windows where TEMP env variable do not exist.
+                    result = this.CreateAndValidateApplicationFolder(Path.GetTempPath(), createSubFolder: true, errors: errors);
                 }
             }
-                                                
+            
             if (result == null)
             {
                 TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors), this.identityProvider.GetName());
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Test hook to allow testing of non-windows scenario.
+        /// </summary>
+        /// <param name="applySecurityToDirectory">The method to be invoked to set directory access.</param>
+        internal void OverrideApplySecurityToDirectory(Func<DirectoryInfo, bool> applySecurityToDirectory)
+        {
+            this.ApplySecurityToDirectory = applySecurityToDirectory;
         }
 
         private static string GetPathAccessFailureErrorMessage(Exception exp, string path)
@@ -153,7 +160,7 @@
                     if (createSubFolder)
                     {
                         telemetryDirectory = this.CreateTelemetrySubdirectory(telemetryDirectory);
-                        if (!this.SetSecurityPermissionsToAdminAndCurrentUser(telemetryDirectory))
+                        if (!this.ApplySecurityToDirectory(telemetryDirectory))
                         {
                             if (this.allowUnsecureLocalStorage)
                             {
