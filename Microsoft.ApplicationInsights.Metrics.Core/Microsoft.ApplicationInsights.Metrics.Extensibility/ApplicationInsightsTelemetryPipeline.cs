@@ -67,7 +67,14 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         public Task FlushAsync(CancellationToken cancelToken)
         {
             cancelToken.ThrowIfCancellationRequested();
-            _trackingClient.Flush();
+            try
+            {
+                _trackingClient.Flush();
+            }
+            catch(NullReferenceException)
+            {
+                // If the user has disposed the pipeline and we are subsequently completing the last aggregation cycle, the above can throw.
+            }
             return _completedTask;
         }
     }
