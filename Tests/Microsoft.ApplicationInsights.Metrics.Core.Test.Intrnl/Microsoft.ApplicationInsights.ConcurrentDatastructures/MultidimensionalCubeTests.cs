@@ -521,7 +521,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 
         }
 
-        private void CtorTestImplementation(
+        private static void CtorTestImplementation(
                             MultidimensionalCube<string, int> cube, ref int[] subdimensionsCountLimits,
                             ref int factoryCallsCount,
                             ref object[] lastFactoryCall,

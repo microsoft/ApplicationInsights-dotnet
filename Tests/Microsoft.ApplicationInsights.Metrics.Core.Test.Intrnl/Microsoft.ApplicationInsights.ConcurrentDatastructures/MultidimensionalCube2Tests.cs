@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 {
+#pragma warning disable CA1822  // Method should be static
     using Microsoft.ApplicationInsights.Metrics.TestUtil;
 
     /// <summary />
@@ -477,4 +478,5 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             Util.AssertAreEqual(newPointVector, lastFactoryCall);
         }
     }
+#pragma warning restore CA1822  // Method should be static
 }

@@ -64,7 +64,7 @@ namespace SomeCustomerNamespace
 
 
 
-        void MethodX()
+        static void MethodX()
         {
 
             MetricManager manager = TelemetryConfiguration.Active.GetMetricManager();
@@ -84,7 +84,7 @@ namespace SomeCustomerNamespace
 
         }
 
-        void MethodY()
+        static void MethodY()
         {
             TelemetryClient client = new TelemetryClient();
 

@@ -12,8 +12,9 @@ using System.Threading.Tasks;
 namespace Microsoft.ApplicationInsights.Metrics.TestUtil
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CA1724 
     public static class Util
-
+#pragma warning restore CA1724
     {
         public const string AggregationIntervalMonikerPropertyKey = "_MS.AggregationIntervalMs";
         public const double MaxAllowedPrecisionError = 0.00001;

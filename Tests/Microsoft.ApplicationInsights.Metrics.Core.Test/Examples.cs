@@ -1,4 +1,6 @@
-﻿namespace User.Namespace.Example01
+﻿#pragma warning disable CA1716  // Namespace naming
+
+namespace User.Namespace.Example01
 {
     using System;
 
@@ -1131,3 +1133,5 @@ namespace Microsoft.ApplicationInsights.Metrics.Examples
         }
     }
 }
+
+#pragma warning restore CA1716  // Namespace naming

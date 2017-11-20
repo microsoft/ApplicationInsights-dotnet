@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.ApplicationInsights.Extensibility;
-
-using System.Linq;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Metrics.TestUtil;
-using System.Threading.Tasks;
-using System.Threading;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Microsoft.ApplicationInsights.Channel;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
+using Microsoft.ApplicationInsights.Metrics.TestUtil;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {

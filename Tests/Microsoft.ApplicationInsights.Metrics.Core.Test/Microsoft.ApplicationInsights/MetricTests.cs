@@ -1,15 +1,13 @@
 ﻿using System;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.ExceptionServices;
 
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using System.Collections.Generic;
 using Microsoft.ApplicationInsights.Metrics.TestUtil;
-using System.Reflection;
-using System.Runtime.ExceptionServices;
-using Microsoft.ApplicationInsights.DataContracts;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
