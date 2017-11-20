@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
+
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
-using System.Linq;
-using System.Globalization;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -20,6 +22,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         private const string MetricsSdkVersionMonikerPrefix = "msdk-";
 
         private static Action<TelemetryContext, TelemetryContext, string> s_delegateTelemetryContextInitialize = null;
+        private static Func<TelemetryClient, TelemetryConfiguration> s_delegateTelemetryClientGetConfiguration = null;
 
         private static string s_sdkVersionMoniker = null;
 
@@ -309,6 +312,51 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             s_sdkVersionMoniker = sdkVersionMoniker;
             return sdkVersionMoniker;
+        }
+
+        /// <summary>
+        /// We are working on adding a publically exposed method to a future version of the Core SDK so that the reflection employed here is not necesary.
+        /// </summary>
+        /// <param name="telemetryClient"></param>
+        /// <returns></returns>
+        internal static TelemetryConfiguration GetTelemetryConfiguration(TelemetryClient telemetryClient)
+        {
+            Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));
+
+            Func<TelemetryClient, TelemetryConfiguration> getTelemetryConfigurationDelegate = GetDelegate_TelemetryClientGetConfiguration();
+            TelemetryConfiguration pipeline = getTelemetryConfigurationDelegate(telemetryClient);
+
+            return pipeline;
+        }
+
+        private static Func<TelemetryClient, TelemetryConfiguration> GetDelegate_TelemetryClientGetConfiguration()
+        {
+            Func<TelemetryClient, TelemetryConfiguration> currentDel = s_delegateTelemetryClientGetConfiguration;
+
+            if (currentDel == null)
+            {
+                Type apiType = typeof(TelemetryClient);
+                const string apiName = "TelemetryConfiguration";
+                PropertyInfo property = apiType.GetTypeInfo().GetProperty(apiName, BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (property == null)
+                {
+                    throw new InvalidOperationException($"Could not get PropertyInfo for {apiType.Name}.{apiName} via reflection."
+                                                       + " This is either an internal SDK bug or there is a mismatch between the Metrics-SDK version"
+                                                       + " and the Application Insights Base SDK version. Please report this issue.");
+                }
+
+                MethodInfo propertyGetMethod = property.GetGetMethod(nonPublic: true);
+
+                Func<TelemetryClient, TelemetryConfiguration> newDel =
+                                            (Func<TelemetryClient, TelemetryConfiguration>)
+                                             propertyGetMethod.CreateDelegate(typeof(Func<TelemetryClient, TelemetryConfiguration>));
+
+                Func<TelemetryClient, TelemetryConfiguration> prevDel = Interlocked.CompareExchange(ref s_delegateTelemetryClientGetConfiguration, newDel, null);
+                currentDel = prevDel ?? newDel;
+            }
+
+            return currentDel;
         }
 
         private static Action<TelemetryContext, TelemetryContext, string> GetDelegate_TelemetryContextInitialize()

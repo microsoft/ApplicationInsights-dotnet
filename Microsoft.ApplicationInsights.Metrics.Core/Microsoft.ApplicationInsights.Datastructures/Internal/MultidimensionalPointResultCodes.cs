@@ -10,7 +10,7 @@ namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
             "CA1008: Enums should have zero value",
             Justification = "Crafted these flags to fit into a byte to make the struct container cheaper.")]
     [Flags]
-    public enum MultidimensionalPointResultCodes : byte
+    internal enum MultidimensionalPointResultCodes : byte
     {
         /// <summary>
         /// 

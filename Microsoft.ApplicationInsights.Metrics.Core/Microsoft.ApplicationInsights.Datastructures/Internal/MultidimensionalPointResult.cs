@@ -6,7 +6,7 @@ namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
     /// 
     /// </summary>
     /// <typeparam name="TPoint"></typeparam>
-    public struct MultidimensionalPointResult<TPoint>
+    internal struct MultidimensionalPointResult<TPoint>
     {
         private TPoint _point;
         private int _failureCoordinateIndex;

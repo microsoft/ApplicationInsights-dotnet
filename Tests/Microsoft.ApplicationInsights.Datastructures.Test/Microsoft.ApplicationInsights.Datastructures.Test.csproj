@@ -63,10 +63,6 @@
     <Analyzer Include="..\..\..\..\NuGet.Packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\..\..\..\NuGet.Packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
     -->
-    <ProjectReference Include="..\..\Microsoft.ApplicationInsights.Datastructures\Microsoft.ApplicationInsights.Datastructures.csproj">
-      <Project>{25712d65-216b-46fc-b7ef-4c0f17a57e8e}</Project>
-      <Name>Microsoft.ApplicationInsights.Datastructures</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Microsoft.ApplicationInsights.Metrics.Core.Test\Microsoft.ApplicationInsights.Metrics.Core.Test.csproj">
       <Project>{8fbc7612-4536-45db-86c3-c2ed95219231}</Project>
       <Name>Microsoft.ApplicationInsights.Metrics.Core.Test</Name>

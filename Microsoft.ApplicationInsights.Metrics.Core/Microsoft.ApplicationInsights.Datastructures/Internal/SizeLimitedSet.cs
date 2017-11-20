@@ -9,7 +9,7 @@ namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
     /// <summary>
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class SizeLimitedSet<T> : ICollection<T>, IReadOnlyCollection<T>
+    internal class SizeLimitedSet<T> : ICollection<T>, IReadOnlyCollection<T>
     {
         private readonly int _countLimit;
         private Data _data;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.ApplicationInsights.Metrics;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,7 +10,7 @@ namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
     /// <summary>
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class GrowingCollection<T> : IEnumerable<T>
+    internal class GrowingCollection<T> : IEnumerable<T>
     {
         private const int SegmentSize = 32;
 

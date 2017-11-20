@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.ApplicationInsights.Metrics;
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
 {
     /// <summary>
     /// </summary>
-    public class MultidimensionalCube2<TPoint>
+    internal class MultidimensionalCube2<TPoint>
     {
         /// <summary>
         /// We are using a recursive implementation for points creation so we are limiting the max dimension count to prevent strack overflow.
