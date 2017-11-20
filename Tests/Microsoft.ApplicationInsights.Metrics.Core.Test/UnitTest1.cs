@@ -67,10 +67,10 @@ namespace SomeCustomerNamespace
         void MethodX()
         {
 
-            MetricManager manager = TelemetryConfiguration.Active.Metrics();
+            MetricManager manager = TelemetryConfiguration.Active.GetMetricManager();
 
             IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
-            MetricSeries series1 = TelemetryConfiguration.Active.Metrics().CreateNewSeries(
+            MetricSeries series1 = TelemetryConfiguration.Active.GetMetricManager().CreateNewSeries(
                                                                                 "Cows Sold",
                                                                                 new Dictionary<string, string> { ["Color of Cow"] = "Red",
                                                                                                                  ["Gender of Cow"] = "Female"},

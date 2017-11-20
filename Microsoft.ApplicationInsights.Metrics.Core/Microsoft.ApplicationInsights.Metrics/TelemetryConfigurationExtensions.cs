@@ -21,7 +21,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         /// <param name="telemetryPipeline"></param>
         /// <returns></returns>
-        public static MetricManager Metrics(this TelemetryConfiguration telemetryPipeline)
+        public static MetricManager GetMetricManager(this TelemetryConfiguration telemetryPipeline)
         {
             if (telemetryPipeline == null)
             {

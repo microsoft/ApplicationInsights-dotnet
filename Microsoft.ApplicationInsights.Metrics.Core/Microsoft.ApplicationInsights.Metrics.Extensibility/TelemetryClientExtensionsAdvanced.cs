@@ -21,7 +21,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <param name="telemetryClient"></param>
         /// <param name="aggregationScope"></param>
         /// <returns></returns>
-        public static MetricManager Metrics(this TelemetryClient telemetryClient, MetricAggregationScope aggregationScope)
+        public static MetricManager GetMetricManager(this TelemetryClient telemetryClient, MetricAggregationScope aggregationScope)
         {
             Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));
 
@@ -29,7 +29,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             {
                 case MetricAggregationScope.TelemetryConfiguration:
                     TelemetryConfiguration pipeline = Util.GetTelemetryConfiguration(telemetryClient);
-                    return pipeline.Metrics();
+                    return pipeline.GetMetricManager();
 
                 case MetricAggregationScope.TelemetryClient:
                     MetricManager manager = GetOrCreateMetricManager(telemetryClient);

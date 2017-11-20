@@ -37,7 +37,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.ThrowsException<InvalidOperationException>(() => metric.TryTrackValue(1.5, "A"));
                 Assert.ThrowsException<InvalidOperationException>(() => metric.TryTrackValue(2.5, "A", "X"));
 
-                telemetryPipeline.Metrics().Flush();
+                telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
                 Util.ValidateNumericAggregateValues(sentTelemetry[0], "CowsSold", 2, 1.1, 0.6, 0.5, 0.05);
                 Assert.AreEqual(1, sentTelemetry[0].Context.Properties.Count);
@@ -47,7 +47,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 metric.TrackValue(0.7);
                 metric.TrackValue(0.8);
 
-                telemetryPipeline.Metrics().Flush();
+                telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
                 Util.ValidateNumericAggregateValues(sentTelemetry[0], "CowsSold", 2, 1.5, 0.8, 0.7, 0.05);
                 Assert.AreEqual(1, sentTelemetry[0].Context.Properties.Count);
@@ -65,7 +65,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 metric.TryTrackValue(0.6, "Purple");
                 Assert.ThrowsException<InvalidOperationException>(() => metric.TryTrackValue(2.5, "A", "X"));
 
-                telemetryPipeline.Metrics().Flush();
+                telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
                 Util.ValidateNumericAggregateValues(sentTelemetry[0], "CowsSold", 1, 1.1, 1.1, 0.5, null);
                 Assert.AreEqual(2, sentTelemetry[0].Context.Properties.Count);
@@ -76,7 +76,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 metric.TryTrackValue(0.7, "Purple");
                 metric.TryTrackValue(0.8, "Purple");
 
-                telemetryPipeline.Metrics().Flush();
+                telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
                 Util.ValidateNumericAggregateValues(sentTelemetry[0], "CowsSold", 1, 2.6, 2.6, 0.5, null);
                 Assert.AreEqual(2, sentTelemetry[0].Context.Properties.Count);
@@ -94,7 +94,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 metric.TryTrackValue(0.5, "Purple", "Large");
                 metric.TryTrackValue(0.6, "Purple", "Large");
 
-                telemetryPipeline.Metrics().Flush();
+                telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(2, sentTelemetry.Count);
 
                 MetricTelemetry[] orderedTelemetry = sentTelemetry
@@ -118,7 +118,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 metric.TryTrackValue(0.7, "Purple", "Large");
                 metric.TryTrackValue(0.8, "Purple", "Small");
 
-                telemetryPipeline.Metrics().Flush();
+                telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(3, sentTelemetry.Count);
 
                 orderedTelemetry = sentTelemetry
@@ -147,7 +147,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 sentTelemetry.Clear();
             }
 
-            Util.CompleteDefaultAggregationCycle(telemetryPipeline.Metrics());
+            Util.CompleteDefaultAggregationCycle(telemetryPipeline.GetMetricManager());
             telemetryPipeline.Dispose();
         }
 
@@ -357,7 +357,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreSame(config.SeriesConfig, series.GetConfiguration());
             }
 
-            Util.CompleteDefaultAggregationCycle(telemetryPipeline.Metrics());
+            Util.CompleteDefaultAggregationCycle(telemetryPipeline.GetMetricManager());
         }
 
         /// <summary />
@@ -515,7 +515,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreSame(MetricConfigurations.Common.Measurement(), m0.GetConfiguration());
             }
 
-            Util.CompleteDefaultAggregationCycle(telemetryPipeline.Metrics());
+            Util.CompleteDefaultAggregationCycle(telemetryPipeline.GetMetricManager());
             telemetryPipeline.Dispose();
         }
 
@@ -617,11 +617,11 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             Assert.AreNotSame(metricA11c1, metricA12c1);
 
-            client11.Metrics(MetricAggregationScope.TelemetryClient).Flush();
-            client12.Metrics(MetricAggregationScope.TelemetryClient).Flush();
-            client21.Metrics(MetricAggregationScope.TelemetryClient).Flush();
-            telemetryPipeline1.Metrics().Flush();
-            telemetryPipeline2.Metrics().Flush();
+            client11.GetMetricManager(MetricAggregationScope.TelemetryClient).Flush();
+            client12.GetMetricManager(MetricAggregationScope.TelemetryClient).Flush();
+            client21.GetMetricManager(MetricAggregationScope.TelemetryClient).Flush();
+            telemetryPipeline1.GetMetricManager().Flush();
+            telemetryPipeline2.GetMetricManager().Flush();
 
             Assert.AreEqual(6, sentTelemetry1.Count);
             Assert.AreEqual(2, sentTelemetry2.Count);
@@ -694,15 +694,15 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.ThrowsException<ArgumentException>( () => client11.GetMetric("Metric C", MetricConfigurations.Common.Accumulator(), (MetricAggregationScope) 42) );
 
             Util.CompleteDefaultAggregationCycle(
-                        client11.Metrics(MetricAggregationScope.TelemetryClient),
-                        client12.Metrics(MetricAggregationScope.TelemetryClient),
-                        client21.Metrics(MetricAggregationScope.TelemetryClient),
-                        client22.Metrics(MetricAggregationScope.TelemetryClient),
-                        client23.Metrics(MetricAggregationScope.TelemetryClient),
-                        client24.Metrics(MetricAggregationScope.TelemetryClient),
-                        client25.Metrics(MetricAggregationScope.TelemetryClient),
-                        telemetryPipeline2.Metrics(),
-                        telemetryPipeline1.Metrics());
+                        client11.GetMetricManager(MetricAggregationScope.TelemetryClient),
+                        client12.GetMetricManager(MetricAggregationScope.TelemetryClient),
+                        client21.GetMetricManager(MetricAggregationScope.TelemetryClient),
+                        client22.GetMetricManager(MetricAggregationScope.TelemetryClient),
+                        client23.GetMetricManager(MetricAggregationScope.TelemetryClient),
+                        client24.GetMetricManager(MetricAggregationScope.TelemetryClient),
+                        client25.GetMetricManager(MetricAggregationScope.TelemetryClient),
+                        telemetryPipeline2.GetMetricManager(),
+                        telemetryPipeline1.GetMetricManager());
 
             telemetryPipeline1.Dispose();
             telemetryPipeline2.Dispose();
@@ -721,7 +721,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Metric animalsSold = client.GetMetric("AnimalsSold", "Species", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient);
             animalsSold.TryTrackValue(10, "Cow");
             animalsSold.TryTrackValue(20, "Cow");
-            client.Metrics(MetricAggregationScope.TelemetryClient).Flush();
+            client.GetMetricManager(MetricAggregationScope.TelemetryClient).Flush();
 
             animalsSold.TryTrackValue(100, "Rabbit");
             animalsSold.TryTrackValue(200, "Rabbit");
@@ -734,7 +734,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             animalsSold.TryTrackValue(40, "Cow");
             animalsSold.TryTrackValue(300, "Rabbit");
             animalsSold.TryTrackValue(400, "Rabbit");
-            client.Metrics(MetricAggregationScope.TelemetryClient).Flush();
+            client.GetMetricManager(MetricAggregationScope.TelemetryClient).Flush();
 
             Assert.AreEqual(3, sentTelemetry.Count);
 
@@ -766,7 +766,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.IsNull(orderedTelemetry[2].Context.Device.Model);
             Assert.AreEqual("754DD89F-61D6-4539-90C7-D886449E12BC", orderedTelemetry[2].Context.InstrumentationKey);
 
-            Util.CompleteDefaultAggregationCycle(client.Metrics(MetricAggregationScope.TelemetryClient));
+            Util.CompleteDefaultAggregationCycle(client.GetMetricManager(MetricAggregationScope.TelemetryClient));
             telemetryPipeline.Dispose();
         }
     }

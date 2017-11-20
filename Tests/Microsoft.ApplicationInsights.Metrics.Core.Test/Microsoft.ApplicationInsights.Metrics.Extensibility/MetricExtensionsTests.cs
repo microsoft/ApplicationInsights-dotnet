@@ -42,7 +42,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreSame(config, metric.GetConfiguration());
             }
 
-            Util.CompleteDefaultAggregationCycle(pipeline.Metrics());
+            Util.CompleteDefaultAggregationCycle(pipeline.GetMetricManager());
             pipeline.Dispose();
         }
 
@@ -54,15 +54,15 @@ namespace Microsoft.ApplicationInsights.Metrics
         //    {
         //        TelemetryClient client = new TelemetryClient();
         //        Metric metric = client.GetMetric("CowsSold");
-        //        Assert.AreSame(TelemetryConfiguration.Active.Metrics(), metric.GetMetricManager());
-        //        Util.CompleteDefaultAggregationCycle(TelemetryConfiguration.Active.Metrics());
+        //        Assert.AreSame(TelemetryConfiguration.Active.GetMetricManager(), metric.GetMetricManager());
+        //        Util.CompleteDefaultAggregationCycle(TelemetryConfiguration.Active.GetMetricManager());
         //    }
         //    {
         //        TelemetryConfiguration telemetryPipeline = Util.CreateAITelemetryConfig();
         //        TelemetryClient client = new TelemetryClient(telemetryPipeline);
         //        Metric metric = client.GetMetric("CowsSold");
-        //        Assert.AreSame(telemetryPipeline.Metrics(), metric.GetMetricManager());
-        //        Util.CompleteDefaultAggregationCycle(telemetryPipeline.Metrics());
+        //        Assert.AreSame(telemetryPipeline.GetMetricManager(), metric.GetMetricManager());
+        //        Util.CompleteDefaultAggregationCycle(telemetryPipeline.GetMetricManager());
         //    }
         //}
 

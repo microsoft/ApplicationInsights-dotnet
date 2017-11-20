@@ -491,7 +491,7 @@ namespace User.Namespace.Example04
             // Expert users can choose to manage their metric series directly, rather than using a Metric container object.
             // In that case they will obtain metric series directly from the MetricManager:
 
-            MetricManager metrics = TelemetryConfiguration.Active.Metrics();
+            MetricManager metrics = TelemetryConfiguration.Active.GetMetricManager();
 
             MetricSeries itemAccumulator = metrics.CreateNewSeries(
                                                     "Items in Queue",
@@ -526,7 +526,7 @@ namespace User.Namespace.Example04
             // MetricManager also allows you to flush all your metric aggregators and send the current aggregates to the cloud without waiting
             // for the end of the ongoing aggregation period:
 
-            TelemetryConfiguration.Active.Metrics().Flush();
+            TelemetryConfiguration.Active.GetMetricManager().Flush();
         }
     }
 }
@@ -698,7 +698,7 @@ namespace User.Namespace.Example06ab
                     telemetryClient.Flush();
 
                     // Flushing the MetricManager is particularly important since the aggregation period of 1 minute has just started:
-                    telemetryPipeline.Metrics().Flush();
+                    telemetryPipeline.GetMetricManager().Flush();
 
                     // Verify that the right telemetry was sent:
                     Assert.AreEqual(2, telemetrySentToChannel.Count);
@@ -760,7 +760,7 @@ namespace User.Namespace.Example06ab
                 // telemetry pipeline. Such interference may be non-trivial. E.g., for this simple test, we need to flush out all the tracked values
                 // from the code that just run. This will flush out all Measurements, but not Accumulators, since they persist between flushes.
                 // This can make unit testing with this method quite complex.
-                TelemetryConfiguration.Active.Metrics().Flush();
+                TelemetryConfiguration.Active.GetMetricManager().Flush();
                 (new TelemetryClient(TelemetryConfiguration.Active)).Flush();
 
                 // Create the test pipeline and client.
@@ -773,11 +773,11 @@ namespace User.Namespace.Example06ab
                 serviceB.SellPurpleDucks(42);
 
                 // Flushing the MetricManager is particularly important since the aggregation period of 1 minute has just started:
-                TelemetryConfiguration.Active.Metrics().Flush();
+                TelemetryConfiguration.Active.GetMetricManager().Flush();
 
                 // As mentioned, tests using this approach interfere with each other.
                 // For example, when running all the examples here after each other, accumulators from previous examples are still associated with the
-                // metric manager at TelemetryConfiguration.Active.Metrics(). Luckily, all their names begin with "Items", so we can filter them out.
+                // metric manager at TelemetryConfiguration.Active.GetMetricManager(). Luckily, all their names begin with "Items", so we can filter them out.
 
                 ITelemetry[] telemetryFromThisTest = telemetryCollector.TelemetryItems
                                                                        .Where( (t) => !((t is MetricTelemetry) && ((MetricTelemetry) t).Name.StartsWith("Items")) )
@@ -974,7 +974,7 @@ namespace User.Namespace.Example06c
 
             // By default all non-default aggregation cycles are inactive. To activate the custom cycle, request the custom cycle aggregates:
 
-            MetricManager defaultMetricManager = TelemetryConfiguration.Active.Metrics();
+            MetricManager defaultMetricManager = TelemetryConfiguration.Active.GetMetricManager();
             AggregationPeriodSummary lastCycle = defaultMetricManager.StartOrCycleAggregators(
                                                                                 MetricAggregationCycleKind.Custom,
                                                                                 testStartTime,

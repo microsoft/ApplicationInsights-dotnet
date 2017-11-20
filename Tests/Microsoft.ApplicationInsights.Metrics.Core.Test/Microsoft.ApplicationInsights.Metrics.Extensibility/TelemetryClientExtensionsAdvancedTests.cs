@@ -14,27 +14,27 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <summary />
         [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
-        public void Metrics()
+        public void GetMetricManager()
         {
             TelemetryConfiguration telemetryPipeline1 = Util.CreateAITelemetryConfig();
             TelemetryConfiguration telemetryPipeline2 = Util.CreateAITelemetryConfig();
             TelemetryClient client1 = new TelemetryClient(telemetryPipeline1);
             TelemetryClient client2 = new TelemetryClient(telemetryPipeline1);
 
-            MetricManager managerP11 = telemetryPipeline1.Metrics();
-            MetricManager managerP12 = telemetryPipeline1.Metrics();
-            MetricManager managerP21 = telemetryPipeline2.Metrics();
-            MetricManager managerP22 = telemetryPipeline2.Metrics();
+            MetricManager managerP11 = telemetryPipeline1.GetMetricManager();
+            MetricManager managerP12 = telemetryPipeline1.GetMetricManager();
+            MetricManager managerP21 = telemetryPipeline2.GetMetricManager();
+            MetricManager managerP22 = telemetryPipeline2.GetMetricManager();
 
-            MetricManager managerCp11 = client1.Metrics(MetricAggregationScope.TelemetryConfiguration);
-            MetricManager managerCp12 = client1.Metrics(MetricAggregationScope.TelemetryConfiguration);
-            MetricManager managerCp21 = client2.Metrics(MetricAggregationScope.TelemetryConfiguration);
-            MetricManager managerCp22 = client2.Metrics(MetricAggregationScope.TelemetryConfiguration);
+            MetricManager managerCp11 = client1.GetMetricManager(MetricAggregationScope.TelemetryConfiguration);
+            MetricManager managerCp12 = client1.GetMetricManager(MetricAggregationScope.TelemetryConfiguration);
+            MetricManager managerCp21 = client2.GetMetricManager(MetricAggregationScope.TelemetryConfiguration);
+            MetricManager managerCp22 = client2.GetMetricManager(MetricAggregationScope.TelemetryConfiguration);
 
-            MetricManager managerCc11 = client1.Metrics(MetricAggregationScope.TelemetryClient);
-            MetricManager managerCc12 = client1.Metrics(MetricAggregationScope.TelemetryClient);
-            MetricManager managerCc21 = client2.Metrics(MetricAggregationScope.TelemetryClient);
-            MetricManager managerCc22 = client2.Metrics(MetricAggregationScope.TelemetryClient);
+            MetricManager managerCc11 = client1.GetMetricManager(MetricAggregationScope.TelemetryClient);
+            MetricManager managerCc12 = client1.GetMetricManager(MetricAggregationScope.TelemetryClient);
+            MetricManager managerCc21 = client2.GetMetricManager(MetricAggregationScope.TelemetryClient);
+            MetricManager managerCc22 = client2.GetMetricManager(MetricAggregationScope.TelemetryClient);
 
             Assert.IsNotNull(managerP11);
             Assert.IsNotNull(managerP12);

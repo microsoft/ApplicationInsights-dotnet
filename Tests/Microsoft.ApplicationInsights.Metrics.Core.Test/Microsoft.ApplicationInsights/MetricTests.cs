@@ -1450,7 +1450,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.IsTrue(metric1.Equals(metric2));
             Assert.IsTrue(metric2.Equals(metric1));
 
-            MetricManager anotherMetricManager = TelemetryConfiguration.Active.Metrics();
+            MetricManager anotherMetricManager = TelemetryConfiguration.Active.GetMetricManager();
             metric2 = InvokeMetricCtor(
                                     anotherMetricManager,
                                     metricId: "Foo",
@@ -1559,7 +1559,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreNotEqual(0, metric1.GetHashCode());
             Assert.AreNotEqual(0, metric2.GetHashCode());
 
-            MetricManager anotherMetricManager = TelemetryConfiguration.Active.Metrics();
+            MetricManager anotherMetricManager = TelemetryConfiguration.Active.GetMetricManager();
             metric2 = InvokeMetricCtor(
                                     anotherMetricManager,
                                     metricId: "Foo",

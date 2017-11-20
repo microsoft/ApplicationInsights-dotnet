@@ -30,14 +30,14 @@ namespace SomeCustomerNamespace
             using (telemetryPipeline)
             {
                 RecordNormalMetric(telemetryPipeline);
-                Util.CompleteDefaultAggregationCycle(telemetryPipeline.Metrics());
+                Util.CompleteDefaultAggregationCycle(telemetryPipeline.GetMetricManager());
             }
         }
 
 
         private void RecordNormalMetric(TelemetryConfiguration telemetryPipeline)
         {
-            MetricSeries durationMeric = telemetryPipeline.Metrics().CreateNewSeries(
+            MetricSeries durationMeric = telemetryPipeline.GetMetricManager().CreateNewSeries(
                                                                         "Item Add duration",
                                                                         new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
@@ -46,9 +46,9 @@ namespace SomeCustomerNamespace
             DateTimeOffset experimentStart = new DateTimeOffset(2017, 9, 14, 0, 0, 0, TimeSpan.Zero);
 
             // Stop the default minute-ly cycle so that it does not interfere with our virtual time debugging:
-            Task fireAndForget = telemetryPipeline.Metrics().StopDefaultAggregationCycleAsync();   
+            Task fireAndForget = telemetryPipeline.GetMetricManager().StopDefaultAggregationCycleAsync();   
 
-            telemetryPipeline.Metrics().StartOrCycleAggregators(CycleKind.Custom, experimentStart, futureFilter: null);
+            telemetryPipeline.GetMetricManager().StartOrCycleAggregators(CycleKind.Custom, experimentStart, futureFilter: null);
 
             const int ExperimentLengthSecs = 60 * 10;
             const int IntervalLengthSecs = 60;
@@ -95,7 +95,7 @@ namespace SomeCustomerNamespace
 
                 if (intervalSecs >= IntervalLengthSecs)
                 {
-                    AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().StartOrCycleAggregators(
+                    AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.GetMetricManager().StartOrCycleAggregators(
                                                                                                     CycleKind.Custom,
                                                                                                     experimentStart.AddSeconds(totalSecs),
                                                                                                     futureFilter: null);
@@ -124,7 +124,7 @@ namespace SomeCustomerNamespace
                 }
             }
             {
-                AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().StartOrCycleAggregators(
+                AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.GetMetricManager().StartOrCycleAggregators(
                                                                                                         CycleKind.Custom,
                                                                                                         experimentStart.AddSeconds(totalSecs),
                                                                                                         futureFilter: null);
@@ -141,7 +141,7 @@ namespace SomeCustomerNamespace
                 totalSecs += 24;
             }
             {
-                AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.Metrics().StopAggregators(
+                AggregationPeriodSummary aggregatedMetrics = telemetryPipeline.GetMetricManager().StopAggregators(
                                                                                                     CycleKind.Custom,
                                                                                                     experimentStart.AddSeconds(totalSecs));
                 Assert.IsNotNull(aggregatedMetrics);
