@@ -231,8 +231,8 @@ namespace User.Namespace.Example02
                 }
                 else
                 {
-                    double maxSum = mostPopularBookKind.GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Sum, 0);
-                    double currentSum = currentBookKind.GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Sum, 0);
+                    double maxSum = mostPopularBookKind.GetAggregateData<double>(MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Sum, 0);
+                    double currentSum = currentBookKind.GetAggregateData<double>(MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Sum, 0);
 
                     if (maxSum > currentSum)
                     {
@@ -1003,16 +1003,16 @@ namespace User.Namespace.Example06c
             Assert.AreEqual(0, lastCycle.PersistentAggregates.Count, "No Accumulators should be tracked");
 
             Assert.AreEqual("Ducks Sold", lastCycle.NonpersistentAggregates[0].MetricId);
-            Assert.AreEqual(MetricAggregateKinds.SimpleStatistics.Moniker, lastCycle.NonpersistentAggregates[0].AggregationKindMoniker);
+            Assert.AreEqual(MetricConfigurations.Common.AggregateKinds().Measurement().Moniker, lastCycle.NonpersistentAggregates[0].AggregationKindMoniker);
             Assert.AreEqual(testStartTime, lastCycle.NonpersistentAggregates[0].AggregationPeriodStart);
             Assert.AreEqual(TimeSpan.FromMinutes(1), lastCycle.NonpersistentAggregates[0].AggregationPeriodDuration);
             Assert.AreEqual(1, lastCycle.NonpersistentAggregates[0].Dimensions.Count);
             Assert.AreEqual("Purple", lastCycle.NonpersistentAggregates[0].Dimensions["Color"]);
-            Assert.AreEqual(1, lastCycle.NonpersistentAggregates[0].GetAggregateData<int>(MetricAggregateKinds.SimpleStatistics.DataKeys.Count, -1));
-            Assert.AreEqual(42, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Sum, -1));
-            Assert.AreEqual(42, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Min, -1));
-            Assert.AreEqual(42, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Max, -1));
-            Assert.AreEqual(0, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.StdDev, -1));
+            Assert.AreEqual(1, lastCycle.NonpersistentAggregates[0].GetAggregateData<int>(MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Count, -1));
+            Assert.AreEqual(42, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Sum, -1));
+            Assert.AreEqual(42, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Min, -1));
+            Assert.AreEqual(42, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Max, -1));
+            Assert.AreEqual(0, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.StdDev, -1));
 
             // Note that because "Ducks Sold" is a Measurement, and because we cycled the custom aggregators, the current aggregator is now empty.
             // However, if it was an Accumulator, it would keep the values tracked thus far. To help differentiate between these two cases, Measurement-like
@@ -1032,16 +1032,16 @@ namespace User.Namespace.Example06c
             Assert.AreEqual(0, lastCycle.PersistentAggregates.Count, "No Accumulators should be tracked");
 
             Assert.AreEqual("Ducks Sold", lastCycle.NonpersistentAggregates[0].MetricId);
-            Assert.AreEqual(MetricAggregateKinds.SimpleStatistics.Moniker, lastCycle.NonpersistentAggregates[0].AggregationKindMoniker);
+            Assert.AreEqual(MetricConfigurations.Common.AggregateKinds().Measurement().Moniker, lastCycle.NonpersistentAggregates[0].AggregationKindMoniker);
             Assert.AreEqual(testStartTime.AddMinutes(1), lastCycle.NonpersistentAggregates[0].AggregationPeriodStart);
             Assert.AreEqual(TimeSpan.FromMinutes(1), lastCycle.NonpersistentAggregates[0].AggregationPeriodDuration);
             Assert.AreEqual(1, lastCycle.NonpersistentAggregates[0].Dimensions.Count);
             Assert.AreEqual("Purple", lastCycle.NonpersistentAggregates[0].Dimensions["Color"]);
-            Assert.AreEqual(2, lastCycle.NonpersistentAggregates[0].GetAggregateData<int>(MetricAggregateKinds.SimpleStatistics.DataKeys.Count, -1));
-            Assert.AreEqual(23, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Sum, -1));
-            Assert.AreEqual(11, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Min, -1));
-            Assert.AreEqual(12, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.Max, -1));
-            Assert.AreEqual(0.5, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricAggregateKinds.SimpleStatistics.DataKeys.StdDev, -1));
+            Assert.AreEqual(2, lastCycle.NonpersistentAggregates[0].GetAggregateData<int>(MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Count, -1));
+            Assert.AreEqual(23, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Sum, -1));
+            Assert.AreEqual(11, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Min, -1));
+            Assert.AreEqual(12, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Max, -1));
+            Assert.AreEqual(0.5, lastCycle.NonpersistentAggregates[0].GetAggregateData<double>(MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.StdDev, -1));
         }
     }
 

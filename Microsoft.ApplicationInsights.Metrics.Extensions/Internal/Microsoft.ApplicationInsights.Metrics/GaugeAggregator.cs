@@ -75,11 +75,11 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             MetricAggregate aggregate = new MetricAggregate(
                                                 DataSeries?.MetricId ?? Util.NullString,
-                                                MetricAggregateKinds.Gauge.Moniker);
+                                                MetricConfigurations.Common.AggregateKinds().Gauge().Moniker);
 
-            aggregate.AggregateData[MetricAggregateKinds.Gauge.DataKeys.Last] = last;
-            aggregate.AggregateData[MetricAggregateKinds.Gauge.DataKeys.Min] = min;
-            aggregate.AggregateData[MetricAggregateKinds.Gauge.DataKeys.Max] = max;
+            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().Gauge().DataKeys.Last] = last;
+            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().Gauge().DataKeys.Min] = min;
+            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().Gauge().DataKeys.Max] = max;
 
             AddInfo_Timing_Dimensions_Context(aggregate, periodEnd);
 

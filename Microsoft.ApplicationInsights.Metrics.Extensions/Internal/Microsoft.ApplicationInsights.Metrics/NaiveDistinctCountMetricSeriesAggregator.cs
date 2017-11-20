@@ -82,10 +82,10 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             MetricAggregate aggregate = new MetricAggregate(
                                                 DataSeries?.MetricId ?? Util.NullString,
-                                                MetricAggregateKinds.NaiveDistinctCount.Moniker);
+                                                MetricConfigurations.Common.AggregateKinds().NaiveDistinctCount().Moniker);
 
-            aggregate.AggregateData[MetricAggregateKinds.NaiveDistinctCount.DataKeys.TotalCount] = totalValuesCount;
-            aggregate.AggregateData[MetricAggregateKinds.NaiveDistinctCount.DataKeys.DistinctCount] = uniqueValuesCount;
+            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().NaiveDistinctCount().DataKeys.TotalCount] = totalValuesCount;
+            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().NaiveDistinctCount().DataKeys.DistinctCount] = uniqueValuesCount;
 
             AddInfo_Timing_Dimensions_Context(aggregate, periodEnd);
 

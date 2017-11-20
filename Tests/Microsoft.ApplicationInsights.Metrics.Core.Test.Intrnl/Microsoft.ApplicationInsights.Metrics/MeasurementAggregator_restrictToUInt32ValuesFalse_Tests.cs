@@ -444,7 +444,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         private static void ValidateNumericAggregateValues(MetricAggregate aggregate, string name, int count, double sum, double max, double min, double stdDev, DateTimeOffset timestamp, long periodMs)
         {
-            TestUtil.Util.ValidateNumericAggregateValues(aggregate, name, count, sum, max, min, stdDev, timestamp, periodMs, "Microsoft.Azure.SimpleStatistics");
+            TestUtil.Util.ValidateNumericAggregateValues(aggregate, name, count, sum, max, min, stdDev, timestamp, periodMs, "Microsoft.Azure.Measurement");
         }
 
         /// <summary />
@@ -523,7 +523,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
-                CommonSimpleDataSeriesAggregatorTests.Reset_NonersistentAggregator(aggregator, aggregateKindMoniker: "Microsoft.Azure.SimpleStatistics");
+                CommonSimpleDataSeriesAggregatorTests.Reset_NonersistentAggregator(aggregator, aggregateKindMoniker: "Microsoft.Azure.Measurement");
             }
             {
                 var aggregator = new AccumulatorAggregator(

@@ -12,7 +12,7 @@ namespace Microsoft.ApplicationInsights
     /// <para>Do not use directly. Instead, use: <c>MetricConfigurations.Common.Xxxx()</c>. </para>
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class MetricConfigurationsExtensions
+    public static class MetricConfigurationsExtendedExtensions
     {
         private const int DefaultSeriesCountLimit = 1000;
         private const int DefaultaluesPerDimensionLimit = 100;

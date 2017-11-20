@@ -32,7 +32,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             MetricAggregateToTelemetryPipelineConverters.Registry.Add(
                                                                     typeof(ApplicationInsightsTelemetryPipeline),
-                                                                    MetricAggregateKinds.NaiveDistinctCount.Moniker,
+                                                                    MetricConfigurations.Common.AggregateKinds().NaiveDistinctCount().Moniker,
                                                                     new NaiveDistinctCountAggregateToApplicationInsightsPipelineConverter());
         }
 

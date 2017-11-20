@@ -6,11 +6,11 @@ using Microsoft.ApplicationInsights.Metrics;
 namespace Microsoft.ApplicationInsights
 {
     /// <summary>
-    /// <para>Provides the default Metric Configuration for Measurements.</para>
-    /// <para>Do not use directly. Instead, use: <c>MetricConfigurations.Common.Xxxx()</c>. </para>
+    /// Provides the default Metric Configuration for Measurements.
+    /// Do not use directly. Instead, use: <c>MetricConfigurations.Common.Xxxx()</c>.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class MetricConfigurationsExtensions
+    public static class MetricConfigurationsCoreExtensions
     {
         private const int DefaultSeriesCountLimit = 1000;
         private const int DefaultaluesPerDimensionLimit = 100;

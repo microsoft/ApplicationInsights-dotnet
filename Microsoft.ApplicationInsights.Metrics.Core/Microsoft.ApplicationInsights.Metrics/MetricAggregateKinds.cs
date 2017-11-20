@@ -1,92 +1,86 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
     /// <summary />
-    public static class MetricAggregateKinds
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public sealed class MetricAggregateKinds
     {
-        /// <summary />
-        public static class SimpleStatistics
+        internal static readonly MetricAggregateKinds Instance = new MetricAggregateKinds();
+        private MetricAggregateKinds()
         {
-            /// <summary />
-            public const string Moniker = "Microsoft.Azure.SimpleStatistics";
+        }
 
-            /// <summary />
-            public static class DataKeys
+        /// <summary>
+        /// Groups constants used my metric aggregates produced by aggregators that are configured by metric configurations represented
+        /// through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>. See also <c>MetricConfigurations.Common.Measurement()</c>./>
+        /// </summary>
+        public sealed class Measurement
+        {
+            internal static readonly Measurement Instance = new Measurement();
+            private Measurement()
             {
-                /// <summary />
-                public const string Count = "Count";
+            }
+
+            /// <summary />
+            public string Moniker { get { return Constants.Measurement.Moniker; } }
+
+            /// <summary />
+            public DataKeysConstants DataKeys { get { return DataKeysConstants.Instance; } }
+
+            /// <summary />
+            public sealed class DataKeysConstants
+            {
+                internal static readonly DataKeysConstants Instance = new DataKeysConstants();
+                private DataKeysConstants()
+                {
+                }
 
                 /// <summary />
-                public const string Sum = "Sum";
+                public string Count { get { return Constants.Measurement.DataKeys.Count; } }
 
                 /// <summary />
-                public const string Min = "Min";
+                public string Sum { get { return Constants.Measurement.DataKeys.Sum; } }
 
                 /// <summary />
-                public const string Max = "Max";
+                public string Min { get { return Constants.Measurement.DataKeys.Min; } }
 
                 /// <summary />
-                public const string StdDev = "StdDev";
+                public string Max { get { return Constants.Measurement.DataKeys.Max; } }
+
+                /// <summary />
+                public string StdDev { get { return Constants.Measurement.DataKeys.StdDev; } }
             }
         }
 
-        /// <summary />
-        public static class Gauge
+        private static class Constants
         {
             /// <summary />
-            public const string Moniker = "Microsoft.Azure.Gauge";
-
-            /// <summary />
-            public static class DataKeys
+            public static class Measurement
             {
                 /// <summary />
-                public const string Last = "Last";
+                public const string Moniker = "Microsoft.Azure.Measurement";
 
                 /// <summary />
-                public const string Min = "Min";
+                public static class DataKeys
+                {
+                    /// <summary />
+                    public const string Count = "Count";
 
-                /// <summary />
-                public const string Max = "Max";
+                    /// <summary />
+                    public const string Sum = "Sum";
+
+                    /// <summary />
+                    public const string Min = "Min";
+
+                    /// <summary />
+                    public const string Max = "Max";
+
+                    /// <summary />
+                    public const string StdDev = "StdDev";
+                }
             }
         }
-
-        /// <summary />
-        public static class Accumulator
-        {
-            /// <summary />
-            public const string Moniker = "Microsoft.Azure.Accumulator";
-
-            /// <summary />
-            public static class DataKeys
-            {
-                /// <summary />
-                public const string Sum = "Sum";
-
-                /// <summary />
-                public const string Min = "Min";
-
-                /// <summary />
-                public const string Max = "Max";
-            }
-        }
-
-        /// <summary />
-        public static class NaiveDistinctCount
-        {
-            /// <summary />
-            public const string Moniker = "Microsoft.Azure.NaiveDistinctCount";
-
-            /// <summary />
-            public static class DataKeys
-            {
-                /// <summary />
-                public const string TotalCount = "TotalCount";
-
-                /// <summary />
-                public const string DistinctCount = "DistinctCount";
-            }
-        }
-
     }
 }

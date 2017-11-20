@@ -8,11 +8,7 @@
     <TargetFramework>net45</TargetFramework>
     -->
   </PropertyGroup>
-  
-  <ItemGroup>
-    <Compile Remove="Internal\Microsoft.ApplicationInsights.Metrics\Util.cs" />
-  </ItemGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.3.0" />
     <!--

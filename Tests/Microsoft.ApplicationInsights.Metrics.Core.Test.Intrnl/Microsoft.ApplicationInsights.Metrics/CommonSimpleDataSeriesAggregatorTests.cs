@@ -69,7 +69,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 measurementAggregator.TrackValue(10);
 
                 MetricAggregate aggregate = measurementAggregator.CreateAggregateUnsafe(endTS);
-                TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 1, sum: 10.0, max: 10.0, min: 10.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodStringDef, aggKindMoniker: "Microsoft.Azure.SimpleStatistics");
+                TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 1, sum: 10.0, max: 10.0, min: 10.0, stdDev: 0.0, timestamp: default(DateTimeOffset), periodMs: periodStringDef, aggKindMoniker: "Microsoft.Azure.Measurement");
 
                 measurementAggregator.Reset(startTS, valueFilter: null);
 
@@ -77,21 +77,21 @@ namespace Microsoft.ApplicationInsights.Metrics
                 measurementAggregator.TrackValue(20);
 
                 aggregate = measurementAggregator.CreateAggregateUnsafe(endTS);
-                TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 2, sum: 30.0, max: 20.0, min: 10.0, stdDev: 5.0, timestamp: startTS, periodMs: periodStringStart, aggKindMoniker: "Microsoft.Azure.SimpleStatistics");
+                TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 2, sum: 30.0, max: 20.0, min: 10.0, stdDev: 5.0, timestamp: startTS, periodMs: periodStringStart, aggKindMoniker: "Microsoft.Azure.Measurement");
 
                 bool canRecycle = measurementAggregator.TryRecycle();
 
                 Assert.IsTrue(canRecycle);
 
                 aggregate = measurementAggregator.CreateAggregateUnsafe(endTS);
-                TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodStringDef, aggKindMoniker: "Microsoft.Azure.SimpleStatistics");
+                TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodStringDef, aggKindMoniker: "Microsoft.Azure.Measurement");
 
                 canRecycle = measurementAggregator.TryRecycle();
 
                 Assert.IsTrue(canRecycle);
 
                 aggregate = measurementAggregator.CreateAggregateUnsafe(endTS);
-                TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodStringDef, aggKindMoniker: "Microsoft.Azure.SimpleStatistics");
+                TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "null", count: 0, sum: 0, max: 0, min: 0, stdDev: 0, timestamp: default(DateTimeOffset), periodMs: periodStringDef, aggKindMoniker: "Microsoft.Azure.Measurement");
             }
         }
 
@@ -139,7 +139,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public static void Reset_NonersistentAggregator(IMetricSeriesAggregator aggregator, string aggregateKindMoniker)
         {
-            Assert.AreEqual(MetricAggregateKinds.SimpleStatistics.Moniker, aggregateKindMoniker);
+            Assert.AreEqual(MetricConfigurations.Common.AggregateKinds().Measurement().Moniker, aggregateKindMoniker);
 
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
@@ -203,7 +203,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public static void Reset_PersistentAggregator(IMetricSeriesAggregator aggregator, string aggregateKindMoniker)
         {
-            Assert.AreEqual(MetricAggregateKinds.Accumulator.Moniker, aggregateKindMoniker);
+            Assert.AreEqual(MetricConfigurations.Common.AggregateKinds().Accumulator().Moniker, aggregateKindMoniker);
 
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
@@ -281,7 +281,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             measurementAggregator.TrackValue("2");
 
             MetricAggregate aggregate = measurementAggregator.CompleteAggregation(endTS);
-            TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 2, sum: 3, max: 2, min: 1, stdDev: 0.5, timestamp: startTS, periodMs: periodString, aggKindMoniker: "Microsoft.Azure.SimpleStatistics");
+            TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 2, sum: 3, max: 2, min: 1, stdDev: 0.5, timestamp: startTS, periodMs: periodString, aggKindMoniker: "Microsoft.Azure.Measurement");
             Assert.AreEqual(2, filterInvocationsCount);
 
             measurementAggregator.TrackValue("3");
@@ -290,17 +290,17 @@ namespace Microsoft.ApplicationInsights.Metrics
             aggregate = measurementAggregator.CompleteAggregation(endTS);
             //// In earlier versions we used to reject further values after Complete Aggregation was called. However, that complication is not really necesary.
 
-            //TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 2, sum: 3, max: 2, min: 1, stdDev: 0.5, timestamp: startTS, periodMs: periodString, aggKindMoniker: "Microsoft.Azure.SimpleStatistics");
+            //TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 2, sum: 3, max: 2, min: 1, stdDev: 0.5, timestamp: startTS, periodMs: periodString, aggKindMoniker: "Microsoft.Azure.Measurement");
             //Assert.AreEqual(2, filterInvocationsCount);
 
             //aggregate = measurementAggregator.CreateAggregateUnsafe(endTS);
-            //TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 2, sum: 3, max: 2, min: 1, stdDev: 0.5, timestamp: startTS, periodMs: periodString, aggKindMoniker: "Microsoft.Azure.SimpleStatistics");
+            //TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 2, sum: 3, max: 2, min: 1, stdDev: 0.5, timestamp: startTS, periodMs: periodString, aggKindMoniker: "Microsoft.Azure.Measurement");
 
-            TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 4, sum: 10, max: 4, min: 1, stdDev: 1.11803398874989, timestamp: startTS, periodMs: periodString, aggKindMoniker: "Microsoft.Azure.SimpleStatistics");
+            TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 4, sum: 10, max: 4, min: 1, stdDev: 1.11803398874989, timestamp: startTS, periodMs: periodString, aggKindMoniker: "Microsoft.Azure.Measurement");
             Assert.AreEqual(4, filterInvocationsCount);
 
             aggregate = measurementAggregator.CreateAggregateUnsafe(endTS);
-            TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 4, sum: 10, max: 4, min: 1, stdDev: 1.11803398874989, timestamp: startTS, periodMs: periodString, aggKindMoniker: "Microsoft.Azure.SimpleStatistics");
+            TestUtil.Util.ValidateNumericAggregateValues(aggregate, name: "Cows Sold", count: 4, sum: 10, max: 4, min: 1, stdDev: 1.11803398874989, timestamp: startTS, periodMs: periodString, aggKindMoniker: "Microsoft.Azure.Measurement");
         }
 
         public static void CompleteAggregation_PersistentAggregator(IMetricSeriesAggregator accumulatorAggregator)

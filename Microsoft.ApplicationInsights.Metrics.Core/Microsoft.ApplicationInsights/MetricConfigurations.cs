@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Threading;
-
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using Microsoft.ApplicationInsights.Metrics;
-using System.ComponentModel;
 
 namespace Microsoft.ApplicationInsights
 {
@@ -15,10 +10,10 @@ namespace Microsoft.ApplicationInsights
         private MetricConfigurations()
         {
         }
-
+        
         /// <summary>
-        /// Groups extension methods that return pre-defined metric configurations.
+        /// Groups extension methods that return pre-defined metric configurations and related constants.
         /// </summary>
-        public static MetricConfigurations Common = new MetricConfigurations();
+        public static readonly MetricConfigurations Common = new MetricConfigurations();
     }
 }

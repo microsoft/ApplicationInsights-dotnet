@@ -12,7 +12,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             MetricAggregateToTelemetryPipelineConverters.Registry.Add(
                                                                     typeof(ApplicationInsightsTelemetryPipeline),
-                                                                    MetricAggregateKinds.SimpleStatistics.Moniker,
+                                                                    MetricConfigurations.Common.AggregateKinds().Measurement().Moniker,
                                                                     new MeasurementAggregateToApplicationInsightsPipelineConverter());
         }
 
