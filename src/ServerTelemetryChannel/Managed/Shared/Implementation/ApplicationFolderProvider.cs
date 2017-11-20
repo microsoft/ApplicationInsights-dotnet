@@ -1,5 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
-{    
+{
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -17,17 +17,15 @@
     {
         private readonly IDictionary environment;
         private readonly string customFolderName;
-        private readonly bool allowUnsecureLocalStorage;
-
-        // private readonly WindowsIdentity currentIdentity = WindowsIdentity.GetCurrent();
+        private readonly bool allowUnsecureLocalStorage;        
         private IIdentityProvider identityProvider;
 
-        public ApplicationFolderProvider(string folderName = null, bool allowUnsecureLocalStorage)
+        public ApplicationFolderProvider(string folderName = null, bool allowUnsecureLocalStorage = false)
             : this(Environment.GetEnvironmentVariables(), folderName, allowUnsecureLocalStorage)
         {
         }
 
-        internal ApplicationFolderProvider(IDictionary environment, string folderName = null, bool allowUnsecureLocalStorage)
+        internal ApplicationFolderProvider(IDictionary environment, string folderName = null, bool allowUnsecureLocalStorage = false)
         {
             if (environment == null)
             {
@@ -36,12 +34,14 @@
 
             try
             {
+                // In NETSTANDARD 1.3 Most reliable way to know if WindowsIdentityProvider can be used                 
+                // is to check if it throws exception.
                 WindowsIdentity.GetCurrent();
                 this.identityProvider = new WindowsIdentityProvider();
             }
             catch (Exception)
             {
-                this.identityProvider = new LinuxIdentityProvider(environment);                
+                this.identityProvider = new NonWindowsIdentityProvider(environment);                
             }
              
             this.environment = environment;
@@ -72,7 +72,7 @@
                     result = this.CreateAndValidateApplicationFolder(temp.ToString(), createSubFolder: true, errors: errors);
                 }
             }
-            
+
             if (result == null)
             {
                 // Another way of obtaining temp folder which is non-windows friendly.
