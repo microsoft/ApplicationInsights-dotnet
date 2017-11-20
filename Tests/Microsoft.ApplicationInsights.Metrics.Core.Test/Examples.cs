@@ -22,7 +22,6 @@
             TelemetryClient client = new TelemetryClient();
             client.TrackEvent("SomethingInterestingHappened");
 
-
             // Metrics work very similar. However, the value is not sent right away.
             // It is aggregated with other values for the same metric, and the resulting summary (aka "aggregate" is sent automatically every minute.
             // To mark this difference, we use a pattern that is similar, but different from the established TrackXxx(..) pattern that sends telemetry right away:
@@ -40,7 +39,7 @@
 
             // By default, metrics are aggregated as Measurements. Here is how you can define a metric to be aggregated as an Accumulator instead:
 
-            Metric itemsInDatastructure = client.GetMetric("ItemsInDatastructure", MetricConfigurations.Accumulator);
+            Metric itemsInDatastructure = client.GetMetric("ItemsInDatastructure", MetricConfigurations.Common.Accumulator());
 
             int itemsAdded = AddItemsToDataStructure();
             itemsInDatastructure.TrackValue(itemsAdded);
@@ -355,8 +354,8 @@ namespace User.Namespace.Example03
 
             // If you want to affect the way a metric is aggregated, you need to do this in the one place where the metric is initialized:
 
-            Metric measurementMetric = client.GetMetric("Items Processed per Minute", MetricConfigurations.Measurement);
-            Metric accumulatorMetric = client.GetMetric("Items in a Data Structure", MetricConfigurations.Accumulator);
+            Metric measurementMetric = client.GetMetric("Items Processed per Minute", MetricConfigurations.Common.Measurement());
+            Metric accumulatorMetric = client.GetMetric("Items in a Data Structure", MetricConfigurations.Common.Accumulator());
 
             measurementMetric.TrackValue(10);
             measurementMetric.TrackValue(20);
@@ -371,7 +370,7 @@ namespace User.Namespace.Example03
             // E.g., all three of accumulatorMetric2, accumulatorMetric2a and accumulatorMetric2b below are Accumulators.
             // (In fact, they are all references to the same object.)
 
-            Metric AccumulatorMetric2 = client.GetMetric("Items in a Data Structure 2", MetricConfigurations.Accumulator);
+            Metric AccumulatorMetric2 = client.GetMetric("Items in a Data Structure 2", MetricConfigurations.Common.Accumulator());
             Metric accumulatorMetric2a = client.GetMetric("Items in a Data Structure 2");
             Metric accumulatorMetric2b = client.GetMetric("Items in a Data Structure 2", metricConfiguration: null);
 
@@ -384,7 +383,7 @@ namespace User.Namespace.Example03
 
             try
             {
-                Metric accumulatorMetric2c = client.GetMetric("Items in a Data Structure 2", MetricConfigurations.Measurement);
+                Metric accumulatorMetric2c = client.GetMetric("Items in a Data Structure 2", MetricConfigurations.Common.Measurement());
             }
             catch(ArgumentException)
             {
@@ -394,13 +393,13 @@ namespace User.Namespace.Example03
                           + " metric was created for the first time. Either specify the same configuration every time, or"
                           + " specify 'null' during every invocation except the first one. 'Null' will match against any"
                           + " previously specified configuration when retrieving existing metrics, or fall back to"
-                          + " MetricConfigurations.Measurement when creating new metrics.",
+                          + " MetricConfigurations.Common.Measurement() when creating new metrics.",
                             TraceSeveretyLevel.Error);
             }
 
             // *** CUSTOM METRIC CONFIGURATIONS ***
 
-            // Above we have seen two fixed presets for metric configurations: MetricConfigurations.Measurement and MetricConfigurations.Accumulator.
+            // Above we have seen two fixed presets for metric configurations: MetricConfigurations.Common.Measurement() and MetricConfigurations.Common.Accumulator().
             // Both are static objects of class SimpleMetricConfiguration which in turn implements the IMetricConfiguration interface.
             // You can provide your own implementations of IMetricConfiguration if you want to implement your own custom aggregators; that
             // is covered elsewhere.
@@ -425,29 +424,32 @@ namespace User.Namespace.Example03
             // auto-collected system metrics are stored in the cloud in an optimized, more efficient manner. Custom metrics are currently always
             // stored as doubles.
 
-            // In fact, the above customConfiguredMeasurement is how MetricConfigurations.Measurement is defined by default.
+            // In fact, the above customConfiguredMeasurement is how MetricConfigurations.Common.Measurement() is defined by default.
 
             // If you want to change some of the above configuration values for all metrics in your application without the need to specify 
-            // a custom configuration every time, you can do so by using MetricConfigurations.FutureDefaults.
+            // a custom configuration every time, you can do so by using the MetricConfigurations.Common.SetDefaultForXxx(..) methods.
             // Note that this will only affect metrics created after the change:
 
-            Metric someAccumulator1 = client.GetMetric("Some Accumulator 1", MetricConfigurations.Accumulator); 
+            Metric someAccumulator1 = client.GetMetric("Some Accumulator 1", MetricConfigurations.Common.Accumulator()); 
 
-            MetricConfigurations.FutureDefaults.SeriesCountLimit = 10000;
-            MetricConfigurations.FutureDefaults.ValuesPerDimensionLimit = 5000;
+            MetricConfigurations.Common.SetDefaultForAccumulator(
+                                            new SimpleMetricConfiguration(
+                                                        seriesCountLimit:        10000,
+                                                        valuesPerDimensionLimit: 5000,
+                                                        seriesConfig:            new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false)));
 
-            Metric someAccumulator2 = client.GetMetric("Some Accumulator 2", MetricConfigurations.Accumulator);
+            Metric someAccumulator2 = client.GetMetric("Some Accumulator 2", MetricConfigurations.Common.Accumulator());
 
             // someAccumulator1 has SeriesCountLimit = 1000 and ValuesPerDimensionLimit = 100.
             // someAccumulator2 has SeriesCountLimit = 10000 and ValuesPerDimensionLimit = 5000.
 
             try
             {
-                Metric someAccumulator1a = client.GetMetric("Some Accumulator 1", MetricConfigurations.Accumulator);
+                Metric someAccumulator1a = client.GetMetric("Some Accumulator 1", MetricConfigurations.Common.Accumulator());
             }
             catch(ArgumentException)
             {
-                // This exception will always occur because the configuration object behind MetricConfigurations.Accumulator
+                // This exception will always occur because the configuration object behind MetricConfigurations.Common.Accumulator()
                 // has changed when MetricConfigurations.FutureDefaults when was modified.
             }
         }
@@ -611,7 +613,7 @@ namespace User.Namespace.Example05
             operationClient.Context.Operation.Name = "Operation XYZ";                    // This client will only send telemetry related to a specific operation.
             operationClient.InstrumentationKey = "05B5093A-F137-4A68-B826-A950CB68C68F"; // This client sends telemetry to a special Application Insights component.
 
-            Metric operationRequestSize = operationClient.GetMetric("XYZ Request Size", MetricConfigurations.Measurement, MetricAggregationScope.TelemetryClient);
+            Metric operationRequestSize = operationClient.GetMetric("XYZ Request Size", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient);
 
             int requestSize = GetCurrentRequestSize();
             operationRequestSize.TrackValue(306000);

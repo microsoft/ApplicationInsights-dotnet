@@ -5,6 +5,8 @@ using System.Threading;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using System.Runtime.CompilerServices;
 
+using Util = Microsoft.ApplicationInsights.Metrics.Extensions.Util;
+
 namespace Microsoft.ApplicationInsights.Metrics
 {
     /// <summary>

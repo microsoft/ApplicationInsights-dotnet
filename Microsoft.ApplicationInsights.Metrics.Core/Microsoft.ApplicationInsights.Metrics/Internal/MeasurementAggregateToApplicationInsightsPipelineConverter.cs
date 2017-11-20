@@ -1,7 +1,8 @@
 ﻿using System;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+namespace Microsoft.ApplicationInsights.Metrics
 {
     /// <summary />
     internal class MeasurementAggregateToApplicationInsightsPipelineConverter : MetricAggregateToApplicationInsightsPipelineConverterBase

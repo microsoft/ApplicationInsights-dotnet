@@ -22,18 +22,18 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             {
                 Metric metric = client.GetMetric("CowsSold");
-                Assert.AreEqual(MetricConfigurations.Measurement, metric.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Measurement, metric.GetConfiguration());
+                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
+                Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
             }
             {
-                Metric metric = client.GetMetric("PigsSold", MetricConfigurations.Accumulator);
-                Assert.AreEqual(MetricConfigurations.Accumulator, metric.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Accumulator, metric.GetConfiguration());
+                Metric metric = client.GetMetric("PigsSold", MetricConfigurations.Common.Accumulator());
+                Assert.AreEqual(MetricConfigurations.Common.Accumulator(), metric.GetConfiguration());
+                Assert.AreSame(MetricConfigurations.Common.Accumulator(), metric.GetConfiguration());
             }
             {
-                Metric metric = client.GetMetric("HorsesSold", MetricConfigurations.Measurement);
-                Assert.AreEqual(MetricConfigurations.Measurement, metric.GetConfiguration());
-                Assert.AreSame(MetricConfigurations.Measurement, metric.GetConfiguration());
+                Metric metric = client.GetMetric("HorsesSold", MetricConfigurations.Common.Measurement());
+                Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
+                Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
             }
             {
                 IMetricConfiguration config = new SimpleMetricConfiguration(10, 5, new MetricSeriesConfigurationForMeasurement(false));

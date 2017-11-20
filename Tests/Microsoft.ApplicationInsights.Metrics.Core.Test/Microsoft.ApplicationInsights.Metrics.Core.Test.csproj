@@ -82,6 +82,10 @@
       <Project>{b9938c09-9cb3-45cf-ba3c-847ff85ec750}</Project>
       <Name>Microsoft.ApplicationInsights.Metrics.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Microsoft.ApplicationInsights.Metrics.Extensions\Microsoft.ApplicationInsights.Metrics.Extensions.csproj">
+      <Project>{4b504b6c-e730-4f98-b38f-433899796771}</Project>
+      <Name>Microsoft.ApplicationInsights.Metrics.Extensions</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

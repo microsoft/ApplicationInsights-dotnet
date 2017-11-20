@@ -58,6 +58,7 @@
     <Compile Include="Microsoft.ApplicationInsights.ConcurrentDatastructures\MultidimensionalCubeTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\CommonSimpleDataSeriesAggregatorTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\DefaultAggregationPeriodCycle.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\ExtensionsUtilTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\UtilTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\MetricAggregationManagerTests.cs" />
     <Compile Include="Microsoft.ApplicationInsights.Metrics\NaiveDistinctCountMetricSeriesAggregatorTests.cs" />
@@ -69,6 +70,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Microsoft.ApplicationInsights.Metrics.Extensions\Microsoft.ApplicationInsights.Metrics.Extensions.csproj">
+      <Project>{4b504b6c-e730-4f98-b38f-433899796771}</Project>
+      <Name>Microsoft.ApplicationInsights.Metrics.Extensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Microsoft.ApplicationInsights.Metrics.Core.Test\Microsoft.ApplicationInsights.Metrics.Core.Test.csproj">
       <Project>{8fbc7612-4536-45db-86c3-c2ed95219231}</Project>
       <Name>Microsoft.ApplicationInsights.Metrics.Core.Test</Name>

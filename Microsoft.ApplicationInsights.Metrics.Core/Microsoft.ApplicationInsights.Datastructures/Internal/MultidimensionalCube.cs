@@ -1,11 +1,12 @@
-﻿using Microsoft.ApplicationInsights.Metrics;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Microsoft.ApplicationInsights.Metrics;
 
 namespace Microsoft.ApplicationInsights.ConcurrentDatastructures
 {

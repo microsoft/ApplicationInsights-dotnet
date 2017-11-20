@@ -1,13 +1,13 @@
-﻿using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.ApplicationInsights.Metrics
+namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    internal abstract class MetricSeriesAggregatorBase<TBufferedValue> : IMetricSeriesAggregator
+    /// <summary />
+    /// <typeparam name="TBufferedValue"></typeparam>
+    public abstract class MetricSeriesAggregatorBase<TBufferedValue> : IMetricSeriesAggregator
     {
         private readonly MetricSeries _dataSeries;
         private readonly MetricAggregationCycleKind _aggregationCycleKind;
@@ -20,7 +20,12 @@ namespace Microsoft.ApplicationInsights.Metrics
         private volatile MetricValuesBufferBase<TBufferedValue> _metricValuesBuffer;
         private volatile MetricValuesBufferBase<TBufferedValue> _metricValuesBufferRecycle = null;
 
-        public MetricSeriesAggregatorBase(
+        /// <summary />
+        /// <param name="metricValuesBufferFactory"></param>
+        /// <param name="configuration"></param>
+        /// <param name="dataSeries"></param>
+        /// <param name="aggregationCycleKind"></param>
+        protected MetricSeriesAggregatorBase(
                                         Func<MetricValuesBufferBase<TBufferedValue>> metricValuesBufferFactory,
                                         IMetricSeriesConfiguration configuration,
                                         MetricSeries dataSeries,
@@ -39,8 +44,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             Reset(default(DateTimeOffset), default(IMetricValueFilter));
         }
 
+        /// <summary />
         public MetricSeries DataSeries { get { return _dataSeries; } }
 
+        /// <summary />
         public MetricAggregate CompleteAggregation(DateTimeOffset periodEnd)
         {
             if (!_isPersistent)
@@ -52,6 +59,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             return aggregate;
         }
 
+        /// <summary />
         public void Reset(DateTimeOffset periodStart)
         {
             _periodStart = periodStart;
@@ -61,12 +69,14 @@ namespace Microsoft.ApplicationInsights.Metrics
             ResetAggregate();
         }
 
+        /// <summary />
         public void Reset(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
         {
             _valueFilter = valueFilter;
             Reset(periodStart);
         }
 
+        /// <summary />
         public void TrackValue(double metricValue)
         {
             if (Double.IsNaN(metricValue))
@@ -89,6 +99,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             TrackFilteredConvertedValue(value);
         }
 
+        /// <summary />
         public void TrackValue(object metricValue)
         {
             if (metricValue == null)
@@ -110,6 +121,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             TrackFilteredConvertedValue(value);
         }
 
+        /// <summary />
         public bool TryRecycle()
         {
             if (_isPersistent)
@@ -121,6 +133,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             return true;
         }
 
+        /// <summary />
         public MetricAggregate CreateAggregateUnsafe(DateTimeOffset periodEnd)
         {
             UpdateAggregate(_metricValuesBuffer);
@@ -129,20 +142,28 @@ namespace Microsoft.ApplicationInsights.Metrics
         }
 
         #region Abstract Methods
+
+        /// <summary />
         protected abstract MetricAggregate CreateAggregate(DateTimeOffset periodEnd);
 
+        /// <summary />
         protected abstract void ResetAggregate();
 
+        /// <summary />
         protected abstract TBufferedValue ConvertMetricValue(double metricValue);
 
+        /// <summary />
         protected abstract TBufferedValue ConvertMetricValue(object metricValue);
 
+        /// <summary />
         protected abstract object UpdateAggregate_Stage1(MetricValuesBufferBase<TBufferedValue> buffer, int minFlushIndex, int maxFlushIndex);
 
+        /// <summary />
         protected abstract void UpdateAggregate_Stage2(object stage1Result);
 
         #endregion Abstract Methods
 
+        /// <summary />
         protected void AddInfo_Timing_Dimensions_Context(MetricAggregate aggregate, DateTimeOffset periodEnd)
         {
             if (aggregate == null)
@@ -170,10 +191,19 @@ namespace Microsoft.ApplicationInsights.Metrics
         }
 
 #if DEBUG
+        /// <summary>For debug purposes. Not compiled into release build.</summary>
         public static volatile int s_countBufferWaitSpinEvents = 0;
+
+        /// <summary>For debug purposes. Not compiled into release build.</summary>
         public static volatile int s_countBufferWaitSpinCycles = 0;
+
+        /// <summary>For debug purposes. Not compiled into release build.</summary>
         public static volatile int s_timeBufferWaitSpinMillis = 0;
+
+        /// <summary>For debug purposes. Not compiled into release build.</summary>
         public static volatile int s_countBufferFlushes = 0;
+
+        /// <summary>For debug purposes. Not compiled into release build.</summary>
         public static volatile int s_countNewBufferObjectsCreated = 0;
 #endif
 

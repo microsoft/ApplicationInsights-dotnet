@@ -7,11 +7,12 @@ using Microsoft.ApplicationInsights.DataContracts;
 namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
     /// <summary />
-    internal abstract class MetricAggregateToApplicationInsightsPipelineConverterBase : IMetricAggregateToTelemetryPipelineConverter
+    public abstract class MetricAggregateToApplicationInsightsPipelineConverterBase : IMetricAggregateToTelemetryPipelineConverter
     {
         /// <summary />
         public const string AggregationIntervalMonikerPropertyKey = "_MS.AggregationIntervalMs";
 
+        /// <summary />s
         public abstract string AggregationKindMoniker { get; }
 
         /// <summary />
@@ -81,6 +82,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             return telemetryItem;
         }
 
+        /// <summary />
+        /// <param name="telemetryItem"></param>
+        /// <param name="aggregate"></param>
         protected abstract void PopulateDataValues(MetricTelemetry telemetryItem, MetricAggregate aggregate);
 
         private static void PopulateTelemetryContext(

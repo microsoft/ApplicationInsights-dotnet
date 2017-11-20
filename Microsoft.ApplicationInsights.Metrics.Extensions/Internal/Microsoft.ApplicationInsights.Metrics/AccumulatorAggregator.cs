@@ -2,6 +2,8 @@
 using System.Runtime.CompilerServices;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
+using Util = Microsoft.ApplicationInsights.Metrics.Extensions.Util;
+
 namespace Microsoft.ApplicationInsights.Metrics
 {
     internal sealed class AccumulatorAggregator : MetricSeriesAggregatorBase<double>

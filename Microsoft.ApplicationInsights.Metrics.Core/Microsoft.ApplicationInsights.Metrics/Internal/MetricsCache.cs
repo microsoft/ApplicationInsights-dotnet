@@ -42,7 +42,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                                                 metricId,
                                                                                 dimension1Name,
                                                                                 dimension2Name,
-                                                                                metricConfiguration ?? MetricConfigurations.Default));
+                                                                                metricConfiguration ?? MetricConfigurations.Common.Default()));
 
             if (metricConfiguration != null && ! metric._configuration.Equals(metricConfiguration))
             {
@@ -51,7 +51,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                           + " metric was created for the first time. Either specify the same configuration every time, or"
                                           + " specify 'null' during every invocation except the first one. 'Null' will match against any"
                                           + " previously specified configuration when retrieving existing metrics, or fall back to"
-                                          +$" {nameof(MetricConfigurations.Default)} when creating new metrics. (Metric Object Id: \"{metricObjectId}\".)");
+                                          +$" the default when creating new metrics. (Metric Object Id: \"{metricObjectId}\".)");
             }
 
             return metric;
