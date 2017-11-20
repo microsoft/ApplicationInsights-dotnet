@@ -4,7 +4,7 @@
 #if NET45
     using System.Diagnostics.Tracing;
 #endif
-
+    
     /// <summary>
     /// ETW EventSource tracing class.
     /// </summary>
@@ -33,13 +33,13 @@
          }
 
         [Event(
-            1, 
-            Message = "ApplicationInsightsHttpModule failed at initialization with exception: {0}", 
+            1,
+            Message = "ApplicationInsightsHttpModule failed at initialization with exception: {0}",
             Level = EventLevel.Error)]
         public void WebModuleInitializationExceptionEvent(string excMessage, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                1, 
+                1,
                 excMessage ?? string.Empty,
                 this.ApplicationName);
         }
@@ -77,7 +77,7 @@
         public void HanderFailure(string exception, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                4, 
+                4,
                 exception ?? string.Empty,
                 this.ApplicationName);
         }
@@ -157,8 +157,8 @@
             string cookieValue, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                14, 
-                cookieValue ?? string.Empty, 
+                14,
+                cookieValue ?? string.Empty,
                 this.ApplicationName);
         }
 
@@ -167,11 +167,11 @@
             Message = "WebTelemetryInitializerLoaded at {0}",
             Level = EventLevel.Verbose)]
         public void WebTelemetryInitializerLoaded(
-            string typeName, 
+            string typeName,
             string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                16, 
+                16,
                 typeName ?? string.Empty,
                 this.ApplicationName);
         }
@@ -192,12 +192,12 @@
             Level = EventLevel.Error)]
         public void WebTelemetryInitializerFailure(
             string typeName,
-            string exception, 
+            string exception,
             string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 18,
-                typeName ?? string.Empty, 
+                typeName ?? string.Empty,
                 exception ?? string.Empty,
                 this.ApplicationName);
         }
@@ -371,6 +371,43 @@
         {
             this.WriteEvent(
                 38,
+                this.ApplicationName);
+        }
+
+        [Event(
+            39,
+            Message = "RequestTrackingTelemetryModule ChildRequestTrackingSuppressionModule Method: '{0}' Unknown Exception: {1}",
+            Level = EventLevel.Error)]
+        public void ChildRequestUnknownException(string methodName, string exceptionMessage, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                39,
+                methodName,
+                exceptionMessage,
+                this.ApplicationName);
+        }
+
+        [Event(
+            40,
+            Message = "RequestTrackingTelemetryModule: Request was not logged. Set EventLevel Verbose for more details.",
+            Level = EventLevel.Informational)]
+        public void RequestTrackingTelemetryModuleRequestWasNotLoggedInformational(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                40,
+                this.ApplicationName);
+        }
+
+        [Event(
+            41,
+            Message = "RequestTrackingTelemetryModule: Request was not logged. Request Id: '{0}' Reason: {1}",
+            Level = EventLevel.Verbose)]
+        public void RequestTrackingTelemetryModuleRequestWasNotLoggedVerbose(string requestId, string reason, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                41,
+                requestId,
+                reason,
                 this.ApplicationName);
         }
 
