@@ -21,7 +21,7 @@ namespace Microsoft.ApplicationInsights
         /// and other properties of the respective <c>TelemetryClient</c> will be ignored in favor of the <c>TelemetryConfiguration</c>-wide
         /// settings.</para>
         /// </summary>
-        TelemetryConfiguration = 1,
+        TelemetryConfiguration = 0,
 
         /// <summary>
         /// <para>Metric values will be aggregated only across a specific <c>TelemetryClient</c> instance and then sent using that
@@ -34,6 +34,6 @@ namespace Microsoft.ApplicationInsights
         /// As a result, the <c>Context</c> and the <c>InstrumentationKey</c> of the specified <c>TelemetryClient</c> will be respected.
         /// However, each <c>MetricManager</c> instance encapsulates a managed thread and each aggregator uses additional memory.</para>
         /// </summary>
-        TelemetryClient = 2,
+        TelemetryClient = 1,
     }
 }

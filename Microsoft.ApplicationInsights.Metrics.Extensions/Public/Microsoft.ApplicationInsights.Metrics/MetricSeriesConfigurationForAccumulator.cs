@@ -10,6 +10,9 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// </summary>
     public class MetricSeriesConfigurationForAccumulator : IMetricSeriesConfiguration
     {
+        private readonly bool _restrictToUInt32Values;
+        private readonly int _hashCode;
+
         static MetricSeriesConfigurationForAccumulator()
         {
             MetricAggregateToTelemetryPipelineConverters.Registry.Add(
@@ -17,9 +20,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                                     MetricConfigurations.Common.AggregateKinds().Accumulator().Moniker,
                                                                     new AccumulatorAggregateToApplicationInsightsPipelineConverter());
         }
-
-        private readonly bool _restrictToUInt32Values;
-        private readonly int _hashCode;
 
         /// <summary />
         /// <param name="restrictToUInt32Values"></param>

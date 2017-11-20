@@ -35,11 +35,11 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.IsNotNull(aggregate);
 
             Assert.AreEqual("Cows Sold", aggregate.MetricId, "aggregate.MetricId mismatch");
-            Assert.AreEqual(2, aggregate.AggregateData["Count"], "aggregate.AggregateData[Count] mismatch");
-            Assert.AreEqual(85, (double) aggregate.AggregateData["Sum"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.AggregateData[Sum] mismatch");
-            Assert.AreEqual(43, (double) aggregate.AggregateData["Max"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.AggregateData[Max] mismatch");
-            Assert.AreEqual(42, (double) aggregate.AggregateData["Min"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.AggregateData[Min] mismatch");
-            Assert.AreEqual(0.5, (double) aggregate.AggregateData["StdDev"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.AggregateData[StdDev] mismatch");
+            Assert.AreEqual(2, aggregate.Data["Count"], "aggregate.Data[Count] mismatch");
+            Assert.AreEqual(85, (double) aggregate.Data["Sum"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.Data[Sum] mismatch");
+            Assert.AreEqual(43, (double) aggregate.Data["Max"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.Data[Max] mismatch");
+            Assert.AreEqual(42, (double) aggregate.Data["Min"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.Data[Min] mismatch");
+            Assert.AreEqual(0.5, (double) aggregate.Data["StdDev"], TestUtil.Util.MaxAllowedPrecisionError, "aggregate.Data[StdDev] mismatch");
 
             Assert.AreEqual(startTS, aggregate.AggregationPeriodStart, "aggregate.AggregationPeriodStart mismatch");
             Assert.AreEqual(

@@ -71,9 +71,9 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                 DataSeries?.MetricId ?? Util.NullString,
                                                 MetricConfigurations.Common.AggregateKinds().Accumulator().Moniker);
 
-            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().Accumulator().DataKeys.Sum] = sum;
-            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().Accumulator().DataKeys.Min] = min;
-            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().Accumulator().DataKeys.Max] = max;
+            aggregate.Data[MetricConfigurations.Common.AggregateKinds().Accumulator().DataKeys.Sum] = sum;
+            aggregate.Data[MetricConfigurations.Common.AggregateKinds().Accumulator().DataKeys.Min] = min;
+            aggregate.Data[MetricConfigurations.Common.AggregateKinds().Accumulator().DataKeys.Max] = max;
 
             AddInfo_Timing_Dimensions_Context(aggregate, periodEnd);
 

@@ -26,66 +26,12 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             return telemetryItem;
         }
 
-        private void ValidateAggregate(MetricAggregate metricAggregate)
-        {
-            Util.ValidateNotNull(metricAggregate, nameof(metricAggregate));
-            Util.ValidateNotNull(metricAggregate.AggregationKindMoniker, nameof(metricAggregate.AggregationKindMoniker));
-
-            string expectedMoniker = AggregationKindMoniker;
-
-            if (! metricAggregate.AggregationKindMoniker.Equals(expectedMoniker, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new ArgumentException($"Cannot convert the specified {metricAggregate}, because is has"
-                                          + $" {nameof(metricAggregate.AggregationKindMoniker)}=\"{metricAggregate.AggregationKindMoniker}\"."
-                                          + $" This converter handles \"{expectedMoniker}\".");
-            }
-        }
-
-        private MetricTelemetry ConvertAggregateToTelemetry(MetricAggregate aggregate)
-        {
-            MetricTelemetry telemetryItem = new MetricTelemetry();
-
-            // Set data values:
-
-            telemetryItem.Name = aggregate.MetricId;
-
-            PopulateDataValues(telemetryItem, aggregate);
-            
-            // Set timing values:
-
-            IDictionary<string, string> props = telemetryItem.Properties;
-            if (props != null)
-            {
-                long periodMillis = (long) aggregate.AggregationPeriodDuration.TotalMilliseconds;
-                props.Add(AggregationIntervalMonikerPropertyKey, periodMillis.ToString(CultureInfo.InvariantCulture));
-            }
-
-            telemetryItem.Timestamp = aggregate.AggregationPeriodStart;
-
-            // Populate TelemetryContext:
-            IEnumerable<KeyValuePair<string, string>> nonContextDimensions;
-            PopulateTelemetryContext(aggregate.Dimensions, telemetryItem.Context, out nonContextDimensions);
-
-            // Set dimensions. We do this after the context, becasue dimensions take precedence (i.e. we potentially overwrite):
-            if (nonContextDimensions != null)
-            {
-                foreach (KeyValuePair<string, string> nonContextDimension in nonContextDimensions)
-                {
-                    telemetryItem.Properties[nonContextDimension.Key] = nonContextDimension.Value;
-                }
-            }
-
-            // Set SDK version moniker:
-
-            Util.StampSdkVersionToContext(telemetryItem);
-
-            return telemetryItem;
-        }
-
         /// <summary />
         /// <param name="telemetryItem"></param>
         /// <param name="aggregate"></param>
         protected abstract void PopulateDataValues(MetricTelemetry telemetryItem, MetricAggregate aggregate);
+
+        
 
         private static void PopulateTelemetryContext(
                                                 IDictionary<string, string> dimensions,
@@ -210,7 +156,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                                     telemetryContext.Session.IsFirst = false;
                                 }
                             }
-                            catch { }
+                            catch
+                            {
+                            }
                         }
                         break;
 
@@ -250,6 +198,62 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             }
 
             nonContextDimensions = nonContextDimensionList;
+        }
+
+        private void ValidateAggregate(MetricAggregate metricAggregate)
+        {
+            Util.ValidateNotNull(metricAggregate, nameof(metricAggregate));
+            Util.ValidateNotNull(metricAggregate.AggregationKindMoniker, nameof(metricAggregate.AggregationKindMoniker));
+
+            string expectedMoniker = AggregationKindMoniker;
+
+            if (!metricAggregate.AggregationKindMoniker.Equals(expectedMoniker, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException($"Cannot convert the specified {metricAggregate}, because is has"
+                                          + $" {nameof(metricAggregate.AggregationKindMoniker)}=\"{metricAggregate.AggregationKindMoniker}\"."
+                                          + $" This converter handles \"{expectedMoniker}\".");
+            }
+        }
+
+        private MetricTelemetry ConvertAggregateToTelemetry(MetricAggregate aggregate)
+        {
+            MetricTelemetry telemetryItem = new MetricTelemetry();
+
+            // Set data values:
+
+            telemetryItem.Name = aggregate.MetricId;
+
+            PopulateDataValues(telemetryItem, aggregate);
+
+            // Set timing values:
+
+            IDictionary<string, string> props = telemetryItem.Properties;
+            if (props != null)
+            {
+                long periodMillis = (long) aggregate.AggregationPeriodDuration.TotalMilliseconds;
+                props.Add(AggregationIntervalMonikerPropertyKey, periodMillis.ToString(CultureInfo.InvariantCulture));
+            }
+
+            telemetryItem.Timestamp = aggregate.AggregationPeriodStart;
+
+            // Populate TelemetryContext:
+            IEnumerable<KeyValuePair<string, string>> nonContextDimensions;
+            PopulateTelemetryContext(aggregate.Dimensions, telemetryItem.Context, out nonContextDimensions);
+
+            // Set dimensions. We do this after the context, becasue dimensions take precedence (i.e. we potentially overwrite):
+            if (nonContextDimensions != null)
+            {
+                foreach (KeyValuePair<string, string> nonContextDimension in nonContextDimensions)
+                {
+                    telemetryItem.Properties[nonContextDimension.Key] = nonContextDimension.Value;
+                }
+            }
+
+            // Set SDK version moniker:
+
+            Util.StampSdkVersionToContext(telemetryItem);
+
+            return telemetryItem;
         }
     }
 }

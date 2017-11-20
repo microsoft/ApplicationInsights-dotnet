@@ -57,6 +57,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             public sealed class Gauge
             {
                 internal static readonly Gauge Instance = new Gauge();
+
                 private Gauge()
                 {
                 }
@@ -71,6 +72,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 public sealed class DataKeysConstants
                 {
                     internal static readonly DataKeysConstants Instance = new DataKeysConstants();
+
                     private DataKeysConstants()
                     {
                     }
@@ -94,6 +96,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             public sealed class Accumulator
             {
                 internal static readonly Accumulator Instance = new Accumulator();
+
                 private Accumulator()
                 {
                 }
@@ -108,6 +111,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 public sealed class DataKeysConstants
                 {
                     internal static readonly DataKeysConstants Instance = new DataKeysConstants();
+
                     private DataKeysConstants()
                     {
                     }
@@ -130,6 +134,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             public sealed class NaiveDistinctCount
             {
                 internal static readonly NaiveDistinctCount Instance = new NaiveDistinctCount();
+
                 private NaiveDistinctCount()
                 {
                 }
@@ -144,6 +149,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 public sealed class DataKeysConstants
                 {
                     internal static readonly DataKeysConstants Instance = new DataKeysConstants();
+
                     private DataKeysConstants()
                     {
                     }
@@ -216,7 +222,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                         public const string DistinctCount = "DistinctCount";
                     }
                 }
-
             }
         }
     }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -7,7 +6,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// Provides discoverable access to constants used by metric aggregates.
     /// Do not use directly. Instead, use: <c>MetricConfigurations.Common.AggregateKinds()</c>.
     /// </summary>
-    public static class MetricAggregateKindsExtensions
+    public static class MetricAggregateKindsCoreExtensions
     {
         /// <summary>
         /// Groups constants used by different kinds of aggregates.

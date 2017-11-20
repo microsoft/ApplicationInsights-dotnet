@@ -11,9 +11,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         protected override void PopulateDataValues(MetricTelemetry telemetryItem, MetricAggregate aggregate)
         {
             telemetryItem.Count = 1;
-            telemetryItem.Sum = aggregate.GetAggregateData<double>(MetricConfigurations.Common.AggregateKinds().Accumulator().DataKeys.Sum, 0.0);
-            telemetryItem.Min = aggregate.GetAggregateData<double>(MetricConfigurations.Common.AggregateKinds().Accumulator().DataKeys.Min, 0.0);
-            telemetryItem.Max = aggregate.GetAggregateData<double>(MetricConfigurations.Common.AggregateKinds().Accumulator().DataKeys.Max, 0.0);
+            telemetryItem.Sum = aggregate.GetDataValue<double>(MetricConfigurations.Common.AggregateKinds().Accumulator().DataKeys.Sum, 0.0);
+            telemetryItem.Min = aggregate.GetDataValue<double>(MetricConfigurations.Common.AggregateKinds().Accumulator().DataKeys.Min, 0.0);
+            telemetryItem.Max = aggregate.GetDataValue<double>(MetricConfigurations.Common.AggregateKinds().Accumulator().DataKeys.Max, 0.0);
             telemetryItem.StandardDeviation = null;
         }
     }

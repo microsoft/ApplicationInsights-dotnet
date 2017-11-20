@@ -4,8 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Metrics;
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
@@ -25,7 +23,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         {
             Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));
 
-            switch(aggregationScope)
+            switch (aggregationScope)
             {
                 case MetricAggregationScope.TelemetryConfiguration:
                     TelemetryConfiguration pipeline = Util.GetTelemetryConfiguration(telemetryClient);

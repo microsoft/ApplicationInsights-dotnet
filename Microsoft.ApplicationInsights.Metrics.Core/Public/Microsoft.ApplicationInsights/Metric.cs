@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures;
 using Microsoft.ApplicationInsights.Metrics;
+using Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures;
 
 namespace Microsoft.ApplicationInsights
 {
@@ -18,6 +15,10 @@ namespace Microsoft.ApplicationInsights
     /// </summary>
     public sealed class Metric : IEquatable<Metric>
     {
+#pragma warning disable SA1401 // Field must be private
+        internal readonly IMetricConfiguration _configuration;
+#pragma warning restore SA1401 // Field must be private
+
         private const string NullMetricObjectId = "null";
 
         private static readonly char[] InvalidMetricChars = new char[] { '\0', '"', '\'', '(', ')', '[', ']', '{', '}', '<', '>', '=', ',' };
@@ -28,11 +29,8 @@ namespace Microsoft.ApplicationInsights
         private readonly IReadOnlyList<KeyValuePair<string[], MetricSeries>> _zeroDimSeriesList;
         private readonly string[] _dimensionNames;
 
-        //private readonly MultidimensionalCube<string, MetricSeries> _metricSeries;
         private readonly MultidimensionalCube2<MetricSeries> _metricSeries;
 
-        internal readonly IMetricConfiguration _configuration;
-        //internal readonly MetricManager _metricManager;
         private readonly MetricManager _metricManager;
 
         internal Metric(MetricManager metricManager, string metricId, string dimension1Name, string dimension2Name, IMetricConfiguration configuration)
@@ -121,10 +119,13 @@ namespace Microsoft.ApplicationInsights
         /// </summary>
         /// <param name="dimensionNumber">1-based dimension number. Currently it can be <c>1</c> or <c>2</c>.</param>
         /// <returns>The name of the specified dimension.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2233", Justification = "dimensionNumber is validated.")]
         public string GetDimensionName(int dimensionNumber)
         {
             ValidateDimensionNumberForGetter(dimensionNumber);
-            return _dimensionNames[dimensionNumber - 1];
+
+            int dimensionIndex = dimensionNumber - 1;
+            return _dimensionNames[dimensionIndex];
         }
 
         /// <summary>
@@ -132,6 +133,7 @@ namespace Microsoft.ApplicationInsights
         /// </summary>
         /// <param name="dimensionNumber">1-based dimension number. Currently it can be <c>1</c> or <c>2</c>.</param>
         /// <returns>The values known for the specified dimension.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2233", Justification = "dimensionNumber is validated.")]
         public IReadOnlyCollection<string> GetDimensionValues(int dimensionNumber)
         {
             ValidateDimensionNumberForGetter(dimensionNumber);

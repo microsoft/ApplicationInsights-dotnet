@@ -293,12 +293,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             Version baseSdkVersion = null;
             Version metricsSdkVersion = null;
 
-            if (false == Version.TryParse(baseSdkVersionStr ?? "", out baseSdkVersion))
+            if (false == Version.TryParse(baseSdkVersionStr ?? String.Empty, out baseSdkVersion))
             {
                 baseSdkVersion = null;
             }
 
-            if (false == Version.TryParse(metricsSdkVersionStr ?? "", out metricsSdkVersion))
+            if (false == Version.TryParse(metricsSdkVersionStr ?? String.Empty, out metricsSdkVersion))
             {
                 metricsSdkVersion = null;
             }

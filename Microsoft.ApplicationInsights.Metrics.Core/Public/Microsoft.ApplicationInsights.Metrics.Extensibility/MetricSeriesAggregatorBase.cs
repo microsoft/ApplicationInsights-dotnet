@@ -47,7 +47,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <summary />
         public MetricSeries DataSeries { get { return _dataSeries; } }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="periodEnd"></param>
+        /// <returns></returns>
         public MetricAggregate CompleteAggregation(DateTimeOffset periodEnd)
         {
             if (!_isPersistent)
@@ -59,7 +62,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             return aggregate;
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="periodStart"></param>
         public void Reset(DateTimeOffset periodStart)
         {
             _periodStart = periodStart;
@@ -69,14 +74,19 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             ResetAggregate();
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="periodStart"></param>
+        /// <param name="valueFilter"></param>
         public void Reset(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
         {
             _valueFilter = valueFilter;
             Reset(periodStart);
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="metricValue"></param>
         public void TrackValue(double metricValue)
         {
             if (Double.IsNaN(metricValue))
@@ -91,7 +101,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     return;
                 }
             }
-            catch { }
+            catch
+            {
+            }
 
             // Prepare the metric value. If it is invalid, ConvertMetricValue may throw. This wil be propagated to the user.
 
@@ -99,7 +111,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             TrackFilteredConvertedValue(value);
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="metricValue"></param>
         public void TrackValue(object metricValue)
         {
             if (metricValue == null)
@@ -114,14 +128,18 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     return;
                 }
             }
-            catch { }
+            catch
+            {
+            }
 
             // Prepare the metric value. If it is invalid, ConvertMetricValue may throw. This wil be propagated to the user.
             TBufferedValue value = ConvertMetricValue(metricValue);
             TrackFilteredConvertedValue(value);
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
         public bool TryRecycle()
         {
             if (_isPersistent)
@@ -133,7 +151,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             return true;
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="periodEnd"></param>
+        /// <returns></returns>
         public MetricAggregate CreateAggregateUnsafe(DateTimeOffset periodEnd)
         {
             UpdateAggregate(_metricValuesBuffer);
@@ -143,27 +164,47 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
         #region Abstract Methods
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="periodEnd"></param>
+        /// <returns></returns>
         protected abstract MetricAggregate CreateAggregate(DateTimeOffset periodEnd);
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
         protected abstract void ResetAggregate();
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="metricValue"></param>
+        /// <returns></returns>
         protected abstract TBufferedValue ConvertMetricValue(double metricValue);
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="metricValue"></param>
+        /// <returns></returns>
         protected abstract TBufferedValue ConvertMetricValue(object metricValue);
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="minFlushIndex"></param>
+        /// <param name="maxFlushIndex"></param>
+        /// <returns></returns>
         protected abstract object UpdateAggregate_Stage1(MetricValuesBufferBase<TBufferedValue> buffer, int minFlushIndex, int maxFlushIndex);
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="stage1Result"></param>
         protected abstract void UpdateAggregate_Stage2(object stage1Result);
 
         #endregion Abstract Methods
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="aggregate"></param>
+        /// <param name="periodEnd"></param>
         protected void AddInfo_Timing_Dimensions_Context(MetricAggregate aggregate, DateTimeOffset periodEnd)
         {
             if (aggregate == null)
@@ -228,7 +269,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 #if DEBUG
                 int startMillis = Environment.TickCount;
 #endif
+#pragma warning disable SA1129 // Do not use default value type constructor
                 var spinWait = new SpinWait();
+#pragma warning restore SA1129 // Do not use default value type constructor
 
                 // It could be that the thread that was flushing is done and has updated the buffer pointer.
                 // We refresh our local reference and see if we now have a valid index into the buffer.
@@ -382,7 +425,5 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
             return buffer;
         }
-
-
     }
 }

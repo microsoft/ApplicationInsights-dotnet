@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-
 namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
     /// <summary>
@@ -46,7 +45,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
         /// <summary>
         /// </summary>
-        public int Count {
+        public int Count
+        {
             get
             {
                 int count;
@@ -59,6 +59,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                 {
                     _lock.Release();
                 }
+
                 return count;
             }
         }
@@ -81,6 +82,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                 {
                     _lock.Release();
                 }
+
                 return metricAggregate;
             }
         }
@@ -112,7 +114,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             await _lock.WaitAsync(cancelToken);
             try
             {
-                while( _metricAgregates.Count >= CountLimit)
+                while (_metricAgregates.Count >= CountLimit)
                 {
                     _metricAgregates.RemoveAt(0);
                 }
@@ -146,6 +148,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             {
                 _lock.Release();
             }
+
             return enumerator;
         }
 

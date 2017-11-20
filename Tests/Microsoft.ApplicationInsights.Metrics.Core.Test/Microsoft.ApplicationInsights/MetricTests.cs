@@ -799,8 +799,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             MetricAggregate currentAggregate = series.Value.GetCurrentAggregateUnsafe();
 
-            Assert.AreEqual(expectedCount, series.Value.GetCurrentAggregateUnsafe()?.AggregateData?["Count"]);
-            Assert.AreEqual(expectedSum, series.Value.GetCurrentAggregateUnsafe()?.AggregateData?["Sum"]);
+            Assert.AreEqual(expectedCount, series.Value.GetCurrentAggregateUnsafe()?.Data?["Count"]);
+            Assert.AreEqual(expectedSum, series.Value.GetCurrentAggregateUnsafe()?.Data?["Sum"]);
         }
 
         /// <summary />
@@ -835,8 +835,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 Assert.AreEqual(1, telemetryCollector.Count);
                 Assert.IsNotNull(telemetryCollector[0]);
-                Assert.AreEqual(1, telemetryCollector[0].AggregateData["Count"]);
-                Assert.AreEqual(1.0, telemetryCollector[0].AggregateData["Sum"]);
+                Assert.AreEqual(1, telemetryCollector[0].Data["Count"]);
+                Assert.AreEqual(1.0, telemetryCollector[0].Data["Sum"]);
                 Assert.AreEqual("Foo", telemetryCollector[0].MetricId);
                 Assert.AreEqual(0, telemetryCollector[0].Dimensions.Count);
 
@@ -873,8 +873,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 Assert.AreEqual(1, telemetryCollector.Count);
                 Assert.IsNotNull(telemetryCollector[0]);
-                Assert.AreEqual(1, telemetryCollector[0].AggregateData["Count"]);
-                Assert.AreEqual(2.0, telemetryCollector[0].AggregateData["Sum"]);
+                Assert.AreEqual(1, telemetryCollector[0].Data["Count"]);
+                Assert.AreEqual(2.0, telemetryCollector[0].Data["Sum"]);
                 Assert.AreEqual("Foo", telemetryCollector[0].MetricId);
                 Assert.AreEqual(0, telemetryCollector[0].Dimensions.Count);
 
@@ -924,16 +924,16 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.IsNotNull(telemetryCollector[1]);
 
                 Assert.AreEqual("Foo", telemetryCollector[0].MetricId);
-                Assert.AreEqual(3, telemetryCollector[0].AggregateData["Count"]);
-                Assert.AreEqual(60.0, telemetryCollector[0].AggregateData["Sum"]);
+                Assert.AreEqual(3, telemetryCollector[0].Data["Count"]);
+                Assert.AreEqual(60.0, telemetryCollector[0].Data["Sum"]);
 
                 Assert.AreEqual(1, telemetryCollector[0].Dimensions.Count);
                 Assert.IsTrue(telemetryCollector[0].Dimensions.ContainsKey("Bar"));
                 Assert.AreEqual("Dim1Value", telemetryCollector[0].Dimensions["Bar"]);
 
                 Assert.AreEqual("Foo", telemetryCollector[1].MetricId);
-                Assert.AreEqual(1, telemetryCollector[1].AggregateData["Count"]);
-                Assert.AreEqual(40.0, telemetryCollector[1].AggregateData["Sum"]);
+                Assert.AreEqual(1, telemetryCollector[1].Data["Count"]);
+                Assert.AreEqual(40.0, telemetryCollector[1].Data["Sum"]);
 
                 Assert.AreEqual(1, telemetryCollector[1].Dimensions.Count);
                 Assert.IsTrue(telemetryCollector[1].Dimensions.ContainsKey("Bar"));
@@ -968,8 +968,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 Assert.AreEqual(1, telemetryCollector.Count);
                 Assert.IsNotNull(telemetryCollector[0]);
-                Assert.AreEqual(1, telemetryCollector[0].AggregateData["Count"]);
-                Assert.AreEqual(2.0, telemetryCollector[0].AggregateData["Sum"]);
+                Assert.AreEqual(1, telemetryCollector[0].Data["Count"]);
+                Assert.AreEqual(2.0, telemetryCollector[0].Data["Sum"]);
                 Assert.AreEqual("Foo", telemetryCollector[0].MetricId);
                 Assert.AreEqual(0, telemetryCollector[0].Dimensions.Count);
 
@@ -1045,8 +1045,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.IsNotNull(telemetryCollector[3]);
 
                 Assert.AreEqual("Foo", telemetryCollector[0].MetricId);
-                Assert.AreEqual(3, telemetryCollector[0].AggregateData["Count"]);
-                Assert.AreEqual(60.0, telemetryCollector[0].AggregateData["Sum"]);
+                Assert.AreEqual(3, telemetryCollector[0].Data["Count"]);
+                Assert.AreEqual(60.0, telemetryCollector[0].Data["Sum"]);
                 
                 Assert.AreEqual(2, telemetryCollector[0].Dimensions.Count);
                 Assert.IsTrue(telemetryCollector[0].Dimensions.ContainsKey("Bar"));
@@ -1054,8 +1054,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual("Dim2Value", telemetryCollector[0].Dimensions["Poo"]);
 
                 Assert.AreEqual("Foo", telemetryCollector[1].MetricId);
-                Assert.AreEqual(1, telemetryCollector[1].AggregateData["Count"]);
-                Assert.AreEqual(40.0, telemetryCollector[1].AggregateData["Sum"]);
+                Assert.AreEqual(1, telemetryCollector[1].Data["Count"]);
+                Assert.AreEqual(40.0, telemetryCollector[1].Data["Sum"]);
 
                 Assert.AreEqual(2, telemetryCollector[1].Dimensions.Count);
                 Assert.IsTrue(telemetryCollector[1].Dimensions.ContainsKey("Bar"));
@@ -1063,8 +1063,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual("Dim2ValueX", telemetryCollector[1].Dimensions["Poo"]);
 
                 Assert.AreEqual("Foo", telemetryCollector[2].MetricId);
-                Assert.AreEqual(1, telemetryCollector[2].AggregateData["Count"]);
-                Assert.AreEqual(50.0, telemetryCollector[2].AggregateData["Sum"]);
+                Assert.AreEqual(1, telemetryCollector[2].Data["Count"]);
+                Assert.AreEqual(50.0, telemetryCollector[2].Data["Sum"]);
 
                 Assert.AreEqual(2, telemetryCollector[2].Dimensions.Count);
                 Assert.IsTrue(telemetryCollector[2].Dimensions.ContainsKey("Bar"));
@@ -1072,8 +1072,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual("Dim2Value", telemetryCollector[2].Dimensions["Poo"]);
 
                 Assert.AreEqual("Foo", telemetryCollector[3].MetricId);
-                Assert.AreEqual(1, telemetryCollector[3].AggregateData["Count"]);
-                Assert.AreEqual(60.0, telemetryCollector[3].AggregateData["Sum"]);
+                Assert.AreEqual(1, telemetryCollector[3].Data["Count"]);
+                Assert.AreEqual(60.0, telemetryCollector[3].Data["Sum"]);
 
                 Assert.AreEqual(2, telemetryCollector[3].Dimensions.Count);
                 Assert.IsTrue(telemetryCollector[3].Dimensions.ContainsKey("Bar"));
@@ -1118,8 +1118,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.IsNotNull(telemetryCollector[0]);
 
                 Assert.AreEqual("Foo", telemetryCollector[0].MetricId);
-                Assert.AreEqual(3, telemetryCollector[0].AggregateData["Count"]);
-                Assert.AreEqual(-57.3, telemetryCollector[0].AggregateData["Sum"]);
+                Assert.AreEqual(3, telemetryCollector[0].Data["Count"]);
+                Assert.AreEqual(-57.3, telemetryCollector[0].Data["Sum"]);
 
                 Assert.AreEqual(0, telemetryCollector[0].Dimensions.Count);
             }
@@ -1144,8 +1144,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.IsNotNull(telemetryCollector[0]);
 
                 Assert.AreEqual("Foo", telemetryCollector[0].MetricId);
-                Assert.AreEqual(3, telemetryCollector[0].AggregateData["Count"]);
-                Assert.AreEqual(-57.3, telemetryCollector[0].AggregateData["Sum"]);
+                Assert.AreEqual(3, telemetryCollector[0].Data["Count"]);
+                Assert.AreEqual(-57.3, telemetryCollector[0].Data["Sum"]);
 
                 Assert.AreEqual(0, telemetryCollector[0].Dimensions.Count);
             }
@@ -1226,8 +1226,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                     MetricAggregate aggregate = telemetryCollector[i];
 
                     Assert.AreEqual("Foo", aggregate.MetricId);
-                    Assert.AreEqual(1, aggregate.AggregateData["Count"]);
-                    Assert.AreEqual(42.0, aggregate.AggregateData["Sum"]);
+                    Assert.AreEqual(1, aggregate.Data["Count"]);
+                    Assert.AreEqual(42.0, aggregate.Data["Sum"]);
 
                     if (0 == aggregate.Dimensions.Count)
                     {
@@ -1323,13 +1323,13 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                     if (! isC)
                     {
-                        Assert.AreEqual(1, aggregate.AggregateData["Count"]);
-                        Assert.AreEqual(42.0, aggregate.AggregateData["Sum"]);
+                        Assert.AreEqual(1, aggregate.Data["Count"]);
+                        Assert.AreEqual(42.0, aggregate.Data["Sum"]);
                     }
                     else
                     {
-                        Assert.AreEqual(2, aggregate.AggregateData["Count"]);
-                        Assert.AreEqual(84.0, aggregate.AggregateData["Sum"]);
+                        Assert.AreEqual(2, aggregate.Data["Count"]);
+                        Assert.AreEqual(84.0, aggregate.Data["Sum"]);
                     }
                 }
 

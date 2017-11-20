@@ -8,14 +8,6 @@ namespace Microsoft.ApplicationInsights.Metrics
 {
     internal sealed class GaugeAggregator : MetricSeriesAggregatorBase<double>
     {
-        private class Data
-        {
-            public bool HasValues;
-            public double Min;
-            public double Max;
-            public double Last;
-        }
-
         private static readonly Func<MetricValuesBufferBase<double>> MetricValuesBufferFactory = () => new MetricValuesBuffer_Double(capacity: 500);
 
         private readonly object _updateLock = new object();
@@ -77,9 +69,9 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                 DataSeries?.MetricId ?? Util.NullString,
                                                 MetricConfigurations.Common.AggregateKinds().Gauge().Moniker);
 
-            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().Gauge().DataKeys.Last] = last;
-            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().Gauge().DataKeys.Min] = min;
-            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().Gauge().DataKeys.Max] = max;
+            aggregate.Data[MetricConfigurations.Common.AggregateKinds().Gauge().DataKeys.Last] = last;
+            aggregate.Data[MetricConfigurations.Common.AggregateKinds().Gauge().DataKeys.Min] = min;
+            aggregate.Data[MetricConfigurations.Common.AggregateKinds().Gauge().DataKeys.Max] = max;
 
             AddInfo_Timing_Dimensions_Context(aggregate, periodEnd);
 
@@ -141,7 +133,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             // Take a lock and update the aggregate:
-            lock(_updateLock)
+            lock (_updateLock)
             {
                 _data.HasValues = true;
                 _data.Max = (bufferData.Max > _data.Max) ? bufferData.Max : _data.Max;
@@ -149,5 +141,15 @@ namespace Microsoft.ApplicationInsights.Metrics
                 _data.Last = bufferData.Last;
             }
         }
+
+#pragma warning disable SA1401 // Fields must be private
+        private class Data
+        {
+            public bool HasValues;
+            public double Min;
+            public double Max;
+            public double Last;
+        }
+#pragma warning restore SA1401 // Fields must be private
     }
 }

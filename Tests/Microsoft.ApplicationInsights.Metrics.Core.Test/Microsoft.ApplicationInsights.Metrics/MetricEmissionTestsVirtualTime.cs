@@ -108,13 +108,13 @@ namespace SomeCustomerNamespace
                     MetricAggregate aggregate = aggregates[0];
                     Assert.IsNotNull(aggregates);
 
-                    Assert.AreEqual(1.0, aggregate.AggregateData["Min"]);
-                    Assert.AreEqual(4.0, aggregate.AggregateData["Max"]);
-                    Assert.AreEqual(operationsCount, aggregate.AggregateData["Count"]);
+                    Assert.AreEqual(1.0, aggregate.Data["Min"]);
+                    Assert.AreEqual(4.0, aggregate.Data["Max"]);
+                    Assert.AreEqual(operationsCount, aggregate.Data["Count"]);
                     Assert.AreEqual("Item Add duration", aggregate.MetricId);
                     Assert.IsNotNull(aggregate.Dimensions);
                     Assert.AreEqual(0, aggregate.Dimensions.Count);
-                    Assert.AreEqual((double) intervalSecs, aggregate.AggregateData["Sum"]);
+                    Assert.AreEqual((double) intervalSecs, aggregate.Data["Sum"]);
                     Assert.AreEqual(experimentStart.AddSeconds(totalSecs - intervalSecs), aggregate.AggregationPeriodStart);
 
                     intervalSecs %= IntervalLengthSecs;
@@ -152,13 +152,13 @@ namespace SomeCustomerNamespace
                 MetricAggregate aggregate = aggregates[0];
                 Assert.IsNotNull(aggregates);
 
-                Assert.AreEqual(7.0, aggregate.AggregateData["Min"]);
-                Assert.AreEqual(9.0, aggregate.AggregateData["Max"]);
-                Assert.AreEqual(3, aggregate.AggregateData["Count"]);
+                Assert.AreEqual(7.0, aggregate.Data["Min"]);
+                Assert.AreEqual(9.0, aggregate.Data["Max"]);
+                Assert.AreEqual(3, aggregate.Data["Count"]);
                 Assert.AreEqual("Item Add duration", aggregate.MetricId);
                 Assert.IsNotNull(aggregate.Dimensions);
                 Assert.AreEqual(0, aggregate.Dimensions.Count);
-                Assert.AreEqual(24.0, aggregate.AggregateData["Sum"]);
+                Assert.AreEqual(24.0, aggregate.Data["Sum"]);
                 Assert.AreEqual(experimentStart.AddSeconds(totalSecs - 24), aggregate.AggregationPeriodStart);
             }
         }

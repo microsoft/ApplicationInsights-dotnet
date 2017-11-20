@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
-
 namespace Microsoft.ApplicationInsights.Metrics
 {
     internal class MetricsCache

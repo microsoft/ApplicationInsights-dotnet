@@ -2,9 +2,6 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Extensibility;
-
 namespace Microsoft.ApplicationInsights.Metrics.Extensions
 {
     internal static class Util
@@ -13,6 +10,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensions
         private const double MicroOne = 0.000001;
 
         private const string FallbackParemeterName = "specified parameter";
+
         /// <summary>
         /// Paramater check for Null with a little more informative exception.
         /// </summary>

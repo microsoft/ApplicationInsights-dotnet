@@ -10,6 +10,10 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// </summary>
     public class MetricSeriesConfigurationForGauge : IMetricSeriesConfiguration
     {
+        private readonly bool _alwaysResendLastValue;
+        private readonly bool _restrictToUInt32Values;
+        private readonly int _hashCode;
+
         static MetricSeriesConfigurationForGauge()
         {
             MetricAggregateToTelemetryPipelineConverters.Registry.Add(
@@ -17,10 +21,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                                     MetricConfigurations.Common.AggregateKinds().Gauge().Moniker,
                                                                     new GaugeAggregateToApplicationInsightsPipelineConverter());
         }
-
-        private readonly bool _alwaysResendLastValue;
-        private readonly bool _restrictToUInt32Values;
-        private readonly int _hashCode;
 
         /// <summary>
         /// 

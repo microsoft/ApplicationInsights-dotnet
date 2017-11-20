@@ -8,6 +8,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     public sealed class MetricAggregateKinds
     {
         internal static readonly MetricAggregateKinds Instance = new MetricAggregateKinds();
+
         private MetricAggregateKinds()
         {
         }
@@ -19,6 +20,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public sealed class Measurement
         {
             internal static readonly Measurement Instance = new Measurement();
+
             private Measurement()
             {
             }
@@ -33,6 +35,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             public sealed class DataKeysConstants
             {
                 internal static readonly DataKeysConstants Instance = new DataKeysConstants();
+
                 private DataKeysConstants()
                 {
                 }

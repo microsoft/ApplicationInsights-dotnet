@@ -91,15 +91,15 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(3, metricsCollector.Count);
 
                 Assert.AreEqual(1, metricsCollector.Where( (item) => item.MetricId.Equals("Measurement 1") ).Count());
-                Assert.AreEqual(3, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 1") )).AggregateData["Count"]);
-                Assert.AreEqual(3.0, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 1") )).AggregateData["Sum"]);
+                Assert.AreEqual(3, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 1") )).Data["Count"]);
+                Assert.AreEqual(3.0, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 1") )).Data["Sum"]);
 
                 Assert.AreEqual(1, metricsCollector.Where( (item) => item.MetricId.Equals("Measurement 2") ).Count());
-                Assert.AreEqual(3, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 2") )).AggregateData["Count"]);
-                Assert.AreEqual(-3.0, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 2") )).AggregateData["Sum"]);
+                Assert.AreEqual(3, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 2") )).Data["Count"]);
+                Assert.AreEqual(-3.0, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 2") )).Data["Sum"]);
 
                 Assert.AreEqual(1, metricsCollector.Where( (item) => item.MetricId.Equals("Accumulator 1") ).Count());
-                Assert.AreEqual(0.0, (metricsCollector.First( (item) => item.MetricId.Equals("Accumulator 1") )).AggregateData["Sum"]);
+                Assert.AreEqual(0.0, (metricsCollector.First( (item) => item.MetricId.Equals("Accumulator 1") )).Data["Sum"]);
 
                 metricsCollector.Clear();
                 Assert.AreEqual(0, metricsCollector.Count);
@@ -109,7 +109,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(1, metricsCollector.Count);
 
                 Assert.AreEqual(1, metricsCollector.Where( (item) => item.MetricId.Equals("Accumulator 1") ).Count());
-                Assert.AreEqual(0.0, (metricsCollector.First( (item) => item.MetricId.Equals("Accumulator 1") )).AggregateData["Sum"]);
+                Assert.AreEqual(0.0, (metricsCollector.First( (item) => item.MetricId.Equals("Accumulator 1") )).Data["Sum"]);
 
                 Util.CompleteDefaultAggregationCycle(manager);
             }

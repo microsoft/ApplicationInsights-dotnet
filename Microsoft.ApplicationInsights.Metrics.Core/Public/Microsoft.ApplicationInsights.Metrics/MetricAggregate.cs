@@ -30,7 +30,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             _aggregationPeriodDuration = default(TimeSpan);
 
             Dimensions = new ConcurrentDictionary<string, string>();
-            AggregateData = new ConcurrentDictionary<string, object>();
+            Data = new ConcurrentDictionary<string, object>();
         }
 
         /// <summary>
@@ -47,11 +47,12 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             get
             {
-                lock(_lock)
+                lock (_lock)
                 {
                     return _aggregationPeriodStart;
                 }
             }
+
             set
             {
                 lock (_lock)
@@ -72,6 +73,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                     return _aggregationPeriodDuration;
                 }
             }
+
             set
             {
                 lock (_lock)
@@ -88,20 +90,20 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         /// <summary>
         /// </summary>
-        public IDictionary<string, object> AggregateData { get; }
+        public IDictionary<string, object> Data { get; }
 
         /// <summary>
-        /// This is aconvenience method to retrieve the object at <c>AggregateData[dataKey]</c>.
+        /// This is aconvenience method to retrieve the object at <c>Data[dataKey]</c>.
         /// It attempts to convert that object to the specified type <c>T</c>. If the conversion fails, the specified <c>defaultValue</c> is returned.
         /// </summary>
-        /// <typeparam name="T">Type to which to convert the object at <c>AggregateData[dataKey]</c>.</typeparam>
+        /// <typeparam name="T">Type to which to convert the object at <c>Data[dataKey]</c>.</typeparam>
         /// <param name="dataKey">Key for the data item.</param>
         /// <param name="defaultValue">The value to return if conversion fails.</param>
         /// <returns></returns>
-        public T GetAggregateData<T>(string dataKey, T defaultValue)
+        public T GetDataValue<T>(string dataKey, T defaultValue)
         {
             object dataValue;
-            if (AggregateData.TryGetValue(dataKey, out dataValue))
+            if (Data.TryGetValue(dataKey, out dataValue))
             {
                 try
                 {

@@ -1,5 +1,4 @@
-﻿using Microsoft.ApplicationInsights.Metrics;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -80,6 +79,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 
         
         #region class Enumerator 
+
         /// <summary>
         /// </summary>
         public class Enumerator : IEnumerator<T>

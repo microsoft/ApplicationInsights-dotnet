@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 
 using Microsoft.ApplicationInsights.Metrics;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
@@ -72,7 +71,6 @@ namespace Microsoft.ApplicationInsights
                                 dimension1Name: null,
                                 dimension2Name: null,
                                 metricConfiguration: metricConfiguration);
-            
         }
 
         /// <summary>
@@ -106,7 +104,6 @@ namespace Microsoft.ApplicationInsights
                                 dimension1Name: null,
                                 dimension2Name: null,
                                 metricConfiguration: metricConfiguration);
-
         }
 
         /// <summary>
@@ -124,6 +121,7 @@ namespace Microsoft.ApplicationInsights
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
+        /// <returns></returns>
         public static Metric GetMetric(
                                     this TelemetryClient telemetryClient,
                                     string metricId,
@@ -231,6 +229,7 @@ namespace Microsoft.ApplicationInsights
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
+        /// <returns></returns>
         public static Metric GetMetric(
                                     this TelemetryClient telemetryClient,
                                     string metricId,
@@ -351,6 +350,5 @@ namespace Microsoft.ApplicationInsights
             Metric metric = cache.GetOrCreateMetric(metricId, dimension1Name, dimension2Name, metricConfiguration);
             return metric;
         }
-
     }
 }

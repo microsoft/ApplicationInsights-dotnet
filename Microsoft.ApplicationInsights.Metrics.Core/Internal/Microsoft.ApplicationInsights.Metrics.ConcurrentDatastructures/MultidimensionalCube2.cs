@@ -1,5 +1,4 @@
-﻿using Microsoft.ApplicationInsights.Metrics;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 {
-    /// <summary>
-    /// </summary>
+    /// <summary />
+    /// <typeparam name="TPoint"></typeparam>
     internal class MultidimensionalCube2<TPoint>
     {
         /// <summary>
@@ -136,6 +135,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 
         /// <summary>
         /// </summary>
+        /// <param name="pointContainer"></param>
         /// <returns></returns>
         public int GetAllPoints(ICollection<KeyValuePair<string[], TPoint>> pointContainer)
         {
@@ -254,8 +254,48 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             }
         }
 
+        private static string[] ParsePointMoniker(string pointMoniker)
+        {
+            string[] coordinates = pointMoniker.Split(PointMonikerSeparatorAsArray, StringSplitOptions.None);
+            return coordinates;
+        }
+
+        private static string BuildPointMoniker(string[] coordinates)
+        {
+            if (coordinates.Length == 0)
+            {
+                return String.Empty;
+            }
+
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < coordinates.Length; i++)
+            {
+                if (coordinates[i] == null)
+                {
+                    throw new ArgumentNullException($"{nameof(coordinates)}[{i}]", $"The specified {nameof(coordinates)}-vector contains null at index {i}.");
+                }
+
+                if (coordinates[i].Contains(PointMonikerSeparator))
+                {
+                    throw new ArgumentException($"The value at index {i} of the specified {nameof(coordinates)}-vector contains"
+                                              + $" an invalid character sub-sequence. Complete coordinate value: \"{coordinates[i]}\"."
+                                              + $" Invalid sub-sequence: \"{PointMonikerSeparator}\".");
+                }
+
+                if (i > 0)
+                {
+                    builder.Append(PointMonikerSeparator);
+                }
+
+                builder.Append(coordinates[i]);
+            }
+
+            return builder.ToString();
+        }
+
         private MultidimensionalPointResult<TPoint> TryCreatePoint(string[] coordinates, string pointMoniker)
         {
+#pragma warning disable SA1509 // Opening braces must not be preceded by blank line
             // We already have tried getting the existng point and failed.
             // We also checked that _totalPointsCountLimit was not reached.
             // Lastly, we took a lock.
@@ -350,6 +390,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
                 var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_NewPointCreated, point);
                 return result;
             }
+#pragma warning restore SA1509 // Opening braces must not be preceded by blank line
         }
 
         private void ValidateDimensionIndex(int dimension)
@@ -379,45 +420,5 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 
             return BuildPointMoniker(coordinates);
         }
-
-        private static string[] ParsePointMoniker(string pointMoniker)
-        {
-            string[] coordinates = pointMoniker.Split(PointMonikerSeparatorAsArray, StringSplitOptions.None);
-            return coordinates;
-        }
-
-        private static string BuildPointMoniker(string[] coordinates)
-        {
-            if (coordinates.Length == 0)
-            {
-                return String.Empty;
-            }
-
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < coordinates.Length; i++)
-            {
-                if (coordinates[i] == null)
-                {
-                    throw new ArgumentNullException($"{nameof(coordinates)}[{i}]", $"The specified {nameof(coordinates)}-vector contains null at index {i}.");
-                }
-
-                if (coordinates[i].Contains(PointMonikerSeparator))
-                {
-                    throw new ArgumentException($"The value at index {i} of the specified {nameof(coordinates)}-vector contains"
-                                              + $" an invalid character sub-sequence. Complete coordinate value: \"{coordinates[i]}\"."
-                                              + $" Invalid sub-sequence: \"{PointMonikerSeparator}\".");
-                }
-
-                if (i > 0)
-                {
-                    builder.Append(PointMonikerSeparator);
-                }
-
-                builder.Append(coordinates[i]);
-            }
-
-            return builder.ToString();
-        }
-
     }
 }

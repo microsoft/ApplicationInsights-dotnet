@@ -1,21 +1,12 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using System.Threading;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
     internal sealed class MeasurementAggregator : MetricSeriesAggregatorBase<double>
     {
-        private class Data
-        {
-            public int Count;
-            public double Min;
-            public double Max;
-            public double Sum;
-            public double SumOfSquares;
-        }
-
         private static readonly Func<MetricValuesBufferBase<double>> MetricValuesBufferFactory = () => new MetricValuesBuffer_Double(capacity: 500);
 
         private readonly object _updateLock = new object();
@@ -103,11 +94,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                 DataSeries?.MetricId ?? Util.NullString,
                                                 MetricConfigurations.Common.AggregateKinds().Measurement().Moniker);
 
-            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Count] = count;
-            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Sum] = sum;
-            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Min] = min;
-            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Max] = max;
-            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.StdDev] = stdDev;
+            aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Count] = count;
+            aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Sum] = sum;
+            aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Min] = min;
+            aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Max] = max;
+            aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.StdDev] = stdDev;
 
             AddInfo_Timing_Dimensions_Context(aggregate, periodEnd);
 
@@ -126,6 +117,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062", Justification = "buffer is validated by base")]
         protected override object UpdateAggregate_Stage1(MetricValuesBufferBase<double> buffer, int minFlushIndex, int maxFlushIndex)
         {
             Data bufferData = new Data();
@@ -185,5 +177,16 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
             }
         }
+
+#pragma warning disable SA1401 // Field must be private
+        private class Data
+        {
+            public int Count;
+            public double Min;
+            public double Max;
+            public double Sum;
+            public double SumOfSquares;
+        }
+#pragma warning restore SA1401 // Field must be private
     }
 }

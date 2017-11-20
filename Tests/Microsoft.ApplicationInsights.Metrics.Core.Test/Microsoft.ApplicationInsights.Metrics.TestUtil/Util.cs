@@ -192,44 +192,44 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtil
 
             if (aggregate.AggregationKindMoniker.Equals(MetricConfigurations.Common.AggregateKinds().Measurement().Moniker))
             {
-                Assert.AreEqual(count, aggregate.AggregateData["Count"], "aggregate.Count mismatch");
-                Assert.AreEqual(sum, (double) aggregate.AggregateData["Sum"], Util.MaxAllowedPrecisionError, "aggregate.Sum mismatch");
-                Assert.AreEqual(max, (double) aggregate.AggregateData["Max"], Util.MaxAllowedPrecisionError, "aggregate.Max mismatch");
-                Assert.AreEqual(min, (double) aggregate.AggregateData["Min"], Util.MaxAllowedPrecisionError, "aggregate.Min mismatch");
+                Assert.AreEqual(count, aggregate.Data["Count"], "aggregate.Count mismatch");
+                Assert.AreEqual(sum, (double) aggregate.Data["Sum"], Util.MaxAllowedPrecisionError, "aggregate.Sum mismatch");
+                Assert.AreEqual(max, (double) aggregate.Data["Max"], Util.MaxAllowedPrecisionError, "aggregate.Max mismatch");
+                Assert.AreEqual(min, (double) aggregate.Data["Min"], Util.MaxAllowedPrecisionError, "aggregate.Min mismatch");
 
                 // For very large numbers we perform an approx comparison.
                 if (Math.Abs(stdDev) > Int64.MaxValue)
                 {
                     double expectedStdDevScale = Math.Floor(Math.Log10(Math.Abs(stdDev)));
-                    double actualStdDevScale = Math.Floor(Math.Log10(Math.Abs((double) aggregate.AggregateData["StdDev"])));
+                    double actualStdDevScale = Math.Floor(Math.Log10(Math.Abs((double) aggregate.Data["StdDev"])));
                     Assert.AreEqual(expectedStdDevScale, actualStdDevScale, "aggregate.StandardDeviation (exponent) mismatch");
                     Assert.AreEqual(
                                 stdDev / Math.Pow(10, expectedStdDevScale),
-                                ((double) aggregate.AggregateData["StdDev"]) / Math.Pow(10, actualStdDevScale),
+                                ((double) aggregate.Data["StdDev"]) / Math.Pow(10, actualStdDevScale),
                                 Util.MaxAllowedPrecisionError,
                                 "aggregate.StandardDeviation (significant part) mismatch");
                 }
                 else
                 {
-                    Assert.AreEqual(stdDev, (double) aggregate.AggregateData["StdDev"], Util.MaxAllowedPrecisionError, "aggregate.StandardDeviation mismatch");
+                    Assert.AreEqual(stdDev, (double) aggregate.Data["StdDev"], Util.MaxAllowedPrecisionError, "aggregate.StandardDeviation mismatch");
                 }
             }
             else if (aggregate.AggregationKindMoniker.Equals(MetricConfigurations.Common.AggregateKinds().Accumulator().Moniker))
             {
-                Assert.AreEqual(sum, (double) aggregate.AggregateData["Sum"], Util.MaxAllowedPrecisionError, "aggregate.Sum mismatch");
-                Assert.AreEqual(max, (double) aggregate.AggregateData["Max"], Util.MaxAllowedPrecisionError, "aggregate.Max mismatch");
-                Assert.AreEqual(min, (double) aggregate.AggregateData["Min"], Util.MaxAllowedPrecisionError, "aggregate.Min mismatch");
+                Assert.AreEqual(sum, (double) aggregate.Data["Sum"], Util.MaxAllowedPrecisionError, "aggregate.Sum mismatch");
+                Assert.AreEqual(max, (double) aggregate.Data["Max"], Util.MaxAllowedPrecisionError, "aggregate.Max mismatch");
+                Assert.AreEqual(min, (double) aggregate.Data["Min"], Util.MaxAllowedPrecisionError, "aggregate.Min mismatch");
             }
             else if (aggregate.AggregationKindMoniker.Equals(MetricConfigurations.Common.AggregateKinds().NaiveDistinctCount().Moniker))
             {
-                Assert.AreEqual(sum, (int) aggregate.AggregateData["DistinctCount"], Util.MaxAllowedPrecisionError, "aggregate.DistinctCount (Sum) mismatch");
-                Assert.AreEqual(count, (int) aggregate.AggregateData["TotalCount"], Util.MaxAllowedPrecisionError, "aggregate.TotalCount (Count) mismatch");
+                Assert.AreEqual(sum, (int) aggregate.Data["DistinctCount"], Util.MaxAllowedPrecisionError, "aggregate.DistinctCount (Sum) mismatch");
+                Assert.AreEqual(count, (int) aggregate.Data["TotalCount"], Util.MaxAllowedPrecisionError, "aggregate.TotalCount (Count) mismatch");
             }
             else if (aggregate.AggregationKindMoniker.Equals(MetricConfigurations.Common.AggregateKinds().Gauge().Moniker))
             {
-                Assert.AreEqual(sum, (double) aggregate.AggregateData["Last"], Util.MaxAllowedPrecisionError, "aggregate.Last mismatch");
-                Assert.AreEqual(max, (double) aggregate.AggregateData["Max"], Util.MaxAllowedPrecisionError, "aggregate.Max mismatch");
-                Assert.AreEqual(min, (double) aggregate.AggregateData["Min"], Util.MaxAllowedPrecisionError, "aggregate.Min mismatch");
+                Assert.AreEqual(sum, (double) aggregate.Data["Last"], Util.MaxAllowedPrecisionError, "aggregate.Last mismatch");
+                Assert.AreEqual(max, (double) aggregate.Data["Max"], Util.MaxAllowedPrecisionError, "aggregate.Max mismatch");
+                Assert.AreEqual(min, (double) aggregate.Data["Min"], Util.MaxAllowedPrecisionError, "aggregate.Min mismatch");
             }
             else
             {

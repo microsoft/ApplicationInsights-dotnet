@@ -29,14 +29,11 @@ namespace Microsoft.ApplicationInsights
         /// Size and number of server requests per time period; Duration and rate of database calls per time period;
         /// Number of sale events and number of items sold per sale event over a time period, etc.</para>
         /// </summary>
+        /// <param name="metricConfigPresets"></param>
+        /// <returns></returns>
         public static IMetricConfiguration Measurement(this MetricConfigurations metricConfigPresets)
         {
             return s_defaultConfigForMeasurement;
-        }
-
-        internal static IMetricConfiguration Default(this MetricConfigurations metricConfigPresets)
-        {
-            return metricConfigPresets.Measurement();
         }
 
         /// <summary>
@@ -49,10 +46,21 @@ namespace Microsoft.ApplicationInsights
                                                 SimpleMetricConfiguration defaultConfigurationForMeasurement)
         {
             Util.ValidateNotNull(defaultConfigurationForMeasurement, nameof(defaultConfigurationForMeasurement));
-
-            // todo validate type of series config to be measurement.
+            Util.ValidateNotNull(defaultConfigurationForMeasurement.SeriesConfig, nameof(defaultConfigurationForMeasurement) + "." + nameof(defaultConfigurationForMeasurement.SeriesConfig));
+            
+            if (false == (defaultConfigurationForMeasurement.SeriesConfig is MetricSeriesConfigurationForMeasurement))
+            {
+                throw new ArgumentException($"{nameof(defaultConfigurationForMeasurement) + "." + nameof(defaultConfigurationForMeasurement.SeriesConfig)}"
+                                          + $" must be a \"{nameof(MetricSeriesConfigurationForMeasurement)}\", but it is"
+                                          + $" \"{defaultConfigurationForMeasurement.SeriesConfig.GetType().Name}\".");
+            }
 
             s_defaultConfigForMeasurement = defaultConfigurationForMeasurement;
+        }
+
+        internal static IMetricConfiguration Default(this MetricConfigurations metricConfigPresets)
+        {
+            return metricConfigPresets.Measurement();
         }
     }
 }

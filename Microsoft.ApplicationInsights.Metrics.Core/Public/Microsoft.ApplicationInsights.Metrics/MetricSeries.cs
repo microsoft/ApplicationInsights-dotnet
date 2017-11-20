@@ -20,6 +20,10 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// </summary>
     public sealed class MetricSeries
     {
+#pragma warning disable SA1401 // Field must be private
+        internal readonly IMetricSeriesConfiguration _configuration;
+#pragma warning restore SA1401 // Field must be private
+
         private readonly MetricAggregationManager _aggregationManager;
         private readonly bool _requiresPersistentAggregator;
         private readonly string _metricId;
@@ -33,8 +37,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         private IMetricSeriesAggregator _aggregatorRecycleCacheDefault;
         private IMetricSeriesAggregator _aggregatorRecycleCacheQuickPulse;
         private IMetricSeriesAggregator _aggregatorRecycleCacheCustom;
-
-        internal readonly IMetricSeriesConfiguration _configuration;
 
         internal MetricSeries(
                             MetricAggregationManager aggregationManager,
@@ -55,7 +57,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             if (dimensionNamesAndValues != null)
             {
                 int dimIndex = 0;
-                foreach(KeyValuePair<string, string> dimNameVal in dimensionNamesAndValues)
+                foreach (KeyValuePair<string, string> dimNameVal in dimensionNamesAndValues)
                 {
                     if (dimNameVal.Key == null)
                     {
@@ -81,6 +83,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                     dimIndex++;
                 }
             }
+
             _dimensionNamesAndValues = dimNameVals;
 
             _aggregatorPersistent = null;

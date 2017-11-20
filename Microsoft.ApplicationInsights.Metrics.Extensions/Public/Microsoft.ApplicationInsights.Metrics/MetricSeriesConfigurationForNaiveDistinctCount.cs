@@ -28,6 +28,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             Justification = "Needed for internal verification.")]
     public class MetricSeriesConfigurationForNaiveDistinctCount : IMetricSeriesConfiguration
     {
+        private readonly bool _usePersistentAggregation;
+        private readonly bool _caseSensitive;
+        private readonly int _hashCode;
+
         static MetricSeriesConfigurationForNaiveDistinctCount()
         {
             MetricAggregateToTelemetryPipelineConverters.Registry.Add(
@@ -35,10 +39,6 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                                     MetricConfigurations.Common.AggregateKinds().NaiveDistinctCount().Moniker,
                                                                     new NaiveDistinctCountAggregateToApplicationInsightsPipelineConverter());
         }
-
-        private readonly bool _usePersistentAggregation;
-        private readonly bool _caseSensitive;
-        private readonly int _hashCode;
 
         /// <summary>
         /// </summary>

@@ -2,7 +2,6 @@
 
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
-
 namespace Microsoft.ApplicationInsights.Metrics
 {
     /// <summary>

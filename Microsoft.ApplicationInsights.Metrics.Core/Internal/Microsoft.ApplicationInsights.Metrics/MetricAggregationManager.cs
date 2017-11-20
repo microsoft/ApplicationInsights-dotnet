@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures;
+using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
 

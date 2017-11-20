@@ -20,8 +20,9 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             if (seriesCountLimit < 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(seriesCountLimit),
-                                                     $"Metrics must allow at least one data series (but {seriesCountLimit} was specified).");
+                throw new ArgumentOutOfRangeException(
+                                                    nameof(seriesCountLimit),
+                                                    $"Metrics must allow at least one data series (but {seriesCountLimit} was specified).");
             }
 
             if (valuesPerDimensionLimit < 0)

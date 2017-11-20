@@ -7,13 +7,14 @@ namespace Microsoft.ApplicationInsights
     /// </summary>
     public sealed class MetricConfigurations
     {
-        private MetricConfigurations()
-        {
-        }
-        
         /// <summary>
         /// Groups extension methods that return pre-defined metric configurations and related constants.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104", Justification = "Singelton is intended.")]
         public static readonly MetricConfigurations Common = new MetricConfigurations();
+
+        private MetricConfigurations()
+        {
+        }
     }
 }

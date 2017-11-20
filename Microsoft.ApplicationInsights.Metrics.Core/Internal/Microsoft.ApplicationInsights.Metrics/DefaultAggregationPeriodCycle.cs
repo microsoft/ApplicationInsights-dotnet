@@ -98,28 +98,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        /// <summary>
-        /// We use exactly one background thread for completing aggregators - either once per minute or once per second.
-        /// We start this thread right when this manager is created to avoid that potential thread starvation on busy systems affects metrics.
-        /// </summary>
-        private void Run()
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming Rules", "SA1310: C# Field must not contain an underscore", Justification = "By design: Structured name.")]
+        internal static DateTimeOffset GetNextCycleTargetTime_UnitTestAccessor(DateTimeOffset periodStart)
         {
-            while (true)
-            {
-                DateTimeOffset now = DateTimeOffset.Now;
-                TimeSpan waitPeriod = GetNextCycleTargetTime(now) - now;
-
-                //Thread.Sleep(waitPeriod);
-                Task.Delay(waitPeriod).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
-
-                int shouldBeRunning = Volatile.Read(ref _runningState);
-                if (shouldBeRunning != RunningState_Running)
-                {
-                    return;
-                }
-
-                FetchAndTrackMetrics();
-            }
+            return GetNextCycleTargetTime(periodStart);
         }
 
         private static DateTimeOffset GetNextCycleTargetTime(DateTimeOffset periodStart)
@@ -147,10 +129,28 @@ namespace Microsoft.ApplicationInsights.Metrics
             return target;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming Rules", "SA1310: C# Field must not contain an underscore", Justification = "By design: Structured name.")]
-        internal static DateTimeOffset GetNextCycleTargetTime_UnitTestAccessor(DateTimeOffset periodStart)
+        /// <summary>
+        /// We use exactly one background thread for completing aggregators - either once per minute or once per second.
+        /// We start this thread right when this manager is created to avoid that potential thread starvation on busy systems affects metrics.
+        /// </summary>
+        private void Run()
         {
-            return GetNextCycleTargetTime(periodStart);
+            while (true)
+            {
+                DateTimeOffset now = DateTimeOffset.Now;
+                TimeSpan waitPeriod = GetNextCycleTargetTime(now) - now;
+
+                //Thread.Sleep(waitPeriod);
+                Task.Delay(waitPeriod).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
+
+                int shouldBeRunning = Volatile.Read(ref _runningState);
+                if (shouldBeRunning != RunningState_Running)
+                {
+                    return;
+                }
+
+                FetchAndTrackMetrics();
+            }
         }
     }
 }

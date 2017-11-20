@@ -5,16 +5,21 @@ using System.Threading.Tasks;
 
 namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
+#pragma warning disable SA1649 // File name must match first type name
+#pragma warning disable SA1402 // File may only contain a single class
+
     /// <summary />
     /// <typeparam name="TValue"></typeparam>
     public abstract class MetricValuesBufferBase<TValue>
     {
+        private readonly TValue[] _values;
+
         private int _lastWriteIndex = -1;
         private volatile int _nextFlushIndex = 0;
 
-        private readonly TValue[] _values;
-
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="capacity"></param>
         public MetricValuesBufferBase(int capacity)
         {
             if (capacity < 1)
@@ -26,49 +31,44 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             ResetValues(_values);
         }
 
-        /// <summary />
-        protected abstract void ResetValues(TValue[] values);
-
-        /// <summary />
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected abstract TValue GetAndResetValueOnce(TValue[] values, int index);
-
-        /// <summary />
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected abstract void WriteValueOnce(TValue[] values, int index, TValue value);
-
-        /// <summary />
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected abstract bool IsInvalidValue(TValue value);
-
-        /// <summary />
-        public int Capacity {
+        /// <summary>
+        /// </summary>
+        public int Capacity
+        {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return _values.Length; }
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
         public int NextFlushIndex
         {
             get { return _nextFlushIndex; }
             set { _nextFlushIndex = value; }
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int IncWriteIndex()
         {
             return Interlocked.Increment(ref _lastWriteIndex);
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int PeekLastWriteIndex()
         {
             return Volatile.Read(ref _lastWriteIndex);
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteValue(int index, TValue value)
         {
@@ -90,14 +90,20 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             ResetIndices();
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public TValue GetAndResetValue(int index)
         {
             TValue value = GetAndResetValueOnce(_values, index);
 
             if (IsInvalidValue(value))
             {
+#pragma warning disable SA1129 // Do not use default value type constructor
                 var spinWait = new SpinWait();
+#pragma warning restore SA1129 // Do not use default value type constructor
+
                 value = GetAndResetValueOnce(_values, index);
                 while (IsInvalidValue(value))
                 {
@@ -116,38 +122,81 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
             return value;
         }
+
+        /// <summary />
+        /// <param name="values">.</param>
+        protected abstract void ResetValues(TValue[] values);
+
+        /// <summary />
+        /// <param name="values"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected abstract TValue GetAndResetValueOnce(TValue[] values, int index);
+
+        /// <summary />
+        /// <param name="values"></param>
+        /// <param name="index"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected abstract void WriteValueOnce(TValue[] values, int index, TValue value);
+
+        /// <summary>
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected abstract bool IsInvalidValue(TValue value);
     }
 
-    /// <summary />
+    /// <summary>
+    /// </summary>
     public sealed class MetricValuesBuffer_Double : MetricValuesBufferBase<double>
     {
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="capacity"></param>
         public MetricValuesBuffer_Double(int capacity)
             : base(capacity)
         {
         }
 
         /// <summary />
+        /// <param name="value"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override bool IsInvalidValue(double value)
         {
             return Double.IsNaN(value);
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="values"></param>
         protected override void ResetValues(double[] values)
         {
-            for (int i = 0; i < values.Length; Interlocked.Exchange(ref values[i++], Double.NaN)) ;
+            for (int i = 0; i < values.Length; Interlocked.Exchange(ref values[i++], Double.NaN))
+            {
+                ;
+            }
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="values"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override double GetAndResetValueOnce(double[] values, int index)
         {
             return Interlocked.Exchange(ref values[index], Double.NaN);
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="values"></param>
+        /// <param name="index"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void WriteValueOnce(double[] values, int index, double value)
         {
@@ -158,37 +207,57 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
     /// <summary />
     public sealed class MetricValuesBuffer_Object : MetricValuesBufferBase<object>
     {
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="capacity"></param>
         public MetricValuesBuffer_Object(int capacity)
             : base(capacity)
         {
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override bool IsInvalidValue(object value)
         {
             return (value == null);
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="values"></param>
         protected override void ResetValues(object[] values)
         {
-            for (int i = 0; i < values.Length; Interlocked.Exchange(ref values[i++], null)) ;
+            for (int i = 0; i < values.Length; Interlocked.Exchange(ref values[i++], null))
+            {
+                ;
+            }
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="values"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override object GetAndResetValueOnce(object[] values, int index)
         {
             return Interlocked.Exchange(ref values[index], null);
         }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
+        /// <param name="values"></param>
+        /// <param name="index"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void WriteValueOnce(object[] values, int index, object value)
         {
             Interlocked.Exchange(ref values[index], value);
         }
     }
+#pragma warning restore SA1402 // File may only contain a single class
+#pragma warning restore SA1649 // File name must match first type name
 }

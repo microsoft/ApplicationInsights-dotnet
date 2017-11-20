@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Microsoft.ApplicationInsights.Metrics;
 
 namespace Microsoft.ApplicationInsights
@@ -16,12 +17,13 @@ namespace Microsoft.ApplicationInsights
         /// </summary>
         public static class TelemetryContext
         {
+#pragma warning disable SA1202 // Elements must be ordered by access
+            /// <summary></summary>
+            public const string InstrumentationKey = TelemetryContextPrefix + "InstrumentationKey";
+
             private const string TelemetryContextPrefix = "TelemetryContext.";
             private const string PropertyPrefix = TelemetryContextPrefix + "Property_";
             private const string PropertyPostfix = "_";
-
-            /// <summary></summary>
-            public const string InstrumentationKey = TelemetryContextPrefix + "InstrumentationKey";
 
             /// <summary>
             /// </summary>
@@ -47,12 +49,12 @@ namespace Microsoft.ApplicationInsights
                     return false;
                 }
 
-                if (false == dimensionName.StartsWith(PropertyPrefix))
+                if (false == dimensionName.StartsWith(PropertyPrefix, StringComparison.Ordinal))
                 {
                     return false;
                 }
 
-                if (false == dimensionName.EndsWith(PropertyPostfix))
+                if (false == dimensionName.EndsWith(PropertyPostfix, StringComparison.Ordinal))
                 {
                     return false;
                 }
@@ -173,6 +175,7 @@ namespace Microsoft.ApplicationInsights
                 /// <summary></summary>
                 public const string UserAgent = UserPrefix + "UserAgent";
             }
+#pragma warning restore SA1202 // Elements must be ordered by access
         }
     }
 }

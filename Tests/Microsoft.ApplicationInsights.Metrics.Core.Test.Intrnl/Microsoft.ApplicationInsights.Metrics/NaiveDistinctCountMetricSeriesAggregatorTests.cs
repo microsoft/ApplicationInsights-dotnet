@@ -341,8 +341,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.IsNotNull(aggregate);
 
             Assert.AreEqual("Distinct Cows Sold", aggregate.MetricId, "aggregate.MetricId mismatch");
-            Assert.AreEqual(3, aggregate.AggregateData["TotalCount"], "aggregate.AggregateData[TotalCount] mismatch");
-            Assert.AreEqual(2, aggregate.AggregateData["DistinctCount"], "aggregate.AggregateData[DistinctCount] mismatch");
+            Assert.AreEqual(3, aggregate.Data["TotalCount"], "aggregate.Data[TotalCount] mismatch");
+            Assert.AreEqual(2, aggregate.Data["DistinctCount"], "aggregate.Data[DistinctCount] mismatch");
 
             Assert.AreEqual(startTS, aggregate.AggregationPeriodStart, "metricAggregate.Timestamp mismatch");
             Assert.AreEqual(

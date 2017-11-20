@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using System.Runtime.CompilerServices;
 
 using Util = Microsoft.ApplicationInsights.Metrics.Extensions.Util;
 
@@ -84,8 +84,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                 DataSeries?.MetricId ?? Util.NullString,
                                                 MetricConfigurations.Common.AggregateKinds().NaiveDistinctCount().Moniker);
 
-            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().NaiveDistinctCount().DataKeys.TotalCount] = totalValuesCount;
-            aggregate.AggregateData[MetricConfigurations.Common.AggregateKinds().NaiveDistinctCount().DataKeys.DistinctCount] = uniqueValuesCount;
+            aggregate.Data[MetricConfigurations.Common.AggregateKinds().NaiveDistinctCount().DataKeys.TotalCount] = totalValuesCount;
+            aggregate.Data[MetricConfigurations.Common.AggregateKinds().NaiveDistinctCount().DataKeys.DistinctCount] = uniqueValuesCount;
 
             AddInfo_Timing_Dimensions_Context(aggregate, periodEnd);
 
