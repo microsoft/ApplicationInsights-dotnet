@@ -7,5 +7,5 @@ For significant contributions please make sure you have completed the following 
 
 - [ ] Design discussion issue #
 - [ ] Changes in public surface reviewed
-- [ ] CHANGELOG.md updated
-- [ ] The PR will trigger build and runs unit tests automatically. If your PR was submitted from fork - mention one of committers to initiate the build for you.
+- [ ] CHANGELOG.md updated with one line description of the fix, and a link to the original issue.
+- [ ] The PR will trigger build, unit test, and functional tests automatically. If your PR was submitted from fork - mention one of committers to initiate the build for you.

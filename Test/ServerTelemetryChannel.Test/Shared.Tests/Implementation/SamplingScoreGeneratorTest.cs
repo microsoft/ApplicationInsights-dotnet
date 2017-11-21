@@ -15,22 +15,30 @@
         private static readonly Random Rand = new Random();
 
         [TestMethod]
-        public void SamplingScoreGeneratedUsingUserIdIfPresent()
+        public void SamplingScoreIsntChangedByUserId()
         {
-            string userId = GenerateRandomUserId();
+            string opId = GenerateRandomOperaitonId();
 
             var eventTelemetry = new EventTelemetry();
-            eventTelemetry.Context.User.Id = userId;
-            eventTelemetry.Context.Operation.Id = GenerateRandomOperaitonId();
+            eventTelemetry.Context.Operation.Id = opId;
+            eventTelemetry.Context.User.Id = GenerateRandomUserId();
 
             var requestTelemetry = new RequestTelemetry();
-            requestTelemetry.Context.User.Id = userId;
-            requestTelemetry.Context.Operation.Id = GenerateRandomOperaitonId();
+            requestTelemetry.Context.Operation.Id = opId;
+            requestTelemetry.Context.User.Id = GenerateRandomUserId();
 
-            var eventTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(eventTelemetry);
-            var requestTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(requestTelemetry);
+            var eventTelemetrySamplingScoreNoUserId = SamplingScoreGenerator.GetSamplingScore(eventTelemetry);
+            var requestTelemetrySamplingScoreNoUserId = SamplingScoreGenerator.GetSamplingScore(requestTelemetry);
 
-            Assert.AreEqual(eventTelemetrySamplingScore, requestTelemetrySamplingScore, 12);
+            Assert.AreEqual(eventTelemetrySamplingScoreNoUserId, requestTelemetrySamplingScoreNoUserId, 12);
+
+            eventTelemetry.Context.User.Id = string.Empty;
+            requestTelemetry.Context.User.Id = string.Empty;
+            var eventTelemetrySamplingScoreWithUserId = SamplingScoreGenerator.GetSamplingScore(eventTelemetry);
+            var requestTelemetrySamplingScoreWithUserId = SamplingScoreGenerator.GetSamplingScore(requestTelemetry);
+
+            Assert.AreEqual(eventTelemetrySamplingScoreNoUserId, eventTelemetrySamplingScoreWithUserId);
+            Assert.AreEqual(requestTelemetrySamplingScoreNoUserId, requestTelemetrySamplingScoreWithUserId);
         }
 
         [TestMethod]
