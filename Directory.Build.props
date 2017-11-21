@@ -69,8 +69,6 @@
         
         <PackagesDir>$(EnlistmentRoot)\..\packages</PackagesDir>
         <PackagesDir>$([System.IO.Path]::GetFullPath( $(PackagesDir) ))</PackagesDir>
-        
-        <CoreSdkVersion>2.5.0-beta1</CoreSdkVersion>                
     </PropertyGroup>
    
     <PropertyGroup>

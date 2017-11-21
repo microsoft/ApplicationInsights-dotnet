@@ -12,11 +12,19 @@
 
     <TargetFrameworks>net45</TargetFrameworks>
 
-    <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <RootNamespace>Microsoft.ApplicationInsights.NLogTarget</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.NLogTarget</AssemblyName>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <IncludeSymbols>True</IncludeSymbols>
+    <PackageId>Microsoft.ApplicationInsights.NLogTarget</PackageId>
+    <Title>Application Insights NLog Target</Title>
+    <Description>Application Insights NLog Target is a custom target allowing you to send NLog log messages to Application Insights. Application Insights will collect your logs from multiple sources and provide rich powerful search capabilities. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <PackageTags>$(PackageTags) Log4Net</PackageTags>
+  </PropertyGroup>
+
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
   <ItemGroup>
@@ -34,6 +42,13 @@
     </PackageReference>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.0-beta1" />
     <PackageReference Include="NLog" Version="4.3.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="app.config.install.xdt" />
+    <Content Include="app.config.uninstall.xdt" />
+    <Content Include="web.config.install.xdt" />
+    <Content Include="web.config.uninstall.xdt" />
   </ItemGroup>
 
   <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />

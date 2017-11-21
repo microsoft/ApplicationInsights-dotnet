@@ -12,11 +12,19 @@
 
     <TargetFrameworks>net45</TargetFrameworks>
 
-    <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <RootNamespace>Microsoft.ApplicationInsights.Log4NetAppender</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.Log4NetAppender</AssemblyName>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <IncludeSymbols>True</IncludeSymbols>
+    <PackageId>Microsoft.ApplicationInsights.Log4NetAppender</PackageId>
+    <Title>Application Insights Log4Net Appender</Title>
+    <Description>Application Insights Log4Net Appender is a customer appender allowing you to send Log4Net log messages to Application Insights. Application Insights will collect your logs from multiple sources and provide rich powerful search capabilities. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <PackageTags>$(PackageTags) Log4Net</PackageTags>
+  </PropertyGroup>
+
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
   <ItemGroup>
@@ -34,6 +42,13 @@
     </PackageReference>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.0-beta1" />
     <PackageReference Include="log4net" Version="2.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="app.config.install.xdt" />
+    <Content Include="app.config.uninstall.xdt" />
+    <Content Include="web.config.install.xdt" />
+    <Content Include="web.config.uninstall.xdt" />
   </ItemGroup>
 
   <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />

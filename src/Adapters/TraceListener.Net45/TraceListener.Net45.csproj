@@ -11,11 +11,18 @@
 
     <TargetFrameworks>net45</TargetFrameworks>
 
-    <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <RootNamespace>Microsoft.ApplicationInsights.TraceListener</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.TraceListener</AssemblyName>
   </PropertyGroup>
+  <PropertyGroup>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <IncludeSymbols>True</IncludeSymbols>
+    <PackageId>Microsoft.ApplicationInsights.TraceListener</PackageId>
+    <Title>Application Insights TraceListener</Title>
+    <Description>Application Insights Trace Listener is a custom TraceListener allowing you to send trace log messages to Application Insights. Application Insights will collect your logs from multiple sources and provide rich powerful search capabilities. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <PackageTags>$(PackageTags) TraceListener</PackageTags>
+  </PropertyGroup>
+
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
   <ItemGroup>
@@ -32,6 +39,13 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.0-beta1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="app.config.install.xdt" />
+    <Content Include="app.config.uninstall.xdt" />
+    <Content Include="web.config.install.xdt" />
+    <Content Include="web.config.uninstall.xdt" />
   </ItemGroup>
 
   <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />

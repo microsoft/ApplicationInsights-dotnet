@@ -14,7 +14,6 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
   <PropertyGroup>
-    <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
     <PackageId>Microsoft.ApplicationInsights.EventSourceListener</PackageId>
