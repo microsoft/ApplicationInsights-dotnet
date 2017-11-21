@@ -3,16 +3,12 @@ Microsoft Application Insights for ASP.NET Core applications
 
 This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [ASP.NET Core](https://github.com/aspnet/home) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/ApplicationInsights-home)
 
-Recent updates
---------------
-**Microsoft.ApplicationInsights.AspNet** was renamed to **Microsoft.ApplicationInsights.AspNetCore**. We have updated the SDK to use the stable 1.0.0 release of the .NET Core CLI runtime environment. Please note that this version is not compatible with RC1 bits of DNX environment. Furthermore, metrics stream is enabled by default in .NET Framework of ASP.NET Core.
-
 Getting Started
 ---------------
 
 [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) is a service that allows you to collect monitoring and diagnostics information about your application. The [getting started](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Getting-Started) guide shows how you can onboard your ASP.NET Core web application to use the Application Insights SDK.
 
-Application Insights collects a lot of information out-of-the-box such as requests, exceptions, and usage. It also allows you to configure additional data collection.  The [configure](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Configure) guide demonstrates the most common tasks you may want to do.
+Application Insights collects a lot of information out-of-the-box such as requests, dependencies, exceptions, and usage. It also allows you to configure additional data collection.  The [configure](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Configure) guide demonstrates the most common tasks you may want to do.
 
 
 Repository structure
@@ -27,54 +23,38 @@ root\
 
     test\
         ApplicationInsights.AspNetCore.Tests - Unit tests
-        FunctionalTestUtils - test utilities for functional tests
-        MVCFramework45.FunctionalTests - functional tests for MVC application
-        WebApiShimFw46.FunctionalTests - functional tests for Web API application
+        FunctionalTestUtils - Test utilities for functional tests
+        MVCFramework.FunctionalTests - functional tests for MVC application targetting NetCore1.1,NetCore2.0 and NET45
+        WebApi.FunctionalTests - functional tests for Web API application targetting NetCore1.1,NetCore2.0 and NET45
+		EmptyApp.FunctionalTests - functional tests for an Empty application targetting NetCore1.1,NetCore2.0 and NET45
         PerfTest - performance test
 ```
 
 Developing
 ----------
-
-**Note: The current version (Microsoft.ApplicationInsights.AspNetCore: 1.0.0) is no longer compatible with DNX runtime and ASP.NET 5 RC1 bits. Please visit [Migration to ASP.NET Core](https://docs.asp.net/en/latest/migration/index.html) to upgrade the application to ASP.NET Core 1.0.0.**
-
-## Pre-requisites
-- [Visual Studio 2015 Update 3](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx).
-- [Visual Studio 2015 CLI Tools](https://go.microsoft.com/fwlink/?LinkId=817245).
-- [.NET Core CLI](https://www.microsoft.com/net/download).
-- [Node.js](https://nodejs.org/download).
-- [Git](http://git-scm.com/download).
-- Source Code.
+To successfully build the sources on your machine, make sure you've installed the following prerequisites:
+* Visual Studio 2017 Community or Enterprise. Please make sure to install all the latest updates to Visual Studio
+* .NET 4.6
+* .NET Core 2.0
 
 ```
 git clone https://github.com/Microsoft/ApplicationInsights-aspnetcore.git
 ```
 
 ## Building
-From Visual Studio 2015
+From Visual Studio 2017
 ```
 devenv ApplicationInsights.AspNetCore.sln
 ```
 
-From Visual Studio 2015 Developer Command Prompt: Navigate to the source project folder and use the following commands to build the project:
+From Visual Studio 2017 Developer Command Prompt: Navigate to the source project folder and use the following commands to build the project:
 
 ```
-dotnet restore &REM Restores the dependency packages
 dotnet build &REM Builds the project
 ```
 - If you get NPM package restore errors, make sure Node and NPM are added to PATH.
 - If you get Bower package restore errors, make sure Git is added to PATH.
 - If you get dotnet package restore errors, make sure [.NET Core CLI is installed](https://github.com/dotnet/cli/blob/rel/1.0.0/Documentation/cli-installation-scenarios.md) and the nuget feeds are up to date.
-- In case of **.NET Core** applications, if you run into restore errors with respect to application insights dependency, please add ```"dnxcore50"``` and ```"portable-net45+win8" ``` to the imports list (if it does not exist), under ```frameworks``` section of ```project.json```, as described below. Please visit [Migrating from DNX](http://dotnet.github.io/docs/core-concepts/dnx-migration.html) for more details.
-``` json
-{
-    "frameworks": {
-        "netcoreapp1.0": { 
-            "imports": ["dnxcore50", "portable-net45+win8"]
-        }
-    }
-}
-```
 
 ## Branches
 - We follow the [Git Flow](http://nvie.com/posts/a-successful-git-branching-model) model.
@@ -96,8 +76,7 @@ Functional tests are regular web applications with unit tests integrated into th
 
 The following are modifications made to a regular web application to make it work this way:
 
-Add dependencies to project.json:
-
+Add dependencies to .csproj:
 
 ```
 "FunctionalTestUtils": "1.0.0-*",
