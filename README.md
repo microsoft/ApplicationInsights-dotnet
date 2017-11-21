@@ -1,11 +1,11 @@
 ![Build Status](https://mseng.visualstudio.com/DefaultCollection/_apis/public/build/definitions/96a62c4a-58c2-4dbb-94b6-5979ebc7f2af/2678/badge)
 [![codecov.io](https://codecov.io/github/Microsoft/ApplicationInsights-server-dotnet/coverage.svg?branch=develop)](https://codecov.io/github/Microsoft/ApplicationInsights-server-dotnet?branch=develop)
 
-[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.Web.svg)](http://nuget.org/packages/Microsoft.ApplicationInsights.Web)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.Web.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.Web)
 
 # Visual Studio Application Insights SDK for .NET Web Applications
 
-The code in this repository is the .NET web application SDK for Application Insights. [Application Insights][AILandingPage] is a service that lets you monitor your live application's performance and usage. This SDK sends telemetry to the service. It collects data such as web request timings and succcess rates, dependency calls, exceptions, and server performance counters. You can also use the SDK to send your own telemetry and add modules to collect logs. You can use this SDK in any .NET web application, hosted either on your own servers or on Microsoft Azure.
+The code in this repository is the .NET web application SDK for Application Insights. [Application Insights][AILandingPage] is a service that lets you monitor your live application's performance and usage. This SDK sends telemetry to the service. It collects data such as web request timings and success rates, dependency calls, exceptions, and server performance counters. You can also use the SDK to send your own telemetry and add modules to collect logs. You can use this SDK in any .NET web application, hosted either on your own servers or on Microsoft Azure.
 
 ## Get the SDK
 
