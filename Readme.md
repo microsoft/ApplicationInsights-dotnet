@@ -37,34 +37,21 @@ To successfully build the sources on your machine, make sure you've installed th
 * .NET 4.6
 * .NET Core 2.0
 
-```
-git clone https://github.com/Microsoft/ApplicationInsights-aspnetcore.git
-```
-
 ## Building
-From Visual Studio 2017
-```
-devenv ApplicationInsights.AspNetCore.sln
-```
+Once you've installed the prerequisites execute ```buildDebug.cmd``` or ```buildRelease.cmd``` script in the repository root to build the project locally.
+You can also open the solution in Visual Studio and build the ApplicationInsights.AspNetCore.sln solution directly.
 
-From Visual Studio 2017 Developer Command Prompt: Navigate to the source project folder and use the following commands to build the project:
+## Testing/Debugging
+Execute the ```runAllTests.cmd``` script in the repository root.
 
-```
-dotnet build &REM Builds the project
-```
-- If you get NPM package restore errors, make sure Node and NPM are added to PATH.
-- If you get Bower package restore errors, make sure Git is added to PATH.
-- If you get dotnet package restore errors, make sure [.NET Core CLI is installed](https://github.com/dotnet/cli/blob/rel/1.0.0/Documentation/cli-installation-scenarios.md) and the nuget feeds are up to date.
+You can also open the solution in Visual Studio and run tests directly from Visual Studio Test Explorer. However, as the tests has multiple targets, Test Explorer only shows the first target
+from <TargetFrameworks> in .csproj. To debug/run tests from a particular TargetFramework with Visual Studio, only option is to re-arrange the <TargetFrameworks>
+such that the intented target comes first. This is a Visual Studio limitation and is likely removed in the future.
 
-## Branches
-- We follow the [Git Flow](http://nvie.com/posts/a-successful-git-branching-model) model.
-- [master](https://github.com/Microsoft/ApplicationInsights-aspnetcore/tree/master) has the _latest_ version released on [NuGet.org](https://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore).
-- [develop](https://github.com/Microsoft/ApplicationInsights-aspnetcore/tree/develop) has the code for the _next_ release.
 
 Running and writing tests
 -------------------------
 There are two sets of tests unit tests and functional tests. Please use unit tests for all features testing. The purpose of functional tests is just end-to-end validation of functionality on sample applications.
-
 
 *Functional tests*
 Functional tests are regular web applications with unit tests integrated into them. Application can be compiled as a regular web application as well as set of tests. Typical functional tests will do the following:
@@ -96,27 +83,10 @@ Add this initialization logic to Startup.cs:
 services.AddFunctionalTestTelemetryChannel();
 ```
 
-*Running Tests*
-You can run unit tests using Visual Studio.
 
-You can run unit tests using .NET CLI from command line. The prerequisite to this is that you should make sure you have the latest version of .NET CLI. You can check the available runtime using the following command:
-```
-dotnet --version
-```
-
-If you are seeing that ```dotnet``` is not available (or defined), install .NET CLI: [.NET Core + CLI tools (SDK)](https://github.com/dotnet/cli).
-
-After that you can open a developer command prompt, navigate to each test folder and run:
-```
-dotnet restore &REM Restores the dependency packages
-dotnet build &REM Builds the test project
-dotnet test &REM Runs the tests within the test project
-```
-
-You can also run all tests using the following Powershell from root directory.
-
-```
-powershell .\RunTestsCore.ps1
-```
+## Branches
+- We follow the [Git Flow](http://nvie.com/posts/a-successful-git-branching-model) model.
+- [master](https://github.com/Microsoft/ApplicationInsights-aspnetcore/tree/master) has the _latest_ version released on [NuGet.org](https://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore).
+- [develop](https://github.com/Microsoft/ApplicationInsights-aspnetcore/tree/develop) has the code for the _next_ release.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
