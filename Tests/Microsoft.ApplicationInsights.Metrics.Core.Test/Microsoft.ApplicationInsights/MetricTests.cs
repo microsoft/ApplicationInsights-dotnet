@@ -353,7 +353,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 IMetricConfiguration config = new SimpleMetricConfiguration(
                                                             5,
                                                             1000,
-                                                            new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+                                                            new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false));
 
                 Metric metric = InvokeMetricCtor(
                                         metricManager,
@@ -693,7 +693,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 IMetricConfiguration config = new SimpleMetricConfiguration(
                                                             5,
                                                             1000,
-                                                            new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+                                                            new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false));
 
                 Metric metric = InvokeMetricCtor(
                                         metricManager,
@@ -1163,7 +1163,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 IMetricConfiguration config = new SimpleMetricConfiguration(
                                                     seriesCountLimit: 10,
                                                     valuesPerDimensionLimit: 2,
-                                                    seriesConfig: new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+                                                    seriesConfig: new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false));
                 Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",
@@ -1253,7 +1253,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 IMetricConfiguration config = new SimpleMetricConfiguration(
                                                     seriesCountLimit: 4,
                                                     valuesPerDimensionLimit: 25,
-                                                    seriesConfig: new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+                                                    seriesConfig: new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false));
                 Metric metric = InvokeMetricCtor(
                                         metricManager,
                                         metricId: "Foo",

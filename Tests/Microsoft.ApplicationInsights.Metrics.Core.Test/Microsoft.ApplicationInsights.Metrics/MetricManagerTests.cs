@@ -34,7 +34,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             var manager = new MetricManager(new MemoryMetricTelemetryPipeline());
 
-            IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
+            IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false);
 
             Assert.ThrowsException<ArgumentNullException>( () => manager.CreateNewSeries(null, config) );
             Assert.ThrowsException<ArgumentNullException>( () => manager.CreateNewSeries("Foo Bar", null) );
@@ -67,7 +67,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 var metricsCollector = new MemoryMetricTelemetryPipeline();
                 var manager = new MetricManager(metricsCollector);
 
-                IMetricSeriesConfiguration measurementConfig = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
+                IMetricSeriesConfiguration measurementConfig = new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false);
                 IMetricSeriesConfiguration accumulatorConfig = new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false);
 
                 MetricSeries series1 = manager.CreateNewSeries("Measurement 1", measurementConfig);

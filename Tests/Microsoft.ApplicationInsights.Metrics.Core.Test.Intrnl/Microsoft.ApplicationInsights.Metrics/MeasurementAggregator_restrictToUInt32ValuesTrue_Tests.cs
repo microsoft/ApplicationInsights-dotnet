@@ -23,7 +23,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             {
                 var aggregator = new MeasurementAggregator(
-                                                new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
                 Assert.IsNotNull(aggregator);
@@ -40,7 +40,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Empty aggregator:
                 var aggregator = new MeasurementAggregator(
-                                                    new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                    new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -50,7 +50,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Zero value:
                 var aggregator = new MeasurementAggregator(
-                                                    new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                    new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -62,7 +62,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Values out of range:
                 var aggregator = new MeasurementAggregator(
-                                                    new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                    new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -88,7 +88,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // A single value:
                 var aggregator = new MeasurementAggregator(
-                                                    new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false),
+                                                    new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -100,7 +100,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Two values:
                 var aggregator = new MeasurementAggregator(
-                                                    new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                    new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -113,7 +113,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // 3 values:
                 var aggregator = new MeasurementAggregator(
-                                                    new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                    new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
                 aggregator.TrackValue(1800000);
@@ -126,7 +126,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Rounded values:
                 var aggregator = new MeasurementAggregator(
-                                                    new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                    new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
                 aggregator.TrackValue(1);
@@ -162,7 +162,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Very large numbers:
                 var aggregator = new MeasurementAggregator(
-                                                    new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                    new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -185,7 +185,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Large number of small values:
                 var aggregator = new MeasurementAggregator(
-                                                    new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                    new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -203,7 +203,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 // Large number of large values:
                 var aggregator = new MeasurementAggregator(
-                                                    new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                    new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -228,7 +228,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             long periodMillis = (long) (endTS - default(DateTimeOffset)).TotalMilliseconds;
 
             var aggregator = new MeasurementAggregator(
-                                                new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
 
@@ -314,7 +314,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             long periodMillis = (long) (endTS - default(DateTimeOffset)).TotalMilliseconds;
 
             var aggregator = new MeasurementAggregator(
-                                                new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
 
@@ -396,7 +396,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void CreateAggregateUnsafe()
         {
             var aggregationManager = new MetricAggregationManager();
-            var seriesConfig = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true);
+            var seriesConfig = new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true);
 
             IEnumerable<KeyValuePair<string, string>> setDimensionNamesValues = new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("Dim 1", "DV1"),
                                                                                                                      new KeyValuePair<string, string>("Dim 2", "DV2"),
@@ -422,7 +422,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void TryRecycle()
         {
             var measurementAggregator = new MeasurementAggregator(
-                                                new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                 dataSeries: null,
                                                 aggregationCycleKind: CycleKind.Custom);
 
@@ -434,7 +434,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public void GetDataSeries()
         {
             var aggregationManager = new MetricAggregationManager();
-            var seriesConfig = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true);
+            var seriesConfig = new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true);
             var metric = new MetricSeries(aggregationManager, "Cows Sold", null, seriesConfig);
 
             var aggregatorForConcreteSeries = new MeasurementAggregator(
@@ -443,7 +443,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                     aggregationCycleKind: CycleKind.Custom);
 
             var aggregatorForNullSeries = new MeasurementAggregator(
-                                                    new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                    new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -456,7 +456,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             {
                 var aggregator = new MeasurementAggregator(
-                                                    new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true),
+                                                    new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true),
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
@@ -470,7 +470,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             var aggregationManager = new MetricAggregationManager();
 
-            var mesurementConfig = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true);
+            var mesurementConfig = new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: true);
             var measurementMetric = new MetricSeries(aggregationManager, "Cows Sold", null, mesurementConfig);
 
             var measurementAggregator = new MeasurementAggregator(

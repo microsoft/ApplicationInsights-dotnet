@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
+using Microsoft.ApplicationInsights.Metrics.Extensions;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -11,6 +12,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     public class MetricSeriesConfigurationForGauge : IMetricSeriesConfiguration
     {
         private readonly bool _alwaysResendLastValue;
+        private readonly bool _autoCleanupUnusedSeries;
         private readonly bool _restrictToUInt32Values;
         private readonly int _hashCode;
 
@@ -26,16 +28,33 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// 
         /// </summary>
         /// <param name="alwaysResendLastValue"></param>
+        /// <param name="autoCleanupUnusedSeries"></param>
         /// <param name="restrictToUInt32Values"></param>
-        public MetricSeriesConfigurationForGauge(bool alwaysResendLastValue, bool restrictToUInt32Values)
+        public MetricSeriesConfigurationForGauge(bool alwaysResendLastValue, bool autoCleanupUnusedSeries, bool restrictToUInt32Values)
         {
+            if (alwaysResendLastValue && autoCleanupUnusedSeries)
+            {
+                throw new ArgumentException($"{nameof(autoCleanupUnusedSeries)} may not be True if {nameof(alwaysResendLastValue)} is True,"
+                                          + $" becasue {nameof(alwaysResendLastValue)} requires persistent aggregation which"
+                                          + $" prevents {nameof(autoCleanupUnusedSeries)} from taking effect."
+                                           + " Set at lease one of these two options to False.");
+            }
+
             _alwaysResendLastValue = alwaysResendLastValue;
+            _autoCleanupUnusedSeries = autoCleanupUnusedSeries;
             _restrictToUInt32Values = restrictToUInt32Values;
 
-            unchecked
-            {
-                _hashCode = (((17 * 23) + _alwaysResendLastValue.GetHashCode()) * 23) + _restrictToUInt32Values.GetHashCode();
-            }
+            _hashCode = Util.CombineHashCodes(
+                                            _autoCleanupUnusedSeries.GetHashCode(),
+                                            _alwaysResendLastValue.GetHashCode(),
+                                            _restrictToUInt32Values.GetHashCode());
+        }
+
+        /// <summary />
+        public bool AutoCleanupUnusedSeries
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return _autoCleanupUnusedSeries; }
         }
 
         /// <summary />

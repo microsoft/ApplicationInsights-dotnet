@@ -33,7 +33,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                             aggregationManager,
                                             "Measurement Metric",
                                             null,
-                                            new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+                                            new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false));
 
             var accumulatorMetric = new MetricSeries(
                                             aggregationManager,
@@ -107,7 +107,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                             aggregationManager,
                                             "Measurement Metric",
                                             null,
-                                            new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+                                            new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false));
 
             var accumulatorMetric = new MetricSeries(
                                             aggregationManager,
@@ -239,7 +239,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                             aggregationManager,
                                             "Measurement Metric",
                                             null,
-                                            new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+                                            new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false));
 
             var accumulatorMetric = new MetricSeries(
                                             aggregationManager,

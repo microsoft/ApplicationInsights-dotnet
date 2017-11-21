@@ -103,7 +103,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             }
             {
                 // Force registration of the converter with the telemetry pipeline:
-                new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
+                new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false);
 
                 IList<ITelemetry> telemetrySentToChannel;
                 TelemetryConfiguration telemetryPipeline = Util.CreateAITelemetryConfig(out telemetrySentToChannel);

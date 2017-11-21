@@ -10,9 +10,12 @@ namespace Microsoft.ApplicationInsights.Metrics
     public interface IMetricSeriesConfiguration : IEquatable<IMetricSeriesConfiguration>
     {
         /// <summary>
-        /// 
         /// </summary>
         bool RequiresPersistentAggregation { get; }
+
+        /// <summary>
+        /// </summary>
+        bool AutoCleanupUnusedSeries { get; }
 
         /// <summary>
         /// 

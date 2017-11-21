@@ -25,7 +25,10 @@ namespace Microsoft.ApplicationInsights
         private static IMetricConfiguration s_defaultConfigForGauge = new SimpleMetricConfiguration(
                                                         DefaultSeriesCountLimit,
                                                         DefaultaluesPerDimensionLimit,
-                                                        new MetricSeriesConfigurationForGauge(alwaysResendLastValue: true, restrictToUInt32Values: false));
+                                                        new MetricSeriesConfigurationForGauge(
+                                                                                        alwaysResendLastValue: true,
+                                                                                        autoCleanupUnusedSeries: false,
+                                                                                        restrictToUInt32Values: false));
 
         /// <summary>
         /// <para>Use for measuring and accumulating differences between states of an entity that exists over a long period of time.<br />
