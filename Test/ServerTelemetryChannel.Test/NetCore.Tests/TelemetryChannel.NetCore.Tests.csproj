@@ -32,11 +32,7 @@
     <PackageReference Include="System.Reflection.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
     <PackageReference Include="System.Security.AccessControl" Version="4.3.0" />
-    <!-- 
-    commented out due to the error: https://github.com/GregFinzer/Compare-Net-Objects/issues/52 
-    Once uncommented - re-enable all DeepClone test cases
-    <PackageReference Include="CompareNETObjects" Version="3.9.0.0" />
-    -->
+    <PackageReference Include="CompareNETObjects" Version="3.12.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
     <PackageReference Include="MicroBuild.Core" Version="0.2.0">
