@@ -17,17 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj">
-      <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
-      <Name>Microsoft.ApplicationInsights</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj">
-      <Project>{4b0bc3b7-c7fc-4333-9e28-5790d9153f07}</Project>
-      <Name>ApplicationInsightsTypes</Name>
-    </ProjectReference>
-  </ItemGroup>
-  
-  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj"/>
+    <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj"/>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0-preview-20170810-02" />
     <PackageReference Include="Moq" Version="4.7.99" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0-beta3" />
@@ -41,23 +32,15 @@
     <PackageReference Include="System.Reflection.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
     <PackageReference Include="System.Security.AccessControl" Version="4.3.0" />
-    <!-- 
-    commented out due to the error: https://github.com/GregFinzer/Compare-Net-Objects/issues/52 
-    Once uncommented - re-enable all DeepClone test cases
-    <PackageReference Include="CompareNETObjects" Version="3.9.0.0" />
-    -->
+    <PackageReference Include="CompareNETObjects" Version="3.12.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
     <PackageReference Include="MicroBuild.Core" Version="0.2.0">
-      <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\Managed\TelemetryChannel.csproj">
-      <Project>{3273d899-d9b3-44fe-b3ab-578e18b2ef90}</Project>
-      <Name>TelemetryChannel</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\TelemetryChannel.csproj"/>
   </ItemGroup>
-  <Import Project="..\..\..\Test\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" />
+  <Import Project="..\..\..\Test\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared"/>
   <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 
