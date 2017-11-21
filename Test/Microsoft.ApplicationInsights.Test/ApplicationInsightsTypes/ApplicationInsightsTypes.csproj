@@ -21,11 +21,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MicroBuild.Core" Version="0.2.0">
-      <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Bond.CSharp" Version="6.0.0">
-      <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>build</PrivateAssets>
     </PackageReference>
   </ItemGroup>
