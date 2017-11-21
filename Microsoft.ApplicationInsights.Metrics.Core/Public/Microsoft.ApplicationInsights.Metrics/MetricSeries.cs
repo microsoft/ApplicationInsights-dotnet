@@ -402,18 +402,11 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                     // Ok, a cycle is, indeed, acgive up. See if the cycle's filter is interested in this series:
 
+                    // Respect the filter. Note: Filter may be user code. If user code is broken, assume we accept the series.
                     IMetricValueFilter valuesFilter;
-                    try
-                    { 
-                        if (dataSeriesFilter != null && false == dataSeriesFilter.WillConsume(this, out valuesFilter))
-                        {
-                            return null;
-                        }
-                    }
-                    catch
+                    if (false == Util.FilterWillConsume(dataSeriesFilter, this, out valuesFilter))
                     {
-                        // Protect against errors in user's implemenmtation of IMetricSeriesFilter.IsInterestedIn(..).
-                        // If it throws, assume that the filter is not functional => cycle will accept all values.
+                        return null;
                     }
                 }
 

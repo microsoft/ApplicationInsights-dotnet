@@ -120,8 +120,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             IMetricSeriesFilter seriesFilter = aggregatorCollection.Filter;
-            IMetricValueFilter valueFilter = null;
-            if (seriesFilter != null && !seriesFilter.WillConsume(aggregator.DataSeries, out valueFilter))
+            IMetricValueFilter valueFilter;
+            if (! Util.FilterWillConsume(seriesFilter, aggregator.DataSeries, out valueFilter))
             {
                 return false;
             }
@@ -184,9 +184,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                         // But we can apply the cycle's filters to determine whether or not to pull the aggregator
                         // for a aggregate at this time. Of course, only series filters, not value filters, can be considered.
                         IMetricValueFilter unusedValueFilter;
-                        bool satisfiesFilter = (previousFilter == null)
-                                                ||
-                                               (previousFilter.WillConsume(aggregator.DataSeries, out unusedValueFilter));
+                        bool satisfiesFilter = Util.FilterWillConsume(previousFilter, aggregator.DataSeries, out unusedValueFilter);
                         if (satisfiesFilter)
                         {
                             MetricAggregate aggregate = aggregator.CompleteAggregation(tactTimestamp);

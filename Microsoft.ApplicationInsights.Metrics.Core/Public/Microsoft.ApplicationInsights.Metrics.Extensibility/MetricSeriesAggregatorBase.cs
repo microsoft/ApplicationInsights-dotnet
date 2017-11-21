@@ -94,15 +94,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                 return;
             }
 
-            try     // Respect the filter. Note: Filter may be user code. If user code is broken, assume we accept the value.
+            // Respect the filter. Note: Filter may be user code. If user code is broken, assume we accept the value.
+            if (false == Util.FilterWillConsume(_valueFilter, _dataSeries, metricValue))
             {
-                if (false == _valueFilter?.WillConsume(_dataSeries, metricValue))
-                {
-                    return;
-                }
-            }
-            catch
-            {
+                return;
             }
 
             // Prepare the metric value. If it is invalid, ConvertMetricValue may throw. This wil be propagated to the user.
@@ -121,15 +116,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                 return;
             }
 
-            try     // Respect the filter. Note: Filter may be user code. If user code is broken, assume we accept the value.
+            // Respect the filter. Note: Filter may be user code. If user code is broken, assume we accept the value.
+            if (false == Util.FilterWillConsume(_valueFilter, _dataSeries, metricValue))
             {
-                if (false == _valueFilter?.WillConsume(_dataSeries, metricValue))
-                {
-                    return;
-                }
-            }
-            catch
-            {
+                return;
             }
 
             // Prepare the metric value. If it is invalid, ConvertMetricValue may throw. This wil be propagated to the user.
