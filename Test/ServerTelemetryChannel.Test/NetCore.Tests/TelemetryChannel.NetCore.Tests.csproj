@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj"/>
+    <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj"/>
     <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj"/>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0-preview-20170810-02" />
     <PackageReference Include="Moq" Version="4.7.99" />
@@ -38,7 +38,7 @@
     <PackageReference Include="MicroBuild.Core" Version="0.2.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\Managed\TelemetryChannel.csproj"/>
+    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\TelemetryChannel.csproj"/>
   </ItemGroup>
   <Import Project="..\..\..\Test\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared"/>
   <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" />

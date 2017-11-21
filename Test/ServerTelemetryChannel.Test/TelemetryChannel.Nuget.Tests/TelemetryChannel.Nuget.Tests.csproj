@@ -22,7 +22,7 @@
   </PropertyGroup>
   
   <ItemGroup Condition="$(OS) == 'Windows_NT'">
-    <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj"/>
+    <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj"/>
     <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj"/>
     <PackageReference Include="Microsoft.Web.Xdt" Version="2.1.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0-preview-20170810-02" />
@@ -37,14 +37,14 @@
     <PackageReference Include="MicroBuild.Core" Version="0.2.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\Managed\TelemetryChannel.csproj"/>
-    <EmbeddedResource Include="..\..\..\src\ServerTelemetryChannel\Managed\ApplicationInsights.config.install.xdt">
+    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\TelemetryChannel.csproj"/>
+    <EmbeddedResource Include="..\..\..\src\ServerTelemetryChannel\ApplicationInsights.config.install.xdt">
       <Link>Resources\ApplicationInsights.config.install.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\..\src\ServerTelemetryChannel\Managed\ApplicationInsights.config.transform">
+    <EmbeddedResource Include="..\..\..\src\ServerTelemetryChannel\ApplicationInsights.config.transform">
       <Link>Resources\ApplicationInsights.config.transform</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\..\src\ServerTelemetryChannel\Managed\ApplicationInsights.config.uninstall.xdt">
+    <EmbeddedResource Include="..\..\..\src\ServerTelemetryChannel\ApplicationInsights.config.uninstall.xdt">
       <Link>Resources\ApplicationInsights.config.uninstall.xdt</Link>
     </EmbeddedResource>
   </ItemGroup>

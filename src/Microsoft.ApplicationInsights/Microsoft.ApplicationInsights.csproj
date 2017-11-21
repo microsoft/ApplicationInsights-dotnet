@@ -1,4 +1,4 @@
-﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
   <PropertyGroup>
@@ -13,7 +13,6 @@
 
     <TargetFrameworks>net45;net46;netstandard1.3</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.3</TargetFrameworks>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 
     <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -44,13 +43,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="shared\**\*.cs" />
-    <Compile Include="net45\**\*.cs" Condition="'$(TargetFramework)' == 'net45'" />
-    <Compile Include="net46\**\*.cs" Condition="'$(TargetFramework)' == 'net46'" />
-    <Compile Include="netstandard1.3\**\*.cs" Condition="'$(TargetFramework)' == 'netstandard1.3'" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>    
@@ -75,10 +67,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\..\..\PublicAPI\Microsoft.ApplicationInsights.dll\$(TargetFramework)\PublicAPI.Shipped.txt">
+    <AdditionalFiles Include="..\..\PublicAPI\Microsoft.ApplicationInsights.dll\$(TargetFramework)\PublicAPI.Shipped.txt">
       <Link>PublicAPI.Shipped.txt</Link>
     </AdditionalFiles>
-    <AdditionalFiles Include="..\..\..\PublicAPI\Microsoft.ApplicationInsights.dll\$(TargetFramework)\PublicAPI.Unshipped.txt">
+    <AdditionalFiles Include="..\..\PublicAPI\Microsoft.ApplicationInsights.dll\$(TargetFramework)\PublicAPI.Unshipped.txt">
       <Link>PublicAPI.Unshipped.txt</Link>
     </AdditionalFiles>
   </ItemGroup>

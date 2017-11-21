@@ -23,7 +23,7 @@
   </PropertyGroup>
   
   <ItemGroup Condition="$(OS) == 'Windows_NT'">
-    <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj"/>
+    <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj"/>
     <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj"/>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0-preview-20170810-02" />
     <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="15.5.0-preview-20170810-02" />
@@ -38,7 +38,7 @@
       <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\Managed\TelemetryChannel.csproj">
+    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\TelemetryChannel.csproj">
       <Project>{3273d899-d9b3-44fe-b3ab-578e18b2ef90}</Project>
       <Name>TelemetryChannel</Name>
     </ProjectReference>

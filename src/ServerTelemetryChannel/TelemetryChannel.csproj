@@ -13,7 +13,6 @@
 
     <TargetFrameworks>net45;netstandard1.3</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.3</TargetFrameworks>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 
     <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -46,11 +45,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="shared\**\*.cs" />    
-    <Compile Remove="shared\**\WebApplicationLifecycle.cs" Condition="'$(TargetFramework)' == 'netstandard1.3'" />
-  </ItemGroup>
- 
-  <ItemGroup>
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
@@ -66,7 +60,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj"/>
+    <ProjectReference Include="..\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj"/>
     <Reference Include="System.Web" Condition="'$(TargetFramework)' == 'net45'" />
     <Reference Include="System.Web.Extensions" Condition="'$(TargetFramework)' == 'net45'" />
   </ItemGroup>
@@ -85,10 +79,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\..\..\PublicAPI\Microsoft.AI.ServerTelemetryChannel.dll\$(TargetFramework)\PublicAPI.Shipped.txt">
+    <AdditionalFiles Include="..\..\PublicAPI\Microsoft.AI.ServerTelemetryChannel.dll\$(TargetFramework)\PublicAPI.Shipped.txt">
       <Link>PublicAPI.Shipped.txt</Link>
     </AdditionalFiles>
-    <AdditionalFiles Include="..\..\..\PublicAPI\Microsoft.AI.ServerTelemetryChannel.dll\$(TargetFramework)\PublicAPI.Unshipped.txt">
+    <AdditionalFiles Include="..\..\PublicAPI\Microsoft.AI.ServerTelemetryChannel.dll\$(TargetFramework)\PublicAPI.Unshipped.txt">
       <Link>PublicAPI.Unshipped.txt</Link>
     </AdditionalFiles>
   </ItemGroup>
