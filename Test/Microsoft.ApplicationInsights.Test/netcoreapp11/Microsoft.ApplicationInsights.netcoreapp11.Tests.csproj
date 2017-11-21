@@ -15,14 +15,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj">
-      <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
-      <Name>Microsoft.ApplicationInsights</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj">
-      <Project>{4b0bc3b7-c7fc-4333-9e28-5790d9153f07}</Project>
-      <Name>ApplicationInsightsTypes</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj"/>
+    <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj"/>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0-preview-20170810-02" />
     <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="15.5.0-preview-20170810-02" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0-beta3" />
@@ -31,7 +25,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
     <PackageReference Include="MicroBuild.Core" Version="0.2.0">
-      <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
