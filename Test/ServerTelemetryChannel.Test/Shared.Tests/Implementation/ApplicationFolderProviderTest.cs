@@ -173,8 +173,7 @@
             { 
                 { "LOCALAPPDATA", this.CreateTestDirectory(@"AppData\Local", FileSystemRights.CreateDirectories, AccessControlType.Deny).FullName },
                 { "TEMP", this.CreateTestDirectory("Temp", FileSystemRights.CreateDirectories, AccessControlType.Deny).FullName },
-            };
-           
+            };           
             var provider = new ApplicationFolderProvider(environmentVariables);
 
             IPlatformFolder applicationFolder = provider.GetApplicationFolder();
@@ -202,7 +201,7 @@
         }
 
         [TestMethod]
-        public void GetApplicationFolderReturnsValidWhenUnableToSetSecurityPolicyOnDirectoryButUserUverrides()
+        public void GetApplicationFolderReturnsValidWhenUnableToSetSecurityPolicyOnDirectoryButUserOverrides()
         {
             var environmentVariables = new Hashtable
             {

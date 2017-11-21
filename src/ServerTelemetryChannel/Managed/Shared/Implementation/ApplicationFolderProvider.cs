@@ -229,7 +229,7 @@
 
             string appIdentity = this.identityProvider.GetName() + "@" + Path.Combine(baseDirectory, Process.GetCurrentProcess().ProcessName);
             string subdirectoryName = GetSHA256Hash(appIdentity);
-            string subdirectoryPath = Path.Combine("Microsoft", "ApplicationInsightsSDK", subdirectoryName);
+            string subdirectoryPath = Path.Combine("Microsoft", "ApplicationInsights", subdirectoryName);
             DirectoryInfo subdirectory = root.CreateSubdirectory(subdirectoryPath);
             
             return subdirectory;
