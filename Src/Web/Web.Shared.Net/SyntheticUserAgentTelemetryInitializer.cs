@@ -59,9 +59,9 @@
                     else
                     {
                         var request = platformContext.GetRequest();
-                        string userAgent = request.UserAgent;
-                        if (request != null && !string.IsNullOrEmpty(userAgent))
-                        {
+                        string userAgent = request?.UserAgent;
+                        if (!string.IsNullOrEmpty(userAgent))
+                        { 
                             // We expect customers to configure telemetry initializer before they add it to active configuration
                             // So we will not protect filterPatterns array with locks (to improve perf)                            
                             for (int i = 0; i < this.filterPatterns.Length; i++)
