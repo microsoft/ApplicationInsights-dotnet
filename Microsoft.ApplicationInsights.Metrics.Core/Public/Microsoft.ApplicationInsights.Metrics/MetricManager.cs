@@ -15,9 +15,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly MetricAggregationManager _aggregationManager;
         private readonly DefaultAggregationPeriodCycle _aggregationCycle;
         private readonly IMetricTelemetryPipeline _telemetryPipeline;
+        private readonly MetricsCollection _metrics;
 
-        private object _extensionState;
-        
         /// <summary>
         /// 
         /// </summary>
@@ -29,6 +28,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             _telemetryPipeline = telemetryPipeline;
             _aggregationManager = new MetricAggregationManager();
             _aggregationCycle = new DefaultAggregationPeriodCycle(_aggregationManager, this);
+
+            _metrics = new MetricsCollection(this);
 
             _aggregationCycle.Start();
         }
@@ -44,6 +45,10 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Task fireAndForget = _aggregationCycle.StopAsync();
             }
         }
+
+        /// <summary>
+        /// </summary>
+        public MetricsCollection Metrics { get { return _metrics; } }
 
         internal MetricAggregationManager AggregationManager { get { return _aggregationManager; } }
 
@@ -142,35 +147,5 @@ namespace Microsoft.ApplicationInsights.Metrics
                 flushTask.Wait();
             }
         }
-
-        internal object GetOrCreateExtensionStateUnsafe(Func<MetricManager, object> newExtensionStateInstanceFactory)
-        {
-            object extensionState = _extensionState;
-
-            if (extensionState != null)
-            {
-                return extensionState;
-            }
-
-            Util.ValidateNotNull(newExtensionStateInstanceFactory, nameof(newExtensionStateInstanceFactory));
-
-            object newExtensionState = null;
-            try
-            {
-                newExtensionState = newExtensionStateInstanceFactory(this);
-            }
-            catch
-            {
-                newExtensionState = null;
-            }
-
-            if (newExtensionState != null)
-            {
-                object prevExtensionState = Interlocked.CompareExchange(ref _extensionState, newExtensionState, null);
-                extensionState = prevExtensionState ?? newExtensionState;
-            }
-
-            return extensionState;
-        }
-    }
+    }        
 }

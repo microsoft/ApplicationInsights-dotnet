@@ -77,10 +77,13 @@ namespace Microsoft.ApplicationInsights.Metrics
                     return true;
 
                 case CycleKind.QuickPulse:
+                    AggregatorCollection qpAggs = _aggregatorsForQuickPulse;
+                    filter = qpAggs?.Filter;
+                    return (qpAggs != null);
                 case CycleKind.Custom:
-                    AggregatorCollection aggs = (aggregationCycleKind == CycleKind.QuickPulse) ? _aggregatorsForQuickPulse : _aggregatorsForCustom;
-                    filter = aggs?.Filter;
-                    return (aggs != null);
+                    AggregatorCollection cAggs = _aggregatorsForCustom;
+                    filter = cAggs?.Filter;
+                    return (cAggs != null);
 
                 default:
                     throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");

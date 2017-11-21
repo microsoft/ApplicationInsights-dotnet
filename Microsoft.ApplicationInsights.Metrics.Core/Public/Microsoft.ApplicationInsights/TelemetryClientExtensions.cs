@@ -338,16 +338,7 @@ namespace Microsoft.ApplicationInsights
             Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));
 
             MetricManager metricManager = telemetryClient.GetMetricManager(aggregationScope);
-            MetricsCache cache = metricManager.GetOrCreateExtensionState(MetricsCache.CreateNewInstance);
-
-            if (cache == null)
-            {
-                throw new InvalidOperationException($"telemetryConfiguration.GetMetricManager().GetOrCreateExtensionState(..) unexpectedly returned null."
-                                                  + $" This indicates that multiple extensions attempt to use"
-                                                  + $" the \"Cache\" extension point of the {nameof(MetricManager)} in a conflicting manner.");
-            }
-
-            Metric metric = cache.GetOrCreateMetric(metricId, dimension1Name, dimension2Name, metricConfiguration);
+            Metric metric = metricManager.Metrics.GetOrCreate(metricId, dimension1Name, dimension2Name, metricConfiguration);
             return metric;
         }
     }

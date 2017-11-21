@@ -362,7 +362,9 @@ namespace Microsoft.ApplicationInsights.Metrics
                     bool added = _aggregationManager.AddAggregator(aggregator, CycleKind.Default);
                     if (added == false)
                     {
-                        return GetOrCreatePersistentAggregator();
+                        throw new InvalidOperationException("Internal SDK gub. Please report!"
+                                                          + " Info: _aggregationManager.AddAggregator reports false for a PERSISTENT aggregator."
+                                                          + " This should never happen.");
                     }
                 }
                 else

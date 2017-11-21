@@ -17,13 +17,13 @@ namespace Microsoft.ApplicationInsights
     {
 #pragma warning disable SA1401 // Field must be private
         internal readonly IMetricConfiguration _configuration;
+        internal readonly string _objectId;
 #pragma warning restore SA1401 // Field must be private
 
         private const string NullMetricObjectId = "null";
 
         private static readonly char[] InvalidMetricChars = new char[] { '\0', '"', '\'', '(', ')', '[', ']', '{', '}', '<', '>', '=', ',' };
         
-        private readonly string _objectId;
         private readonly int _hashCode;
         private readonly MetricSeries _zeroDimSeries;
         private readonly IReadOnlyList<KeyValuePair<string[], MetricSeries>> _zeroDimSeriesList;
