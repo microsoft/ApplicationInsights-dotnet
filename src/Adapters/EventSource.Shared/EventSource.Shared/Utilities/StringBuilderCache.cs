@@ -49,6 +49,7 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities
                     }
                 }
             }
+
             return new StringBuilder(capacity);
         }
 

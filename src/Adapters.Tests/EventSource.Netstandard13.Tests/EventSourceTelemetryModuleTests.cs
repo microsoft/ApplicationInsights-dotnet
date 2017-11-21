@@ -74,12 +74,92 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
                 TestEventSource.Default.InfoEvent("Hey!");
 
-                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.Single();
                 Assert.AreEqual("Hey!", telemetry.Message);
                 Assert.AreEqual("Hey!", telemetry.Properties["information"]);
                 Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
                 string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(EventSourceTelemetryModule), prefix: "evl:");
                 Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void PrefixMatchEnablingEventSource()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                var listeningRequest = new EventSourceListeningRequest()
+                {
+                    Name = TestEventSource.ProviderName.Substring(0, TestEventSource.ProviderName.Length - 2),
+                    PrefixMatch = true
+                };
+                module.Sources.Add(listeningRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                TestEventSource.Default.InfoEvent("Hey!");
+
+                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.Single();
+                Assert.AreEqual("Hey!", telemetry.Message);
+                Assert.AreEqual("Hey!", telemetry.Properties["information"]);
+                Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
+
+                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(EventSourceTelemetryModule), prefix: "evl:");
+                Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void DisablingEventFromEventSource()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                var listeningRequest = new EventSourceListeningRequest()
+                {
+                    Name = TestEventSource.ProviderName
+                };
+                module.Sources.Add(listeningRequest);
+
+                var disablingRequest = new DisableEventSourceRequest()
+                {
+                    Name = TestEventSource.ProviderName
+                };
+                module.DisabledSources.Add(disablingRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+                
+                TestEventSource.Default.InfoEvent("Hey!");
+
+                int sentCount = this.adapterHelper.Channel.SentItems.Count();
+                Assert.AreEqual(0, sentCount);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void ReportsSingleEventFromSourceCreatedAfterModuleCreated()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                var listeningRequest = new EventSourceListeningRequest();
+                listeningRequest.Name = OtherTestEventSource.ProviderName;
+                module.Sources.Add(listeningRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                using (var eventSource = new OtherTestEventSource())
+                {
+                    eventSource.Message("Hey!");
+
+                    TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.Single();
+                    Assert.AreEqual("Hey!", telemetry.Message);
+                    Assert.AreEqual("Hey!", telemetry.Properties["message"]);
+                    Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
+                    string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(EventSourceTelemetryModule), prefix: "evl:");
+                    Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
+                }
             }
         }
 
@@ -125,6 +205,43 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
         [TestMethod]
         [TestCategory("EventSourceListener")]
+        public void ReactsToConfigurationChangesWithDisabledEventSources()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                var listeningRequest = new EventSourceListeningRequest();
+                listeningRequest.Name = TestEventSource.ProviderName;
+                module.Sources.Add(listeningRequest);
+                var disableListeningRequest = new DisableEventSourceRequest()
+                {
+                    Name = TestEventSource.ProviderName
+                };
+
+                // Disabled
+                module.DisabledSources.Add(disableListeningRequest);
+                module.Initialize(GetTestTelemetryConfiguration());
+                TestEventSource.Default.InfoEvent("Hey!");
+                int sentCount = this.adapterHelper.Channel.SentItems.Count();
+                Assert.AreEqual(0, sentCount);
+
+                // From Disabled to Enabled
+                module.DisabledSources.Remove(disableListeningRequest);
+                module.Initialize(GetTestTelemetryConfiguration());
+                TestEventSource.Default.InfoEvent("Hey!");
+                sentCount = this.adapterHelper.Channel.SentItems.Count();
+                Assert.AreEqual(1, sentCount);
+
+                // From Enabled to Disabled
+                module.DisabledSources.Add(disableListeningRequest);
+                module.Initialize(GetTestTelemetryConfiguration());
+                TestEventSource.Default.InfoEvent("Hey!");
+                sentCount = this.adapterHelper.Channel.SentItems.Count();
+                Assert.AreEqual(0, sentCount);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
         public void ReportsSeverityLevel()
         {
             using (var module = new EventSourceTelemetryModule())
@@ -162,6 +279,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
                 module.Initialize(GetTestTelemetryConfiguration());
 
+                Guid providerGuid = new Guid("497c5589-4f7f-56de-ea19-ea0604d23948");
                 Guid eventId = new Guid("30ba9220-89a4-41e4-987c-9e27ade44b74");
                 Guid activityId = new Guid("0724a028-27d7-40a9-a299-acf79ff0db94");
                 EventSource.SetCurrentThreadActivityId(activityId);
@@ -169,6 +287,8 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
                 TraceTelemetry expected = new TraceTelemetry("Blah blah", SeverityLevel.Verbose);
                 expected.Properties.Add("uniqueId", eventId.ToString());
+                expected.Properties.Add("ProviderName", TestEventSource.ProviderName);
+                expected.Properties.Add("ProviderGuid", providerGuid.ToString());
                 expected.Properties.Add("EventId", TestEventSource.ComplexEventId.ToString());
                 expected.Properties.Add("EventName", nameof(TestEventSource.ComplexEvent));
                 expected.Properties.Add("ActivityId", activityId.ToString());
@@ -180,6 +300,32 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
                 CollectionAssert.AreEqual(new TraceTelemetry[] { expected }, this.adapterHelper.Channel.SentItems, new TraceTelemetryComparer(),
                     "Reported event has properties different from expected");
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void CustomPayloadProperties()
+        {
+            OnEventWrittenHandler onWrittenHandler = (EventWrittenEventArgs args, TelemetryClient client) =>
+            {
+                var traceTelemetry = new TraceTelemetry("CustomPayloadProperties", SeverityLevel.Verbose);
+                traceTelemetry.Properties.Add("CustomPayloadProperties", "true");
+                client.Track(traceTelemetry);
+            };
+
+            using (var module = new EventSourceTelemetryModule(onWrittenHandler))
+            {
+                var listeningRequest = new EventSourceListeningRequest();
+                listeningRequest.Name = TestEventSource.ProviderName;
+                module.Sources.Add(listeningRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                TestEventSource.Default.Write("CustomPayloadProperties");
+
+                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems[0];
+                Assert.IsTrue(telemetry.Properties.All(kvp => kvp.Key.Equals("CustomPayloadProperties") && kvp.Value.Equals("true")));
             }
         }
 
@@ -286,6 +432,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
             {
                 configuration.TelemetryChannel = this.adapterHelper.Channel;
             }
+
             return configuration;
         }
     }

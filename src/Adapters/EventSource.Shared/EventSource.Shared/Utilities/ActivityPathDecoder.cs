@@ -66,6 +66,7 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities
                 // This is the new style 
                 return true;
             }
+
             return sum == uintPtr[3];         // This is old style where we don't make the ID unique machine wide.  
         }
 
@@ -95,6 +96,7 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities
             {
                 sb.Append('/'); // Use // to start to make it easy to anchor
             }
+
             byte* bytePtr = (byte*)&guid;
             byte* endPtr = bytePtr + 12;
             char separator = '/';
@@ -139,6 +141,7 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities
                         {
                             break;
                         }
+
                         nibble = (uint)(*bytePtr >> 4);
                     }
 
@@ -166,6 +169,7 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities
                 {
                     value = (uint)(*bytePtr & 0xF);
                 }
+
                 bytePtr++;       // Adance to the value bytes
 
                 numBytes++;     // Now numBytes is 1-4 and reprsents the number of bytes to read.  

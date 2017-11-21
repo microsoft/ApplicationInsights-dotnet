@@ -25,7 +25,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector.Implemenetation
             SeverityLevel.Error,        // TraceEventLevel.Error == 2
             SeverityLevel.Warning,      // TraceEventLevel.Warning == 3
             SeverityLevel.Information,  // TraceEventLevel.Informational == 4
-            SeverityLevel.Verbose       // TraceEventLevel.Verbose == 5
+            SeverityLevel.Verbose // TraceEventLevel.Verbose == 5
         };
 
         public static void Track(this TraceEvent traceEvent, TelemetryClient client)
@@ -41,10 +41,12 @@ namespace Microsoft.ApplicationInsights.EtwCollector.Implemenetation
             {
                 telemetry.AddProperty(nameof(traceEvent.ActivityID), ActivityPathDecoder.GetActivityPathString(traceEvent.ActivityID));
             }
+
             if (traceEvent.RelatedActivityID != default(Guid))
             {
                 telemetry.AddProperty(nameof(traceEvent.RelatedActivityID), traceEvent.RelatedActivityID.ToString());
             }
+
             telemetry.AddProperty(nameof(traceEvent.Channel), traceEvent.Channel.ToString());
             telemetry.AddProperty(nameof(traceEvent.Keywords), GetHexRepresentation((long)traceEvent.Keywords));
             telemetry.AddProperty(nameof(traceEvent.Opcode), traceEvent.Opcode.ToString());

@@ -23,6 +23,7 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation
         private const int FailedToEnableProvidersEventId = 2;
         private const int ModuleInitializationFailedEventId = 3;
         private const int UnauthorizedAccessEventId = 4;
+        private const int OnEventWrittenHandlerFailure = 5;
 
         private EventSourceListenerEventSource()
         {
@@ -62,13 +63,19 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation
             this.WriteEvent(UnauthorizedAccessEventId, moduleName, details, applicationName ?? this.ApplicationName);
         }
 
+        [Event(OnEventWrittenHandlerFailure, Level = EventLevel.Error, Message = "{0}: Failure while handling event")]
+        public void OnEventWrittenHandlerFailed(string moduleName, string details, string applicationName = null)
+        {
+            this.WriteEvent(OnEventWrittenHandlerFailure, moduleName, details, applicationName ?? this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {
             string name;
             try
             {
-#if NET40 || NET45 || NET46
+#if NET45 || NET46
                 name = AppDomain.CurrentDomain.FriendlyName;
 #else
                 name = string.Empty;

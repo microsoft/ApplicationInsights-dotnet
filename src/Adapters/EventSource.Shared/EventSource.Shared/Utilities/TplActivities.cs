@@ -4,10 +4,10 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-using System;
-
 namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities
 {
+    using System;
+
     /// <summary>
     /// Provides well-known values for working with Task Parallel Library (TPL) EventSource.
     /// </summary>

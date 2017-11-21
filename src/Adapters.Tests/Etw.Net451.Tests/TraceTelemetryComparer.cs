@@ -47,11 +47,13 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 {
                     return false;
                 }
+
                 if (kvp.Value != actualValue)
                 {
                     return false;
                 }
             }
+
             return true;
         }
     }

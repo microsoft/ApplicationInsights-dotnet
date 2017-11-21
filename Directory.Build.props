@@ -56,10 +56,11 @@
         <OutputPath>$(BinRoot)\$(Configuration)\$(RelativeOutputPathBase)</OutputPath>
         <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
 
-        <!-- Collect all NuGet packages in the same folder for convenience during testing -->
-        <PackageOutputDir>$(BinRoot)\$(Configuration)\NuGet</PackageOutputDir>
-      
-        <AppxPackageDir>$(OutputPath)</AppxPackageDir>
+      <!-- Collect all NuGet packages in the same folder for convenience during testing -->
+      <PackageOutputDir>$(BinRoot)\$(Configuration)\NuGet</PackageOutputDir>
+      <PackageOutputPath>$(PackageOutputDir)</PackageOutputPath>
+
+      <AppxPackageDir>$(OutputPath)</AppxPackageDir>
 
         <IntermediateOutputPath>$(BaseIntermediateOutputPath)\$(Configuration)\$(RelativeOutputPathBase)</IntermediateOutputPath>
         <IntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(IntermediateOutputPath) ))\</IntermediateOutputPath>
@@ -68,8 +69,6 @@
         
         <PackagesDir>$(EnlistmentRoot)\..\packages</PackagesDir>
         <PackagesDir>$([System.IO.Path]::GetFullPath( $(PackagesDir) ))</PackagesDir>
-        
-        <CoreSdkVersion>2.4.0</CoreSdkVersion>                
     </PropertyGroup>
    
     <PropertyGroup>
@@ -79,9 +78,6 @@
         
         <!-- Set the root namespace for all assemblies in this project hierarchy --> 
         <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>        
-      
-        <!-- Disable StyleCop by default to prevent StyleCop.MSBuild package from slowing down the debug build -->
-        <StyleCopEnabled>false</StyleCopEnabled>
     </PropertyGroup>
     
   <!-- Generate AssemblyFileVersion and AssemblyVersion attributes. -->

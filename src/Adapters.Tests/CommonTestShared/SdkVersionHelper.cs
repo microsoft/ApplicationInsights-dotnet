@@ -8,7 +8,7 @@
     {
         public static string GetExpectedSdkVersion(Type assemblyType, string prefix)
         {
-#if NET40 || NET45 || NET46
+#if NET45 || NET46
             string versionStr = typeof(SdkVersionHelper).Assembly.GetCustomAttributes(false).OfType<AssemblyFileVersionAttribute>().First().Version;
 #else
             string versionStr = typeof(SdkVersionHelper).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>().First().Version;

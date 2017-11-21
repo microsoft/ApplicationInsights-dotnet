@@ -9,12 +9,12 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests
     using System;
     using System.Linq;
     using Microsoft.ApplicationInsights.Tests;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.ApplicationInsights.Tracing.Tests;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.CommonTestShared;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     [TestCategory("DiagnosticSourceListener")]
@@ -71,6 +71,7 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests
             {
                 configuration.TelemetryChannel = this.adapterHelper.Channel;
             }
+
             return configuration;
         }
     }

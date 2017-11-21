@@ -17,6 +17,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
         public static readonly TestEventSource Default = new TestEventSource();
 
         public const int InfoEventId = 1;
+
         [Event(InfoEventId, Level = EventLevel.Informational, Message = "{0}", Keywords = Keywords.Routine)]
         public void InfoEvent(string information)
         {
@@ -24,6 +25,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
         }
 
         public const int WarningEventId = 2;
+
         [Event(WarningEventId, Level = EventLevel.Warning, Message = "Warning!", Keywords = Keywords.NonRoutine)]
         public void WarningEvent(int i1, int i2)
         {
@@ -31,6 +33,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
         }
 
         public const int ErrorEventId = 3;
+
         [Event(ErrorEventId, Level = EventLevel.Error, Message = "Error!", Keywords = Keywords.NonRoutine)]
         public void ErrorEvent(double value, string context)
         {
@@ -38,6 +41,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
         }
 
         public const int ComplexEventId = 4;
+
         [Event(ComplexEventId, Level = EventLevel.Verbose, Message = "Blah blah", Keywords = Keywords.Routine, 
             Channel = EventChannel.Debug, Opcode = EventOpcode.Extension, Tags = (EventTags)17, Task = (EventTask)32)]
         public void ComplexEvent(Guid uniqueId)
@@ -46,6 +50,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
         }
 
         public const int RequestStartEventId = 5;
+
         [Event(RequestStartEventId, Level = EventLevel.Informational, ActivityOptions = EventActivityOptions.Recursive)]
         public void RequestStart(int requestId)
         {
@@ -53,6 +58,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
         }
 
         public const int RequestStopEventId = 6;
+
         [Event(RequestStopEventId, Level = EventLevel.Informational, ActivityOptions = EventActivityOptions.Recursive)]
         public void RequestStop(int requestId)
         {
@@ -60,6 +66,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
         }
 
         public const int TrickyEventId = 7;
+
         [Event(TrickyEventId, Level = EventLevel.Informational, Message = "Manifest message")]
         public void Tricky(int EventId, string EventName, string Message)
         {

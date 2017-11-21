@@ -3,7 +3,6 @@
 //     Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-
 namespace Microsoft.ApplicationInsights.EventSourceListener
 {
     using System;
@@ -19,29 +18,60 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     using Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities;
 
     /// <summary>
+    /// Delegate to apply custom formatting Application Insights trace telemetry from the Event Source data.
+    /// </summary>
+    /// <param name="eventArgs">Event arguments passed to the EventListener.</param>
+    /// <param name="client">Telemetry client to report telemetry to.</param>
+    public delegate void OnEventWrittenHandler(EventWrittenEventArgs eventArgs, TelemetryClient client);
+
+    /// <summary>
     /// A module to trace data submitted via .NET framework <seealso cref="System.Diagnostics.Tracing.EventSource" /> class.
     /// </summary>
     public class EventSourceTelemetryModule : EventListener, ITelemetryModule
     {
+        private readonly OnEventWrittenHandler onEventWrittenHandler;
+        private OnEventWrittenHandler eventWrittenHandlerPicker;
+
         private TelemetryClient client;
         private bool initialized; // Relying on the fact that default value in .NET Framework is false
-        // The following does not really need to be a ConcurrentQueue, but the ConcurrentQueue has a very convenient-to-use TryDequeue method.
         private ConcurrentQueue<EventSource> appDomainEventSources;
-        private List<EventSource> enabledEventSources;
+        private ConcurrentQueue<EventSource> enabledEventSources;
+        private ConcurrentDictionary<string, bool> enabledOrDisabledEventSourceTestResultCache;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventSourceTelemetryModule"/> class.
         /// </summary>
-        public EventSourceTelemetryModule()
+        public EventSourceTelemetryModule() : this(EventDataExtensions.Track)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EventSourceTelemetryModule"/> class.
+        /// </summary>
+        /// <param name="onEventWrittenHandler">Action to be executed each time an event is written to format and send via the configured <see cref="TelemetryClient"/></param>
+        public EventSourceTelemetryModule(OnEventWrittenHandler onEventWrittenHandler)
+        {
+            if (onEventWrittenHandler == null)
+            {
+                throw new ArgumentNullException(nameof(onEventWrittenHandler));
+            }
+
             this.Sources = new List<EventSourceListeningRequest>();
-            this.enabledEventSources = new List<EventSource>();
+            this.DisabledSources = new List<DisableEventSourceRequest>();
+
+            this.enabledEventSources = new ConcurrentQueue<EventSource>();
+            this.onEventWrittenHandler = onEventWrittenHandler;
         }
 
         /// <summary>
         /// Gets the list of EventSource listening requests (information about which EventSources should be traced).
         /// </summary>
         public IList<EventSourceListeningRequest> Sources { get; private set; }
+
+        /// <summary>
+        /// Gets the list of the Disable EventSource Listening requests in case there's event source that causes issues.
+        /// </summary>
+        public IList<DisableEventSourceRequest> DisabledSources { get; private set; }
 
         /// <summary>
         /// Initializes the telemetry module and starts tracing EventSources specified via <see cref="Sources"/> property.
@@ -63,39 +93,48 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                 return;
             }
 
-            // See OnEventSourceCreated() for the reason why we are locking on 'this' here.
-            lock (this)
+            try
             {
                 if (this.initialized)
                 {
                     // Source listening requests might have changed between initializations. Let's start from a clean slate
-                    foreach (EventSource eventSource in this.enabledEventSources)
+                    EventSource enabledEventSource = null;
+                    while (this.enabledEventSources.TryDequeue(out enabledEventSource))
                     {
-                        this.DisableEvents(eventSource);
-                    }
-                    this.enabledEventSources.Clear();
-                }
-
-                try
-                {
-                    if (this.appDomainEventSources != null)
-                    {
-                        EventSource eventSource;
-                        ConcurrentQueue<EventSource> futureIntializationSources = new ConcurrentQueue<EventSource>();
-
-                        while (this.appDomainEventSources.TryDequeue(out eventSource))
-                        {
-                            this.EnableAsNecessary(eventSource);
-                            futureIntializationSources.Enqueue(eventSource);
-                        }
-
-                        this.appDomainEventSources = futureIntializationSources;
+                        this.DisableEvents(enabledEventSource);
                     }
                 }
-                finally
+
+                // Set the initialized flag now to ensure that we do not miss any sources that came online as we are executing the initialization
+                // (OnEventSourceCreated() might have been called on a separate thread). Worst case we will attempt to enable the same source twice
+                // (with same settings), but that is OK, as the semantics of EnableEvents() is really "update what is being tracked", so it is fine
+                // to call it multiple times for the same source.
+                this.initialized = true;
+
+                if (this.appDomainEventSources != null)
                 {
-                    this.initialized = true;
+                    // Decide if there is disable event source listening requests
+                    if (this.DisabledSources.Any())
+                    {
+                        this.enabledOrDisabledEventSourceTestResultCache = new ConcurrentDictionary<string, bool>();
+                        this.eventWrittenHandlerPicker = this.OnEventWrittenIfSourceNotDisabled;
+                    }
+                    else
+                    {
+                        this.eventWrittenHandlerPicker = this.onEventWrittenHandler;
+                    }
+
+                    // Enumeration over concurrent queue is thread-safe.
+                    foreach (EventSource eventSourceToEnable in this.appDomainEventSources)
+                    {
+                        this.EnableAsNecessary(eventSourceToEnable);
+                    }
                 }
+            }
+            finally
+            {
+                // No matter what problems we encounter with enabling EventSources, we should note that we have been initialized.
+                this.initialized = true;
             }
         }
 
@@ -109,7 +148,14 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             // and not that useful for production tracing. However, TPL EventSource must be enabled to get hierarchical activity IDs.
             if (this.initialized && !TplActivities.TplEventSourceGuid.Equals(eventData.EventSource.Guid))
             {
-                eventData.Track(this.client);
+                try
+                {
+                    this.eventWrittenHandlerPicker(eventData, this.client);
+                }
+                catch (Exception ex)
+                {
+                    EventSourceListenerEventSource.Log.OnEventWrittenHandlerFailed(nameof(EventSourceListener.EventSourceTelemetryModule), ex.ToString());
+                }
             }
         }
 
@@ -128,9 +174,6 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             // Locking on 'this' is generally a bad practice because someone from outside could put a lock on us, and this is outside of our control.
             // But in the case of this class it is an unlikely scenario, and because of the bug described above,
             // we cannot rely on construction to prepare a private lock object for us.
-
-            // Also note that we are using a queue to cover the case when EnableEvents() called from Initialize()
-            // may result in reentrant call into OnEventSourceCreated().
             lock (this)
             {
                 if (this.appDomainEventSources == null)
@@ -139,11 +182,30 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                 }
 
                 this.appDomainEventSources.Enqueue(eventSource);
+            }
 
-                if (this.initialized)
-                {
-                    this.EnableAsNecessary(eventSource);
-                }
+            // Do not call EnableAsNecessary() directly while processing OnEventSourceCreated() and holding the lock.
+            // Enabling an EventSource tries to take a lock on EventListener list.
+            // (part of EventSource implementation). If another EventSource is created on a different thread, 
+            // the same lock will be taken before the call to OnEventSourceCreated() comes in and deadlock may result.
+            // Reference: https://github.com/Microsoft/ApplicationInsights-dotnet-logging/issues/109
+            if (this.initialized)
+            {
+                this.EnableAsNecessary(eventSource);
+            }
+        }
+
+        /// <summary>
+        /// Process a new EventSource event when the event source is not disabled by request.
+        /// </summary>
+        /// <param name="eventData">Event to proces.</param>
+        /// <param name="client">Telemetry client.</param>
+        private void OnEventWrittenIfSourceNotDisabled(EventWrittenEventArgs eventData, TelemetryClient client)
+        {
+            // We can't deal with disabled sources until event is raised due to: https://github.com/dotnet/coreclr/issues/14434
+            if (!this.IsDroppingEvent(eventData))
+            {
+                this.onEventWrittenHandler(eventData, client);
             }
         }
 
@@ -157,7 +219,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             if (eventSource.Guid == TplActivities.TplEventSourceGuid)
             {
                 this.EnableEvents(eventSource, EventLevel.LogAlways, (EventKeywords)TplActivities.TaskFlowActivityIdsKeyword);
-                this.enabledEventSources.Add(eventSource);
+                this.enabledEventSources.Enqueue(eventSource);
             }
             else if (eventSource.Name == EventSourceListenerEventSource.ProviderName)
             {
@@ -166,7 +228,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             }
             else
             {
-                EventSourceListeningRequest listeningRequest = this.Sources?.FirstOrDefault(s => s.Name == eventSource.Name);
+                EventSourceListeningRequest listeningRequest = this.Sources?.FirstOrDefault(request => this.IsEventSourceNameMatch(eventSource, request));
                 if (listeningRequest != null)
                 {
                     // LIMITATION: There is a known issue where if we listen to the FrameworkEventSource, the dataflow pipeline may hang when it
@@ -182,13 +244,58 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                         {
                             keywords = EventKeywords.All;
                         }
+
                         keywords &= (EventKeywords)~0x12;
                     }
 
                     this.EnableEvents(eventSource, listeningRequest.Level, keywords);
-                    this.enabledEventSources.Add(eventSource);
+                    this.enabledEventSources.Enqueue(eventSource);
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns true when eventSource satisfied the rule; false otherwise. Returns false when either is null.
+        /// </summary>
+        /// <param name="eventSource">The target event source.</param>
+        /// <param name="rule">The naming rule to be used for matching.</param>
+        private bool IsEventSourceNameMatch(EventSource eventSource, EventSourceListeningRequestBase rule)
+        {
+            if (string.IsNullOrEmpty(rule?.Name) || string.IsNullOrEmpty(eventSource?.Name))
+            {
+                return false;
+            }
+
+            if (!rule.PrefixMatch)
+            {
+                return string.Equals(eventSource.Name, rule.Name, StringComparison.Ordinal);
+            }
+            else
+            {
+                return eventSource.Name.StartsWith(rule.Name, StringComparison.Ordinal);
+            }
+        }
+
+        /// <summary>
+        /// When the event comes from a EventSource that matches the rule of DisabledSource, it should be dropped, unless the event source name matches one of the 
+        /// name exactly in the enabling rule.
+        /// </summary>
+        /// <param name="eventData">The event data to test.</param>
+        private bool IsDroppingEvent(EventWrittenEventArgs eventData)
+        {
+            string eventSourceName = eventData?.EventSource?.Name;
+
+            bool isDisabled = true;
+            if (!string.IsNullOrEmpty(eventSourceName))
+            {
+                if (!this.enabledOrDisabledEventSourceTestResultCache.TryGetValue(eventSourceName, out isDisabled))
+                {
+                    isDisabled = this.DisabledSources.Any(request => this.IsEventSourceNameMatch(eventData?.EventSource, request));
+                    this.enabledOrDisabledEventSourceTestResultCache[eventSourceName] = isDisabled;
+                }
+            }
+
+            return isDisabled;
         }
     }
 }

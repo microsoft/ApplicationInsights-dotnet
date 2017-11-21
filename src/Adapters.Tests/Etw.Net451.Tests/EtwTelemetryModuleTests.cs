@@ -48,6 +48,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
             {
                 configuration.TelemetryChannel = this.adapterHelper.Channel;
             }
+
             return configuration;
         }
 
@@ -525,7 +526,8 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                     // Timed out waiting for new events to arrive.
                     return;
                 }                
-            } while (itemsCaptured.Value < count);
+            }
+            while (itemsCaptured.Value < count);
         }
 
         [TestCleanup]

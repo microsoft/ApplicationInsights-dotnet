@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.Tests
 
     public static class ExceptionAssert
     {
-        public static void Throws<TException>(Action action, Action<TException> notifyException = null) where TException: Exception
+        public static void Throws<TException>(Action action, Action<TException> notifyException = null) where TException : Exception
         {
             try
             {

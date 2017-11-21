@@ -48,11 +48,13 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 {
                     return false;
                 }
+
                 if (kvp.Value != actualValue)
                 {
                     return false;
                 }
             }
+
             return true;
         }
     }

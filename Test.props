@@ -2,7 +2,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildThisFileDirectory)\Common.props"/>
   <PropertyGroup>
-    <StyleCopEnabled>false</StyleCopEnabled>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
 </Project>

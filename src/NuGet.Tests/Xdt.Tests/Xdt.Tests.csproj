@@ -1,89 +1,85 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C6B569BC-6F19-42C9-A951-DA611BB0F4BE}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Xdt.Tests</RootNamespace>
     <AssemblyName>Xdt.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
-    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
-    <IsCodedUITest>False</IsCodedUITest>
-    <TestProjectType>UnitTest</TestProjectType>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <TargetFramework>net45</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
+
   <ItemGroup>
-    <Reference Include="Microsoft.ApplicationInsights, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.4.0\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Web.XmlTransform">
-      <HintPath>..\..\..\..\packages\Microsoft.Web.Xdt.2.1.1\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\System.Diagnostics.DiagnosticSource.4.4.0\lib\net45\System.Diagnostics.DiagnosticSource.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.0-beta1" />
+    <PackageReference Include="Microsoft.Web.Xdt" Version="2.1.1" />
+    <PackageReference Include="Microbuild.Core" Version="0.2.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
+
   <ItemGroup>
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+    <!-- Identifies the project as test project -->
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="XdtTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="..\..\NuGet\TraceListener\config.install.xdt">
-      <Link>Resources\TraceListener\config.install.xdt</Link>
+    <EmbeddedResource Include="..\..\Adapters\TraceListener.Net45\app.config.install.xdt">
+      <Link>Resources\TraceListener\app.config.install.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\TraceListener\config.uninstall.xdt">
-      <Link>Resources\TraceListener\config.uninstall.xdt</Link>
+    <EmbeddedResource Include="..\..\Adapters\TraceListener.Net45\app.config.uninstall.xdt">
+      <Link>Resources\TraceListener\app.config.uninstall.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\Log4NetAppender\config.install.xdt">
-      <Link>Resources\Log4Net\config.install.xdt</Link>
+    <EmbeddedResource Include="..\..\Adapters\TraceListener.Net45\web.config.install.xdt">
+      <Link>Resources\TraceListener\web.config.install.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\Log4NetAppender\config.uninstall.xdt">
-      <Link>Resources\Log4Net\config.uninstall.xdt</Link>
+    <EmbeddedResource Include="..\..\Adapters\TraceListener.Net45\web.config.uninstall.xdt">
+      <Link>Resources\TraceListener\web.config.uninstall.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\NLogTarget\config.install.xdt">
-      <Link>Resources\NLog\config.install.xdt</Link>
+    <EmbeddedResource Include="..\..\Adapters\Log4NetAppender.Net45\web.config.install.xdt">
+      <Link>Resources\Log4Net\web.config.install.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\NLogTarget\config.uninstall.xdt">
-      <Link>Resources\NLog\config.uninstall.xdt</Link>
+    <EmbeddedResource Include="..\..\Adapters\Log4NetAppender.Net45\web.config.uninstall.xdt">
+      <Link>Resources\Log4Net\web.config.uninstall.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\DiagnosticSourceListener\ApplicationInsights.config.install.xdt">
+    <EmbeddedResource Include="..\..\Adapters\Log4NetAppender.Net45\app.config.install.xdt">
+      <Link>Resources\Log4Net\app.config.install.xdt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\Adapters\Log4NetAppender.Net45\app.config.uninstall.xdt">
+      <Link>Resources\Log4Net\app.config.uninstall.xdt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\Adapters\NLogTarget.Net45\app.config.install.xdt">
+      <Link>Resources\NLog\app.config.install.xdt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\Adapters\NLogTarget.Net45\app.config.uninstall.xdt">
+      <Link>Resources\NLog\app.config.uninstall.xdt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\Adapters\NLogTarget.Net45\web.config.install.xdt">
+      <Link>Resources\NLog\web.config.install.xdt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\Adapters\NLogTarget.Net45\web.config.uninstall.xdt">
+      <Link>Resources\NLog\web.config.uninstall.xdt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\Adapters\DiagnosticSource\ApplicationInsights.config.install.xdt">
       <Link>Resources\DiagnosticSourceListener\ApplicationInsights.config.install.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\DiagnosticSourceListener\ApplicationInsights.config.uninstall.xdt">
+    <EmbeddedResource Include="..\..\Adapters\DiagnosticSource\ApplicationInsights.config.uninstall.xdt">
       <Link>Resources\DiagnosticSourceListener\ApplicationInsights.config.uninstall.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\EventSourceListener\ApplicationInsights.config.install.xdt">
+    <EmbeddedResource Include="..\..\Adapters\EventSource.Netstandard13\ApplicationInsights.config.install.xdt">
       <Link>Resources\EventSourceListener\ApplicationInsights.config.install.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\EventSourceListener\ApplicationInsights.config.uninstall.xdt">
+    <EmbeddedResource Include="..\..\Adapters\EventSource.Netstandard13\ApplicationInsights.config.uninstall.xdt">
       <Link>Resources\EventSourceListener\ApplicationInsights.config.uninstall.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\EtwCollector\ApplicationInsights.config.install.xdt">
+    <EmbeddedResource Include="..\..\Adapters\Etw.Net451\ApplicationInsights.config.install.xdt">
       <Link>Resources\EtwCollector\ApplicationInsights.config.install.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\NuGet\EtwCollector\ApplicationInsights.config.uninstall.xdt">
+    <EmbeddedResource Include="..\..\Adapters\Etw.Net451\ApplicationInsights.config.uninstall.xdt">
       <Link>Resources\EtwCollector\ApplicationInsights.config.uninstall.xdt</Link>
     </EmbeddedResource>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Log4Net\TestDataSet.xml" />
@@ -95,14 +91,10 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\EtwCollector\TestDataSet.xml" />
   </ItemGroup>
-  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
+
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
-  <Import Project="..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets'))" />
-  </Target>
+
 </Project>

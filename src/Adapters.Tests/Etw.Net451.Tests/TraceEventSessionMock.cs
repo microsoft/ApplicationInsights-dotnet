@@ -17,6 +17,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
         private bool isFakeAccessDenied;
 
         public List<string> EnabledProviderNames { get; private set; }
+
         public List<Guid> EnabledProviderGuids { get; private set; }
 
 
@@ -40,6 +41,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
             {
                 throw new UnauthorizedAccessException("Access Denied.");
             }
+
             EnabledProviderGuids.Remove(providerGuid);
         }
 
@@ -49,6 +51,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
             {
                 throw new UnauthorizedAccessException("Access Denied.");
             }
+
             EnabledProviderNames.Remove(providerName);
         }
 
@@ -62,6 +65,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
             {
                 throw new UnauthorizedAccessException("Access Denied.");
             }
+
             this.EnabledProviderGuids.Add(providerGuid);
             return true;
         }
@@ -72,6 +76,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
             {
                 throw new UnauthorizedAccessException("Access Denied.");
             }
+
             this.EnabledProviderNames.Add(providerName);
             return true;
         }

@@ -2,23 +2,22 @@
 // Copyright © Microsoft. All Rights Reserved.
 // </copyright>
 
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace Microsoft.ApplicationInsights.Tracing.Tests
 {
     using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Threading;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     public class AdapterHelper : IDisposable
     {
         public readonly string InstrumentationKey;
 
-#if NET40 || NET45 || NET46
+#if NET45 || NET46
         private static readonly string ApplicationInsightsConfigFilePath =
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ApplicationInsights.config");
 #else
