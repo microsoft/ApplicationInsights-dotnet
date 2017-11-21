@@ -20,6 +20,23 @@
             },
             // Use the standard MS compiler pattern to detect errors, warnings and infos
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "test",
+                "Test/ServerTelemetryChannel.Test/NetCore.Tests/TelemetryChannel.NetCore.Tests.csproj;Test/Microsoft.ApplicationInsights.Test/netcoreapp11/Microsoft.ApplicationInsights.netcoreapp11.Tests.csproj"
+            ],
+            "group": "test",
+            "presentation": {
+                // Reveal the output only if unrecognized errors occur.
+                "reveal": "always"
+            },
+            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "problemMatcher": "$msCompile"
+            //dotnet test Test/ServerTelemetryChannel.Test/NetCore.Tests/TelemetryChannel.NetCore.Tests.csproj 
         }
     ]
 }
