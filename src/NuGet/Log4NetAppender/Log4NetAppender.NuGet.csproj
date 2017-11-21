@@ -6,7 +6,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3658BD66-68CD-4B37-8085-7D200CB020C7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Microsoft.ApplicationInsights.Log4NetAppender.NuGet</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.Log4NetAppender.NuGet</AssemblyName>

@@ -6,7 +6,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9392CF11-9063-4FC9-B8D1-922C754007D7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Microsoft.ApplicationInsights.TraceListener.NuGet</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.TraceListener.NuGet</AssemblyName>

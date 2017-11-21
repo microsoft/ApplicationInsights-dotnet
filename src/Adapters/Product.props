@@ -11,4 +11,25 @@
   <PropertyGroup>
     <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).XML</DocumentationFile>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <Company>Microsoft</Company>
+    <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
+    <!--PackageOutputPath>Defined in Directory.Build.props</PackageOutputPath-->
+    <!--PackageVersion is defined in GlobalStaticVersion.props-->
+    <!--PackageVersion></PackageVersion-->
+    <Authors>Microsoft</Authors>
+    <Owners>Microsoft</Owners>
+    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
+    <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
+    <PackageLicenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</PackageLicenseUrl>
+    <PackageProjectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
+    <PackageIconUrl>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageIconUrl>
+    <PackageTags>Analytics ApplicationInsights Telemetry</PackageTags>
+    <PackageReleaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-dotnet-logging</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageType>Dependency</PackageType>
+  </PropertyGroup>
+
 </Project>

@@ -6,7 +6,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E8B0EC3C-8219-4A13-8C6A-C2D88ABC1E94}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Microsoft.ApplicationInsights.NLogTarget.NuGet</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.NLogTarget.NuGet</AssemblyName>

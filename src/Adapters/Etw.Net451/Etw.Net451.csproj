@@ -1,8 +1,6 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Company>Microsoft</Company>
-    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
@@ -21,28 +19,12 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
   <PropertyGroup>
-    <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
-    <!--PackageOutputPath>Defined in Directory.Build.props</PackageOutputPath-->
     <PackageId>Microsoft.ApplicationInsights.EtwCollector</PackageId>
-    <!--PackageVersion is defined in GlobalStaticVersion.props-->
-    <!--PackageVersion></PackageVersion-->
-    <Authors>Microsoft</Authors>
-    <Owners>Microsoft</Owners>
     <Title>Application Insights EtwCollector</Title>
     <Description>Application Insights EtwCollector allows sending data from Event Tracing for Windows (ETW) to Application Insights. Application Insights will collect your logs from multiple sources and provide rich powerful search capabilities. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156.</Description>
-    <!--Copyright defined above-->
-    <!--Copyright></Copyright-->
-    <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
-    <PackageLicenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</PackageLicenseUrl>
-    <PackageProjectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
-    <PackageIconUrl>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageIconUrl>
-    <PackageTags>Analytics ApplicationInsights Telemetry ASP.NET ASMX Web Azure Server Services ASPX Websites Role Logging Log Tracing ETW EtwCollector Tracing</PackageTags>
-    <PackageReleaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</PackageReleaseNotes>
-    <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-dotnet-logging</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
-    <PackageType>Dependency</PackageType>
+    <PackageTags>$(PackageTags) ASP.NET ASMX Web Azure Server Services ASPX Websites Role Logging Log Tracing ETW EtwCollector Tracing</PackageTags>
   </PropertyGroup>
 
 
@@ -59,21 +41,13 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="MicroBuild.Core" Version="0.2.0">
-      <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28">
-      <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.0-beta1" />
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="1.0.41" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Net" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
 
   <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />

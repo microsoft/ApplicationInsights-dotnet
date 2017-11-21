@@ -20,4 +20,9 @@
 
     <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</PreReleaseVersion>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(PackageVersion)'==''">
+    <PackageVersion>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch)-$(PreReleaseMilestone)</PackageVersion>
+    <PackageVersion Condition="'$(StableRelease)' != 'True'">$(PackageVersion)-build$(PreReleaseVersion)</PackageVersion>
+  </PropertyGroup>
 </Project>
