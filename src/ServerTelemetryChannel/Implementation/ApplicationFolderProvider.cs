@@ -52,7 +52,7 @@
         }
 
         public IPlatformFolder GetApplicationFolder()
-        {
+        {            
             var errors = new List<string>(this.environment.Count + 1);
 
             var result = this.CreateAndValidateApplicationFolder(this.customFolderName, createSubFolder: false, errors: errors);
@@ -77,7 +77,7 @@
 
             if (result == null)
             {
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors), this.identityProvider.GetName());
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors), this.identityProvider.GetName(), this.customFolderName);
             }
 
             return result;
