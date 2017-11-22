@@ -18,8 +18,8 @@
         internal Func<DirectoryInfo, bool> ApplySecurityToDirectory;
 
         private readonly IDictionary environment;
-        private readonly string customFolderName;        
-        private IIdentityProvider identityProvider;        
+        private readonly string customFolderName;
+        private IIdentityProvider identityProvider;
 
         public ApplicationFolderProvider(string folderName = null)
             : this(Environment.GetEnvironmentVariables(), folderName)
@@ -48,7 +48,7 @@
             }
              
             this.environment = environment;
-            this.customFolderName = folderName;                        
+            this.customFolderName = folderName;
         }
 
         public IPlatformFolder GetApplicationFolder()
@@ -72,9 +72,9 @@
                 if (temp != null)
                 {
                     result = this.CreateAndValidateApplicationFolder(temp.ToString(), createSubFolder: true, errors: errors);
-                }                
+                }
             }
-            
+
             if (result == null)
             {
                 TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors), this.identityProvider.GetName());

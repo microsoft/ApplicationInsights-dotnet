@@ -285,7 +285,7 @@
         private void GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButNotAccessible(FileSystemRights rights)
         {
             DirectoryInfo localAppData = this.CreateTestDirectory(@"AppData\Local");
-            var environmentVariables = new Hashtable { { "LOCALAPPDATA", localAppData.FullName }, { "TEMP", localAppData.FullName } };
+            var environmentVariables = new Hashtable { { "LOCALAPPDATA", localAppData.FullName } };
             var provider = new ApplicationFolderProvider(environmentVariables);
 
             // Create the application folder and make it inaccessible
