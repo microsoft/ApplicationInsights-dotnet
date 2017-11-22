@@ -18,16 +18,15 @@
         internal Func<DirectoryInfo, bool> ApplySecurityToDirectory;
 
         private readonly IDictionary environment;
-        private readonly string customFolderName;
-        private readonly bool allowUnsecureLocalStorage;        
+        private readonly string customFolderName;        
         private IIdentityProvider identityProvider;        
 
-        public ApplicationFolderProvider(string folderName = null, bool allowUnsecureLocalStorage = false)
-            : this(Environment.GetEnvironmentVariables(), folderName, allowUnsecureLocalStorage)
+        public ApplicationFolderProvider(string folderName = null)
+            : this(Environment.GetEnvironmentVariables(), folderName)
         {
         }
 
-        internal ApplicationFolderProvider(IDictionary environment, string folderName = null, bool allowUnsecureLocalStorage = false)
+        internal ApplicationFolderProvider(IDictionary environment, string folderName = null)
         {
             if (environment == null)
             {
@@ -40,16 +39,16 @@
                 // is to check if it throws exception.
                 WindowsIdentity.GetCurrent();
                 this.identityProvider = new WindowsIdentityProvider();
+                this.ApplySecurityToDirectory = this.SetSecurityPermissionsToAdminAndCurrentUserWindows;
             }
             catch (Exception)
             {
-                this.identityProvider = new NonWindowsIdentityProvider(environment);                
+                this.identityProvider = new NonWindowsIdentityProvider(environment);
+                this.ApplySecurityToDirectory = this.SetSecurityPermissionsToAdminAndCurrentUserNonWindows;
             }
              
             this.environment = environment;
-            this.customFolderName = folderName;
-            this.allowUnsecureLocalStorage = allowUnsecureLocalStorage;
-            this.ApplySecurityToDirectory = this.SetSecurityPermissionsToAdminAndCurrentUser;
+            this.customFolderName = folderName;                        
         }
 
         public IPlatformFolder GetApplicationFolder()
@@ -73,12 +72,7 @@
                 if (temp != null)
                 {
                     result = this.CreateAndValidateApplicationFolder(temp.ToString(), createSubFolder: true, errors: errors);
-                }
-                else
-                {
-                    // Path.GetTempPath() works in Non-Windows where TEMP env variable do not exist.
-                    result = this.CreateAndValidateApplicationFolder(Path.GetTempPath(), createSubFolder: true, errors: errors);
-                }
+                }                
             }
             
             if (result == null)
@@ -161,16 +155,10 @@
                     {
                         telemetryDirectory = this.CreateTelemetrySubdirectory(telemetryDirectory);
                         if (!this.ApplySecurityToDirectory(telemetryDirectory))
-                        {
-                            if (this.allowUnsecureLocalStorage)
-                            {
-                                TelemetryChannelEventSource.Log.WritingToUnsecuredStorageDirectory(telemetryDirectory.FullName);
-                            }
-                            else
-                            {
-                                throw new SecurityException("Unable to apply security restrictions to the storage directory.");
-                            }
-                        }                        
+                        {                            
+                            TelemetryChannelEventSource.Log.WritingToUnsecuredStorageDirectory(telemetryDirectory.FullName);
+                            throw new SecurityException("Unable to apply security restrictions to the storage directory.");
+                        }
                     }
 
                     CheckAccessPermissions(telemetryDirectory);
@@ -235,7 +223,14 @@
             return subdirectory;
         }
 
-        private bool SetSecurityPermissionsToAdminAndCurrentUser(DirectoryInfo subdirectory)
+        private bool SetSecurityPermissionsToAdminAndCurrentUserNonWindows(DirectoryInfo subdirectory)
+        {
+            // For non-windows simply return false to indicate that security policy is not applied.
+            // This is until .net core exposes an Api to do this. 
+            return false;
+        }
+
+        private bool SetSecurityPermissionsToAdminAndCurrentUserWindows(DirectoryInfo subdirectory)
         {
             try
             {

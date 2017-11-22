@@ -55,9 +55,7 @@
 
         public event EventHandler<TransmissionProcessedEventArgs> TransmissionSent;
 
-        public string StorageFolder { get; set; }
-
-        public bool AllowUnsecureLocalStorage { get; set; }
+        public string StorageFolder { get; set; }        
 
         public int MaxBufferCapacity
         {
@@ -135,7 +133,7 @@
 
         internal virtual void Initialize()
         {
-            this.Storage.Initialize(new ApplicationFolderProvider(this.StorageFolder, this.AllowUnsecureLocalStorage));
+            this.Storage.Initialize(new ApplicationFolderProvider(this.StorageFolder));
         }
 
         internal virtual void Enqueue(Transmission transmission)

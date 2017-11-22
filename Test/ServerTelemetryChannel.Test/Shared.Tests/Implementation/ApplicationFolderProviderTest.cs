@@ -173,7 +173,7 @@
             { 
                 { "LOCALAPPDATA", this.CreateTestDirectory(@"AppData\Local", FileSystemRights.CreateDirectories, AccessControlType.Deny).FullName },
                 { "TEMP", this.CreateTestDirectory("Temp", FileSystemRights.CreateDirectories, AccessControlType.Deny).FullName },
-            };           
+            };
             var provider = new ApplicationFolderProvider(environmentVariables);
 
             IPlatformFolder applicationFolder = provider.GetApplicationFolder();
@@ -190,7 +190,7 @@
                 { "TEMP", this.CreateTestDirectory("Temp").FullName },
             };
 
-            var provider = new ApplicationFolderProvider(environmentVariables, allowUnsecureLocalStorage : false);
+            var provider = new ApplicationFolderProvider(environmentVariables);
 
             // Override to return false indicating applying security failed.
             provider.OverrideApplySecurityToDirectory( (dirInfo) => { return false; } );
@@ -198,26 +198,6 @@
             IPlatformFolder applicationFolder = provider.GetApplicationFolder();
 
             Assert.IsNull(applicationFolder);
-        }
-
-        [TestMethod]
-        public void GetApplicationFolderReturnsValidWhenUnableToSetSecurityPolicyOnDirectoryButUserOverrides()
-        {
-            var environmentVariables = new Hashtable
-            {
-                { "LOCALAPPDATA", this.CreateTestDirectory(@"AppData\Local").FullName },
-                { "TEMP", this.CreateTestDirectory("Temp").FullName },
-            };
-
-            var provider = new ApplicationFolderProvider(environmentVariables, allowUnsecureLocalStorage: true);
-
-            // Override to return false indicating applying security failed.
-            provider.OverrideApplySecurityToDirectory((dirInfo) => { return false; });
-
-            IPlatformFolder applicationFolder = provider.GetApplicationFolder();
-
-            // allowUnsecureLocalStorage is set to true, so even if security cannot be applied, folder would still be used. 
-            Assert.IsNotNull(applicationFolder);
         }
 
         [TestMethod]
