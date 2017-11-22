@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
     using System.Collections.Generic;
@@ -68,20 +68,6 @@
             }
 
             return interval;
-        }
-
-        /// <summary>
-        /// Returns min DateTimeOffset value if not a valid DateTimeOffset.
-        /// </summary>
-        public static DateTimeOffset ValidateDateTimeOffset(string value)
-        {
-            DateTimeOffset timestamp;
-            if (!DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out timestamp))
-            {
-                return DateTimeOffset.MinValue;
-            }
-
-            return timestamp;
         }
 
         public static double SanitizeNanAndInfinity(double value)
