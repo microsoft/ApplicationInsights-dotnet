@@ -19,7 +19,7 @@
 
         private readonly IDictionary environment;
         private readonly string customFolderName;
-        private IIdentityProvider identityProvider;
+        private readonly IIdentityProvider identityProvider;
 
         public ApplicationFolderProvider(string folderName = null)
             : this(Environment.GetEnvironmentVariables(), folderName)
