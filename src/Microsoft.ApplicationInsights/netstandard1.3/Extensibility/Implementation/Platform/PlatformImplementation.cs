@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
+﻿#if NETSTANDARD1_3
+namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 {
     using System;
     using System.Collections.Generic;
@@ -51,3 +52,4 @@
         }
     }
 }
+#endif

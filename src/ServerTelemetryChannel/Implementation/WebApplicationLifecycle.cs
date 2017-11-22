@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
+﻿#if !NETSTANDARD1_3
+namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
     using System.Threading;
@@ -83,3 +84,4 @@
         }
     }
 }
+#endif
