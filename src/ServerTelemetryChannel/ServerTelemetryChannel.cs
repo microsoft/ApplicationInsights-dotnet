@@ -182,9 +182,9 @@
         /// <summary>
         /// Gets or sets the folder to be used as a temporary storage for events that were not sent because of temporary connectivity issues. 
         /// It is the user's responsibility to put appropriate security permissions to this folder.
-        /// If folder was not provided or inaccessible. %LocalAppData% or %Temp% folder will be used in Windows.
-        /// For Non-Windows systems, telemetry items will not stored in local directory and will be dropped
-        /// if there are network issues preventing send of telemetry to application insights.
+        /// If folder was not provided or inaccessible. %LocalAppData% or %Temp% folder will be used in Windows systems.
+        /// For Non-Windows systems, providing this folder with write access to the process is required. If not provided or not accessible, 
+        /// telemetry items will be dropped if there are temporary network issues.
         /// </summary>
         public string StorageFolder
         {
