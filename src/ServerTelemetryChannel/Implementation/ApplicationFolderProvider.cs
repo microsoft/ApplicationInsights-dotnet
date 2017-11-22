@@ -156,7 +156,6 @@
                         telemetryDirectory = this.CreateTelemetrySubdirectory(telemetryDirectory);
                         if (!this.ApplySecurityToDirectory(telemetryDirectory))
                         {                            
-                            TelemetryChannelEventSource.Log.WritingToUnsecuredStorageDirectory(telemetryDirectory.FullName);
                             throw new SecurityException("Unable to apply security restrictions to the storage directory.");
                         }
                     }

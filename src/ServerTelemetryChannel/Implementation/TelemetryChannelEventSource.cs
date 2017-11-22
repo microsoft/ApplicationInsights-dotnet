@@ -369,7 +369,7 @@
         [Event(
             55, 
             Keywords = Keywords.UserActionable,
-            Message = "Local storage access has resulted in an error (User: {1}). If you want Application Insights SDK to store telemetry locally on disk in case of transient network issues please give the process access to %LOCALAPPDATA% or %TEMP% folder. After you gave access to the folder you need to restart the process. Currently monitoring will continue but if telemetry cannot be sent it will be dropped. Error message: {0}.", 
+            Message = "Local storage access has resulted in an error (User: {1}). If you want Application Insights SDK to store telemetry locally on disk in case of transient network issues please give the process access to %LOCALAPPDATA% or %TEMP% folder. If application is running in non-windows platform, create StorageFolder yourself, and set it to ServerTelemetryChannel.StorageFolder. After you gave access to the folder you need to restart the process. Currently monitoring will continue but if telemetry cannot be sent it will be dropped. Error message: {0}.", 
             Level = EventLevel.Error)]
         public void TransmissionStorageAccessDeniedError(string error, string user, string appDomainName = "Incorrect")
         {
@@ -485,12 +485,6 @@
         public void FailedToSetSecurityPermissionStorageDirectory(string directory, string error, string appDomainName = "Incorrect")
         {
             this.WriteEvent(68, directory, error, this.ApplicationName);
-        }
-
-        [Event(69, Message = "Access permissions to Storage directory {0} is not restricted to current user/admin, telemetry will still be stored as AllowUnsecureLocalStorage is set on ServerTelemetryChannel.", Level = EventLevel.Warning)]
-        public void WritingToUnsecuredStorageDirectory(string directory, string appDomainName = "Incorrect")
-        {
-            this.WriteEvent(69, directory, this.ApplicationName);
         }
 
         private string GetApplicationName()
