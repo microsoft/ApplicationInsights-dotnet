@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.EventHandlers
 {
     using System;
     using System.Collections.Concurrent;

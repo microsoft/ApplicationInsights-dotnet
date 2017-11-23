@@ -13,7 +13,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)DependencyTrackingTelemetryModule.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DiagnosticsEventHandlerBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventHandlers\DiagnosticsEventHandlerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpCoreDiagnosticSourceListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpDependenciesParsingTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpHeadersUtilities.cs" />
@@ -38,8 +38,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RDDSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RemoteDependencyConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SdkVersionUtils.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)EventHubsDiagnosticsEventHandler.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServiceBusDiagnosticsEventHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventHandlers\EventHubsDiagnosticsEventHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventHandlers\ServiceBusDiagnosticsEventHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PropertyFetcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SanitizedHostList.cs" />
@@ -64,5 +64,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RetryPolicy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryExtensionsForDependencyCollector.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Implementation\EventHandlers\" />
   </ItemGroup>
 </Project>
