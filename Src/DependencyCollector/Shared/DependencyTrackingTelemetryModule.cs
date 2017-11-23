@@ -151,6 +151,7 @@
                             if (this.IncludeDiagnosticSourceActivities != null && this.IncludeDiagnosticSourceActivities.Count > 0)
                             {
                                 this.telemetryDiagnosticSourceListener = new TelemetryDiagnosticSourceListener(configuration, this.IncludeDiagnosticSourceActivities);
+                                this.telemetryDiagnosticSourceListener.RegisterHandler(EventHubsDiagnosticsEventHandler.DiagnosticSourceName, new EventHubsDiagnosticsEventHandler(configuration));
                                 this.telemetryDiagnosticSourceListener.RegisterHandler(ServiceBusDiagnosticsEventHandler.DiagnosticSourceName, new ServiceBusDiagnosticsEventHandler(configuration));
                             }
 

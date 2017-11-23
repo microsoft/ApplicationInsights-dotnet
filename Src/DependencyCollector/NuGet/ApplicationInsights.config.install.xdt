@@ -18,6 +18,7 @@
         <Add>127.0.0.1</Add>
       </ExcludeComponentCorrelationHttpHeadersOnDomains>
       <IncludeDiagnosticSourceActivities>
+        <Add>Microsoft.Azure.EventHubs</Add>
         <Add>Microsoft.Azure.ServiceBus</Add>
       </IncludeDiagnosticSourceActivities>
     </Add>

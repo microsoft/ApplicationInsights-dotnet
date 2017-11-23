@@ -4,6 +4,7 @@
 - [Track requests and dependencies from ServiceBus .NET Client 2.1.0](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/740)
 - [Fix for REST API Request filter bug](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/175)
 - [Fix for SyntheticUserAgentTelemetryInitializer null check](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/750)
+- [Track dependencies from EventHubs .NET Client 2.0.0](https://github.com/Azure/azure-event-hubs-dotnet/pull/203)
 
 ## Version 2.5.0-beta1
 - Removed `net40` targets from all packages. Use the version 2.4 of SDK if your application is still compiled with the framework 4.0.
