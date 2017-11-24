@@ -95,6 +95,7 @@
                 if (!this.isEnabled && value)
                 {
                     // we need to start calling the timer again
+                    // if requested to disable, let the next HeartbeatPulse disable it for us (do nothing here)
                     this.HeartbeatTimer.Change(this.Interval, this.Interval);
                 }
 
@@ -285,16 +286,22 @@
                 {
                     this.HeartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
-                    if (this.isEnabled)
+                    if (this.IsEnabled)
                     {
                         hp.Send();
-                        this.HeartbeatTimer.Change(this.Interval, this.Interval);
                     }
                 }
                 catch (ObjectDisposedException)
                 {
                     // swallow this exception but log it just the same.
                     CoreEventSource.Log.LogError("Heartbeat timer change during dispose occured.");
+                }
+                finally
+                {
+                    if (this.IsEnabled)
+                    {
+                        this.HeartbeatTimer.Change(this.Interval, this.Interval);
+                    }
                 }
             }
             else
