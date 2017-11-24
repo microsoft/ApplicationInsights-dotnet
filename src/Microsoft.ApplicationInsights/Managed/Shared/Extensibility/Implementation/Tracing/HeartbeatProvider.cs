@@ -18,7 +18,7 @@
         /// <summary>
         /// The default interval between heartbeats if not specified by the user. Left public for use in unit tests.
         /// </summary>
-        public static readonly TimeSpan DefaultHeartbeatInterval = TimeSpan.FromMinutes(5.0);
+        public static readonly TimeSpan DefaultHeartbeatInterval = TimeSpan.FromMinutes(15.0);
 
         /// <summary>
         /// The name of the health heartbeat metric item and operation context. 
