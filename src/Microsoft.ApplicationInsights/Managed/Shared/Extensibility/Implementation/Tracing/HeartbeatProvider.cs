@@ -271,8 +271,6 @@
 
             eventData.Context.Operation.SyntheticSource = heartbeatSyntheticMetricName;
 
-            eventData.Context.InstrumentationKey = this.InstrumentationKey;
-
             this.telemetryClient.TrackMetric(eventData);
         }
 
