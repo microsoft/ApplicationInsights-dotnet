@@ -33,7 +33,7 @@
 
             this.EventListener = new DiagnosticsListener(this.Senders);
 
-            this.heartbeatInterval = TimeSpan.FromMilliseconds(Tracing.HeartbeatProvider.DefaultHeartbeatIntervalMs);
+            this.heartbeatInterval = Tracing.HeartbeatProvider.DefaultHeartbeatInterval;
 
             this.HeartbeatProvider = new HeartbeatProvider();
         }

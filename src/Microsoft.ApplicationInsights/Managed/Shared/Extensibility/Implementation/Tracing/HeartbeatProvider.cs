@@ -18,7 +18,7 @@
         /// <summary>
         /// The default interval between heartbeats if not specified by the user. Left public for use in unit tests.
         /// </summary>
-        public static int DefaultHeartbeatIntervalMs = 5000;
+        public static readonly TimeSpan DefaultHeartbeatInterval = TimeSpan.FromMinutes(5.0);
 
         /// <summary>
         /// The name of the health heartbeat metric item and operation context. 
@@ -41,7 +41,7 @@
 
         public HeartbeatProvider()
         {
-            this.heartbeatInterval = TimeSpan.FromMilliseconds(DefaultHeartbeatIntervalMs);
+            this.heartbeatInterval = DefaultHeartbeatInterval;
             this.heartbeatProperties = new ConcurrentDictionary<string, HeartbeatPropertyPayload>(StringComparer.OrdinalIgnoreCase);
             this.heartbeatsSent = 0; // count up from construction time
             this.isEnabled = false; // wait until Initialize is called before this means anything
@@ -57,7 +57,7 @@
             {
                 if (value == null || value.TotalMilliseconds <= 0)
                 {
-                    this.heartbeatInterval = TimeSpan.FromMilliseconds(DefaultHeartbeatIntervalMs);
+                    this.heartbeatInterval = DefaultHeartbeatInterval;
                 }
                 else
                 {
