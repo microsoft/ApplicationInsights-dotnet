@@ -222,30 +222,10 @@
         {
             var hbeat = new MetricTelemetry(heartbeatSyntheticMetricName, 0.0);
 
-            string updatedKeys = string.Empty;
-            string comma = string.Empty;
-
-            if (hbeat.Properties.ContainsKey(HeartbeatDefaultPayload.UpdatedFieldsPropertyKey))
-            {
-                updatedKeys = hbeat.Properties[HeartbeatDefaultPayload.UpdatedFieldsPropertyKey];
-                comma = ",";
-            }
-
             foreach (var payloadItem in this.heartbeatProperties)
             {
                 hbeat.Properties.Add(payloadItem.Key, payloadItem.Value.PayloadValue);
                 hbeat.Sum += payloadItem.Value.IsHealthy ? 0 : 1;
-                if (payloadItem.Value.IsUpdated)
-                {
-                    string.Concat(updatedKeys, comma, payloadItem.Key);
-                    comma = ",";
-                }
-            }
-
-            // update the special 'updated keys' property with the names of keys that have been updated.
-            if (!string.IsNullOrEmpty(updatedKeys))
-            {
-                hbeat.Properties[HeartbeatDefaultPayload.UpdatedFieldsPropertyKey] = updatedKeys;
             }
 
             hbeat.Sequence = string.Format(CultureInfo.CurrentCulture, "{0}", this.heartbeatsSent++);
