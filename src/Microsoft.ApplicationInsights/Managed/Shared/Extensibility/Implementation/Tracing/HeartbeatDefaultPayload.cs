@@ -81,7 +81,6 @@
 
         private static string GetRuntimeFrameworkVer()
         {
-            // taken from https://github.com/Azure/azure-sdk-for-net/blob/f097add680f37908995fa2fbf6b7c73f11652ec7/src/SdkCommon/ClientRuntime/ClientRuntime/ServiceClient.cs#L214
             Assembly assembly = typeof(Object).GetTypeInfo().Assembly;
 
             AssemblyFileVersionAttribute objectAssemblyFileVer =
