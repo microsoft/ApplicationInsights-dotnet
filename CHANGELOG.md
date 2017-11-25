@@ -4,7 +4,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 2.5.0-beta2
 - Remove calculation of sampling-score based on Context.User.Id [Issue #625](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/625)
-- New sdk-driven "heartbeat" functionality added which sends health status at pre-configured intervals.
+- New sdk-driven "heartbeat" functionality added which sends health status at pre-configured intervals. See [extending heartbeat properties doc for more information](./docs/ExtendingHeartbeatProperties.md)
 - Fixes a bug in ServerTelemetryChannel which caused application to crash on non-windows platforms. 
 			[Details on fix and workaround #654] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/654)
 			Original issue (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/551)
