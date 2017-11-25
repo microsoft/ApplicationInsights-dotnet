@@ -37,8 +37,8 @@
             using (var hbeat = new HeartbeatProvider())
             {
                 hbeat.Initialize(configuration: null);
-                Assert.IsTrue(hbeat.DisabledDefaultFields == null || hbeat.DisabledDefaultFields.Count() == 0);
-                Assert.AreEqual(hbeat.Interval, HeartbeatProvider.DefaultHeartbeatInterval);
+                Assert.IsTrue(hbeat.ExcludedHeartbeatProperties == null || hbeat.ExcludedHeartbeatProperties.Count() == 0);
+                Assert.AreEqual(hbeat.HeartbeatInterval, HeartbeatProvider.DefaultHeartbeatInterval);
             }
         }
 
@@ -47,20 +47,20 @@
         {
             TimeSpan nonDefaultInterval = TimeSpan.FromMilliseconds(10000);
 
-            using (var hbeat = new HeartbeatProvider() { Interval = nonDefaultInterval })
+            using (var hbeat = new HeartbeatProvider() { HeartbeatInterval = nonDefaultInterval })
             {
                 hbeat.Initialize(configuration: null);
-                Assert.AreEqual(nonDefaultInterval, hbeat.Interval);
+                Assert.AreEqual(nonDefaultInterval, hbeat.HeartbeatInterval);
             }
         }
 
         [TestMethod]
         public void InitializeHealthHeartbeatWithZeroIntervalRevertsToDefault()
         {
-            using (var hbeat = new HeartbeatProvider() { Interval = TimeSpan.FromMilliseconds(0) })
+            using (var hbeat = new HeartbeatProvider() { HeartbeatInterval = TimeSpan.FromMilliseconds(0) })
             {
                 hbeat.Initialize(configuration: null);
-                Assert.AreEqual(hbeat.Interval, HeartbeatProvider.DefaultHeartbeatInterval);
+                Assert.AreEqual(hbeat.HeartbeatInterval, HeartbeatProvider.DefaultHeartbeatInterval);
             }
         }
 
@@ -92,11 +92,11 @@
             {
                 var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
                 hbeat.Initialize(configuration: config);
-                Assert.AreNotEqual(userSetInterval, hbeat.Interval.TotalMilliseconds);
+                Assert.AreNotEqual(userSetInterval, hbeat.HeartbeatInterval.TotalMilliseconds);
 
-                hbeat.Interval = userSetInterval;
+                hbeat.HeartbeatInterval = userSetInterval;
                 hbeat.Initialize(configuration: config);
-                Assert.AreEqual(userSetInterval, hbeat.Interval);
+                Assert.AreEqual(userSetInterval, hbeat.HeartbeatInterval);
             }
         }
 
@@ -152,7 +152,7 @@
                     if (i % 2 == 0)
                     {
                         disableHbProps.Add(HeartbeatDefaultPayload.DefaultFields[i]);
-                        hbeat.DisabledDefaultFields.Add(HeartbeatDefaultPayload.DefaultFields[i]);
+                        hbeat.ExcludedHeartbeatProperties.Add(HeartbeatDefaultPayload.DefaultFields[i]);
                     }
                 }
 

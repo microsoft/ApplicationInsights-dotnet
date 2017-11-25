@@ -35,33 +35,33 @@
         private ConcurrentDictionary<string, HeartbeatPropertyPayload> heartbeatProperties;
 
         private bool disposedValue = false; // To detect redundant calls to dispose
-        private TimeSpan heartbeatInterval; // time between heartbeats emitted specified in milliseconds
+        private TimeSpan interval; // time between heartbeats emitted
         private TelemetryClient telemetryClient; // client to use in sending our heartbeat
         private volatile bool isEnabled; // no need for locks or volatile here, we can skip/add a beat if the module is disabled between heartbeats
 
         public HeartbeatProvider()
         {
-            this.heartbeatInterval = DefaultHeartbeatInterval;
+            this.interval = DefaultHeartbeatInterval;
             this.heartbeatProperties = new ConcurrentDictionary<string, HeartbeatPropertyPayload>(StringComparer.OrdinalIgnoreCase);
             this.heartbeatsSent = 0; // count up from construction time
-            this.isEnabled = false; // wait until Initialize is called before this means anything
+            this.isEnabled = true;
         }
 
         /// <summary>
         /// Gets or sets the currently defined interval between heartbeats
         /// </summary>
-        public TimeSpan Interval
+        public TimeSpan HeartbeatInterval
         {
-            get => this.heartbeatInterval;
+            get => this.interval;
             set
             {
                 if (value == null || value.TotalMilliseconds <= 0)
                 {
-                    this.heartbeatInterval = DefaultHeartbeatInterval;
+                    this.interval = DefaultHeartbeatInterval;
                 }
                 else
                 {
-                    this.heartbeatInterval = value;
+                    this.interval = value;
                 }
             }
         }
@@ -87,7 +87,7 @@
         /// <summary>
         /// Gets or sets a value indicating whether or not heartbeats are enabled
         /// </summary>
-        public bool IsEnabled
+        public bool IsHeartbeatEnabled
         {
             get => this.isEnabled;
             set
@@ -96,7 +96,7 @@
                 {
                     // we need to start calling the timer again
                     // if requested to disable, let the next HeartbeatPulse disable it for us (do nothing here)
-                    this.HeartbeatTimer.Change(this.Interval, this.Interval);
+                    this.HeartbeatTimer.Change(this.HeartbeatInterval, this.HeartbeatInterval);
                 }
 
                 this.isEnabled = value;
@@ -106,7 +106,7 @@
         /// <summary>
         /// Gets a list of default field names that should not be sent with each heartbeat.
         /// </summary>
-        public IList<string> DisabledDefaultFields
+        public IList<string> ExcludedHeartbeatProperties
         {
             get => this.disabledDefaultFields;
         }
@@ -120,14 +120,13 @@
                 this.telemetryClient = new TelemetryClient(configuration);
             }
 
-            HeartbeatDefaultPayload.GetPayloadProperties(this.DisabledDefaultFields, this);
-
-            this.isEnabled = true;
+            HeartbeatDefaultPayload.GetPayloadProperties(this.ExcludedHeartbeatProperties, this);
 
             // Note: if this is a subsequent initialization, the interval between heartbeats will be updated in the next cycle so no .Change call necessary here
             if (this.HeartbeatTimer == null)
             {
-                this.HeartbeatTimer = new Timer(this.HeartbeatPulse, this, this.Interval, this.Interval);
+                int interval = this.IsHeartbeatEnabled ? (int)this.HeartbeatInterval.TotalMilliseconds : Timeout.Infinite;
+                this.HeartbeatTimer = new Timer(this.HeartbeatPulse, this, interval, interval);
             }
         }
 
@@ -286,7 +285,7 @@
                 {
                     this.HeartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
-                    if (this.IsEnabled)
+                    if (this.IsHeartbeatEnabled)
                     {
                         hp.Send();
                     }
@@ -298,9 +297,9 @@
                 }
                 finally
                 {
-                    if (this.IsEnabled)
+                    if (this.IsHeartbeatEnabled)
                     {
-                        this.HeartbeatTimer.Change(this.Interval, this.Interval);
+                        this.HeartbeatTimer.Change(this.HeartbeatInterval, this.HeartbeatInterval);
                     }
                 }
             }

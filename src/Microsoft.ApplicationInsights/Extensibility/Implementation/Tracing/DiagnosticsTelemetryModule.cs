@@ -9,7 +9,7 @@
     /// <summary>
     /// Use diagnostics telemetry module to report SDK internal problems to the portal and VS debug output window.
     /// </summary>
-    public sealed class DiagnosticsTelemetryModule : ITelemetryModule, IDisposable
+    public sealed class DiagnosticsTelemetryModule : ITelemetryModule, IHeartbeatPropertyManager, IDisposable
     {
         internal readonly IList<IDiagnosticsSender> Senders = new List<IDiagnosticsSender>();
 
@@ -53,12 +53,12 @@
         {
             get
             {
-                return this.HeartbeatProvider.IsEnabled;
+                return this.HeartbeatProvider.IsHeartbeatEnabled;
             }
 
             set
             {
-                this.HeartbeatProvider.IsEnabled = value;
+                this.HeartbeatProvider.IsHeartbeatEnabled = value;
             }
         }
 
@@ -67,8 +67,8 @@
         /// </summary>
         public TimeSpan HeartbeatInterval
         {
-            get => this.HeartbeatProvider.Interval;
-            set => this.HeartbeatProvider.Interval = value;
+            get => this.HeartbeatProvider.HeartbeatInterval;
+            set => this.HeartbeatProvider.HeartbeatInterval = value;
         }
 
         /// <summary>
@@ -84,7 +84,7 @@
         {
             get
             {
-                return this.HeartbeatProvider.DisabledDefaultFields;
+                return this.HeartbeatProvider.ExcludedHeartbeatProperties;
             }
         }
 
