@@ -22,10 +22,9 @@
 
         public override void OnEvent(KeyValuePair<string, object> evnt, DiagnosticListener ignored)
         {
-            Activity currentActivity = Activity.Current;
-
             if (evnt.Key.EndsWith(".Stop", StringComparison.OrdinalIgnoreCase))
             {
+                Activity currentActivity = Activity.Current;
                 this.OnDependency(evnt.Key, evnt.Value, currentActivity);
             }
         }
