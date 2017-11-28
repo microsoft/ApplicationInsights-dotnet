@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests</AssemblyName>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <RootNamespace>Microsoft.ApplicationInsights.TraceListener.Tests</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.TraceListener.Net45.Tests</AssemblyName>
+    <TargetFramework>net45</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
@@ -15,10 +15,10 @@
     <PackageReference Include="Microbuild.Core" Version="0.2.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-  </ItemGroup>
+    <PackageReference Include="log4net" Version="2.0.5" />
+    <ProjectReference Include="..\..\src\TraceListener\TraceListener.csproj" />
+    <Reference Include="System.Net.Http" />
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Adapters\DiagnosticSource\DiagnosticSourceListener.csproj" />
   </ItemGroup>
 
   <ItemGroup>

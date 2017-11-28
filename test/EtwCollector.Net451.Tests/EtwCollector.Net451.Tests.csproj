@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>Microsoft.ApplicationInsights.NLogTarget.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.NLogTarget.Net45.Tests</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
+    <RootNamespace>Microsoft.ApplicationInsights.EtwCollector.Tests</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.EtwCollector.Net451.Tests</AssemblyName>
+    <TargetFramework>net46</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
@@ -15,12 +15,9 @@
     <PackageReference Include="Microbuild.Core" Version="0.2.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="NLog" Version="4.3.11" />
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="1.0.41" />
+    <ProjectReference Include="..\..\src\EtwCollector\EtwCollector.csproj" />
     <Reference Include="System.Net.Http" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Adapters\NLogTarget.Net45\NLogTarget.Net45.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>Microsoft.ApplicationInsights.TraceListener.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.TraceListener.Net45.Tests</AssemblyName>
+    <RootNamespace>Microsoft.ApplicationInsights.NLogTarget.Tests</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.NLogTarget.Net45.Tests</AssemblyName>
     <TargetFramework>net45</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
@@ -15,13 +15,9 @@
     <PackageReference Include="Microbuild.Core" Version="0.2.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="log4net" Version="2.0.5" />
+    <PackageReference Include="NLog" Version="4.3.11" />
+    <ProjectReference Include="..\..\src\NLogTarget\NLogTarget.csproj" />
     <Reference Include="System.Net.Http" />
-
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Adapters\TraceListener.Net45\TraceListener.Net45.csproj" />
   </ItemGroup>
 
   <ItemGroup>

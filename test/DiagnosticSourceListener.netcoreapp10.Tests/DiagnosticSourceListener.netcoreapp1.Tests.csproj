@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>Microsoft.ApplicationInsights.Log4NetAppender.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.Log4NetAppender.Net45.Tests</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
+    <RootNamespace>Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests</AssemblyName>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
@@ -15,13 +15,10 @@
     <PackageReference Include="Microbuild.Core" Version="0.2.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="log4net" Version="2.0.5" />
-    <Reference Include="System.Net.Http" />
-
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Adapters\Log4NetAppender.Net45\Log4NetAppender.Net45.csproj" />
+    <ProjectReference Include="..\..\src\DiagnosticSourceListener\DiagnosticSourceListener.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -23,15 +23,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\EventSourceListener\EventSourceListener.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Identifies the project as test project -->
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Adapters\EventSource.Netstandard13\EventSource.Netstandard13.csproj" />
-  </ItemGroup>
 
   <Import Project="..\Shared\Adapters.Shared.Tests.projitems" Label="Shared" Condition="Exists('..\Shared\Adapters.Shared.Tests.projitems')" />
   <Import Project="..\CommonTestShared\CommonTestShared.projitems" Label="Shared" Condition="Exists('..\CommonTestShared\CommonTestShared.projitems')" />
