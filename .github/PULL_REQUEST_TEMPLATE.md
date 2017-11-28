@@ -1,8 +1,8 @@
-Fix issue # .
-Short description of the fix:
+Fix Issue # .
+<Short description of the fix.>
 
-Checklist:
-- [ ] I ran all unit tests locally
+- [ ] I ran [Unit Tests](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/develop/.github/CONTRIBUTING.md) locally.
+
 For significant contributions please make sure you have completed the following items:
 
 - [ ] Design discussion issue #

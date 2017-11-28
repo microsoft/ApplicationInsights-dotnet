@@ -11,12 +11,15 @@
     using System.Security.Cryptography;
     using System.Security.Principal;
     using System.Text;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Shared.Implementation;    
 
     internal class ApplicationFolderProvider : IApplicationFolderProvider
     {
+        internal Func<DirectoryInfo, bool> ApplySecurityToDirectory;
+
         private readonly IDictionary environment;
         private readonly string customFolderName;
-        private readonly WindowsIdentity currentIdentity = WindowsIdentity.GetCurrent();
+        private readonly IIdentityProvider identityProvider;
 
         public ApplicationFolderProvider(string folderName = null)
             : this(Environment.GetEnvironmentVariables(), folderName)
@@ -30,12 +33,26 @@
                 throw new ArgumentNullException("environment");
             }
 
+            try
+            {
+                // In NETSTANDARD 1.3 Most reliable way to know if WindowsIdentityProvider can be used                 
+                // is to check if it throws exception.
+                WindowsIdentity.GetCurrent();
+                this.identityProvider = new WindowsIdentityProvider();
+                this.ApplySecurityToDirectory = this.SetSecurityPermissionsToAdminAndCurrentUserWindows;
+            }
+            catch (Exception)
+            {
+                this.identityProvider = new NonWindowsIdentityProvider(environment);
+                this.ApplySecurityToDirectory = this.SetSecurityPermissionsToAdminAndCurrentUserNonWindows;
+            }
+             
             this.environment = environment;
             this.customFolderName = folderName;
         }
 
         public IPlatformFolder GetApplicationFolder()
-        {
+        {            
             var errors = new List<string>(this.environment.Count + 1);
 
             var result = this.CreateAndValidateApplicationFolder(this.customFolderName, createSubFolder: false, errors: errors);
@@ -60,10 +77,19 @@
 
             if (result == null)
             {
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors), this.currentIdentity.Name);
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors), this.identityProvider.GetName(), this.customFolderName);
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Test hook to allow testing of non-windows scenario.
+        /// </summary>
+        /// <param name="applySecurityToDirectory">The method to be invoked to set directory access.</param>
+        internal void OverrideApplySecurityToDirectory(Func<DirectoryInfo, bool> applySecurityToDirectory)
+        {
+            this.ApplySecurityToDirectory = applySecurityToDirectory;
         }
 
         private static string GetPathAccessFailureErrorMessage(Exception exp, string path)
@@ -128,6 +154,10 @@
                     if (createSubFolder)
                     {
                         telemetryDirectory = this.CreateTelemetrySubdirectory(telemetryDirectory);
+                        if (!this.ApplySecurityToDirectory(telemetryDirectory))
+                        {                            
+                            throw new SecurityException("Unable to apply security restrictions to the storage directory.");
+                        }
                     }
 
                     CheckAccessPermissions(telemetryDirectory);
@@ -139,31 +169,31 @@
             catch (UnauthorizedAccessException exp)
             {
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+                TelemetryChannelEventSource.Log.TransmissionStorageIssuesWarning(errorMessage, this.identityProvider.GetName());
             }
             catch (ArgumentException exp)
             {
                 // Path does not specify a valid file path or contains invalid DirectoryInfo characters.
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+                TelemetryChannelEventSource.Log.TransmissionStorageIssuesWarning(errorMessage, this.identityProvider.GetName());
             }
             catch (DirectoryNotFoundException exp)
             {
                 // The specified path is invalid, such as being on an unmapped drive.
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+                TelemetryChannelEventSource.Log.TransmissionStorageIssuesWarning(errorMessage, this.identityProvider.GetName());
             }
             catch (IOException exp)
             {
                 // The subdirectory cannot be created. -or- A file or directory already has the name specified by path. -or-  The specified path, file name, or both exceed the system-defined maximum length. .
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+                TelemetryChannelEventSource.Log.TransmissionStorageIssuesWarning(errorMessage, this.identityProvider.GetName());
             }
             catch (SecurityException exp)
             {
                 // The caller does not have code access permission to create the directory.
                 errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+                TelemetryChannelEventSource.Log.TransmissionStorageIssuesWarning(errorMessage, this.identityProvider.GetName());
             }
 
             if (!string.IsNullOrEmpty(errorMessage))
@@ -184,37 +214,57 @@
             baseDirectory = AppContext.BaseDirectory;
 #endif
 
-            string appIdentity = this.currentIdentity.Name + "@" + Path.Combine(baseDirectory, Process.GetCurrentProcess().ProcessName);
+            string appIdentity = this.identityProvider.GetName() + "@" + Path.Combine(baseDirectory, Process.GetCurrentProcess().ProcessName);
             string subdirectoryName = GetSHA256Hash(appIdentity);
-            string subdirectoryPath = Path.Combine(@"Microsoft\ApplicationInsights", subdirectoryName);
+            string subdirectoryPath = Path.Combine("Microsoft", "ApplicationInsights", subdirectoryName);
             DirectoryInfo subdirectory = root.CreateSubdirectory(subdirectoryPath);
-
-            var directorySecurity = subdirectory.GetAccessControl();
-
-            // Grant access only to admins and current user
-            var adminitrators = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
-            directorySecurity.AddAccessRule(
-                new FileSystemAccessRule(
-                        adminitrators,
-                        FileSystemRights.FullControl,
-                        InheritanceFlags.None,
-                        PropagationFlags.NoPropagateInherit,
-                        AccessControlType.Allow));
-
-            directorySecurity.AddAccessRule(
-                new FileSystemAccessRule(
-                        this.currentIdentity.Name,
-                        FileSystemRights.FullControl,
-                        InheritanceFlags.None,
-                        PropagationFlags.NoPropagateInherit,
-                        AccessControlType.Allow));
-
-            // Do not inherit from parent folder
-            directorySecurity.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
-
-            subdirectory.SetAccessControl(directorySecurity);
-
+            
             return subdirectory;
+        }
+
+        private bool SetSecurityPermissionsToAdminAndCurrentUserNonWindows(DirectoryInfo subdirectory)
+        {
+            // For non-windows simply return false to indicate that security policy is not applied.
+            // This is until .net core exposes an Api to do this. 
+            return false;
+        }
+
+        private bool SetSecurityPermissionsToAdminAndCurrentUserWindows(DirectoryInfo subdirectory)
+        {
+            try
+            {
+                var directorySecurity = subdirectory.GetAccessControl();
+
+                // Grant access only to admins and current user
+                var adminitrators = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
+                directorySecurity.AddAccessRule(
+                    new FileSystemAccessRule(
+                            adminitrators,
+                            FileSystemRights.FullControl,
+                            InheritanceFlags.None,
+                            PropagationFlags.NoPropagateInherit,
+                            AccessControlType.Allow));
+
+                directorySecurity.AddAccessRule(
+                    new FileSystemAccessRule(
+                            this.identityProvider.GetName(),
+                            FileSystemRights.FullControl,
+                            InheritanceFlags.None,
+                            PropagationFlags.NoPropagateInherit,
+                            AccessControlType.Allow));
+
+                // Do not inherit from parent folder
+                directorySecurity.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
+
+                subdirectory.SetAccessControl(directorySecurity);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                TelemetryChannelEventSource.Log.FailedToSetSecurityPermissionStorageDirectory(subdirectory.FullName, ex.Message);
+                return false;
+            }
         }
     }
 }

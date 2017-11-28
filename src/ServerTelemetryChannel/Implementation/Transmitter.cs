@@ -55,7 +55,7 @@
 
         public event EventHandler<TransmissionProcessedEventArgs> TransmissionSent;
 
-        public string StorageFolder { get; set; }
+        public string StorageFolder { get; set; }        
 
         public int MaxBufferCapacity
         {

@@ -92,7 +92,7 @@
             this.WriteEvent(10, telemetryType ?? string.Empty, this.ApplicationName);
         }
 
-        [Event(11, Message = "Storage folder: {0}.", Level = EventLevel.Verbose)]
+        [Event(11, Message = "Storage folder: {0} successfully validated.", Level = EventLevel.Informational)]
         public void StorageFolder(string folder, string appDomainName = "Incorrect")
         {
             this.WriteEvent(11, folder ?? string.Empty, this.ApplicationName);
@@ -369,22 +369,23 @@
         [Event(
             55, 
             Keywords = Keywords.UserActionable,
-            Message = "Access to the local storage was denied (User: {1}). If you want Application Insights SDK to store telemetry locally on disk in case of transient network issues please give the process access either to %LOCALAPPDATA% or to %TEMP% folder. After you gave access to the folder you need to restart the process. Currently monitoring will continue but if telemetry cannot be sent it will be dropped. Error message: {0}.", 
+            Message = "Local storage access has resulted in an error (User: {1}) (CustomFolder: {2}). If you want Application Insights SDK to store telemetry locally on disk in case of transient network issues please give the process access to %LOCALAPPDATA% or %TEMP% folder. If application is running in non-windows platform, create StorageFolder yourself, and set ServerTelemetryChannel.StorageFolder to the custom folder name. After you gave access to the folder you need to restart the process. Currently monitoring will continue but if telemetry cannot be sent it will be dropped. Error message: {0}.", 
             Level = EventLevel.Error)]
-        public void TransmissionStorageAccessDeniedError(string error, string user, string appDomainName = "Incorrect")
+        public void TransmissionStorageAccessDeniedError(string error, string user, string customFolder, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 55,
                 error ?? string.Empty,
                 user ?? string.Empty,
+                customFolder ?? string.Empty,
                 this.ApplicationName);
         }
 
         [Event(
             56,
-            Message = "Access to the local storage was denied. Error: {0}. User: {1}.",
+            Message = "Local storage access has resulted in an error. Error Info: {0}. User: {1}.",
             Level = EventLevel.Warning)]
-        public void TransmissionStorageAccessDeniedWarning(string error, string user, string appDomainName = "Incorrect")
+        public void TransmissionStorageIssuesWarning(string error, string user, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 56,
@@ -479,6 +480,12 @@
         public void ItemRejectedNoInstrumentationKey(string item, string appDomainName = "Incorrect")
         {
             this.WriteEvent(67, item ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(68, Message = "Failed to set access permissions on storage directory {0}. Error : {1}.", Level = EventLevel.Warning)]
+        public void FailedToSetSecurityPermissionStorageDirectory(string directory, string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(68, directory, error, this.ApplicationName);
         }
 
         private string GetApplicationName()
