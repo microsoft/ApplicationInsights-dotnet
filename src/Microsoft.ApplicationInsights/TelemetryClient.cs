@@ -212,7 +212,7 @@
         }
 
         /// <summary>
-        /// Obsolete - use <see cref="MetricManager"/> to send metrics.
+        /// Send a <see cref="MetricTelemetry"/> for aggregation in Metric Explorer.
         /// </summary>
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
@@ -232,7 +232,6 @@
         /// <summary>
         /// Send a <see cref="MetricTelemetry"/> that represents aggregated metric data.
         /// Create a separate <see cref="MetricTelemetry"/> instance for each call to <see cref="TrackMetric(MetricTelemetry)"/>.
-        /// Consider using <see cref="MetricManager"/> to send metrics with reduced bandwidth.
         /// </summary>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackmetric">Learn more</a>
