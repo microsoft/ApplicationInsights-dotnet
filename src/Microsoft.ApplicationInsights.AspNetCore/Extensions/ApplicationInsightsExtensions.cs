@@ -151,6 +151,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     excludedDomains.Add("127.0.0.1");
 
                     var includedActivities = module.IncludeDiagnosticSourceActivities;
+                    includedActivities.Add("Microsoft.Azure.EventHubs");
                     includedActivities.Add("Microsoft.Azure.ServiceBus");
 
                     return module;
