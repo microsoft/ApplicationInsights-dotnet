@@ -123,6 +123,7 @@
         private T TrackOperation<T>(DiagnosticListener listener, string activityName, TaskStatus status) where T : OperationTelemetry
         {
             Activity activity = null;
+            int itemCountBefore = this.sentItems.Count;
 
             if (listener.IsEnabled(activityName))
             {
@@ -159,9 +160,14 @@
                         PartitionKey = "SomePartitionKeyHere",
                         Status = status
                     });
+
+                // a single new telemetry item was added
+                Assert.AreEqual(itemCountBefore + 1, this.sentItems.Count);
                 return this.sentItems.Last() as T;
             }
 
+            // no new telemetry items were added
+            Assert.AreEqual(itemCountBefore, this.sentItems.Count);
             return null;
         }
     }

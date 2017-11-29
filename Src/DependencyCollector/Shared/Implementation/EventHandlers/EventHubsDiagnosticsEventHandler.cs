@@ -22,10 +22,14 @@
 
         public override void OnEvent(KeyValuePair<string, object> evnt, DiagnosticListener ignored)
         {
-            if (evnt.Key.EndsWith(".Stop", StringComparison.OrdinalIgnoreCase))
+            Activity currentActivity = Activity.Current;
+
+            switch (evnt.Key)
             {
-                Activity currentActivity = Activity.Current;
-                this.OnDependency(evnt.Key, evnt.Value, currentActivity);
+                case "Microsoft.Azure.EventHubs.Send.Stop":
+                case "Microsoft.Azure.EventHubs.Receive.Stop":
+                    this.OnDependency(evnt.Key, evnt.Value, currentActivity);
+                    break;
             }
         }
 
