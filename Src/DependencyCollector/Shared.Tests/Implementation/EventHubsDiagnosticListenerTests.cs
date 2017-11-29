@@ -18,7 +18,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class ServiceBusDiagnosticListenerTests
+    public class EventHubsDiagnosticListenerTests
     {
         private TelemetryConfiguration configuration;
         private List<ITelemetry> sentItems;
@@ -46,17 +46,19 @@
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
-                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
+                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
                 module.Initialize(this.configuration);
 
-                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.ServiceBus");
+                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.EventHubs");
 
                 listener.Write(
-                    "Microsoft.Azure.ServiceBus.Send.Stop",
+                    "Microsoft.Azure.EventHubs.Send.Stop", 
                     new
                     {
-                        Entity = "queueName",
-                        Endpoint = new Uri("sb://queuename.myservicebus.com/")
+                        Entity = "ehname",
+                        Endpoint = new Uri("sb://eventhubname.servicebus.windows.net/"),
+                        PartitionKey = "SomePartitionKeyHere",
+                        Status = TaskStatus.RanToCompletion
                     });
 
                 Assert.IsFalse(this.sentItems.Any());
@@ -64,97 +66,78 @@
         }
 
         [TestMethod]
-        public void ServiceBusSendHanding()
+        public void EventHubsSuccessfulSendIsHandled()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
-                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
+                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
                 module.Initialize(this.configuration);
 
-                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.ServiceBus");
+                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.EventHubs");
 
                 Activity parentActivity = new Activity("parent").AddBaggage("k1", "v1").Start();
-                var telemetry  = this.TrackOperation<DependencyTelemetry>(listener, "Microsoft.Azure.ServiceBus.Send", TaskStatus.RanToCompletion);
+                var telemetry  = this.TrackOperation<DependencyTelemetry>(listener, "Microsoft.Azure.EventHubs.Send", TaskStatus.RanToCompletion);
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
-                Assert.AreEqual(RemoteDependencyConstants.AzureServiceBus, telemetry.Type);
-                Assert.AreEqual("sb://queuename.myservicebus.com/ | queueName", telemetry.Target);
+                Assert.AreEqual(RemoteDependencyConstants.AzureEventHubs, telemetry.Type);
+                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
                 Assert.IsTrue(telemetry.Success.Value);
 
                 Assert.AreEqual(parentActivity.Id, telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(parentActivity.RootId, telemetry.Context.Operation.Id);
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
-                Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
+                Assert.AreEqual("eventhubname.servicebus.windows.net", telemetry.Properties["peer.hostname"]);
+                Assert.AreEqual("ehname", telemetry.Properties["eh.event_hub_name"]);
+                Assert.AreEqual("SomePartitionKeyHere", telemetry.Properties["eh.partition_key"]);
+                Assert.AreEqual("EventHubClient1(ehname)", telemetry.Properties["eh.client_id"]);
             }
         }
 
         [TestMethod]
-        public void ServiceBusBadStatusHanding()
+        public void EventHubsFailedSendIsHandled()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
-                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
+                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
                 module.Initialize(this.configuration);
 
-                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.ServiceBus");
+                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.EventHubs");
 
                 Activity parentActivity = new Activity("parent").AddBaggage("k1", "v1").Start();
-                var telemetry = this.TrackOperation<DependencyTelemetry>(listener, "Microsoft.Azure.ServiceBus.Send", TaskStatus.Faulted);
+                var telemetry = this.TrackOperation<DependencyTelemetry>(listener, "Microsoft.Azure.EventHubs.Send", TaskStatus.Faulted);
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
-                Assert.AreEqual(RemoteDependencyConstants.AzureServiceBus, telemetry.Type);
-                Assert.AreEqual("sb://queuename.myservicebus.com/ | queueName", telemetry.Target);
+                Assert.AreEqual(RemoteDependencyConstants.AzureEventHubs, telemetry.Type);
+                Assert.AreEqual("sb://eventhubname.servicebus.windows.net/ | ehname", telemetry.Target);
                 Assert.IsFalse(telemetry.Success.Value);
 
                 Assert.AreEqual(parentActivity.Id, telemetry.Context.Operation.ParentId);
                 Assert.AreEqual(parentActivity.RootId, telemetry.Context.Operation.Id);
                 Assert.AreEqual("v1", telemetry.Properties["k1"]);
-                Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
+                Assert.AreEqual("eventhubname.servicebus.windows.net", telemetry.Properties["peer.hostname"]);
+                Assert.AreEqual("ehname", telemetry.Properties["eh.event_hub_name"]);
+                Assert.AreEqual("SomePartitionKeyHere", telemetry.Properties["eh.partition_key"]);
+                Assert.AreEqual("EventHubClient1(ehname)", telemetry.Properties["eh.client_id"]);
             }
         }
 
         [TestMethod]
-        public void ServiceBusProcessHanding()
-        {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
-                module.Initialize(this.configuration);
-
-                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.ServiceBus");
-
-                Activity parentActivity = new Activity("parent").AddBaggage("k1", "v1").Start();
-                var telemetry = this.TrackOperation<RequestTelemetry>(listener, "Microsoft.Azure.ServiceBus.Process", TaskStatus.RanToCompletion);
-
-                Assert.IsNotNull(telemetry);
-                Assert.AreEqual("Process", telemetry.Name);
-                Assert.AreEqual($"type:{RemoteDependencyConstants.AzureServiceBus} | name:queueName | endpoint:sb://queuename.myservicebus.com/", telemetry.Source);  
-                Assert.IsTrue(telemetry.Success.Value);
-
-                Assert.AreEqual(parentActivity.Id, telemetry.Context.Operation.ParentId);
-                Assert.AreEqual(parentActivity.RootId, telemetry.Context.Operation.Id);
-                Assert.AreEqual("v1", telemetry.Properties["k1"]);
-                Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
-            }
-        }
-
-        [TestMethod]
-        public void ServiceBusExceptionsAreIgnored()
+        public void EventHubsSendExceptionsAreIgnored()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 this.configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
-                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
+                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
                 module.Initialize(this.configuration);
 
-                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.ServiceBus");
+                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.EventHubs");
 
                 Activity parentActivity = new Activity("parent").AddBaggage("k1", "v1").Start();
-                if (listener.IsEnabled("Microsoft.Azure.ServiceBus.Exception"))
+                if (listener.IsEnabled("Microsoft.Azure.EventHubs.Send.Exception"))
                 {
-                    listener.Write("Microsoft.Azure.ServiceBus.Exception", new { Exception = new Exception("123") });
+                    listener.Write("Microsoft.Azure.EventHubs.Send.Exception", new { Exception = new Exception("123") });
                 }
 
                 Assert.IsFalse(this.sentItems.Any());
@@ -164,14 +147,25 @@
         private T TrackOperation<T>(DiagnosticListener listener, string activityName, TaskStatus status) where T : OperationTelemetry
         {
             Activity activity = null;
+            int itemCountBefore = this.sentItems.Count;
 
             if (listener.IsEnabled(activityName))
             {
                 activity = new Activity(activityName);
-                activity.AddTag("MessageId", "messageId");
+                activity.AddTag("peer.hostname", "eventhubname.servicebus.windows.net");
+                activity.AddTag("eh.event_hub_name", "ehname");
+                activity.AddTag("eh.partition_key", "SomePartitionKeyHere");
+                activity.AddTag("eh.client_id", "EventHubClient1(ehname)");
                 if (listener.IsEnabled(activityName + ".Start"))
                 {
-                    listener.StartActivity(activity, new { Entity = "queueName", Endpoint = new Uri("sb://queuename.myservicebus.com/") });
+                    listener.StartActivity(
+                        activity,
+                        new
+                        {
+                            Entity = "ehname",
+                            Endpoint = new Uri("sb://eventhubname.servicebus.windows.net/"),
+                            PartitionKey = "SomePartitionKeyHere"
+                        });
                 }
                 else
                 {
@@ -181,10 +175,23 @@
 
             if (activity != null)
             {
-                listener.StopActivity(activity, new { Entity = "queueName", Endpoint = new Uri("sb://queuename.myservicebus.com/"), Status = status });
+                listener.StopActivity(
+                    activity,
+                    new
+                    {
+                        Entity = "ehname",
+                        Endpoint = new Uri("sb://eventhubname.servicebus.windows.net/"),
+                        PartitionKey = "SomePartitionKeyHere",
+                        Status = status
+                    });
+
+                // a single new telemetry item was added
+                Assert.AreEqual(itemCountBefore + 1, this.sentItems.Count);
                 return this.sentItems.Last() as T;
             }
 
+            // no new telemetry items were added
+            Assert.AreEqual(itemCountBefore, this.sentItems.Count);
             return null;
         }
     }
