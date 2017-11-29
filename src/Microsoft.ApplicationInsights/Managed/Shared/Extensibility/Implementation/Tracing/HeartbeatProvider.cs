@@ -60,9 +60,13 @@
             get => this.interval;
             set
             {
-                if (value == null || value <= MinimumHeartbeatInterval)
+                if (value == null)
                 {
                     this.interval = DefaultHeartbeatInterval;
+                }
+                else if (value <= MinimumHeartbeatInterval)
+                {
+                    this.interval = MinimumHeartbeatInterval;
                 }
                 else
                 {

@@ -64,6 +64,15 @@
 
         /// <summary>
         /// Gets or sets the delay interval between heartbeats.
+        /// 
+        /// <remarks>
+        /// Note that there is a minimum interval <see cref="HeartbeatProvider.MinimumHeartbeatInterval"/> and if an 
+        /// attempt to make the interval less than this minimum value is detected, the interval rate will be set to 
+        /// the minimum. 
+        /// Also note, if the interval is set to any value less than the current channel flush rate, the heartbeat may 
+        /// not be emitted at expected times. (The heartbeat will still be sent, but after having been cached for a 
+        /// time first).
+        /// </remarks>
         /// </summary>
         public TimeSpan HeartbeatInterval
         {

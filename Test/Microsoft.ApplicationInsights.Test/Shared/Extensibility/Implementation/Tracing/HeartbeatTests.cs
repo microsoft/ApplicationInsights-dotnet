@@ -5,9 +5,7 @@
     using System.Globalization;
     using System.Linq;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Mocks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Microsoft.ApplicationInsights.TestFramework;
 
     [TestClass]
     public class HealthHeartbeatTests
@@ -61,23 +59,23 @@
         }
 
         [TestMethod]
-        public void InitializeHeartbeatWithZeroIntervalRevertsToDefault()
+        public void InitializeHeartbeatWithZeroIntervalIsSetToMinimum()
         {
             using (var hbeat = new HeartbeatProvider() { HeartbeatInterval = TimeSpan.FromMilliseconds(0) })
             {
                 hbeat.Initialize(configuration: null);
-                Assert.AreEqual(hbeat.HeartbeatInterval, HeartbeatProvider.DefaultHeartbeatInterval);
+                Assert.AreEqual(hbeat.HeartbeatInterval, HeartbeatProvider.MinimumHeartbeatInterval);
             }
         }
 
         [TestMethod]
-        public void SetHeartbeatWithSmallerThanMinimumIntervalRevertsToDefault()
+        public void SetHeartbeatWithSmallerThanMinimumIntervalIsSetToMinimum()
         {
             var tooSmallInterval = TimeSpan.FromMilliseconds(HeartbeatProvider.MinimumHeartbeatInterval.TotalMilliseconds / 2);
             using (var hbeat = new HeartbeatProvider() { HeartbeatInterval = tooSmallInterval })
             {
                 hbeat.Initialize(configuration: null);
-                Assert.AreEqual(hbeat.HeartbeatInterval, HeartbeatProvider.DefaultHeartbeatInterval);
+                Assert.AreEqual(hbeat.HeartbeatInterval, HeartbeatProvider.MinimumHeartbeatInterval);
             }
         }
 
@@ -149,8 +147,7 @@
         {
             using (var hbeat = new HeartbeatProvider())
             {
-                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-                hbeat.Initialize(configuration: config);
+                hbeat.Initialize(configuration: null);
                 var hbeatPayloadData = hbeat.GatherData();
                 Assert.IsNotNull(hbeatPayloadData);
             }
@@ -161,10 +158,9 @@
         {
             using (var hbeat = new HeartbeatProvider())
             {
-                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
                 string testerKey = "tester123";
                 Assert.IsTrue(hbeat.AddHealthProperty(testerKey, "test", true));
-                hbeat.Initialize(configuration: config);
+                hbeat.Initialize(configuration: null);
 
                 MetricTelemetry payload = (MetricTelemetry)hbeat.GatherData();
 
@@ -190,8 +186,7 @@
                     }
                 }
 
-                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-                hbeat.Initialize(configuration: config);
+                hbeat.Initialize(configuration: null);
 
                 var sentHeartBeat = (MetricTelemetry)hbeat.GatherData();
 
@@ -210,8 +205,7 @@
         {
             using (var hbeat = new HeartbeatProvider())
             {
-                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-                hbeat.Initialize(configuration: config);
+                hbeat.Initialize(configuration: null);
                 var msg = (MetricTelemetry)hbeat.GatherData();
                 Assert.IsFalse(msg.Sum > 0.0);
             }
@@ -222,8 +216,7 @@
         {
             using (var hbeat = new HeartbeatProvider())
             {
-                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-                hbeat.Initialize(configuration: config);
+                hbeat.Initialize(configuration: null);
                 string testerKey = "tester123";
                 hbeat.AddHealthProperty(testerKey, "test", false);
 
@@ -237,8 +230,7 @@
         {
             using (var hbeat = new HeartbeatProvider())
             {
-                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-                hbeat.Initialize(configuration: config);
+                hbeat.Initialize(configuration: null);
 
                 var msg = (MetricTelemetry)hbeat.GatherData();
                 Assert.IsTrue(msg.Sum == 0.0);
@@ -256,8 +248,7 @@
         {
             using (var hbeat = new HeartbeatProvider())
             {
-                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-                hbeat.Initialize(configuration: config);
+                hbeat.Initialize(configuration: null);
 
                 var msg = (MetricTelemetry)hbeat.GatherData();
                 Assert.IsNotNull(msg);
@@ -308,8 +299,7 @@
         {
             using (var hbeat = new HeartbeatProvider())
             {
-                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-                hbeat.Initialize(configuration: config);
+                hbeat.Initialize(configuration: null);
 
                 foreach (string key in HeartbeatDefaultPayload.DefaultFields)
                 {
@@ -337,8 +327,7 @@
         {
             using (var hbeat = new HeartbeatProvider())
             {
-                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-                hbeat.Initialize(configuration: config);
+                hbeat.Initialize(configuration: null);
 
                 var msg = (MetricTelemetry)hbeat.GatherData();
 
@@ -352,8 +341,7 @@
         {
             using (var hbeat = new HeartbeatProvider())
             {
-                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-                hbeat.Initialize(configuration: config);
+                hbeat.Initialize(configuration: null);
 
                 string key = "setValueTest";
 
@@ -372,8 +360,7 @@
         {
             using (var hbeat = new HeartbeatProvider())
             {
-                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-                hbeat.Initialize(configuration: config);
+                hbeat.Initialize(configuration: null);
 
                 string key = "healthSettingTest";
 
