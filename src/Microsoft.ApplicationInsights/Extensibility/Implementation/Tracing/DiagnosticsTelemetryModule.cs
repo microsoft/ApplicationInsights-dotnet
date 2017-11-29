@@ -63,7 +63,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the delay between heartbeats.
+        /// Gets or sets the delay interval between heartbeats.
         /// </summary>
         public TimeSpan HeartbeatInterval
         {

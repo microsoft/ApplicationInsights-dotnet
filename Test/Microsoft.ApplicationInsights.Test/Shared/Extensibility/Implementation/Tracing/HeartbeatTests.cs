@@ -45,19 +45,36 @@
         [TestMethod]
         public void InitializeHealthHeartbeatWithNonDefaultInterval()
         {
-            TimeSpan nonDefaultInterval = TimeSpan.FromMilliseconds(10000);
+            TimeSpan userSetInterval = TimeSpan.FromMilliseconds(HeartbeatProvider.MinimumHeartbeatInterval.TotalMilliseconds + 7852.0);
 
-            using (var hbeat = new HeartbeatProvider() { HeartbeatInterval = nonDefaultInterval })
+            using (var initializedModule = new DiagnosticsTelemetryModule())
             {
-                hbeat.Initialize(configuration: null);
-                Assert.AreEqual(nonDefaultInterval, hbeat.HeartbeatInterval);
+                // set the interval via the IHeartbeatPropertyManager interface
+                IHeartbeatPropertyManager hbeat = initializedModule;
+                Assert.AreNotEqual(userSetInterval, hbeat.HeartbeatInterval);
+                hbeat.HeartbeatInterval = userSetInterval;
+
+                // initialize the DiagnosticsTelemetryModule, and check that the interval is stil intact
+                initializedModule.Initialize(new TelemetryConfiguration());
+                Assert.AreEqual(userSetInterval, hbeat.HeartbeatInterval);
             }
         }
 
         [TestMethod]
-        public void InitializeHealthHeartbeatWithZeroIntervalRevertsToDefault()
+        public void InitializeHeartbeatWithZeroIntervalRevertsToDefault()
         {
             using (var hbeat = new HeartbeatProvider() { HeartbeatInterval = TimeSpan.FromMilliseconds(0) })
+            {
+                hbeat.Initialize(configuration: null);
+                Assert.AreEqual(hbeat.HeartbeatInterval, HeartbeatProvider.DefaultHeartbeatInterval);
+            }
+        }
+
+        [TestMethod]
+        public void SetHeartbeatWithSmallerThanMinimumIntervalRevertsToDefault()
+        {
+            var tooSmallInterval = TimeSpan.FromMilliseconds(HeartbeatProvider.MinimumHeartbeatInterval.TotalMilliseconds / 2);
+            using (var hbeat = new HeartbeatProvider() { HeartbeatInterval = tooSmallInterval })
             {
                 hbeat.Initialize(configuration: null);
                 Assert.AreEqual(hbeat.HeartbeatInterval, HeartbeatProvider.DefaultHeartbeatInterval);
@@ -84,19 +101,36 @@
         }
 
         [TestMethod]
-        public void CanSetDelayBetweenHeartbeats()
+        public void IsHeartbeatEnabledByDefault()
         {
-            TimeSpan userSetInterval = TimeSpan.FromMilliseconds(7252.0);
-
-            using (var hbeat = new HeartbeatProvider())
+            using (var initializedModule = new DiagnosticsTelemetryModule())
             {
-                var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-                hbeat.Initialize(configuration: config);
-                Assert.AreNotEqual(userSetInterval, hbeat.HeartbeatInterval.TotalMilliseconds);
+                // test that the heartbeat is enabled by default
+                IHeartbeatPropertyManager hbeat = initializedModule;
+                Assert.IsTrue(hbeat.IsHeartbeatEnabled);
 
-                hbeat.HeartbeatInterval = userSetInterval;
-                hbeat.Initialize(configuration: config);
-                Assert.AreEqual(userSetInterval, hbeat.HeartbeatInterval);
+                // initialize the DiagnosticsTelemetryModule, and check that heartbeats are still enabled
+                initializedModule.Initialize(new TelemetryConfiguration());
+                Assert.IsTrue(hbeat.IsHeartbeatEnabled);
+            }
+        }
+
+        [TestMethod]
+        public void CanDisableHeartbeatPriorToInitialize()
+        {
+            using (var initializedModule = new DiagnosticsTelemetryModule())
+            {
+                // disable the heartbeat at construction time but before initialize
+                // (this simulates the flow of disabling the heartbeat via config)
+                IHeartbeatPropertyManager hbeat = initializedModule;
+                hbeat.IsHeartbeatEnabled = false;
+
+                // initialize the DiagnosticsTelemetryModule, and check that heartbeats are still disabled
+                initializedModule.Initialize(new TelemetryConfiguration());
+                Assert.IsFalse(hbeat.IsHeartbeatEnabled);
+
+                // dig into the heartbeat provider itself to ensure this is indeed disabled
+                Assert.IsFalse(initializedModule.HeartbeatProvider.IsHeartbeatEnabled);
             }
         }
 
@@ -245,7 +279,7 @@
         }
 
         [TestMethod]
-        public void PayloadExtensionHandlesExtensionPayloadNameCollision()
+        public void HeartbeatProviderDoesNotAllowDuplicatePropertyName()
         {
             using (var hbeat = new HeartbeatProvider())
             {

@@ -13,9 +13,9 @@
             "baseSdkTargetFramework"
         };
 
-        public static void GetPayloadProperties(IEnumerable<string> disabledFields, IHeartbeatProvider provider)
+        public static void PopulateDefaultPayload(IEnumerable<string> disabledFields, IHeartbeatProvider provider)
         {
-            var enabledProperties = HeartbeatDefaultPayload.RemoveDisabledDefaultFields(disabledFields);
+            var enabledProperties = RemoveDisabledDefaultFields(disabledFields);
 
             var payload = new Dictionary<string, HeartbeatPropertyPayload>();
             foreach (string fieldName in enabledProperties)
@@ -25,10 +25,10 @@
                     switch (fieldName)
                     {
                         case "runtimeFramework":
-                            provider.AddHealthProperty(fieldName, HeartbeatDefaultPayload.GetRuntimeFrameworkVer(), true);
+                            provider.AddHealthProperty(fieldName, GetRuntimeFrameworkVer(), true);
                             break;
                         case "baseSdkTargetFramework":
-                            provider.AddHealthProperty(fieldName, HeartbeatDefaultPayload.GetBaseSdkTargetFramework(), true);
+                            provider.AddHealthProperty(fieldName, GetBaseSdkTargetFramework(), true);
                             break;
                         default:
                             provider.AddHealthProperty(fieldName, "UNDEFINED", false);

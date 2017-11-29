@@ -21,6 +21,11 @@
         public static readonly TimeSpan DefaultHeartbeatInterval = TimeSpan.FromMinutes(15.0);
 
         /// <summary>
+        /// The minimum interval that can be set between heartbeats.
+        /// </summary>
+        public static readonly TimeSpan MinimumHeartbeatInterval = TimeSpan.FromSeconds(30.0);
+
+        /// <summary>
         /// The name of the health heartbeat metric item and operation context. 
         /// </summary>
         private static string heartbeatSyntheticMetricName = "HealthState";
@@ -55,7 +60,7 @@
             get => this.interval;
             set
             {
-                if (value == null || value.TotalMilliseconds <= 0)
+                if (value == null || value <= MinimumHeartbeatInterval)
                 {
                     this.interval = DefaultHeartbeatInterval;
                 }
@@ -120,7 +125,7 @@
                 this.telemetryClient = new TelemetryClient(configuration);
             }
 
-            HeartbeatDefaultPayload.GetPayloadProperties(this.ExcludedHeartbeatProperties, this);
+            HeartbeatDefaultPayload.PopulateDefaultPayload(this.ExcludedHeartbeatProperties, this);
 
             // Note: if this is a subsequent initialization, the interval between heartbeats will be updated in the next cycle so no .Change call necessary here
             if (this.HeartbeatTimer == null)
@@ -132,11 +137,12 @@
 
         public bool AddHealthProperty(string healthPropertyName, string healthPropertyValue, bool isHealthy)
         {
+            bool isAdded = false;
+
             if (!string.IsNullOrEmpty(healthPropertyName))
             {
                 try
                 {
-                    bool isAdded = false;
                     var existingProp = this.heartbeatProperties.GetOrAdd(healthPropertyName, (key) =>
                     {
                         isAdded = true;
@@ -146,8 +152,6 @@
                             PayloadValue = healthPropertyValue
                         };
                     });
-
-                    return isAdded;
                 }
                 catch (Exception e)
                 {
@@ -156,24 +160,22 @@
             }
             else
             {
-                CoreEventSource.Log.FailedToAddHeartbeatProperty(healthPropertyName, healthPropertyValue);
+                CoreEventSource.Log.HeartbeatPropertyAddedWithoutAnyName(healthPropertyValue, isHealthy);
             }
 
-            return false;
+            return isAdded;
         }
 
         public bool SetHealthProperty(string healthPropertyName, string healthPropertyValue = null, bool? isHealthy = null)
         {
+            bool setResult = false;
             if (!string.IsNullOrEmpty(healthPropertyName)
                 && !HeartbeatDefaultPayload.DefaultFields.Contains(healthPropertyName))
             {
                 try
                 {
-                    bool setResult = true;
-
                     this.heartbeatProperties.AddOrUpdate(healthPropertyName, (key) =>
                     {
-                        setResult = false;
                         throw new Exception("Cannot set a health property without adding it first.");
                     },
                     (key, property) =>
@@ -189,20 +191,19 @@
 
                         return property;
                     });
-
-                    return setResult;
+                    setResult = true;
                 }
                 catch (Exception e)
                 {
-                    CoreEventSource.Log.FailedToSetHeartbeatProperty(healthPropertyName, healthPropertyValue, isHealthy.HasValue ? isHealthy.Value.ToString() : "null", e.ToString());
+                    CoreEventSource.Log.FailedToSetHeartbeatProperty(healthPropertyName, healthPropertyValue, isHealthy.HasValue, isHealthy.GetValueOrDefault(false), e.ToString());
                 }
             }
             else
             {
-                CoreEventSource.Log.FailedToSetHeartbeatProperty(healthPropertyName, healthPropertyValue, isHealthy.HasValue ? isHealthy.Value.ToString() : "null");
+                CoreEventSource.Log.CannotSetHeartbeatPropertyWithNoNameOrDefaultName(healthPropertyName, healthPropertyValue, isHealthy.HasValue, isHealthy.GetValueOrDefault(false));
             }
 
-            return false;
+            return setResult;
         }
 
         #region IDisposable Support
@@ -276,19 +277,14 @@
 
         private void HeartbeatPulse(object state)
         {
-            if (state is HeartbeatProvider)
+            if (state is HeartbeatProvider hp && hp.IsHeartbeatEnabled)
             {
-                HeartbeatProvider hp = state as HeartbeatProvider;
                 // we will be prone to overlap if any extension payload provider takes a longer time to process than our timer
                 // interval. Best that we reset the timer each time round.
                 try
                 {
                     this.HeartbeatTimer.Change(Timeout.Infinite, Timeout.Infinite);
-
-                    if (this.IsHeartbeatEnabled)
-                    {
-                        hp.Send();
-                    }
+                    hp.Send();
                 }
                 catch (ObjectDisposedException)
                 {

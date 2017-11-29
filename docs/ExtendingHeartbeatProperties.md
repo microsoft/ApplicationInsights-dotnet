@@ -16,7 +16,9 @@ properties you want to include in the payload, and you can update (via set) the 
 status of those properties for the duration of the application life cycle.
 
 To add the payload properties, aquire the IHeartbeatPropertyManager module using the internal
-`TelemetryModules` singleton. Do this in your `Initialize(TelemetryConfiguration telemetryConfig)` implementation method, and iterate through the available modules looking for an implementation of `IHeartbeatPropertyManager`:
+`TelemetryModules` singleton. One way in which you could do this is from inside your 
+`Initialize(TelemetryConfiguration telemetryConfig)` implementation method, and then iterate 
+through the available modules looking for an implementation of `IHeartbeatPropertyManager`:
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     ...
@@ -46,7 +48,8 @@ application's lifecycle.
     this.heartbeatManager.AddHealthProperty(propertyName: "myHealthProperty", propertyValue: this.MyHealthProperty, isHealthy: true);
     ...
 
-Outside of your `Initialize` method, you can update the values you've added by using the `SetHealthProperty` method very simply. For instance, you can add a health property called
+Outside of your `Initialize` method, you can update the values you've added by using the 
+`SetHealthProperty` method very simply. For instance, you can add a health property called 
 'myHealthProperty' in the initialize method as above, and then from within a property elsewhere
 in your class, you can update the value in the heartbeat payload as follows:
 
@@ -72,11 +75,10 @@ duration of your application's life.
 your override of this value may adversely affect the consumer's ApplicationInsights.config
 configuration in doing so.
 
-You can also set values into the `ExcludedDefaultProperties` list if you find it pertinent to
-do so.  Setting values into the
-`ExcludedDefaultProperties` is fine, as your module may provide more detailed information about
-one of the many SDK-supplied default fields, and in these cases it is better  to remove the
-redundancy.
+You can also set values into the `ExcludedHeartbeatProperties` list if you find it pertinent to
+do so.  Setting values into the `ExcludedHeartbeatProperties` is fine, as your module may provide
+more detailed information about one of the many SDK-supplied default fields, and in these cases it
+is better  to remove the redundancy.
 
 ## A Working Example of Extending Properties ##
 
@@ -91,6 +93,6 @@ FileDiagnosticsTelemetryModule here:
 
 https://github.com/Microsoft/ApplicationInsights-dotnet-server/blob/2089882ea10a32b88f8d4681eb4819f09a1471bd/Src/HostingStartup/HostingStartup.Net45/FileDiagnosticsTelemetryModule.cs#L134
 
-> **NOTE:** This 'working example' requires that the ApplicationInsights.Web solution is updated to the latest
-'develop' nuget package for the base ApplicationInsights SDK.
+> **NOTE:** This 'working example' requires that the ApplicationInsights.Web solution is updated to
+the latest 'develop' nuget package for the base ApplicationInsights SDK.
 
