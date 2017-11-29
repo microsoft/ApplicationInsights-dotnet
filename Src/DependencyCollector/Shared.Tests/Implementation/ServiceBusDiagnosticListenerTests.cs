@@ -42,6 +42,28 @@
         }
 
         [TestMethod]
+        public void DiagnosticEventWithoutActivityIsIgnored()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
+                module.Initialize(this.configuration);
+
+                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.ServiceBus");
+
+                listener.Write(
+                    "Microsoft.Azure.ServiceBus.Send.Stop",
+                    new
+                    {
+                        Entity = "queueName",
+                        Endpoint = new Uri("sb://queuename.myservicebus.com/")
+                    });
+
+                Assert.IsFalse(this.sentItems.Any());
+            }
+        }
+
+        [TestMethod]
         public void ServiceBusSendHanding()
         {
             using (var module = new DependencyTrackingTelemetryModule())

@@ -33,7 +33,11 @@
                 case "Microsoft.Azure.ServiceBus.Exception":
                     break;
                 default:
-                    this.OnDependency(evnt.Key, evnt.Value, currentActivity);
+                    if (evnt.Key.EndsWith(TelemetryDiagnosticSourceListener.ActivityStopNameSuffix, StringComparison.Ordinal))
+                    {
+                        this.OnDependency(evnt.Key, evnt.Value, currentActivity);
+                    }
+
                     break;
             }
         }

@@ -42,6 +42,30 @@
         }
 
         [TestMethod]
+        public void DiagnosticEventWithoutActivityIsIgnored()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
+                module.Initialize(this.configuration);
+
+                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.EventHubs");
+
+                listener.Write(
+                    "Microsoft.Azure.EventHubs.Send.Stop", 
+                    new
+                    {
+                        Entity = "ehname",
+                        Endpoint = new Uri("sb://eventhubname.servicebus.windows.net/"),
+                        PartitionKey = "SomePartitionKeyHere",
+                        Status = TaskStatus.RanToCompletion
+                    });
+
+                Assert.IsFalse(this.sentItems.Any());
+            }
+        }
+
+        [TestMethod]
         public void EventHubsSuccessfulSendIsHandled()
         {
             using (var module = new DependencyTrackingTelemetryModule())
