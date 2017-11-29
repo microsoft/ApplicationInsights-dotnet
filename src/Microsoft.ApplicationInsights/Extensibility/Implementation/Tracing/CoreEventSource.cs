@@ -463,7 +463,7 @@
 
         [Event(
             39,
-            Message = "Could not set heartbeat payload property '{0}' = {1}, healthy = {2}. Exception: {3}.",
+            Message = "Could not set heartbeat payload property '{0}' = {1}, isHealthy was set = {2}, isHealthy value = {3}. Exception: {4}.",
             Level = EventLevel.Warning)]
         public void FailedToSetHeartbeatProperty(string heartbeatProperty, string heartbeatPropertyValue, bool isHealthyHasValue, bool isHealthy, string ex = null, string appDomainName = "Incorrect")
         {
@@ -471,14 +471,15 @@
                 39,
                 heartbeatProperty ?? string.Empty,
                 heartbeatPropertyValue ?? string.Empty,
-                isHealthyHasValue ? isHealthy.ToString() : "unset",
+                isHealthyHasValue,
+                isHealthy,
                 ex ?? string.Empty,
                 this.nameProvider.Name);
         }
 
         [Event(
             40,
-            Message = "Cannot set heartbeat payload property without a propertyName, or cannot set one of the default SDK properties. Property name given:'{0}'. Value = {1}. Healthy = {2}.",
+            Message = "Cannot set heartbeat payload property without a propertyName, or cannot set one of the default SDK properties. Property name given:'{0}'. Property value: '{1}'. isHealthy was set = {2}, isHealthy = {3}.",
             Level = EventLevel.Warning)]
         public void CannotSetHeartbeatPropertyWithNoNameOrDefaultName(string heartbeatProperty, string heartbeatPropertyValue, bool isHealthyHasValue, bool isHealthy, string appDomainName = "Incorrect")
         {
@@ -486,7 +487,8 @@
                 40,
                 heartbeatProperty ?? string.Empty,
                 heartbeatPropertyValue ?? string.Empty,
-                isHealthyHasValue ? isHealthy.ToString() : "unset",
+                isHealthyHasValue,
+                isHealthy,
                 this.nameProvider.Name);
         }
 
