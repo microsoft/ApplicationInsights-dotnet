@@ -43,11 +43,8 @@
             }
 
             this.SamplingPercentage = 100.0;
-            this.Next = next;
-            if (this.UnsampledNext == null)
-            {
-                this.UnsampledNext = next;
-            }
+            this.SampledNext = next;
+            this.UnsampledNext = next;
 
             this.excludedTypesHashSet = new HashSet<Type>();
             this.includedTypesHashSet = new HashSet<Type>();
@@ -149,20 +146,14 @@
         public double SamplingPercentage { get; set; }
 
         /// <summary>
-        /// Gets or sets the next TelemetryProcessor in call chain.
+        /// Gets or sets the next TelemetryProcessor in call chain to send evaluated (sampled) telemetry items to.
         /// </summary>
-        private ITelemetryProcessor Next { get; set; }
+        private ITelemetryProcessor SampledNext { get; set; }
 
         /// <summary>
-        /// Gets or sets the next TelemetryProcessor to call in the chain if the ITelemetry item passed in is /not/ sampled.
-        /// 
-        /// <remarks>
-        /// Sampling telemetry processor is used standalone (can be added to the Application Insights config file
-        /// directly) as well as in a combination within the processing chain sandwiched between the 
-        /// AdaptiveSamplingTelemetryProcessor and the SamplingPercentageEstimatorTelemetryProcessor. We cannot count
-        /// unsampled items in this class's processor routine towards adaptive sampling samples, so we need to bypass
-        /// those unsampled items passed the estimator to be accurate. See issue (blah) for more details.
-        /// </remarks>
+        /// Gets or sets the next TelemetryProcessor to call in the chain if the ITelemetry item passed in is not sampled. Note that 
+        /// for the public instances of this class (those created by naming the module in ApplicationInsights.config) this property
+        /// will be equal to the <see cref="SampledNext"/> property.
         /// </summary>
         private ITelemetryProcessor UnsampledNext { get; set; }
 
@@ -174,14 +165,14 @@
         {
             double samplingPercentage = this.SamplingPercentage;
 
-            //// If sampling rate is 100%, there is nothing to do:
-            if (samplingPercentage >= 100.0 - 1.0E-12)
+            //// If sampling rate is 100% and we aren't distinguishing between evaluated/unevaluated items, there is nothing to do:
+            if (this.SampledNext.Equals(this.UnsampledNext) && samplingPercentage >= 100.0 - 1.0E-12)
             {
-                this.Next.Process(item);
+                this.SampledNext.Process(item);
                 return;
             }
 
-            //// So sampling rate is not 100%.
+            //// So sampling rate is not 100%, or we must evaluate further
 
             //// If null was passed in as item or if sampling not supported in general, do nothing:
             var samplingSupportingTelemetry = item as ISupportSampling;
@@ -218,7 +209,7 @@
 
             if (isSampledIn)
             {
-                this.Next.Process(item);
+                this.SampledNext.Process(item);
             }
             else
             { 
