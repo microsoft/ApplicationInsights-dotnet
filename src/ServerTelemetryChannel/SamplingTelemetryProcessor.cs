@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Threading;
     
     using Microsoft.ApplicationInsights.Channel;
@@ -45,6 +44,11 @@
 
             this.SamplingPercentage = 100.0;
             this.Next = next;
+            if (this.UnsampledNext == null)
+            {
+                this.UnsampledNext = next;
+            }
+
             this.excludedTypesHashSet = new HashSet<Type>();
             this.includedTypesHashSet = new HashSet<Type>();
             this.allowedTypes = new Dictionary<string, Type>(6, StringComparer.OrdinalIgnoreCase)
@@ -56,6 +60,16 @@
                 { RequestTelemetryName, typeof(RequestTelemetry) },
                 { TraceTelemetryName, typeof(TraceTelemetry) },
             };
+        }
+
+        internal SamplingTelemetryProcessor(ITelemetryProcessor unsampledNext, ITelemetryProcessor sampledNext) : this(sampledNext)
+        {
+            if (unsampledNext == null)
+            {
+                throw new ArgumentNullException("unsampledNext");
+            }
+
+            this.UnsampledNext = unsampledNext;
         }
 
         /// <summary>
@@ -140,6 +154,19 @@
         private ITelemetryProcessor Next { get; set; }
 
         /// <summary>
+        /// Gets or sets the next TelemetryProcessor to call in the chain if the ITelemetry item passed in is /not/ sampled.
+        /// 
+        /// <remarks>
+        /// Sampling telemetry processor is used standalone (can be added to the Application Insights config file
+        /// directly) as well as in a combination within the processing chain sandwiched between the 
+        /// AdaptiveSamplingTelemetryProcessor and the SamplingPercentageEstimatorTelemetryProcessor. We cannot count
+        /// unsampled items in this class's processor routine towards adaptive sampling samples, so we need to bypass
+        /// those unsampled items passed the estimator to be accurate. See issue (blah) for more details.
+        /// </remarks>
+        /// </summary>
+        private ITelemetryProcessor UnsampledNext { get; set; }
+
+        /// <summary>
         /// Process a collected telemetry item.
         /// </summary>
         /// <param name="item">A collected Telemetry item.</param>
@@ -160,7 +187,7 @@
             var samplingSupportingTelemetry = item as ISupportSampling;
             if (samplingSupportingTelemetry == null)
             {
-                this.Next.Process(item);
+                this.UnsampledNext.Process(item);
                 return;
             }
 
@@ -172,7 +199,7 @@
                     TelemetryChannelEventSource.Log.SamplingSkippedByType(item.ToString());
                 }
 
-                this.Next.Process(item);
+                this.UnsampledNext.Process(item);
                 return;
             }
 
@@ -180,7 +207,7 @@
             bool itemAlreadySampled = samplingSupportingTelemetry.SamplingPercentage.HasValue;
             if (itemAlreadySampled)
             {
-                this.Next.Process(item);
+                this.UnsampledNext.Process(item);
                 return;
             }
 
