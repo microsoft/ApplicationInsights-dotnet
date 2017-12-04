@@ -421,6 +421,77 @@
             this.WriteEvent(35, item ?? string.Empty, this.nameProvider.Name);
         }
 
+        [Event(
+            36,
+            Message = "Failed to obtain a value for default heartbeat payload property '{0}': Exception {1}.",
+            Level = EventLevel.Warning)]
+        public void FailedToObtainDefaultHeartbeatProperty(string heartbeatProperty, string ex, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                36,
+                heartbeatProperty ?? string.Empty,
+                ex ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            37,
+            Message = "Could not add heartbeat payload property '{0}' = {1}. Exception: {2}.",
+            Level = EventLevel.Warning)]
+        public void FailedToAddHeartbeatProperty(string heartbeatProperty, string heartbeatPropertyValue, string ex = null, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                37,
+                heartbeatProperty ?? string.Empty,
+                heartbeatPropertyValue ?? string.Empty,
+                ex ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            38,
+            Message = "Cannot add heartbeat payload property without any property name. Value given was '{0}', isHealthy given was {1}.",
+            Level = EventLevel.Warning)]
+        public void HeartbeatPropertyAddedWithoutAnyName(string heartbeatPropertyValue, bool isHealthy, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                38,
+                heartbeatPropertyValue ?? string.Empty,
+                isHealthy,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            39,
+            Message = "Could not set heartbeat payload property '{0}' = {1}, isHealthy was set = {2}, isHealthy value = {3}. Exception: {4}.",
+            Level = EventLevel.Warning)]
+        public void FailedToSetHeartbeatProperty(string heartbeatProperty, string heartbeatPropertyValue, bool isHealthyHasValue, bool isHealthy, string ex = null, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                39,
+                heartbeatProperty ?? string.Empty,
+                heartbeatPropertyValue ?? string.Empty,
+                isHealthyHasValue,
+                isHealthy,
+                ex ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            40,
+            Message = "Cannot set heartbeat payload property without a propertyName, or cannot set one of the default SDK properties. Property name given:'{0}'. Property value: '{1}'. isHealthy was set = {2}, isHealthy = {3}.",
+            Level = EventLevel.Warning)]
+        public void CannotSetHeartbeatPropertyWithNoNameOrDefaultName(string heartbeatProperty, string heartbeatPropertyValue, bool isHealthyHasValue, bool isHealthy, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                40,
+                heartbeatProperty ?? string.Empty,
+                heartbeatPropertyValue ?? string.Empty,
+                isHealthyHasValue,
+                isHealthy,
+                this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
