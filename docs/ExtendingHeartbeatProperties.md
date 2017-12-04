@@ -2,15 +2,15 @@ _This document was last updated 11/25/2016 and is applicable to SDK version 2.5.
 
 # Extending Heartbeat Properties in Application Insights #
 
-The .NET Application Insights SDKs provide a new feature called Health Heartbeat. This feature
-sends health related data as well as environment-specific information at pre-configured
-intervals. The feature will allow you to extend the properties that will be sent every interval,
-and will also allow you to set a flag denoting a healthy or unhealthy status for each property
-you add to the heartbeat payload.
+The .NET Application Insights SDKs provide a new feature called Heartbeat. This feature
+sends environment-specific information at pre-configured intervals. The feature will allow 
+you to extend the properties that will be sent every interval, and will also allow you to 
+set a flag denoting a healthy or unhealthy status for each property you add to the heartbeat 
+payload.
 
 ## A General Code Example ##
 
-In order to add the extended properties of your choice to the Health Heartbeat as a developer
+In order to add the extended properties of your choice to the Heartbeat as a developer
 of an ITelemetryModule, you can follow the following pattern. Note that you must first add the
 properties you want to include in the payload, and you can update (via set) the vaules and health
 status of those properties for the duration of the application life cycle.
@@ -22,7 +22,7 @@ through the available modules looking for an implementation of `IHeartbeatProper
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     ...
-    // heartbeat property manager to add/update my health properties into:
+    // heartbeat property manager to add/update my heartbeat-delivered properties into:
     private IHeartbeatPropertyManager heartbeatManager= null;
     ...
     public void Initialize(TelemetryConfiguration configuration)
@@ -45,30 +45,30 @@ property fields that you want to see in the heartbeat payload for the duration o
 application's lifecycle.
 
     ...
-    this.heartbeatManager.AddHealthProperty(propertyName: "myHealthProperty", propertyValue: this.MyHealthProperty, isHealthy: true);
+    this.heartbeatManager.AddHeartbeatProperty(propertyName: "myHeartbeatProperty", propertyValue: this.MyHeartbeatProperty, isHealthy: true);
     ...
 
 Outside of your `Initialize` method, you can update the values you've added by using the 
-`SetHealthProperty` method very simply. For instance, you can add a health property called 
-'myHealthProperty' in the initialize method as above, and then from within a property elsewhere
+`SetHeartbeatProperty` method very simply. For instance, you can add a property called 
+'myHeartbeatProperty' in the initialize method as above, and then from within a property elsewhere
 in your class, you can update the value in the heartbeat payload as follows:
 
-    public string MyHealthProperty
+    public string MyHeartbeatProperty
     {
-        get => this.myHealthPropertyValue;
+        get => this.myHeartbeatPropertyValue;
 
         set
         {
-            this.myHealthPropertyValue = value;
+            this.myHeartbeatPropertyValue = value;
             if (this.heartbeatManager != null)
             {
-                bool myPropIsHealthy = this.SomeTestForHealthStatus(this.myHealthPropertyValue);
-                this.heartbeatManager.SetHealthProperty(propertyName: "myHealthProperty", propertyValue: value, isHealthy: myPropIsHealthy);
+                bool myPropIsHealthy = this.SomeTestForHealthStatus(this.myHeartbeatPropertyValue);
+                this.heartbeatManager.SetHeartbeatProperty(propertyName: "myHeartbeatProperty", propertyValue: value, isHealthy: myPropIsHealthy);
             }
         }
     }
 
-Using the above example you can add and update properties in the Health Heartbeat for the
+Using the above example you can add and update properties in the Heartbeat for the
 duration of your application's life.
 
 > **Note:** You may also set values for the `HeartbeatInterval` value. This is discouraged, as
@@ -88,7 +88,7 @@ constructed in the Microsoft.ApplicationInsights.Web assembly, and can be review
 
 https://github.com/Microsoft/ApplicationInsights-dotnet-server/tree/dekeeler/sample-heartbeat-extension
 
-...specifically, you can see how we've provided extra properties to the health heartbeat in the
+...specifically, you can see how we've provided extra properties to the heartbeat in the
 FileDiagnosticsTelemetryModule here:
 
 https://github.com/Microsoft/ApplicationInsights-dotnet-server/blob/2089882ea10a32b88f8d4681eb4819f09a1471bd/Src/HostingStartup/HostingStartup.Net45/FileDiagnosticsTelemetryModule.cs#L134
