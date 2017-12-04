@@ -11,7 +11,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
-    /// Implementation of health heartbeat functionality.
+    /// Implementation of heartbeat functionality.
     /// </summary>
     internal class HeartbeatProvider : IDisposable, IHeartbeatProvider
     {
@@ -26,16 +26,16 @@
         public static readonly TimeSpan MinimumHeartbeatInterval = TimeSpan.FromSeconds(30.0);
 
         /// <summary>
-        /// The name of the health heartbeat metric item and operation context. 
+        /// The name of the heartbeat metric item and operation context. 
         /// </summary>
-        private static string heartbeatSyntheticMetricName = "HealthState";
+        private static string heartbeatSyntheticMetricName = "HeartbeatState";
 
         private readonly List<string> disabledDefaultFields = new List<string>(); // string containing fields that are not to be sent with the payload. Empty list means send everything available.
 
         private UInt64 heartbeatsSent; // counter of all heartbeats
 
         /// <summary>
-        /// The payload items to send out with each health heartbeat.
+        /// The payload items to send out with each heartbeat.
         /// </summary>
         private ConcurrentDictionary<string, HeartbeatPropertyPayload> heartbeatProperties;
 
@@ -139,48 +139,48 @@
             }
         }
 
-        public bool AddHealthProperty(string healthPropertyName, string healthPropertyValue, bool isHealthy)
+        public bool AddHeartbeatProperty(string heartbeatPropertyName, string heartbeatPropertyValue, bool isHealthy)
         {
             bool isAdded = false;
 
-            if (!string.IsNullOrEmpty(healthPropertyName))
+            if (!string.IsNullOrEmpty(heartbeatPropertyName))
             {
                 try
                 {
-                    var existingProp = this.heartbeatProperties.GetOrAdd(healthPropertyName, (key) =>
+                    var existingProp = this.heartbeatProperties.GetOrAdd(heartbeatPropertyName, (key) =>
                     {
                         isAdded = true;
                         return new HeartbeatPropertyPayload()
                         {
                             IsHealthy = isHealthy,
-                            PayloadValue = healthPropertyValue
+                            PayloadValue = heartbeatPropertyValue
                         };
                     });
                 }
                 catch (Exception e)
                 {
-                    CoreEventSource.Log.FailedToAddHeartbeatProperty(healthPropertyName, healthPropertyValue, e.ToString());
+                    CoreEventSource.Log.FailedToAddHeartbeatProperty(heartbeatPropertyName, heartbeatPropertyValue, e.ToString());
                 }
             }
             else
             {
-                CoreEventSource.Log.HeartbeatPropertyAddedWithoutAnyName(healthPropertyValue, isHealthy);
+                CoreEventSource.Log.HeartbeatPropertyAddedWithoutAnyName(heartbeatPropertyValue, isHealthy);
             }
 
             return isAdded;
         }
 
-        public bool SetHealthProperty(string healthPropertyName, string healthPropertyValue = null, bool? isHealthy = null)
+        public bool SetHeartbeatProperty(string heartbeatPropertyName, string heartbeatPropertyValue = null, bool? isHealthy = null)
         {
             bool setResult = false;
-            if (!string.IsNullOrEmpty(healthPropertyName)
-                && !HeartbeatDefaultPayload.DefaultFields.Contains(healthPropertyName))
+            if (!string.IsNullOrEmpty(heartbeatPropertyName)
+                && !HeartbeatDefaultPayload.DefaultFields.Contains(heartbeatPropertyName))
             {
                 try
                 {
-                    this.heartbeatProperties.AddOrUpdate(healthPropertyName, (key) =>
+                    this.heartbeatProperties.AddOrUpdate(heartbeatPropertyName, (key) =>
                     {
-                        throw new Exception("Cannot set a health property without adding it first.");
+                        throw new Exception("Cannot set a heartbeat property without adding it first.");
                     },
                     (key, property) =>
                     {
@@ -188,9 +188,9 @@
                         {
                             property.IsHealthy = isHealthy.Value;
                         }
-                        if (healthPropertyValue != null)
+                        if (heartbeatPropertyValue != null)
                         {
-                            property.PayloadValue = healthPropertyValue;
+                            property.PayloadValue = heartbeatPropertyValue;
                         }
 
                         return property;
@@ -199,12 +199,12 @@
                 }
                 catch (Exception e)
                 {
-                    CoreEventSource.Log.FailedToSetHeartbeatProperty(healthPropertyName, healthPropertyValue, isHealthy.HasValue, isHealthy.GetValueOrDefault(false), e.ToString());
+                    CoreEventSource.Log.FailedToSetHeartbeatProperty(heartbeatPropertyName, heartbeatPropertyValue, isHealthy.HasValue, isHealthy.GetValueOrDefault(false), e.ToString());
                 }
             }
             else
             {
-                CoreEventSource.Log.CannotSetHeartbeatPropertyWithNoNameOrDefaultName(healthPropertyName, healthPropertyValue, isHealthy.HasValue, isHealthy.GetValueOrDefault(false));
+                CoreEventSource.Log.CannotSetHeartbeatPropertyWithNoNameOrDefaultName(heartbeatPropertyName, heartbeatPropertyValue, isHealthy.HasValue, isHealthy.GetValueOrDefault(false));
             }
 
             return setResult;
@@ -305,7 +305,7 @@
             }
             else
             {
-                CoreEventSource.Log.LogError("Heartbeat pulse being sent without valid instance of HealthHeartbeatProvider as its state");
+                CoreEventSource.Log.LogError("Heartbeat pulse being sent without valid instance of HeartbeatProvider as its state");
             }
         }
     }
