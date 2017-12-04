@@ -25,13 +25,13 @@
                     switch (fieldName)
                     {
                         case "runtimeFramework":
-                            provider.AddHealthProperty(fieldName, GetRuntimeFrameworkVer(), true);
+                            provider.AddHeartbeatProperty(fieldName, GetRuntimeFrameworkVer(), true);
                             break;
                         case "baseSdkTargetFramework":
-                            provider.AddHealthProperty(fieldName, GetBaseSdkTargetFramework(), true);
+                            provider.AddHeartbeatProperty(fieldName, GetBaseSdkTargetFramework(), true);
                             break;
                         default:
-                            provider.AddHealthProperty(fieldName, "UNDEFINED", false);
+                            provider.AddHeartbeatProperty(fieldName, "UNDEFINED", false);
                             break;
                     }
                 }
