@@ -47,7 +47,7 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether or not the Health Heartbeat feature is disabled.
+        /// Gets or sets a value indicating whether or not the Heartbeat feature is disabled.
         /// </summary>
         public bool IsHeartbeatEnabled
         {
@@ -81,7 +81,7 @@
         }
 
         /// <summary>
-        /// Gets a list of property names that are not to be sent with the health heartbeats. null/empty list means allow all default properties through.
+        /// Gets a list of property names that are not to be sent with the heartbeats. null/empty list means allow all default properties through.
         /// 
         /// <remarks>
         /// Default properties supplied by the Application Insights SDK:
@@ -199,46 +199,46 @@
         }
 
         /// <summary>
-        /// Add a new Health Heartbeat property to the payload sent with each heartbeat.
+        /// Add a new Heartbeat property to the payload sent with each heartbeat.
         /// 
-        /// To update the value of the property you are adding to the health heartbeat, 
-        /// <see cref="DiagnosticsTelemetryModule.SetHealthProperty"/>.
+        /// To update the value of the property you are adding to the heartbeat, 
+        /// <see cref="DiagnosticsTelemetryModule.SetHeartbeatProperty"/>.
         /// 
-        /// Note that you cannot add a HealthHeartbeatProperty with a name that already exists in the HealthHeartbeat
+        /// Note that you cannot add a HeartbeatProperty with a name that already exists in the Heartbeat
         /// payload, including (but not limited to) the name of SDK-default items.
         /// 
         /// </summary>
-        /// <param name="propertyName">Name of the health heartbeat value to add</param>
-        /// <param name="propertyValue">Current value of the health heartbeat value to add</param>
+        /// <param name="propertyName">Name of the heartbeat value to add</param>
+        /// <param name="propertyValue">Current value of the heartbeat value to add</param>
         /// <param name="isHealthy">Flag indicating whether or not the property represents a healthy value</param>
         /// <returns>True if the new payload item is successfully added, false otherwise.</returns>
-        public bool AddHealthProperty(string propertyName, string propertyValue, bool isHealthy)
+        public bool AddHeartbeatProperty(string propertyName, string propertyValue, bool isHealthy)
         {
-            return this.HeartbeatProvider.AddHealthProperty(propertyName, propertyValue, isHealthy);
+            return this.HeartbeatProvider.AddHeartbeatProperty(propertyName, propertyValue, isHealthy);
         }
 
         /// <summary>
-        /// Set an updated value into an existing property of the health heartbeat. The propertyName must be non-null and non-empty
+        /// Set an updated value into an existing property of the heartbeat. The propertyName must be non-null and non-empty
         /// and at least one of the propertyValue and isHealthy parameters must be non-null.
         /// 
-        /// After the new HealthHeartbeatProperty has been added (<see cref="DiagnosticsTelemetryModule.AddHealthProperty"/>) to the 
+        /// After the new HeartbeatProperty has been added (<see cref="DiagnosticsTelemetryModule.AddHeartbeatProperty"/>) to the 
         /// heartbeat payload, the value represented by that item can be updated using this method at any time.
         /// 
         /// </summary>
-        /// <param name="propertyName">Name of the health heartbeat payload item property to set the value and/or health status of.</param>
-        /// <param name="propertyValue">Value of the health heartbeat payload item. If this is null, the current value in the item is left unchanged.</param>
-        /// <param name="isHealthy">Health status of the health heartbeat payload item. If this is set to null the health status is left unchanged.</param>
+        /// <param name="propertyName">Name of the heartbeat payload item property to set the value and/or its health status.</param>
+        /// <param name="propertyValue">Value of the heartbeat payload item. If this is null, the current value in the item is left unchanged.</param>
+        /// <param name="isHealthy">Health status of the heartbeat payload item. If this is set to null the health status is left unchanged.</param>
         /// <returns>True if the payload provider was added, false if it hasn't been added yet 
-        /// (<see cref="DiagnosticsTelemetryModule.AddHealthProperty"/>).</returns>
-        public bool SetHealthProperty(string propertyName, string propertyValue = null, bool? isHealthy = null)
+        /// (<see cref="DiagnosticsTelemetryModule.AddHeartbeatProperty"/>).</returns>
+        public bool SetHeartbeatProperty(string propertyName, string propertyValue = null, bool? isHealthy = null)
         {
             if (!string.IsNullOrEmpty(propertyName) && (propertyValue != null || isHealthy != null))
             {
-                return this.HeartbeatProvider.SetHealthProperty(propertyName, propertyValue, isHealthy);
+                return this.HeartbeatProvider.SetHeartbeatProperty(propertyName, propertyValue, isHealthy);
             }
             else
             {
-                CoreEventSource.Log.LogVerbose("Did not set a valid health property. Ensure you set a valid propertyName and one or both of the propertyValue and isHealthy parameters.");
+                CoreEventSource.Log.LogVerbose("Did not set a valid heartbeat property. Ensure you set a valid propertyName and one or both of the propertyValue and isHealthy parameters.");
             }
 
             return false;

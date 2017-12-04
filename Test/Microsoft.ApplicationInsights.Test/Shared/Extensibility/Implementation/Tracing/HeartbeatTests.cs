@@ -89,7 +89,7 @@
 
                 try
                 {
-                    Assert.IsTrue(hbeat.AddHealthProperty("test01", "this is a value", true));
+                    Assert.IsTrue(hbeat.AddHeartbeatProperty("test01", "this is a value", true));
                 }
                 catch (Exception e)
                 {
@@ -159,7 +159,7 @@
             using (var hbeat = new HeartbeatProvider())
             {
                 string testerKey = "tester123";
-                Assert.IsTrue(hbeat.AddHealthProperty(testerKey, "test", true));
+                Assert.IsTrue(hbeat.AddHeartbeatProperty(testerKey, "test", true));
                 hbeat.Initialize(configuration: null);
 
                 MetricTelemetry payload = (MetricTelemetry)hbeat.GatherData();
@@ -218,7 +218,7 @@
             {
                 hbeat.Initialize(configuration: null);
                 string testerKey = "tester123";
-                hbeat.AddHealthProperty(testerKey, "test", false);
+                hbeat.AddHeartbeatProperty(testerKey, "test", false);
 
                 var msg = (MetricTelemetry)hbeat.GatherData();
                 Assert.IsTrue(msg.Sum >= 1.0);
@@ -235,8 +235,8 @@
                 var msg = (MetricTelemetry)hbeat.GatherData();
                 Assert.IsTrue(msg.Sum == 0.0);
 
-                hbeat.AddHealthProperty("tester01", "test failure 1", false);
-                hbeat.AddHealthProperty("tester02", "test failure 2", false);
+                hbeat.AddHeartbeatProperty("tester01", "test failure 1", false);
+                hbeat.AddHeartbeatProperty("tester02", "test failure 2", false);
                 msg = (MetricTelemetry)hbeat.GatherData();
 
                 Assert.IsTrue(msg.Sum == 2.0);
@@ -276,8 +276,8 @@
             {
                 hbeat.Initialize(configuration: null);
 
-                Assert.IsTrue(hbeat.AddHealthProperty("test01", "some test value", true));
-                Assert.IsFalse(hbeat.AddHealthProperty("test01", "some other test value", true));
+                Assert.IsTrue(hbeat.AddHeartbeatProperty("test01", "some test value", true));
+                Assert.IsFalse(hbeat.AddHeartbeatProperty("test01", "some other test value", true));
             }
         }
 
@@ -288,9 +288,9 @@
             {
                 hbeat.Initialize(configuration: null);
 
-                Assert.IsFalse(hbeat.SetHealthProperty("test01", "some other test value", true));
-                Assert.IsTrue(hbeat.AddHealthProperty("test01", "some test value", true));
-                Assert.IsTrue(hbeat.SetHealthProperty("test01", "some other test value", true));
+                Assert.IsFalse(hbeat.SetHeartbeatProperty("test01", "some other test value", true));
+                Assert.IsTrue(hbeat.AddHeartbeatProperty("test01", "some test value", true));
+                Assert.IsTrue(hbeat.SetHeartbeatProperty("test01", "some other test value", true));
             }
         }
 
@@ -303,7 +303,7 @@
 
                 foreach (string key in HeartbeatDefaultPayload.DefaultFields)
                 {
-                    Assert.IsFalse(hbeat.SetHealthProperty(key, "test", true));
+                    Assert.IsFalse(hbeat.SetHeartbeatProperty(key, "test", true));
                 }
             }
         }
@@ -317,7 +317,7 @@
 
                 foreach (string key in HeartbeatDefaultPayload.DefaultFields)
                 {
-                    Assert.IsFalse(hbeat.AddHealthProperty(key, "test", true));
+                    Assert.IsFalse(hbeat.AddHeartbeatProperty(key, "test", true));
                 }
             }
         }
@@ -345,8 +345,8 @@
 
                 string key = "setValueTest";
 
-                Assert.IsTrue(hbeat.AddHealthProperty(key, "value01", true));
-                Assert.IsTrue(hbeat.SetHealthProperty(key, "value02"));
+                Assert.IsTrue(hbeat.AddHeartbeatProperty(key, "value01", true));
+                Assert.IsTrue(hbeat.SetHeartbeatProperty(key, "value02"));
                 var msg = (MetricTelemetry)hbeat.GatherData();
                 
                 Assert.IsNotNull(msg);
@@ -364,8 +364,8 @@
 
                 string key = "healthSettingTest";
 
-                Assert.IsTrue(hbeat.AddHealthProperty(key, "value01", true));
-                Assert.IsTrue(hbeat.SetHealthProperty(key, null, false));
+                Assert.IsTrue(hbeat.AddHeartbeatProperty(key, "value01", true));
+                Assert.IsTrue(hbeat.SetHeartbeatProperty(key, null, false));
                 var msg = (MetricTelemetry)hbeat.GatherData();
                 
                 Assert.IsNotNull(msg);
