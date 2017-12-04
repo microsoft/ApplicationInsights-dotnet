@@ -57,7 +57,7 @@
         </Task>
     </UsingTask>
 
-    <Target Name="FixXmlDocumentation" AfterTargets="AfterBuild" DependsOnTargets="AfterBuild">
+    <Target Name="FixXmlDocumentation" AfterTargets="AfterBuild" DependsOnTargets="AfterBuild"  Condition="$(OS) == 'Windows_NT'">
         <InjectXmlLanguage InputFiles="$(DocumentationFile)" />
     </Target>
 </Project>

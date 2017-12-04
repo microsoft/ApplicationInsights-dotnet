@@ -49,11 +49,11 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared.Tests", "Test\Server
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.Nuget.Tests", "Test\ServerTelemetryChannel.Test\TelemetryChannel.Nuget.Tests\TelemetryChannel.Nuget.Tests.csproj", "{21CB9A8A-F25B-4DEB-92CB-ACB6920EB8BC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights", "src\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj", "{E9ECEE96-DD50-42F6-9F33-0978CDFA15ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights", "src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj", "{E9ECEE96-DD50-42F6-9F33-0978CDFA15ED}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.Isolated.Tests", "Test\Microsoft.ApplicationInsights.Test\Standalone\Microsoft.ApplicationInsights.Isolated.Tests.csproj", "{2759BC71-7F47-44DA-8579-AE2D8C8C684D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel", "src\ServerTelemetryChannel\Managed\TelemetryChannel.csproj", "{3273D899-D9B3-44FE-B3AB-578E18B2EF90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel", "src\ServerTelemetryChannel\TelemetryChannel.csproj", "{3273D899-D9B3-44FE-B3AB-578E18B2EF90}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.netcoreapp11.Tests", "Test\Microsoft.ApplicationInsights.Test\netcoreapp11\Microsoft.ApplicationInsights.netcoreapp11.Tests.csproj", "{178F87BF-CCCA-48DE-B171-4482E8CBD060}"
 EndProject

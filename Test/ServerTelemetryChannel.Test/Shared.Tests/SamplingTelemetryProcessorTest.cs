@@ -50,9 +50,9 @@
         {
             var sentTelemetry = new List<ITelemetry>();
             var processor = new SamplingTelemetryProcessor(new StubTelemetryProcessor(null) { OnProcess = t => sentTelemetry.Add(t) })
-                {
-                    SamplingPercentage = 20
-                };
+            {
+                SamplingPercentage = 20
+            };
 
             do
             {
@@ -61,6 +61,20 @@
             while (sentTelemetry.Count == 0);
 
             Assert.AreEqual(20, ((ISupportSampling)sentTelemetry[0]).SamplingPercentage);
+        }
+
+        [TestMethod]
+        public void EarlyExitWhenProcessingAt100Percent()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var processor = new SamplingTelemetryProcessor(new StubTelemetryProcessor(null) { OnProcess = t => sentTelemetry.Add(t) })
+            {
+                SamplingPercentage = 100.0
+            };
+
+            processor.Process(new RequestTelemetry());
+
+            Assert.IsFalse(((ISupportSampling)sentTelemetry[0]).SamplingPercentage.HasValue);
         }
 
         [TestMethod]

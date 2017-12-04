@@ -168,3 +168,6 @@ Web/PerformanceTests_Instrumented/
 [Ss]tyle[Cc]op.*
 
 coverage.xml
+
+bondcodegen.done
+bonddefaultcodegen.in

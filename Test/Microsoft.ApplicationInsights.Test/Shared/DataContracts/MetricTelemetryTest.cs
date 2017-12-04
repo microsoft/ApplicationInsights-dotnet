@@ -6,10 +6,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
-#if !NETCOREAPP1_1
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
-#endif
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.TestFramework;
 
@@ -276,7 +273,6 @@
             Assert.AreEqual(1, telemetry.Count);
         }
 
-#if !NETCOREAPP1_1
         [TestMethod]
         public void MetricTelemetryDeepCloneCopiesAllProperties()
         {
@@ -298,6 +294,5 @@
             var comparisonResult = deepComparator.Compare(metric, other);
             Assert.IsTrue(comparisonResult.AreEqual, comparisonResult.DifferencesString);
         }
-#endif
     }
 }

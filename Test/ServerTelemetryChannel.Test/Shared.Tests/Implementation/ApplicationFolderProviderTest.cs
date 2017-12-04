@@ -167,7 +167,7 @@
         }
 
         [TestMethod]
-        public void GetApplicationFolderReturnsNullWhenNeitherLocalAppDataNorTempFolderIsAccessible()
+        public void GetApplicationFolderReturnsNullWhenNeitherLocalAppDataNorTempFoldersAreAccessible()
         {
             var environmentVariables = new Hashtable 
             { 
@@ -175,6 +175,25 @@
                 { "TEMP", this.CreateTestDirectory("Temp", FileSystemRights.CreateDirectories, AccessControlType.Deny).FullName },
             };
             var provider = new ApplicationFolderProvider(environmentVariables);
+
+            IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+
+            Assert.IsNull(applicationFolder);
+        }
+
+        [TestMethod]
+        public void GetApplicationFolderReturnsNullWhenUnableToSetSecurityPolicyOnDirectory()
+        {
+            var environmentVariables = new Hashtable
+            {
+                { "LOCALAPPDATA", this.CreateTestDirectory(@"AppData\Local").FullName },
+                { "TEMP", this.CreateTestDirectory("Temp").FullName },
+            };
+
+            var provider = new ApplicationFolderProvider(environmentVariables);
+
+            // Override to return false indicating applying security failed.
+            provider.OverrideApplySecurityToDirectory( (dirInfo) => { return false; } );
 
             IPlatformFolder applicationFolder = provider.GetApplicationFolder();
 

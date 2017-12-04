@@ -1,0 +1,104 @@
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
+
+  <PropertyGroup>
+    <Company>Microsoft</Company>
+    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+
+    <TargetFrameworks>net45;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.3</TargetFrameworks>
+
+    <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <IncludeSymbols>True</IncludeSymbols>
+    <!--PackageOutputPath>Defined in Directory.Build.props</PackageOutputPath-->
+    <PackageId>Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel</PackageId>
+    <!--PackageVersion is defined in GlobalStaticVersion.props-->
+    <!--PackageVersion></PackageVersion-->
+    <Authors>Microsoft</Authors>
+    <Owners>Microsoft</Owners>
+    <Title>Application Insights Telemetry Channel for Windows Server Applications</Title>
+    <Description>This nuget provides a telemetry channel to Application Insights Windows Server SDK that will preserve telemetry in offline scenarios. This is a dependent package, for the best experience please install the platform specific package. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <!--Copyright defined above-->
+    <!--Copyright></Copyright-->
+    <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
+    <PackageLicenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</PackageLicenseUrl>
+    <PackageProjectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
+    <PackageIconUrl>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageIconUrl>
+    <PackageTags>Analytics ApplicationInsights Telemetry</PackageTags>
+    <PackageReleaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-dotnet</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageType>Dependency</PackageType>
+    <ContentTargetFolders>content</ContentTargetFolders>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard1.3'">TRACE;DEBUG;NETCORE;NETSTANDARD1_3</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net45'">TRACE;DEBUG;NET45</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="MicroBuild.Core" Version="0.2.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="PublicApiAnalyzer" Version="1.0.0-alpha001">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj"/>
+    <Reference Include="System.Web" Condition="'$(TargetFramework)' == 'net45'" />
+    <Reference Include="System.Web.Extensions" Condition="'$(TargetFramework)' == 'net45'" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Content Include="ApplicationInsights.config.install.xdt" />
+    <Content Include="ApplicationInsights.config.transform" />
+    <Content Include="ApplicationInsights.config.uninstall.xdt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\PublicAPI\Microsoft.AI.ServerTelemetryChannel.dll\$(TargetFramework)\PublicAPI.Shipped.txt">
+      <Link>PublicAPI.Shipped.txt</Link>
+    </AdditionalFiles>
+    <AdditionalFiles Include="..\..\PublicAPI\Microsoft.AI.ServerTelemetryChannel.dll\$(TargetFramework)\PublicAPI.Unshipped.txt">
+      <Link>PublicAPI.Unshipped.txt</Link>
+    </AdditionalFiles>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <PackageReference Include="System.Diagnostics.Process" Version="4.3.0"/>
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.3.0" />
+    <PackageReference Include="System.Net.NetworkInformation" Version="4.3.0" />
+    <PackageReference Include="System.Net.Requests" Version="4.3.0" />
+    <PackageReference Include="System.Net.WebHeaderCollection" Version="4.3.0" />
+    <PackageReference Include="System.Runtime" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
+    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+  </ItemGroup>
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+</Project>

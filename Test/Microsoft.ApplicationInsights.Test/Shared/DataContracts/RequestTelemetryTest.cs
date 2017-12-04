@@ -11,9 +11,7 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
-#if !NETCOREAPP1_1
     using KellermanSoftware.CompareNetObjects;
-#endif
     
     [TestClass]
     public class RequestTelemetryTest
@@ -218,7 +216,6 @@
             Assert.AreEqual(10, item.sampleRate);
         }
 
-#if !NETCOREAPP1_1
         [TestMethod]
         public void RequestTelemetryDeepCloneCopiesAllProperties()
         {
@@ -232,7 +229,6 @@
             var result = deepComparator.Compare(request, other);
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
-#endif
 
         private RequestTelemetry CreateTestTelemetry()
         {

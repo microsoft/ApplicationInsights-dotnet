@@ -5,7 +5,9 @@
      <Solution Include="Microsoft.ApplicationInsights.sln" />    
   </ItemGroup>
   <Target Name="Build">
-    <MSBuild Projects="@(Solution)" Targets="Restore;Build" ContinueOnError="ErrorAndStop" Properties="PreReleaseVersion=$(PreReleaseVersion)"/> 
+	<Exec Command='IF EXIST "%(Solution.FullPath)" nuget.exe restore "%(Solution.FullPath)" -NonInteractive' 
+          ContinueOnError="ErrorAndStop"/>
+    <MSBuild Projects="@(Solution)" Targets="Restore;Build" ContinueOnError="ErrorAndStop" Properties="PreReleaseVersion=$(PreReleaseVersion)"/> 	
   </Target>
   <Target Name="Clean">
     <RemoveDir Directories="$(BinRoot)\$(Configuration)" />

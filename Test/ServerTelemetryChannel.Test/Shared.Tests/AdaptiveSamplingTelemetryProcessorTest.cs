@@ -196,6 +196,81 @@
             Assert.IsTrue(sentTelemetry.Count < targetItemCount + tolerance);
         }
 
+        private class AdaptiveTesterMessageSink : ITelemetryProcessor
+        {
+            public Queue<RequestTelemetry> requests = new Queue<RequestTelemetry>();
+            public Queue<EventTelemetry> events = new Queue<EventTelemetry>();
+
+            public void Process(ITelemetry item)
+            {
+                if (item is RequestTelemetry req)
+                {
+                    requests.Enqueue(req);
+                }
+                else if (item is EventTelemetry evt)
+                {
+                    events.Enqueue(evt);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void SamplingRoutesExcludedTypes()
+        {
+            var unsampled = new AdaptiveTesterMessageSink();
+            var sampled = new AdaptiveTesterMessageSink();
+            SamplingTelemetryProcessor sampler = new SamplingTelemetryProcessor(unsampled,sampled);
+
+            sampler.ExcludedTypes = "Request";
+            sampler.SamplingPercentage = 100.0;
+
+            sampler.Process(new RequestTelemetry());
+            sampler.Process(new EventTelemetry());
+
+            Assert.IsNotNull(sampled.events.Dequeue());
+            Assert.IsNotNull(unsampled.requests.Dequeue());
+        }
+
+        [TestMethod]
+        public void SamplingWontEarlyExitWhenUnsampledNextPresent()
+        {
+            var unsampled = new AdaptiveTesterMessageSink();
+            var sampled = new AdaptiveTesterMessageSink();
+            SamplingTelemetryProcessor sampler = new SamplingTelemetryProcessor(unsampled, sampled)
+            {
+                SamplingPercentage = 100.0
+            };
+
+            sampler.Process(new RequestTelemetry());
+            Assert.IsTrue(sampled.requests.Count == 1);
+            var sent = sampled.requests.Dequeue();
+            Assert.IsNotNull(sent);
+            var sentSample = sent as ISupportSampling;
+            Assert.IsNotNull(sentSample);
+            Assert.IsTrue(sentSample.SamplingPercentage.HasValue);
+        }
+
+        [TestMethod]
+        public void SamplingSkipsSampledTelemetryItemProperty()
+        {
+            var unsampled = new AdaptiveTesterMessageSink();
+            var sampled = new AdaptiveTesterMessageSink();
+            SamplingTelemetryProcessor sampler = new SamplingTelemetryProcessor(unsampled, sampled)
+            {
+                SamplingPercentage = 100.0
+            };
+
+            var send = new RequestTelemetry();
+            var sendSampled = (send as ISupportSampling);
+            Assert.IsNotNull(sendSampled);
+            sendSampled.SamplingPercentage = 25.0;
+
+            sampler.Process(send);
+
+            Assert.IsTrue(unsampled.requests.Count == 1);
+            Assert.IsTrue(sampled.requests.Count == 0);
+        }
+
         [TestMethod]
         public void AdaptiveSamplingSetsExcludedTypesOnInternalSamplingProcessor()
         {
