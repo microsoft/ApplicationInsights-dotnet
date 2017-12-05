@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <DefineConstants>$(DefineConstants);CORE_PCL</DefineConstants>
+    <Version>2.0.0</Version>
+    <FileVersion>2.0.0.30671</FileVersion>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <AssemblyOriginatorKeyFile>35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Net.Requests" Version="4.0.11" />
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1" />
+    <Compile Include="src\Core\Managed\Net40\Extensibility\Implementation\TelemetryConfigurationFactory.cs" />
+    <Compile Include="src\Core\Managed\PCL\Extensibility\Implementation\Platform\PlatformImplementation.cs" />
+    <Compile Include="src\Core\Managed\PCL\TimeSpanEx.cs" />
+  </ItemGroup>
+  <Import Project="src\Core\Managed\Shared\Shared.projitems" />
+</Project>
