@@ -12,13 +12,13 @@ steps:
     projects: "*.sln"
     arguments: "--configuration Release"
 
-- task: DotNetCoreCLI@2
+- task: DotNetCoreCLI@1.1
   inputs:
     command: "test"
     projects: "Test/Microsoft.ApplicationInsights.Test/netcoreapp11/Microsoft.ApplicationInsights.netcoreapp11.Tests.csproj"
     arguments: "--configuration Release"
 
-- task: DotNetCoreCLI@2
+- task: DotNetCoreCLI@1.1
   inputs:
     command: "test"
     projects: "Test/ServerTelemetryChannel.Test/NetCore.Tests/TelemetryChannel.NetCore.Tests.csproj"
