@@ -176,5 +176,63 @@
 
             operation.Dispose();
         }
+
+        /// <summary>
+        /// Creates an operation object with a respective telemetry item. 
+        /// </summary>
+        /// <typeparam name="T">Type of the telemetry item.</typeparam>
+        /// <param name="telemetryClient">Telemetry client object.</param>
+        /// <param name="activity">Activity to get tracing context and telemetry properties from.</param>
+        /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
+        public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, Activity activity) where T : OperationTelemetry, new()
+        {
+            if (telemetryClient == null)
+            {
+                throw new ArgumentNullException(nameof(telemetryClient));
+            }
+
+            if (activity == null)
+            {
+                throw new ArgumentNullException(nameof(activity));
+            }
+
+            activity.Start();
+            T operationTelemetry = ActivityToTelemetry<T>(activity);
+
+            operationTelemetry.Start();
+
+            return new OperationHolder<T>(telemetryClient, operationTelemetry);
+        }
+
+        private static T ActivityToTelemetry<T>(Activity activity) where T : OperationTelemetry, new()
+        {
+            Debug.Assert(activity.Id != null, "Activity must be started prior calling this method");
+
+            var telemetry = new T { Name = activity.OperationName };
+
+            OperationContext operationContext = telemetry.Context.Operation;
+            operationContext.Name = activity.GetOperationName();
+            operationContext.Id = activity.RootId;
+            operationContext.ParentId = activity.ParentId;
+            telemetry.Id = activity.Id;
+
+            foreach (var item in activity.Baggage)
+            {
+                if (!telemetry.Properties.ContainsKey(item.Key))
+                {
+                    telemetry.Properties.Add(item);
+                }
+            }
+
+            foreach (var item in activity.Tags)
+            {
+                if (!telemetry.Properties.ContainsKey(item.Key))
+                {
+                    telemetry.Properties.Add(item);
+                }
+            }
+
+            return telemetry;
+        }
     }
 }

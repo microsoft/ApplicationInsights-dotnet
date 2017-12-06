@@ -2,7 +2,6 @@
 {
     using System.Diagnostics;
     using System.IO;
-
     
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
@@ -87,7 +86,7 @@
                         var tc = new TelemetryClient();
                         using (var requestOperation = tc.StartOperation<RequestTelemetry>(""request"", args[0]))
                         {
-                            using (var dependencyOperation = tc.StartOperation<DependencyTelemetry>(""dependency""))
+                            using (var dependencyOperation = tc.StartOperation<DependencyTelemetry>(""dependency"", args[0]))
                             {
                                 Console.Write(dependencyOperation.Telemetry.Id);
                             }
