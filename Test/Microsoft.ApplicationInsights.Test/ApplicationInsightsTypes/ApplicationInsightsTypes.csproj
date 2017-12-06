@@ -18,12 +18,18 @@
     <AssemblyName>ApplicationInsightsTypes</AssemblyName>
     <BondOptions>--collection-interfaces --using="DateTimeOffset=System.DateTimeOffset" --using="TimeSpan=System.TimeSpan" --using="Guid=System.Guid"</BondOptions>
     <BondOutputDirectory>$(MSBuildThisFileDirectory)\Generated</BondOutputDirectory>
+    <EnableDefaultItems Condition="$(OS) == 'Windows_NT'">false</EnableDefaultItems>
   </PropertyGroup>
+  <ItemGroup Condition="$(OS) == 'Windows_NT'">
+    <Compile Include="ItemType.cs" />
+    <Compile Include="TelemetryItem.cs" />
+    <Compile Include="TelemetryItemType.cs" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MicroBuild.Core" Version="0.2.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Bond.CSharp" Version="6.0.0">
+    <PackageReference Include="Bond.CSharp" Version="7.0.1">
       <PrivateAssets>build</PrivateAssets>
     </PackageReference>
   </ItemGroup>
