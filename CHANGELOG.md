@@ -1,10 +1,22 @@
 # Changelog
 
 ## Version 2.5.0-beta2
+- [Fix: When debugging netcoreapp2.0 in VS, http dependencies are tracked twice](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/723)
+- [Fix: DependencyCollector check if exits before add](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/724)
 - [Track requests and dependencies from ServiceBus .NET Client (Microsoft.Azure.ServiceBus 2.1.0](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/740)
-- [Fix for REST API Request filter bug](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/175)
-- [Fix for SyntheticUserAgentTelemetryInitializer null check](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/750)
+- [Fix: REST API Request filter bug](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/175)
+- [Fix: SyntheticUserAgentTelemetryInitializer null check](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/750)
 - [Track dependencies from EventHubs .NET Client (Microsoft.Azure.EventHubs 1.1.0)](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/753)
+
+**Project**
+- [Moved common files to Shared projects](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/730)
+- [Stabilizing QuickPulse tests](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/736)
+- [Make local debug of DependencyCollector functional tests easier](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/738)
+- [More DependencyCollector tests](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/741)
+- [Increase max timeout for QuickPulse tests](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/744)
+- [Increase tests codecoverage](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/745)
+- [More DependencyCollector functional tests](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/746)
+
 
 ## Version 2.5.0-beta1
 - Removed `net40` targets from all packages. Use the version 2.4 of SDK if your application is still compiled with the framework 4.0.
