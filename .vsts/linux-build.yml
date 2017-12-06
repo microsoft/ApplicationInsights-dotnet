@@ -1,0 +1,31 @@
+queue:
+  name: Hosted Linux
+steps:
+- task: DotNetCoreCLI@1
+  inputs:
+    command: "restore"
+    projects: "$(Parameters.RestoreBuildProjects)"
+
+- task: DotNetCoreCLI@1
+  inputs:
+    projects: "$(Parameters.RestoreBuildProjects)"
+    arguments: "--configuration $(BuildConfiguration)"
+
+- task: DotNetCoreCLI@1
+  inputs:
+    command: "test"
+    projects: "$(Parameters.TestProjects)"
+    arguments: "--configuration $(BuildConfiguration)"
+
+- task: DotNetCoreCLI@1
+  inputs:
+    command: "publish"
+    publishWebProjects: "True"
+    arguments: "--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)"
+    zipAfterPublish: "True"
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: "$(build.artifactstagingdirectory)"
+    ArtifactName: "drop"
+    ArtifactType: "Container"
