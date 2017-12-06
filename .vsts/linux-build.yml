@@ -4,24 +4,24 @@ steps:
 - task: DotNetCoreCLI@1
   inputs:
     command: "restore"
-    projects: "$(Parameters.RestoreBuildProjects)"
+    projects: "*.sln"
 
 - task: DotNetCoreCLI@1
   inputs:
-    projects: "$(Parameters.RestoreBuildProjects)"
-    arguments: "--configuration $(BuildConfiguration)"
+    projects: "*.sln"
+    arguments: "--configuration Release"
 
 - task: DotNetCoreCLI@1
   inputs:
     command: "test"
     projects: "$(Parameters.TestProjects)"
-    arguments: "--configuration $(BuildConfiguration)"
+    arguments: "--configuration Release"
 
 - task: DotNetCoreCLI@1
   inputs:
     command: "publish"
     publishWebProjects: "True"
-    arguments: "--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)"
+    arguments: "--configuration Release --output $(build.artifactstagingdirectory)"
     zipAfterPublish: "True"
 
 - task: PublishBuildArtifacts@1
