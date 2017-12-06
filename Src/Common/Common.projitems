@@ -10,11 +10,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AppMapCorrelationEventSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConditionalWeakTableExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CorrelationIdLookupHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExceptionUtilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HeadersUtilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ICorrelationIdLookupHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RequestResponseHeaders.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CorrelationIdLookupHelper.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.6' ">
     <Compile Include="$(MSBuildThisFileDirectory)WebHeaderCollectionExtensions.cs" />
