@@ -21,7 +21,7 @@ The following solution contains the product code and unit tests
 
 ## Unit Tests
 
-Several tests require that you configure a strong name verification exception for Microsoft.WindowsAzure.ServiceRuntime.dll using the [Strong Name Tool](https://msdn.microsoft.com/en-us/library/k5b5tt23(v=vs.110).aspx). Run this command as Administrator from the repository root to configure the exception (after building Microsoft.ApplicationInsights.Web.sln):
+Several tests require that you configure a strong name verification exception for Microsoft.WindowsAzure.ServiceRuntime.dll using the [Strong Name Tool](https://msdn.microsoft.com/en-us/library/k5b5tt23(v=vs.110).aspx). Run this command as Administrator from the repository root to configure the exception (after building Microsoft.ApplicationInsights.Web.sln)
 
     "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vr ..\bin\Debug\Src\WindowsServer\WindowsServer.Net40.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
     
