@@ -9,12 +9,14 @@ To successfully build the sources on your machine, make sure you've installed th
 * .NET 4.6
 * .NET Core 2.0
 
-Once you've installed the prerequisites execute either ```buildDebug.cmd``` or ```buildRelease.cmd``` script in the repository root to build the project locally..
+Once you've installed the prerequisites execute either ```buildDebug.cmd``` or ```buildRelease.cmd``` script in the repository root to build the project locally.
+
 ```buildRelease.cmd``` also runs StlyeCop checks, and is required before merging any pull requests.
 
 You can also open the solutions in Visual Studio and build directly from there.
 The following solution contains the product code and unit tests 
-	"\Src\Microsoft.ApplicationInsights.Web.sln" 
+
+```	"\Src\Microsoft.ApplicationInsights.Web.sln" ```
 
 
 ## Unit Tests
@@ -33,13 +35,14 @@ You can remove the strong name verification exception by running this command as
     
 ## Functional Tests
 
-Pre-requisites
-	To execute the functional tests, you need to install some additional prerequisites:
+To execute the functional tests, you need to install some additional prerequisites:
 
-	For Web and PerformanceCollector IIS Express should be installed.
+	For Web and PerformanceCollector tests IIS Express should be installed.
 		
 	For Dependency Collector, you need to install Docker for windows as these tests need several additional dependencies to be deployed like SQL Server, Azure Emulator etc, and these are deployed as Docker containers. 
-		* Docker for Windows (https://docs.docker.com/docker-for-windows/install/). After installation switch Docker engine to Windows Containers.(https://blogs.msdn.microsoft.com/webdev/2017/09/07/getting-started-with-windows-containers/)
+		Docker for Windows (https://docs.docker.com/docker-for-windows/install/). 
+		
+		After installation switch Docker engine to Windows Containers.(https://blogs.msdn.microsoft.com/webdev/2017/09/07/getting-started-with-windows-containers/)
 
 After you've done this, execute the ```runFunctionalTests.cmd``` script in the repository root. You can also run and debug the functional tests from Visual Studio by opening the respective solutions under the Test directory in the repository root.
 
