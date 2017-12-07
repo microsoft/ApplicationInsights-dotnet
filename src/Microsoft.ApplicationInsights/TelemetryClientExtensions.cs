@@ -178,8 +178,33 @@
         }
 
         /// <summary>
-        /// Creates an operation object with a respective telemetry item. 
+        /// Creates an operation object with a respective telemetry item using <see cref="Activity"/> instance that holds tracing context. 
         /// </summary>
+        /// <example>
+        /// <code>
+        ///   // receive message from a queue service (or any kind of the request/message from external service)
+        ///   var message = queue.Receive();
+        /// 
+        ///   // Extract tracing context from the message before processing it
+        ///   // Note that some protocols may define how Activity should be serialized into the message,
+        ///   // and some client SDKs implemeting them may provide Extract method.
+        ///   // For other protocols/libraries, serialization has to be agreed between procuder and consumer
+        ///   // and Inject/Extract pattern to be implemented
+        ///   var activity = message.ExtractActivity();
+        /// 
+        ///   // Track processing of the message
+        ///   using (telemetryClient.StartOperation&lt;RequestTelemetry&gt;(activity))
+        ///   {
+        ///     // process message
+        ///   }
+        ///  // telemetry is reported when operation is disposed.
+        /// </code>
+        /// </example>
+        /// <remarks><para>Activity represents tracing context; it contains correlation identifiers and extended properties that are propagated to external calls.
+        /// See <a href="https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/ActivityUserGuide.md"/> for more details.</para>
+        /// <para>When Activity instance is passed to StartOperation, it is expected that Activity has ParentId (if it was provided by upstream service), but has not been started yet.
+        /// It may also have additional Tags and Baggage to augument telemetry.</para>
+        /// </remarks>
         /// <typeparam name="T">Type of the telemetry item.</typeparam>
         /// <param name="telemetryClient">Telemetry client object.</param>
         /// <param name="activity">Activity to get tracing context and telemetry properties from.</param>

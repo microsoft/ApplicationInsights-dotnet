@@ -79,16 +79,21 @@
                 using System;
                 using Microsoft.ApplicationInsights;
                 using Microsoft.ApplicationInsights.DataContracts;
+                using Microsoft.ApplicationInsights.Extensibility;
+
                 class ActivityTest
                 {
                     static void Main(string[] args)
                     {
-                        var tc = new TelemetryClient();
+                        var config = new TelemetryConfiguration();
+                        config.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+                        var tc = new TelemetryClient(config);
                         using (var requestOperation = tc.StartOperation<RequestTelemetry>(""request"", args[0]))
                         {
                             using (var dependencyOperation = tc.StartOperation<DependencyTelemetry>(""dependency"", args[0]))
                             {
                                 Console.Write(dependencyOperation.Telemetry.Id);
+                                tc.TrackTrace(""Hello World!"");
                             }
                         }
                     }
