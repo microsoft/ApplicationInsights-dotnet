@@ -37,11 +37,10 @@ You can remove the strong name verification exception by running this command as
 
 To execute the functional tests, you need to install some additional prerequisites:
 
-	For Web and PerformanceCollector tests IIS Express should be installed.
+For Web and PerformanceCollector tests IIS Express should be installed.
 		
-	For Dependency Collector, you need to install Docker for windows as these tests need several additional dependencies to be deployed like SQL Server, Azure Emulator etc, and these are deployed as Docker containers. 
-		Docker for Windows (https://docs.docker.com/docker-for-windows/install/). 
-		
+For Dependency Collector, you need to install Docker for windows as these tests need several additional dependencies to be deployed like SQL Server, Azure Emulator etc, and these are deployed as Docker containers. 
+		Docker for Windows (https://docs.docker.com/docker-for-windows/install/). 		
 		After installation switch Docker engine to Windows Containers.(https://blogs.msdn.microsoft.com/webdev/2017/09/07/getting-started-with-windows-containers/)
 
 After you've done this, execute the ```runFunctionalTests.cmd``` script in the repository root. You can also run and debug the functional tests from Visual Studio by opening the respective solutions under the Test directory in the repository root.
