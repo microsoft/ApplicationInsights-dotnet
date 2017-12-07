@@ -72,6 +72,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 // PageView
                 telemetryHandlers.Add(typeof(PageViewTelemetry), this.CreateHandlerForPageViewTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
 
+                // PageView
+                telemetryHandlers.Add(typeof(PageViewPerformanceTelemetry), this.CreateHandlerForPageViewPerformanceTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
+
 #pragma warning disable 618
                 // SessionState
                 telemetryHandlers.Add(typeof(SessionStateTelemetry), this.CreateHandlerForSessionStateTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
@@ -666,6 +669,64 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyPageViewData.name,
                     dummyPageViewData.properties,
                     dummyPageViewData.measurements,
+                }
+            }.GetType());
+
+            return (item) =>
+            {
+                if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
+                {
+                    item.Sanitize();
+                    var telemetryItem = item as PageViewTelemetry;
+                    var data = telemetryItem.Data;
+                    var extendedData = new
+                    {
+                        // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
+                        PartA_iKey = telemetryItem.Context.InstrumentationKey,
+                        PartA_Tags = telemetryItem.Context.SanitizedTags,
+                        PartB_PageViewPerfData = new
+                        {
+                            data.url,
+                            data.duration,
+                            data.ver,
+                            data.name,
+                            data.properties,
+                            data.measurements,
+                        }
+                    };
+
+                    writeMethod.Invoke(eventSource, new object[] { PageViewTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                }
+            };
+        }
+
+        /// <summary>
+        /// Create handler for page view performance telemetry.
+        /// </summary>
+        private Action<ITelemetry> CreateHandlerForPageViewPerformanceTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
+        {
+            var eventSourceOptions = Activator.CreateInstance(eventSourceOptionsType);
+            var keywords = Keywords.PageViews;
+            eventSourceOptionsKeywordsProperty.SetValue(eventSourceOptions, keywords);
+            var dummyPageViewPerfData = new PageViewPerfData();
+            var writeMethod = writeGenericMethod.MakeGenericMethod(new
+            {
+                PartA_iKey = this.dummyPartAiKeyValue,
+                PartA_Tags = this.dummyPartATagsValue,
+                PartB_PageViewPerfData = new
+                {
+                    // The properties and layout should be the same as PageViewPerfData_types.cs (EventData_types.cs)
+                    dummyPageViewPerfData.perfTotal,
+                    dummyPageViewPerfData.networkConnect,
+                    dummyPageViewPerfData.sentRequest,
+                    dummyPageViewPerfData.receivedResponse,
+                    dummyPageViewPerfData.domProcessing,
+                    dummyPageViewPerfData.url,
+                    dummyPageViewPerfData.duration,
+                    dummyPageViewPerfData.ver,
+                    dummyPageViewPerfData.name,
+                    dummyPageViewPerfData.properties,
+                    dummyPageViewPerfData.measurements,
                 }
             }.GetType());
 

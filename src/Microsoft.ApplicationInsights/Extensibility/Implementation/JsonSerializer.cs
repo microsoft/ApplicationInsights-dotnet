@@ -257,6 +257,11 @@
                 PageViewTelemetry pageViewTelemetry = telemetryItem as PageViewTelemetry;
                 SerializePageViewTelemetry(pageViewTelemetry, jsonWriter);
             }
+            else if (telemetryItem is PageViewPerformanceTelemetry)
+            {
+                PageViewPerformanceTelemetry pageViewPerfTelemetry = telemetryItem as PageViewPerformanceTelemetry;
+                SerializePageViewPerformanceTelemetry(pageViewPerfTelemetry, jsonWriter);
+            }
             else if (telemetryItem is DependencyTelemetry)
             {
                 DependencyTelemetry remoteDependencyTelemetry = telemetryItem as DependencyTelemetry;
@@ -443,7 +448,6 @@
             {
                 writer.WriteStartObject();
 
-                // TODO: MetricTelemetry should write type as this.data.baseType once Common Schema 2.0 compliant.
                 writer.WriteProperty("baseType", pageViewTelemetry.BaseType);
                 writer.WritePropertyName("baseData");
                 {
@@ -455,6 +459,42 @@
                     writer.WriteProperty("duration", pageViewTelemetry.Data.duration);
                     writer.WriteProperty("measurements", pageViewTelemetry.Data.measurements);
                     writer.WriteProperty("properties", pageViewTelemetry.Data.properties);
+
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndObject();
+        }
+
+        private static void SerializePageViewPerformanceTelemetry(PageViewPerformanceTelemetry pageViewPerfTelemetry, JsonWriter writer)
+        {
+            writer.WriteStartObject();
+
+            pageViewPerfTelemetry.WriteTelemetryName(writer, PageViewTelemetry.TelemetryName);
+            pageViewPerfTelemetry.WriteEnvelopeProperties(writer);
+            writer.WritePropertyName("data");
+            {
+                writer.WriteStartObject();
+
+                writer.WriteProperty("baseType", pageViewPerfTelemetry.BaseType);
+                writer.WritePropertyName("baseData");
+                {
+                    writer.WriteStartObject();
+
+                    writer.WriteProperty("ver", pageViewPerfTelemetry.Data.ver);
+                    writer.WriteProperty("name", pageViewPerfTelemetry.Data.name);
+                    writer.WriteProperty("url", pageViewPerfTelemetry.Data.url);
+                    writer.WriteProperty("duration", pageViewPerfTelemetry.Data.duration);
+                    writer.WriteProperty("domProcessing", pageViewPerfTelemetry.Data.domProcessing);
+                    writer.WriteProperty("perfTotal", pageViewPerfTelemetry.Data.perfTotal);
+                    writer.WriteProperty("networkConnect", pageViewPerfTelemetry.Data.networkConnect);
+                    writer.WriteProperty("sentRequest", pageViewPerfTelemetry.Data.sentRequest);
+                    writer.WriteProperty("receivedResponse", pageViewPerfTelemetry.Data.receivedResponse);
+                    writer.WriteProperty("measurements", pageViewPerfTelemetry.Data.measurements);
+                    writer.WriteProperty("properties", pageViewPerfTelemetry.Data.properties);
 
                     writer.WriteEndObject();
                 }
@@ -546,7 +586,6 @@
             {
                 writer.WriteStartObject();
 
-                // TODO: MetricTelemetry should write type as this.data.baseType once Common Schema 2.0 compliant.
                 writer.WriteProperty("baseType", traceTelemetry.BaseType);
                 writer.WritePropertyName("baseData");
                 {

@@ -1,3 +1,30 @@
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.DomProcessing.get -> System.TimeSpan
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.DomProcessing.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Duration.get -> System.TimeSpan
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Duration.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Name.get -> string
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Name.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.NetworkConnect.get -> System.TimeSpan
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.NetworkConnect.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.PageViewPerformanceTelemetry() -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.PageViewPerformanceTelemetry(string pageName) -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.PerfTotal.get -> System.TimeSpan
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.PerfTotal.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.ReceivedResponse.get -> System.TimeSpan
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.ReceivedResponse.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.SentRequest.get -> System.TimeSpan
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.SentRequest.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Sequence.get -> string
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Sequence.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Timestamp.get -> System.DateTimeOffset
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Timestamp.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Url.get -> System.Uri
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Url.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.AddHeartbeatProperty(string propertyName, string propertyValue, bool isHealthy) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.ExcludedHeartbeatProperties.get -> System.Collections.Generic.IList<string>
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.HeartbeatInterval.get -> System.TimeSpan
