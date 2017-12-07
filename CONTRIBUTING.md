@@ -59,6 +59,7 @@ Web and PerformanceCollector fails with error related to 'Port conflicts' - its 
 	Workaround - Kill all running IISExpress processes and re-run tests.
 
 Dependency Collector functional tests fail with messages like "Assert.AreEqual failed. Expected:<1>. Actual<0>." or "All apps are not healthy", then its likely that Docker installation has some issues.
+	
 	Workaround if you are trying first time - Make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready. Also, the very first time DependencyCollector tests are run, all Docker images are downloaded from web and this could potentially take an hour or so. This is only one time per machine.
 	
 	Alternate workaround if you have previously run the tests successfully atleast once - execute the ```dockercleanup.ps1``` from repository root to cleanup any containers from prior runs.
