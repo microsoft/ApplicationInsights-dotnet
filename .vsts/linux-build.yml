@@ -22,6 +22,8 @@ steps:
     projects: "Test/**/*netcore*.csproj"
     arguments: "--configuration Release --filter TestCategory!=WindowsOnly"
 
+- task: PublishTestResults@2
+
 - task: DotNetCoreCLI@1
   inputs:
     command: "publish"
