@@ -2,11 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
-    using System.Net;
     using System.Net.Http;
-    using System.Net.Http.Headers;
     using System.Reflection;
     using System.Threading.Tasks;
 
@@ -17,6 +14,8 @@
             "runtimeFramework",
             "baseSdkTargetFramework",
             "osVersion",
+            "processId",
+            // the  following are Azure Instance Metadata fields
             "osType",
             "location",
             "name",
@@ -27,18 +26,16 @@
             "sku",
             "version",
             "vmId",
-            "vmSize",
-            "processId"
+            "vmSize"
         };
 
-        private static string imdsRestApiVersion = "2017-04-02";
-        private static string imdsServerIp = "169.254.169.254";
-        private static string baseImdsUrl = $"http://{imdsServerIp}/metadata";
-        private static string imdsApiVersion = $"api-version={imdsRestApiVersion}";
-        private static string imdsMethodInstance = "instance";
-        private static string imdsSubmethodCompute = "compute";
+        /// <summary>
+        /// Azure Instance Metadata Service exists on a single non-routable IP on machines configured
+        /// by the Azure Resource Manager. See <a href="https://go.microsoft.com/fwlink/?linkid=864683">to learn more.</a>
+        /// </summary>
+        private static string baseImdsUrl = $"http://169.254.169.254/metadata/instance/compute";
+        private static string imdsApiVersion = $"api-version=2017-04-02";
         private static string imdsTextFormat = "format=text";
-        private static string imdsInstanceComputeBaseUrl = $"{baseImdsUrl}/{imdsMethodInstance}/{imdsSubmethodCompute}";
 
         /// <summary>
         /// Flag that will tell us wether or not Azure VM metadata has been attempted to be gathered or not.
@@ -69,6 +66,22 @@
                         case "osVersion":
                             provider.AddHeartbeatProperty(fieldName, HeartbeatDefaultPayload.GetRuntimeOsType(), true);
                             break;
+                        case "processId":
+                            provider.AddHeartbeatProperty(fieldName, HeartbeatDefaultPayload.GetProcessId(), true);
+                            break;
+                        case "osType":
+                        case "location":
+                        case "name":
+                        case "offer":
+                        case "platformFaultDomain":
+                        case "platformUpdateDomain":
+                        case "publisher":
+                        case "sku":
+                        case "version":
+                        case "vmId":
+                        case "vmSize":
+                            // skip all Azure Instance Metadata fields
+                            break;
                         default:
                             provider.AddHeartbeatProperty(fieldName, "UNDEFINED", false);
                             break;
@@ -95,21 +108,17 @@
 
                 try
                 {
-                    var allFields = await GetAzureInstanceMetadataFields(imdsInstanceComputeBaseUrl, imdsApiVersion, imdsTextFormat)
+                    var allFields = await GetAzureInstanceMetadataFields(baseImdsUrl, imdsApiVersion, imdsTextFormat)
                                     .ConfigureAwait(false);
 
                     var enabledImdsFields = enabledFields.Intersect(allFields);
                     foreach (string field in enabledImdsFields)
                     {
-                        heartbeatManager.AddHeartbeatProperty(field, "pending", true);
-                    }
-
-                    foreach (string field in enabledImdsFields)
-                    {
-                        heartbeatManager.SetHealthProperty(
-                            field,
-                            await GetAzureInstanceMetadaValue(imdsInstanceComputeBaseUrl, field, imdsApiVersion, imdsTextFormat)
-                                .ConfigureAwait(false));
+                        heartbeatManager.AddHeartbeatProperty(
+                            propertyName: field,
+                            propertyValue: await GetAzureInstanceMetadaValue(baseImdsUrl, field, imdsApiVersion, imdsTextFormat)
+                                .ConfigureAwait(false),
+                            isHealthy: true);
                     }
                 }
                 catch (AggregateException)
@@ -119,6 +128,13 @@
             }
         }
 
+        /// <summary>
+        /// Gets all the available fields from the imds link asynchronously, and returns them as an IEnumerable.
+        /// </summary>
+        /// <param name="baseUrl">Url of the Azure Instance Metadata service</param>
+        /// <param name="apiVersion">rest Api version to append to the constructed Uri</param>
+        /// <param name="textFormatArg">query-string argument to request text data be returned</param>
+        /// <returns>an array of field names available, or null</returns>
         private static async Task<IEnumerable<string>> GetAzureInstanceMetadataFields(string baseUrl, string apiVersion, string textFormatArg)
         {
             string allComputeFields = string.Empty;
@@ -133,6 +149,14 @@
             return allComputeFields.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
         }
 
+        /// <summary>
+        /// Gets the value of a specific field from the imds link asynchronously, and returns it.
+        /// </summary>
+        /// <param name="baseUrl">Url of the Azure Instance Metadata service</param>
+        /// <param name="fieldName">Specific imds field to retrieve a value for</param>
+        /// <param name="apiVersion">rest Api version to append to the constructed Uri</param>
+        /// <param name="textFormatArg">query-string argument to request text data be returned</param>
+        /// <returns>an array of field names available, or null</returns>
         private static async Task<string> GetAzureInstanceMetadaValue(string baseUrl, string fieldName, string apiVersion, string textFormatArg)
         { 
             string computFieldUrl = $"{baseUrl}/{fieldName}?{textFormatArg}&{apiVersion}";
@@ -170,6 +194,10 @@
             return enabledProperties;
         }
 
+        /// <summary>
+        /// Returns the current target framework that the assembly was built against.
+        /// </summary>
+        /// <returns>standard string representing the target framework</returns>
         private static string GetBaseSdkTargetFramework()
         {
 #if NET45
@@ -184,6 +212,11 @@
 #endif
         }
 
+        /// <summary>
+        /// This will return the current running .NET framework version, based on the version of the assembly that owns
+        /// the 'Object' type. The version number returned can be used to infer other things such as .NET Core / Standard.
+        /// </summary>
+        /// <returns>a string representing the version of the current .NET framework</returns>
         private static string GetRuntimeFrameworkVer()
         {
 #if NET45 || NET46
@@ -219,14 +252,19 @@
         }
 
         /// <summary>
-        /// Runtime information for the process ID currently running & consuming the SDK
+        /// Runtime information for the process ID currently running and consuming the SDK
         /// </summary>
         /// <returns>string ID of the current process' AppDomain</returns>
         private static string GetProcessId()
         {
-            var assemblyName = new AssemblyName();
-
-            return assemblyName.Name;
+#if NET45 || NET46
+            return System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
+#elif NETSTANDARD1_3
+            return null;
+#else
+#error Unrecognized framework
+            return null;
+#endif
         }
     }
 }
