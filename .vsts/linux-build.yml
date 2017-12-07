@@ -19,14 +19,8 @@ steps:
 - task: DotNetCoreCLI@1
   inputs:
     command: "test"
-    projects: "Test/Microsoft.ApplicationInsights.Test/netcoreapp11/Microsoft.ApplicationInsights.netcoreapp11.Tests.csproj"
-    arguments: "--configuration Release"
-
-- task: DotNetCoreCLI@1
-  inputs:
-    command: "test"
-    projects: "Test/ServerTelemetryChannel.Test/NetCore.Tests/TelemetryChannel.NetCore.Tests.csproj"
-    arguments: "--configuration Release"
+    projects: "Test/**/*netcore*.csproj"
+    arguments: "--configuration Release --filter TestCategory!=WindowsOnly"
 
 - task: DotNetCoreCLI@1
   inputs:

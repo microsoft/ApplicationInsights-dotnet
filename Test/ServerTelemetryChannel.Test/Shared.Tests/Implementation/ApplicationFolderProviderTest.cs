@@ -37,6 +37,7 @@
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsSubfolderFromLocalAppDataFolder()
         {
             DirectoryInfo localAppData = this.CreateTestDirectory(@"AppData\Local");
@@ -52,6 +53,7 @@
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsSubfolderFromCustomFolderFirst()
         {
             DirectoryInfo localAppData = this.CreateTestDirectory(@"AppData\Local");
@@ -70,6 +72,7 @@
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsSubfolderFromTempFolderIfLocalAppDataIsNotAvailable()
         {
             DirectoryInfo temp = this.CreateTestDirectory("Temp");
@@ -85,6 +88,7 @@
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsSubfolderFromTempFolderIfLocalAppDataIsAvailableButNotAccessible()
         {
             DirectoryInfo localAppData = this.CreateTestDirectory(@"AppData\Local", FileSystemRights.CreateDirectories, AccessControlType.Deny);
@@ -106,6 +110,7 @@
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsSubfolderFromTempFolderIfLocalAppDataIsInvalid()
         {
             DirectoryInfo temp = this.CreateTestDirectory("Temp");
@@ -125,6 +130,7 @@
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsSubfolderFromTempFolderIfLocalAppDataIsUnmappedDrive()
         {
             DirectoryInfo temp = this.CreateTestDirectory("Temp");
@@ -144,6 +150,7 @@
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsSubfolderFromTempFolderIfLocalAppDataIsTooLong()
         {
             string longName = new string('A', 238 - this.testDirectory.FullName.Length);
@@ -167,6 +174,7 @@
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsNullWhenNeitherLocalAppDataNorTempFoldersAreAccessible()
         {
             var environmentVariables = new Hashtable 
@@ -182,6 +190,7 @@
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsNullWhenUnableToSetSecurityPolicyOnDirectory()
         {
             var environmentVariables = new Hashtable
@@ -201,30 +210,35 @@
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButDeniesRightToListDirectoryContents()
         {
             this.GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButNotAccessible(FileSystemRights.ListDirectory);
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButDeniesRightToCreateFiles()
         {
             this.GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButNotAccessible(FileSystemRights.CreateFiles);
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButDeniesRightToWrite()
         {
             this.GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButNotAccessible(FileSystemRights.Write);            
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButDeniesRightToRead()
         {
             this.GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButNotAccessible(FileSystemRights.Read);
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void AclsAreAppliedToLocalAppData()
         {
             DirectoryInfo localAppData = this.CreateTestDirectory(@"AppData\Local");
@@ -248,6 +262,7 @@
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void AclsAreAppliedToTemp()
         {
             DirectoryInfo localAppData = this.CreateTestDirectory(@"AppData\Local", FileSystemRights.CreateDirectories, AccessControlType.Deny);
