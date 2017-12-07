@@ -9,17 +9,19 @@ To successfully build the sources on your machine, make sure you've installed th
 * .NET 4.6
 * .NET Core 2.0
 
-Once you've installed the prerequisites execute either ```buildDebug.cmd``` or ```buildRelease.cmd``` script in the repository root to build the project locally..
+Once you've installed the prerequisites execute either ```buildDebug.cmd``` or ```buildRelease.cmd``` script in the repository root to build the project locally.
+
 ```buildRelease.cmd``` also runs StlyeCop checks, and is required before merging any pull requests.
 
 You can also open the solutions in Visual Studio and build directly from there.
 The following solution contains the product code and unit tests 
-	"\Src\Microsoft.ApplicationInsights.Web.sln" 
+
+```	"\Src\Microsoft.ApplicationInsights.Web.sln" ```
 
 
 ## Unit Tests
 
-Several tests require that you configure a strong name verification exception for Microsoft.WindowsAzure.ServiceRuntime.dll using the [Strong Name Tool](https://msdn.microsoft.com/en-us/library/k5b5tt23(v=vs.110).aspx). Run this command as Administrator from the repository root to configure the exception (after building Microsoft.ApplicationInsights.Web.sln):
+Several tests require that you configure a strong name verification exception for Microsoft.WindowsAzure.ServiceRuntime.dll using the [Strong Name Tool](https://msdn.microsoft.com/en-us/library/k5b5tt23(v=vs.110).aspx). Run this command as Administrator from the repository root to configure the exception (after building Microsoft.ApplicationInsights.Web.sln)
 
     "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vr ..\bin\Debug\Src\WindowsServer\WindowsServer.Net40.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
     
@@ -33,19 +35,22 @@ You can remove the strong name verification exception by running this command as
     
 ## Functional Tests
 
-Pre-requisites
-	To execute the functional tests, you need to install some additional prerequisites:
+To execute the functional tests, you need to install some additional prerequisites:
 
-	For Web and PerformanceCollector IIS Express should be installed.
+For Web and PerformanceCollector tests IIS Express should be installed.
 		
-	For Dependency Collector, you need to install Docker for windows as these tests need several additional dependencies to be deployed like SQL Server, Azure Emulator etc, and these are deployed as Docker containers. 
-		* Docker for Windows (https://docs.docker.com/docker-for-windows/install/). After installation switch Docker engine to Windows Containers.(https://blogs.msdn.microsoft.com/webdev/2017/09/07/getting-started-with-windows-containers/)
+For Dependency Collector, you need to install Docker for windows as these tests need several additional dependencies to be deployed like SQL Server, Azure Emulator etc, and these are deployed as Docker containers. 
+		Docker for Windows (https://docs.docker.com/docker-for-windows/install/). 		
+		After installation switch Docker engine to Windows Containers.(https://blogs.msdn.microsoft.com/webdev/2017/09/07/getting-started-with-windows-containers/)
 
 After you've done this, execute the ```runFunctionalTests.cmd``` script in the repository root. You can also run and debug the functional tests from Visual Studio by opening the respective solutions under the Test directory in the repository root.
 
 The following solutions contains the functional tests for various features.
+
 "\Test\Web\FunctionalTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.Web
+
 "\Test\PerformanceCollector\FunctionalTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.PerfCounterCollector
+
 "\Test\E2ETests\DependencyCollectionTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.DependencyCollector
 
 ## Known issues/workarounds with running functional tests.
@@ -54,9 +59,10 @@ Web and PerformanceCollector fails with error related to 'Port conflicts' - its 
 	Workaround - Kill all running IISExpress processes and re-run tests.
 
 Dependency Collector functional tests fail with messages like "Assert.AreEqual failed. Expected:<1>. Actual<0>." or "All apps are not healthy", then its likely that Docker installation has some issues.
-	Workaround if you are trying first time - Make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready. Also, the very first time DependencyCollector tests are run, all Docker images are downloaded from web and this could potentially take an hour or so. This is only one time per machine.
 	
-	Alternate workaround if you have previously run the tests successfully atleast once - execute the ```dockercleanup.ps1``` from repository root to cleanup any containers from prior runs.
+Workaround if you are trying first time - Make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready. Also, the very first time DependencyCollector tests are run, all Docker images are downloaded from web and this could potentially take an hour or so. This is only one time per machine.
+	
+Alternate workaround if you have previously run the tests successfully atleast once - execute the ```dockercleanup.ps1``` from repository root to cleanup any containers from prior runs.
 
 The test code intentionally does not clean up the containers it spun up. This is to enable fast re-runs of the tests. If the WebApp code is changed, then Docker-Compose will detect it, and re-build the container.
 If you want to do clean up all the containers created by the test, execute the ```dockercleanup.ps1``` from repository root. This is typically required if tests were aborted in the middle of a run for some reason.
