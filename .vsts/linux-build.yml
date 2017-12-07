@@ -1,0 +1,38 @@
+queue:
+  name: Hosted Linux
+steps:
+- task: DotNetCoreInstaller@0
+  inputs:
+    version: "1.1.5"
+
+- task: DotNetCoreCLI@1
+  inputs:
+    command: "restore"
+    projects: "*.sln"
+
+- task: DotNetCoreCLI@1
+  inputs:
+    command: "build"
+    projects: "*.sln"
+    arguments: "--configuration Release"
+
+- task: DotNetCoreCLI@1
+  inputs:
+    command: "test"
+    projects: "Test/**/*netcore*.csproj"
+    arguments: "--configuration Release --filter TestCategory!=WindowsOnly"
+
+- task: PublishTestResults@2
+
+- task: DotNetCoreCLI@1
+  inputs:
+    command: "publish"
+    publishWebProjects: "True"
+    arguments: "--configuration Release --output $(build.artifactstagingdirectory)"
+    zipAfterPublish: "True"
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: "$(build.artifactstagingdirectory)"
+    ArtifactName: "drop"
+    ArtifactType: "Container"
