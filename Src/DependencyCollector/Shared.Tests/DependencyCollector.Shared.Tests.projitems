@@ -21,6 +21,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\HttpParsingHelperTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheBasedOperationHolderTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ObjectInstanceBasedOperationHolderTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventHubsDiagnosticListenerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryDiagnosticSourceListenerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpersTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorTestHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\MockTelemetryInitializer.cs" />
@@ -35,5 +37,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RetryPolicyTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TestUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ServiceBusDiagnosticListenerTests.cs" />
   </ItemGroup>
 </Project>

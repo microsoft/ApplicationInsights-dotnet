@@ -10,11 +10,14 @@
     <Error Condition="!Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets'))" />
   </Target>
 
+  <Import Project="..\..\Common\Common.projitems" Label="Shared" />
+
+  <Import Project="..\Shared\DependencyCollector.Shared.projitems" Label="Shared" />
+
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" />
 
   <PropertyGroup>
-    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
-    <VersionPrefix>2.5.0-beta1</VersionPrefix>
+    <VersionPrefix>2.5.0-beta2</VersionPrefix>
     <Authors>Microsoft</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
     <DefineConstants>$(DefineConstants);NETCORE</DefineConstants>
@@ -29,43 +32,11 @@
     <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+	<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Shared\DependencyTrackingTelemetryModule.cs" Link="DependencyTrackingTelemetryModule.cs" />
-    <Compile Include="..\Shared\HttpDependenciesParsingTelemetryInitializer.cs" Link="HttpDependenciesParsingTelemetryInitializer.cs" />
-    <Compile Include="..\Shared\Implementation\Operation\ObjectInstanceBasedOperationHolder.cs" Link="ObjectInstanceBasedOperationHolder.cs" />
-    <Compile Include="..\Shared\SanitizedHostList.cs" Link="SanitizedHostList.cs" />
-    <Compile Include="..\Shared\Implementation\DependencyCollectorEventSource.cs" Link="DependencyCollectorEventSource.cs" />
-    <Compile Include="..\Shared\Implementation\ApplicationInsightsUrlFilter.cs" Link="ApplicationInsightsUrlFilter.cs" />
-    <Compile Include="..\Shared\Implementation\RemoteDependencyConstants.cs" Link="RemoteDependencyConstants.cs" />
-    <Compile Include="..\Shared\Implementation\DiagnosticSourceListenerBase.cs" Link="DiagnosticSourceListenerBase.cs" />
-    <Compile Include="..\Shared\Implementation\TelemetryDiagnosticSourceListener.cs" Link="TelemetryDiagnosticSourceListener.cs" />
-    <Compile Include="..\Shared\Implementation\HttpCoreDiagnosticSourceListener.cs" Link="HttpCoreDiagnosticSourceListener.cs" />
-    <Compile Include="..\Shared\Implementation\SqlClientDiagnosticSourceListener.cs" Link="SqlClientDiagnosticSourceListener.cs" />
-    <Compile Include="..\Shared\Implementation\HttpHeadersUtilities.cs" Link="HttpHeadersUtilities.cs" />
-    <Compile Include="..\Shared\Implementation\PropertyFetcher.cs" Link="PropertyFetcher.cs" />
-    <Compile Include="..\Shared\Implementation\RDDSource.cs" Link="RDDSource.cs" />
-    <Compile Include="..\Shared\Implementation\HttpParsers\AzureBlobHttpParser.cs" Link="AzureBlobHttpParser.cs" />
-    <Compile Include="..\Shared\Implementation\HttpParsers\AzureIotHubHttpParser.cs" Link="AzureIotHubHttpParser.cs" />
-    <Compile Include="..\Shared\Implementation\HttpParsers\AzureQueueHttpParser.cs" Link="AzureQueueHttpParser.cs" />
-    <Compile Include="..\Shared\Implementation\HttpParsers\AzureServiceBusHttpParser.cs" Link="AzureServiceBusHttpParser.cs" />
-    <Compile Include="..\Shared\Implementation\HttpParsers\AzureTableHttpParser.cs" Link="AzureTableHttpParser.cs" />
-    <Compile Include="..\Shared\Implementation\HttpParsers\DocumentDbHttpParser.cs" Link="DocumentDbHttpParser.cs" />
-    <Compile Include="..\Shared\Implementation\HttpParsers\GenericServiceHttpParser.cs" Link="GenericServiceHttpParser.cs" />
-    <Compile Include="..\Shared\Implementation\HttpParsers\HttpParsingHelper.cs" Link="HttpParsingHelper.cs" />
-    <Compile Include="..\Shared\Implementation\AppMapCorrelationEventSource.cs" Link="Dependency\AppMapCorrelationEventSource.cs" />
-    <Compile Include="..\..\Common\CorrelationIdLookupHelper.cs" Link="CorrelationIdLookupHelper.cs" />
-    <Compile Include="..\..\Common\AppMapCorrelationEventSource.cs" Link="AppMapCorrelationEventSource.cs" />
-    <Compile Include="..\..\Common\ExceptionUtilities.cs" Link="ExceptionUtilities.cs" />
-    <Compile Include="..\..\Common\ICorrelationIdLookupHelper.cs" Link="ICorrelationIdLookupHelper.cs" />
-    <Compile Include="..\..\Common\RequestResponseHeaders.cs" Link="RequestResponseHeaders.cs" />
-    <Compile Include="..\..\Common\HeadersUtilities.cs" Link="HeadersUtilities.cs" />
-    <Compile Include="..\..\Web\Web.Net45\Implementation\SdkVersionUtils.cs" Link="SdkVersionUtils.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.0-beta1" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.0-beta2" />
     <PackageReference Include="Microsoft.Extensions.DiagnosticAdapter" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />

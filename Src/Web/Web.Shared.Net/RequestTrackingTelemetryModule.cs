@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Web;
@@ -22,7 +23,29 @@
         private bool correlationHeadersEnabled = true;
         private string telemetryChannelEnpoint;
         private CorrelationIdLookupHelper correlationIdLookupHelper;
+        private ChildRequestTrackingSuppressionModule childRequestTrackingSuppressionModule = null;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether child request suppression is enabled or disabled. 
+        /// True by default.
+        /// This value is evaluated in Initialize().
+        /// </summary>
+        /// <remarks>
+        /// See also <see cref="ChildRequestTrackingSuppressionModule" />.
+        /// Child requests caused by <see cref="System.Web.Handlers.TransferRequestHandler" />.
+        /// Unit tests should disable this.
+        /// </remarks>
+        public bool EnableChildRequestTrackingSuppression { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating the size of internal tracking dictionary.
+        /// Must be a positive integer.
+        /// </summary>
+        /// <remarks>
+        /// See also <see cref="ChildRequestTrackingSuppressionModule" />.
+        /// </remarks>
+        public int ChildRequestTrackingInternalDictionarySize { get; set; }
+        
         /// <summary>
         /// Gets the list of handler types for which requests telemetry will not be collected
         /// if request was successful.
@@ -89,6 +112,8 @@
                 WebEventSource.Log.NoHttpContextWarning();
                 return;
             }
+
+            this.childRequestTrackingSuppressionModule?.OnBeginRequest_IdRequest(context);
 
             var telemetry = context.ReadOrCreateRequestTelemetryPrivate();
 
@@ -216,7 +241,14 @@
                 requestTelemetry.Source = telemetrySource;
             }
 
-            this.telemetryClient.TrackRequest(requestTelemetry);
+            if (this.childRequestTrackingSuppressionModule?.OnEndRequest_ShouldLog(context) ?? true)
+            {
+                this.telemetryClient.TrackRequest(requestTelemetry);
+            }
+            else
+            {
+                WebEventSource.Log.RequestTrackingTelemetryModuleRequestWasNotLoggedInformational();
+            }
         }
 
         /// <summary>
@@ -272,6 +304,13 @@
             if (configuration != null && configuration.TelemetryChannel != null)
             {
                 this.telemetryChannelEnpoint = configuration.TelemetryChannel.EndpointAddress;
+            }
+
+            // Headers will be read-only in a classic iis pipeline
+            // Exception System.PlatformNotSupportedException: This operation requires IIS integrated pipeline mode.
+            if (HttpRuntime.UsingIntegratedPipeline && this.EnableChildRequestTrackingSuppression)
+            {
+                this.childRequestTrackingSuppressionModule = new ChildRequestTrackingSuppressionModule(maxRequestsTracked: this.ChildRequestTrackingInternalDictionarySize);
             }
         }
 
@@ -345,6 +384,184 @@
             catch
             {
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// <see cref="System.Web.Handlers.TransferRequestHandler"/> can create a Child request to route extension-less requests to a controller.
+        /// (ex: site/home -> site/HomeController.cs)
+        /// We do not want duplicate telemetry logged for both the Parent and Child requests, so the activeRequests will be created OnBeginRequest.
+        /// When the child request OnEndRequest, the id will be removed from this dictionary and telemetry will not be logged for the parent.
+        /// </summary>
+        /// <remarks>
+        /// Unit tests should disable the ChildRequestTrackingSuppressionModule.
+        /// Unit test projects cannot create an [internal] IIS7WorkerRequest object.
+        /// Without this object, we cannot modify the Request.Headers without throwing a PlatformNotSupportedException.
+        /// Unit tests will have to initialize the RequestIdHeader.
+        /// The second IF will ensure the id is added to the activeRequests.
+        /// </remarks>
+        /// <remarks>
+        /// IIS Classic Pipeline should disable the ChildRequestTrackingSuppressionModule.
+        /// Classic does not create IIS7WorkerRequest object and Headers will be read-only.
+        /// (Exception System.PlatformNotSupportedException: This operation requires IIS integrated pipeline mode.)
+        /// </remarks>
+        private class ChildRequestTrackingSuppressionModule
+        {
+            private const int DEFAULTMAXVALUE = 100000;
+
+            private const string HeaderRootRequestId = "ApplicationInsights-RequestTrackingTelemetryModule-RootRequest-Id";
+#if DEBUG
+            private const string HeaderParentRequestId = "ApplicationInsights-RequestTrackingTelemetryModule-ParentRequest-Id";
+            private const string HeaderRequestId = "ApplicationInsights-RequestTrackingTelemetryModule-Request-Id";
+#endif
+
+            private static object semaphore = new object();
+
+            /// <summary>
+            /// Using this as a hash-set of current active requests. The value of the Dictionary is not used.
+            /// </summary>
+            private static ConcurrentDictionary<string, bool> activeRequestsA = new ConcurrentDictionary<string, bool>(System.Environment.ProcessorCount, DEFAULTMAXVALUE);
+            private static ConcurrentDictionary<string, bool> activeRequestsB = new ConcurrentDictionary<string, bool>(System.Environment.ProcessorCount, DEFAULTMAXVALUE);
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ChildRequestTrackingSuppressionModule" /> class.
+            /// </summary>
+            /// <param name="maxRequestsTracked">The maximum number of active requests to be tracked before resetting the dictionary.</param>
+            internal ChildRequestTrackingSuppressionModule(int maxRequestsTracked)
+            {
+                this.MAXSIZE = maxRequestsTracked > 0 ? maxRequestsTracked : DEFAULTMAXVALUE;
+            }
+
+            /// <summary>
+            /// Gets the Max number of request ids to cache.
+            /// </summary>
+            internal int MAXSIZE { get; private set; }
+
+            /// <summary>
+            /// Request will be tagged with an id to identify if it should be logged later.
+            /// </summary>
+            internal void OnBeginRequest_IdRequest(HttpContext context)
+            {
+                if (context?.Request?.Headers == null)
+                {
+                    return;
+                }
+
+                try
+                {
+                    this.TagRequest(context);
+                }
+                catch (Exception ex)
+                {
+                   WebEventSource.Log.ChildRequestUnknownException(nameof(this.OnBeginRequest_IdRequest), ex.ToInvariantString());
+                }
+            }
+
+            /// <summary>
+            /// OnEndRequest - Should this request be logged?
+            /// Will compare a request id against a hash-set of known requests.
+            /// If this request is not known, add it to hash-set and return true (safe to log).
+            /// If this request is known, return false (do not log twice).
+            /// Additional requests with the same id will return false.
+            /// </summary>
+            internal bool OnEndRequest_ShouldLog(HttpContext context)
+            {
+                var headers = context?.Request?.Headers;
+                if (headers == null)
+                {
+                    return false;
+                }
+
+                try
+                {
+                    var rootRequestId = headers[HeaderRootRequestId];
+                    if (rootRequestId != null)
+                    {
+                        if (!this.IsRequestKnown(rootRequestId))
+                        {
+                            // doesn't exist add to dictionary and return true
+                            this.AddRequestToDictionary(rootRequestId);
+                            return true;
+                        }
+                        else
+                        {
+                            WebEventSource.Log.RequestTrackingTelemetryModuleRequestWasNotLoggedVerbose(rootRequestId, "Request is already known");
+                        }
+                    }
+                    else
+                    {
+                        WebEventSource.Log.RequestTrackingTelemetryModuleRequestWasNotLoggedVerbose(rootRequestId, "Request id is null");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    WebEventSource.Log.ChildRequestUnknownException(nameof(this.OnEndRequest_ShouldLog), ex.ToInvariantString());
+                }
+
+                return false;
+            }
+
+            /// <summary>
+            /// Tag new requests.
+            /// Transfer Ids to parent requests.
+            /// </summary>
+            private void TagRequest(HttpContext context)
+            {
+                var headers = context.Request.Headers;
+
+                if (headers[HeaderRootRequestId] == null)
+                {
+                    headers[HeaderRootRequestId] = Guid.NewGuid().ToString();
+                }
+
+#if DEBUG
+                // additional ids help developer watch request hierarchy while debugging.
+                if (headers[HeaderRequestId] != null)
+                {
+                    headers[HeaderParentRequestId] = headers[HeaderRequestId];
+                    headers[HeaderRequestId] = Guid.NewGuid().ToString();
+                }
+                else
+                {
+                    headers[HeaderRequestId] = headers[HeaderRootRequestId];
+                }
+#endif
+            }
+
+            /// <summary>
+            /// Has this request been tracked.
+            /// </summary>
+            private bool IsRequestKnown(string requestId)
+            {
+                return activeRequestsA.ContainsKey(requestId) || activeRequestsB.ContainsKey(requestId);
+            }
+
+            /// <summary>
+            /// Track this requestId.
+            /// </summary>
+            /// <remarks>
+            /// Dictionary A will be read/write.
+            /// When dictionary A is full, move to B and create new A.
+            /// Dictionary B will be read-only.
+            /// </remarks>
+            private void AddRequestToDictionary(string requestId)
+            {
+                if (activeRequestsA.Count >= this.MAXSIZE)
+                {
+                    // only lock around the edge case to avoid locking EVERY request thread
+                    lock (semaphore)
+                    {
+                        // in the event that multiple threads step into the first if, 
+                        // check condition again to avoid repeat operations.
+                        if (activeRequestsA.Count >= this.MAXSIZE)
+                        {
+                            activeRequestsB = activeRequestsA;
+                            activeRequestsA = new ConcurrentDictionary<string, bool>(System.Environment.ProcessorCount, this.MAXSIZE);
+                        }
+                    }
+                }
+
+                activeRequestsA.TryAdd(requestId, false);
             }
         }
     }

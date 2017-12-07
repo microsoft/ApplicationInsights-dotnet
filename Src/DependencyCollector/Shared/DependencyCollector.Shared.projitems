@@ -12,45 +12,60 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.DependencyCollector</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DependencyTrackingTelemetryModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventHandlers\DiagnosticsEventHandlerBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HttpCoreDiagnosticSourceListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpDependenciesParsingTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HttpHeadersUtilities.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationInsightsUrlFilter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\AppMapCorrelationEventSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTracker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyTargetNameHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DesktopDiagnosticSourceHttpProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DiagnosticSourceListenerBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpDesktopDiagnosticSourceListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureBlobHttpParser.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureQueueHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureIotHubHttpParser.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureTableHttpParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureQueueHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureServiceBusHttpParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureTableHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\DocumentDbHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\GenericServiceHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\HttpParsingHelper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlConnectionProcessing.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlCommandProcessing.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpers.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorEventSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RemoteDependencyConstants.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpDesktopDiagnosticSourceListener.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpDesktopDiagnosticSourceSubscriber.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpEventListener.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpProcessing.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpProcessing.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerHttpProcessing.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheBasedOperationHolder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\IDiagnosticEventHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ObjectInstanceBasedOperationHolder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\OperationWatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationInsightsUrlFilter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerRuntimeInstrumentation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RDDSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RemoteDependencyConstants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SdkVersionUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventHandlers\EventHubsDiagnosticsEventHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventHandlers\ServiceBusDiagnosticsEventHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PropertyFetcher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SanitizedHostList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SqlClientDiagnosticSourceListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetryDiagnosticSourceListener.cs" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.6' ">
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTracker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyTableStore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpEventListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkSqlEventListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkSqlProcessing.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpDesktopDiagnosticSourceSubscriber.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpProcessing.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheBasedOperationHolder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerHttpProcessing.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerRuntimeInstrumentation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlCommandProcessing.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlConnectionProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlProcessingBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RetryPolicy.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyTableStore.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RDDSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DependencyTrackingTelemetryModule.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)SanitizedHostList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryExtensionsForDependencyCollector.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Implementation\EventHandlers\" />
   </ItemGroup>
 </Project>

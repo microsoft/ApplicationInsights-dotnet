@@ -8,6 +8,7 @@
     using System.Net;
     using System.Net.Http;
     using System.Runtime.Serialization.Json;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
@@ -21,6 +22,8 @@
     public sealed class QuickPulseServiceClientTests : IDisposable
     {
         private const string ServiceEndpointPropertyName = "ServiceEndpoint";
+
+        private static readonly TimeSpan RequestProcessingTimeout = TimeSpan.FromSeconds(30.0);
 
         /// <summary>
         /// Tuple of (Timestamp, CollectionConfigurationETag, MonitoringDataPoint).
@@ -57,6 +60,8 @@
         private bool emulateTimeout;
 
         private Random rand = new Random();
+
+        private SemaphoreSlim assertionSync;
 
         public QuickPulseServiceClientTests()
         {
@@ -120,6 +125,7 @@
 
             this.listener.Start();
 
+            this.assertionSync = new SemaphoreSlim(0);
             Task.Factory.StartNew(() => this.ProcessRequest(this.listener));
         }
 
@@ -132,6 +138,10 @@
             }
             catch
             {
+            }
+            finally
+            {
+                Interlocked.Exchange(ref this.assertionSync, null)?.Dispose();
             }
         }
 
@@ -149,6 +159,9 @@
             serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, out configurationInfo);
             serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, out configurationInfo);
             serviceClient.Ping(string.Empty, timestamp, string.Empty, string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 3);
 
             // ASSERT
             Assert.AreEqual(3, this.pingCount);
@@ -215,6 +228,9 @@
                 string.Empty,
                 out configurationInfo,
                 new CollectionConfigurationError[0]);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual(true, sendMore);
@@ -287,6 +303,9 @@
                 out configurationInfo,
                 new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.AreEqual(3, this.samples.Count);
             Assert.IsTrue((timeProvider.UtcNow - this.samples[0].Item1).Duration() < TimeSpan.FromMilliseconds(1));
@@ -324,6 +343,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample1 }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual(0.3333, this.samples[0].Item3.Metrics.Single(m => m.Name == @"\ApplicationInsights\Requests Succeeded/Sec").Value);
@@ -370,6 +392,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample1, sample2 }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual(3, this.samples[0].Item3.Metrics.Single(m => m.Name == @"\ApplicationInsights\Request Duration").Weight);
@@ -441,6 +466,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.AreEqual("Request1", ((RequestTelemetryDocument)this.samples[0].Item3.Documents[0]).Name);
             Assert.AreEqual("Prop1", ((RequestTelemetryDocument)this.samples[0].Item3.Documents[0]).Properties.First().Key);
@@ -504,6 +532,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample1, sample2 }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.IsTrue(this.samples[0].Item3.GlobalDocumentQuotaReached);
             Assert.IsFalse(this.samples[1].Item3.GlobalDocumentQuotaReached);
@@ -528,6 +559,9 @@
             CollectionConfigurationInfo configurationInfo;
             bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.IsTrue(response.Value);
         }
@@ -550,6 +584,9 @@
             this.pingResponse = r => { r.Headers.Add(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString()); };
             CollectionConfigurationInfo configurationInfo;
             bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.IsFalse(response.Value);
@@ -574,6 +611,9 @@
             CollectionConfigurationInfo configurationInfo;
             bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.IsNull(response);
         }
@@ -596,6 +636,9 @@
             this.pingResponse = r => { };
             CollectionConfigurationInfo configurationInfo;
             bool? response = serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.IsNull(response);
@@ -626,6 +669,9 @@
                 out configurationInfo,
                 new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.IsTrue(response.Value);
         }
@@ -654,6 +700,9 @@
                 string.Empty,
                 out configurationInfo,
                 new CollectionConfigurationError[0]);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.IsFalse(response.Value);
@@ -684,6 +733,9 @@
                 out configurationInfo,
                 new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.IsNull(response);
         }
@@ -713,6 +765,9 @@
                 out configurationInfo,
                 new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.IsNull(response);
         }
@@ -737,6 +792,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.Ping(string.Empty, DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual(1, this.pingCount);
@@ -768,6 +826,9 @@
                 string.Empty,
                 out configurationInfo,
                 new CollectionConfigurationError[0]);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual(1, this.submitCount);
@@ -806,6 +867,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.Ping("ikey", now, "ETag1", string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.IsNull(configurationInfo);
@@ -852,6 +916,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.IsNull(configurationInfo);
         }
@@ -890,6 +957,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.Ping("ikey", now, "ETag1", string.Empty, out configurationInfo);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.IsNotNull(configurationInfo, "configurationInfo should not be null.");
             Assert.AreEqual("ETag2", configurationInfo.ETag);
@@ -899,8 +969,6 @@
         [TestMethod]
         public void QuickPulseServiceClientReadsCollectionConfigurationFromPostWhenETagIsDifferent()
         {
-            // TODO: Stabilize test for NetCore
-#if !NETCORE
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
             var serviceClient = new QuickPulseServiceClient(
@@ -939,11 +1007,13 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.IsNotNull(configurationInfo, "configurationInfo should not be null.");
             Assert.AreEqual("ETag2", configurationInfo.ETag);
             Assert.AreEqual("Id1", configurationInfo.Metrics.Single().Id);
-#endif
         }
 
         [TestMethod]
@@ -975,6 +1045,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.Ping("ikey", now, "ETag2", string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.IsNull(configurationInfo);
@@ -1016,6 +1089,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag2", string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.IsNull(configurationInfo);
@@ -1081,6 +1157,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             MetricPoint metric1 = this.samples.Single().Item3.Metrics.Single(m => m.Name == "Metric1");
             MetricPoint metric2 = this.samples.Single().Item3.Metrics.Single(m => m.Name == "Metric2");
@@ -1109,6 +1188,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual(1, this.pings.Count);
@@ -1142,6 +1224,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
             Assert.AreEqual(instanceName, this.samples[0].Item3.Instance);
@@ -1165,6 +1250,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual(1, this.pings.Count);
@@ -1198,6 +1286,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
             Assert.AreEqual(streamId, this.samples[0].Item3.StreamId);
@@ -1221,6 +1312,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual(1, this.pings.Count);
@@ -1254,6 +1348,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
             Assert.AreEqual(machineName, this.samples[0].Item3.MachineName);
@@ -1276,6 +1373,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, string.Empty, string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual(1, this.pings.Count);
@@ -1308,6 +1408,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
             Assert.AreEqual(4, this.samples[0].Item3.InvariantVersion);
@@ -1331,6 +1434,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.Ping(Guid.NewGuid().ToString(), timeProvider.UtcNow, string.Empty, string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual(1, this.pings.Count);
@@ -1366,6 +1472,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
             Assert.AreEqual(timeProvider.UtcNow.Ticks, this.samples[0].Item1.Ticks);
@@ -1390,6 +1499,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.Ping("some ikey", now, string.Empty, string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual(1, this.pingCount);
@@ -1422,6 +1534,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
             Assert.AreEqual(version, this.samples[0].Item3.Version);
@@ -1447,6 +1562,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.Ping("some ikey", now, string.Empty, authApiKey, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual(1, this.pingCount);
@@ -1479,6 +1597,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, authApiKey, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
             Assert.AreEqual(authApiKey, this.lastAuthApiKey);
@@ -1510,6 +1631,9 @@
 
             // received the proper headers, now re-submit them
             serviceClient.Ping("some ikey", now, string.Empty, string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 2);
 
             // ASSERT
             Assert.AreEqual(2, this.pingCount);
@@ -1554,6 +1678,9 @@
             // received the proper headers, now re-submit them
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 2);
+
             // ASSERT
             Assert.AreEqual(2, this.samples.Count);
             Assert.AreEqual("x-ms-qps-auth-app-id1", this.lastOpaqueAuthHeaderValues["x-ms-qps-auth-app-id"]);
@@ -1588,6 +1715,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, string.Empty, "ETag1", string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
             serviceClient.Ping(string.Empty, now, "ETag1", string.Empty, out configurationInfo);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual("ETag1", this.samples.Single().Item2);
@@ -1638,6 +1768,9 @@
                 out configurationInfo,
                 collectionConfigurationErrors);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.AreEqual(2, this.samples.Single().Item3.CollectionConfigurationErrors.Length);
 
@@ -1680,6 +1813,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
             Assert.AreEqual(ikey, this.samples[0].Item3.InstrumentationKey);
@@ -1711,6 +1847,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
             Assert.IsTrue(this.samples[0].Item3.IsWebApp);
@@ -1741,6 +1880,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
@@ -1774,6 +1916,9 @@
             // ACT
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
 
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
@@ -1811,6 +1956,9 @@
             CollectionConfigurationInfo configurationInfo;
             serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
 
+            // SYNC
+            this.WaitForProcessing(requestCount: 1);
+
             // ASSERT
             Assert.AreEqual(1, this.samples.Count);
             Assert.IsTrue(this.samples[0].Item3.TopCpuDataAccessDenied);
@@ -1821,6 +1969,11 @@
             try
             {
                 ((IDisposable)this.listener).Dispose();
+                if (this.assertionSync != null)
+                {
+                    this.assertionSync.Dispose();
+                    this.assertionSync = null;
+                }
             }
             catch (Exception)
             {
@@ -1836,19 +1989,21 @@
 
             while (listener.IsListening)
             {
-                HttpListenerContext context = listener.GetContextAsync().GetAwaiter().GetResult();
-
-                var request = context.Request;
-
-                this.lastAuthApiKey = context.Request.Headers[QuickPulseConstants.XMsQpsAuthApiKeyHeaderName];
-                foreach (var headerName in QuickPulseConstants.XMsQpsAuthOpaqueHeaderNames)
+                try
                 {
-                    this.lastOpaqueAuthHeaderValues[headerName] = context.Request.Headers[headerName];
-                }
+                    HttpListenerContext context = listener.GetContextAsync().GetAwaiter().GetResult();
 
-                switch (request.Url.LocalPath)
-                {
-                    case "/ping":
+                    var request = context.Request;
+
+                    this.lastAuthApiKey = context.Request.Headers[QuickPulseConstants.XMsQpsAuthApiKeyHeaderName];
+                    foreach (var headerName in QuickPulseConstants.XMsQpsAuthOpaqueHeaderNames)
+                    {
+                        this.lastOpaqueAuthHeaderValues[headerName] = context.Request.Headers[headerName];
+                    }
+
+                    switch (request.Url.LocalPath)
+                    {
+                        case "/ping":
                         {
                             this.pingCount++;
 
@@ -1883,8 +2038,8 @@
                             this.lastVersion = dataPoint.Version;
                         }
 
-                        break;
-                    case "/post":
+                            break;
+                        case "/post":
                         {
                             this.submitCount++;
 
@@ -1901,16 +2056,33 @@
                                     dp => Tuple.Create(new DateTimeOffset(transmissionTime, TimeSpan.Zero), collectionConfigurationETag, dp)));
                         }
 
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException("Unknown request: " + request.Url.LocalPath);
-                }
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException("Unknown request: " + request.Url.LocalPath);
+                    }
 
-                if (!this.emulateTimeout)
+                    if (!this.emulateTimeout)
+                    {
+                        context.Response.Close();
+                    }
+                }
+                finally
                 {
-                    context.Response.Close();
+                    this.assertionSync.Release();
                 }
             }
+        }
+
+        private void WaitForProcessing(int requestCount)
+        {
+            TimeSpan timeout = QuickPulseServiceClientTests.RequestProcessingTimeout;
+
+            Task<bool>[] waitTasks = Enumerable.Range(0, requestCount).Select(_ => Task.Run(() => this.assertionSync.Wait(timeout))).ToArray();
+            Task.WhenAll(waitTasks);
+
+            Assert.IsTrue(
+                condition: waitTasks.All(task => task.Result), 
+                message: string.Format(CultureInfo.InvariantCulture, "Not all requests finished processing: expected {0}, actual: {1}", requestCount, waitTasks.Count(task => task.Result)));
         }
 
 #endregion

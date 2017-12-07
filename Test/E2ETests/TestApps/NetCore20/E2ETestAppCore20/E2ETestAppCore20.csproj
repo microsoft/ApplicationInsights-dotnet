@@ -1,0 +1,72 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <AssemblyName>E2ETestAppCore20</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <PackageId>E2ETestAppCore20</PackageId>
+    <RuntimeFrameworkVersion>2.0.0</RuntimeFrameworkVersion>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <DoNotSign>true</DoNotSign>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--<PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0-preview2-final" />-->
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.0-beta2" />
+    <PackageReference Include="System.Net.Http" Version="4.3.1" />
+    <PackageReference Include="System.Threading.Tasks.Parallel" Version="4.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.0	" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
+  </ItemGroup>
+
+
+  
+  <ItemGroup>
+    <Reference Include="Microsoft.AI.DependencyCollector">
+      <HintPath>$(BinRoot)\$(Configuration)\Src\DependencyCollector\NetCore\netstandard1.6\Microsoft.AI.DependencyCollector.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\helpersfortestapp\FW40Shared\SqlCommandHelper.cs" Link="SqlCommandHelper.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="DockerFile20">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+  <!--
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Src\DependencyCollector\NetCore\DependencyCollector.NetCore.csproj" />
+  </ItemGroup>
+  -->
+
+  <PropertyGroup>
+    <DeployOnBuild>true</DeployOnBuild>
+    <DeployTarget>PipelinePreDeployCopyAllFilesToOneFolder</DeployTarget>
+    <_PackageTempDir>$(OutputPath)\Publish</_PackageTempDir>
+    <AutoParameterizationWebConfigConnectionStrings>false</AutoParameterizationWebConfigConnectionStrings>
+  </PropertyGroup>
+
+</Project>

@@ -437,9 +437,19 @@
             Keywords = Keywords.RddEventKeywords,
             Message = "{0} id = '{1}'",
             Level = EventLevel.Verbose)]
-        public void TelemetryDiagnosticSourceListenerActivityStopped(string activityName, string id, string appDomainName = "Incorrect")
+        public void TelemetryDiagnosticSourceListenerEvent(string eventName, string id, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(42, activityName, id, this.ApplicationName);
+            this.WriteEvent(42, eventName, id, this.ApplicationName);
+        }
+
+        [Event(
+            43,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "Failed to handle {0} event, id = '{1}', error = '{2}' ",
+            Level = EventLevel.Error)]
+        public void TelemetryDiagnosticSourceCallbackException(string eventName, string id, string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(43, eventName, id, error, this.ApplicationName);
         }
 
         [NonEvent]
