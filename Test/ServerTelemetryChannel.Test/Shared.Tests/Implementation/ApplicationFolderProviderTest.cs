@@ -29,6 +29,7 @@
         }
 
         [TestMethod]
+        [TestCategory("WindowsOnly")]
         public void GetApplicationFolderReturnsValidPlatformFolder()
         {
             IApplicationFolderProvider provider = new ApplicationFolderProvider();
