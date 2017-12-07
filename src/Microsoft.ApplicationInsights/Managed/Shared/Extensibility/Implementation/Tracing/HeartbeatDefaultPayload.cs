@@ -5,13 +5,15 @@
     using System.IO;
     using System.Linq;
     using System.Net;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.Reflection;
     using System.Threading.Tasks;
 
     internal static class HeartbeatDefaultPayload
     {
-       public static readonly string[] DefaultFields =
-        {
+        public static readonly string[] DefaultFields =
+         {
             "runtimeFramework",
             "baseSdkTargetFramework",
             "osVersion",
@@ -29,28 +31,28 @@
             "processId"
         };
 
-        /// <summary>
-        /// If this is an application running on an Azure IaaS VM, we have access to the local Azure Instance
-        /// Metadata service. When this is true, we can get a few details that will help sort out any issues
-        /// with a service based on the platform being run on. We only want to gather this information once,
-        /// so upon trying this field will either be null or not, and the flag 'HasAzureVmMetadata' will be 
-        /// set accordingly.
-        /// </summary>
-        public static string AzureVmInstanceMetadata = null;
+        private static string imdsRestApiVersion = "2017-04-02";
+        private static string imdsServerIp = "169.254.169.254";
+        private static string baseImdsUrl = $"http://{imdsServerIp}/metadata";
+        private static string imdsApiVersion = $"api-version={imdsRestApiVersion}";
+        private static string imdsMethodInstance = "instance";
+        private static string imdsSubmethodCompute = "compute";
+        private static string imdsTextFormat = "format=text";
+        private static string imdsInstanceComputeBaseUrl = $"{baseImdsUrl}/{imdsMethodInstance}/{imdsSubmethodCompute}";
 
         /// <summary>
         /// Flag that will tell us wether or not Azure VM metadata has been attempted to be gathered or not.
         /// If this is true and AzureVmInstanceMetadata is empty/null then it's very likely we aren't on an
         /// Azure IaaS VM (don't try again!).
         /// </summary>
-        public static bool HasAzureVmMetadataBeenGathered = false;
+        private static bool hasAzureVmMetadataBeenGathered = false;
 
-        public static void GetPayloadProperties(IEnumerable<string> disabledFields, IHeartbeatProvider provider)
+        public static void PopulateDefaultPayload(IEnumerable<string> disabledFields, IHeartbeatPropertyManager provider)
         {
             var enabledProperties = HeartbeatDefaultPayload.RemoveDisabledDefaultFields(disabledFields);
 
-            var azureVmDetail = HeartbeatDefaultPayload.GatherAzureVmDetail().ConfigureAwait(false);
-            
+            Task.Factory.StartNew(async () => await HeartbeatDefaultPayload.AddAzureVmDetail(provider, enabledProperties).ConfigureAwait(false));
+
             var payload = new Dictionary<string, HeartbeatPropertyPayload>();
             foreach (string fieldName in enabledProperties)
             {
@@ -59,13 +61,13 @@
                     switch (fieldName)
                     {
                         case "runtimeFramework":
-                            provider.AddHeartbeatProperty(fieldName, GetRuntimeFrameworkVer(), true);
+                            provider.AddHeartbeatProperty(fieldName, HeartbeatDefaultPayload.GetRuntimeFrameworkVer(), true);
                             break;
                         case "baseSdkTargetFramework":
-                            provider.AddHeartbeatProperty(fieldName, GetBaseSdkTargetFramework(), true);
+                            provider.AddHeartbeatProperty(fieldName, HeartbeatDefaultPayload.GetBaseSdkTargetFramework(), true);
                             break;
                         case "osVersion":
-                            provider.AddHealthProperty(fieldName, HeartbeatDefaultPayload.GetRuntimeOsType(), true);
+                            provider.AddHeartbeatProperty(fieldName, HeartbeatDefaultPayload.GetRuntimeOsType(), true);
                             break;
                         default:
                             provider.AddHeartbeatProperty(fieldName, "UNDEFINED", false);
@@ -80,86 +82,69 @@
         }
 
         /// <summary>
-        /// Gathers operational data from an Azure VM, if the endpoint is present. If not, and the SDK is
+        /// Gathers operational data from an Azure VM, if the IMDS endpoint is present. If not, and the SDK is
         /// not running on an Azure VM with the Azure Instance Metadata Service running, the corresponding
         /// fields will not get set into the heartbeat payload.
         /// </summary>
-        private static async Task<string> GatherAzureVmDetail()
+        private static async Task AddAzureVmDetail(IHeartbeatPropertyManager heartbeatManager, IEnumerable<string> enabledFields)
         {
-            if (HeartbeatDefaultPayload.HasAzureVmMetadataBeenGathered)
+            if (!HeartbeatDefaultPayload.hasAzureVmMetadataBeenGathered)
             {
-                return HeartbeatDefaultPayload.AzureVmInstanceMetadata;
-            }
+                // only ever do this once when the SDK gets initialized
+                HeartbeatDefaultPayload.hasAzureVmMetadataBeenGathered = true;
 
-            const string api_version = "2017-04-02";
-            const string imds_server = "169.254.169.254";
-
-            string imdsUri = "http://" + imds_server + "/metadata" + "/instance" + "?api-version=" + api_version;
-            string jsonResult = string.Empty;
-
-#if NET45 || NET46
-            var request = WebRequest.Create(imdsUri);
-            request.Method = "POST";
-            request.ContentType = JsonSerializer.ContentType;
-            request.Headers[HttpRequestHeader.ContentEncoding] = JsonSerializer.ContentType;
-            Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false);
-
-            using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
-            {
-                HeartbeatDefaultPayload.HasAzureVmMetadataBeenGathered = true;
-                HttpWebResponseWrapper wrapper = null;
-
-                if (response is HttpWebResponse httpResponse)
+                try
                 {
-                    if (httpResponse.StatusCode == HttpStatusCode.OK)
-                    {
-                        wrapper = new HttpWebResponseWrapper
-                        {
-                            StatusCode = (int)httpResponse.StatusCode,
-                            StatusDescription = httpResponse.StatusDescription
-                        };
+                    var allFields = await GetAzureInstanceMetadataFields(imdsInstanceComputeBaseUrl, imdsApiVersion, imdsTextFormat)
+                                    .ConfigureAwait(false);
 
-                        using (StreamReader content = new StreamReader(httpResponse.GetResponseStream()))
-                        {
-                            HeartbeatDefaultPayload.AzureVmInstanceMetadata = content.ReadToEnd();
-                        }
+                    var enabledImdsFields = enabledFields.Intersect(allFields);
+                    foreach (string field in enabledImdsFields)
+                    {
+                        heartbeatManager.AddHeartbeatProperty(field, "pending", true);
+                    }
+
+                    foreach (string field in enabledImdsFields)
+                    {
+                        heartbeatManager.SetHealthProperty(
+                            field,
+                            await GetAzureInstanceMetadaValue(imdsInstanceComputeBaseUrl, field, imdsApiVersion, imdsTextFormat)
+                                .ConfigureAwait(false));
                     }
                 }
-
-                return HeartbeatDefaultPayload.AzureVmInstanceMetadata;
+                catch (AggregateException)
+                {
+                    CoreEventSource.Log.CannotObtainAzureInstanceMetadata();
+                }
             }
-#else
-            var request = new HttpRequestMessage(HttpMethod.Post, imdsUri);
-            request.Content = new StreamContent(contentStream);
-            if (!string.IsNullOrEmpty(this.ContentType))
-            {
-                request.Content.Headers.ContentType = new MediaTypeHeaderValue(this.ContentType);
-            }
+        }
 
-            if (!string.IsNullOrEmpty(this.ContentEncoding))
-            {
-                request.Content.Headers.Add(ContentEncodingHeader, this.ContentEncoding);
-            }
-
-            await this.client.SendAsync(request).ConfigureAwait(false);
-
+        private static async Task<IEnumerable<string>> GetAzureInstanceMetadataFields(string baseUrl, string apiVersion, string textFormatArg)
+        {
+            string allComputeFields = string.Empty;
+            string allComputeFieldsUrl = $"{baseUrl}?{textFormatArg}&{apiVersion}";
 
             using (var httpClient = new HttpClient())
             {
                 httpClient.DefaultRequestHeaders.Add("Metadata", "True");
-
-                try
-                {
-                    jsonResult = httpClient.GetStringAsync(imdsUri).Result;
-                }
-                catch (AggregateException ex)
-                {
-                    // handle response failures
-                    Console.WriteLine("Request failed: " + ex.InnerException.Message);
-                }
+                allComputeFields = await httpClient.GetStringAsync(allComputeFieldsUrl).ConfigureAwait(false);
             }
-#endif
 
+            return allComputeFields.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        private static async Task<string> GetAzureInstanceMetadaValue(string baseUrl, string fieldName, string apiVersion, string textFormatArg)
+        { 
+            string computFieldUrl = $"{baseUrl}/{fieldName}?{textFormatArg}&{apiVersion}";
+            string fieldValue = string.Empty;
+
+            using (var getFieldValueClient = new HttpClient())
+            {
+                getFieldValueClient.DefaultRequestHeaders.Add("Metadata", "True");
+                fieldValue = await getFieldValueClient.GetStringAsync(computFieldUrl).ConfigureAwait(false);
+            }
+
+            return fieldValue;
         }
 
         private static List<string> RemoveDisabledDefaultFields(IEnumerable<string> disabledFields)
@@ -231,6 +216,17 @@
 #error Unrecognized framework
             return "unknown";
 #endif
+        }
+
+        /// <summary>
+        /// Runtime information for the process ID currently running & consuming the SDK
+        /// </summary>
+        /// <returns>string ID of the current process' AppDomain</returns>
+        private static string GetProcessId()
+        {
+            var assemblyName = new AssemblyName();
+
+            return assemblyName.Name;
         }
     }
 }
