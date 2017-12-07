@@ -141,76 +141,13 @@
 
         public bool AddHeartbeatProperty(string heartbeatPropertyName, string heartbeatPropertyValue, bool isHealthy)
         {
-            bool isAdded = false;
-
-            if (!string.IsNullOrEmpty(heartbeatPropertyName))
-            {
-                try
-                {
-                    var existingProp = this.heartbeatProperties.GetOrAdd(heartbeatPropertyName, (key) =>
-                    {
-                        isAdded = true;
-                        return new HeartbeatPropertyPayload()
-                        {
-                            IsHealthy = isHealthy,
-                            PayloadValue = heartbeatPropertyValue
-                        };
-                    });
-                }
-                catch (Exception e)
-                {
-                    CoreEventSource.Log.FailedToAddHeartbeatProperty(heartbeatPropertyName, heartbeatPropertyValue, e.ToString());
-                }
-            }
-            else
-            {
-                CoreEventSource.Log.HeartbeatPropertyAddedWithoutAnyName(heartbeatPropertyValue, isHealthy);
-            }
-
-            return isAdded;
+            return this.AddHeartbeatProperty(propertyName: heartbeatPropertyName, propertyValue: heartbeatPropertyValue, isHealthy: isHealthy, allowDefaultFields: false);
         }
 
         public bool SetHeartbeatProperty(string heartbeatPropertyName, string heartbeatPropertyValue = null, bool? isHealthy = null)
         {
-            bool setResult = false;
-            if (!string.IsNullOrEmpty(heartbeatPropertyName)
-                && !HeartbeatDefaultPayload.DefaultFields.Contains(heartbeatPropertyName))
-            {
-                try
-                {
-                    this.heartbeatProperties.AddOrUpdate(heartbeatPropertyName, (key) =>
-                    {
-                        throw new Exception("Cannot set a heartbeat property without adding it first.");
-                    },
-                    (key, property) =>
-                    {
-                        if (isHealthy != null)
-                        {
-                            property.IsHealthy = isHealthy.Value;
-                        }
-                        if (heartbeatPropertyValue != null)
-                        {
-                            property.PayloadValue = heartbeatPropertyValue;
-                        }
-
-                        return property;
-                    });
-                    setResult = true;
-                }
-                catch (Exception e)
-                {
-                    CoreEventSource.Log.FailedToSetHeartbeatProperty(heartbeatPropertyName, heartbeatPropertyValue, isHealthy.HasValue, isHealthy.GetValueOrDefault(false), e.ToString());
-                }
-            }
-            else
-            {
-                CoreEventSource.Log.CannotSetHeartbeatPropertyWithNoNameOrDefaultName(heartbeatPropertyName, heartbeatPropertyValue, isHealthy.HasValue, isHealthy.GetValueOrDefault(false));
-            }
-
-            return setResult;
+            return this.SetHeartbeatProperty(propertyName: heartbeatPropertyName, propertyValue: heartbeatPropertyValue, isHealthy: isHealthy, allowDefaultFields: false);
         }
-
-        #region IDisposable Support
 
         public void Dispose()
         {
@@ -238,6 +175,78 @@
             return hbeat;
         }
 
+        internal bool AddHeartbeatProperty(string propertyName, bool allowDefaultFields, string propertyValue, bool isHealthy)
+        {
+            bool isAdded = false;
+
+            if (!string.IsNullOrEmpty(propertyName)
+                && (allowDefaultFields || !HeartbeatDefaultPayload.AllDefaultFields.Contains(propertyName)))
+            {
+                try
+                {
+                    var existingProp = this.heartbeatProperties.GetOrAdd(propertyName, (key) =>
+                    {
+                        isAdded = true;
+                        return new HeartbeatPropertyPayload()
+                        {
+                            IsHealthy = isHealthy,
+                            PayloadValue = propertyValue
+                        };
+                    });
+                }
+                catch (Exception e)
+                {
+                    CoreEventSource.Log.FailedToAddHeartbeatProperty(propertyName, propertyValue, e.ToString());
+                }
+            }
+            else
+            {
+                CoreEventSource.Log.HeartbeatPropertyAddedWithoutAnyName(propertyValue, isHealthy);
+            }
+
+            return isAdded;
+        }
+
+        internal bool SetHeartbeatProperty(string propertyName, bool allowDefaultFields = false, string propertyValue = null, bool? isHealthy = null)
+        {
+            bool setResult = false;
+            if (!string.IsNullOrEmpty(propertyName)
+                && (allowDefaultFields || !HeartbeatDefaultPayload.AllDefaultFields.Contains(propertyName)))
+            {
+                try
+                {
+                    this.heartbeatProperties.AddOrUpdate(propertyName, (key) =>
+                    {
+                        throw new Exception("Cannot set a heartbeat property without adding it first.");
+                    },
+                    (key, property) =>
+                    {
+                        if (isHealthy != null)
+                        {
+                            property.IsHealthy = isHealthy.Value;
+                        }
+                        if (propertyValue != null)
+                        {
+                            property.PayloadValue = propertyValue;
+                        }
+
+                        return property;
+                    });
+                    setResult = true;
+                }
+                catch (Exception e)
+                {
+                    CoreEventSource.Log.FailedToSetHeartbeatProperty(propertyName, propertyValue, isHealthy.HasValue, isHealthy.GetValueOrDefault(false), e.ToString());
+                }
+            }
+            else
+            {
+                CoreEventSource.Log.CannotSetHeartbeatPropertyWithNoNameOrDefaultName(propertyName, propertyValue, isHealthy.HasValue, isHealthy.GetValueOrDefault(false));
+            }
+
+            return setResult;
+        }
+
         protected void Dispose(bool disposing)
         {
             if (!this.disposedValue)
@@ -262,8 +271,6 @@
                 this.disposedValue = true;
             }
         }
-
-        #endregion
 
         private void Send()
         {

@@ -500,7 +500,7 @@
         public void CannotObtainAzureInstanceMetadata(string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                40,
+                41,
                 this.nameProvider.Name);
         }
 

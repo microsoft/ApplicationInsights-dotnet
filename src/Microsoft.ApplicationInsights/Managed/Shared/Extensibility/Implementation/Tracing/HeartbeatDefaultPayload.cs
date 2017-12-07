@@ -13,7 +13,11 @@
          {
             "runtimeFramework",
             "baseSdkTargetFramework",
-            "osVersion",
+            "osVersion"
+        };
+
+        public static readonly string[] DefaultOptionalFields =
+         {
             "processId",
             // the  following are Azure Instance Metadata fields
             "osType",
@@ -28,6 +32,8 @@
             "vmId",
             "vmSize"
         };
+
+        public static readonly string[] AllDefaultFields = DefaultFields.Union(DefaultOptionalFields).ToArray();
 
         /// <summary>
         /// Azure Instance Metadata Service exists on a single non-routable IP on machines configured
@@ -44,7 +50,7 @@
         /// </summary>
         private static bool hasAzureVmMetadataBeenGathered = false;
 
-        public static void PopulateDefaultPayload(IEnumerable<string> disabledFields, IHeartbeatPropertyManager provider)
+        public static void PopulateDefaultPayload(IEnumerable<string> disabledFields, HeartbeatProvider provider)
         {
             var enabledProperties = HeartbeatDefaultPayload.RemoveDisabledDefaultFields(disabledFields);
 
@@ -58,16 +64,16 @@
                     switch (fieldName)
                     {
                         case "runtimeFramework":
-                            provider.AddHeartbeatProperty(fieldName, HeartbeatDefaultPayload.GetRuntimeFrameworkVer(), true);
+                            provider.AddHeartbeatProperty(fieldName, true, HeartbeatDefaultPayload.GetRuntimeFrameworkVer(), true);
                             break;
                         case "baseSdkTargetFramework":
-                            provider.AddHeartbeatProperty(fieldName, HeartbeatDefaultPayload.GetBaseSdkTargetFramework(), true);
+                            provider.AddHeartbeatProperty(fieldName, true, HeartbeatDefaultPayload.GetBaseSdkTargetFramework(), true);
                             break;
                         case "osVersion":
-                            provider.AddHeartbeatProperty(fieldName, HeartbeatDefaultPayload.GetRuntimeOsType(), true);
+                            provider.AddHeartbeatProperty(fieldName, true, HeartbeatDefaultPayload.GetRuntimeOsType(), true);
                             break;
                         case "processId":
-                            provider.AddHeartbeatProperty(fieldName, HeartbeatDefaultPayload.GetProcessId(), true);
+                            provider.AddHeartbeatProperty(fieldName, true, HeartbeatDefaultPayload.GetProcessId(), true);
                             break;
                         case "osType":
                         case "location":
@@ -83,7 +89,7 @@
                             // skip all Azure Instance Metadata fields
                             break;
                         default:
-                            provider.AddHeartbeatProperty(fieldName, "UNDEFINED", false);
+                            provider.AddHeartbeatProperty(fieldName, true, "UNDEFINED", false);
                             break;
                     }
                 }
@@ -99,7 +105,7 @@
         /// not running on an Azure VM with the Azure Instance Metadata Service running, the corresponding
         /// fields will not get set into the heartbeat payload.
         /// </summary>
-        private static async Task AddAzureVmDetail(IHeartbeatPropertyManager heartbeatManager, IEnumerable<string> enabledFields)
+        private static async Task AddAzureVmDetail(HeartbeatProvider heartbeatManager, IEnumerable<string> enabledFields)
         {
             if (!HeartbeatDefaultPayload.hasAzureVmMetadataBeenGathered)
             {
@@ -118,7 +124,8 @@
                             propertyName: field,
                             propertyValue: await GetAzureInstanceMetadaValue(baseImdsUrl, field, imdsApiVersion, imdsTextFormat)
                                 .ConfigureAwait(false),
-                            isHealthy: true);
+                            isHealthy: true,
+                            allowDefaultFields: true);
                     }
                 }
                 catch (AggregateException)
@@ -258,7 +265,7 @@
         private static string GetProcessId()
         {
 #if NET45 || NET46
-            return System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
+            return System.AppDomain.CurrentDomain.FriendlyName;
 #elif NETSTANDARD1_3
             return null;
 #else
