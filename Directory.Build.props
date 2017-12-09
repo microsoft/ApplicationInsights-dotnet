@@ -75,12 +75,6 @@
         <EtwManifestOutDir>$(BinRoot)\$(Configuration)\ETW\$(TargetFramework)\</EtwManifestOutDir>
     </PropertyGroup>
 
-    <PropertyGroup>
-        <!-- Enable NuGet package restore during build -->
-        <RestorePackages>true</RestorePackages>
-        <RequireRestoreConsent>false</RequireRestoreConsent>
-    </PropertyGroup>
-    
   <!-- Generate AssemblyFileVersion and AssemblyVersion attributes. -->
   <PropertyGroup>
     <!-- Turn on dynamic assembly attribute generation -->
