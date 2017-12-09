@@ -17,7 +17,7 @@
     <RootNamespace>ApplicationInsightsTypes</RootNamespace>
     <AssemblyName>ApplicationInsightsTypes</AssemblyName>
     <BondOptions>--collection-interfaces --using="DateTimeOffset=System.DateTimeOffset" --using="TimeSpan=System.TimeSpan" --using="Guid=System.Guid"</BondOptions>
-    <BondOutputDirectory>$(MSBuildThisFileDirectory)\Generated</BondOutputDirectory>
+    <BondOutputDirectory>$(IntermediateOutputPath)\Generated</BondOutputDirectory>
     <EnableDefaultItems Condition="$(OS) == 'Windows_NT'">false</EnableDefaultItems>
   </PropertyGroup>
   <ItemGroup Condition="$(OS) == 'Windows_NT'">
