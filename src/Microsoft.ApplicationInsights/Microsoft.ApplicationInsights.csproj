@@ -24,7 +24,8 @@
     <Authors>Microsoft</Authors>
     <Owners>Microsoft</Owners>
     <Title>Application Insights API</Title>
-    <Description>Application Insights Core API. This package provides core functionality for transmission of all Application Insights Telemetry Types and is a dependent package for all other Application Insights packages. Please install the platform specific package for the best experience. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <Summary>Application Insights Core API.</Summary>
+    <Description>This package provides core functionality for transmission of all Application Insights Telemetry Types and is a dependent package for all other Application Insights packages. Please install the platform specific package for the best experience. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
     <!--Copyright defined above-->
     <!--Copyright></Copyright-->
     <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
@@ -40,6 +41,7 @@
     <RepositoryType>Git</RepositoryType>
     <PackageType>Dependency</PackageType>
     <ContentTargetFolders>content</ContentTargetFolders>
+    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
   </PropertyGroup>
 
   <ItemGroup>
