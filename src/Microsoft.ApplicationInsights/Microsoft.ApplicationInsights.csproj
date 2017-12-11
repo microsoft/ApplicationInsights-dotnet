@@ -45,8 +45,7 @@
   <ItemGroup>
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
       <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.2" />    
+    </PackageReference>    
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
@@ -63,9 +62,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json">
-      <Version>1.1.2</Version>
-    </PackageReference>
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
     <PackageReference Include="System.Net.Requests" Version="4.3.0" />
   </ItemGroup>
@@ -77,12 +73,6 @@
     <AdditionalFiles Include="..\..\PublicAPI\Microsoft.ApplicationInsights.dll\$(TargetFramework)\PublicAPI.Unshipped.txt">
       <Link>PublicAPI.Unshipped.txt</Link>
     </AdditionalFiles>
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json">
-      <Version>1.1.2</Version>
-    </PackageReference>
   </ItemGroup>
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
