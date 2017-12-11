@@ -31,6 +31,150 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
         }
 
         /// <summary>
+        /// Tests that logging an information results in tracking an <see cref="TraceTelemetry"/> instance.
+        /// </summary>
+        [Fact]
+        public void TestLoggerCreatesTraceTelemetryOnLoggedInfo()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<TraceTelemetry>(t);
+                var traceTelemetry = (TraceTelemetry)t;
+                Assert.Equal("This is an information", traceTelemetry.Message);
+                Assert.Equal(SeverityLevel.Information, traceTelemetry.SeverityLevel);
+                Assert.Equal("test-category", traceTelemetry.Properties["CategoryName"]);
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; });
+            logger.LogInformation(0, "This is an information");
+        }
+
+        /// <summary>
+        /// Tests that logging a warning with parameters results in tracking an <see cref="TraceTelemetry"/> instance with telemetry properties.
+        /// </summary>
+        [Fact]
+        public void TestLoggerCreatesTraceTelemetryOnLoggedWarningWithParameters()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<TraceTelemetry>(t);
+                var traceTelemetry = (TraceTelemetry)t;
+                Assert.Equal("This is 123 value: Hello, World!", traceTelemetry.Message);
+                Assert.Equal(SeverityLevel.Warning, traceTelemetry.SeverityLevel);
+                Assert.Equal("test-category", traceTelemetry.Properties["CategoryName"]);
+
+                Assert.Equal("123", traceTelemetry.Properties["testParam"]);
+                Assert.Equal("Hello, World!", traceTelemetry.Properties["param2"]);
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; });
+            logger.LogWarning(0, "This is {testParam} value: {param2}", 123, "Hello, World!");
+        }
+
+        /// <summary>
+        /// Tests that logging an information with <see cref="EventId"/> results in tracking an <see cref="TraceTelemetry"/> instance, when includeEventId is <c>false</c>.
+        /// </summary>
+        [Fact]
+        public void TestLoggerCreatesTraceTelemetryWithoutEventIdOnLoggedDebug()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<TraceTelemetry>(t);
+                var traceTelemetry = (TraceTelemetry)t;
+                Assert.Equal("This is an information", traceTelemetry.Message);
+                Assert.Equal(SeverityLevel.Verbose, traceTelemetry.SeverityLevel);
+                Assert.Equal("test-category", traceTelemetry.Properties["CategoryName"]);
+
+                Assert.False(traceTelemetry.Properties.ContainsKey("EventId"));
+                Assert.False(traceTelemetry.Properties.ContainsKey("EventName"));
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; });
+            logger.LogDebug(new EventId(22, "TestEvent"), "This is an information");
+        }
+
+        /// <summary>
+        /// Tests that logging an error with <see cref="EventId"/> results in tracking an <see cref="TraceTelemetry"/> instance with event properties, when includeEventId is <c>true</c>.
+        /// </summary>
+        [Fact]
+        public void TestLoggerIncludingEventIdCreatesTraceTelemetryWithEventIdOnLoggedError()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<TraceTelemetry>(t);
+                var traceTelemetry = (TraceTelemetry)t;
+                Assert.Equal("This is an error", traceTelemetry.Message);
+                Assert.Equal(SeverityLevel.Error, traceTelemetry.SeverityLevel);
+                Assert.Equal("test-category", traceTelemetry.Properties["CategoryName"]);
+
+                Assert.Equal("22", traceTelemetry.Properties["EventId"]);
+                Assert.Equal("TestEvent", traceTelemetry.Properties["EventName"]);
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            logger.LogError(new EventId(22, "TestEvent"), "This is an error");
+        }
+
+        /// <summary>
+        /// Tests that logging an information without <see cref="EventId"/> results in tracking an <see cref="TraceTelemetry"/> instance.
+        /// </summary>
+        [Fact]
+        public void TestLoggerIncludingEventIdCreatesTraceTelemetryWithoutEventIdOnLoggedInfo()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<TraceTelemetry>(t);
+                var traceTelemetry = (TraceTelemetry)t;
+                Assert.Equal("This is an information", traceTelemetry.Message);
+                Assert.Equal(SeverityLevel.Information, traceTelemetry.SeverityLevel);
+                Assert.Equal("test-category", traceTelemetry.Properties["CategoryName"]);
+
+                Assert.False(traceTelemetry.Properties.ContainsKey("EventId"));
+                Assert.False(traceTelemetry.Properties.ContainsKey("EventName"));
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            logger.LogInformation(0, "This is an information");
+        }
+
+        /// <summary>
+        /// Tests that logging an information with emtpy event name results in tracking an <see cref="TraceTelemetry"/> instance.
+        /// </summary>
+        [Fact]
+        public void TestLoggerIncludingEventIdCreatesTraceTelemetryWithoutEventNameOnLoggedInfo()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<TraceTelemetry>(t);
+                var traceTelemetry = (TraceTelemetry)t;
+                Assert.Equal("This is an information", traceTelemetry.Message);
+                Assert.Equal(SeverityLevel.Information, traceTelemetry.SeverityLevel);
+                Assert.Equal("test-category", traceTelemetry.Properties["CategoryName"]);
+
+                Assert.Equal("100", traceTelemetry.Properties["EventId"]);
+                Assert.False(traceTelemetry.Properties.ContainsKey("EventName"));
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            logger.LogInformation(new EventId(100, string.Empty), "This is an information");
+        }
+
+        /// <summary>
+        /// Tests that logging an information results in not tracking an <see cref="TraceTelemetry"/> instance, when filter returns <c>false</c>.
+        /// </summary>
+        [Fact]
+        public void TestLoggerWithNegativeFilterDoesNotCreateTraceTelemetryOnLoggedInfo()
+        {
+            bool trackedTelemetry = false;
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) => trackedTelemetry = true);
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return false; });
+            logger.LogInformation(0, "This is an information");
+
+            Assert.False(trackedTelemetry);
+        }
+
+        /// <summary>
         /// Tests that logging an exception results in tracking an <see cref="ExceptionTelemetry"/> instance.
         /// </summary>
         [Fact]
@@ -40,14 +184,151 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
             {
                 Assert.IsType<ExceptionTelemetry>(t);
                 var exceptionTelemetry = (ExceptionTelemetry)t;
-                Assert.Equal("Error: This is an error", exceptionTelemetry.Message);
-                Assert.Equal("System.Exception: This is an error", exceptionTelemetry.Properties["Exception"]);
                 Assert.Equal(SeverityLevel.Error, exceptionTelemetry.SeverityLevel);
+                Assert.Equal("test-category", exceptionTelemetry.Properties["CategoryName"]);
+                Assert.Equal("System.Exception: This is an error", exceptionTelemetry.Properties["Exception"]);
+                Assert.Equal("Error: This is an error", exceptionTelemetry.Message);
             });
 
-            ILogger logger = new ApplicationInsightsLogger("test", client, (s, l) => { return true; });
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; });
             var exception = new Exception("This is an error");
             logger.LogError(0, exception, "Error: " + exception.Message);
+        }
+
+        /// <summary>
+        /// Tests that logging an exception with parameters results in tracking an <see cref="ExceptionTelemetry"/> instance with parameters.
+        /// </summary>
+        [Fact]
+        public void TestLoggerCreatesExceptionTelemetryOnLoggedErrorWithParameters()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<ExceptionTelemetry>(t);
+                var exceptionTelemetry = (ExceptionTelemetry)t;
+                Assert.Equal(SeverityLevel.Error, exceptionTelemetry.SeverityLevel);
+                Assert.Equal("test-category", exceptionTelemetry.Properties["CategoryName"]);
+                Assert.Equal("System.Exception: This is an error", exceptionTelemetry.Properties["Exception"]);
+                Assert.Equal("Error: This is an error, Value: 123", exceptionTelemetry.Message);
+
+                Assert.Equal("This is an error", exceptionTelemetry.Properties["ex"]);
+                Assert.Equal("123", exceptionTelemetry.Properties["value"]);
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; });
+            var exception = new Exception("This is an error");
+            logger.LogError(0, exception, "Error: {ex}, Value: {value}", exception.Message, 123);
+        }
+
+        /// <summary>
+        /// Tests that logging an exception with <see cref="EventId"/> results in tracking an <see cref="ExceptionTelemetry"/> instance, when includeEventId is <c>false</c>.
+        /// </summary>
+        [Fact]
+        public void TestLoggerCreatesExceptionWithoutEventIdTelemetryOnLoggedError()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<ExceptionTelemetry>(t);
+                var exceptionTelemetry = (ExceptionTelemetry)t;
+                Assert.Equal(SeverityLevel.Error, exceptionTelemetry.SeverityLevel);
+                Assert.Equal("test-category", exceptionTelemetry.Properties["CategoryName"]);
+                Assert.Equal("System.Exception: This is an error", exceptionTelemetry.Properties["Exception"]);
+                Assert.Equal("Error: This is an error", exceptionTelemetry.Message);
+
+                Assert.False(exceptionTelemetry.Properties.ContainsKey("EventId"));
+                Assert.False(exceptionTelemetry.Properties.ContainsKey("EventName"));
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; });
+            var exception = new Exception("This is an error");
+            logger.LogError(new EventId(22, "TestEvent"), exception, "Error: " + exception.Message);
+        }
+
+        /// <summary>
+        /// Tests that logging an exception with <see cref="EventId"/> results in tracking an <see cref="ExceptionTelemetry"/> instance, when includeEventId is <c>true</c>.
+        /// </summary>
+        [Fact]
+        public void TestLoggerIncludingEventIdCreatesExceptionWithEventIdTelemetryOnLoggedError()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<ExceptionTelemetry>(t);
+                var exceptionTelemetry = (ExceptionTelemetry)t;
+                Assert.Equal(SeverityLevel.Error, exceptionTelemetry.SeverityLevel);
+                Assert.Equal("test-category", exceptionTelemetry.Properties["CategoryName"]);
+                Assert.Equal("System.Exception: This is an error", exceptionTelemetry.Properties["Exception"]);
+                Assert.Equal("Error: This is an error", exceptionTelemetry.Message);
+
+                Assert.Equal("22", exceptionTelemetry.Properties["EventId"]);
+                Assert.Equal("TestEvent", exceptionTelemetry.Properties["EventName"]);
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            var exception = new Exception("This is an error");
+            logger.LogError(new EventId(22, "TestEvent"), exception, "Error: " + exception.Message);
+        }
+
+        /// <summary>
+        /// Tests that logging an exception without <see cref="EventId"/> results in tracking an <see cref="ExceptionTelemetry"/> instance, when includeEventId is <c>true</c>.
+        /// </summary>
+        [Fact]
+        public void TestLoggerIncludingEventIdCreatesExceptionWithoutEventIdTelemetryOnLoggedError()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<ExceptionTelemetry>(t);
+                var exceptionTelemetry = (ExceptionTelemetry)t;
+                Assert.Equal(SeverityLevel.Error, exceptionTelemetry.SeverityLevel);
+                Assert.Equal("test-category", exceptionTelemetry.Properties["CategoryName"]);
+                Assert.Equal("System.Exception: This is an error", exceptionTelemetry.Properties["Exception"]);
+                Assert.Equal("Error: This is an error", exceptionTelemetry.Message);
+
+                Assert.False(exceptionTelemetry.Properties.ContainsKey("EventId"));
+                Assert.False(exceptionTelemetry.Properties.ContainsKey("EventName"));
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            var exception = new Exception("This is an error");
+            logger.LogError(0, exception, "Error: " + exception.Message);
+        }
+
+        /// <summary>
+        /// Tests that logging an exception with empty event name results in tracking an <see cref="ExceptionTelemetry"/> instance, when includeEventId is <c>true</c>.
+        /// </summary>
+        [Fact]
+        public void TestLoggerIncludingEventIdCreatesExceptionWithoutEventNameTelemetryOnLoggedError()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<ExceptionTelemetry>(t);
+                var exceptionTelemetry = (ExceptionTelemetry)t;
+                Assert.Equal(SeverityLevel.Error, exceptionTelemetry.SeverityLevel);
+                Assert.Equal("test-category", exceptionTelemetry.Properties["CategoryName"]);
+                Assert.Equal("System.Exception: This is an error", exceptionTelemetry.Properties["Exception"]);
+                Assert.Equal("Error: This is an error", exceptionTelemetry.Message);
+
+                Assert.Equal("100", exceptionTelemetry.Properties["EventId"]);
+                Assert.False(exceptionTelemetry.Properties.ContainsKey("EventName"));
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            var exception = new Exception("This is an error");
+            logger.LogError(new EventId(100, string.Empty), exception, "Error: " + exception.Message);
+        }
+
+        /// <summary>
+        /// Tests that logging an exception results in not tracking an <see cref="ExceptionTelemetry"/> instance, when filter returns <c>false</c>.
+        /// </summary>
+        [Fact]
+        public void TestLoggerWithNegativeFilterDoesNotCreateExceptionTelemetryOnLoggedError()
+        {
+            bool trackedTelemetry = false;
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) => trackedTelemetry = true);
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return false; });
+            var exception = new Exception("This is an error");
+            logger.LogError(0, exception, "Error: " + exception.Message);
+
+            Assert.False(trackedTelemetry);
         }
 
         /// <summary>
