@@ -44,7 +44,7 @@
         private static string imdsTextFormat = "format=text";
 
         /// <summary>
-        /// Flag that will tell us wether or not Azure VM metadata has been attempted to be gathered or not.
+        /// Flag that will tell us whether or not Azure VM metadata has been attempted to be gathered or not.
         /// If this is true and AzureVmInstanceMetadata is empty/null then it's very likely we aren't on an
         /// Azure IaaS VM (don't try again!).
         /// </summary>
