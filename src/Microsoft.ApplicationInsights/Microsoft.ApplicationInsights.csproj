@@ -41,7 +41,7 @@
     <RepositoryType>Git</RepositoryType>
     <PackageType>Dependency</PackageType>
     <ContentTargetFolders>content</ContentTargetFolders>
-    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
+    <!-- <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile> -->
   </PropertyGroup>
 
   <ItemGroup>
