@@ -23,7 +23,7 @@
 
         public static readonly string[] DefaultOptionalFields =
         {
-            "processId",
+            "processSessionId",
             // the  following are Azure Instance Metadata fields
             "osType",
             "location",
@@ -58,6 +58,16 @@
         private static bool enableAzureInstanceMetadataInHeartbeat = true;
 
         /// <summary>
+        /// A unique identifier that would help to indicate to the analytics when the current process session has
+        /// restared. 
+        /// 
+        /// <remarks>If a process is unstable and is being restared frequently, tracking this property
+        /// in the heartbeat would help to identify this unstability.
+        /// </remarks>
+        /// </summary>
+        private static Guid? uniqueProcessSessionId = null;
+
+        /// <summary>
         /// Gets or sets a value indicating whether the collection of instance metadata from Azure VMs is enabled or not.
         /// </summary>
         public static bool EnableAzureInstanceMetadata { get => enableAzureInstanceMetadataInHeartbeat; set => enableAzureInstanceMetadataInHeartbeat = value; }
@@ -87,8 +97,8 @@
                         case "osVersion":
                             provider.AddHeartbeatProperty(fieldName, true, HeartbeatDefaultPayload.GetRuntimeOsType(), true);
                             break;
-                        case "processId":
-                            provider.AddHeartbeatProperty(fieldName, true, HeartbeatDefaultPayload.GetProcessId(), true);
+                        case "processSessionId":
+                            provider.AddHeartbeatProperty(fieldName, true, HeartbeatDefaultPayload.GetProcessSessionId(), true);
                             break;
                         case "osType":
                         case "location":
@@ -326,19 +336,18 @@
         }
 
         /// <summary>
-        /// Runtime information for the process ID currently running and consuming the SDK
+        /// Return a unique process session identifier that will only be set once in the lifetime of a 
+        /// single executable session.
         /// </summary>
-        /// <returns>string ID of the current process' AppDomain</returns>
-        private static string GetProcessId()
+        /// <returns>string representation of a unique id</returns>
+        private static string GetProcessSessionId()
         {
-#if NET45 || NET46
-            return System.AppDomain.CurrentDomain.FriendlyName;
-#elif NETSTANDARD1_3
-            return null;
-#else
-#error Unrecognized framework
-            return null;
-#endif
+            if (HeartbeatDefaultPayload.uniqueProcessSessionId == null)
+            {
+                HeartbeatDefaultPayload.uniqueProcessSessionId = new Guid();
+            }
+
+            return HeartbeatDefaultPayload.uniqueProcessSessionId.ToString();
         }
     }
 }
