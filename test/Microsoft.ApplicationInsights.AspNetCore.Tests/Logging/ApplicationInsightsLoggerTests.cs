@@ -160,6 +160,30 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
         }
 
         /// <summary>
+        /// Tests that logging an error with <see cref="EventId"/> results in tracking an <see cref="TraceTelemetry"/> instance with event properties,
+        /// when includeEventId is <c>true</c> and parameter is named EventId.
+        /// </summary>
+        [Fact]
+        public void TestLoggerIncludingEventIdCreatesTraceTelemetryWithEventIdOnLoggedErrorWithParameters()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<TraceTelemetry>(t);
+                var traceTelemetry = (TraceTelemetry)t;
+                Assert.Equal("This is an ERROR error. 15", traceTelemetry.Message);
+                Assert.Equal(SeverityLevel.Error, traceTelemetry.SeverityLevel);
+                Assert.Equal("test-category", traceTelemetry.Properties["CategoryName"]);
+
+                Assert.Equal("ERROR", traceTelemetry.Properties["EventId"]);
+                Assert.Equal("TestEvent", traceTelemetry.Properties["EventName"]);
+                Assert.Equal("15", traceTelemetry.Properties["Message"]);
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            logger.LogError(new EventId(22, "TestEvent"), "This is an {EventId} error. {Message}", "ERROR", 15);
+        }
+
+        /// <summary>
         /// Tests that logging an information results in not tracking an <see cref="TraceTelemetry"/> instance, when filter returns <c>false</c>.
         /// </summary>
         [Fact]
@@ -313,6 +337,32 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
             ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
             var exception = new Exception("This is an error");
             logger.LogError(new EventId(100, string.Empty), exception, "Error: " + exception.Message);
+        }
+
+        /// <summary>
+        /// Tests that logging an exception with <see cref="EventId"/> results in tracking an <see cref="ExceptionTelemetry"/> instance,
+        /// when includeEventId is <c>true</c> and parameter is EventName.
+        /// </summary>
+        [Fact]
+        public void TestLoggerIncludingEventIdCreatesExceptionWithEventIdTelemetryOnLoggedErrorWithParameters()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<ExceptionTelemetry>(t);
+                var exceptionTelemetry = (ExceptionTelemetry)t;
+                Assert.Equal(SeverityLevel.Error, exceptionTelemetry.SeverityLevel);
+                Assert.Equal("test-category", exceptionTelemetry.Properties["CategoryName"]);
+                Assert.Equal("System.Exception: This is an error", exceptionTelemetry.Properties["Exception"]);
+                Assert.Equal("Error: ERROR This is an error", exceptionTelemetry.Message);
+
+                Assert.Equal("22", exceptionTelemetry.Properties["EventId"]);
+                Assert.Equal("ERROR", exceptionTelemetry.Properties["EventName"]);
+                Assert.Equal("This is an error", exceptionTelemetry.Properties["Message"]);
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            var exception = new Exception("This is an error");
+            logger.LogError(new EventId(22, "TestEvent"), exception, "Error: {EventName} {Message}", "ERROR", exception.Message);
         }
 
         /// <summary>
