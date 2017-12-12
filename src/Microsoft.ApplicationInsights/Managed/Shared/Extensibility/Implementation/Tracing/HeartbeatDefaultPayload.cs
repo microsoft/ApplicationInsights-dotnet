@@ -7,6 +7,7 @@
     using System.Net;
 #if NETSTANDARD1_3
     using System.Net.Http;
+    using System.Runtime.InteropServices;
 #endif
     using System.Reflection;
     using System.Threading.Tasks;
@@ -68,8 +69,11 @@
             Task.Factory.StartNew(async () => await HeartbeatDefaultPayload.AddAzureVmDetail(provider, enabledProperties).ConfigureAwait(false));
 
             var payload = new Dictionary<string, HeartbeatPropertyPayload>();
+            
             foreach (string fieldName in enabledProperties)
             {
+                SdkInternalOperationsMonitor.Enter();
+                // we don't need to report out any failure here, so keep this look within the Sdk Internal Operations as well
                 try
                 {
                     switch (fieldName)
@@ -107,6 +111,10 @@
                 catch (Exception ex)
                 {
                     CoreEventSource.Log.FailedToObtainDefaultHeartbeatProperty(fieldName, ex.ToString());
+                }
+                finally
+                {
+                    SdkInternalOperationsMonitor.Exit();
                 }
             }
         }
@@ -299,14 +307,22 @@
         /// <returns>String representing the OS, and any version/patch information reported by that OS</returns>
         private static string GetRuntimeOsType()
         {
+            string osValue = "unknown";
 #if NET45 || NET46
-            return Environment.OSVersion.VersionString;
+            osValue = Environment.OSVersion.Platform.ToString();
 #elif NETSTANDARD1_3
-            return System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+            
+            foreach (OSPlatform os in Enum.GetValues(typeof(OSPlatform)))
+            {
+                if (RuntimeInformation.IsOSPlatform(os))
+                {
+                    osValue = os.ToString();
+                }
+            }
 #else
 #error Unrecognized framework
-            return "unknown";
 #endif
+            return osValue;
         }
 
         /// <summary>
