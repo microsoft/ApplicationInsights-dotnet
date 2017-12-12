@@ -2,8 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Net;
+#if NETSTANDARD1_3
     using System.Net.Http;
+#endif
     using System.Reflection;
     using System.Threading.Tasks;
 
@@ -112,25 +116,18 @@
                 // only ever do this once when the SDK gets initialized
                 HeartbeatDefaultPayload.hasAzureVmMetadataBeenGathered = true;
 
-                try
-                {
-                    var allFields = await GetAzureInstanceMetadataFields(baseImdsUrl, imdsApiVersion, imdsTextFormat)
-                                    .ConfigureAwait(false);
+                var allFields = await GetAzureInstanceMetadataFields(baseImdsUrl, imdsApiVersion, imdsTextFormat)
+                                .ConfigureAwait(false);
 
-                    var enabledImdsFields = enabledFields.Intersect(allFields);
-                    foreach (string field in enabledImdsFields)
-                    {
-                        heartbeatManager.AddHeartbeatProperty(
-                            propertyName: field,
-                            propertyValue: await GetAzureInstanceMetadaValue(baseImdsUrl, field, imdsApiVersion, imdsTextFormat)
-                                .ConfigureAwait(false),
-                            isHealthy: true,
-                            allowDefaultFields: true);
-                    }
-                }
-                catch (AggregateException)
+                var enabledImdsFields = enabledFields.Intersect(allFields);
+                foreach (string field in enabledImdsFields)
                 {
-                    CoreEventSource.Log.CannotObtainAzureInstanceMetadata();
+                    heartbeatManager.AddHeartbeatProperty(
+                        propertyName: field,
+                        propertyValue: await GetAzureInstanceMetadaValue(baseImdsUrl, field, imdsApiVersion, imdsTextFormat)
+                            .ConfigureAwait(false),
+                        isHealthy: true,
+                        allowDefaultFields: true);
                 }
             }
         }
@@ -147,13 +144,9 @@
             string allComputeFields = string.Empty;
             string allComputeFieldsUrl = $"{baseUrl}?{textFormatArg}&{apiVersion}";
 
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.DefaultRequestHeaders.Add("Metadata", "True");
-                allComputeFields = await httpClient.GetStringAsync(allComputeFieldsUrl).ConfigureAwait(false);
-            }
+            allComputeFields = await MakeAzureInstanceMetadataRequest(allComputeFieldsUrl);
 
-            return allComputeFields.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            return allComputeFields?.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
         }
 
         /// <summary>
@@ -166,16 +159,60 @@
         /// <returns>an array of field names available, or null</returns>
         private static async Task<string> GetAzureInstanceMetadaValue(string baseUrl, string fieldName, string apiVersion, string textFormatArg)
         { 
-            string computFieldUrl = $"{baseUrl}/{fieldName}?{textFormatArg}&{apiVersion}";
-            string fieldValue = string.Empty;
+            string metadataFieldUrl = $"{baseUrl}/{fieldName}?{textFormatArg}&{apiVersion}";
 
-            using (var getFieldValueClient = new HttpClient())
-            {
-                getFieldValueClient.DefaultRequestHeaders.Add("Metadata", "True");
-                fieldValue = await getFieldValueClient.GetStringAsync(computFieldUrl).ConfigureAwait(false);
-            }
+            string fieldValue = await MakeAzureInstanceMetadataRequest(metadataFieldUrl);
 
             return fieldValue;
+        }
+
+        private static async Task<string> MakeAzureInstanceMetadataRequest(string metadataRequestUrl)
+        {
+            string requestResult = string.Empty;
+
+            SdkInternalOperationsMonitor.Enter();
+            try
+            {
+#if NETSTANDARD1_3
+
+                using (var getFieldValueClient = new HttpClient())
+                {
+                    getFieldValueClient.DefaultRequestHeaders.Add("Metadata", "True");
+                    requestResult = await getFieldValueClient.GetStringAsync(metadataRequestUrl).ConfigureAwait(false);
+                }
+
+#elif NET45 || NET46
+
+                WebRequest request = WebRequest.Create(metadataRequestUrl);
+                request.Method = "POST";
+                // request.ContentType = "text";
+                // request.Headers[ContentEncodingHeader] = "utf-8";
+                request.Headers.Add("Metadata", "true");
+                using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
+                {
+                    if (response is HttpWebResponse httpResponse && httpResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        StreamReader content = new StreamReader(httpResponse.GetResponseStream());
+                        {
+                            requestResult = content.ReadToEnd();
+                        }
+                    }
+                }
+
+#else
+#error Unknown framework
+#endif
+            }
+            catch (AggregateException)
+            {
+                CoreEventSource.Log.CannotObtainAzureInstanceMetadata();
+            }
+            finally
+            {
+                SdkInternalOperationsMonitor.Exit();
+            }
+
+            return requestResult;
         }
 
         private static List<string> RemoveDisabledDefaultFields(IEnumerable<string> disabledFields)
