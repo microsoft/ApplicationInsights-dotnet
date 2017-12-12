@@ -16,6 +16,12 @@
         bool IsHeartbeatEnabled { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether or not to collect Azure Instance Metadata and
+        /// add them to the heartbeat properties.
+        /// </summary>
+        bool EnableInstanceMetadata { get; set; }
+
+        /// <summary>
         /// Gets or sets the delay between heartbeats.
         /// </summary>
         TimeSpan HeartbeatInterval { get; set; }

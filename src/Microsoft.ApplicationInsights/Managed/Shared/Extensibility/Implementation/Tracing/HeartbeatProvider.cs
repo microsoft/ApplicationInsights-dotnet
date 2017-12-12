@@ -113,6 +113,16 @@
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether or not to include Azure Instance Metadata in the heartbeat
+        /// properties.
+        /// </summary>
+        public bool EnableInstanceMetadata
+        {
+            get => HeartbeatDefaultPayload.EnableAzureInstanceMetadata;
+            set => HeartbeatDefaultPayload.EnableAzureInstanceMetadata = value;
+        }
+
+        /// <summary>
         /// Gets a list of default field names that should not be sent with each heartbeat.
         /// </summary>
         public IList<string> ExcludedHeartbeatProperties

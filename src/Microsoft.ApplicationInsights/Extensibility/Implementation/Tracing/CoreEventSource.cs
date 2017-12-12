@@ -504,6 +504,20 @@
                 this.nameProvider.Name);
         }
 
+        [Event(
+            42,
+            Keywords = Keywords.Diagnostics,
+            Message = "Request to obtain information from the Azure Instance Metadata Service failed. Request URI is '{0}', exception: {1}",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataRequestFailure(string requestUrl, string ex, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                42,
+                requestUrl,
+                ex,
+                this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

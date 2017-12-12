@@ -14,14 +14,14 @@
     internal static class HeartbeatDefaultPayload
     {
         public static readonly string[] DefaultFields =
-         {
+        {
             "runtimeFramework",
             "baseSdkTargetFramework",
             "osVersion"
         };
 
         public static readonly string[] DefaultOptionalFields =
-         {
+        {
             "processId",
             // the  following are Azure Instance Metadata fields
             "osType",
@@ -44,15 +44,22 @@
         /// by the Azure Resource Manager. See <a href="https://go.microsoft.com/fwlink/?linkid=864683">to learn more.</a>
         /// </summary>
         private static string baseImdsUrl = $"http://169.254.169.254/metadata/instance/compute";
-        private static string imdsApiVersion = $"api-version=2017-04-02";
+        private static string imdsApiVersion = $"api-version=2017-04-02"; // this version has the format=text capability
         private static string imdsTextFormat = "format=text";
 
         /// <summary>
-        /// Flag that will tell us whether or not Azure VM metadata has been attempted to be gathered or not.
+        /// Flags that will tell us whether or not Azure VM metadata has been attempted to be gathered or not, and
+        /// if we should even attempt to look for it in the first place.
         /// If this is true and AzureVmInstanceMetadata is empty/null then it's very likely we aren't on an
         /// Azure IaaS VM (don't try again!).
         /// </summary>
-        private static bool hasAzureVmMetadataBeenGathered = false;
+        private static bool isAzureMetadataCheckCompleted = false;
+        private static bool enableAzureInstanceMetadataInHeartbeat = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the collection of instance metadata from Azure VMs is enabled or not.
+        /// </summary>
+        public static bool EnableAzureInstanceMetadata { get => enableAzureInstanceMetadataInHeartbeat; set => enableAzureInstanceMetadataInHeartbeat = value; }
 
         public static void PopulateDefaultPayload(IEnumerable<string> disabledFields, HeartbeatProvider provider)
         {
@@ -111,10 +118,10 @@
         /// </summary>
         private static async Task AddAzureVmDetail(HeartbeatProvider heartbeatManager, IEnumerable<string> enabledFields)
         {
-            if (!HeartbeatDefaultPayload.hasAzureVmMetadataBeenGathered)
+            if (HeartbeatDefaultPayload.EnableAzureInstanceMetadata && !HeartbeatDefaultPayload.isAzureMetadataCheckCompleted)
             {
                 // only ever do this once when the SDK gets initialized
-                HeartbeatDefaultPayload.hasAzureVmMetadataBeenGathered = true;
+                HeartbeatDefaultPayload.isAzureMetadataCheckCompleted = true;
 
                 var allFields = await GetAzureInstanceMetadataFields(baseImdsUrl, imdsApiVersion, imdsTextFormat)
                                 .ConfigureAwait(false);
@@ -141,12 +148,19 @@
         /// <returns>an array of field names available, or null</returns>
         private static async Task<IEnumerable<string>> GetAzureInstanceMetadataFields(string baseUrl, string apiVersion, string textFormatArg)
         {
-            string allComputeFields = string.Empty;
+            string allFieldsResponse = string.Empty;
             string allComputeFieldsUrl = $"{baseUrl}?{textFormatArg}&{apiVersion}";
 
-            allComputeFields = await MakeAzureInstanceMetadataRequest(allComputeFieldsUrl);
+            allFieldsResponse = await MakeAzureInstanceMetadataRequest(allComputeFieldsUrl);
+            
+            string[] fields = allFieldsResponse?.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            return allComputeFields?.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            if (fields == null || fields.Count() <= 0)
+            {
+                CoreEventSource.Log.CannotObtainAzureInstanceMetadata();
+            }
+
+            return fields;
         }
 
         /// <summary>
@@ -203,9 +217,9 @@
 #error Unknown framework
 #endif
             }
-            catch (AggregateException)
+            catch (AggregateException ex)
             {
-                CoreEventSource.Log.CannotObtainAzureInstanceMetadata();
+                CoreEventSource.Log.AzureInstanceMetadataRequestFailure(metadataRequestUrl, ex.Message);
             }
             finally
             {
