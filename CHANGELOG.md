@@ -4,7 +4,7 @@
 - Updated Web/Base SDK version dependency to 2.5.0-beta2.
 
 ## Version 2.2.0-beta2
-- Same bit as beta1. Only change is that the symbols for the binaries are indexed in Microsoft symbol servers. Beta1 symbols will not be available.
+- Same bits as beta1. Only change is that the symbols for the binaries are indexed in Microsoft symbol servers. Beta1 symbols will not be available.
 
 ## Version 2.2.0-beta1
 
