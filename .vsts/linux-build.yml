@@ -3,7 +3,7 @@ queue:
 steps:
 - task: DotNetCoreInstaller@0
   inputs:
-    version: "1.1.5"
+    version: "2.0.0"
 
 - task: DotNetCoreCLI@1
   inputs:
