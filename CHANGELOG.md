@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 2.2.0-beta3
+- Updated Web/Base SDK version dependency to 2.5.0-beta2.
+
+## Version 2.2.0-beta2
+- Same bit as beta1. Only change is that the symbols for the binaries are indexed in Microsoft symbol servers. Beta1 symbols will not be available.
+
 ## Version 2.2.0-beta1
 
 - Project is upgraded to work with Visual Studio 2017. Also projects are modified to use csproj instead of project.json.
