@@ -23,10 +23,14 @@
     <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-aspnetcore.git</RepositoryUrl>
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.1</NetStandardImplicitPackageVersion>	
 	<OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\src\$(MSBuildProjectName)</OutputPath>
-	<IntermediateOutputPath Condition="'$(IntermediateOutputPath)'=='' ">..\..\artifacts\obj\src\$(MSBuildProjectName)</IntermediateOutputPath>
-	
+	<IntermediateOutputPath Condition="'$(IntermediateOutputPath)'=='' ">..\..\artifacts\obj\src\$(MSBuildProjectName)</IntermediateOutputPath>	
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>    
+  </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="Desktop.Analyzers" Version="1.2.0-beta2">
       <PrivateAssets>All</PrivateAssets>
