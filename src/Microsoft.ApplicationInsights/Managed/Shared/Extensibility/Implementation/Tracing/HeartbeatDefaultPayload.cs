@@ -59,7 +59,7 @@
 
         /// <summary>
         /// A unique identifier that would help to indicate to the analytics when the current process session has
-        /// restared. 
+        /// restarted. 
         /// 
         /// <remarks>If a process is unstable and is being restared frequently, tracking this property
         /// in the heartbeat would help to identify this unstability.
@@ -70,7 +70,11 @@
         /// <summary>
         /// Gets or sets a value indicating whether the collection of instance metadata from Azure VMs is enabled or not.
         /// </summary>
-        public static bool EnableAzureInstanceMetadata { get => enableAzureInstanceMetadataInHeartbeat; set => enableAzureInstanceMetadataInHeartbeat = value; }
+        public static bool EnableAzureInstanceMetadata
+        {
+            get => enableAzureInstanceMetadataInHeartbeat;
+            set => enableAzureInstanceMetadataInHeartbeat = value;
+        }
 
         public static void PopulateDefaultPayload(IEnumerable<string> disabledFields, HeartbeatProvider provider)
         {
@@ -82,7 +86,6 @@
             
             foreach (string fieldName in enabledProperties)
             {
-                SdkInternalOperationsMonitor.Enter();
                 // we don't need to report out any failure here, so keep this look within the Sdk Internal Operations as well
                 try
                 {
@@ -121,10 +124,6 @@
                 catch (Exception ex)
                 {
                     CoreEventSource.Log.FailedToObtainDefaultHeartbeatProperty(fieldName, ex.ToString());
-                }
-                finally
-                {
-                    SdkInternalOperationsMonitor.Exit();
                 }
             }
         }
@@ -170,7 +169,7 @@
             string allComputeFieldsUrl = $"{baseUrl}?{textFormatArg}&{apiVersion}";
 
             allFieldsResponse = await MakeAzureInstanceMetadataRequest(allComputeFieldsUrl);
-            
+
             string[] fields = allFieldsResponse?.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             if (fields == null || fields.Count() <= 0)
@@ -190,7 +189,7 @@
         /// <param name="textFormatArg">query-string argument to request text data be returned</param>
         /// <returns>an array of field names available, or null</returns>
         private static async Task<string> GetAzureInstanceMetadaValue(string baseUrl, string fieldName, string apiVersion, string textFormatArg)
-        { 
+        {
             string metadataFieldUrl = $"{baseUrl}/{fieldName}?{textFormatArg}&{apiVersion}";
 
             string fieldValue = await MakeAzureInstanceMetadataRequest(metadataFieldUrl);
@@ -217,8 +216,6 @@
 
                 WebRequest request = WebRequest.Create(metadataRequestUrl);
                 request.Method = "POST";
-                // request.ContentType = "text";
-                // request.Headers[ContentEncodingHeader] = "utf-8";
                 request.Headers.Add("Metadata", "true");
                 using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
                 {
@@ -314,21 +311,33 @@
         /// <summary>
         /// Runtime information for the underlying OS, should include Linux information here as well.
         /// </summary>
-        /// <returns>String representing the OS, and any version/patch information reported by that OS</returns>
+        /// <returns>String representing the OS or 'unknown'</returns>
         private static string GetRuntimeOsType()
         {
             string osValue = "unknown";
 #if NET45 || NET46
+
             osValue = Environment.OSVersion.Platform.ToString();
+
 #elif NETSTANDARD1_3
             
-            foreach (OSPlatform os in Enum.GetValues(typeof(OSPlatform)))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                if (RuntimeInformation.IsOSPlatform(os))
-                {
-                    osValue = os.ToString();
-                }
+                osValue = OSPlatform.Linux.ToString();
             }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                osValue = OSPlatform.OSX.ToString();
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                osValue = OSPlatform.Windows.ToString();
+            }
+            else
+            {
+                osValue = RuntimeInformation.OSDescription ?? "unknown";
+            }
+
 #else
 #error Unrecognized framework
 #endif
