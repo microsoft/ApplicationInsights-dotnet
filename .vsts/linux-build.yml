@@ -19,7 +19,7 @@ steps:
 - task: DotNetCoreCLI@1
   inputs:
     command: "test"
-    projects: "Test/**/*netcore*.csproj"
+    projects: "test/**/*.csproj"
     arguments: "--configuration Release"
 
 - task: PublishTestResults@2
