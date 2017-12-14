@@ -12,6 +12,7 @@
     <PackageId>FunctionalTestUtils</PackageId>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
 	<OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\test\$(MSBuildProjectName)</OutputPath>
+	<IntermediateOutputPath Condition="'$(IntermediateOutputPath)'=='' ">..\..\artifacts\obj\test\$(MSBuildProjectName)</IntermediateOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
