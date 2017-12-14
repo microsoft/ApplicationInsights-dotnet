@@ -8,7 +8,7 @@
     <Authors>Microsoft</Authors>
     <TargetFrameworks>net451;net46;netstandard1.6</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard1.6</TargetFrameworks>
-    <DelaySign>true</DelaySign>
+    <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
     <AssemblyOriginatorKeyFile>../../keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
