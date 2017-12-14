@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <VersionPrefix>1.0.2</VersionPrefix>
-    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard1.6</TargetFrameworks>
     <DelaySign>true</DelaySign>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>ApplicationInsightsTypes</AssemblyName>
@@ -10,8 +10,9 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>ApplicationInsightsTypes</PackageId>
-    <NetStandardImplicitPackageVersion>2.0.0</NetStandardImplicitPackageVersion>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
 	<OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\test\$(MSBuildProjectName)</OutputPath>	
+	<IntermediateOutputPath Condition="'$(IntermediateOutputPath)'=='' ">..\..\artifacts\obj\test\$(MSBuildProjectName)</IntermediateOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
