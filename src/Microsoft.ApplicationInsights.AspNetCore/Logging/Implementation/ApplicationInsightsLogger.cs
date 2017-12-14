@@ -17,15 +17,17 @@
         private readonly TelemetryClient telemetryClient;
         private readonly Func<string, LogLevel, bool> filter;
         private readonly string sdkVersion;
+        private readonly ApplicationInsightsLoggerOptions options;
 
         /// <summary>
         /// Creates a new instance of <see cref="ApplicationInsightsLogger"/>
         /// </summary>
-        public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter)
+        public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter, ApplicationInsightsLoggerOptions options)
         {
             this.categoryName = name;
             this.telemetryClient = telemetryClient;
             this.filter = filter;
+            this.options = options;
             this.sdkVersion = SdkVersionUtils.VersionPrefix + SdkVersionUtils.GetAssemblyVersion();
         }
 
@@ -47,7 +49,7 @@
             if (this.IsEnabled(logLevel))
             {
                 var stateDictionary = state as IReadOnlyList<KeyValuePair<string, object>>;
-                if (exception == null)
+                if (exception == null || this.options.TrackExceptionsAsExceptionTelemetry == false)
                 {
                     var traceTelemetry = new TraceTelemetry(formatter(state, exception), this.GetSeverityLevel(logLevel));
                     PopulateTelemetry(traceTelemetry, stateDictionary);

@@ -25,7 +25,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 isCorrectVersion = t.Context.GetInternalContext().SdkVersion.StartsWith(SdkVersionUtils.VersionPrefix);
             });
 
-            ILogger logger = new ApplicationInsightsLogger("test", client, (s, l) => { return true; });
+            ILogger logger = new ApplicationInsightsLogger("test", client, (s, l) => { return true; }, new ApplicationInsightsLoggerOptions());
             logger.LogTrace("This is a test.", new object[] { });
             Assert.True(isCorrectVersion);
         }
@@ -45,8 +45,29 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.Equal(SeverityLevel.Error, exceptionTelemetry.SeverityLevel);
             });
 
-            ILogger logger = new ApplicationInsightsLogger("test", client, (s, l) => { return true; });
+            ILogger logger = new ApplicationInsightsLogger("test", client, (s, l) => { return true; }, new ApplicationInsightsLoggerOptions());
             var exception = new Exception("This is an error");
+            logger.LogError(0, exception, "Error: " + exception.Message);
+        }
+
+        /// <summary>
+        /// Tests that logging an exception results in tracking a <see cref="TraceTelemetry"/> instance when ApplicationInsightsLoggerOptions.TrackExceptionsAsExceptionTelemetry is set to false.
+        /// </summary>
+        [Fact]
+        public void TestLoggerCreatesTraceTelemetryOnLoggedErrorWhenTrackExceptionsAsExceptionTelemetryIsSetToFalse()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<TraceTelemetry>(t);
+                var traceTelemetry = (TraceTelemetry)t;
+
+                Assert.Equal("Error: This is an error", traceTelemetry.Message);
+                Assert.Equal(SeverityLevel.Error, traceTelemetry.SeverityLevel);
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test", client, (s, l) => { return true; }, new ApplicationInsightsLoggerOptions { TrackExceptionsAsExceptionTelemetry = false });
+            var exception = new Exception("This is an error");
+
             logger.LogError(0, exception, "Error: " + exception.Message);
         }
 
@@ -56,7 +77,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
         [Fact]
         public void TestUninitializedLoggerDoesNotThrowExceptions()
         {
-            ILogger logger = new ApplicationInsightsLogger("test", null, null);
+            ILogger logger = new ApplicationInsightsLogger("test", null, null, new ApplicationInsightsLoggerOptions());
             logger.LogTrace("This won't do anything.", new object[] { });
         }
     }
