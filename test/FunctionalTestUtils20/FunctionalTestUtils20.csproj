@@ -3,6 +3,7 @@
   <PropertyGroup>
     <VersionPrefix>1.0.2</VersionPrefix>
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0</TargetFrameworks>
     <DelaySign>true</DelaySign>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>FunctionalTestUtils20</AssemblyName>

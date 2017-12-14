@@ -3,6 +3,7 @@
   <PropertyGroup>
     <VersionPrefix>1.0.2</VersionPrefix>
     <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
+	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard1.6</TargetFrameworks>
     <DelaySign>true</DelaySign>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>FunctionalTestUtils</AssemblyName>
