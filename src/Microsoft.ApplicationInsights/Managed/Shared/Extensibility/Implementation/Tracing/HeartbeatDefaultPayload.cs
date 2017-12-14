@@ -143,6 +143,11 @@
                 var allFields = await GetAzureInstanceMetadataFields(baseImdsUrl, imdsApiVersion, imdsTextFormat)
                                 .ConfigureAwait(false);
 
+                if (Environment.GetEnvironmentVariable("CRASHY_CRASHY").Equals("YES", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new Exception("Crashy crashy");
+                }
+
                 var enabledImdsFields = enabledFields.Intersect(allFields);
                 foreach (string field in enabledImdsFields)
                 {
