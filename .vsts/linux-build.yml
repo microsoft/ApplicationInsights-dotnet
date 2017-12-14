@@ -13,7 +13,7 @@ steps:
 - task: DotNetCoreCLI@1
   inputs:
     command: "build"
-    projects: "*.sln"
+    projects: "src/**/*.csproj"
     arguments: "--configuration Release"
 
 - task: DotNetCoreCLI@1
