@@ -16,7 +16,7 @@ steps:
 - task: DotNetCoreCLI@1
   inputs:
     command: "test"
-    projects: "test/**/*Tests.csproj"
+    projects: "test/**/EmptyApp.FunctionalTests.csproj"
     arguments: "--configuration Release"
 
 - task: PublishTestResults@2
