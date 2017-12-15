@@ -2,18 +2,18 @@ queue:
   name: Hosted Linux
 steps:
 
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   inputs:
     command: "restore"
     projects: "*.sln"
 
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   inputs:
     command: "build"
     projects: "src/**/*.csproj"
     arguments: "--configuration Release"
 
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   inputs:
     command: "test"
     projects: "test/**/*tests.csproj"
@@ -21,7 +21,7 @@ steps:
 
 - task: PublishTestResults@2
 
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   inputs:
     command: "publish"
     publishWebProjects: "True"
