@@ -5,7 +5,7 @@
     <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
 	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.0</TargetFrameworks>
 	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net461' ">win7-x86</RuntimeIdentifier>
-    <DelaySign>true</DelaySign>
+    <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>MVCFramework20.FunctionalTests</AssemblyName>
     <AssemblyOriginatorKeyFile>../../keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <VersionPrefix>1.0.2</VersionPrefix>
     <TargetFrameworks>net461;netstandard1.6</TargetFrameworks>
-    <DelaySign>true</DelaySign>
+    <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>ApplicationInsightsTypes</AssemblyName>
     <AssemblyOriginatorKeyFile>../../keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
