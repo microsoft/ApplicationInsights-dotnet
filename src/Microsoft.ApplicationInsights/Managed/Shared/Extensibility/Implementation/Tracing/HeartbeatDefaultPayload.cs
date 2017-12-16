@@ -82,8 +82,6 @@
 
             Task.Factory.StartNew(async () => await HeartbeatDefaultPayload.AddAzureVmDetail(provider, enabledProperties).ConfigureAwait(false));
 
-            var payload = new Dictionary<string, HeartbeatPropertyPayload>();
-            
             foreach (string fieldName in enabledProperties)
             {
                 // we don't need to report out any failure here, so keep this look within the Sdk Internal Operations as well
@@ -117,7 +115,7 @@
                             // skip all Azure Instance Metadata fields
                             break;
                         default:
-                            provider.AddHeartbeatProperty(fieldName, true, "UNDEFINED", false);
+                            provider.AddHeartbeatProperty(fieldName, true, "UNDEFINED", true);
                             break;
                     }
                 }
@@ -142,11 +140,6 @@
 
                 var allFields = await GetAzureInstanceMetadataFields(baseImdsUrl, imdsApiVersion, imdsTextFormat)
                                 .ConfigureAwait(false);
-
-                if (Environment.GetEnvironmentVariable("CRASHY_CRASHY").Equals("YES", StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new Exception("Crashy crashy");
-                }
 
                 var enabledImdsFields = enabledFields.Intersect(allFields);
                 foreach (string field in enabledImdsFields)
@@ -220,7 +213,7 @@
 #elif NET45 || NET46
 
                 WebRequest request = WebRequest.Create(metadataRequestUrl);
-                request.Method = "POST";
+                request.Method = "GET";
                 request.Headers.Add("Metadata", "true");
                 using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
                 {
@@ -236,10 +229,11 @@
 #else
 #error Unknown framework
 #endif
+
             }
-            catch (AggregateException ex)
+            catch (Exception ex)
             {
-                CoreEventSource.Log.AzureInstanceMetadataRequestFailure(metadataRequestUrl, ex.Message);
+                CoreEventSource.Log.AzureInstanceMetadataRequestFailure(metadataRequestUrl, ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty);
             }
             finally
             {
@@ -255,12 +249,12 @@
 
             if (disabledFields == null || disabledFields.Count() <= 0)
             {
-                enabledProperties = DefaultFields.ToList();
+                enabledProperties = AllDefaultFields.ToList();
             }
             else
             {
                 enabledProperties = new List<string>();
-                foreach (string fieldName in DefaultFields)
+                foreach (string fieldName in AllDefaultFields)
                 {
                     if (!disabledFields.Contains(fieldName, StringComparer.OrdinalIgnoreCase))
                     {
@@ -358,7 +352,7 @@
         {
             if (HeartbeatDefaultPayload.uniqueProcessSessionId == null)
             {
-                HeartbeatDefaultPayload.uniqueProcessSessionId = new Guid();
+                HeartbeatDefaultPayload.uniqueProcessSessionId = Guid.NewGuid();
             }
 
             return HeartbeatDefaultPayload.uniqueProcessSessionId.ToString();
