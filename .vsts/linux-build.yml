@@ -4,6 +4,10 @@ steps:
 
 - task: DotNetCoreCLI@1
   inputs:
+    command: "version"
+
+- task: DotNetCoreCLI@1
+  inputs:
     command: "restore"
     projects: "*.sln"
 
