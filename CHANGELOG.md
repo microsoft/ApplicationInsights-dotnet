@@ -2,6 +2,9 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.6.0-beta1
+- [Added overload of TelemetryClientExtensions.StartOperation(Activity activity).] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/644)
+
 ## Version 2.5.0-beta2
 - Remove calculation of sampling-score based on Context.User.Id [Issue #625](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/625)
 - New sdk-driven "heartbeat" functionality added which sends health status at pre-configured intervals. See [extending heartbeat properties doc for more information](./docs/ExtendingHeartbeatProperties.md)

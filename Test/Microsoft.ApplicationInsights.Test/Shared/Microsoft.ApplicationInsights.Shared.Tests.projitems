@@ -80,6 +80,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)OperationTelemetryExtensionsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionAsyncTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StartOperationActivityTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TransmissionProcessorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientTest.cs" />
