@@ -16,11 +16,11 @@
 	<IntermediateOutputPath Condition="'$(IntermediateOutputPath)'=='' ">..\..\artifacts\obj\test\$(MSBuildProjectName)</IntermediateOutputPath>
   </PropertyGroup>
 
+  <!--
   <ItemGroup>
     <PackageReference Include="Bond.Core.CSharp" Version="6.0.0" />
-    <PackageReference Include="Bond.CSharp" Version="6.0.0" />
-    <PackageReference Include="NETStandard.Library" Version="2.0.0" />
-  </ItemGroup>
+    <PackageReference Include="Bond.CSharp" Version="6.0.0" />    
+  </ItemGroup> -->
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />
