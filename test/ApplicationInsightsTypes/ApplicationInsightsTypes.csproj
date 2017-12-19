@@ -91,4 +91,16 @@
     </BondCodegen>
   </ItemGroup>
 
+  <ItemGroup Condition="$(OS) == 'Windows_NT'">
+    <Compile Update="ItemType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="TelemetryItem.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="TelemetryItemType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+
 </Project>
