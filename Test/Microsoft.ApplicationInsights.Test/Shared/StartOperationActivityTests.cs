@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Diagnostics;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
@@ -19,14 +19,14 @@
     public class StartOperationActivityTests
     {
         private TelemetryClient telemetryClient;
-        private List<ITelemetry> sendItems;
+        private ConcurrentQueue<ITelemetry> sendItems;
 
         [TestInitialize]
         public void TestInitialize()
         {
             var configuration = new TelemetryConfiguration();
-            this.sendItems = new List<ITelemetry>();
-            configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
+            this.sendItems = new ConcurrentQueue<ITelemetry>();
+            configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Enqueue(item) };
             configuration.InstrumentationKey = Guid.NewGuid().ToString();
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.telemetryClient = new TelemetryClient(configuration);
