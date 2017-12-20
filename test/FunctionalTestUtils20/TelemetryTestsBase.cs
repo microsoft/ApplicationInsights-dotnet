@@ -77,7 +77,7 @@
         {
             this.ExecuteRequest(server.BaseHost + requestPath);
 
-            var actual = server.Listener.ReceiveItems(2, TestListenerTimeoutInMs);
+            var actual = server.Listener.ReceiveItems(3, TestListenerTimeoutInMs);
             this.DebugTelemetryItems(actual);
 
             var dependencyTelemetry = actual.OfType<TelemetryItem<RemoteDependencyData>>().FirstOrDefault();
