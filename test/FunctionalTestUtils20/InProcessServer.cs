@@ -38,7 +38,8 @@
         {
             this.output = output;
 
-            var machineName = Environment.GetEnvironmentVariable("COMPUTERNAME");
+            //var machineName = Environment.GetEnvironmentVariable("COMPUTERNAME");
+            var machineName = "localhost";
             this.url = "http://" + machineName + ":" + random.Next(5000, 14000).ToString();
 
             output.WriteLine(string.Format("{0}: Launching application at: {1}", DateTime.Now.ToString("G"), this.url));
