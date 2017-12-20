@@ -27,10 +27,9 @@ steps:
 
 - task: DotNetCoreCLI@1
   inputs:
-    command: "publish"
-    publishWebProjects: "True"
-    arguments: "--configuration Release --output $(build.artifactstagingdirectory)"
-    zipAfterPublish: "True"
+    command: "pack" 
+    projects: "src/**/**.csproj"
+    arguments: "--configuration Release --include-symbols --output $(build.artifactstagingdirectory)"    
 
 - task: PublishBuildArtifacts@1
   inputs:
