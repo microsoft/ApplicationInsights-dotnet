@@ -32,13 +32,6 @@ steps:
     projects: "test/**/EmptyApp20.FunctionalTests.csproj"
     arguments: "--configuration Release"
     
-  task: DotNetCoreCLI@1
-  displayName: Test 1.1
-  inputs:
-    command: "test"
-    projects: "test/**/EmptyApp.FunctionalTests.csproj"
-    arguments: "--configuration Release"
-
 - task: PublishTestResults@2
 
 - task: DotNetCoreCLI@1
