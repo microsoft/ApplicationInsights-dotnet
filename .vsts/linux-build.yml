@@ -42,7 +42,7 @@ steps:
 - task: PublishTestResults@2
 
 - task: DotNetCoreCLI@1
-  displayName: Package
+  displayName: Package Nuget
   inputs:
     command: "pack" 
     projects: "src/**/**.csproj"
