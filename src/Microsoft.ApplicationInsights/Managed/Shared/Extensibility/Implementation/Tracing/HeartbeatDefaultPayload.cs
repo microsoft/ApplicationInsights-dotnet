@@ -2,14 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
-    using System.Net;
+    using System.Reflection;
 #if NETSTANDARD1_3
-    using System.Net.Http;
     using System.Runtime.InteropServices;
 #endif
-    using System.Reflection;
     using System.Threading.Tasks;
 
     internal static class HeartbeatDefaultPayload
@@ -41,13 +38,11 @@
         public static readonly string[] AllDefaultFields = DefaultFields.Union(DefaultOptionalFields).ToArray();
 
         /// <summary>
-        /// Azure Instance Metadata Service exists on a single non-routable IP on machines configured
-        /// by the Azure Resource Manager. See <a href="https://go.microsoft.com/fwlink/?linkid=864683">to learn more.</a>
+        /// Requestor of Azure specific metadata (if present). This member is separated out as an interface to 
+        /// help with testing.
         /// </summary>
-        private static string baseImdsUrl = $"http://169.254.169.254/metadata/instance/compute";
-        private static string imdsApiVersion = $"api-version=2017-04-02"; // this version has the format=text capability
-        private static string imdsTextFormat = "format=text";
-
+        private static IAzureMetadataRequestor metadataRequestor = null;
+        
         /// <summary>
         /// Flags that will tell us whether or not Azure VM metadata has been attempted to be gathered or not, and
         /// if we should even attempt to look for it in the first place.
@@ -76,9 +71,10 @@
             set => enableAzureInstanceMetadataInHeartbeat = value;
         }
 
-        public static void PopulateDefaultPayload(IEnumerable<string> disabledFields, HeartbeatProvider provider)
+        public static void PopulateDefaultPayload(IEnumerable<string> disabledFields, HeartbeatProvider provider, IAzureMetadataRequestor metadataRequestor)
         {
             var enabledProperties = HeartbeatDefaultPayload.RemoveDisabledDefaultFields(disabledFields);
+            HeartbeatDefaultPayload.metadataRequestor = metadataRequestor;
 
             Task.Factory.StartNew(async () => await HeartbeatDefaultPayload.AddAzureVmDetail(provider, enabledProperties).ConfigureAwait(false));
 
@@ -138,7 +134,7 @@
                 // only ever do this once when the SDK gets initialized
                 HeartbeatDefaultPayload.isAzureMetadataCheckCompleted = true;
 
-                var allFields = await GetAzureInstanceMetadataFields(baseImdsUrl, imdsApiVersion, imdsTextFormat)
+                var allFields = await HeartbeatDefaultPayload.metadataRequestor.GetAzureInstanceMetadataComputeFields()
                                 .ConfigureAwait(false);
 
                 var enabledImdsFields = enabledFields.Intersect(allFields);
@@ -146,101 +142,12 @@
                 {
                     heartbeatManager.AddHeartbeatProperty(
                         propertyName: field,
-                        propertyValue: await GetAzureInstanceMetadaValue(baseImdsUrl, field, imdsApiVersion, imdsTextFormat)
+                        propertyValue: await HeartbeatDefaultPayload.metadataRequestor.GetAzureComputeMetadata(field)
                             .ConfigureAwait(false),
                         isHealthy: true,
                         allowDefaultFields: true);
                 }
             }
-        }
-
-        /// <summary>
-        /// Gets all the available fields from the imds link asynchronously, and returns them as an IEnumerable.
-        /// </summary>
-        /// <param name="baseUrl">Url of the Azure Instance Metadata service</param>
-        /// <param name="apiVersion">rest Api version to append to the constructed Uri</param>
-        /// <param name="textFormatArg">query-string argument to request text data be returned</param>
-        /// <returns>an array of field names available, or null</returns>
-        private static async Task<IEnumerable<string>> GetAzureInstanceMetadataFields(string baseUrl, string apiVersion, string textFormatArg)
-        {
-            string allFieldsResponse = string.Empty;
-            string allComputeFieldsUrl = $"{baseUrl}?{textFormatArg}&{apiVersion}";
-
-            allFieldsResponse = await MakeAzureInstanceMetadataRequest(allComputeFieldsUrl);
-
-            string[] fields = allFieldsResponse?.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            if (fields == null || fields.Count() <= 0)
-            {
-                CoreEventSource.Log.CannotObtainAzureInstanceMetadata();
-            }
-
-            return fields;
-        }
-
-        /// <summary>
-        /// Gets the value of a specific field from the imds link asynchronously, and returns it.
-        /// </summary>
-        /// <param name="baseUrl">Url of the Azure Instance Metadata service</param>
-        /// <param name="fieldName">Specific imds field to retrieve a value for</param>
-        /// <param name="apiVersion">rest Api version to append to the constructed Uri</param>
-        /// <param name="textFormatArg">query-string argument to request text data be returned</param>
-        /// <returns>an array of field names available, or null</returns>
-        private static async Task<string> GetAzureInstanceMetadaValue(string baseUrl, string fieldName, string apiVersion, string textFormatArg)
-        {
-            string metadataFieldUrl = $"{baseUrl}/{fieldName}?{textFormatArg}&{apiVersion}";
-
-            string fieldValue = await MakeAzureInstanceMetadataRequest(metadataFieldUrl);
-
-            return fieldValue;
-        }
-
-        private static async Task<string> MakeAzureInstanceMetadataRequest(string metadataRequestUrl)
-        {
-            string requestResult = string.Empty;
-
-            SdkInternalOperationsMonitor.Enter();
-            try
-            {
-#if NETSTANDARD1_3
-
-                using (var getFieldValueClient = new HttpClient())
-                {
-                    getFieldValueClient.DefaultRequestHeaders.Add("Metadata", "True");
-                    requestResult = await getFieldValueClient.GetStringAsync(metadataRequestUrl).ConfigureAwait(false);
-                }
-
-#elif NET45 || NET46
-
-                WebRequest request = WebRequest.Create(metadataRequestUrl);
-                request.Method = "GET";
-                request.Headers.Add("Metadata", "true");
-                using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
-                {
-                    if (response is HttpWebResponse httpResponse && httpResponse.StatusCode == HttpStatusCode.OK)
-                    {
-                        StreamReader content = new StreamReader(httpResponse.GetResponseStream());
-                        {
-                            requestResult = content.ReadToEnd();
-                        }
-                    }
-                }
-
-#else
-#error Unknown framework
-#endif
-
-            }
-            catch (Exception ex)
-            {
-                CoreEventSource.Log.AzureInstanceMetadataRequestFailure(metadataRequestUrl, ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty);
-            }
-            finally
-            {
-                SdkInternalOperationsMonitor.Exit();
-            }
-
-            return requestResult;
         }
 
         private static List<string> RemoveDisabledDefaultFields(IEnumerable<string> disabledFields)
