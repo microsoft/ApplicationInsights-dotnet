@@ -3,31 +3,37 @@ queue:
 steps:
 
 - task: DotNetCoreInstaller@0
+  displayName: install dotnet core 1.1.1
   inputs:
-    version: "1.1.1"
+    version: "1.1.1"    
 
 - task: DotNetCoreInstaller@0
+  displayName: install dotnet core 2.0
   inputs:
     version: "2.0.0"
     
 - task: DotNetCoreCLI@1
+  displayName: Restore solutions
   inputs:
     command: "restore"
     projects: "*.sln"
 
 - task: DotNetCoreCLI@1
+  displayName: build all projects
   inputs:
     command: "build"
     projects: "**/**/**.csproj"
     arguments: "--configuration Release"
 
 - task: DotNetCoreCLI@1
+  displayName: Test 2.0
   inputs:
     command: "test"
     projects: "test/**/EmptyApp20.FunctionalTests.csproj"
     arguments: "--configuration Release"
     
   task: DotNetCoreCLI@1
+  displayName: Test 1.1
   inputs:
     command: "test"
     projects: "test/**/EmptyApp.FunctionalTests.csproj"
@@ -36,6 +42,7 @@ steps:
 - task: PublishTestResults@2
 
 - task: DotNetCoreCLI@1
+  displayName: Package
   inputs:
     command: "pack" 
     projects: "src/**/**.csproj"
