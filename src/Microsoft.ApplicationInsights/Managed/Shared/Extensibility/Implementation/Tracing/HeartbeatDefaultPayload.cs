@@ -38,19 +38,10 @@
         public static readonly string[] AllDefaultFields = DefaultFields.Union(DefaultOptionalFields).ToArray();
 
         /// <summary>
-        /// Requestor of Azure specific metadata (if present). This member is separated out as an interface to 
-        /// help with testing.
-        /// </summary>
-        private static IAzureMetadataRequestor metadataRequestor = null;
-        
-        /// <summary>
         /// Flags that will tell us whether or not Azure VM metadata has been attempted to be gathered or not, and
         /// if we should even attempt to look for it in the first place.
-        /// If this is true and AzureVmInstanceMetadata is empty/null then it's very likely we aren't on an
-        /// Azure IaaS VM (don't try again!).
         /// </summary>
         private static bool isAzureMetadataCheckCompleted = false;
-        private static bool enableAzureInstanceMetadataInHeartbeat = true;
 
         /// <summary>
         /// A unique identifier that would help to indicate to the analytics when the current process session has
@@ -62,21 +53,14 @@
         /// </summary>
         private static Guid? uniqueProcessSessionId = null;
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the collection of instance metadata from Azure VMs is enabled or not.
-        /// </summary>
-        public static bool EnableAzureInstanceMetadata
-        {
-            get => enableAzureInstanceMetadataInHeartbeat;
-            set => enableAzureInstanceMetadataInHeartbeat = value;
-        }
-
         public static void PopulateDefaultPayload(IEnumerable<string> disabledFields, HeartbeatProvider provider, IAzureMetadataRequestor metadataRequestor)
         {
             var enabledProperties = HeartbeatDefaultPayload.RemoveDisabledDefaultFields(disabledFields);
-            HeartbeatDefaultPayload.metadataRequestor = metadataRequestor;
 
-            Task.Factory.StartNew(async () => await HeartbeatDefaultPayload.AddAzureVmDetail(provider, enabledProperties).ConfigureAwait(false));
+            if (metadataRequestor != null)
+            {
+                Task.Factory.StartNew(async () => await HeartbeatDefaultPayload.AddAzureVmDetail(provider, enabledProperties, metadataRequestor).ConfigureAwait(false));
+            }
 
             foreach (string fieldName in enabledProperties)
             {
@@ -127,14 +111,14 @@
         /// not running on an Azure VM with the Azure Instance Metadata Service running, the corresponding
         /// fields will not get set into the heartbeat payload.
         /// </summary>
-        private static async Task AddAzureVmDetail(HeartbeatProvider heartbeatManager, IEnumerable<string> enabledFields)
+        private static async Task AddAzureVmDetail(HeartbeatProvider heartbeatManager, IEnumerable<string> enabledFields, IAzureMetadataRequestor metadataRequestor)
         {
-            if (HeartbeatDefaultPayload.EnableAzureInstanceMetadata && !HeartbeatDefaultPayload.isAzureMetadataCheckCompleted)
+            if (metadataRequestor != null && !HeartbeatDefaultPayload.isAzureMetadataCheckCompleted)
             {
                 // only ever do this once when the SDK gets initialized
                 HeartbeatDefaultPayload.isAzureMetadataCheckCompleted = true;
 
-                var allFields = await HeartbeatDefaultPayload.metadataRequestor.GetAzureInstanceMetadataComputeFields()
+                var allFields = await metadataRequestor.GetAzureInstanceMetadataComputeFields()
                                 .ConfigureAwait(false);
 
                 var enabledImdsFields = enabledFields.Intersect(allFields);
@@ -142,7 +126,7 @@
                 {
                     heartbeatManager.AddHeartbeatProperty(
                         propertyName: field,
-                        propertyValue: await HeartbeatDefaultPayload.metadataRequestor.GetAzureComputeMetadata(field)
+                        propertyValue: await metadataRequestor.GetAzureComputeMetadata(field)
                             .ConfigureAwait(false),
                         isHealthy: true,
                         allowDefaultFields: true);

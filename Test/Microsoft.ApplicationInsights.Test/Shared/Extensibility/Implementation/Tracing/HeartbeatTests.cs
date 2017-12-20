@@ -8,7 +8,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class HealthHeartbeatTests
+    public class HeartbeatTests
     {
         [TestMethod]
         public void InitializeHealthHeartbeatDoesntThrow()
@@ -52,9 +52,25 @@
                 Assert.AreNotEqual(userSetInterval, hbeat.HeartbeatInterval);
                 hbeat.HeartbeatInterval = userSetInterval;
 
-                // initialize the DiagnosticsTelemetryModule, and check that the interval is stil intact
+                // initialize the DiagnosticsTelemetryModule, and check that the interval is still intact
                 initializedModule.Initialize(new TelemetryConfiguration());
                 Assert.AreEqual(userSetInterval, hbeat.HeartbeatInterval);
+            }
+        }
+
+        [TestMethod]
+        public void InitializeHealthHeartDisablingAzureMetadata()
+        {
+            using (var initializedModule = new DiagnosticsTelemetryModule())
+            {
+                // disable azure metadata lookup via the IHeartbeatPropertyManager interface
+                IHeartbeatPropertyManager hbeat = initializedModule;
+                Assert.IsTrue(hbeat.EnableInstanceMetadata);
+                hbeat.EnableInstanceMetadata = false;
+
+                // initialize the DiagnosticsTelemetryModule, and ensure the instance metadata is still disabled
+                initializedModule.Initialize(new TelemetryConfiguration());
+                Assert.IsFalse(hbeat.EnableInstanceMetadata);
             }
         }
 
@@ -96,6 +112,50 @@
                     Assert.Fail(string.Format(CultureInfo.CurrentCulture, "Registration of a heartbeat payload provider throws exception '{0}", e.ToInvariantString()));
                 }
             }
+        }
+
+        [TestMethod]
+        public void InitializationOfTelemetryClientDoesntResetHeartbeat()
+        {
+            TelemetryClient client = new TelemetryClient();
+
+            bool origIsEnabled = true;
+            bool origEnableMeta = true;
+            TimeSpan origInterval = TimeSpan.MaxValue;
+            TimeSpan setInterval = TimeSpan.MaxValue;
+
+            foreach (var module in TelemetryModules.Instance.Modules)
+            {
+                if (module is IHeartbeatPropertyManager hbeatMan)
+                {
+                    origIsEnabled = hbeatMan.IsHeartbeatEnabled;
+                    hbeatMan.IsHeartbeatEnabled = !origIsEnabled;
+
+                    origEnableMeta = hbeatMan.EnableInstanceMetadata;
+                    hbeatMan.EnableInstanceMetadata = !origEnableMeta;
+
+                    hbeatMan.ExcludedHeartbeatProperties.Add("Test01");
+
+                    origInterval = hbeatMan.HeartbeatInterval;
+                    setInterval = origInterval + TimeSpan.FromMinutes(2);
+                    hbeatMan.HeartbeatInterval = setInterval;
+                }
+            }
+
+            TelemetryClient client2 = new TelemetryClient();
+
+            foreach (var module in TelemetryModules.Instance.Modules)
+            {
+                if (module is IHeartbeatPropertyManager hbeatMan)
+                {
+                    Assert.AreNotEqual(hbeatMan.IsHeartbeatEnabled, origIsEnabled);
+                    Assert.AreNotEqual(hbeatMan.EnableInstanceMetadata, origEnableMeta);
+                    Assert.IsTrue(hbeatMan.ExcludedHeartbeatProperties.Contains("Test01"));
+                    Assert.AreNotEqual(hbeatMan.HeartbeatInterval, origInterval);
+                    Assert.AreEqual(hbeatMan.HeartbeatInterval, setInterval);
+                }
+            }
+
         }
 
         [TestMethod]
@@ -373,6 +433,12 @@
                 Assert.IsTrue(msg.Properties[key].Equals("value01", StringComparison.Ordinal));
                 Assert.IsTrue(msg.Sum == 1.0); // one false message in payload only
             }
+        }
+
+        [TestMethod]
+        public void GetDefaultPayloadFields()
+        {
+
         }
     }
 }

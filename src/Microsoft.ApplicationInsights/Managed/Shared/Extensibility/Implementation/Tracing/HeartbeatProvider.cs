@@ -50,6 +50,7 @@
             this.heartbeatProperties = new ConcurrentDictionary<string, HeartbeatPropertyPayload>(StringComparer.OrdinalIgnoreCase);
             this.heartbeatsSent = 0; // count up from construction time
             this.isEnabled = true;
+            this.EnableInstanceMetadata = true;
         }
 
         /// <summary>
@@ -116,11 +117,7 @@
         /// Gets or sets a value indicating whether or not to include Azure Instance Metadata in the heartbeat
         /// properties.
         /// </summary>
-        public bool EnableInstanceMetadata
-        {
-            get => HeartbeatDefaultPayload.EnableAzureInstanceMetadata;
-            set => HeartbeatDefaultPayload.EnableAzureInstanceMetadata = value;
-        }
+        public bool EnableInstanceMetadata { get; set; }
 
         /// <summary>
         /// Gets a list of default field names that should not be sent with each heartbeat.
@@ -139,7 +136,13 @@
                 this.telemetryClient = new TelemetryClient(configuration);
             }
 
-            HeartbeatDefaultPayload.PopulateDefaultPayload(this.ExcludedHeartbeatProperties, this, new AzureMetadataRequest());
+            IAzureMetadataRequestor metadataRequestHandler = null;
+            if (this.EnableInstanceMetadata)
+            {
+                metadataRequestHandler = new AzureMetadataRequest();
+            }
+
+            HeartbeatDefaultPayload.PopulateDefaultPayload(this.ExcludedHeartbeatProperties, this, metadataRequestHandler);
 
             // Note: if this is a subsequent initialization, the interval between heartbeats will be updated in the next cycle so no .Change call necessary here
             if (this.HeartbeatTimer == null)
