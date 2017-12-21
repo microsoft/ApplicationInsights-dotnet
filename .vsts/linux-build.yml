@@ -30,7 +30,7 @@ steps:
   inputs:
     command: "test"
     projects: "test/**/*20.*Tests.csproj"
-    arguments: "--configuration Release"
+    arguments: "--configuration Release -l trx"
     
 - task: PublishTestResults@2
 
