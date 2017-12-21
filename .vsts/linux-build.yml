@@ -35,7 +35,7 @@ steps:
     
 - task: PublishTestResults@2
   inputs:
-    testResultsFiles: "**\*.trx"
+    arguments: "testResultsFiles=**\*.trx"
 
 - task: DotNetCoreCLI@1
   displayName: Package Nuget
