@@ -75,7 +75,7 @@
             {
                 this.ExecuteRequest(server.BaseHost + "/Home/Contact");
 
-                var telemetries = server.Listener.ReceiveItems(6, TestListenerTimeoutInMs);
+                var telemetries = server.Listener.ReceiveItems(7, TestListenerTimeoutInMs);
                 this.DebugTelemetryItems(telemetries);
 
                 Assert.True(telemetries.Length >= 5);
