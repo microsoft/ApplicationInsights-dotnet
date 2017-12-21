@@ -3,9 +3,9 @@ queue:
 steps:
 
 - task: DotNetCoreInstaller@0
-  displayName: install dotnet core 1.1.2
+  displayName: install dotnet core 1.1.5
   inputs:
-    version: "1.1.2"    
+    version: "1.1.5"    
 
 - task: DotNetCoreInstaller@0
   displayName: install dotnet core 2.0
