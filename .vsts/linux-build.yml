@@ -34,6 +34,8 @@ steps:
     arguments: "--configuration Release -l trx"
     
 - task: PublishTestResults@2
+  inputs:
+    testResultsFiles: "**\*.trx"
 
 - task: DotNetCoreCLI@1
   displayName: Package Nuget
