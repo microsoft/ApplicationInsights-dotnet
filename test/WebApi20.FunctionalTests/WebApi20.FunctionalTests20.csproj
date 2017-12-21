@@ -7,7 +7,7 @@
 	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net461' ">win7-x86</RuntimeIdentifier>
     <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <AssemblyName>WebApi20.FunctionalTests</AssemblyName>
+    <AssemblyName>WebApi20.FunctionalTests20</AssemblyName>
     <AssemblyOriginatorKeyFile>../../keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
@@ -18,6 +18,9 @@
 	<IntermediateOutputPath Condition="'$(IntermediateOutputPath)'=='' ">..\..\artifacts\obj\test\$(MSBuildProjectName)</IntermediateOutputPath>
     <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>

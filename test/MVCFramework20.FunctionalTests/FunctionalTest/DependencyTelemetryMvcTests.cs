@@ -15,7 +15,7 @@
 
     public class DependencyTelemetryMvcTests : TelemetryTestsBase
     {
-        private const string assemblyName = "MVCFramework20.FunctionalTests";
+        private const string assemblyName = "MVCFramework20.FunctionalTests20";
         public DependencyTelemetryMvcTests(ITestOutputHelper output) : base(output)
         {
         }

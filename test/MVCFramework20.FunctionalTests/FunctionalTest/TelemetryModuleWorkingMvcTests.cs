@@ -7,7 +7,7 @@
 
     public class TelemetryModuleWorkingMvcTests : TelemetryTestsBase
     {
-        private const string assemblyName = "MVCFramework20.FunctionalTests";
+        private const string assemblyName = "MVCFramework20.FunctionalTests20";
 
         public TelemetryModuleWorkingMvcTests(ITestOutputHelper output) : base(output)
         {

@@ -17,16 +17,16 @@ steps:
   displayName: build all projects
   inputs:
     command: "build"
-    projects: "**/**/**.csproj"
+    projects: "src/**/**.csproj"
     arguments: "--configuration Release"
 
 - task: DotNetCoreCLI@1
-  displayName: Test All Before 1.1.5
+  displayName: Test 2.0
   continueOnError: true
   inputs:
     command: "test"
-    projects: "test/**/*Tests.csproj"
-    arguments: "--configuration Release --no-build -l trx"
+    projects: "test/**/*Tests20.csproj"
+    arguments: "--configuration Release -l trx"
 
 - task: DotNetCoreInstaller@0
   displayName: install dotnet core 1.1.5
@@ -34,12 +34,12 @@ steps:
     version: "1.1.5"  
     
 - task: DotNetCoreCLI@1
-  displayName: Test All After 1.1.5
+  displayName: Test 1.1.5
   continueOnError: true
   inputs:
     command: "test"
     projects: "test/**/*Tests.csproj"
-    arguments: "--configuration Release --no-build -l trx"    
+    arguments: "--configuration Release -l trx"    
     
     
 - task: PublishTestResults@2
