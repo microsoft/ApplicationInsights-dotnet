@@ -30,7 +30,7 @@ steps:
   continueOnError: true
   inputs:
     command: "test"
-    projects: "test/**/*20.*Tests.csproj"
+    projects: "test/**/*Tests.csproj"
     arguments: "--configuration Release -l trx"
     
 - task: PublishTestResults@2
