@@ -29,7 +29,7 @@ steps:
   displayName: Test 2.0
   inputs:
     command: "test"
-    projects: "test/**/*Tests.csproj"
+    projects: "test/**/*20.*Tests.csproj"
     arguments: "--configuration Release"
     
 - task: PublishTestResults@2
