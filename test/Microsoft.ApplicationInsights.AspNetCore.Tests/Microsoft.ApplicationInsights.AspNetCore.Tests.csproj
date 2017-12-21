@@ -53,6 +53,18 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Generator>SettingsSingleFileGenerator</Generator>
     </None>
+    <None Update="content\config-developer-mode.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="content\config-endpoint-address.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="content\config-instrumentation-key-new.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="content\config-instrumentation-key.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
