@@ -33,7 +33,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="$(OS) == 'Windows_NT'">
     <BondCodegen Include="..\..\Schema\PublicSchema\AvailabilityData.bond">
       <Link>StackFrame.bond</Link>
     </BondCodegen>
