@@ -24,12 +24,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
+    using System.IO;
 
 #if NET451 || NET46
     using ApplicationInsights.Extensibility.PerfCounterCollector;
     using ApplicationInsights.WindowsServer.TelemetryChannel;
-    using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using System.IO;
+    using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;    
 #endif
 
     public static class ApplicationInsightsExtensionsTests
