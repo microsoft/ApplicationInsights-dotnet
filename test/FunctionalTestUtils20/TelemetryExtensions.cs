@@ -48,7 +48,7 @@ namespace FunctionalTestUtils
                 .ToEnumerable()
                 .ToArray();
 
-            if (result.Length != count)
+            if (result.Length < count)
             {
                 throw new InvalidDataException("Incorrect number of items. Expected: " + count + " Received: " + result.Length);
             }
@@ -81,7 +81,7 @@ namespace FunctionalTestUtils
                 .ToEnumerable()
                 .ToArray();
 
-            if (result.Length != count)
+            if (result.Length < count)
             {
                 throw new InvalidDataException("Incorrect number of items. Expected: " + count + " Received: " + result.Length);
             }
