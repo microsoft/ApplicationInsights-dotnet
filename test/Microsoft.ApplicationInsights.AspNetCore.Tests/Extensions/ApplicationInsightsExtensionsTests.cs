@@ -29,6 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using ApplicationInsights.Extensibility.PerfCounterCollector;
     using ApplicationInsights.WindowsServer.TelemetryChannel;
     using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+    using System.IO;
 #endif
 
     public static class ApplicationInsightsExtensionsTests
@@ -584,7 +585,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             if (jsonPath != null)
             {
-                config = new ConfigurationBuilder().AddJsonFile(jsonPath).Build();
+                var builder = new ConfigurationBuilder();
+                builder.SetBasePath(Directory.GetCurrentDirectory());
+                config = builder.AddJsonFile(jsonPath).Build();
             }
             else  if (channelEndPointAddress != null)
             {
