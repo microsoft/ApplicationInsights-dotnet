@@ -39,7 +39,7 @@ steps:
   inputs:
     command: "test"
     projects: "test/**/*Tests.csproj"
-    arguments: "--configuration Release -l trx -filter Category!=WindowsOnly"
+    arguments: "--configuration Release -l trx --filter Category!=WindowsOnly"
     
     
 - task: PublishTestResults@2
