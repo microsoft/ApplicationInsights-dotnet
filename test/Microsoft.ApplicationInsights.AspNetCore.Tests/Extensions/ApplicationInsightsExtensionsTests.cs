@@ -584,10 +584,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             IConfigurationRoot config = null;
 
             if (jsonPath != null)
-            {
-                var builder = new ConfigurationBuilder();
-                builder.SetBasePath(Directory.GetCurrentDirectory());
-                config = builder.AddJsonFile(jsonPath).Build();
+            {                                
+                config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile(jsonPath).Build();
             }
             else  if (channelEndPointAddress != null)
             {
