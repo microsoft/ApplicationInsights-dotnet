@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
-    <DefineConstants>$(DefineConstants);CORE_PCL</DefineConstants>
+    <DefineConstants>$(DefineConstants);</DefineConstants>
     <Version>2.0.0</Version>
     <FileVersion>2.0.0.30671</FileVersion>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
@@ -9,13 +9,21 @@
     <AssemblyOriginatorKeyFile>35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign>true</PublicSign>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Net.Requests" Version="4.0.11" />
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1" />
-    <Compile Include="src\Core\Managed\Net40\Extensibility\Implementation\TelemetryConfigurationFactory.cs" />
-    <Compile Include="src\Core\Managed\PCL\Extensibility\Implementation\Platform\PlatformImplementation.cs" />
-    <Compile Include="src\Core\Managed\PCL\TimeSpanEx.cs" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
+    <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
+
+    <Compile Include="src\Core\Managed\Shared\**\*.cs" />
+    <Compile Include="src\Core\Managed\netstandard1.3\**\*.cs" Condition="'$(TargetFramework)' == 'netstandard1.3'" />
   </ItemGroup>
-  <Import Project="src\Core\Managed\Shared\Shared.projitems" />
 </Project>
