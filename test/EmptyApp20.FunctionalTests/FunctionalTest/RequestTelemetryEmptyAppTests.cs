@@ -60,7 +60,7 @@
                 var telemetries = server.Listener.ReceiveItems(6, TestListenerTimeoutInMs);
                 this.DebugTelemetryItems(telemetries);
 
-                Assert.True(telemetries.Length >= 6);
+                Assert.True(telemetries.Length >= 5);
 
                 Assert.Contains(telemetries.OfType<TelemetryItem<RemoteDependencyData>>(), 
                     t => ((TelemetryItem<RemoteDependencyData>)t).data.baseData.name == "GET /Mixed");
