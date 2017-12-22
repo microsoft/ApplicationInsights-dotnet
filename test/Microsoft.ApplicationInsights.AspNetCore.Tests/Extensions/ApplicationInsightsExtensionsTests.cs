@@ -108,6 +108,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// Tests that the instrumentation key configuration can be read from a JSON file by the configuration factory.
             /// </summary>
             [Fact]
+            [Trait("Category", "WindowsOnly")]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-instrumentation-key.json", null);
@@ -122,7 +123,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// This demonstrates that existing documentation for how to create a telemetry client and track custom events etc. works in ASP.NET 5
             /// when no ApplicationInsights.config file exists but a project.json file does exist which contains the instrumentation key.
             /// </summary>
+            /// 
             [Fact]
+            [Trait("Category", "WindowsOnly")]
             public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-instrumentation-key.json", null);
@@ -133,6 +136,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Fact]
+            [Trait("Category", "WindowsOnly")]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromConfiguration()
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-developer-mode.json", null);
@@ -143,6 +147,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Fact]
+            [Trait("Category", "WindowsOnly")]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration()
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-endpoint-address.json", null);
