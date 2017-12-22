@@ -588,7 +588,14 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), jsonPath);
                 Console.WriteLine("json:" + jsonFullPath);
                 Trace.WriteLine("json:" + jsonFullPath);
-                config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile(jsonFullPath).Build();
+                try
+                {
+                    config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile(jsonFullPath).Build();
+                }
+                catch(Exception ex)
+                {
+                    throw new Exception("Unable to build with json:" + jsonFullPath);
+                }
             }
             else  if (channelEndPointAddress != null)
             {
