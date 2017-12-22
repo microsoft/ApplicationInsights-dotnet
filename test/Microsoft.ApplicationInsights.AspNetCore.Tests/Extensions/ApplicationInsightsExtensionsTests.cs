@@ -586,6 +586,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             if (jsonPath != null)
             {
                 var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), jsonPath);
+                Console.WriteLine("json:" + jsonFullPath);
                 config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile(jsonFullPath).Build();
             }
             else  if (channelEndPointAddress != null)
