@@ -9,7 +9,6 @@ namespace Microsoft.ApplicationInsights.Metrics
     public class MetricSeriesConfigurationForMeasurement : IMetricSeriesConfiguration
     {
         private readonly bool _restrictToUInt32Values;
-        private readonly bool _autoCleanupUnusedSeries;
         private readonly int _hashCode;
 
         static MetricSeriesConfigurationForMeasurement()
@@ -21,23 +20,15 @@ namespace Microsoft.ApplicationInsights.Metrics
         }
 
         /// <summary />
-        /// <param name="autoCleanupUnusedSeries"></param>
         /// <param name="restrictToUInt32Values"></param>
-        public MetricSeriesConfigurationForMeasurement(bool autoCleanupUnusedSeries, bool restrictToUInt32Values)
+        public MetricSeriesConfigurationForMeasurement(bool restrictToUInt32Values)
         {
-            _autoCleanupUnusedSeries = autoCleanupUnusedSeries;
             _restrictToUInt32Values = restrictToUInt32Values;
 
-            _hashCode = Util.CombineHashCodes(
-                                           _autoCleanupUnusedSeries.GetHashCode(),
-                                           _restrictToUInt32Values.GetHashCode());
-        }
-
-        /// <summary />
-        public bool AutoCleanupUnusedSeries
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return _autoCleanupUnusedSeries; }
+            unchecked
+            {
+                _hashCode = (((17 * 23) + _restrictToUInt32Values.GetHashCode()) * 23);
+            }
         }
 
         /// <summary />

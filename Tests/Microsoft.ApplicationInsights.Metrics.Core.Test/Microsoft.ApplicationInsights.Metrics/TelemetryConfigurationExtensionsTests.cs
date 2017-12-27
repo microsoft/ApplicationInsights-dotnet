@@ -96,7 +96,7 @@ namespace SomeCustomerNamespace
             //CollectingTelemetryInitializer telemetryCollector = new CollectingTelemetryInitializer();
             //defaultTelemetryPipeline.TelemetryInitializers.Add(coll);
 
-            IMetricSeriesConfiguration seriesConfig = new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false);
+            IMetricSeriesConfiguration seriesConfig = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
 
             manager1.CreateNewSeries("Metric A", seriesConfig).TrackValue(42);
             manager1.CreateNewSeries("Metric A", seriesConfig).TrackValue("18");

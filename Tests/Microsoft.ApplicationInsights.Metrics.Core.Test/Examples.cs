@@ -415,7 +415,7 @@ namespace User.Namespace.Example03
                                                         new SimpleMetricConfiguration(
                                                                     seriesCountLimit:           1000,
                                                                     valuesPerDimensionLimit:    100,
-                                                                    seriesConfig:               new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false)));
+                                                                    seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false)));
 
             // seriesCountLimit is the max total number of series the metric can contain before TryTrackValue(..) and TryGetDataSeries(..) stop
             // creating new data series and start returning false.
@@ -513,12 +513,12 @@ namespace User.Namespace.Example04
             MetricSeries purpleCowsSold = metrics.CreateNewSeries(
                                              "Animals Sold",
                                              new Dictionary<string, string>() { ["Species"] = "Cows", ["Color"] = "Purple" },
-                                             new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false));
+                                             new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             MetricSeries yellowHorsesSold = metrics.CreateNewSeries(
                                              "Animals Sold",
                                              new[] { new KeyValuePair<string, string>("Species", "Horses"), new KeyValuePair<string, string>("Color", "Yellow") },
-                                             new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false));
+                                             new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             purpleCowsSold.TrackValue(42);
             yellowHorsesSold.TrackValue(132);

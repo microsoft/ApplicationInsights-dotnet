@@ -1,7 +1,6 @@
 ﻿using System;
 
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using Microsoft.ApplicationInsights.Metrics.Extensions;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -29,7 +28,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             Justification = "Needed for internal verification.")]
     public class MetricSeriesConfigurationForNaiveDistinctCount : IMetricSeriesConfiguration
     {
-        private readonly bool _autoCleanupUnusedSeries;
         private readonly bool _usePersistentAggregation;
         private readonly bool _caseSensitive;
         private readonly int _hashCode;
@@ -45,43 +43,32 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// </summary>
         /// <param name="usePersistentAggregation"></param>
-        /// <param name="autoCleanupUnusedSeries"></param>
-        public MetricSeriesConfigurationForNaiveDistinctCount(bool usePersistentAggregation, bool autoCleanupUnusedSeries)
-            : this(usePersistentAggregation, autoCleanupUnusedSeries, caseSensitiveDistinctions: true)
+        public MetricSeriesConfigurationForNaiveDistinctCount(bool usePersistentAggregation)
+            : this(usePersistentAggregation, caseSensitiveDistinctions: true)
         {
         }
 
         /// <summary>
         /// </summary>
         /// <param name="usePersistentAggregation"></param>
-        /// <param name="autoCleanupUnusedSeries"></param>
         /// <param name="caseSensitiveDistinctions"></param>
-        public MetricSeriesConfigurationForNaiveDistinctCount(bool usePersistentAggregation, bool autoCleanupUnusedSeries, bool caseSensitiveDistinctions)
+        public MetricSeriesConfigurationForNaiveDistinctCount(bool usePersistentAggregation, bool caseSensitiveDistinctions)
         {
-            if (usePersistentAggregation && autoCleanupUnusedSeries)
-            {
-                throw new ArgumentException($"{nameof(autoCleanupUnusedSeries)} may not be True if {nameof(usePersistentAggregation)} is True,"
-                                          + $" becasue persistent aggregation which prevents {nameof(autoCleanupUnusedSeries)} from taking effect."
-                                           + " Set at lease one of these two options to False.");
-            }
-
-            _autoCleanupUnusedSeries = autoCleanupUnusedSeries;
             _usePersistentAggregation = usePersistentAggregation;
             _caseSensitive = caseSensitiveDistinctions;
 
-            _hashCode = Util.CombineHashCodes(
-                                            _autoCleanupUnusedSeries.GetHashCode(),
-                                            _usePersistentAggregation.GetHashCode(),
-                                            _caseSensitive.GetHashCode());
+            unchecked
+            {
+                _hashCode = ((17 * 23) + (_usePersistentAggregation.GetHashCode() * 23) + _caseSensitive.GetHashCode());
+            }
         }
 
-        /// <summary />
-        public bool AutoCleanupUnusedSeries { get { return _autoCleanupUnusedSeries; } }
-
-        /// <summary />
+        /// <summary>
+        /// </summary>
         public bool RequiresPersistentAggregation { get { return _usePersistentAggregation; } }
 
-        /// <summary />
+        /// <summary>
+        /// </summary>
         public bool IsCaseSensitiveDistinctions { get { return _caseSensitive; } }
 
         /// <summary>

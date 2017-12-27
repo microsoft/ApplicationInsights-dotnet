@@ -254,28 +254,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        public static int CombineHashCodes(int hash1, int hash2)
-        {
-            int hash = 17;
-            {
-                hash = hash * 23 + hash1;
-                hash = hash * 23 + hash2;
-            }
-            return hash;
-        }
-
-        public static int CombineHashCodes(int hash1, int hash2, int hash3, int hash4)
-        {
-            int hash = 17;
-            {
-                hash = hash * 23 + hash1;
-                hash = hash * 23 + hash2;
-                hash = hash * 23 + hash3;
-                hash = hash * 23 + hash4;
-            }
-            return hash;
-        }
-
         /// <summary>
         /// We are working on adding a publically exposed method to a future version of the Core SDK so that the reflection employed here is not necesary.
         /// </summary>

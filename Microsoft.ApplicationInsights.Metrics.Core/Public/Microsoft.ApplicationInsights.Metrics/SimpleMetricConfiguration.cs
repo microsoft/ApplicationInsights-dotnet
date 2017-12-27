@@ -37,11 +37,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             SeriesConfig = seriesConfig;
 
-            _hashCode = Util.CombineHashCodes(
-                                            seriesCountLimit.GetHashCode(),
-                                            valuesPerDimensionLimit.GetHashCode(),
-                                            seriesConfig.GetType().FullName.GetHashCode(),
-                                            seriesConfig.GetHashCode());
+            _hashCode = ComputeHashCode();
         }
 
         /// <summary />
@@ -103,6 +99,19 @@ namespace Microsoft.ApplicationInsights.Metrics
         public override int GetHashCode()
         {
             return _hashCode;
+        }
+
+        private int ComputeHashCode()
+        {
+            unchecked
+            {
+                int hash = 17;
+                hash = (hash * 23) + SeriesCountLimit.GetHashCode();
+                hash = (hash * 23) + ValuesPerDimensionLimit.GetHashCode();
+                hash = (hash * 23) + SeriesConfig.GetType().FullName.GetHashCode();
+                hash = (hash * 23) + SeriesConfig.GetHashCode();
+                return hash;
+            }
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Microsoft.ApplicationInsights
         private static SimpleMetricConfiguration s_defaultConfigForMeasurement = new SimpleMetricConfiguration(
                                                         DefaultSeriesCountLimit,
                                                         DefaultaluesPerDimensionLimit,
-                                                        new MetricSeriesConfigurationForMeasurement(autoCleanupUnusedSeries: false, restrictToUInt32Values: false));
+                                                        new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
         /// <summary>
         /// <para>Use to measure attributes and/or counts of items. Also, use to measure attributes and/or rates of events.<br />

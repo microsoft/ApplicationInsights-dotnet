@@ -2,7 +2,6 @@
 using System.Runtime.CompilerServices;
 
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
-using Microsoft.ApplicationInsights.Metrics.Extensions;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -28,14 +27,10 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             _restrictToUInt32Values = restrictToUInt32Values;
 
-            _hashCode = Util.CombineHashCodes(1, _restrictToUInt32Values.GetHashCode());
-        }
-
-        /// <summary />
-        public bool AutoCleanupUnusedSeries
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return false; }
+            unchecked
+            {
+                _hashCode = (((17 * 23) + _restrictToUInt32Values.GetHashCode()) * 23);
+            }
         }
 
         /// <summary />
