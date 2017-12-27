@@ -58,19 +58,28 @@
         public IEnumerable<string> DeleteItems(
             string instrumentationKey)
         {
-
-            var deletedItems = new List<string>();
-            List<string> items;
-            if (itemsDictionary.TryGetValue(instrumentationKey, out items))
+            try
             {
-                foreach (var item in items)
+                var deletedItems = new List<string>();
+                List<string> items;
+                if (itemsDictionary.TryGetValue(instrumentationKey, out items))
                 {
-                    deletedItems.Add(item.ToString().Substring(76, 124));
+                    foreach (var item in items)
+                    {
+                        deletedItems.Add(item.ToString().Substring(76, 124));
+                    }
+                    items.Clear();
                 }
-                items.Clear();
-            }
 
-            return deletedItems;
+                return deletedItems;
+            }
+            catch(Exception ex)
+            {
+                var errors = new List<string>();
+                errors.Add(ex.Message);
+                errors.Add(ex.ToString());
+                return errors;
+            }
         }
     }
 }

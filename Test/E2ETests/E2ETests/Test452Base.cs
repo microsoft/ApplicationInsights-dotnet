@@ -1200,6 +1200,7 @@ namespace E2ETests
             Trace.WriteLine("Deleting items started:" + DateTime.UtcNow.ToLongTimeString());            
             foreach(var app in Apps)
             {
+                Trace.WriteLine("Deleting items for ikey:" + app.Value.ikey);
                 dataendpointClient.DeleteItems(app.Value.ikey);
             }            
             Trace.WriteLine("Deleting items completed:" + DateTime.UtcNow.ToLongTimeString());

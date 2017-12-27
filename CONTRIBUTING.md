@@ -42,8 +42,9 @@ For Web and PerformanceCollector tests IIS Express should be installed.
 For Dependency Collector, you need to install Docker for windows as these tests need several additional dependencies to be deployed like SQL Server, Azure Emulator etc, and these are deployed as Docker containers. 
 		Docker for Windows (https://docs.docker.com/docker-for-windows/install/). 		
 		After installation switch Docker engine to Windows Containers.(https://blogs.msdn.microsoft.com/webdev/2017/09/07/getting-started-with-windows-containers/)
+		And finally, make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready.
 
-After you've done this, execute the ```runFunctionalTests.cmd``` script in the repository root. You can also run and debug the functional tests from Visual Studio by opening the respective solutions under the Test directory in the repository root.
+After you've done this, execute the ```runFunctionalTests.cmd``` script in the repository root. You can also run and debug the functional tests from Visual Studio by opening the respective solutions under the Test directory in the repository root. For DependencyCollectionTests, all Docker images are downloaded from web when ran for first time and this could take several minutes.
 
 The following solutions contains the functional tests for various features.
 
@@ -54,6 +55,8 @@ The following solutions contains the functional tests for various features.
 "\Test\E2ETests\DependencyCollectionTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.DependencyCollector
 
 ## Known issues/workarounds with running functional tests.
+
+If any tests fail, please retry first to see if it helps. If not, try one of the known issues below. 
 
 Web and PerformanceCollector fails with error related to 'Port conflicts' - its possible that some prior tests has not released ports. 
 	Workaround - Kill all running IISExpress processes and re-run tests.
@@ -66,6 +69,8 @@ Alternate workaround if you have previously run the tests successfully atleast o
 
 The test code intentionally does not clean up the containers it spun up. This is to enable fast re-runs of the tests. If the WebApp code is changed, then Docker-Compose will detect it, and re-build the container.
 If you want to do clean up all the containers created by the test, execute the ```dockercleanup.ps1``` from repository root. This is typically required if tests were aborted in the middle of a run for some reason.
+
+If none of the above helps, please open an issue in Github describing the problem.
 
 ## Debugging the functional tests.
 It is important to note that since the test application is deployed as a separate process/container, debugging the tests itself will not help debug the application code. A debugger need to be attached
