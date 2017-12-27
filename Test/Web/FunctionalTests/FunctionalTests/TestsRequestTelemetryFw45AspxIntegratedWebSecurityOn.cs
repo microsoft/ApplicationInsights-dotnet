@@ -9,6 +9,7 @@ namespace Functional
 {
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Net;
 
     using Helpers;
@@ -96,9 +97,9 @@ namespace Functional
 
             //// Validating telemetry results
             const int TimeToListenToEvents = 15000;
-            var items = Listener.ReceiveAllItemsDuringTime(TimeToListenToEvents);
+            var items = Listener.ReceiveAllItemsDuringTime(TimeToListenToEvents).Where(i => i is AI.TelemetryItem<AI.RequestData>);
 
-            Assert.AreEqual(1, items.Length, "Unexpected count of events received: expected 1 request");
+            Assert.AreEqual(1, items.Count(), "Unexpected count of request events received: expected 1 request");
         }
     }
 }
