@@ -177,6 +177,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         protected abstract TBufferedValue ConvertMetricValue(object metricValue);
 
         /// <summary>
+        /// Aggregators implement updating aggregate state from buffer by implemenmting this method (<c>UpdateAggregate_Stage1</c>)
+        /// and its sibling method <c>UpdateAggregate_Stage2</c>. Stage 1 is the part of the update that needs to happen while holding
+        /// a lock on the <c>metric values buffer</c> (e.g. extracting a summary from the buffer). Stage 2 is the part of the update
+        /// that does not need such a lock.
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="minFlushIndex"></param>
@@ -185,6 +189,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         protected abstract object UpdateAggregate_Stage1(MetricValuesBufferBase<TBufferedValue> buffer, int minFlushIndex, int maxFlushIndex);
 
         /// <summary>
+        /// Aggregators implement updating aggregate state from buffer by implemenmting this method (<c>UpdateAggregate_Stage2</c>)
+        /// and its sibling method <c>UpdateAggregate_Stage1</c>. Stage 1 is the part of the update that needs to happen while holding
+        /// a lock on the <c>metric values buffer</c> (e.g. extracting a summary from the buffer). Stage 2 is the part of the update
+        /// that does not need such a lock.
         /// </summary>
         /// <param name="stage1Result"></param>
         protected abstract void UpdateAggregate_Stage2(object stage1Result);
@@ -378,7 +386,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
             object stage1Result;
 
-            // This lock is only contended is a user called CreateAggregateUnsafe or CompleteAggregation.
+            // This lock is only contended if a user called CreateAggregateUnsafe or CompleteAggregation.
             // This is very unlikely to be the case in a tight loop.
             lock (buffer)
             {

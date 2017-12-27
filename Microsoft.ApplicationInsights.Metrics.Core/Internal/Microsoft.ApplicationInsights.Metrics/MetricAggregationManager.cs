@@ -143,7 +143,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             if (aggregators == _aggregatorsForPersistent)
             {
-                throw new InvalidOperationException("Invernal SDK bug. Please report. Cannot cycle persistent aggregators.");
+                throw new InvalidOperationException("Internal SDK bug. Please report. Cannot cycle persistent aggregators.");
             }
 
             tactTimestamp = Util.RoundDownToSecond(tactTimestamp);
@@ -160,7 +160,10 @@ namespace Microsoft.ApplicationInsights.Metrics
                 prevAggregators = Interlocked.Exchange(ref aggregators, nextAggregators);
             }
 
+            // Get persistent aggregations. We do this for any cycle kind, i.e. for whatever the aggregators collection was:
             List<MetricAggregate> persistentValsAggregations = GetPersistentAggregations(tactTimestamp, prevAggregators?.Filter);
+
+            // Get non-persistent aggregations:
             List<MetricAggregate> nonpersistentAggregations = GetNonpersistentAggregations(tactTimestamp, prevAggregators);
 
             var summary = new AggregationPeriodSummary(persistentValsAggregations, nonpersistentAggregations);

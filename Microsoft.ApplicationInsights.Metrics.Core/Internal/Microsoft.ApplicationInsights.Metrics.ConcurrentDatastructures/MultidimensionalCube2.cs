@@ -296,8 +296,9 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
         private MultidimensionalPointResult<TPoint> TryCreatePoint(string[] coordinates, string pointMoniker)
         {
 #pragma warning disable SA1509 // Opening braces must not be preceded by blank line
+
             // We already have tried getting the existng point and failed.
-            // We also checked that _totalPointsCountLimit was not reached.
+            // We also checked that _totalPointsCountLimit was not reached (outside the lock).
             // Lastly, we took a lock.
             // Now we can begin the slow path.
 
@@ -379,7 +380,9 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
                 bool added = _points.TryAdd(pointMoniker, point);
                 if (false == added)
                 {
-                    throw new InvalidOperationException($"Internal Metrics SDK bug. Please report this! (pointMoniker: {pointMoniker})");
+                    throw new InvalidOperationException($"Internal SDK bug. Please report this! (pointMoniker: {pointMoniker})"
+                                                      + $" Info: Failed to add a point to the {nameof(_points)}-collection in"
+                                                      + $" class {nameof(MultidimensionalCube2<TPoint>)} despite passing all the cerfification checks.");
                 }
             }
 
