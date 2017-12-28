@@ -29,7 +29,8 @@
     {
         private const string IKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
         private const string FakeProfileApiEndpoint = "https://dc.services.visualstudio.com/v2/track";
-        private const string LocalhostUrl = "http://localhost:8088/";
+        private const string LocalhostUrlDiagSource = "http://localhost:8088/";
+        private const string LocalhostUrlEventSource = "http://localhost:8089/";
 
         private StubTelemetryChannel channel;
         private TelemetryConfiguration config;
@@ -38,6 +39,7 @@
         [TestInitialize]
         public void Initialize()
         {
+            ServicePointManager.DefaultConnectionLimit = 1000;
             this.sentTelemetry = new List<DependencyTelemetry>();
 
             this.channel = new StubTelemetryChannel
@@ -73,13 +75,21 @@
             }
 
             DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
+            GC.Collect();
         }
 
         [TestMethod]
         [Timeout(5000)]
         public void TestBasicDependencyCollectionDiagnosticSource()
         {
-            this.TestCollectionSuccessfulResponse(true, new Uri(LocalhostUrl), 200);
+            this.TestCollectionSuccessfulResponse(true, LocalhostUrlDiagSource, 200);
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task TestZeroContentResponseDiagnosticSource()
+        {
+            await this.TestCollectionHttpClientSucessfulResponse(LocalhostUrlDiagSource, 200, 0);
         }
 
         [TestMethod]
@@ -87,7 +97,7 @@
         public void TestDependencyCollectionDiagnosticSourceWithParentActivity()
         {
             var parent = new Activity("parent").AddBaggage("k", "v").SetParentId("|guid.").Start();
-            this.TestCollectionSuccessfulResponse(true, new Uri(LocalhostUrl), 200);
+            this.TestCollectionSuccessfulResponse(true, LocalhostUrlDiagSource, 200);
             parent.Stop();
         }
 
@@ -96,7 +106,7 @@
         public void TestDependencyCollectionEventSourceWithParentActivity()
         {
             var parent = new Activity("parent").AddBaggage("k", "v").SetParentId("|guid.").Start();
-            this.TestCollectionSuccessfulResponse(false, new Uri(LocalhostUrl), 200);
+            this.TestCollectionSuccessfulResponse(false, LocalhostUrlEventSource, 200);
             parent.Stop();
         }
 
@@ -104,36 +114,32 @@
         [Timeout(5000)]
         public void TestBasicDependencyCollectionEventSource()
         {
-            this.TestCollectionSuccessfulResponse(false, new Uri(LocalhostUrl), 200);
+            this.TestCollectionSuccessfulResponse(false, LocalhostUrlEventSource, 200);
         }
 
         [TestMethod]
         [Timeout(5000)]
         public void TestDependencyCollectionEventSourceNonSuccessStatusCode()
         {
-            this.TestCollectionSuccessfulResponse(false, new Uri(LocalhostUrl), 404);
+            this.TestCollectionSuccessfulResponse(false, LocalhostUrlEventSource, 404);
         }
 
         [TestMethod]
         [Timeout(5000)]
         public void TestDependencyCollectionDiagnosticSourceNonSuccessStatusCode()
         {
-            this.TestCollectionSuccessfulResponse(true, new Uri(LocalhostUrl), 404);
+            this.TestCollectionSuccessfulResponse(true, LocalhostUrlDiagSource, 404);
         }
 
         [TestMethod]
         [Timeout(5000)]
         public void TestNoDependencyCollectionDiagnosticSourceNoResponseClose()
         {
-            using (var module = new DependencyTrackingTelemetryModule())
+            using (this.CreateDependencyTrackingModule(true))
             {
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
+                HttpWebRequest request = WebRequest.CreateHttp(LocalhostUrlDiagSource);
 
-                var url = new Uri(LocalhostUrl);
-                HttpWebRequest request = WebRequest.CreateHttp(url);
-
-                using (new LocalServer(LocalhostUrl))
+                using (new LocalServer(LocalhostUrlDiagSource))
                 {
                     request.GetResponse();
                 }
@@ -146,6 +152,35 @@
                 Assert.IsNotNull(rootId);
                 Assert.AreEqual(requestId, request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
                 Assert.IsTrue(requestId.StartsWith('|' + rootId + '.'));
+            }
+        }
+
+        // https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/769
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestNoDependencyCollectionDiagnosticSourceInitializedAfterEndpointCached()
+        {
+            // first time call endpoint before Dependency Collector initialization
+            // Use event source Url to make sure endpoint was not hooked by prev tests
+            HttpWebRequest request1 = WebRequest.CreateHttp(LocalhostUrlEventSource);
+            using (new LocalServer(LocalhostUrlEventSource))
+            {
+                request1.GetResponse().Dispose();
+            }
+
+            // initialize dependency collector
+            using (this.CreateDependencyTrackingModule(true))
+            {
+                HttpWebRequest request2 = WebRequest.CreateHttp(LocalhostUrlEventSource);
+
+                using (new LocalServer(LocalhostUrlEventSource))
+                {
+                    request2.GetResponse().Dispose();
+                }
+
+                // HttpDesktopDiagnosticListener may not collect dependencies if endpoint was recently called before 
+                // dependency collection was initialized
+                Assert.Inconclusive("At this point dependency may or may not be collected");
             }
         }
 
@@ -167,14 +202,14 @@
         [Timeout(5000)]
         public async Task TestDependencyCollectionCanceledRequestDiagnosticSource()
         {
-            await this.TestCollectionCanceledRequest(true);
+            await this.TestCollectionCanceledRequest(true, LocalhostUrlDiagSource);
         }
 
         [TestMethod]
         [Timeout(5000)]
         public async Task TestDependencyCollectionCanceledRequestEventSource()
         {
-            await this.TestCollectionCanceledRequest(false);
+            await this.TestCollectionCanceledRequest(false, LocalhostUrlEventSource);
         }
 
         [TestMethod]
@@ -206,58 +241,58 @@
         [Timeout(5000)]
         public void TestDependencyCollectorPostRequestsAreCollectedDiagnosticSource()
         {
-            this.TestCollectionPostRequests(true);
+            this.TestCollectionPostRequests(true, LocalhostUrlDiagSource);
         }
 
         [TestMethod]
-        [Timeout(500000)]
+        [Timeout(5000)]
         public void TestDependencyCollectorPostRequestsAreCollectedEventSource()
         {
-            this.TestCollectionPostRequests(false);
+            this.TestCollectionPostRequests(false, LocalhostUrlEventSource);
         }
 
         [TestMethod]
         [Timeout(5000)]
         public void TestHttpRequestsWithQueryStringAreCollectedDiagnosticSource()
         {
-            this.TestCollectionSuccessfulResponse(true, new Uri(LocalhostUrl + "123?q=123"), 200);
+            this.TestCollectionSuccessfulResponse(true, LocalhostUrlDiagSource + "123?q=123", 200);
         }
 
         [TestMethod]
         [Timeout(5000)]
         public void TestHttpRequestsWithQueryStringAreCollectedEventSource()
         {
-            this.TestCollectionSuccessfulResponse(false, new Uri(LocalhostUrl + "123?q=123"), 200);
+            this.TestCollectionSuccessfulResponse(false, LocalhostUrlEventSource + "123?q=123", 200);
         }
 
         [TestMethod]
         [Timeout(5000)]
         public void TestDependencyCollectionDiagnosticSourceRedirect()
         {
-            this.TestCollectionResponseWithRedirects(true);
+            this.TestCollectionResponseWithRedirects(true, LocalhostUrlDiagSource);
         }
 
         [TestMethod]
         [Timeout(5000)]
         public void TestDependencyCollectionEventSourceRedirect()
         {
-            this.TestCollectionResponseWithRedirects(false);
+            this.TestCollectionResponseWithRedirects(false, LocalhostUrlEventSource);
         }
 
-        private void TestCollectionPostRequests(bool enableDiagnosticSource)
+        private void TestCollectionPostRequests(bool enableDiagnosticSource, string url)
         {
             using (this.CreateDependencyTrackingModule(enableDiagnosticSource))
             {
-                var url = new Uri(LocalhostUrl);
                 HttpWebRequest request = WebRequest.CreateHttp(url);
                 request.Method = "POST";
                 request.ContentLength = 1;
 
-                using (new LocalServer(LocalhostUrl))
+                using (new LocalServer(url))
                 {
                     using (var stream = request.GetRequestStream())
                     {
                         stream.Write(new byte[1], 0, 1);
+                        stream.Close();
                     }
 
                     using (request.GetResponse())
@@ -265,15 +300,14 @@
                     }
                 }
 
-                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), url, request, true, "200");
+                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), new Uri(url), request, true, "200");
             }
         }
 
-        private void TestCollectionResponseWithRedirects(bool enableDiagnosticSource)
+        private void TestCollectionResponseWithRedirects(bool enableDiagnosticSource, string url)
         {
             using (this.CreateDependencyTrackingModule(enableDiagnosticSource))
             {
-                var url = new Uri(LocalhostUrl);
                 HttpWebRequest request = WebRequest.CreateHttp(url);
 
                 int count = 0;
@@ -282,7 +316,7 @@
                     if (count == 0)
                     {
                         context.Response.StatusCode = 302;
-                        context.Response.RedirectLocation = LocalhostUrl;
+                        context.Response.RedirectLocation = url;
                     }
                     else
                     {
@@ -292,25 +326,25 @@
                     count++;
                 };
 
-                using (new LocalServer(LocalhostUrl, onRequest))
+                using (new LocalServer(url, onRequest))
                 {
                     using (request.GetResponse())
                     {
                     }
                 }
 
-                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), url, request, true, "200");
+                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), new Uri(url), request, true, "200");
             }
         }
 
-        private void TestCollectionSuccessfulResponse(bool enableDiagnosticSource, Uri url, int statusCode)
+        private void TestCollectionSuccessfulResponse(bool enableDiagnosticSource, string url, int statusCode)
         {
             using (this.CreateDependencyTrackingModule(enableDiagnosticSource))
             {
                 HttpWebRequest request = WebRequest.CreateHttp(url);
 
                 using (new LocalServer(
-                    LocalhostUrl,
+                    new Uri(url).GetLeftPart(UriPartial.Authority) + "/",
                     ctx =>
                     {
                         if (!enableDiagnosticSource && statusCode != 200)
@@ -337,20 +371,49 @@
                     }
                 }
 
-                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), url, request, statusCode >= 200 && statusCode < 300, statusCode.ToString(CultureInfo.InvariantCulture));
+                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), new Uri(url), request, statusCode >= 200 && statusCode < 300, statusCode.ToString(CultureInfo.InvariantCulture));
             }
         }
 
-        private async Task TestCollectionCanceledRequest(bool enableDiagnosticSource)
+        private async Task TestCollectionHttpClientSucessfulResponse(string url, int statusCode, int contentLength)
+        {
+            using (this.CreateDependencyTrackingModule(true))
+            {
+                using (HttpClient client = new HttpClient())
+                using (new LocalServer(
+                    url, 
+                    context =>
+                    {
+                        context.Response.ContentLength64 = contentLength;
+                        context.Response.StatusCode = statusCode;
+                    }))
+                {
+                    try
+                    {
+                        using (HttpResponseMessage response = await client.GetAsync(url))
+                        {
+                            Assert.AreEqual(0, response.Content.Headers.ContentLength);
+                        }
+                    }
+                    catch (WebException)
+                    {
+                        // ignore and let ValidateTelemetry method check status code
+                    }
+                }
+
+                this.ValidateTelemetry(true, this.sentTelemetry.Single(), new Uri(url), null, statusCode >= 200 && statusCode < 300, statusCode.ToString(CultureInfo.InvariantCulture));
+            }
+        }
+
+        private async Task TestCollectionCanceledRequest(bool enableDiagnosticSource, string url)
         {
             using (this.CreateDependencyTrackingModule(enableDiagnosticSource))
             {
                 CancellationTokenSource cts = new CancellationTokenSource();
                 HttpClient httpClient = new HttpClient();
 
-                var url = new Uri(LocalhostUrl);
                 using (new LocalServer(
-                    LocalhostUrl,
+                    url,
                     ctx =>
                     {
                         if (!enableDiagnosticSource)
@@ -368,7 +431,7 @@
                     await httpClient.GetAsync(url, cts.Token).ContinueWith(t => { });
                 }
 
-                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), url, null, false, string.Empty);
+                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), new Uri(url), null, false, string.Empty);
             }
         }
 
@@ -532,6 +595,7 @@
                                 context.Response.StatusCode = 200;
                             }
 
+                            context.Response.OutputStream.Close();
                             context.Response.Close();
                         }
                     },
@@ -541,7 +605,9 @@
             public void Dispose()
             {
                 this.cts.Cancel(false);
-                this.listener.Stop();
+                this.listener.Abort();
+                ((IDisposable)this.listener).Dispose();
+                this.cts.Dispose();
             }
         }
     }

@@ -16,6 +16,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private readonly PropertyFetcher requestFetcherRequestEvent;
         private readonly PropertyFetcher requestFetcherResponseEvent;
         private readonly PropertyFetcher responseFetcher;
+        private readonly PropertyFetcher responseStatusFetcher;
+        private readonly PropertyFetcher responseHeadersFetcher;
+
         private bool disposed = false;
 
         internal HttpDesktopDiagnosticSourceListener(DesktopDiagnosticSourceHttpProcessing httpProcessing, ApplicationInsightsUrlFilter applicationInsightsUrlFilter)
@@ -25,6 +28,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.requestFetcherRequestEvent = new PropertyFetcher("Request");
             this.requestFetcherResponseEvent = new PropertyFetcher("Request");
             this.responseFetcher = new PropertyFetcher("Response");
+            this.responseStatusFetcher = new PropertyFetcher("StatusCode");
+            this.responseHeadersFetcher = new PropertyFetcher("Headers");
         }
 
         /// <summary>
@@ -58,28 +63,24 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         break;
                     }
 
-                    // remove "System.Net.Http.Request" in 2.5.0 (but keep the same code for "System.Net.Http.Desktop.HttpRequestOut.Start")
-                    // event was temporarily introduced in DiagnosticSource and removed before stable release
-                    case "System.Net.Http.Request": 
+                    case "System.Net.Http.Desktop.HttpRequestOut.Stop":
                     {
                         // request is never null
-                        var request = (HttpWebRequest)this.requestFetcherRequestEvent.Fetch(value.Value);
-                        DependencyCollectorEventSource.Log.HttpDesktopBeginCallbackCalled(ClientServerDependencyTracker.GetIdForRequestObject(request), request.RequestUri.ToString());
-                        this.httpDesktopProcessing.OnBegin(request);
+                        var request = this.requestFetcherResponseEvent.Fetch(value.Value);
+                        DependencyCollectorEventSource.Log.HttpDesktopEndCallbackCalled(ClientServerDependencyTracker.GetIdForRequestObject(request));
+                        var response = this.responseFetcher.Fetch(value.Value);
+                        this.httpDesktopProcessing.OnEndResponse(request, response);
                         break;
                     }
 
-                    case "System.Net.Http.Desktop.HttpRequestOut.Stop":
-
-                    // remove "System.Net.Http.Response" in 2.5.0 (but keep the same code for "System.Net.Http.Desktop.HttpRequestOut.Stop")
-                    // event was temporarily introduced in DiagnosticSource and removed before stable release
-                    case "System.Net.Http.Response": 
+                    case "System.Net.Http.Desktop.HttpRequestOut.Ex.Stop":
                     {
                         // request is never null
-                        var request = (HttpWebRequest)this.requestFetcherResponseEvent.Fetch(value.Value);
+                        var request = this.requestFetcherResponseEvent.Fetch(value.Value);
                         DependencyCollectorEventSource.Log.HttpDesktopEndCallbackCalled(ClientServerDependencyTracker.GetIdForRequestObject(request));
-                        var response = (HttpWebResponse)this.responseFetcher.Fetch(value.Value);
-                        this.httpDesktopProcessing.OnEnd(null, request, response);
+                        object statusCode = this.responseStatusFetcher.Fetch(value.Value);
+                        object headers = this.responseHeadersFetcher.Fetch(value.Value);
+                        this.httpDesktopProcessing.OnEndResponse(request, statusCode, headers);
                         break;
                     }
 

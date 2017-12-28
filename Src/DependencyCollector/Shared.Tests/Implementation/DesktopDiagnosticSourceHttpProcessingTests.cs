@@ -67,7 +67,7 @@ namespace Microsoft.ApplicationInsights.Tests
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
             var response = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK);
-            this.httpDesktopProcessingFramework.OnEnd(null, request, response);
+            this.httpDesktopProcessingFramework.OnEndResponse(request, response);
             stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
@@ -110,12 +110,12 @@ namespace Microsoft.ApplicationInsights.Tests
             this.httpDesktopProcessingFramework.OnBegin(request);  
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
-            this.httpDesktopProcessingFramework.OnEnd(null, request, redirectResponse);
+            this.httpDesktopProcessingFramework.OnEndResponse(request, redirectResponse);
             stopwatch.Stop();
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
 
-            this.httpDesktopProcessingFramework.OnEnd(null, request, redirectResponse);
-            this.httpDesktopProcessingFramework.OnEnd(null, request, successResponse);
+            this.httpDesktopProcessingFramework.OnEndResponse(request, redirectResponse);
+            this.httpDesktopProcessingFramework.OnEndResponse(request, successResponse);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacketForOnRequestSend(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, stopwatch.Elapsed.TotalMilliseconds, "302");
@@ -142,7 +142,7 @@ namespace Microsoft.ApplicationInsights.Tests
             var response = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK, headers);
 
             this.httpDesktopProcessingFramework.OnBegin(request);
-            this.httpDesktopProcessingFramework.OnEnd(null, request, response);
+            this.httpDesktopProcessingFramework.OnEndResponse(request, response);
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             Assert.AreEqual(this.testUrl.Host + " | " + this.GetCorrelationIdValue(appId), ((DependencyTelemetry)this.sendItems[0]).Target);
         }
