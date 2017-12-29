@@ -57,7 +57,7 @@
             {
                 this.ExecuteRequest(server.BaseHost + "/Mixed");
 
-                var telemetries = server.Listener.ReceiveItems(6, TestListenerTimeoutInMs);
+                var telemetries = server.Listener.ReceiveItems(TestListenerTimeoutInMs);
                 this.DebugTelemetryItems(telemetries);
 
                 Assert.True(telemetries.Length >= 5);
