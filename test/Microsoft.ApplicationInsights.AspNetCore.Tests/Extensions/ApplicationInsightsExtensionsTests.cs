@@ -106,9 +106,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             /// <summary>
             /// Tests that the instrumentation key configuration can be read from a JSON file by the configuration factory.
+            /// Currently set to windows only
             /// </summary>
             [Fact]
-            [Trait("Category", "WindowsOnly")]
+            
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-instrumentation-key.json", null);
@@ -125,7 +126,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// </summary>
             /// 
             [Fact]
-            [Trait("Category", "WindowsOnly")]
+            
             public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-instrumentation-key.json", null);
@@ -136,7 +137,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Fact]
-            [Trait("Category", "WindowsOnly")]
+            
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromConfiguration()
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-developer-mode.json", null);
@@ -147,7 +148,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Fact]
-            [Trait("Category", "WindowsOnly")]
+            
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration()
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-endpoint-address.json", null);
