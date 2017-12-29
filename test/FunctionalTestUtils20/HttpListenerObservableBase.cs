@@ -58,7 +58,7 @@
         {
             if (listener != null && listener.IsListening)
             {
-                //listener.Stop();
+                listener.Stop();
                 listener.Close();
                 this.stream = null;
             }
