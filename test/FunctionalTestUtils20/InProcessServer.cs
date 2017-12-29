@@ -38,7 +38,7 @@
         {
             this.output = output;
 
-            //var machineName = Environment.GetEnvironmentVariable("COMPUTERNAME");
+            // localhost instead of machine name, as its not possible to get machine name when running non windows.
             var machineName = "localhost";
             this.url = "http://" + machineName + ":" + random.Next(5000, 14000).ToString();
 
