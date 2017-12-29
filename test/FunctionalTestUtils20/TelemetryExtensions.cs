@@ -50,7 +50,7 @@ namespace FunctionalTestUtils
 
             if (result.Length != count)
             {
-               throw new InvalidDataException("Incorrect number of items. Expected: " + count + " Received: " + result.Length);
+              throw new InvalidDataException("Incorrect number of items. Expected: " + count + " Received: " + result.Length);
             }
 
             return result;
