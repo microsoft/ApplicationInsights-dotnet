@@ -105,14 +105,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             /// <summary>
-            /// Tests that the instrumentation key configuration can be read from a JSON file by the configuration factory.
-            /// Currently set to windows only
+            /// Tests that the instrumentation key configuration can be read from a JSON file by the configuration factory.            
             /// </summary>
             [Fact]
             
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
-            {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-instrumentation-key.json", null);
+            {                
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-instrumentation-key.json"), null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -129,7 +128,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             
             public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
             {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-instrumentation-key.json", null);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content","config-instrumentation-key.json"), null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 TelemetryConfiguration telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -140,7 +139,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromConfiguration()
             {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-developer-mode.json", null);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-developer-mode.json"), null);                
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -151,7 +150,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration()
             {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-endpoint-address.json", null);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-endpoint-address.json"), null);                
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
