@@ -3,10 +3,11 @@
   <PropertyGroup>
     <VersionPrefix>2.0.0</VersionPrefix>
     <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
+	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.0</TargetFrameworks>
 	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net461' ">win7-x86</RuntimeIdentifier>
-    <DelaySign>true</DelaySign>
+    <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <AssemblyName>EmptyApp20.FunctionalTests</AssemblyName>
+    <AssemblyName>EmptyApp20.FunctionalTests20</AssemblyName>
     <AssemblyOriginatorKeyFile>../../keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
@@ -25,10 +26,10 @@
   </ItemGroup>  
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />	
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />	
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.0.0" />	
-    <PackageReference Include="xunit" Version="2.2.0" />	
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="xunit" Version="2.3.0" />	
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">

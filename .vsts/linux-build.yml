@@ -1,0 +1,61 @@
+queue:
+  name: Hosted Linux
+steps:  
+
+- task: DotNetCoreInstaller@0
+  displayName: install dotnet core 2.0
+  inputs:
+    version: "2.0.0"
+    
+- task: DotNetCoreCLI@1
+  displayName: Restore solutions
+  inputs:
+    command: "restore"
+    projects: "*.sln"
+
+- task: DotNetCoreCLI@1
+  displayName: build all projects
+  inputs:
+    command: "build"
+    projects: "src/**/**.csproj"
+    arguments: "--configuration Release"
+
+- task: DotNetCoreCLI@1
+  displayName: Test 2.0
+  continueOnError: true
+  inputs:
+    command: "test"
+    projects: "test/**/*Tests20.csproj"
+    arguments: "--configuration Release -l trx"
+
+- task: DotNetCoreInstaller@0
+  displayName: install dotnet core 1.1.5
+  inputs:
+    version: "1.1.5"  
+    
+- task: DotNetCoreCLI@1
+  displayName: Test 1.1.5
+  continueOnError: true
+  inputs:
+    command: "test"
+    projects: "test/**/*Tests.csproj"
+    arguments: "--configuration Release -l trx --filter Category!=WindowsOnly"
+    
+    
+- task: PublishTestResults@2
+  inputs:
+    testRunner: "VSTest"
+    testResultsFiles: "**/*.trx"
+
+- task: DotNetCoreCLI@1
+  displayName: Package Nuget
+  inputs:
+    command: "pack" 
+    projects: "src/**/**.csproj"
+    arguments: "--configuration Release --include-symbols --output $(build.artifactstagingdirectory)"    
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: "$(build.artifactstagingdirectory)"
+    ArtifactName: "drop"
+    ArtifactType: "Container"

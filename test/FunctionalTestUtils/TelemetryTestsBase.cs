@@ -119,7 +119,7 @@
                   && d.ResultCode == expected.ResultCode);
             Assert.NotNull(dependencyTelemetry);
 
-#if !NET451
+#if netcoreapp1_0
             var requestTelemetry = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();
             Assert.Equal(requestTelemetry.Context.Operation.ParentId, dependencyTelemetry.Id);
 #endif

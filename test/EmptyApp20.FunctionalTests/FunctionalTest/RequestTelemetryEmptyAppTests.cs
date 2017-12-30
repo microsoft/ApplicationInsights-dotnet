@@ -10,7 +10,7 @@
 
     public class RequestTelemetryEmptyAppTests : TelemetryTestsBase
     {
-        private const string assemblyName = "EmptyApp20.FunctionalTests";
+        private const string assemblyName = "EmptyApp20.FunctionalTests20";
 
         public RequestTelemetryEmptyAppTests(ITestOutputHelper output) : base (output)
         {
@@ -57,7 +57,7 @@
             {
                 this.ExecuteRequest(server.BaseHost + "/Mixed");
 
-                var telemetries = server.Listener.ReceiveItems(5, TestListenerTimeoutInMs);
+                var telemetries = server.Listener.ReceiveItems(TestListenerTimeoutInMs);
                 this.DebugTelemetryItems(telemetries);
 
                 Assert.True(telemetries.Length >= 5);

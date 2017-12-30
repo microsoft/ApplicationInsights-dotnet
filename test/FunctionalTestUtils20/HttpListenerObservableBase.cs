@@ -58,7 +58,8 @@
         {
             if (listener != null && listener.IsListening)
             {
-                listener.Stop();
+                // listener.Stop() is not required as Close does shutdown the listener.
+                // Stop() followed by Close() throws error in non-windows.
                 listener.Close();
                 this.stream = null;
             }
