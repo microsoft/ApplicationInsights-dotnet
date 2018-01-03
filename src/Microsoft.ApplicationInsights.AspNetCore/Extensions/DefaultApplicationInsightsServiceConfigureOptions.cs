@@ -29,7 +29,7 @@
         {
             var configBuilder = new ConfigurationBuilder()
                 .SetBasePath(this.hostingEnvironment.ContentRootPath)
-                .AddJsonFile("appsettings.json", true)                
+                .AddJsonFile("appsettings.json", true)
                 .AddJsonFile(string.Format(CultureInfo.InvariantCulture,"appsettings.{0}.json", hostingEnvironment.EnvironmentName), true)
                 .AddEnvironmentVariables();
             ApplicationInsightsExtensions.AddTelemetryConfiguration(configBuilder.Build(), options);
