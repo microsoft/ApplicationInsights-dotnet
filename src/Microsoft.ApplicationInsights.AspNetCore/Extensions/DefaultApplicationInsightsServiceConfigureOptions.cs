@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.AspNetCore.Hosting
 {
     using System.Diagnostics;
+    using System.Globalization;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -28,8 +29,8 @@
         {
             var configBuilder = new ConfigurationBuilder()
                 .SetBasePath(this.hostingEnvironment.ContentRootPath)
-                .AddJsonFile("appsettings.json", true)
-                .AddJsonFile($"appsettings.{hostingEnvironment.EnvironmentName}.json", true)
+                .AddJsonFile("appsettings.json", true)                
+                .AddJsonFile(string.Format(CultureInfo.InvariantCulture,"appsettings.{0}.json", hostingEnvironment.EnvironmentName), true)
                 .AddEnvironmentVariables();
             ApplicationInsightsExtensions.AddTelemetryConfiguration(configBuilder.Build(), options);
 
