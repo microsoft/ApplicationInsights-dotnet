@@ -2,7 +2,10 @@
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project=".\GlobalStaticVersion.props" />
   <ItemGroup>
-    <Solution Include="Src\Microsoft.ApplicationInsights.Web.sln" />    
+    <Solution Include="Src\Microsoft.ApplicationInsights.Web.sln" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="$(ExcludeTests) != 'true'" >
     <Solution Include="Test\PerformanceCollector\FunctionalTests.sln" />
     <Solution Include="Test\Web\FunctionalTests.sln" />
 	<Solution Include="Test\E2ETests\DependencyCollectionTests.sln" />
