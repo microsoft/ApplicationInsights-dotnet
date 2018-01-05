@@ -22,7 +22,7 @@ if (Test-Path $fxCopDirectory) { Remove-Item $fxCopDirectory -Recurse; }
 
 # copy all
 Write-Host "`nCopy all files...";
-Get-ChildItem -Path $buildDirectory -Recurse -File -Filter "*.dll" |
+Get-ChildItem -Path $buildDirectory -Recurse -File -Include *.dll, *.pdb |
     ForEach-Object {
         $file = $_;
 
