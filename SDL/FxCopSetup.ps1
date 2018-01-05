@@ -26,6 +26,11 @@ Get-ChildItem -Path $buildDirectory -Recurse -File -Filter "*.dll" |
     ForEach-Object {
         $file = $_;
 
+        # exclude test files
+        if ($file.Directory -match "Test") {
+            return;
+        }
+
         $frameworks | ForEach-Object {
             if($file.Directory -match $_) {
                 Copy-Item $file.FullName -Destination (New-Item (Join-Path -Path $fxCopDirectory -ChildPath $_) -Type container -Force) -Force;
