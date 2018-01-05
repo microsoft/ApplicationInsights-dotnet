@@ -21,7 +21,7 @@ Write-Host "`nCreate FxCop Directory...";
 if (Test-Path $fxCopDirectory) { Remove-Item $fxCopDirectory -Recurse; }
 
 # copy all
-Write-Host "`nCopy all files...";
+Write-Host "`nCopy all files (excluding 'Test' directories)...";
 Get-ChildItem -Path $buildDirectory -Recurse -File -Include *.dll, *.pdb |
     ForEach-Object {
         $file = $_;
@@ -37,12 +37,6 @@ Get-ChildItem -Path $buildDirectory -Recurse -File -Include *.dll, *.pdb |
             }
         }
     }
-
-# delete test directories
-Write-Host "`nDelete any 'Test' directories...";
-Get-ChildItem -Path $fxCopDirectory -Recurse -Directory | 
-    Where-Object {$_ -match "Test"} |
-    Remove-Item -Recurse;
 
 # delete excluded files
 if ($excludedFiles.Count -gt 0) {
