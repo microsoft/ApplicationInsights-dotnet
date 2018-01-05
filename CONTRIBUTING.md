@@ -44,15 +44,20 @@ For Dependency Collector, you need to install Docker for windows as these tests 
 		After installation switch Docker engine to Windows Containers.(https://blogs.msdn.microsoft.com/webdev/2017/09/07/getting-started-with-windows-containers/)
 		And finally, make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready.
 
-After you've done this, execute the ```runFunctionalTests.cmd``` script in the repository root. You can also run and debug the functional tests from Visual Studio by opening the respective solutions under the Test directory in the repository root. For DependencyCollectionTests, all Docker images are downloaded from web when ran for first time and this could take several minutes.
+After you've done this, execute the ```runAllFunctionalTests.cmd``` script in the repository root. You can also run and debug the functional tests from Visual Studio by opening the respective solutions under the Test directory in the repository root. For DependencyCollectionTests, all Docker images are downloaded from web when ran for first time and this could take several minutes.
 
 The following solutions contains the functional tests for various features.
 
 "\Test\Web\FunctionalTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.Web
+Helper script to run all tests in this solution - ```runFunctionalTestsWeb```
 
 "\Test\PerformanceCollector\FunctionalTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.PerfCounterCollector
+Helper script to run all tests in this solution - ```runFunctionalTestsPerfCollectorAndQuickPulse```
 
 "\Test\E2ETests\DependencyCollectionTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.DependencyCollector
+Helper script to run all tests in this solution - ```runFunctionalTestsDependencyCollector```
+
+Edit the helper scripts to change between 'Release' and 'Debug' as per building your build.
 
 ## Known issues/workarounds with running functional tests.
 
