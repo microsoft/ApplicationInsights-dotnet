@@ -17,7 +17,7 @@ namespace E2ETestApp
         private const long RequestCountToSwitchSQLQuery = 5;
         private const long RequestCountToSQLFailedQuery = 23;
         private const long MillisecondsInUselessCycle = 30;                
-        public const string LocalDbConnectionString = @"Server =sql-server;User Id = sa; Password=MSDNm4g4z!n4";
+        public const string LocalDbConnectionString = @"Server =sql-server;User Id = sa; Password=MSDNm4g4z!n4"; // [SuppressMessage("Microsoft.Security", "CS001:SecretInLine", Justification="Database Password for Docker container.")]
         private static long requestCount;
         private static string whatHappened = "";
 
