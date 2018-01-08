@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -435,10 +436,153 @@
             }
         }
 
-        [TestMethod]
-        public void GetDefaultPayloadFields()
+        private class TestRequestorStub : IAzureMetadataRequestor
         {
+            private Func<IEnumerable<string>> GetAllFieldsFunc = null;
+            private Func<string, string> GetSingleFieldFunc = null;
 
+            public TestRequestorStub(Func<IEnumerable<string>> getAllFields = null, Func<string,string> getSingleFieldFunc = null)
+            {
+                this.GetAllFieldsFunc = getAllFields;
+                if (getAllFields == null)
+                {
+                    this.GetAllFieldsFunc = this.GetAllFields;
+                }
+
+                this.GetSingleFieldFunc = getSingleFieldFunc;
+                if (getSingleFieldFunc == null)
+                {
+                    this.GetSingleFieldFunc = this.GetSingleField;
+                }
+            }
+
+            public Dictionary<string, string> computeFields = new Dictionary<string, string>();
+
+            public Task<string> GetAzureComputeMetadata(string fieldName)
+            {
+                return Task.FromResult(this.GetSingleFieldFunc(fieldName));
+            }
+
+            private string GetSingleField(string fieldName)
+            {
+                if (this.computeFields.ContainsKey(fieldName))
+                {
+                    return this.computeFields[fieldName];
+                }
+
+                return string.Empty;
+            }
+
+            public Task<IEnumerable<string>> GetAzureInstanceMetadataComputeFields()
+            {
+                return Task.FromResult(this.GetAllFieldsFunc());
+            }
+
+            private IEnumerable<string> GetAllFields()
+            {
+                IEnumerable<string> fields = this.computeFields.Keys.ToArray();
+                return fields;
+            }
+
+        }
+
+        private class TestHeartbeatProviderStub : IHeartbeatProvider
+        {
+            public Dictionary<string, HeartbeatPropertyPayload> HeartbeatProperties = new Dictionary<string, HeartbeatPropertyPayload>();
+            public List<string> ExcludedPropertyFields = new List<string>();
+
+            public string InstrumentationKey { get; set; }
+
+            public bool IsHeartbeatEnabled { get; set; }
+
+            public bool EnableInstanceMetadata { get; set; }
+
+            public TimeSpan HeartbeatInterval { get; set; }
+
+            public IList<string> ExcludedHeartbeatProperties { get => this.ExcludedPropertyFields; }
+
+            public TestHeartbeatProviderStub()
+            {
+                this.InstrumentationKey = Guid.NewGuid().ToString();
+                this.IsHeartbeatEnabled = true;
+                this.EnableInstanceMetadata = true;
+                this.HeartbeatInterval = TimeSpan.FromSeconds(31);
+            }
+
+            public bool AddHeartbeatProperty(string propertyName, bool overrideDefaultField, string propertyValue, bool isHealthy)
+            {
+                this.HeartbeatProperties.Add(
+                    propertyName, 
+                    new HeartbeatPropertyPayload()
+                    {
+                        IsHealthy = isHealthy,
+                        IsUpdated = true,
+                        PayloadValue = propertyValue
+                    });
+
+                return true;
+            }
+
+            public void Dispose()
+            {
+            }
+
+            public void Initialize(TelemetryConfiguration configuration)
+            {
+            }
+
+            public bool SetHeartbeatProperty(string propertyName, bool overrideDefaultField, string propertyValue = null, bool? isHealthy = null)
+            {
+                if (this.HeartbeatProperties.ContainsKey(propertyName))
+                {
+                    HeartbeatPropertyPayload pl = this.HeartbeatProperties[propertyName];
+                    pl.IsHealthy = isHealthy.GetValueOrDefault(pl.IsHealthy);
+                    pl.PayloadValue = propertyValue ?? pl.PayloadValue;
+                    pl.IsUpdated = true;
+
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        [TestMethod]
+        public void GetAzureInstanceMetadataFieldsAsExpected()
+        {
+            using (var hbeat = new TestHeartbeatProviderStub())
+            {
+                TestRequestorStub myRequestor = new TestRequestorStub();
+                int counter = 1;
+                foreach (string field in HeartbeatDefaultPayload.DefaultOptionalFields)
+                {
+                    myRequestor.computeFields.Add(field, $"testValue{counter++}");
+                }
+
+                HeartbeatDefaultPayload.PopulateDefaultPayload(new string[] { }, hbeat, myRequestor);
+                // this is an async call, and will most defintely finish after the next call. Instead
+                // of just doing a timeout and allowing for uncertainty in tests, let's be a bit more
+                
+                foreach (string fieldName in HeartbeatDefaultPayload.DefaultOptionalFields)
+                {
+                    Assert.IsTrue(hbeat.HeartbeatProperties.ContainsKey(fieldName));
+                }
+            }
+        }
+
+        [TestMethod]
+        public void FailToObtainAzureInstanceMetadataFieldsAltogether()
+        {
+            using (var hbeat = new TestHeartbeatProviderStub())
+            {
+                TestRequestorStub myRequestor = new TestRequestorStub();
+
+                HeartbeatDefaultPayload.PopulateDefaultPayload(new string[] { }, hbeat, myRequestor);
+
+                foreach (string fieldName in HeartbeatDefaultPayload.DefaultOptionalFields)
+                {
+                    Assert.IsFalse(hbeat.HeartbeatProperties.ContainsKey(fieldName));
+                }
+            }
         }
     }
 }

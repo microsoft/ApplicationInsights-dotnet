@@ -53,7 +53,7 @@
         /// </summary>
         private static Guid? uniqueProcessSessionId = null;
 
-        public static void PopulateDefaultPayload(IEnumerable<string> disabledFields, HeartbeatProvider provider, IAzureMetadataRequestor metadataRequestor)
+        public static void PopulateDefaultPayload(IEnumerable<string> disabledFields, IHeartbeatProvider provider, IAzureMetadataRequestor metadataRequestor)
         {
             var enabledProperties = HeartbeatDefaultPayload.RemoveDisabledDefaultFields(disabledFields);
 
@@ -111,7 +111,7 @@
         /// not running on an Azure VM with the Azure Instance Metadata Service running, the corresponding
         /// fields will not get set into the heartbeat payload.
         /// </summary>
-        private static async Task AddAzureVmDetail(HeartbeatProvider heartbeatManager, IEnumerable<string> enabledFields, IAzureMetadataRequestor metadataRequestor)
+        private static async Task AddAzureVmDetail(IHeartbeatProvider heartbeatManager, IEnumerable<string> enabledFields, IAzureMetadataRequestor metadataRequestor)
         {
             if (metadataRequestor != null && !HeartbeatDefaultPayload.isAzureMetadataCheckCompleted)
             {
@@ -126,10 +126,10 @@
                 {
                     heartbeatManager.AddHeartbeatProperty(
                         propertyName: field,
+                        overrideDefaultField: true,
                         propertyValue: await metadataRequestor.GetAzureComputeMetadata(field)
                             .ConfigureAwait(false),
-                        isHealthy: true,
-                        allowDefaultFields: true);
+                        isHealthy: true);
                 }
             }
         }

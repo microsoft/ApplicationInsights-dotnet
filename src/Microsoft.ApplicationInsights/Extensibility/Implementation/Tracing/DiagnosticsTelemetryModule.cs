@@ -225,7 +225,7 @@
         /// <returns>True if the new payload item is successfully added, false otherwise.</returns>
         public bool AddHeartbeatProperty(string propertyName, string propertyValue, bool isHealthy)
         {
-            return this.HeartbeatProvider.AddHeartbeatProperty(propertyName, propertyValue, isHealthy);
+            return this.HeartbeatProvider.AddHeartbeatProperty(propertyName, false, propertyValue, isHealthy);
         }
 
         /// <summary>
@@ -245,7 +245,7 @@
         {
             if (!string.IsNullOrEmpty(propertyName) && (propertyValue != null || isHealthy != null))
             {
-                return this.HeartbeatProvider.SetHeartbeatProperty(propertyName, propertyValue, isHealthy);
+                return this.HeartbeatProvider.SetHeartbeatProperty(propertyName, false, propertyValue, isHealthy);
             }
             else
             {

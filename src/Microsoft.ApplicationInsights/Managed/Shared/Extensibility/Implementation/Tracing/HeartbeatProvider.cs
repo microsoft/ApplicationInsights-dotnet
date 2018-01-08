@@ -13,7 +13,7 @@
     /// <summary>
     /// Implementation of heartbeat functionality.
     /// </summary>
-    internal class HeartbeatProvider : IDisposable, IHeartbeatProvider
+    internal class HeartbeatProvider : IDisposable, IHeartbeatProvider, IHeartbeatPropertyManager
     {
         /// <summary>
         /// The default interval between heartbeats if not specified by the user. Left public for use in unit tests.
@@ -154,12 +154,12 @@
 
         public bool AddHeartbeatProperty(string heartbeatPropertyName, string heartbeatPropertyValue, bool isHealthy)
         {
-            return this.AddHeartbeatProperty(propertyName: heartbeatPropertyName, propertyValue: heartbeatPropertyValue, isHealthy: isHealthy, allowDefaultFields: false);
+            return this.AddHeartbeatProperty(propertyName: heartbeatPropertyName, propertyValue: heartbeatPropertyValue, isHealthy: isHealthy, overrideDefaultField: false);
         }
 
         public bool SetHeartbeatProperty(string heartbeatPropertyName, string heartbeatPropertyValue = null, bool? isHealthy = null)
         {
-            return this.SetHeartbeatProperty(propertyName: heartbeatPropertyName, propertyValue: heartbeatPropertyValue, isHealthy: isHealthy, allowDefaultFields: false);
+            return this.SetHeartbeatProperty(propertyName: heartbeatPropertyName, propertyValue: heartbeatPropertyValue, isHealthy: isHealthy, overrideDefaultField: false);
         }
 
         public void Dispose()
@@ -167,33 +167,12 @@
             this.Dispose(true);
         }
 
-        /// <summary>
-        /// Get the metric telemetry item that will be sent.
-        /// 
-        /// Note: exposed to internal to allow inspection for testing.
-        /// </summary>
-        /// <returns>A MetricTelemtry item that contains the currently defined payload for a heartbeat 'pulse'.</returns>
-        internal ITelemetry GatherData()
-        {
-            var hbeat = new MetricTelemetry(heartbeatSyntheticMetricName, 0.0);
-
-            foreach (var payloadItem in this.heartbeatProperties)
-            {
-                hbeat.Properties.Add(payloadItem.Key, payloadItem.Value.PayloadValue);
-                hbeat.Sum += payloadItem.Value.IsHealthy ? 0 : 1;
-            }
-
-            hbeat.Sequence = string.Format(CultureInfo.CurrentCulture, "{0}", this.heartbeatsSent++);
-
-            return hbeat;
-        }
-
-        internal bool AddHeartbeatProperty(string propertyName, bool allowDefaultFields, string propertyValue, bool isHealthy)
+        public bool AddHeartbeatProperty(string propertyName, bool overrideDefaultField, string propertyValue, bool isHealthy)
         {
             bool isAdded = false;
 
             if (!string.IsNullOrEmpty(propertyName)
-                && (allowDefaultFields || !HeartbeatDefaultPayload.AllDefaultFields.Contains(propertyName)))
+                && (overrideDefaultField || !HeartbeatDefaultPayload.AllDefaultFields.Contains(propertyName)))
             {
                 try
                 {
@@ -220,11 +199,11 @@
             return isAdded;
         }
 
-        internal bool SetHeartbeatProperty(string propertyName, bool allowDefaultFields = false, string propertyValue = null, bool? isHealthy = null)
+        public bool SetHeartbeatProperty(string propertyName, bool overrideDefaultField, string propertyValue = null, bool? isHealthy = null)
         {
             bool setResult = false;
             if (!string.IsNullOrEmpty(propertyName)
-                && (allowDefaultFields || !HeartbeatDefaultPayload.AllDefaultFields.Contains(propertyName)))
+                && (overrideDefaultField || !HeartbeatDefaultPayload.AllDefaultFields.Contains(propertyName)))
             {
                 try
                 {
@@ -258,6 +237,27 @@
             }
 
             return setResult;
+        }
+
+        /// <summary>
+        /// Get the metric telemetry item that will be sent.
+        /// 
+        /// Note: exposed to internal to allow inspection for testing.
+        /// </summary>
+        /// <returns>A MetricTelemtry item that contains the currently defined payload for a heartbeat 'pulse'.</returns>
+        internal ITelemetry GatherData()
+        {
+            var hbeat = new MetricTelemetry(heartbeatSyntheticMetricName, 0.0);
+
+            foreach (var payloadItem in this.heartbeatProperties)
+            {
+                hbeat.Properties.Add(payloadItem.Key, payloadItem.Value.PayloadValue);
+                hbeat.Sum += payloadItem.Value.IsHealthy ? 0 : 1;
+            }
+
+            hbeat.Sequence = string.Format(CultureInfo.CurrentCulture, "{0}", this.heartbeatsSent++);
+
+            return hbeat;
         }
 
         protected void Dispose(bool disposing)
