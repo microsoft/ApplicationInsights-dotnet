@@ -172,7 +172,7 @@
             bool isAdded = false;
 
             if (!string.IsNullOrEmpty(propertyName)
-                && (overrideDefaultField || !HeartbeatDefaultPayload.AllDefaultFields.Contains(propertyName)))
+                && (overrideDefaultField || !HeartbeatDefaultPayload.IsDefaultKeyword(propertyName)))
             {
                 try
                 {
@@ -203,7 +203,7 @@
         {
             bool setResult = false;
             if (!string.IsNullOrEmpty(propertyName)
-                && (overrideDefaultField || !HeartbeatDefaultPayload.AllDefaultFields.Contains(propertyName)))
+                && (overrideDefaultField || !HeartbeatDefaultPayload.IsDefaultKeyword(propertyName)))
             {
                 try
                 {

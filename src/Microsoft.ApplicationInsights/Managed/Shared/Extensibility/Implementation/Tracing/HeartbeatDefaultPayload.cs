@@ -11,31 +11,24 @@
 
     internal static class HeartbeatDefaultPayload
     {
-        public static readonly string[] DefaultFields =
+        private static readonly string[] DefaultFields =
         {
             "runtimeFramework",
             "baseSdkTargetFramework",
             "osVersion"
         };
 
-        public static readonly string[] DefaultOptionalFields =
+        private static readonly string[] DefaultOptionalFields =
         {
-            "processSessionId",
-            // the  following are Azure Instance Metadata fields
-            "osType",
-            "location",
-            "name",
-            "offer",
-            "platformFaultDomain",
-            "platformUpdateDomain",
-            "publisher",
-            "sku",
-            "version",
-            "vmId",
-            "vmSize"
+            "processSessionId"
         };
 
-        public static readonly string[] AllDefaultFields = DefaultFields.Union(DefaultOptionalFields).ToArray();
+        private static readonly string[] AllDefaultFields = DefaultFields.Union(DefaultOptionalFields).ToArray();
+
+        private static readonly IHeartbeatDefaultPayloadProvider[] DefaultPayloadProviders =
+        {
+            new AzureMetadataRequest()
+        };
 
         /// <summary>
         /// Flags that will tell us whether or not Azure VM metadata has been attempted to be gathered or not, and
@@ -53,8 +46,26 @@
         /// </summary>
         private static Guid? uniqueProcessSessionId = null;
 
+        public static bool IsDefaultKeyword(string keyword)
+        {
+            foreach (var payloadProvider in DefaultPayloadProviders)
+            {
+                if (payloadProvider.IsKeyword(keyword))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static void PopulateDefaultPayload(IEnumerable<string> disabledFields, IHeartbeatProvider provider, IAzureMetadataRequestor metadataRequestor)
         {
+            foreach (var payloadProvider in DefaultPayloadProviders)
+            {
+                Task.Factory.StartNew(async () => await payloadProvider.SetDefaultPayload(disabledFields, provider));
+            }
+
             var enabledProperties = HeartbeatDefaultPayload.RemoveDisabledDefaultFields(disabledFields);
 
             if (metadataRequestor != null)

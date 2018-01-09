@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Net;
 #if NETSTANDARD1_3
     using System.Net.Http;
@@ -10,8 +11,24 @@
 #endif
     using System.Threading.Tasks;
 
-    internal class AzureMetadataRequest : IAzureMetadataRequestor
+    internal class AzureMetadataRequest : IAzureMetadataRequestor, IHeartbeatDefaultPayloadProvider
     {
+        // internal for testing
+        internal readonly List<string> DefaultFields = new List<string>()
+        {
+            "osType",
+            "location",
+            "name",
+            "offer",
+            "platformFaultDomain",
+            "platformUpdateDomain",
+            "publisher",
+            "sku",
+            "version",
+            "vmId",
+            "vmSize"
+        };
+
         /// <summary>
         /// Azure Instance Metadata Service exists on a single non-routable IP on machines configured
         /// by the Azure Resource Manager. See <a href="https://go.microsoft.com/fwlink/?linkid=864683">to learn more.</a>
@@ -19,6 +36,8 @@
         private static string baseImdsUrl = $"http://169.254.169.254/metadata/instance/compute";
         private static string imdsApiVersion = $"api-version=2017-04-02"; // this version has the format=text capability
         private static string imdsTextFormat = "format=text";
+
+        private bool isAzureMetadataCheckCompleted = false;
 
         /// <summary>
         /// Gets all the available fields from the imds link asynchronously, and returns them as an IEnumerable.
@@ -53,6 +72,39 @@
             string requestResult = await this.MakeAzureMetadataRequest(metadataRequestUrl);
 
             return requestResult;
+        }
+
+        public bool IsKeyword(string keyword)
+        {
+            return this.DefaultFields.Contains(keyword, StringComparer.OrdinalIgnoreCase);
+        }
+
+        public async Task<bool> SetDefaultPayload(IEnumerable<string> disabledFields, IHeartbeatProvider provider)
+        {
+            bool hasSetFields = false;
+
+            if (!this.isAzureMetadataCheckCompleted)
+            {
+                // only ever do this once when the SDK gets initialized
+                this.isAzureMetadataCheckCompleted = true;
+
+                var allFields = await this.GetAzureInstanceMetadataComputeFields()
+                                .ConfigureAwait(false);
+
+                var enabledImdsFields = this.DefaultFields.Except(disabledFields);
+                foreach (string field in enabledImdsFields)
+                {
+                    provider.AddHeartbeatProperty(
+                        propertyName: field,
+                        overrideDefaultField: true,
+                        propertyValue: await this.GetAzureComputeMetadata(field)
+                            .ConfigureAwait(false),
+                        isHealthy: true);
+                    hasSetFields = true;
+                }
+            }
+
+            return hasSetFields;
         }
 
         private async Task<string> MakeAzureMetadataRequest(string metadataRequestUrl)

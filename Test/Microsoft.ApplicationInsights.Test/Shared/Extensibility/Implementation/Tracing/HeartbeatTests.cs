@@ -234,6 +234,8 @@
         [TestMethod]
         public void HeartbeatPayloadContainsOnlyAllowedDefaultPayloadFields()
         {
+            var allDefaultFields = AzureMetadataRequest.DefaultFields.Union(HeartbeatDefaultPayload.AllDefaultFields);
+
             using (var hbeat = new HeartbeatProvider())
             {
                 List<string> disableHbProps = new List<string>();
