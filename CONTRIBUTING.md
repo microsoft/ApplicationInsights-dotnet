@@ -116,7 +116,7 @@ Following pre-requisite is needed to deploy to IIS locally.
 * IIS (Make sure Internet Information Services > World Wide Web Services > Application Development Features > ASP.NET 4.6 is enabled)
 
 
-## Debugging the SDK in general (How to test Application Insights in any Test App)
+## Debugging the SDK in general (How to test Application Insights from local build in any Test App)
 
 * Build the project using ```buildDebug.cmd``` 
 * If the build was successful, you'll find that it generated NuGet packages in <repository root>\..\bin\Debug\NuGet
