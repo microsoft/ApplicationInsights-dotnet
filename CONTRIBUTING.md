@@ -9,7 +9,7 @@ To successfully build the sources on your machine, make sure you've installed th
 * .NET 4.6
 * .NET Core SDK 2.0 (https://www.microsoft.com/net/download/windows)
 
-Once you've installed the prerequisites execute either ```buildDebug.cmd``` or ```buildRelease.cmd``` script in the repository root to build the project locally.
+Once you've installed the prerequisites execute either ```buildDebug.cmd``` or ```buildRelease.cmd``` script in the repository root to build the project (excluding functional tests) locally.
 
 ```buildRelease.cmd``` also runs StlyeCop checks, and is required before merging any pull requests.
 
@@ -24,6 +24,8 @@ The following solution contains the product code and unit tests
 Several tests require that you configure a strong name verification exception for Microsoft.WindowsAzure.ServiceRuntime.dll using the [Strong Name Tool](https://msdn.microsoft.com/en-us/library/k5b5tt23(v=vs.110).aspx). Run this command as Administrator from the repository root to configure the exception (after building Microsoft.ApplicationInsights.Web.sln)
 
     "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vr ..\bin\Debug\Src\WindowsServer\WindowsServer.Net40.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
+	
+(Depending on you OS version, the above exe may be located in different folder. Modify the path according to local path).	
     
 Once you've configured the strong name verification, execute the ```runUnitTests.cmd``` script in the repository root.
 
@@ -32,9 +34,14 @@ You can also run the tests within Visual Studio using the test explorer. If test
 You can remove the strong name verification exception by running this command as Administrator:
 
     "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vu ..\bin\Debug\Src\WindowsServer\WindowsServer.Net40.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
-    
-## Functional Tests
 
+## Functional Tests
+It is recommended to rely on unit test tests to test functionalities wherever possible. For doing end-to-end valdation, functional tests exists for all the modules. These tests works like described below:
+
+Functional tests contain test apps which refers to the product dlls from the local build. During test run, these apps are deployed to IIS/Docker and http requests are fired against it to trigger various scenarios.
+Tests apps are modified to send telemetry to a fake ingestion endpoint which started by tests. Tests then validate the telemetry received by this endpoint.
+
+Pre-requisites
 To execute the functional tests, you need to install some additional prerequisites:
 
 For Web and PerformanceCollector tests IIS Express should be installed.
@@ -44,20 +51,26 @@ For Dependency Collector, you need to install Docker for windows as these tests 
 		After installation switch Docker engine to Windows Containers.(https://blogs.msdn.microsoft.com/webdev/2017/09/07/getting-started-with-windows-containers/)
 		And finally, make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready.
 
-After you've done this, execute the ```runAllFunctionalTests.cmd``` script in the repository root. You can also run and debug the functional tests from Visual Studio by opening the respective solutions under the Test directory in the repository root. For DependencyCollectionTests, all Docker images are downloaded from web when ran for first time and this could take several minutes.
+Running tests
+Before running the functional tests, the product code should be built following 'Build' instructions above.
+After building, open the respective solutions under the Test directory in the repository root and tests can be run from Visual Studio Test Explorer.
 
 The following solutions contains the functional tests for various features.
 
 "\Test\Web\FunctionalTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.Web
-Helper script to run all tests in this solution - ```runFunctionalTestsWeb```
+Helper script to build product and run all tests in this solution - ```runFunctionalTestsWeb```
 
 "\Test\PerformanceCollector\FunctionalTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.PerfCounterCollector
-Helper script to run all tests in this solution - ```runFunctionalTestsPerfCollectorAndQuickPulse```
+Helper script to build product and run all tests in this solution - ```runFunctionalTestsPerfCollectorAndQuickPulse```
 
 "\Test\E2ETests\DependencyCollectionTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.DependencyCollector
-Helper script to run all tests in this solution - ```runFunctionalTestsDependencyCollector```
+Helper script to build product and run all tests in this solution - ```runFunctionalTestsDependencyCollector```
+For DependencyCollectionTests, all Docker images are downloaded from web when ran for first time and this could take several minutes.
 
-Edit the helper scripts to change between 'Release' and 'Debug' as per building your build.
+Edit the helper scripts to change between 'Release' and 'Debug' as per your build.
+```runAllFunctionalTests.cmd``` script builds the product and runs all the above functional tests.
+
+Its is important to note that functional tests do no trigger product code build, so explicit build of product code is required before running functional tests.
 
 ## Known issues/workarounds with running functional tests.
 
@@ -66,18 +79,22 @@ If any tests fail, please retry first to see if it helps. If not, try one of the
 Web and PerformanceCollector fails with error related to 'Port conflicts' - its possible that some prior tests has not released ports. 
 	Workaround - Kill all running IISExpress processes and re-run tests.
 	
-All/many functional tests fail with error "Incorrect number of items. Expected: 1 Received: 0" when ran from Visual Studio IDE. Look for warnings in Visual Studio output window which
-contains errors like 'Unable to copy file
+All/many functional tests fail with error "Incorrect number of items. Expected: 1 Received: 0" when ran from Visual Studio IDE. 
+Look for warnings in Visual Studio output window which contains errors like 'Unable to copy dll file due to file being locked..' etc. 
 
+Workarounds: 
+1. Close all instances of Visual Studio/cmd windows where scripts were run and retry.
+2. One can use advanced tools like 'process explorer' to find out which process is locking files. Kill the process and retry.
+3. Delete bin folder from repository root and rebuild. 
+3. Restart machine if none of the above helps. 
 
 
 Dependency Collector functional tests fail with messages like "Assert.AreEqual failed. Expected:<1>. Actual<0>." or "All apps are not healthy", then its likely that Docker installation has some issues.
 	
-Workaround if you are trying first time - Make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready. Also, the very first time DependencyCollector tests are run, all Docker images are downloaded from web and this could potentially take an hour or so. This is only one time per machine.
-	
+Workaround if you are trying first time - Make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready. Also, the very first time DependencyCollector tests are run, all Docker images are downloaded from web and this could potentially take an hour or so. This is only one time per machine.	
 Alternate workaround if you have previously run the tests successfully atleast once - execute the ```dockercleanup.ps1``` from repository root to cleanup any containers from prior runs.
 
-The test code intentionally does not clean up the containers it spun up. This is to enable fast re-runs of the tests. If the WebApp code is changed, then Docker-Compose will detect it, and re-build the container.
+The test code intentionally does not clean up the containers it spun up. This is to enable fast re-runs of the tests. If the Test App code is changed, then Docker-Compose will detect it, and re-build the container.
 If you want to do clean up all the containers created by the test, execute the ```dockercleanup.ps1``` from repository root. This is typically required if tests were aborted in the middle of a run for some reason.
 
 If none of the above helps, please open an issue in Github describing the problem.
