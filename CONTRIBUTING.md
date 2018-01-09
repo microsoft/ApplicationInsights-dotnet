@@ -36,10 +36,10 @@ You can remove the strong name verification exception by running this command as
     "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vu ..\bin\Debug\Src\WindowsServer\WindowsServer.Net40.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
 
 ## Functional Tests
-It is recommended to rely on unit test tests to test functionalities wherever possible. For doing end-to-end valdation, functional tests exists for all the modules. These tests works like described below:
+It is recommended to rely on unit tests to test functionalities wherever possible. For doing end-to-end valdation, functional tests exists for all the modules. These tests works like described below:
 
-Functional tests contain test apps which refers to the product dlls from the local build. During test run, these apps are deployed to IIS/Docker and http requests are fired against it to trigger various scenarios.
-Tests apps are modified to send telemetry to a fake ingestion endpoint which started by tests. Tests then validate the telemetry received by this endpoint.
+Functional tests contain test apps which refers to the product dlls from the local build. Tests deploy the Test apps to IIS/Docker and http requests are fired against it to trigger various scenarios.
+Tests apps are modified to send telemetry to a fake ingestion endpoint controlled by tests. Tests then validate the telemetry received by this endpoint.
 
 Pre-requisites
 To execute the functional tests, you need to install some additional prerequisites:
@@ -86,7 +86,7 @@ Workarounds:
 1. Close all instances of Visual Studio/cmd windows where scripts were run and retry.
 2. One can use advanced tools like 'process explorer' to find out which process is locking files. Kill the process and retry.
 3. Delete bin folder from repository root and rebuild. 
-3. Restart machine if none of the above helps. 
+4. Restart machine if none of the above helps. 
 
 
 Dependency Collector functional tests fail with messages like "Assert.AreEqual failed. Expected:<1>. Actual<0>." or "All apps are not healthy", then its likely that Docker installation has some issues.
@@ -116,7 +116,7 @@ Following pre-requisite is needed to deploy to IIS locally.
 * IIS (Make sure Internet Information Services > World Wide Web Services > Application Development Features > ASP.NET 4.6 is enabled)
 
 
-## Debugging the SDK in general
+## Debugging the SDK in general (How to test Application Insights in any Test App)
 
 * Build the project using ```buildDebug.cmd``` 
 * If the build was successful, you'll find that it generated NuGet packages in <repository root>\..\bin\Debug\NuGet
