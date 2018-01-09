@@ -7,7 +7,7 @@ If you're interested in contributing, take a look at the general [contributer's 
 To successfully build the sources on your machine, make sure you've installed the following prerequisites:
 * Visual Studio 2017 Community or Enterprise
 * .NET 4.6
-* .NET Core 2.0
+* .NET Core SDK 2.0 (https://www.microsoft.com/net/download/windows)
 
 Once you've installed the prerequisites execute either ```buildDebug.cmd``` or ```buildRelease.cmd``` script in the repository root to build the project locally.
 
@@ -65,6 +65,11 @@ If any tests fail, please retry first to see if it helps. If not, try one of the
 
 Web and PerformanceCollector fails with error related to 'Port conflicts' - its possible that some prior tests has not released ports. 
 	Workaround - Kill all running IISExpress processes and re-run tests.
+	
+All/many functional tests fail with error "Incorrect number of items. Expected: 1 Received: 0" when ran from Visual Studio IDE. Look for warnings in Visual Studio output window which
+contains errors like 'Unable to copy file
+
+
 
 Dependency Collector functional tests fail with messages like "Assert.AreEqual failed. Expected:<1>. Actual<0>." or "All apps are not healthy", then its likely that Docker installation has some issues.
 	

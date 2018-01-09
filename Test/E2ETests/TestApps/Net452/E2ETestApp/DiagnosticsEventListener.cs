@@ -28,8 +28,7 @@
                 string.Format(CultureInfo.CurrentCulture, eventSourceEvent.Message, eventSourceEvent.Payload.ToArray()) :
                 eventSourceEvent.Message;
 
-            WriteToFile(message+ "\n");
-            
+            WriteToFile(DateTime.UtcNow.ToLongTimeString() + " " + message+ "\n");            
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
