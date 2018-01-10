@@ -475,5 +475,35 @@
                 }
             }
         }
+
+        [TestMethod]
+        public void HandleUnknownDefaultProperty()
+        {
+            var defProps = new BaseHeartbeatProperties();
+            string testKey = "TestProp";
+            defProps.DefaultFields.Add(testKey);
+            using (var hbeat = new HeartbeatProvider())
+            {
+                var waitForProps = defProps.SetDefaultPayload(new string[] { }, hbeat).ConfigureAwait(false);
+                Assert.IsTrue(waitForProps.GetAwaiter().GetResult());
+                var heartbeat = (MetricTelemetry)hbeat.GatherData();
+                Assert.IsTrue(heartbeat.Properties.ContainsKey(testKey));
+                Assert.IsFalse(string.IsNullOrEmpty(heartbeat.Properties[testKey]));
+            }
+        }
+
+        [TestMethod]
+        public void CanOverrideDefaultHeartbeatValuesInternally()
+        {
+            using (var hbeat = (IHeartbeatProvider)new HeartbeatProvider())
+            {
+                var baseProps = new BaseHeartbeatProperties();
+                var defaultFieldName = baseProps.DefaultFields[0];
+                Assert.IsTrue(hbeat.AddHeartbeatProperty(defaultFieldName, true, "test", true));
+                Assert.IsTrue(hbeat.AddHeartbeatProperty(defaultFieldName, true, "test", true));
+                Assert.IsTrue(hbeat.SetHeartbeatProperty(defaultFieldName, true, "test-1", false));
+                Assert.IsFalse(hbeat.SetHeartbeatProperty(defaultFieldName, false, "test-2", false));
+            }
+        }
     }
 }
