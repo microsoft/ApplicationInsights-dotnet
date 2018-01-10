@@ -47,7 +47,7 @@
 
             if (resetCheckCompleteFlag)
             {
-                AzureHeartbeatProperties.isAzureMetadataCheckCompleted = true;
+                AzureHeartbeatProperties.isAzureMetadataCheckCompleted = false;
             }
         }
 
