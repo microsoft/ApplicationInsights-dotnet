@@ -6,6 +6,7 @@
     using System.Globalization;
     using System.Linq;
     using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -136,13 +137,7 @@
                 this.telemetryClient = new TelemetryClient(configuration);
             }
 
-            IAzureMetadataRequestor metadataRequestHandler = null;
-            if (this.EnableInstanceMetadata)
-            {
-                metadataRequestHandler = new AzureMetadataRequest();
-            }
-
-            HeartbeatDefaultPayload.PopulateDefaultPayload(this.ExcludedHeartbeatProperties, this, metadataRequestHandler);
+            Task.Factory.StartNew(async () => HeartbeatDefaultPayload.PopulateDefaultPayload(this.ExcludedHeartbeatProperties, this, this.EnableInstanceMetadata).ConfigureAwait(false));
 
             // Note: if this is a subsequent initialization, the interval between heartbeats will be updated in the next cycle so no .Change call necessary here
             if (this.HeartbeatTimer == null)

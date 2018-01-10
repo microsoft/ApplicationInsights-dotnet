@@ -6,8 +6,11 @@
     using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
+#if NETSTANDARD1_3
+    using System.Runtime.InteropServices;
+#endif
 
-    internal class AssemblyDefaultFields : IHeartbeatDefaultPayloadProvider
+    internal class BaseHeartbeatProperties : IHeartbeatDefaultPayloadProvider
     {
         internal readonly List<string> DefaultFields = new List<string>()
         {
@@ -158,12 +161,12 @@
         /// <returns>string representation of a unique id</returns>
         private string GetProcessSessionId()
         {
-            if (AssemblyDefaultFields.uniqueProcessSessionId == null)
+            if (BaseHeartbeatProperties.uniqueProcessSessionId == null)
             {
-                AssemblyDefaultFields.uniqueProcessSessionId = Guid.NewGuid();
+                BaseHeartbeatProperties.uniqueProcessSessionId = Guid.NewGuid();
             }
 
-            return AssemblyDefaultFields.uniqueProcessSessionId.ToString();
+            return BaseHeartbeatProperties.uniqueProcessSessionId.ToString();
         }
     }
 }
