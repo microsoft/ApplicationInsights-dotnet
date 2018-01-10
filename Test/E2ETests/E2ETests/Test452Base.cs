@@ -63,7 +63,7 @@ namespace E2ETests
 
         public static void MyClassInitializeBase()
         {
-            Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());            
+            Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
             Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));
             Trace.WriteLine("DockerComposeFileName:" + DockerComposeFileName);
 
