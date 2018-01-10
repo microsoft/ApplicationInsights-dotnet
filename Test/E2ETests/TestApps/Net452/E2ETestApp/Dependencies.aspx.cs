@@ -101,6 +101,8 @@ namespace E2ETestApp
                             Response.Write(reader.ReadToEnd()); 
                         }
 
+                        File.Delete(Path.Combine(MyDirectoryPath, filename));
+
                         break;
 
                     case "flush":

@@ -925,9 +925,9 @@ namespace E2ETests
             var requestsSource = WaitForReceiveRequestItemsFromDataIngestion(sourceInstanceIp, sourceIKey);            
             var dependenciesSource = WaitForReceiveDependencyItemsFromDataIngestion(sourceInstanceIp, sourceIKey);
             var requestsTarget = WaitForReceiveRequestItemsFromDataIngestion(targetInstanceIp, targetIKey);
-
-            PrintApplicationTraces(sourceIKey);
-            PrintApplicationTraces(targetIKey);
+            
+            ReadApplicationTraces(sourceInstanceIp, "/Dependencies.aspx?type=etwlogs");
+            ReadApplicationTraces(targetInstanceIp, "/Dependencies.aspx?type=etwlogs");
 
             Trace.WriteLine("RequestCount for Source:" + requestsSource.Count);
             Assert.IsTrue(requestsSource.Count == 1);
@@ -1088,6 +1088,8 @@ namespace E2ETests
             var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
             Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
             PrintDependencies(dependenciesWebApp);
+
+            ReadApplicationTraces(targetInstanceIp, "/Dependencies.aspx?type=etwlogs");
 
             Assert.IsTrue(dependenciesWebApp.Count >= minCount, string.Format("Dependeny count is incorrect. Actual: {0} Expected minimum: {1}", dependenciesWebApp.Count, minCount));
             var dependency = dependenciesWebApp[0];

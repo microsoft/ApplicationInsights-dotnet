@@ -23,7 +23,7 @@ The following solution contains the product code and unit tests
 
 Several tests require that you configure a strong name verification exception for Microsoft.WindowsAzure.ServiceRuntime.dll using the [Strong Name Tool](https://msdn.microsoft.com/en-us/library/k5b5tt23(v=vs.110).aspx). Run this command as Administrator from the repository root to configure the exception (after building Microsoft.ApplicationInsights.Web.sln)
 
-    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vr ..\bin\Debug\Src\WindowsServer\WindowsServer.Net40.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
+    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vr ..\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
 	
 (Depending on you OS version, the above exe may be located in different folder. Modify the path according to local path).	
     
@@ -33,7 +33,7 @@ You can also run the tests within Visual Studio using the test explorer. If test
 
 You can remove the strong name verification exception by running this command as Administrator:
 
-    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vu ..\bin\Debug\Src\WindowsServer\WindowsServer.Net40.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
+    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vu ..\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
 
 ## Functional Tests
 It is recommended to rely on unit tests to test functionalities wherever possible. For doing end-to-end valdation, functional tests exists for all the modules. These tests works like described below:
@@ -69,8 +69,12 @@ Helper script to build product and run all tests in this solution - ```runFuncti
 
 "\Test\E2ETests\DependencyCollectionTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.DependencyCollector
 Helper script to build product and run all tests in this solution - ```runFunctionalTestsDependencyCollector```
-For DependencyCollectionTests, all Docker images are downloaded from web when ran for first time and this could take several minutes.
 "..bin\Debug\Test\E2ETests" -- Binary location for Test and Test apps.
+
+Special Notes regarding DependencyCollectionTests
+1. All Docker images are downloaded from internet when ran for first time and this could take several minutes (depends on network speed as around 20GB will be downloaded on first time on a machine.). Tests may appear hung during this time. 
+2. If using Visual Studio Test Explorer to run tests, group the tests by namespace and run each namespaces separately to avoid test conflicts. ```runFunctionalTestsDependencyCollector``` does this automatically.
+
 
 Edit the helper scripts to change between 'Release' and 'Debug' as per your build.
 ```runAllFunctionalTests.cmd``` script builds the product and runs all the above functional tests.
@@ -93,7 +97,6 @@ Workarounds:
 2. One can use advanced tools like 'process explorer' to find out which process is locking files. Kill the process and retry.
 3. Delete bin folder from repository root and rebuild. 
 4. Restart machine if none of the above helps. 
-
 
 Dependency Collector functional tests fail with messages like "Assert.AreEqual failed. Expected:<1>. Actual<0>." or "All apps are not healthy", then its likely that Docker installation has some issues.
 	
