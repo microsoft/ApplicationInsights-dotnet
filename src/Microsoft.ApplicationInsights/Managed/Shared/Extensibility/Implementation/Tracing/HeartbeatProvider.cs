@@ -137,7 +137,7 @@
                 this.telemetryClient = new TelemetryClient(configuration);
             }
 
-            Task.Factory.StartNew(async () => HeartbeatDefaultPayload.PopulateDefaultPayload(this.ExcludedHeartbeatProperties, this, this.EnableInstanceMetadata).ConfigureAwait(false));
+            Task.Factory.StartNew(async () => await HeartbeatDefaultPayload.PopulateDefaultPayload(this.ExcludedHeartbeatProperties, this, this.EnableInstanceMetadata).ConfigureAwait(false));
 
             // Note: if this is a subsequent initialization, the interval between heartbeats will be updated in the next cycle so no .Change call necessary here
             if (this.HeartbeatTimer == null)
