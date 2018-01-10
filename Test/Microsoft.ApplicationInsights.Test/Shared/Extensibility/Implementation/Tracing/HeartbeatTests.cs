@@ -500,7 +500,7 @@
                 var baseProps = new BaseHeartbeatProperties();
                 var defaultFieldName = baseProps.DefaultFields[0];
                 Assert.IsTrue(hbeat.AddHeartbeatProperty(defaultFieldName, true, "test", true));
-                Assert.IsTrue(hbeat.AddHeartbeatProperty(defaultFieldName, true, "test", true));
+                Assert.IsFalse(hbeat.AddHeartbeatProperty(defaultFieldName, true, "test", true));
                 Assert.IsTrue(hbeat.SetHeartbeatProperty(defaultFieldName, true, "test-1", false));
                 Assert.IsFalse(hbeat.SetHeartbeatProperty(defaultFieldName, false, "test-2", false));
             }
