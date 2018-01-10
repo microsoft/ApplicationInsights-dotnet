@@ -36,12 +36,18 @@
         /// Constructor for the Azure specific fields to inject into the heartbeat payload
         /// </summary>
         /// <param name="azInstanceMetadataHandler">(for testing) Azure metadata request handler to use when requesting data from azure specifically. If left as null, an instance of AzureMetadatRequestor is used.</param>
-        public AzureHeartbeatProperties(IAzureMetadataRequestor azInstanceMetadataHandler = null)
+        /// <param name="resetCheckCompleteFlag">(for testing) set to true to reset the check that we've already aquired this data</param>
+        public AzureHeartbeatProperties(IAzureMetadataRequestor azInstanceMetadataHandler = null, bool resetCheckCompleteFlag = false)
         {
             this.azureInstanceMetadataRequestor = azInstanceMetadataHandler;
             if (this.azureInstanceMetadataRequestor == null)
             {
                 this.azureInstanceMetadataRequestor = new AzureMetadataRequestor();
+            }
+
+            if (resetCheckCompleteFlag)
+            {
+                AzureHeartbeatProperties.isAzureMetadataCheckCompleted = true;
             }
         }
 

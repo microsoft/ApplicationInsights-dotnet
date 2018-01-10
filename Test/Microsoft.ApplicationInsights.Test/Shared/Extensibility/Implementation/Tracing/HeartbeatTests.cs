@@ -235,7 +235,7 @@
         public void HeartbeatPayloadContainsOnlyAllowedDefaultPayloadFields()
         {
             var assemblyDefFields = new BaseHeartbeatProperties();
-            var azureInstanceDefFields = new AzureHeartbeatProperties();
+            var azureInstanceDefFields = new AzureHeartbeatProperties(null, true);
 
             var allDefaultFields = azureInstanceDefFields.DefaultFields.Union(assemblyDefFields.DefaultFields).ToList();
 
@@ -437,7 +437,7 @@
             using (var hbeatMock = new HeartbeatProviderMock())
             {
                 AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock();
-                AzureHeartbeatProperties azFields = new AzureHeartbeatProperties(azureInstanceRequestorMock);
+                AzureHeartbeatProperties azFields = new AzureHeartbeatProperties(azureInstanceRequestorMock, true);
                 int counter = 1;
                 foreach (string field in azFields.DefaultFields)
                 {
@@ -461,7 +461,7 @@
             using (var hbeatMock = new HeartbeatProviderMock())
             {
                 AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock();
-                var azFields = new AzureHeartbeatProperties(azureInstanceRequestorMock);
+                var azFields = new AzureHeartbeatProperties(azureInstanceRequestorMock, true);
                 var defaultFields = azFields.DefaultFields;
                 // not adding the fields we're looking for, simulation of the Azure Instance Metadata service not being present...
 
