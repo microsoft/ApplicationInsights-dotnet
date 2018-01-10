@@ -63,11 +63,14 @@ namespace E2ETests
 
         public static void MyClassInitializeBase()
         {
-            Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
+            Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());            
             Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));
-            
+            Trace.WriteLine("DockerComposeFileName:" + DockerComposeFileName);
+
             // Windows Server Machines dont have docker-compose installed.
+            Trace.WriteLine("Getting docker-compose.exe if required.");
             GetDockerCompose();
+            Trace.WriteLine("Getting docker-compose.exe completed.");
 
             //DockerUtils.RemoveDockerImage(Apps[AppNameBeingTested].imageName, true);
             //DockerUtils.RemoveDockerContainer(Apps[AppNameBeingTested].containerName, true);
