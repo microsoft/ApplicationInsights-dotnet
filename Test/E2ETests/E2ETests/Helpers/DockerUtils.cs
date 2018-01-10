@@ -17,10 +17,10 @@ namespace E2ETests.Helpers
             string dockerComposeFullCommandFormat = string.Format("{0} -f {1} {2}", DockerComposeBaseCommandFormat, dockerComposeFile, action);
             CommandLineUtils.ExecuteCommandInCmd(dockerComposeFullCommandFormat);
         }
-        public static string ExecuteDockerCommand(string command)
+        public static string ExecuteDockerCommand(string command, bool ignoreCmdError = false)
         {
             string dockerFullCommand = string.Format("{0} {1}", DockerBaseCommandFormat, command);
-            string output = CommandLineUtils.ExecuteCommandInCmd(dockerFullCommand);
+            string output = CommandLineUtils.ExecuteCommandInCmd(dockerFullCommand, ignoreCmdError);
             return output;
         }
 
@@ -55,11 +55,11 @@ namespace E2ETests.Helpers
         {
             if (force)
             {
-                ExecuteDockerCommand("rm -f " + containerName);
+                ExecuteDockerCommand("rm -f " + containerName, true);
             }
             else
             {
-                ExecuteDockerCommand("rm " + containerName);
+                ExecuteDockerCommand("rm " + containerName, true);
             }
         }
 
@@ -67,11 +67,11 @@ namespace E2ETests.Helpers
         {
             if (force)
             {
-                ExecuteDockerCommand("rmi -f " + imageName);
+                ExecuteDockerCommand("rmi -f " + imageName, true);
             }
             else
             {
-                ExecuteDockerCommand("rmi " + imageName);
+                ExecuteDockerCommand("rmi " + imageName, true);
             }
         }
 

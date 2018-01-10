@@ -23,7 +23,7 @@ The following solution contains the product code and unit tests
 
 Several tests require that you configure a strong name verification exception for Microsoft.WindowsAzure.ServiceRuntime.dll using the [Strong Name Tool](https://msdn.microsoft.com/en-us/library/k5b5tt23(v=vs.110).aspx). Run this command as Administrator from the repository root to configure the exception (after building Microsoft.ApplicationInsights.Web.sln)
 
-    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vr ..\bin\Debug\Src\WindowsServer\WindowsServer.Net40.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
+    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vr ..\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
 	
 (Depending on you OS version, the above exe may be located in different folder. Modify the path according to local path).	
     
@@ -33,7 +33,7 @@ You can also run the tests within Visual Studio using the test explorer. If test
 
 You can remove the strong name verification exception by running this command as Administrator:
 
-    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vu ..\bin\Debug\Src\WindowsServer\WindowsServer.Net40.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
+    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vu ..\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
 
 ## Functional Tests
 It is recommended to rely on unit tests to test functionalities wherever possible. For doing end-to-end valdation, functional tests exists for all the modules. These tests works like described below:
@@ -51,26 +51,36 @@ For Dependency Collector, you need to install Docker for windows as these tests 
 		After installation switch Docker engine to Windows Containers.(https://blogs.msdn.microsoft.com/webdev/2017/09/07/getting-started-with-windows-containers/)
 		And finally, make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready.
 
-Running tests
+Running functional tests
 Before running the functional tests, the product code should be built following 'Build' instructions above.
-After building, open the respective solutions under the Test directory in the repository root and tests can be run from Visual Studio Test Explorer.
+
+After building, open the respective solutions from locations given below, build the solution. Tests will appear in Visual Studio Test Explorer and can be run from there.
 
 The following solutions contains the functional tests for various features.
 
 "\Test\Web\FunctionalTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.Web
 Helper script to build product and run all tests in this solution - ```runFunctionalTestsWeb```
 
+"..\bin\Debug\Test\Web\FunctionalTests" -- Binary location for Test and Test apps.
+
 "\Test\PerformanceCollector\FunctionalTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.PerfCounterCollector
 Helper script to build product and run all tests in this solution - ```runFunctionalTestsPerfCollectorAndQuickPulse```
+"..\bin\Debug\Test\PerformanceCollector\FunctionalTests" -- Binary location for Test and Test apps.
 
 "\Test\E2ETests\DependencyCollectionTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.DependencyCollector
 Helper script to build product and run all tests in this solution - ```runFunctionalTestsDependencyCollector```
-For DependencyCollectionTests, all Docker images are downloaded from web when ran for first time and this could take several minutes.
+"..bin\Debug\Test\E2ETests" -- Binary location for Test and Test apps.
+
+Special Notes regarding DependencyCollectionTests
+1. All Docker images are downloaded from internet when ran for first time and this could take several minutes (depends on network speed as around 20GB will be downloaded on first time on a machine.). Tests may appear hung during this time. 
+2. If using Visual Studio Test Explorer to run tests, group the tests by namespace and run each namespaces separately to avoid test conflicts. ```runFunctionalTestsDependencyCollector``` does this automatically.
+
 
 Edit the helper scripts to change between 'Release' and 'Debug' as per your build.
 ```runAllFunctionalTests.cmd``` script builds the product and runs all the above functional tests.
 
 Its is important to note that functional tests do no trigger product code build, so explicit build of product code is required before running functional tests.
+A typical work flow would be make-produce-change followed by build-product followed by build-functest-solution and finally run-func-tests. (This helpers scripts does this.)
 
 ## Known issues/workarounds with running functional tests.
 
@@ -88,7 +98,6 @@ Workarounds:
 3. Delete bin folder from repository root and rebuild. 
 4. Restart machine if none of the above helps. 
 
-
 Dependency Collector functional tests fail with messages like "Assert.AreEqual failed. Expected:<1>. Actual<0>." or "All apps are not healthy", then its likely that Docker installation has some issues.
 	
 Workaround if you are trying first time - Make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready. Also, the very first time DependencyCollector tests are run, all Docker images are downloaded from web and this could potentially take an hour or so. This is only one time per machine.	
@@ -96,6 +105,8 @@ Alternate workaround if you have previously run the tests successfully atleast o
 
 The test code intentionally does not clean up the containers it spun up. This is to enable fast re-runs of the tests. If the Test App code is changed, then Docker-Compose will detect it, and re-build the container.
 If you want to do clean up all the containers created by the test, execute the ```dockercleanup.ps1``` from repository root. This is typically required if tests were aborted in the middle of a run for some reason.
+
+After retrying, it tests still fail, please clear the binaries folder and rebuild the product solution and test solution and run the tests again.
 
 If none of the above helps, please open an issue in Github describing the problem.
 
