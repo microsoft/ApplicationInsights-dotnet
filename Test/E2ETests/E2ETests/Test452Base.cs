@@ -178,6 +178,7 @@ namespace E2ETests
         public static void MyClassCleanupBase()
         {
             Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
+            RemoveIngestionItems();
             // Not doing cleanup intentional for fast re-runs in local.
             //DockerUtils.ExecuteDockerComposeCommand("down", DockerComposeFileName);            
             Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
@@ -925,7 +926,11 @@ namespace E2ETests
             var requestsSource = WaitForReceiveRequestItemsFromDataIngestion(sourceInstanceIp, sourceIKey);            
             var dependenciesSource = WaitForReceiveDependencyItemsFromDataIngestion(sourceInstanceIp, sourceIKey);
             var requestsTarget = WaitForReceiveRequestItemsFromDataIngestion(targetInstanceIp, targetIKey);
-            
+
+            PrintDependencies(dependenciesSource);
+            PrintRequests(requestsSource);
+            PrintRequests(requestsTarget);
+
             ReadApplicationTraces(sourceInstanceIp, "/Dependencies.aspx?type=etwlogs");
             ReadApplicationTraces(targetInstanceIp, "/Dependencies.aspx?type=etwlogs");
 
@@ -940,10 +945,7 @@ namespace E2ETests
 
             var requestSource = requestsSource[0];
             var requestTarget = requestsTarget[0];
-            var dependencySource = dependenciesSource[0];
-            PrintDependencies(dependenciesSource);
-            PrintRequests(requestsSource);
-            PrintRequests(requestsTarget);
+            var dependencySource = dependenciesSource[0];            
 
             Assert.IsTrue(requestSource.tags["ai.operation.id"].Equals(requestTarget.tags["ai.operation.id"]),
                 "Operation id for request telemetry in source and target must be same.");
@@ -1200,7 +1202,7 @@ namespace E2ETests
             }
         }
 
-        private void RemoveIngestionItems()
+        private static void RemoveIngestionItems()
         {
             Trace.WriteLine("Deleting items started:" + DateTime.UtcNow.ToLongTimeString());            
             foreach(var app in Apps)

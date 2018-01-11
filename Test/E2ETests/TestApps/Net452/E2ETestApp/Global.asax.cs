@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.ApplicationInsights.Extensibility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -16,6 +17,7 @@ namespace E2ETestApp
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode = true;
         }
     }
 }
