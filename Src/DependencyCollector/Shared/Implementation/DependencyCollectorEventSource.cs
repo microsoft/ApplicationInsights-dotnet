@@ -455,11 +455,11 @@
         [Event(
             44,
             Keywords = Keywords.RddEventKeywords,
-            Message = "AutoTrackingDependencyTelemetry name {0}, time = {1}",
+            Message = "AutoTrackingDependencyTelemetry name {0}",
             Level = EventLevel.Verbose)]
-        public void AutoTrackingDependencyItem(string depName, DateTimeOffset dateTimeOffset, string appDomainName = "Incorrect")
+        public void AutoTrackingDependencyItem(string depName, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(44, depName, dateTimeOffset, this.ApplicationName);
+            this.WriteEvent(44, depName, this.ApplicationName);
         }
 
         [Event(

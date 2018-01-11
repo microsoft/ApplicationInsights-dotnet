@@ -425,7 +425,7 @@
                         telemetry.Success = true;
                     }
 
-                    DependencyCollectorEventSource.Log.AutoTrackingDependencyItem(telemetry.Name, telemetry.Timestamp);
+                    DependencyCollectorEventSource.Log.AutoTrackingDependencyItem(telemetry.Name);
                     ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
                 }
                 else
