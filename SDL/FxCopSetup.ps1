@@ -8,7 +8,7 @@ Param(
 )
 
 # these are dlls that end up in the bin, but do not belong to us and don't need to be scanned.
-$excludedFiles = @();
+$excludedFiles = @("System.Diagnostics.DiagnosticSource.dll");
 
 Write-Host "`nPARAMETERS:";
 Write-Host "`tbuildDirectory:" $buildDirectory;
