@@ -4,6 +4,7 @@
 - Update Application Insights API reference to [2.5.0-beta1]
 - Removed framework 4.0 support
 - For EventSourceTelemetryModule, allows black list the event sources. Drops the events to those in the list.
+- Update NLog reference to [4.4.12](https://github.com/NLog/NLog/releases/tag/v4.4.12)
 
 ### Version 2.4.0
 - Update Application Insights API reference to [2.4.0]

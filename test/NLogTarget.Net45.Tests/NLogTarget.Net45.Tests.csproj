@@ -15,7 +15,7 @@
     <PackageReference Include="Microbuild.Core" Version="0.2.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="NLog" Version="4.3.11" />
+    <PackageReference Include="NLog" Version="4.4.12" />
     <ProjectReference Include="..\..\src\NLogTarget\NLogTarget.csproj" />
     <Reference Include="System.Net.Http" />
   </ItemGroup>
