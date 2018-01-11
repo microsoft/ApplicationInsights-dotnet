@@ -15,6 +15,15 @@
         public DiagnosticsEventListener(EventLevel logLevel)
         {
             this.logLevel = logLevel;
+
+            string MyDirectoryPath = "c:\\mylogs";
+            string filename = "logs.txt";
+            if (!Directory.Exists(MyDirectoryPath))
+            {
+                Directory.CreateDirectory(MyDirectoryPath);
+            }
+            var target = Path.Combine(MyDirectoryPath, filename);
+            File.AppendAllText(target, "Starting..." + DateTime.UtcNow.ToLongTimeString());
         }
 
         protected override void OnEventWritten(EventWrittenEventArgs eventSourceEvent)
@@ -44,7 +53,6 @@
             var target = Path.Combine(MyDirectoryPath, filename);
 
             File.AppendAllText(target, data);
-
         }
 
         protected override void OnEventSourceCreated(EventSource eventSource)

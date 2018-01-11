@@ -1061,7 +1061,8 @@ namespace E2ETests
 
 
                 HttpClient client = new HttpClient();
-                string url = "http://" + targetInstanceIp + targetPath;                
+                string url = "http://" + targetInstanceIp + targetPath;
+                Trace.WriteLine("Hitting url to get traces: " + url);
                 try
                 {
                     var response = client.GetStringAsync(url).Result;
