@@ -452,6 +452,26 @@
             this.WriteEvent(43, eventName, id, error, this.ApplicationName);
         }
 
+        [Event(
+            44,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "AutoTrackingDependencyTelemetry name {0}",
+            Level = EventLevel.Verbose)]
+        public void AutoTrackingDependencyItem(string depName, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(44, depName, this.ApplicationName);
+        }
+
+        [Event(
+            45,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "Ending operation for dependency name {0}, not tracking this item.",
+            Level = EventLevel.Verbose)]
+        public void EndOperationNoTracking(string depName, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(45, depName, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

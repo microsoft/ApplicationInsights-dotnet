@@ -356,7 +356,7 @@
     <Folder Include="App_Data\" />
   </ItemGroup>
   <PropertyGroup>
-    <DeployOnBuild>true</DeployOnBuild>
+    <!--<DeployOnBuild>true</DeployOnBuild>-->
     <DeployTarget>PipelinePreDeployCopyAllFilesToOneFolder</DeployTarget>
     <_PackageTempDir>$(OutputPath)\App</_PackageTempDir>
     <AutoParameterizationWebConfigConnectionStrings>false</AutoParameterizationWebConfigConnectionStrings>

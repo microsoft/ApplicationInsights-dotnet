@@ -139,7 +139,7 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
   <PropertyGroup>
-    <DeployOnBuild>true</DeployOnBuild>
+    <!--<DeployOnBuild>true</DeployOnBuild>-->
     <DeployTarget>PipelinePreDeployCopyAllFilesToOneFolder</DeployTarget>
     <_PackageTempDir>$(OutputPath)\App</_PackageTempDir>
     <AutoParameterizationWebConfigConnectionStrings>false</AutoParameterizationWebConfigConnectionStrings>

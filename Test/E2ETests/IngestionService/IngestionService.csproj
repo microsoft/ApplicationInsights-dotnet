@@ -115,7 +115,7 @@
     <Folder Include="Models\" />
   </ItemGroup>
   <PropertyGroup>
-    <DeployOnBuild>true</DeployOnBuild>
+    <!--<DeployOnBuild>true</DeployOnBuild>-->
     <DeployTarget>PipelinePreDeployCopyAllFilesToOneFolder</DeployTarget>
     <_PackageTempDir>$(OutputPath)\Publish</_PackageTempDir>
     <AutoParameterizationWebConfigConnectionStrings>false</AutoParameterizationWebConfigConnectionStrings>

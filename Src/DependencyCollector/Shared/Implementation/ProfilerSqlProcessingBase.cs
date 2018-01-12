@@ -425,10 +425,12 @@
                         telemetry.Success = true;
                     }
 
+                    DependencyCollectorEventSource.Log.AutoTrackingDependencyItem(telemetry.Name);
                     ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
                 }
                 else
                 {
+                    DependencyCollectorEventSource.Log.EndOperationNoTracking(telemetry.Name);
                     ClientServerDependencyTracker.EndOperation(telemetry);
                 }
             }

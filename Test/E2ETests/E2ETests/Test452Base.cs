@@ -65,9 +65,12 @@ namespace E2ETests
         {
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
             Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));
-            
+            Trace.WriteLine("DockerComposeFileName:" + DockerComposeFileName);
+
             // Windows Server Machines dont have docker-compose installed.
+            Trace.WriteLine("Getting docker-compose.exe if required.");
             GetDockerCompose();
+            Trace.WriteLine("Getting docker-compose.exe completed.");
 
             //DockerUtils.RemoveDockerImage(Apps[AppNameBeingTested].imageName, true);
             //DockerUtils.RemoveDockerContainer(Apps[AppNameBeingTested].containerName, true);
@@ -175,6 +178,7 @@ namespace E2ETests
         public static void MyClassCleanupBase()
         {
             Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
+            RemoveIngestionItems();
             // Not doing cleanup intentional for fast re-runs in local.
             //DockerUtils.ExecuteDockerComposeCommand("down", DockerComposeFileName);            
             Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
@@ -923,11 +927,17 @@ namespace E2ETests
             var dependenciesSource = WaitForReceiveDependencyItemsFromDataIngestion(sourceInstanceIp, sourceIKey);
             var requestsTarget = WaitForReceiveRequestItemsFromDataIngestion(targetInstanceIp, targetIKey);
 
-            PrintApplicationTraces(sourceIKey);
-            PrintApplicationTraces(targetIKey);
+            PrintDependencies(dependenciesSource);
+            PrintRequests(requestsSource);
+            PrintRequests(requestsTarget);
+
+            ReadApplicationTraces(sourceInstanceIp, "/Dependencies.aspx?type=etwlogs");
+            ReadApplicationTraces(targetInstanceIp, "/Dependencies.aspx?type=etwlogs");
 
             Trace.WriteLine("RequestCount for Source:" + requestsSource.Count);
-            Assert.IsTrue(requestsSource.Count == 1);
+            // There could be 1 additional request here coming from the health check.
+            // In profiler cases, this request telemetry may arrive quite late
+            Assert.IsTrue(requestsSource.Count >= 1);
 
             Trace.WriteLine("RequestCount for Target:" + requestsTarget.Count);
             Assert.IsTrue(requestsTarget.Count == 1);
@@ -937,10 +947,7 @@ namespace E2ETests
 
             var requestSource = requestsSource[0];
             var requestTarget = requestsTarget[0];
-            var dependencySource = dependenciesSource[0];
-            PrintDependencies(dependenciesSource);
-            PrintRequests(requestsSource);
-            PrintRequests(requestsTarget);
+            var dependencySource = dependenciesSource[0];            
 
             Assert.IsTrue(requestSource.tags["ai.operation.id"].Equals(requestTarget.tags["ai.operation.id"]),
                 "Operation id for request telemetry in source and target must be same.");
@@ -1056,7 +1063,8 @@ namespace E2ETests
 
 
                 HttpClient client = new HttpClient();
-                string url = "http://" + targetInstanceIp + targetPath;                
+                string url = "http://" + targetInstanceIp + targetPath;
+                Trace.WriteLine("Hitting url to get traces: " + url);
                 try
                 {
                     var response = client.GetStringAsync(url).Result;
@@ -1085,6 +1093,8 @@ namespace E2ETests
             var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
             Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
             PrintDependencies(dependenciesWebApp);
+
+            ReadApplicationTraces(targetInstanceIp, "/Dependencies.aspx?type=etwlogs");
 
             Assert.IsTrue(dependenciesWebApp.Count >= minCount, string.Format("Dependeny count is incorrect. Actual: {0} Expected minimum: {1}", dependenciesWebApp.Count, minCount));
             var dependency = dependenciesWebApp[0];
@@ -1195,7 +1205,7 @@ namespace E2ETests
             }
         }
 
-        private void RemoveIngestionItems()
+        private static void RemoveIngestionItems()
         {
             Trace.WriteLine("Deleting items started:" + DateTime.UtcNow.ToLongTimeString());            
             foreach(var app in Apps)

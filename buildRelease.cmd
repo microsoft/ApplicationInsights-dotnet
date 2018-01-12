@@ -7,5 +7,5 @@ SET ProjectName=Msbuild.All
 SET Configuration=Release
 SET Platform="Mixed Platforms"
 
-nuget restore -NonInteractive
-"%MSBUILD%" dirs.proj /nologo /m:1  /fl /toolsversion:%ToolsVersion% /flp:logfile=%ProjectName%.%Platform%.log;v=d /flp1:logfile=%ProjectName%.%Platform%.wrn;warningsonly /flp2:logfile=%ProjectName%.%Platform%.err;errorsonly /p:Configuration=%Configuration% /p:Platform=%Platform% /flp3:logfile=%ProjectName%.%Platform%.prf;performancesummary /flp4:logfile=%ProjectName%.%Platform%.exec.log;showcommandline /p:BuildSingleFilePackage=true
+
+"%MSBUILD%" dirs.proj /nologo /m:1  /fl /toolsversion:%ToolsVersion% /flp:logfile=%ProjectName%.%Platform%.log;v=d /flp1:logfile=%ProjectName%.%Platform%.wrn;warningsonly /flp2:logfile=%ProjectName%.%Platform%.err;errorsonly /p:Configuration=%Configuration% /p:Platform=%Platform% /flp3:logfile=%ProjectName%.%Platform%.prf;performancesummary /flp4:logfile=%ProjectName%.%Platform%.exec.log;showcommandline /p:BuildSingleFilePackage=true /p:ExcludeTests=true
