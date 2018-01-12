@@ -7,12 +7,32 @@ Param(
     [string]$fxCopDirectory = (Join-Path -Path (Split-Path -parent (Split-Path -parent (Split-Path -parent $PSCommandPath))) -ChildPath "fxCop")
 )
 
+function IsFileDependency {
+    [CmdletBinding()]
+    param
+    (    
+    $file
+    )
+        $dependencyFiles | ForEach-Object {
+            if($file.Name -eq $_) {
+                return $true;
+            } 
+        }
+    
+        return $false;
+    }
+
 # these are dlls that end up in the bin, but do not belong to us and don't need to be scanned.
 $excludedFiles = @();
+$dependencyFiles = @("System.Diagnostics.DiagnosticSource.dll");
 
 Write-Host "`nPARAMETERS:";
 Write-Host "`tbuildDirectory:" $buildDirectory;
 Write-Host "`tfxCopDirectory:" $fxCopDirectory;
+
+$fxCopTargetDir = Join-Path -Path $fxCopDirectory -ChildPath "target";
+$fxCopDependenciesDir = Join-Path -Path $fxCopDirectory -ChildPath "dependencies";
+
 
 $frameworks = @("net45", "net46", "netstandard1.3");
 
@@ -31,9 +51,17 @@ Get-ChildItem -Path $buildDirectory -Recurse -File -Include *.dll, *.pdb |
             return;
         }
 
+        #find matching framework
         $frameworks | ForEach-Object {
             if($file.Directory -match $_) {
-                Copy-Item $file.FullName -Destination (New-Item (Join-Path -Path $fxCopDirectory -ChildPath $_) -Type container -Force) -Force;
+                $framework = $_;
+
+                #is this file a dependency
+                if (IsFileDependency($file)) {
+                    Copy-Item $file.FullName -Destination (New-Item (Join-Path -Path $fxCopDependenciesDir -ChildPath $framework) -Type container -Force) -Force;
+                } else {
+                    Copy-Item $file.FullName -Destination (New-Item (Join-Path -Path $fxCopTargetDir -ChildPath $framework) -Type container -Force) -Force;
+                }
             }
         }
     }
@@ -61,3 +89,4 @@ Get-ChildItem -Path $fxCopDirectory -Recurse -File |
     } 
 
 Write-Host "`nTOTAL FILES:" $count;
+
