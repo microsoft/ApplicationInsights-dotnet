@@ -88,6 +88,10 @@ A typical work flow would be make-produce-change followed by build-product follo
 
 If any tests fail, please retry first to see if it helps. If not, try one of the known issues below. 
 
+Tests fail with error like "It was not possible to find any compatible framework version The specified framework 'Microsoft.NETCore.App', version '1.0.4' was not found"
+
+Workaround: Install .NET Core SDK 1.1.7.
+
 Web and PerformanceCollector fails with error related to 'Port conflicts' - its possible that some prior tests has not released ports. 
 	Workaround - Kill all running IISExpress processes and re-run tests.
 	
