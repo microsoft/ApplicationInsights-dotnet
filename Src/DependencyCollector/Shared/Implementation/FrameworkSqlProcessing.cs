@@ -103,7 +103,7 @@
                 var telemetry = telemetryTuple.Item1 as DependencyTelemetry;
                 telemetry.Success = success;
                 telemetry.ResultCode = sqlExceptionNumber != 0 ? sqlExceptionNumber.ToString(CultureInfo.InvariantCulture) : string.Empty;
-
+                DependencyCollectorEventSource.Log.AutoTrackingDependencyItem(telemetry.Name);
                 ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
             }
         }
