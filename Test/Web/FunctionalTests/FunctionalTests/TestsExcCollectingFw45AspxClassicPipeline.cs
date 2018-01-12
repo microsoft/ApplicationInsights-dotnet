@@ -21,7 +21,7 @@ namespace Functional
     public class TestsExcCollectingFW45AspxClassicPipeline : ExceptionTelemetryTestBase
     {
         private const string TestWebApplicaionSourcePath = @"..\TestApps\Wa45Aspx\App";
-        private const string TestWebApplicaionDestPath = "TestApps_TestsExcCollectingFW45AspxClassicPipeline_App";
+        private const string TestWebApplicaionDestPath = @"..\TestApps\Wa45Aspx\App";
 
         private const int TestRequestTimeoutInMs = 150000;
         private const int TestListenerTimeoutInMs = 5000;
@@ -33,6 +33,7 @@ namespace Functional
                     Directory.GetCurrentDirectory(),
                     TestWebApplicaionDestPath);
 
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
             Trace.WriteLine("Application directory:" + applicationDirectory);
 
             File.Copy(
@@ -66,7 +67,7 @@ namespace Functional
         /// </summary>
         [Owner("sergeyni")]
         [Description("Tests exception collecting form sync web page")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        
         [TestMethod]
         [Ignore]
         // Currently we do not collect exceptions in classic mode

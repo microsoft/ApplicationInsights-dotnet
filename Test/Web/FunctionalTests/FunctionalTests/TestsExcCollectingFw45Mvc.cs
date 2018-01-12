@@ -12,7 +12,7 @@
     public class TestsExcCollectingFW45Mvc : ExceptionTelemetryTestBase
     {
         private const int TimeoutInMs = 10000;
-        private const string ApplicationDirName = "TestApps_Mvc4_MediumTrust_App";
+        private const string ApplicationDirName = @"..\TestApps\Mvc4_MediumTrust\App";
 
         [TestInitialize]
         public void TestInitialize()
@@ -21,6 +21,7 @@
                 Directory.GetCurrentDirectory(),
                 ApplicationDirName);
 
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
             Trace.WriteLine("Application directory:" + applicationDirectory);
 
             this.StartWebAppHost(
@@ -46,7 +47,6 @@
 
         [TestMethod]
         [Owner("abaranch")]
-        [DeploymentItem(@"..\TestApps\Mvc4_MediumTrust\App", "TestApps_Mvc4_MediumTrust_App")]
         public void Test4MediumRequestAndExceptionAreTrackedForResourceNotFoundException()
         {
             var request = (HttpWebRequest) WebRequest.Create(this.Config.ApplicationUri + "/wrongController?id=13");
@@ -80,7 +80,7 @@
                 "The controller for path '/wrongController' was not found or does not implement IController.",
                 "System.Web.Mvc.DefaultControllerFactory.GetControllerInstance",
                 "System.Web.Mvc, Version=",
-                8);
+                9);
         }
     }
 }

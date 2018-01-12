@@ -21,7 +21,7 @@ namespace Functional
     public class TestsExcCollectingFW45AspxIntegratedPipeline : ExceptionTelemetryTestBase
     {
         private const string TestWebApplicaionSourcePath = @"..\TestApps\Wa45Aspx\App";
-        private const string TestWebApplicaionDestPath = "TestApps_TestsExcCollectingFW45AspxIntegratedPipeline_App";
+        private const string TestWebApplicaionDestPath = @"..\TestApps\Wa45Aspx\App";
 
         private const int TestRequestTimeoutInMs = 150000;
         private const int TestListenerTimeoutInMs = 5000;
@@ -33,6 +33,7 @@ namespace Functional
                     Directory.GetCurrentDirectory(),
                     TestWebApplicaionDestPath);
 
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
             Trace.WriteLine("Application directory:" + applicationDirectory);
 
             File.Copy(
@@ -65,8 +66,7 @@ namespace Functional
         /// Tests exception collecting form sync web page
         /// </summary>
         [Owner("sergeyni")]
-        [Description("Tests exception collecting form sync web page")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Description("Tests exception collecting form sync web page")]        
         [TestMethod]
         public void TestSyncExceptionWebFormExceptionCollecting()
         {
@@ -117,7 +117,7 @@ namespace Functional
                 "Exception of type 'System.Web.HttpUnhandledException' was thrown.",
                 "System.Web.UI.Page.HandleError",
                 "System.Web, Version=",
-                9);
+                10);
             
             Trace.WriteLine("Validate details 1");
             this.ValidateExceptionDetails(

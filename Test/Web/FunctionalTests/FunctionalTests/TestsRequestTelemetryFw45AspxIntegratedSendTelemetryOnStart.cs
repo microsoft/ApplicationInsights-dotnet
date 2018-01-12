@@ -22,7 +22,7 @@ namespace Functional
     public class TestsRequestTelemetryFW45AspxIntegratedSendTelemetryOnStart : SingleWebHostTestBase
     {
         private const string TestWebApplicaionSourcePath = @"..\TestApps\WebAppFW45\App";
-        private const string TestWebApplicaionDestPath = "TestApps_TestsRequestTelemetryFW45AspxIntegratedSendTelemetryOnStart_App";
+        private const string TestWebApplicaionDestPath = @"..\TestApps\WebAppFW45\App";
 
         private const int TestRequestTimeoutInMs = 150000;
         private const int TestListenerTimeoutInMs = 5000;
@@ -34,6 +34,7 @@ namespace Functional
                     Directory.GetCurrentDirectory(),
                     TestWebApplicaionDestPath);
 
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
             Trace.WriteLine("Application directory:" + applicationDirectory);
 
             UpdateAppConfigSettings(
@@ -67,8 +68,7 @@ namespace Functional
         /// Tests correct values of StartTime and duration in collected request telemetry
         /// </summary>
         [Owner("sergeyni")]
-        [Description("Tests correct values of StartTime and duration in collected request telemetry")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Description("Tests correct values of StartTime and duration in collected request telemetry")]        
         [TestMethod]
         public void TestSendingTelemetryOnWebApplicationStart()
         {

@@ -21,7 +21,7 @@
         private const int TestListenerWaitTimeInMs = 40000;
 
         private const string TestWebApplicaionSourcePath = @"..\TestApps\WebAppFW45\App";
-        private const string TestWebApplicaionDestPath = @"TestsUserSessionFW45Wcf45";
+        private const string TestWebApplicaionDestPath = @"..\TestApps\WebAppFW45\App";
 
         private static TestWebServiceSoapClient asmxClient;
 
@@ -32,6 +32,7 @@
                 Directory.GetCurrentDirectory(),
                 TestWebApplicaionDestPath);
 
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
             Trace.WriteLine("Application directory:" + applicationDirectory);
 
             this.StartWebAppHost(
@@ -69,7 +70,6 @@
 
         [TestMethod]
         [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
         public void Mvc200RequestFW45BasicRequestValidationAndHeaders()
         {
             const string requestPath = "api/products";
@@ -110,8 +110,7 @@
 
 
         [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Owner("abaranch")]        
         public void Mvc200RequestFW45BasicRequestValidationAndLegacyIdHeaders()
         {
             const string requestPath = "api/products";
@@ -145,8 +144,7 @@
         }
 
         [TestMethod]
-        [Owner("mafletch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Owner("mafletch")]        
         public void Mvc200RequestFW45BasicRequestSyntheticFiltering()
         {
             const string requestPath = "api/products";
@@ -180,8 +178,7 @@
         }
 
         [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Owner("abaranch")]        
         public void TestMvc404Request()
         {
             const string requestPath = "api/products/101";
@@ -212,8 +209,7 @@
         }
 
         [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Owner("abaranch")]        
         public void TestWcf200OneWayRequest()
         {
             const string requestPath = "Wcf/WcfEndpoint.svc/OneWayMethod";
@@ -236,8 +232,7 @@
         }
 
         [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Owner("abaranch")]        
         public void TestWcf200PostRequest()
         {
             const string requestPath = "Wcf/WcfEndpoint.svc/PostMethod";
@@ -260,8 +255,7 @@
         }
 
         [TestMethod]
-        [Owner("sergeyni")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Owner("sergeyni")]        
         public void TestWcf200GetRequest()
         {
             const string requestPath = "Wcf/WcfEndpoint.svc/GetMethod/fail/false";
@@ -284,8 +278,7 @@
         }
 
         [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Owner("abaranch")]        
         public void TestWcf503PostRequest()
         {
             const string requestPath = "Wcf/WcfEndpoint.svc/PostMethod";
@@ -315,8 +308,7 @@
         }
 
         [TestMethod]
-        [Owner("sergeyni")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Owner("sergeyni")]        
         public void TestWcf503GetRequest()
         {
             const string requestPath = "Wcf/WcfEndpoint.svc/GetMethod/fail/true";
@@ -346,8 +338,7 @@
         }
 
         [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Owner("abaranch")]        
         public void TestAsmx200Request()
         {
             const string requestPath = "Asmx/TestWebService.asmx";
@@ -372,8 +363,7 @@
         }
 
         [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Owner("abaranch")]        
         public void TestAsmx_500Request()
         {
             const string requestPath = "Asmx/TestWebService.asmx";
@@ -406,8 +396,7 @@
         }
 
         [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Owner("abaranch")]        
         public void TestAsmx_CheckExceptionAndRequestCollectedForResourceNotFound()
         {
             var postTask = HttpClient.GetAsync("asmx/WcfEndpointBad.svc/GetMethod");
@@ -443,8 +432,7 @@
         /// are returning 1 telemetry object or not (where we have 2 requests).
         /// </summary>
         [Owner("sergeyni")]
-        [TestMethod]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [TestMethod]        
         public void TestTelemetryObjectCountWhenTransferRequestHandlerIsUsedInWcf()
         {
             HttpClient.GetAsync("Wcf/WcfEndpoint.svc/GetMethodTrue");
@@ -457,8 +445,7 @@
         }
 
         [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Owner("abaranch")]        
         public void TestApplicationVersionIsPopulatedFromBuildInfoFile()
         {
             HttpClient.GetAsync("Wcf/WcfEndpoint.svc/GetMethodTrue");
@@ -477,8 +464,7 @@
         }
 
         [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Owner("abaranch")]        
         public void TestRequestPropertiesAreCollectedForDangerousRequest()
         {
             DateTimeOffset testStart = DateTimeOffset.UtcNow;

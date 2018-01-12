@@ -12,7 +12,7 @@
     public class DiagnosticsTest : SingleWebHostTestBase
     {
         private const string TestWebApplicaionSourcePath = @"..\TestApps\AspNetDiagnostics\App";
-        private const string TestWebApplicaionDestPath = "TestApps_AspNetDiagnostics_App";
+        private const string TestWebApplicaionDestPath = @"..\TestApps\AspNetDiagnostics\App";
 
         private const int TestRequestTimeoutInMs = 15000;
         private const int TestListenerTimeoutInMs = 10000;
@@ -26,6 +26,7 @@
                     Directory.GetCurrentDirectory(),
                     TestWebApplicaionDestPath);
 
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
             Trace.WriteLine("Application directory:" + applicationDirectory);
 
             this.StartWebAppHost(
@@ -49,8 +50,7 @@
 
         [TestMethod]
         [Owner("sergeyni")]
-        [Description("Validates that diagnostics module sends trace data to the Portal")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Description("Validates that diagnostics module sends trace data to the Portal")]        
         public void TestDiagnosticsFW45()
         {
             var responseTask = this.HttpClient.GetStringAsync("/");

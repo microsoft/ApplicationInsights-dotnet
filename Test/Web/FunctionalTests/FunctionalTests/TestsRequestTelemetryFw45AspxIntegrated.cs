@@ -21,7 +21,7 @@ namespace Functional
     public class TestsRequestTelemetryFW45AspxIntegrated : RequestTelemetryTestBase
     {
         private const string TestWebApplicaionSourcePath = @"..\TestApps\Wa45Aspx\App";
-        private const string TestWebApplicaionDestPath = "TestApps_TestsRequestTelemetryFW45AspxIntegrated_App";
+        private const string TestWebApplicaionDestPath = @"..\TestApps\Wa45Aspx\App";
 
         private const int TestRequestTimeoutInMs = 150000;
         private const int TestListenerTimeoutInMs = 5000;
@@ -33,8 +33,10 @@ namespace Functional
                     Directory.GetCurrentDirectory(),
                     TestWebApplicaionDestPath);
 
-            Trace.WriteLine("Application directory:" + applicationDirectory);
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
 
+            Trace.WriteLine("Application directory:" + applicationDirectory);
+            
             File.Copy(
                 Path.Combine(applicationDirectory, "App_Data", "IntegratedPipeline.Web.config"),
                 Path.Combine(applicationDirectory, "Web.config"),
@@ -65,8 +67,7 @@ namespace Functional
         /// Tests correct values of StartTime and duration in collected request telemetry
         /// </summary>
         [Owner("sergeyni")]
-        [Description("Tests correct values of StartTime and duration in collected request telemetry")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Description("Tests correct values of StartTime and duration in collected request telemetry")]        
         [TestMethod]
         public void TestFW45Aspx()
         {
