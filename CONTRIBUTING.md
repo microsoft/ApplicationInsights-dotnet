@@ -7,7 +7,9 @@ If you're interested in contributing, take a look at the general [contributer's 
 To successfully build the sources on your machine, make sure you've installed the following prerequisites:
 * Visual Studio 2017 Community or Enterprise
 * .NET 4.6
-* .NET Core SDK 2.0 (https://www.microsoft.com/net/download/windows)
+* .NET Core SDK 1.1.7
+* .NET Core SDK 2.0 or above.(https://www.microsoft.com/net/download/windows)
+
 
 Once you've installed the prerequisites execute either ```buildDebug.cmd``` or ```buildRelease.cmd``` script in the repository root to build the project (excluding functional tests) locally.
 
@@ -85,6 +87,10 @@ A typical work flow would be make-produce-change followed by build-product follo
 ## Known issues/workarounds with running functional tests.
 
 If any tests fail, please retry first to see if it helps. If not, try one of the known issues below. 
+
+Tests fail with error like "It was not possible to find any compatible framework version The specified framework 'Microsoft.NETCore.App', version '1.0.4' was not found"
+
+Workaround: Install .NET Core SDK 1.1.7.
 
 Web and PerformanceCollector fails with error related to 'Port conflicts' - its possible that some prior tests has not released ports. 
 	Workaround - Kill all running IISExpress processes and re-run tests.
