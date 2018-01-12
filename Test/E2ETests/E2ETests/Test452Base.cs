@@ -1249,9 +1249,11 @@ namespace E2ETests
             try
             {
                 url = "http://" + app.ipAddress + app.healthCheckPath;
+                Stopwatch sw = Stopwatch.StartNew();
                 Trace.WriteLine(string.Format("{2}:Request fired against {0} using url: {1}", app.containerName, url, DateTime.UtcNow.ToLongTimeString()));
                 var response = new HttpClient().GetAsync(url);
                 Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result.StatusCode));
+                Trace.WriteLine("Health check took " + sw.ElapsedMilliseconds + " msec.");
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     isHealthy = false;
