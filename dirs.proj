@@ -5,10 +5,8 @@
     <Solution Include="Src\Microsoft.ApplicationInsights.Web.sln" />
   </ItemGroup>
   
-  <ItemGroup Condition="$(ExcludeTests) != 'true'" >
-    <Solution Include="Test\PerformanceCollector\FunctionalTests.sln" />
-    <Solution Include="Test\Web\FunctionalTests.sln" />
-	<Solution Include="Test\E2ETests\DependencyCollectionTests.sln" />
+  <ItemGroup Condition="$(ExcludeTests) != 'true'" >    
+    <Solution Include="Test\Web\FunctionalTests.sln" />	
   </ItemGroup>
   
   <Target Name="Build">
