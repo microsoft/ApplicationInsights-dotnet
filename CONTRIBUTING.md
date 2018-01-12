@@ -7,7 +7,9 @@ If you're interested in contributing, take a look at the general [contributer's 
 To successfully build the sources on your machine, make sure you've installed the following prerequisites:
 * Visual Studio 2017 Community or Enterprise
 * .NET 4.6
-* .NET Core SDK 2.0 or above(https://www.microsoft.com/net/download/windows)
+* .NET Core SDK 1.1.7
+* .NET Core SDK 2.0 or above.(https://www.microsoft.com/net/download/windows)
+
 
 Once you've installed the prerequisites execute either ```buildDebug.cmd``` or ```buildRelease.cmd``` script in the repository root to build the project (excluding functional tests) locally.
 
