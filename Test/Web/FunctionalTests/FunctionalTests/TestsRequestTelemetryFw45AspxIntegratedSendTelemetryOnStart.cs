@@ -66,8 +66,7 @@ namespace Functional
 
         /// <summary>
         /// Tests correct values of StartTime and duration in collected request telemetry
-        /// </summary>
-        [Owner("sergeyni")]
+        /// </summary>        
         [Description("Tests correct values of StartTime and duration in collected request telemetry")]        
         [TestMethod]
         public void TestSendingTelemetryOnWebApplicationStart()

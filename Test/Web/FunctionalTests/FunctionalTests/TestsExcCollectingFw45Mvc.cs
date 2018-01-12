@@ -45,8 +45,7 @@
             this.StopWebAppHost();
         }
 
-        [TestMethod]
-        [Owner("abaranch")]
+        [TestMethod]        
         public void Test4MediumRequestAndExceptionAreTrackedForResourceNotFoundException()
         {
             var request = (HttpWebRequest) WebRequest.Create(this.Config.ApplicationUri + "/wrongController?id=13");

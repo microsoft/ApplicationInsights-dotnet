@@ -68,8 +68,7 @@
             asmxClient.Close();
         }
 
-        [TestMethod]
-        [Owner("abaranch")]
+        [TestMethod]        
         public void Mvc200RequestFW45BasicRequestValidationAndHeaders()
         {
             const string requestPath = "api/products";
@@ -109,8 +108,7 @@
         }
 
 
-        [TestMethod]
-        [Owner("abaranch")]        
+        [TestMethod]        
         public void Mvc200RequestFW45BasicRequestValidationAndLegacyIdHeaders()
         {
             const string requestPath = "api/products";
@@ -143,8 +141,7 @@
             Assert.IsTrue(request.data.baseData.id.StartsWith("|guid2."), "Request Id is not properly set");
         }
 
-        [TestMethod]
-        [Owner("mafletch")]        
+        [TestMethod]        
         public void Mvc200RequestFW45BasicRequestSyntheticFiltering()
         {
             const string requestPath = "api/products";
@@ -177,8 +174,7 @@
             Assert.AreEqual("Bot", request.tags[new ContextTagKeys().OperationSyntheticSource]);
         }
 
-        [TestMethod]
-        [Owner("abaranch")]        
+        [TestMethod]        
         public void TestMvc404Request()
         {
             const string requestPath = "api/products/101";
@@ -208,8 +204,7 @@
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "404", false, request, testStart, testFinish);
         }
 
-        [TestMethod]
-        [Owner("abaranch")]        
+        [TestMethod]        
         public void TestWcf200OneWayRequest()
         {
             const string requestPath = "Wcf/WcfEndpoint.svc/OneWayMethod";
@@ -231,8 +226,7 @@
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "202", true, request, testStart, testFinish);
         }
 
-        [TestMethod]
-        [Owner("abaranch")]        
+        [TestMethod]        
         public void TestWcf200PostRequest()
         {
             const string requestPath = "Wcf/WcfEndpoint.svc/PostMethod";
@@ -254,8 +248,7 @@
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "200", true, request, testStart, testFinish);
         }
 
-        [TestMethod]
-        [Owner("sergeyni")]        
+        [TestMethod]        
         public void TestWcf200GetRequest()
         {
             const string requestPath = "Wcf/WcfEndpoint.svc/GetMethod/fail/false";
@@ -277,8 +270,7 @@
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "200", true, request, testStart, testFinish);
         }
 
-        [TestMethod]
-        [Owner("abaranch")]        
+        [TestMethod]        
         public void TestWcf503PostRequest()
         {
             const string requestPath = "Wcf/WcfEndpoint.svc/PostMethod";
@@ -307,8 +299,7 @@
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "503", false, request, testStart, testFinish);
         }
 
-        [TestMethod]
-        [Owner("sergeyni")]        
+        [TestMethod]        
         public void TestWcf503GetRequest()
         {
             const string requestPath = "Wcf/WcfEndpoint.svc/GetMethod/fail/true";
@@ -337,8 +328,7 @@
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "503", false, request, testStart, testFinish);
         }
 
-        [TestMethod]
-        [Owner("abaranch")]        
+        [TestMethod]        
         public void TestAsmx200Request()
         {
             const string requestPath = "Asmx/TestWebService.asmx";
@@ -362,8 +352,7 @@
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "200", true, request, testStart, testFinish);
         }
 
-        [TestMethod]
-        [Owner("abaranch")]        
+        [TestMethod]        
         public void TestAsmx_500Request()
         {
             const string requestPath = "Asmx/TestWebService.asmx";
@@ -395,8 +384,7 @@
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "500", false, request, testStart, testFinish);
         }
 
-        [TestMethod]
-        [Owner("abaranch")]        
+        [TestMethod]        
         public void TestAsmx_CheckExceptionAndRequestCollectedForResourceNotFound()
         {
             var postTask = HttpClient.GetAsync("asmx/WcfEndpointBad.svc/GetMethod");
@@ -430,8 +418,7 @@
         /// However, we filter the inner request based on the type of handler used. The outer request (the one that we are not interested in)
         /// is associated with transferRequestHandler, whereas the inner request is associated with null handler. This test verifies if we
         /// are returning 1 telemetry object or not (where we have 2 requests).
-        /// </summary>
-        [Owner("sergeyni")]
+        /// </summary>        
         [TestMethod]        
         public void TestTelemetryObjectCountWhenTransferRequestHandlerIsUsedInWcf()
         {
@@ -444,8 +431,7 @@
             Assert.AreEqual(1, items.Count(), "Unexpected number of requests received");
         }
 
-        [TestMethod]
-        [Owner("abaranch")]        
+        [TestMethod]        
         public void TestApplicationVersionIsPopulatedFromBuildInfoFile()
         {
             HttpClient.GetAsync("Wcf/WcfEndpoint.svc/GetMethodTrue");
@@ -463,8 +449,7 @@
             }
         }
 
-        [TestMethod]
-        [Owner("abaranch")]        
+        [TestMethod]        
         public void TestRequestPropertiesAreCollectedForDangerousRequest()
         {
             DateTimeOffset testStart = DateTimeOffset.UtcNow;

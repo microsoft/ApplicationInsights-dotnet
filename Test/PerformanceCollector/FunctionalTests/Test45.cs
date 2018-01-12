@@ -95,59 +95,51 @@
             this.StopWebAppHost();
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]        
+        [TestMethod]        
         public void DefaultCounterCollection()
         {
             CommonTests.DefaultCounterCollection(this.Listener);
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]        
+        [TestMethod]        
         public void CustomCounterCollection()
         {
             CommonTests.CustomCounterCollection(this.Listener);
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]
+        [TestMethod]        
         [Description("Tests that non existent counters are not collected and wont affect other counters")]        
         public void NonExistentCounter()
         {
             CommonTests.NonExistentCounter(this.Listener);
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]
+        [TestMethod]        
         [Description("Tests that non existent counters which use placeholders are not collected and wont affect other counters")]        
         public void NonExistentCounterWhichUsesPlaceHolder()
         {
             CommonTests.NonExistentCounterWhichUsesPlaceHolder(this.Listener);
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]        
+        [TestMethod]           
         public void NonParsableCounter()
         {
             CommonTests.NonParsableCounter(this.Listener);
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]        
+        [TestMethod]           
         public void QuickPulseAggregates()
         {
             CommonTests.QuickPulseAggregates(this.QuickPulseListener, this.HttpClient);
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]        
+        [TestMethod]             
         public void QuickPulseMetricsAndDocuments()
         {
             CommonTests.QuickPulseMetricsAndDocuments(this.QuickPulseListener, this);
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]        
+        [TestMethod]        
         public void QuickPulseTopCpuProcesses()
         {
             CommonTests.QuickPulseTopCpuProcesses(this.QuickPulseListener, this);

@@ -52,8 +52,7 @@
         {
             this.StopWebAppHost();
         }
-
-        [Owner("abaranch")]        
+        
         [TestMethod]
         public void TestRequestPropertiesIfOnlyEndRequestWasCalled()
         {

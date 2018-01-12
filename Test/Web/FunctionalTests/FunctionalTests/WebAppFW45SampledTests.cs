@@ -57,8 +57,7 @@
             this.StopWebAppHost();
         }
 
-        [TestMethod]
-        [Owner("vitalyf")]        
+        [TestMethod]        
         public void TestMvcRequestWithExceptionSampled()
         {
             const string requestPath = "api/products/5";

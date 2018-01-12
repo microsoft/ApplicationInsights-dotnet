@@ -65,8 +65,7 @@ namespace Functional
         /// <summary>
         /// Tests 200 OK HTTP status code request execution and collecting result 
         /// </summary>
-        [TestMethod]
-        [Owner("sergeyni")]
+        [TestMethod]        
         [Description("Tests 200 OK HTTP status code request execution and collecting result ")]        
         public void TestAspx200StatusCodeOnRequest()
         {
@@ -103,8 +102,7 @@ namespace Functional
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "200", true, request, requestStartTime, requestEndTime);
         }
 
-        [TestMethod]
-        [Owner("sergeyni")]
+        [TestMethod]        
         [Description("Tests 500 HTTP status code request execution and collecting result ")]        
         public void TestAspx500StatusCodeOnRequest()
         {
@@ -148,8 +146,7 @@ namespace Functional
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "200", true, request, requestStartTime, requestEndTime);
         }
 
-        [TestMethod]
-        [Owner("abaranch")]        
+        [TestMethod]             
         [Ignore]
         // This case works fine for Integrated pipeline mode, and module is not called at all for classic mode
         public void TestAspx_CollectRequestAndExceptionForResourceNotFound()

@@ -48,8 +48,7 @@
             this.StopWebAppHost(false);
         }
 
-        [TestMethod]
-        [Owner("sergeyni")]
+        [TestMethod]        
         [Description("Validates that diagnostics module sends trace data to the Portal")]        
         public void TestDiagnosticsFW45()
         {

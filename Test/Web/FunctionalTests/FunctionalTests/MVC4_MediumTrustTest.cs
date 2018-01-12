@@ -46,8 +46,7 @@
             this.StopWebAppHost();
         }
 
-        [TestMethod]
-        [Owner("sergeyni")]        
+        [TestMethod]         
         public void Test4Medium200RequestAsync()
         {
             DateTimeOffset testStart = DateTimeOffset.UtcNow;
@@ -67,7 +66,6 @@
         }
 
         [TestMethod]
-        [Owner("abaranch")]        
         public void TestRequestPropertiesAreCollectedForDangerousRequest()
         {
             DateTimeOffset testStart = DateTimeOffset.UtcNow;
@@ -93,8 +91,7 @@
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "400", false, request, testStart, testFinish);
         }
 
-        [TestMethod]
-        [Owner("sergeyni")]        
+        [TestMethod]               
         public void Test4Medium200RequestSync()
         {
             DateTimeOffset testStart = DateTimeOffset.UtcNow;
@@ -113,8 +110,7 @@
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "200", true, request, testStart, testFinish);
         }
 
-        [TestMethod]
-        [Owner("sergeyni")]        
+        [TestMethod]        
         public void Test4Medium454RequestAsync()
         {
             DateTimeOffset testStart = DateTimeOffset.UtcNow;
@@ -143,7 +139,6 @@
         }
 
         [TestMethod]
-        [Owner("sergeyni")]        
         public void Test4Medium454RequestSync()
         {
             DateTimeOffset testStart = DateTimeOffset.UtcNow;
@@ -171,8 +166,7 @@
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "404", false, request, testStart, testFinish);
         }
 
-        [TestMethod]
-        [Owner("abaranch")]        
+        [TestMethod]        
         public void TestDiagnosticsFW45()
         {
             var request = (HttpWebRequest)WebRequest.Create(

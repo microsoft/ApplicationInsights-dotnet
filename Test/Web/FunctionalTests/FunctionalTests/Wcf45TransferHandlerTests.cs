@@ -52,8 +52,7 @@
         /// <summary>
         /// Tests if we return the telemetry object associated with the inner request (occurs specifically in wcf framework)
         /// where the handler is null. We ignore the outer request where the handler is transferRequestHandler.
-        /// </summary>
-        [Owner("sergeyni")]
+        /// </summary>        
         [TestMethod]        
         public void TestTelemetryObjectCountWhenTransferRequestHandlerIsUsedInWcf()
         {

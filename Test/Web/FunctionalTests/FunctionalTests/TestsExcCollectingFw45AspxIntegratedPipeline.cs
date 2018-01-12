@@ -64,8 +64,7 @@ namespace Functional
 
         /// <summary>
         /// Tests exception collecting form sync web page
-        /// </summary>
-        [Owner("sergeyni")]
+        /// </summary>        
         [Description("Tests exception collecting form sync web page")]        
         [TestMethod]
         public void TestSyncExceptionWebFormExceptionCollecting()

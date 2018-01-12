@@ -61,8 +61,7 @@ namespace Functional
 
         /// <summary>
         /// Tests request telemetry collecting when [authorization/deny] section is specified
-        /// </summary>
-        [Owner("sergeyni")]
+        /// </summary>        
         [Description("Tests request telemetry collecting when [deny] section is specified")]        
         [TestMethod]
         public void TestCustomSecuirtyDenyAllRequestCollecting()

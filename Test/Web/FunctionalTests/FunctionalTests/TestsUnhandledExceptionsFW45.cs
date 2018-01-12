@@ -67,8 +67,7 @@
             }
         }
 
-        [TestMethod]
-        [Owner("abaranch")]        
+        [TestMethod]        
         public void TaskSchedulerUnobservedExceptionIsTracked()
         {
             var process = this.StartProcess("unobserved");
@@ -88,8 +87,7 @@
             }
         }
 
-        [TestMethod]
-        [Owner("abaranch")]
+        [TestMethod]        
         public void TaskSchedulerUnhandledExceptionIsTracked()
         {
             var process = this.StartProcess("unhandled");
