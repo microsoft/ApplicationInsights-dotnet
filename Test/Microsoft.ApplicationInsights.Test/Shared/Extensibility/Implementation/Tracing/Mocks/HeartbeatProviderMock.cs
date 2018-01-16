@@ -6,6 +6,9 @@
     class HeartbeatProviderMock : IHeartbeatProvider
     {
         public Dictionary<string, HeartbeatPropertyPayload> HeartbeatProperties = new Dictionary<string, HeartbeatPropertyPayload>();
+
+        public List<string> ExcludedProviders { get; set; }
+
         public List<string> ExcludedPropertyFields = new List<string>();
 
         public string InstrumentationKey { get; set; }
@@ -17,6 +20,8 @@
         public TimeSpan HeartbeatInterval { get; set; }
 
         public IList<string> ExcludedHeartbeatProperties { get => this.ExcludedPropertyFields; }
+
+        public IList<string> ExcludedHeartbeatPropertyProviders { get => this.ExcludedHeartbeatPropertyProviders; }
 
         public HeartbeatProviderMock()
         {

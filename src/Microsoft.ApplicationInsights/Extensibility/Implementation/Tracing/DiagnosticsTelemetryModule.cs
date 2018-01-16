@@ -81,14 +81,12 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether or not to query for and include Azure Instance Metadata in the
-        /// heartbeat properties. For more information on the Azure Instance Metadata service in Azure see
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=864683">this document to learn more.</a>
+        /// Gets a list of default heartbeat property providers that are disabled and will not contribute to the
+        /// default heartbeat properties.
         /// </summary>
-        public bool EnableInstanceMetadata
+        public IList<string> ExcludedHeartbeatPropertyProviders
         {
-            get => this.HeartbeatProvider.EnableInstanceMetadata;
-            set => this.HeartbeatProvider.EnableInstanceMetadata = value;
+            get => this.HeartbeatProvider.ExcludedHeartbeatPropertyProviders;
         }
 
         /// <summary>

@@ -16,10 +16,10 @@
         bool IsHeartbeatEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether or not to collect Azure Instance Metadata and
-        /// add them to the heartbeat properties.
+        /// Gets a list of default heartbeat property providers that are disabled and will not contribute to the
+        /// default heartbeat properties.
         /// </summary>
-        bool EnableInstanceMetadata { get; set; }
+        IList<string> ExcludedHeartbeatPropertyProviders { get; }
 
         /// <summary>
         /// Gets or sets the delay between heartbeats.

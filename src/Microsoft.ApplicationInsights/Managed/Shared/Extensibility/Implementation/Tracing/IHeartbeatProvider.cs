@@ -12,7 +12,7 @@
 
         TimeSpan HeartbeatInterval { get; set; }
 
-        bool EnableInstanceMetadata { get; set; }
+        IList<string> ExcludedHeartbeatPropertyProviders { get; }
 
         IList<string> ExcludedHeartbeatProperties { get; }
 

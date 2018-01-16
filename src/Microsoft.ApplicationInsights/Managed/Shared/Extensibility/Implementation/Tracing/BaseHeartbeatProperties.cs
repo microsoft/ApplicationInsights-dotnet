@@ -30,6 +30,8 @@
         /// </summary>
         private static Guid? uniqueProcessSessionId = null;
 
+        public string Name => "Base";
+
         public bool IsKeyword(string keyword)
         {
             return this.DefaultFields.Contains(keyword, StringComparer.OrdinalIgnoreCase);

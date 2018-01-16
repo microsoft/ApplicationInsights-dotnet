@@ -60,22 +60,6 @@
         }
 
         [TestMethod]
-        public void InitializeHealthHeartDisablingAzureMetadata()
-        {
-            using (var initializedModule = new DiagnosticsTelemetryModule())
-            {
-                // disable azure metadata lookup via the IHeartbeatPropertyManager interface
-                IHeartbeatPropertyManager hbeat = initializedModule;
-                Assert.IsTrue(hbeat.EnableInstanceMetadata);
-                hbeat.EnableInstanceMetadata = false;
-
-                // initialize the DiagnosticsTelemetryModule, and ensure the instance metadata is still disabled
-                initializedModule.Initialize(new TelemetryConfiguration());
-                Assert.IsFalse(hbeat.EnableInstanceMetadata);
-            }
-        }
-
-        [TestMethod]
         public void InitializeHeartbeatWithZeroIntervalIsSetToMinimum()
         {
             using (var hbeat = new HeartbeatProvider() { HeartbeatInterval = TimeSpan.FromMilliseconds(0) })
@@ -121,7 +105,7 @@
             TelemetryClient client = new TelemetryClient();
 
             bool origIsEnabled = true;
-            bool origEnableMeta = true;
+            string origExcludedHbProvider = "Nonsense-Test";
             TimeSpan origInterval = TimeSpan.MaxValue;
             TimeSpan setInterval = TimeSpan.MaxValue;
 
@@ -132,8 +116,9 @@
                     origIsEnabled = hbeatMan.IsHeartbeatEnabled;
                     hbeatMan.IsHeartbeatEnabled = !origIsEnabled;
 
-                    origEnableMeta = hbeatMan.EnableInstanceMetadata;
-                    hbeatMan.EnableInstanceMetadata = !origEnableMeta;
+                    Assert.IsFalse(hbeatMan.ExcludedHeartbeatPropertyProviders.Contains(origExcludedHbProvider));
+                    hbeatMan.ExcludedHeartbeatPropertyProviders.Add(origExcludedHbProvider);
+
 
                     hbeatMan.ExcludedHeartbeatProperties.Add("Test01");
 
@@ -150,7 +135,7 @@
                 if (module is IHeartbeatPropertyManager hbeatMan)
                 {
                     Assert.AreNotEqual(hbeatMan.IsHeartbeatEnabled, origIsEnabled);
-                    Assert.AreNotEqual(hbeatMan.EnableInstanceMetadata, origEnableMeta);
+                    Assert.IsTrue(hbeatMan.ExcludedHeartbeatPropertyProviders.Contains(origExcludedHbProvider));
                     Assert.IsTrue(hbeatMan.ExcludedHeartbeatProperties.Contains("Test01"));
                     Assert.AreNotEqual(hbeatMan.HeartbeatInterval, origInterval);
                     Assert.AreEqual(hbeatMan.HeartbeatInterval, setInterval);
@@ -235,9 +220,8 @@
         public void HeartbeatPayloadContainsOnlyAllowedDefaultPayloadFields()
         {
             var assemblyDefFields = new BaseHeartbeatProperties();
-            var azureInstanceDefFields = new AzureHeartbeatProperties(null, true);
 
-            var allDefaultFields = azureInstanceDefFields.DefaultFields.Union(assemblyDefFields.DefaultFields).ToList();
+            var allDefaultFields = assemblyDefFields.DefaultFields;
 
             using (var hbeat = new HeartbeatProvider())
             {
@@ -316,7 +300,7 @@
             {
                 var baseHbeatProps = new BaseHeartbeatProperties().DefaultFields;
 
-                var taskWaiter = HeartbeatDefaultPayload.PopulateDefaultPayload(new string[] { }, hbeatMock, false).ConfigureAwait(false);
+                var taskWaiter = HeartbeatDefaultPayload.PopulateDefaultPayload(new string[] { }, new string[] { }, hbeatMock).ConfigureAwait(false);
                 Assert.IsTrue(taskWaiter.GetAwaiter().GetResult()); // no await for tests
 
                 foreach (string fieldName in baseHbeatProps)
@@ -358,9 +342,8 @@
             {
                 hbeat.Initialize(configuration: null);
                 BaseHeartbeatProperties defFields = new BaseHeartbeatProperties();
-                AzureHeartbeatProperties azFields = new AzureHeartbeatProperties();
-                var defaultFields = defFields.DefaultFields.Union(azFields.DefaultFields).ToList();
-                foreach (string key in defaultFields)
+                
+                foreach (string key in defFields.DefaultFields)
                 {
                     Assert.IsFalse(hbeat.SetHeartbeatProperty(key, "test", true));
                 }
@@ -374,9 +357,8 @@
             {
                 hbeat.Initialize(configuration: null);
                 BaseHeartbeatProperties defFields = new BaseHeartbeatProperties();
-                AzureHeartbeatProperties azFields = new AzureHeartbeatProperties();
-                var defaultFields = defFields.DefaultFields.Union(azFields.DefaultFields).ToList();
-                foreach (string key in defaultFields)
+                
+                foreach (string key in defFields.DefaultFields)
                 {
                     Assert.IsFalse(hbeat.AddHeartbeatProperty(key, "test", true));
                 }
@@ -428,51 +410,6 @@
                 Assert.IsTrue(msg.Properties.ContainsKey(key));
                 Assert.IsTrue(msg.Properties[key].Equals("value01", StringComparison.Ordinal));
                 Assert.IsTrue(msg.Sum == 1.0); // one false message in payload only
-            }
-        }
-
-        [TestMethod]
-        public void GetAzureInstanceMetadataFieldsAsExpected()
-        {
-            using (var hbeatMock = new HeartbeatProviderMock())
-            {
-                AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock();
-                AzureHeartbeatProperties azFields = new AzureHeartbeatProperties(azureInstanceRequestorMock, true);
-                int counter = 1;
-                foreach (string field in azFields.DefaultFields)
-                {
-                    azureInstanceRequestorMock.computeFields.Add(field, $"testValue{counter++}");
-                }
-
-                var taskWaiter = azFields.SetDefaultPayload(new string[] { }, hbeatMock).ConfigureAwait(false);
-                Assert.IsTrue(taskWaiter.GetAwaiter().GetResult()); // no await for tests
-
-                foreach (string fieldName in azFields.DefaultFields)
-                {
-                    Assert.IsTrue(hbeatMock.HeartbeatProperties.ContainsKey(fieldName));
-                    Assert.IsFalse(string.IsNullOrEmpty(hbeatMock.HeartbeatProperties[fieldName].PayloadValue));
-                }
-            }
-        }
-
-        [TestMethod]
-        public void FailToObtainAzureInstanceMetadataFieldsAltogether()
-        {
-            using (var hbeatMock = new HeartbeatProviderMock())
-            {
-                AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock();
-                var azFields = new AzureHeartbeatProperties(azureInstanceRequestorMock, true);
-                var defaultFields = azFields.DefaultFields;
-                // not adding the fields we're looking for, simulation of the Azure Instance Metadata service not being present...
-
-                var taskWaiter = azFields.SetDefaultPayload(new string[] { }, hbeatMock).ConfigureAwait(false);
-                Assert.IsTrue(taskWaiter.GetAwaiter().GetResult()); // nop await for tests
-
-                foreach (string fieldName in defaultFields)
-                {
-                    Assert.IsTrue(hbeatMock.HeartbeatProperties.ContainsKey(fieldName));
-                    Assert.IsTrue(string.IsNullOrEmpty(hbeatMock.HeartbeatProperties[fieldName].PayloadValue));
-                }
             }
         }
 

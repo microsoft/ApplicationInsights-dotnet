@@ -1,14 +1,15 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     internal static class HeartbeatDefaultPayload
     {
         private static readonly IHeartbeatDefaultPayloadProvider[] DefaultPayloadProviders =
         {
-            new BaseHeartbeatProperties(),
-            new AzureHeartbeatProperties()
+            new BaseHeartbeatProperties()
         };
 
         public static bool IsDefaultKeyword(string keyword)
@@ -24,13 +25,13 @@
             return false;
         }
 
-        public static async Task<bool> PopulateDefaultPayload(IEnumerable<string> disabledFields, IHeartbeatProvider provider, bool allowAzureSpecificProperties)
+        public static async Task<bool> PopulateDefaultPayload(IEnumerable<string> disabledFields, IEnumerable<string> disabledProviders, IHeartbeatProvider provider)
         {
             bool populatedFields = false;
 
             foreach (var payloadProvider in DefaultPayloadProviders)
             {
-                if (payloadProvider is AzureHeartbeatProperties && !allowAzureSpecificProperties)
+                if (disabledProviders != null && disabledProviders.Contains(payloadProvider.Name, StringComparer.OrdinalIgnoreCase))
                 {
                     // skip any azure specific modules here
                     continue;

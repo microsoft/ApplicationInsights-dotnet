@@ -31,7 +31,15 @@
         /// </summary>
         private static string heartbeatSyntheticMetricName = "HeartbeatState";
 
-        private readonly List<string> disabledDefaultFields = new List<string>(); // string containing fields that are not to be sent with the payload. Empty list means send everything available.
+        /// <summary>
+        /// List of fields that are not to be sent with the payload. Empty list means send everything available.
+        /// </summary>
+        private readonly List<string> disabledDefaultFields = new List<string>();
+
+        /// <summary>
+        /// List of default heartbeat property providers that are not to contribute to the payload. Empty list means send everything available.
+        /// </summary>
+        private readonly List<string> disabledHeartbeatPropertyProviders = new List<string>();
 
         private UInt64 heartbeatsSent; // counter of all heartbeats
 
@@ -51,7 +59,6 @@
             this.heartbeatProperties = new ConcurrentDictionary<string, HeartbeatPropertyPayload>(StringComparer.OrdinalIgnoreCase);
             this.heartbeatsSent = 0; // count up from construction time
             this.isEnabled = true;
-            this.EnableInstanceMetadata = true;
         }
 
         /// <summary>
@@ -115,10 +122,13 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether or not to include Azure Instance Metadata in the heartbeat
-        /// properties.
+        /// Gets a list of default heartbeat property providers that are disabled and will not contribute to the
+        /// default heartbeat properties.
         /// </summary>
-        public bool EnableInstanceMetadata { get; set; }
+        public IList<string> ExcludedHeartbeatPropertyProviders
+        {
+            get => this.disabledHeartbeatPropertyProviders;
+        }
 
         /// <summary>
         /// Gets a list of default field names that should not be sent with each heartbeat.
@@ -137,7 +147,7 @@
                 this.telemetryClient = new TelemetryClient(configuration);
             }
 
-            Task.Factory.StartNew(async () => await HeartbeatDefaultPayload.PopulateDefaultPayload(this.ExcludedHeartbeatProperties, this, this.EnableInstanceMetadata).ConfigureAwait(false));
+            Task.Factory.StartNew(async () => await HeartbeatDefaultPayload.PopulateDefaultPayload(this.ExcludedHeartbeatProperties, this.ExcludedHeartbeatPropertyProviders, this).ConfigureAwait(false));
 
             // Note: if this is a subsequent initialization, the interval between heartbeats will be updated in the next cycle so no .Change call necessary here
             if (this.HeartbeatTimer == null)
