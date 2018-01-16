@@ -59,6 +59,25 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests
             }
         }
 
+        [TestMethod]
+        public void HandlesPropertiesWithNullValues()
+        {
+            using (var module = new DiagnosticSourceTelemetryModule())
+            {
+                var testDiagnosticSource = new TestDiagnosticSource();
+                var listeningRequest = new DiagnosticSourceListeningRequest(testDiagnosticSource.Name);
+                module.Sources.Add(listeningRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                testDiagnosticSource.Write("Hey!", new { Prop1 = (object)null });
+
+                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+                Assert.AreEqual("Hey!", telemetry.Message);
+                Assert.AreEqual(Convert.ToString(null), telemetry.Properties["Prop1"]);
+            }
+        }
+
         private TelemetryConfiguration GetTestTelemetryConfiguration(bool resetChannel = true)
         {
             var configuration = new TelemetryConfiguration();

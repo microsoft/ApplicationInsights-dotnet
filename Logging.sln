@@ -52,6 +52,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceListener", "src\TraceL
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "EventSource.Shared", "src\EventSource.Shared\EventSource.Shared\EventSource.Shared.shproj", "{A964DE6D-9750-4013-8BE2-79C2AFC056E5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSourceListener.netcoreapp1.Tests", "test\DiagnosticSourceListener.netcoreapp10.Tests\DiagnosticSourceListener.netcoreapp1.Tests.csproj", "{625DABF6-C4AD-41A9-B2C0-04C9FEC2ADCF}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		test\CommonTestShared\CommonTestShared.projitems*{3b9ab7fa-562d-4e4e-86e3-3348426bc0d9}*SharedItemsImports = 13
@@ -174,6 +176,14 @@ Global
 		{E3766DD1-F376-43F8-B242-6CF06E186179}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E3766DD1-F376-43F8-B242-6CF06E186179}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{E3766DD1-F376-43F8-B242-6CF06E186179}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{625DABF6-C4AD-41A9-B2C0-04C9FEC2ADCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{625DABF6-C4AD-41A9-B2C0-04C9FEC2ADCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{625DABF6-C4AD-41A9-B2C0-04C9FEC2ADCF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{625DABF6-C4AD-41A9-B2C0-04C9FEC2ADCF}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{625DABF6-C4AD-41A9-B2C0-04C9FEC2ADCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{625DABF6-C4AD-41A9-B2C0-04C9FEC2ADCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{625DABF6-C4AD-41A9-B2C0-04C9FEC2ADCF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{625DABF6-C4AD-41A9-B2C0-04C9FEC2ADCF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -195,6 +205,7 @@ Global
 		{57F41D53-A8D1-42D6-AFBE-406436CFA7DF} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{E3766DD1-F376-43F8-B242-6CF06E186179} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{A964DE6D-9750-4013-8BE2-79C2AFC056E5} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{625DABF6-C4AD-41A9-B2C0-04C9FEC2ADCF} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC8888B1-0E98-49D7-BE15-EB97A6261C0D}

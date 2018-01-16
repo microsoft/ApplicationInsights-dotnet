@@ -58,7 +58,7 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
                 {
                     if (!property.IsSpecialName)
                     {
-                        telemetry.Properties.Add(property.Name, property.GetValue(payload).ToString());
+                        telemetry.Properties.Add(property.Name, Convert.ToString(property.GetValue(payload)));
                     }
                 }
             }
