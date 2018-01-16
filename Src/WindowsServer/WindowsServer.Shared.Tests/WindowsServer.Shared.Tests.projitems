@@ -13,6 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AzureWebAppRoleEnvironmentTelemetryInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AzureInstanceMetadataTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AzureRoleEnvironmentTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Azure\Emulation\TestAzureServiceRuntimeAssemblyLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Azure\Emulation\TestRole.cs" />
