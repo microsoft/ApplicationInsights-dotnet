@@ -18,7 +18,7 @@
         private const int TimeoutInMs = 15000;
 
         private const string TestWebApplicationSourcePath = @"TestApps\TestApp45\App";
-        private const string TestWebApplicationDestPath = @"TestsPerformanceCollector45";
+        private const string TestWebApplicationDestPath = @"TestApps\TestApp45\App";
 
         [TestInitialize]
         public void TestInitialize()
@@ -30,7 +30,8 @@
             var applicationDirectory = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 string.Format("{0}_{1}", "app", this.TestContext.TestName));
-            
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
+
             CopyFolder(originalDirectory, applicationDirectory);
 
             Trace.WriteLine("Application directory:" + applicationDirectory);
@@ -94,67 +95,51 @@
             this.StopWebAppHost();
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]
-        [DeploymentItem(TestWebApplicationSourcePath, TestWebApplicationDestPath)]
+        [TestMethod]        
         public void DefaultCounterCollection()
         {
             CommonTests.DefaultCounterCollection(this.Listener);
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]
-        [DeploymentItem(TestWebApplicationSourcePath, TestWebApplicationDestPath)]
+        [TestMethod]        
         public void CustomCounterCollection()
         {
             CommonTests.CustomCounterCollection(this.Listener);
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]
-        [Description("Tests that non existent counters are not collected and wont affect other counters")]
-        [DeploymentItem(TestWebApplicationSourcePath, TestWebApplicationDestPath)]
+        [TestMethod]        
+        [Description("Tests that non existent counters are not collected and wont affect other counters")]        
         public void NonExistentCounter()
         {
             CommonTests.NonExistentCounter(this.Listener);
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]
-        [Description("Tests that non existent counters which use placeholders are not collected and wont affect other counters")]
-        [DeploymentItem(TestWebApplicationSourcePath, TestWebApplicationDestPath)]
+        [TestMethod]        
+        [Description("Tests that non existent counters which use placeholders are not collected and wont affect other counters")]        
         public void NonExistentCounterWhichUsesPlaceHolder()
         {
             CommonTests.NonExistentCounterWhichUsesPlaceHolder(this.Listener);
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]
-        [DeploymentItem(TestWebApplicationSourcePath, TestWebApplicationDestPath)]
+        [TestMethod]           
         public void NonParsableCounter()
         {
             CommonTests.NonParsableCounter(this.Listener);
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]
-        [DeploymentItem(TestWebApplicationSourcePath, TestWebApplicationDestPath)]
+        [TestMethod]           
         public void QuickPulseAggregates()
         {
             CommonTests.QuickPulseAggregates(this.QuickPulseListener, this.HttpClient);
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]
-        [DeploymentItem(TestWebApplicationSourcePath, TestWebApplicationDestPath)]
+        [TestMethod]             
         public void QuickPulseMetricsAndDocuments()
         {
             CommonTests.QuickPulseMetricsAndDocuments(this.QuickPulseListener, this);
         }
 
-        [TestMethod]
-        [Owner("alkaplan")]
-        [DeploymentItem(TestWebApplicationSourcePath, TestWebApplicationDestPath)]
+        [TestMethod]        
         public void QuickPulseTopCpuProcesses()
         {
             CommonTests.QuickPulseTopCpuProcesses(this.QuickPulseListener, this);

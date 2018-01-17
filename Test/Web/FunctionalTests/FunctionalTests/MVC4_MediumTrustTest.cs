@@ -14,7 +14,7 @@
     public class Mvc4MediumTrustTest : RequestTelemetryTestBase
     {
         private const int TimeoutInMs = 10000;
-        private const string ApplicationDirName = "TestApps_Mvc4_MediumTrust_App";
+        private const string ApplicationDirName = @"..\TestApps\Mvc4_MediumTrust\App";
 
         [TestInitialize]
         public void TestInitialize()
@@ -22,7 +22,7 @@
             var applicationDirectory = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 ApplicationDirName);
-
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
             Trace.WriteLine("Application directory:" + applicationDirectory);
 
             this.StartWebAppHost(
@@ -46,9 +46,7 @@
             this.StopWebAppHost();
         }
 
-        [TestMethod]
-        [Owner("sergeyni")]
-        [DeploymentItem(@"..\TestApps\Mvc4_MediumTrust\App", "TestApps_Mvc4_MediumTrust_App")]
+        [TestMethod]         
         public void Test4Medium200RequestAsync()
         {
             DateTimeOffset testStart = DateTimeOffset.UtcNow;
@@ -68,8 +66,6 @@
         }
 
         [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(@"..\TestApps\Mvc4_MediumTrust\App", "TestApps_Mvc4_MediumTrust_App")]
         public void TestRequestPropertiesAreCollectedForDangerousRequest()
         {
             DateTimeOffset testStart = DateTimeOffset.UtcNow;
@@ -95,9 +91,7 @@
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "400", false, request, testStart, testFinish);
         }
 
-        [TestMethod]
-        [Owner("sergeyni")]
-        [DeploymentItem(@"..\TestApps\Mvc4_MediumTrust\App", "TestApps_Mvc4_MediumTrust_App")]
+        [TestMethod]               
         public void Test4Medium200RequestSync()
         {
             DateTimeOffset testStart = DateTimeOffset.UtcNow;
@@ -116,9 +110,7 @@
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "200", true, request, testStart, testFinish);
         }
 
-        [TestMethod]
-        [Owner("sergeyni")]
-        [DeploymentItem(@"..\TestApps\Mvc4_MediumTrust\App", "TestApps_Mvc4_MediumTrust_App")]
+        [TestMethod]        
         public void Test4Medium454RequestAsync()
         {
             DateTimeOffset testStart = DateTimeOffset.UtcNow;
@@ -147,8 +139,6 @@
         }
 
         [TestMethod]
-        [Owner("sergeyni")]
-        [DeploymentItem(@"..\TestApps\Mvc4_MediumTrust\App", "TestApps_Mvc4_MediumTrust_App")]
         public void Test4Medium454RequestSync()
         {
             DateTimeOffset testStart = DateTimeOffset.UtcNow;
@@ -176,9 +166,7 @@
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "404", false, request, testStart, testFinish);
         }
 
-        [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(@"..\TestApps\Mvc4_MediumTrust\App", "TestApps_Mvc4_MediumTrust_App")]
+        [TestMethod]        
         public void TestDiagnosticsFW45()
         {
             var request = (HttpWebRequest)WebRequest.Create(

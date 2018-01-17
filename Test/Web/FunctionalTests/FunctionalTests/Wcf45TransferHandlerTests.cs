@@ -15,7 +15,7 @@
     public class Wcf45TransferHandlerTests : SingleWebHostTestBase
     {
         private const string TestWebApplicaionSourcePath = @"..\TestApps\Wcf45Tests\App";
-        private const string TestWebApplicaionDestPath = "TestApps_Wcf45Tests_App";
+        private const string TestWebApplicaionDestPath = @"..\TestApps\Wcf45Tests\App";
 
         private const int TestListenerTimeoutInMs = 5000;
 
@@ -25,7 +25,8 @@
             var applicationDirectory = Path.Combine(
                     Directory.GetCurrentDirectory(),
                     TestWebApplicaionDestPath);
-            
+
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
             Trace.TraceInformation("Application directory:" + applicationDirectory);
 
             this.StartWebAppHost(
@@ -51,10 +52,8 @@
         /// <summary>
         /// Tests if we return the telemetry object associated with the inner request (occurs specifically in wcf framework)
         /// where the handler is null. We ignore the outer request where the handler is transferRequestHandler.
-        /// </summary>
-        [Owner("sergeyni")]
-        [TestMethod]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        /// </summary>        
+        [TestMethod]        
         public void TestTelemetryObjectCountWhenTransferRequestHandlerIsUsedInWcf()
         {
             const string requestPath = "/WcfEndpoint.svc/GetMethodTrue";
