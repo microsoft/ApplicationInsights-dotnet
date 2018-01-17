@@ -21,7 +21,7 @@ namespace Functional
     public class TestsRequestTelemetryFW45AspxIntegratedWebSecurityOn : SingleWebHostTestBase
     {
         private const string TestWebApplicaionSourcePath = @"..\TestApps\Wa45Aspx\App";
-        private const string TestWebApplicaionDestPath = "TestApps_TestsRequestTelemetryFW45AspxIntegratedWebSecurityOn_App";
+        private const string TestWebApplicaionDestPath = @"..\TestApps\Wa45Aspx\App";
 
         private const int TestRequestTimeoutInMs = 150000;
 
@@ -31,7 +31,7 @@ namespace Functional
             var applicationDirectory = Path.Combine(
                     Directory.GetCurrentDirectory(),
                     TestWebApplicaionDestPath);
-
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
             Trace.WriteLine("Application directory:" + applicationDirectory);
 
             File.Copy(
@@ -61,10 +61,8 @@ namespace Functional
 
         /// <summary>
         /// Tests request telemetry collecting when [authorization/deny] section is specified
-        /// </summary>
-        [Owner("sergeyni")]
-        [Description("Tests request telemetry collecting when [deny] section is specified")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        /// </summary>        
+        [Description("Tests request telemetry collecting when [deny] section is specified")]        
         [TestMethod]
         public void TestCustomSecuirtyDenyAllRequestCollecting()
         {

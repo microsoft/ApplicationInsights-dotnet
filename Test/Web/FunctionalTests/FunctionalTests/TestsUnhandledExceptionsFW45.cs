@@ -12,7 +12,7 @@
     public class TestsUnhandledExceptionsFW45
     {
         private const string TestWebApplicaionSourcePath = @"..\TestApps\ConsoleAppFW45\";
-        private const string TestWebApplicaionDestPath = "TestApps_TestsUnhandledExceptionsFW45_App";
+        private const string TestWebApplicaionDestPath = @"..\TestApps\ConsoleAppFW45\";
 
         private const int TestListenerTimeoutInMs = 30000;
 
@@ -28,6 +28,8 @@
             this.applicationDirectory = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 TestWebApplicaionDestPath);
+
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
 
             Trace.WriteLine("Application directory:" + this.applicationDirectory);
 
@@ -65,9 +67,7 @@
             }
         }
 
-        [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [TestMethod]        
         public void TaskSchedulerUnobservedExceptionIsTracked()
         {
             var process = this.StartProcess("unobserved");
@@ -87,9 +87,7 @@
             }
         }
 
-        [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [TestMethod]        
         public void TaskSchedulerUnhandledExceptionIsTracked()
         {
             var process = this.StartProcess("unhandled");

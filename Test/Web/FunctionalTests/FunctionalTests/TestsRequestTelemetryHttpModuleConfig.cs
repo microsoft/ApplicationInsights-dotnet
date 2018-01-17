@@ -13,7 +13,7 @@
     public class TestsRequestTelemetryHttpModuleConfig : RequestTelemetryTestBase
     {
         private const string TestWebApplicaionSourcePath = @"..\TestApps\Wa45Aspx\App";
-        private const string TestWebApplicaionDestPath = "TestApps_RejectingHttpModule_App";
+        private const string TestWebApplicaionDestPath = @"..\TestApps\Wa45Aspx\App";
 
         private const int TestRequestTimeoutInMs = 150000;
         private const int TestListenerTimeoutInMs = 5000;
@@ -24,7 +24,7 @@
             var applicationDirectory = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 TestWebApplicaionDestPath);
-
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
             Trace.WriteLine("Application directory:" + applicationDirectory);
 
             File.Copy(
@@ -52,9 +52,7 @@
         {
             this.StopWebAppHost();
         }
-
-        [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        
         [TestMethod]
         public void TestRequestPropertiesIfOnlyEndRequestWasCalled()
         {
