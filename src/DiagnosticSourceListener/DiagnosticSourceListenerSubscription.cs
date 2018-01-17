@@ -8,6 +8,7 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using Microsoft.ApplicationInsights.DataContracts;
 
     internal class DiagnosticSourceListenerSubscription : IObserver<KeyValuePair<string, object>>
@@ -58,7 +59,7 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
                 {
                     if (!property.IsSpecialName)
                     {
-                        telemetry.Properties.Add(property.Name, Convert.ToString(property.GetValue(payload)));
+                        telemetry.Properties.Add(property.Name, Convert.ToString(property.GetValue(payload), CultureInfo.InvariantCulture));
                     }
                 }
             }

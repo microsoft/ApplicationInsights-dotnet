@@ -74,7 +74,7 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests
 
                 TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
                 Assert.AreEqual("Hey!", telemetry.Message);
-                Assert.AreEqual(Convert.ToString(null), telemetry.Properties["Prop1"]);
+                Assert.AreEqual(string.Empty, telemetry.Properties["Prop1"]);
             }
         }
 
