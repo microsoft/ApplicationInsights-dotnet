@@ -47,9 +47,10 @@ namespace E2ETests.Net462SMSM
 
             MyClassInitializeBase();
 
-            // Sleep for 20 sec to ensure that the app is all warmed up. This is required as profiler is installed.
-            // The very 1st request takes a long time and its telemety may appear at a later time
-            // and cause test failure in subsequent test.
+            // Sleep for 20 sec to give application enough time to dispatch
+            // telemetry from the warmup request. The initial request typically
+            // takes long time, and its telemetry appears late causing subsequent
+            // test failures.
             Thread.Sleep(20000);
         }
 
