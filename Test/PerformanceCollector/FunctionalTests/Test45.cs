@@ -44,6 +44,10 @@
             int telemetryPort = rand.Next(minPort, maxPort + 1);
             int quickPulsePort = rand.Next(minPort, maxPort + 1);
 
+            Trace.WriteLine("IIS Port:" + iisPort);
+            Trace.WriteLine("Telemetry Port:" + telemetryPort);
+            Trace.WriteLine("Quickpulse Port:" + quickPulsePort);
+
             this.StartWebAppHost(
                 new SingleWebHostTestConfiguration(
                     new IisExpressConfiguration
