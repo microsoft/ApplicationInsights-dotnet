@@ -102,6 +102,17 @@ namespace E2ETests
             InitializeDatabase();
 
             Thread.Sleep(2000);
+
+            // Wait long enough for first telemetry items from health check requests.
+            // These could arrive several seconds after first request to app is made.
+            Trace.WriteLine("Waiting to receive request telemetry from health check for WebApp");
+            var requestsWebApp = WaitForReceiveRequestItemsFromDataIngestion(Apps[TestConstants.WebAppName].ipAddress, Apps[TestConstants.WebAppName].ikey, 30, false);
+            Trace.WriteLine("Waiting to receive request telemetry from health check for WebApp completed. Item received count:" + requestsWebApp.Count);
+
+            Trace.WriteLine("Waiting to receive request telemetry from health check for WebApi");
+            var requestsWebApi = WaitForReceiveRequestItemsFromDataIngestion(Apps[TestConstants.WebApiName].ipAddress, Apps[TestConstants.WebApiName].ikey, 30, false);
+            Trace.WriteLine("Waiting to receive request telemetry from health check for WebApi completed. Item received count:" + requestsWebApi.Count);
+
             Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
 
@@ -993,19 +1004,19 @@ namespace E2ETests
             ValidateDependency(expectedDependencyTelemetry, dependency, expectedPrefix);
         }
 
-        private IList<TelemetryItem<RemoteDependencyData>> WaitForReceiveDependencyItemsFromDataIngestion(string targetInstanceIp,string ikey)
+        private static IList<TelemetryItem<RemoteDependencyData>> WaitForReceiveDependencyItemsFromDataIngestion(string targetInstanceIp,string ikey, int maxRetryCount = 5, bool flushChannel = true)
         {
             int receivedItemCount = 0;
             int iteration = 0;
             IList<TelemetryItem<RemoteDependencyData>> items = new List<TelemetryItem<RemoteDependencyData>>();
 
-            while (iteration < 5 && receivedItemCount < 1)
+            while (iteration < maxRetryCount && receivedItemCount < 1)
             {
                 Thread.Sleep(AISDKBufferFlushTime);                
                 items = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
                 receivedItemCount = items.Count;
                 iteration++;
-                if (receivedItemCount == 0)
+                if (receivedItemCount == 0 && flushChannel)
                 {                    
                     ExecuteWebRequestToTarget(targetInstanceIp, Apps[AppNameBeingTested].flushPath).Wait();
                 }
@@ -1015,19 +1026,19 @@ namespace E2ETests
             return items;
         }
 
-        private IList<TelemetryItem<RequestData>> WaitForReceiveRequestItemsFromDataIngestion(string targetInstanceIp, string ikey)
+        private static IList<TelemetryItem<RequestData>> WaitForReceiveRequestItemsFromDataIngestion(string targetInstanceIp, string ikey, int maxRetryCount = 5, bool flushChannel = true)
         {
             int receivedItemCount = 0;
             int iteration = 0;
             IList<TelemetryItem<RequestData>> items = new List<TelemetryItem<RequestData>>();
 
-            while (iteration < 10 && receivedItemCount < 1)
+            while (iteration < maxRetryCount && receivedItemCount < 1)
             {
                 Thread.Sleep(AISDKBufferFlushTime);
                 items = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(ikey);
                 receivedItemCount = items.Count;
                 iteration++;
-                if (receivedItemCount == 0)
+                if (receivedItemCount == 0 && flushChannel)
                 {
                     ExecuteWebRequestToTarget(targetInstanceIp, Apps[AppNameBeingTested].flushPath).Wait();
                 }

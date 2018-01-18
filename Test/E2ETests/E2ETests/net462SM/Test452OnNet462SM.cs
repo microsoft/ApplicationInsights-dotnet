@@ -45,13 +45,7 @@ namespace E2ETests.Net462SMSM
             DockerUtils.RemoveDockerImage(Apps[AppNameBeingTested].imageName, true);
             DockerUtils.RemoveDockerContainer(Apps[AppNameBeingTested].containerName, true);
 
-            MyClassInitializeBase();
-
-            // Sleep for 20 sec to give application enough time to dispatch
-            // telemetry from the warmup request. The initial request typically
-            // takes long time, and its telemetry appears late causing subsequent
-            // test failures.
-            Thread.Sleep(20000);
+            MyClassInitializeBase();            
         }
 
         [TestInitialize]
