@@ -40,7 +40,7 @@ namespace E2ETests.Net462
                     flushPath = TestConstants.WebAppFlushPath
                 });
             }
-            MyClassInitializeBase();            
+            MyClassInitializeBase();
         }
           
         [TestInitialize]

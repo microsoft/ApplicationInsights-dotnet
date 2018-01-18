@@ -45,7 +45,7 @@ namespace E2ETests.Net462SMSM
             DockerUtils.RemoveDockerImage(Apps[AppNameBeingTested].imageName, true);
             DockerUtils.RemoveDockerContainer(Apps[AppNameBeingTested].containerName, true);
 
-            MyClassInitializeBase();            
+            MyClassInitializeBase();
         }
 
         [TestInitialize]
