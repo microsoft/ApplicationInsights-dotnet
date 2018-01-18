@@ -106,7 +106,7 @@ namespace E2ETests
             // Wait long enough for first telemetry items from health check requests.
             // These could arrive several seconds after first request to app is made.
             Trace.WriteLine("Waiting to receive request telemetry from health check for WebApp");
-            var requestsWebApp = WaitForReceiveRequestItemsFromDataIngestion(Apps[TestConstants.WebAppName].ipAddress, Apps[TestConstants.WebAppName].ikey, 30, false);
+            var requestsWebApp = WaitForReceiveRequestItemsFromDataIngestion(Apps[AppNameBeingTested].ipAddress, Apps[AppNameBeingTested].ikey, 30, false);
             Trace.WriteLine("Waiting to receive request telemetry from health check for WebApp completed. Item received count:" + requestsWebApp.Count);
 
             Trace.WriteLine("Waiting to receive request telemetry from health check for WebApi");
