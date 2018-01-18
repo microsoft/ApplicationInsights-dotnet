@@ -492,33 +492,6 @@
                 this.nameProvider.Name);
         }
 
-        [Event(
-            41,
-            Keywords = Keywords.Diagnostics,
-            Message = "System doesn't have access to Azure Instance Metadata Service. Azure VM instance metadata fields will not be added to heartbeat data.",
-            Level = EventLevel.Informational)]
-        public void CannotObtainAzureInstanceMetadata(string appDomainName = "Incorrect")
-        {
-            this.WriteEvent(
-                41,
-                this.nameProvider.Name);
-        }
-
-        [Event(
-            42,
-            Keywords = Keywords.Diagnostics,
-            Message = "Request to obtain information from the Azure Instance Metadata Service failed. Request URI is '{0}', exception: {1} (inner: '{2}')",
-            Level = EventLevel.Informational)]
-        public void AzureInstanceMetadataRequestFailure(string requestUrl, string ex, string innerEx, string appDomainName = "Incorrect")
-        {
-            this.WriteEvent(
-                42,
-                requestUrl,
-                ex ?? string.Empty,
-                innerEx ?? string.Empty,
-                this.nameProvider.Name);
-        }
-
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
