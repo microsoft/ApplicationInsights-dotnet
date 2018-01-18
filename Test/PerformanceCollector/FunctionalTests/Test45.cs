@@ -44,6 +44,12 @@
             int telemetryPort = rand.Next(minPort, maxPort + 1);
             int quickPulsePort = rand.Next(minPort, maxPort + 1);
 
+            Trace.WriteLine("IIS Port:" + iisPort);
+            Trace.WriteLine("Telemetry Port:" + telemetryPort);
+            Trace.WriteLine("Quickpulse Port:" + quickPulsePort);
+
+           
+            Trace.WriteLine(DateTime.UtcNow.ToLongTimeString() + ":Starting Web host");
             this.StartWebAppHost(
                 new SingleWebHostTestConfiguration(
                     new IisExpressConfiguration
@@ -58,13 +64,15 @@
                     AttachDebugger = Debugger.IsAttached,
                     IKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8",
                 });
-
             OverwriteFile(applicationDirectory, "ApplicationInsights.config", new Dictionary<string, string>() { ["{TelemetryEndpointPort}"] = telemetryPort.ToString() });
             OverwriteFile(applicationDirectory, "Web.config", new Dictionary<string, string>() { ["{QuickPulseEndpointPort}"] = quickPulsePort.ToString() });
 
+            Trace.WriteLine(DateTime.UtcNow.ToLongTimeString() + ":Starting Web host completed successfully");
             try
             {
+                Trace.WriteLine(DateTime.UtcNow.ToLongTimeString() + ": Launching application and verifying..");
                 base.LaunchAndVerifyApplication();
+                Trace.WriteLine(DateTime.UtcNow.ToLongTimeString() + ": Launching application and verifying success.");
             }
             catch (Exception ex)
             {
@@ -87,6 +95,8 @@
             }
 
             File.WriteAllText(filePath, fileContent);
+
+            Trace.WriteLine(DateTime.UtcNow.ToLongTimeString() + ": FileOverWritten: " + filePath);
         }
 
         [TestCleanup]
