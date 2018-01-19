@@ -1,5 +1,10 @@
 # Changelog
 
+
+## Version 2.5.0
+- [Fix: System.InvalidCastException for SQL Dependency](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/782)
+
+
 ## Version 2.5.0-beta2
 - [Fix: When debugging netcoreapp2.0 in VS, http dependencies are tracked twice](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/723)
 - [Fix: DependencyCollector check if exits before add](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/724)

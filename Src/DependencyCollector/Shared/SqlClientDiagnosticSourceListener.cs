@@ -280,19 +280,54 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     }
 
                     case SqlBeforeCommitTransaction:
-                    case SqlBeforeRollbackTransaction:
                     {
-                        var operationId = (Guid)TransactionBefore.OperationId.Fetch(evnt.Value);
+                        var operationId = (Guid)TransactionCommitBefore.OperationId.Fetch(evnt.Value);
 
                         DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId, evnt.Key);
 
-                        var connection = (SqlConnection)TransactionBefore.Connection.Fetch(evnt.Value);
+                        var connection = (SqlConnection)TransactionCommitBefore.Connection.Fetch(evnt.Value);
 
                         if (this.operationHolder.Get(connection) == null)
                         {
-                            var operation = (string)TransactionBefore.Operation.Fetch(evnt.Value);
-                            var timestamp = (long)TransactionBefore.Timestamp.Fetch(evnt.Value);
-                            var isolationLevel = (IsolationLevel)TransactionBefore.IsolationLevel.Fetch(evnt.Value);
+                            var operation = (string)TransactionCommitBefore.Operation.Fetch(evnt.Value);
+                            var timestamp = (long)TransactionCommitBefore.Timestamp.Fetch(evnt.Value);
+                            var isolationLevel = (IsolationLevel)TransactionCommitBefore.IsolationLevel.Fetch(evnt.Value);
+
+                            var telemetry = new DependencyTelemetry()
+                            {
+                                Id = operationId.ToString("N"),
+                                Name = string.Join(" | ", connection.DataSource, connection.Database, operation, isolationLevel),
+                                Type = RemoteDependencyConstants.SQL,
+                                Target = string.Join(" | ", connection.DataSource, connection.Database),
+                                Data = operation,
+                                Success = true
+                            };
+
+                            InitializeTelemetry(telemetry, operationId, timestamp);
+
+                            this.operationHolder.Store(connection, Tuple.Create(telemetry, /* isCustomCreated: */ false));
+                        }
+                        else
+                        {
+                            DependencyCollectorEventSource.Log.TrackingAnExistingTelemetryItemVerbose();
+                        }
+
+                        break;
+                    }
+
+                    case SqlBeforeRollbackTransaction:
+                    {
+                        var operationId = (Guid)TransactionRollbackBefore.OperationId.Fetch(evnt.Value);
+
+                        DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId, evnt.Key);
+
+                        var connection = (SqlConnection)TransactionRollbackBefore.Connection.Fetch(evnt.Value);
+
+                        if (this.operationHolder.Get(connection) == null)
+                        {
+                            var operation = (string)TransactionRollbackBefore.Operation.Fetch(evnt.Value);
+                            var timestamp = (long)TransactionRollbackBefore.Timestamp.Fetch(evnt.Value);
+                            var isolationLevel = (IsolationLevel)TransactionRollbackBefore.IsolationLevel.Fetch(evnt.Value);
 
                             var telemetry = new DependencyTelemetry()
                             {
@@ -479,12 +514,23 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         }
 
         // Fetchers for transaction commit/rollback before events
-        private static class TransactionBefore
+        private static class TransactionCommitBefore
         {
             public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
             public static readonly PropertyFetcher Operation = new PropertyFetcher(nameof(Operation));
             public static readonly PropertyFetcher IsolationLevel = new PropertyFetcher(nameof(IsolationLevel));
             public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
+            public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
+        }
+
+        // Fetchers for transaction commit before events
+        private static class TransactionRollbackBefore
+        {
+            public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
+            public static readonly PropertyFetcher Operation = new PropertyFetcher(nameof(Operation));
+            public static readonly PropertyFetcher IsolationLevel = new PropertyFetcher(nameof(IsolationLevel));
+            public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
+            public static readonly PropertyFetcher TransactionName = new PropertyFetcher(nameof(TransactionName));
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
         }
 
