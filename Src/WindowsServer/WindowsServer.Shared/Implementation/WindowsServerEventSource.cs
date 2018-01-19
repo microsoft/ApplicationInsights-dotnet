@@ -214,6 +214,31 @@
             this.WriteEvent(23, durationMsec, this.ApplicationName);
         }
 
+        [Event(
+            24,
+            Message = "System doesn't have access to Azure Instance Metadata Service. Azure VM instance metadata fields will not be added to heartbeat data.",
+            Level = EventLevel.Informational)]
+        public void CannotObtainAzureInstanceMetadata(string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                24,
+                this.ApplicationName);
+        }
+
+        [Event(
+            25,
+            Message = "Request to obtain information from the Azure Instance Metadata Service failed. Request URI is '{0}', exception: {1} (inner: '{2}')",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataRequestFailure(string requestUrl, string ex, string innerEx, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                25,
+                requestUrl,
+                ex ?? string.Empty,
+                innerEx ?? string.Empty,
+                this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {
