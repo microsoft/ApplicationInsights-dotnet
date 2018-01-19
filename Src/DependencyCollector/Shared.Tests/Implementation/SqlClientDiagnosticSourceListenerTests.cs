@@ -510,6 +510,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 OperationId = operationId,
                 Operation = "Rollback",
                 IsolationLevel = IsolationLevel.Snapshot,
+                TransactionName = "testTransactionName",
                 Connection = sqlConnection,
                 Timestamp = 1000000L
             };
