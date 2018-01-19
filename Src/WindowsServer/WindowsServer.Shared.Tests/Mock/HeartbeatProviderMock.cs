@@ -1,48 +1,52 @@
-﻿using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-using System;
-using System.Collections.Generic;
-
-namespace Microsoft.ApplicationInsights.WindowsServer.Mock
+﻿namespace Microsoft.ApplicationInsights.WindowsServer.Mock
 {
-    class HeartbeatProviderMock : IHeartbeatPropertyManager
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+
+    internal class HeartbeatProviderMock : IHeartbeatPropertyManager
     {
-        public bool enabled = true;
-        public TimeSpan interval = TimeSpan.FromMinutes(15);
-        public List<string> excludedProps = new List<string>();
-        public Dictionary<string, string> hbeatProps = new Dictionary<string, string>();
-        public Dictionary<string, bool> hbeatHealth = new Dictionary<string, bool>();
+        public bool Enabled = true;
+        public TimeSpan Interval = TimeSpan.FromMinutes(15);
+        public List<string> ExcludedProps = new List<string>();
+        public Dictionary<string, string> HbeatProps = new Dictionary<string, string>();
+        public Dictionary<string, bool> HbeatHealth = new Dictionary<string, bool>();
 
-        public bool IsHeartbeatEnabled { get => enabled; set => enabled = value; }
+        public bool IsHeartbeatEnabled { get => this.Enabled; set => this.Enabled = value; }
 
-        public TimeSpan HeartbeatInterval { get => interval; set => interval = value; }
+        public TimeSpan HeartbeatInterval { get => this.Interval; set => this.Interval = value; }
 
-        public IList<string> ExcludedHeartbeatProperties => excludedProps;
+        public IList<string> ExcludedHeartbeatProperties => this.ExcludedProps;
 
         public bool AddHeartbeatProperty(string propertyName, string propertyValue, bool isHealthy)
         {
-            if (!hbeatProps.ContainsKey(propertyName))
+            if (!this.HbeatProps.ContainsKey(propertyName))
             {
-                hbeatProps.Add(propertyName, propertyValue);
-                hbeatHealth.Add(propertyName, isHealthy);
+                this.HbeatProps.Add(propertyName, propertyValue);
+                this.HbeatHealth.Add(propertyName, isHealthy);
                 return true;
             }
+
             return false;
         }
 
         public bool SetHeartbeatProperty(string propertyName, string propertyValue = null, bool? isHealthy = null)
         {
-            if (!string.IsNullOrEmpty(propertyName) && hbeatProps.ContainsKey(propertyName))
+            if (!string.IsNullOrEmpty(propertyName) && this.HbeatProps.ContainsKey(propertyName))
             {
                 if (!string.IsNullOrEmpty(propertyValue))
                 {
-                    hbeatProps[propertyName] = propertyValue;
+                    this.HbeatProps[propertyName] = propertyValue;
                 }
+
                 if (isHealthy.HasValue)
                 {
-                    hbeatHealth[propertyName] = isHealthy.GetValueOrDefault(false);
+                    this.HbeatHealth[propertyName] = isHealthy.GetValueOrDefault(false);
                 }
+
                 return true;
             }
+
             return false;
         }
     }

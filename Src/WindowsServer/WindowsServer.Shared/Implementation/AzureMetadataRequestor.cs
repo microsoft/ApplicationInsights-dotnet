@@ -21,10 +21,10 @@
         private static string imdsTextFormat = "format=text";
 
         /// <summary>
-        /// Gets the value of a specific field from the imds link asynchronously, and returns it.
+        /// Gets the value of a specific field from the IMS link asynchronously, and returns it.
         /// </summary>
-        /// <param name="fieldName">Specific imds field to retrieve a value for</param>
-        /// <returns>an array of field names available, or null</returns>
+        /// <param name="fieldName">Specific IMS field to retrieve a value for.</param>
+        /// <returns>An array of field names available, or null.</returns>
         public async Task<string> GetAzureComputeMetadata(string fieldName)
         {
             string metadataRequestUrl = $"{baseImdsUrl}/{fieldName}?{imdsTextFormat}&{imdsApiVersion}";
@@ -35,9 +35,9 @@
         }
 
         /// <summary>
-        /// Gets all the available fields from the imds link asynchronously, and returns them as an IEnumerable.
+        /// Gets all the available fields from the IMS link asynchronously, and returns them as an IEnumerable.
         /// </summary>
-        /// <returns>an array of field names available, or null</returns>
+        /// <returns>An array of field names available, or null.</returns>
         public async Task<IEnumerable<string>> GetAzureInstanceMetadataComputeFields()
         {
             string allFieldsResponse = string.Empty;
@@ -77,19 +77,21 @@
                 request.Headers.Add("Metadata", "true");
                 using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
                 {
-                    if (response is HttpWebResponse httpResponse && httpResponse.StatusCode == HttpStatusCode.OK)
+                    if (response is HttpWebResponse)
                     {
-                        StreamReader content = new StreamReader(httpResponse.GetResponseStream());
+                        var httpResponse = (HttpWebResponse)response;
+                        if (httpResponse.StatusCode == HttpStatusCode.OK)
                         {
-                            requestResult = content.ReadToEnd();
+                            StreamReader content = new StreamReader(httpResponse.GetResponseStream());
+                            {
+                                requestResult = content.ReadToEnd();
+                            }
                         }
                     }
                 }
-
 #else
 #error Unknown framework
 #endif
-
             }
             catch (Exception ex)
             {

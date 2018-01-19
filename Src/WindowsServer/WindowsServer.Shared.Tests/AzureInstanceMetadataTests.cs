@@ -1,8 +1,9 @@
 namespace Microsoft.ApplicationInsights.WindowsServer
 {
     using Microsoft.ApplicationInsights.WindowsServer.Implementation;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.ApplicationInsights.WindowsServer.Mock;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
     using Assert = Xunit.Assert;
 
     [TestClass]
@@ -13,20 +14,20 @@ namespace Microsoft.ApplicationInsights.WindowsServer
         {
             HeartbeatProviderMock hbeatMock = new HeartbeatProviderMock();
             AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock();
-            AzureHeartbeatProperties azFields = new AzureHeartbeatProperties(azureInstanceRequestorMock, true);
+            AzureHeartbeatProperties azureIMSFields = new AzureHeartbeatProperties(azureInstanceRequestorMock, true);
             int counter = 1;
-            foreach (string field in azFields.DefaultFields)
+            foreach (string field in azureIMSFields.DefaultFields)
             {
-                azureInstanceRequestorMock.computeFields.Add(field, $"testValue{counter++}");
+                azureInstanceRequestorMock.ComputeFields.Add(field, $"testValue{counter++}");
             }
 
-            var taskWaiter = azFields.SetDefaultPayload(new string[] { }, hbeatMock).ConfigureAwait(false);
+            var taskWaiter = azureIMSFields.SetDefaultPayload(new string[] { }, hbeatMock).ConfigureAwait(false);
             Assert.True(taskWaiter.GetAwaiter().GetResult()); // no await for tests
 
-            foreach (string fieldName in azFields.DefaultFields)
+            foreach (string fieldName in azureIMSFields.DefaultFields)
             {
-                Assert.True(hbeatMock.hbeatProps.ContainsKey(fieldName));
-                Assert.False(string.IsNullOrEmpty(hbeatMock.hbeatProps[fieldName]));
+                Assert.True(hbeatMock.HbeatProps.ContainsKey(fieldName));
+                Assert.False(string.IsNullOrEmpty(hbeatMock.HbeatProps[fieldName]));
             }
         }
 
@@ -35,17 +36,17 @@ namespace Microsoft.ApplicationInsights.WindowsServer
         {
             HeartbeatProviderMock hbeatMock = new HeartbeatProviderMock();
             AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock();
-            var azFields = new AzureHeartbeatProperties(azureInstanceRequestorMock, true);
-            var defaultFields = azFields.DefaultFields;
-            // not adding the fields we're looking for, simulation of the Azure Instance Metadata service not being present...
+            var azureIMSFields = new AzureHeartbeatProperties(azureInstanceRequestorMock, true);
+            var defaultFields = azureIMSFields.DefaultFields;
 
-            var taskWaiter = azFields.SetDefaultPayload(new string[] { }, hbeatMock).ConfigureAwait(false);
+            // not adding the fields we're looking for, simulation of the Azure Instance Metadata service not being present...
+            var taskWaiter = azureIMSFields.SetDefaultPayload(new string[] { }, hbeatMock).ConfigureAwait(false);
             Assert.True(taskWaiter.GetAwaiter().GetResult()); // nop await for tests
 
             foreach (string fieldName in defaultFields)
             {
-                Assert.True(hbeatMock.hbeatProps.ContainsKey(fieldName));
-                Assert.True(string.IsNullOrEmpty(hbeatMock.hbeatProps[fieldName]));
+                Assert.True(hbeatMock.HbeatProps.ContainsKey(fieldName));
+                Assert.True(string.IsNullOrEmpty(hbeatMock.HbeatProps[fieldName]));
             }
         }
     }

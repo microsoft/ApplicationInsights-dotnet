@@ -1,10 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     internal class AzureHeartbeatProperties
     {
@@ -34,13 +34,20 @@
         private IAzureMetadataRequestor azureInstanceMetadataRequestor = null;
 
         /// <summary>
-        /// Constructor for the Azure specific fields to inject into the heartbeat payload
+        /// Initializes a new instance of the <see cref="AzureHeartbeatProperties"/> class.
         /// </summary>
-        /// <param name="azInstanceMetadataHandler">(for testing) Azure metadata request handler to use when requesting data from azure specifically. If left as null, an instance of AzureMetadatRequestor is used.</param>
-        /// <param name="resetCheckCompleteFlag">(for testing) set to true to reset the check that we've already aquired this data</param>
-        public AzureHeartbeatProperties(IAzureMetadataRequestor azInstanceMetadataHandler = null, bool resetCheckCompleteFlag = false)
+        public AzureHeartbeatProperties() : this(null, false)
         {
-            this.azureInstanceMetadataRequestor = azInstanceMetadataHandler;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AzureHeartbeatProperties"/> class.
+        /// </summary>
+        /// <param name="azureInstanceMetadataHandler">For testing: Azure metadata request handler to use when requesting data from azure specifically. If left as null, an instance of AzureMetadataRequestor is used.</param>
+        /// <param name="resetCheckCompleteFlag">For testing: set to true to reset the check that we've already acquired this data.</param>
+        internal AzureHeartbeatProperties(IAzureMetadataRequestor azureInstanceMetadataHandler = null, bool resetCheckCompleteFlag = false)
+        {
+            this.azureInstanceMetadataRequestor = azureInstanceMetadataHandler;
             if (this.azureInstanceMetadataRequestor == null)
             {
                 this.azureInstanceMetadataRequestor = new AzureMetadataRequestor();
@@ -74,8 +81,7 @@
                 {
                     provider.AddHeartbeatProperty(
                         propertyName: field,
-                        propertyValue: await this.azureInstanceMetadataRequestor.GetAzureComputeMetadata(field)
-                            .ConfigureAwait(false),
+                        propertyValue: await this.azureInstanceMetadataRequestor.GetAzureComputeMetadata(field).ConfigureAwait(false),
                         isHealthy: true);
                     hasSetFields = true;
                 }

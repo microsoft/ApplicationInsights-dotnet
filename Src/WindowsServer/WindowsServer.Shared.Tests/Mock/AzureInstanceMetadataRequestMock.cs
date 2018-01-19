@@ -6,54 +6,53 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation;
 
-    class AzureInstanceMetadataRequestMock : IAzureMetadataRequestor
+    internal class AzureInstanceMetadataRequestMock : IAzureMetadataRequestor
     {
-        private Func<IEnumerable<string>> GetAllFieldsFunc = null;
-        private Func<string, string> GetSingleFieldFunc = null;
+        public Dictionary<string, string> ComputeFields;
 
-        public Dictionary<string, string> computeFields;
+        private Func<IEnumerable<string>> getAllFieldsFunc = null;
+        private Func<string, string> getSingleFieldFunc = null;
 
         public AzureInstanceMetadataRequestMock(Func<IEnumerable<string>> getAllFields = null, Func<string, string> getSingleFieldFunc = null)
         {
-            this.GetAllFieldsFunc = getAllFields;
+            this.getAllFieldsFunc = getAllFields;
             if (getAllFields == null)
             {
-                this.GetAllFieldsFunc = this.GetAllFields;
+                this.getAllFieldsFunc = this.GetAllFields;
             }
 
-            this.GetSingleFieldFunc = getSingleFieldFunc;
+            this.getSingleFieldFunc = getSingleFieldFunc;
             if (getSingleFieldFunc == null)
             {
-                this.GetSingleFieldFunc = this.GetSingleField;
+                this.getSingleFieldFunc = this.GetSingleField;
             }
 
-            computeFields = new Dictionary<string, string>();
-            
+            this.ComputeFields = new Dictionary<string, string>();
         }
 
         public Task<string> GetAzureComputeMetadata(string fieldName)
         {
-            return Task.FromResult(this.GetSingleFieldFunc(fieldName));
+            return Task.FromResult(this.getSingleFieldFunc(fieldName));
+        }
+
+        public Task<IEnumerable<string>> GetAzureInstanceMetadataComputeFields()
+        {
+            return Task.FromResult(this.getAllFieldsFunc());
         }
 
         private string GetSingleField(string fieldName)
         {
-            if (this.computeFields.ContainsKey(fieldName))
+            if (this.ComputeFields.ContainsKey(fieldName))
             {
-                return this.computeFields[fieldName];
+                return this.ComputeFields[fieldName];
             }
 
             return string.Empty;
         }
 
-        public Task<IEnumerable<string>> GetAzureInstanceMetadataComputeFields()
-        {
-            return Task.FromResult(this.GetAllFieldsFunc());
-        }
-
         private IEnumerable<string> GetAllFields()
         {
-            IEnumerable<string> fields = this.computeFields.Keys.ToArray();
+            IEnumerable<string> fields = this.ComputeFields.Keys.ToArray();
             return fields;
         }
     }

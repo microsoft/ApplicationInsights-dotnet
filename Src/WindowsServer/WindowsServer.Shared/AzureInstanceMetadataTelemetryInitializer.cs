@@ -1,11 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer
 {
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.WindowsServer.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.WindowsServer.Implementation;
 
     /// <summary>
     /// A telemetry initializer that will gather Azure Role Environment context information.
@@ -13,7 +13,7 @@
     public class AzureInstanceMetadataTelemetryInitializer : ITelemetryInitializer
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AzureRoleEnvironmentTelemetryInitializer" /> class. 
+        /// Initializes a new instance of the <see cref="AzureInstanceMetadataTelemetryInitializer" /> class.
         /// Creates a heartbeat property collector that obtains and inserts data from the Azure Instance
         /// Metadata service if it is present and available to the currently running process. If it is not
         /// present no added IMS data is added to the heartbeat.
@@ -26,8 +26,10 @@
             foreach (var module in telemetryModules.Modules)
 
             {
-                if (module is IHeartbeatPropertyManager hbeatManager)
+                if (module is IHeartbeatPropertyManager)
                 {
+                    var hbeatManager = (IHeartbeatPropertyManager)module;
+
                     // start off the heartbeat property collection process, but don't wait for it nor report
                     // any status from here. The thread running the collection will report to the core event log.
                     var hbeatPropertyHandler = new AzureHeartbeatProperties();
