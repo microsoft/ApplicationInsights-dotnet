@@ -17,7 +17,7 @@
         /// by the Azure Resource Manager. See <a href="https://go.microsoft.com/fwlink/?linkid=864683">to learn more.</a>
         /// </summary>
         private static string baseImdsUrl = $"http://169.254.169.254/metadata/instance/compute";
-        private static string imdsApiVersion = $"api-version=2017-04-02"; // this version has the format=text capability
+        private static string imdsApiVersion = $"api-version=2017-08-01"; // this version has the format=text capability
         private static string imdsTextFormat = "format=text";
 
         /// <summary>

@@ -21,7 +21,9 @@
             "sku",
             "version",
             "vmId",
-            "vmSize"
+            "vmSize",
+            "subscriptionId",
+            "resourceGroupName"
         };
 
         /// <summary>
