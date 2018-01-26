@@ -34,18 +34,19 @@ namespace Microsoft.ApplicationInsights.WindowsServer
         public void FailToObtainAzureInstanceMetadataFieldsAltogether()
         {
             HeartbeatProviderMock hbeatMock = new HeartbeatProviderMock();
-            AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock();
+            AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock(
+                getAllFields:() => { try { throw new System.Exception("Failure"); } catch { } return null; }, 
+                getSingleFieldFunc:(a) => { return a; });
             var azureIMSFields = new AzureHeartbeatProperties(azureInstanceRequestorMock, true);
             var defaultFields = azureIMSFields.DefaultFields;
 
             // not adding the fields we're looking for, simulation of the Azure Instance Metadata service not being present...
             var taskWaiter = azureIMSFields.SetDefaultPayload(new string[] { }, hbeatMock).ConfigureAwait(false);
-            Assert.True(taskWaiter.GetAwaiter().GetResult()); // nop await for tests
+            Assert.False(taskWaiter.GetAwaiter().GetResult()); // nop await for tests
 
             foreach (string fieldName in defaultFields)
             {
-                Assert.True(hbeatMock.HbeatProps.ContainsKey(fieldName));
-                Assert.True(string.IsNullOrEmpty(hbeatMock.HbeatProps[fieldName]));
+                Assert.False(hbeatMock.HbeatProps.ContainsKey(fieldName));
             }
         }
     }

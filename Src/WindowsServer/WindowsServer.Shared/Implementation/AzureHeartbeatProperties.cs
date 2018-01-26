@@ -31,7 +31,7 @@
         /// if we should even attempt to look for it in the first place. Static to ensure we only ever attempt this
         /// once for any given consuming application.
         /// </summary>
-        private static bool isAzureMetadataCheckCompleted = false;
+        private bool isAzureMetadataCheckCompleted = false;
 
         private IAzureMetadataRequestor azureInstanceMetadataRequestor = null;
 
@@ -57,7 +57,7 @@
 
             if (resetCheckCompleteFlag)
             {
-                AzureHeartbeatProperties.isAzureMetadataCheckCompleted = false;
+                this.isAzureMetadataCheckCompleted = false;
             }
         }
 
@@ -70,22 +70,24 @@
         {
             bool hasSetFields = false;
 
-            if (!AzureHeartbeatProperties.isAzureMetadataCheckCompleted)
+            if (!this.isAzureMetadataCheckCompleted)
             {
-                // only ever attempt this once
-                AzureHeartbeatProperties.isAzureMetadataCheckCompleted = true;
+                this.isAzureMetadataCheckCompleted = true;
 
                 var allFields = await this.azureInstanceMetadataRequestor.GetAzureInstanceMetadataComputeFields()
                                 .ConfigureAwait(false);
 
-                var enabledImdsFields = this.DefaultFields.Except(disabledFields);
-                foreach (string field in enabledImdsFields)
+                if (allFields != null && allFields.Count() > 0)
                 {
-                    provider.AddHeartbeatProperty(
-                        propertyName: field,
-                        propertyValue: await this.azureInstanceMetadataRequestor.GetAzureComputeMetadata(field).ConfigureAwait(false),
-                        isHealthy: true);
-                    hasSetFields = true;
+                    var enabledImdsFields = this.DefaultFields.Except(disabledFields).Intersect(allFields);
+                    foreach (string field in enabledImdsFields)
+                    {
+                        provider.AddHeartbeatProperty(
+                            propertyName: field,
+                            propertyValue: await this.azureInstanceMetadataRequestor.GetAzureComputeMetadata(field).ConfigureAwait(false),
+                            isHealthy: true);
+                        hasSetFields = true;
+                    }
                 }
             }
 

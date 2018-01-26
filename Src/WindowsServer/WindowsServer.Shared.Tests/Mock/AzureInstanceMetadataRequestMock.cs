@@ -29,7 +29,7 @@
 
             this.ComputeFields = new Dictionary<string, string>();
         }
-
+        
         public Task<string> GetAzureComputeMetadata(string fieldName)
         {
             return Task.FromResult(this.getSingleFieldFunc(fieldName));
