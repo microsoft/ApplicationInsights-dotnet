@@ -15,10 +15,9 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             HeartbeatProviderMock hbeatMock = new HeartbeatProviderMock();
             AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock();
             AzureHeartbeatProperties azureIMSFields = new AzureHeartbeatProperties(azureInstanceRequestorMock, true);
-            int counter = 1;
             foreach (string field in azureIMSFields.DefaultFields)
             {
-                azureInstanceRequestorMock.ComputeFields.Add(field, $"testValue{counter++}");
+                azureInstanceRequestorMock.ComputeFields.Add(field, $"testValue");
             }
 
             var taskWaiter = azureIMSFields.SetDefaultPayload(new string[] { }, hbeatMock).ConfigureAwait(false);
