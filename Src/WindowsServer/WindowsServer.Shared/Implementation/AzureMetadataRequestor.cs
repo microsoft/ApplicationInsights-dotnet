@@ -19,6 +19,7 @@
         private static string baseImdsUrl = $"http://169.254.169.254/metadata/instance/compute";
         private static string imdsApiVersion = $"api-version=2017-08-01"; // this version has the format=text capability
         private static string imdsTextFormat = "format=text";
+        private static int MAX_IMS_RESPONSE_BUFFER_SIZE = 256;
 
         /// <summary>
         /// Gets the value of a specific field from the IMS link asynchronously, and returns it.
@@ -64,7 +65,7 @@
             {
 #if NETSTANDARD1_3
 
-                using (var getFieldValueClient = new HttpClient())
+                using (var getFieldValueClient = new HttpClient(new HttpClientHandler() { MaxRequestContentBufferSize = MAX_IMS_RESPONSE_BUFFER_SIZE }))
                 {
                     getFieldValueClient.DefaultRequestHeaders.Add("Metadata", "True");
                     requestResult = await getFieldValueClient.GetStringAsync(metadataRequestUrl).ConfigureAwait(false);
@@ -82,9 +83,19 @@
                         var httpResponse = (HttpWebResponse)response;
                         if (httpResponse.StatusCode == HttpStatusCode.OK)
                         {
+                            char[] buffer = new char[MAX_IMS_RESPONSE_BUFFER_SIZE];
                             StreamReader content = new StreamReader(httpResponse.GetResponseStream());
                             {
-                                requestResult = content.ReadToEnd();
+                                int bufferIndex = await content.ReadAsync(buffer, 0, buffer.Length);
+                                // this will probably never exceed 1024 bytes returned, scrap anything else that is left
+                                if (bufferIndex < buffer.Length - 1)
+                                {
+                                    requestResult = buffer.ToString();
+                                }
+                                else
+                                {
+                                    WindowsServerEventSource.Log.AzureInstanceMetadataRequestFailure(metadataRequestUrl, "Content received from Azure Metadata Instance service exceeds expected size, failing the call to avoid potential attack", string.Empty);
+                                }
                             }
                         }
                     }
