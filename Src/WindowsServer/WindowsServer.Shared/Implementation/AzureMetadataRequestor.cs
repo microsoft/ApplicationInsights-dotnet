@@ -19,7 +19,7 @@
         private static string baseImdsUrl = $"http://169.254.169.254/metadata/instance/compute";
         private static string imdsApiVersion = $"api-version=2017-08-01"; // this version has the format=text capability
         private static string imdsTextFormat = "format=text";
-        private static int MAX_IMS_RESPONSE_BUFFER_SIZE = 256;
+        private static int maxImsResponseBufferSize = 256;
 
         /// <summary>
         /// Gets the value of a specific field from the IMS link asynchronously, and returns it.
@@ -83,11 +83,12 @@
                         var httpResponse = (HttpWebResponse)response;
                         if (httpResponse.StatusCode == HttpStatusCode.OK)
                         {
-                            char[] buffer = new char[MAX_IMS_RESPONSE_BUFFER_SIZE];
+                            char[] buffer = new char[maxImsResponseBufferSize];
                             StreamReader content = new StreamReader(httpResponse.GetResponseStream());
                             {
                                 int bufferIndex = await content.ReadAsync(buffer, 0, buffer.Length);
-                                // this will probably never exceed 1024 bytes returned, scrap anything else that is left
+
+                                // this will probably never exceed the buffer's size in bytes returned, scrap anything else that is left
                                 if (bufferIndex < buffer.Length - 1)
                                 {
                                     requestResult = buffer.ToString();

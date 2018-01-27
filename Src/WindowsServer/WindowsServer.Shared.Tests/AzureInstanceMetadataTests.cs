@@ -35,8 +35,19 @@ namespace Microsoft.ApplicationInsights.WindowsServer
         {
             HeartbeatProviderMock hbeatMock = new HeartbeatProviderMock();
             AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock(
-                getAllFields:() => { try { throw new System.Exception("Failure"); } catch { } return null; }, 
-                getSingleFieldFunc:(a) => { return a; });
+                getAllFields: () =>
+                {
+                    try
+                    {
+                        throw new System.Exception("Failure");
+                    }
+                    catch
+                    {
+                    }
+
+                    return null;
+                }, 
+                getSingleFieldFunc: (a) => a);
             var azureIMSFields = new AzureHeartbeatProperties(azureInstanceRequestorMock, true);
             var defaultFields = azureIMSFields.DefaultFields;
 
