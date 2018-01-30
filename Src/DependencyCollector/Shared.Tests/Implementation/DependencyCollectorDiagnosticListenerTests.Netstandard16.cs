@@ -15,9 +15,7 @@ namespace Microsoft.ApplicationInsights.Tests
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
-#if !NETCORE
     using Microsoft.ApplicationInsights.Web.TestFramework;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>

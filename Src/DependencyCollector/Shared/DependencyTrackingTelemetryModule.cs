@@ -6,6 +6,7 @@
     using System.Runtime.CompilerServices;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.EventHandlers;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 #if !NETCORE

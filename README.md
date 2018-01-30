@@ -42,6 +42,12 @@ If you prefer using build scripts, run ```buildDebug.cmd``` or ```buildRelease.c
 - [master][master] contains the *latest* published release located on [NuGet][WebNuGet].
 - [develop][develop] contains the code for the *next* release.
 
+## Shared Projects
+
+Our projects target multiple frameworks (ex: Net45 & NetCore). We have framework specific projects and a shared project for common files between them. (ex: Perf.Net45, Perf.NetCore, Perf.Shared). If a file is used by both frameworks, we prefer to store that file in a Shared project and use preprocessor directives to separate framework specific code (ex: `#if NETCORE, #if !NETCORE`). We also use a conditional ItemGroup to assign files to a framework (ex: `ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp1.0' "`).
+
+We've found that this makes our projects easier to maintain because it keeps Framework assignments in a single project. As an added bonus our Framework specific projects can include a single Shared project instead of individual files, which keeps our project files neat and clean.
+
 ## Contributing
 
 We strongly welcome and encourage contributions to this project. Please read the [contributor's guide][ContribGuide]. If making a large change we request that you open an [issue][GitHubIssue] first. If we agree that an issue is a bug, we'll add the "bug" label, and issues that we plan to fix are labeled with an iteration number. We follow the [Git Flow][GitFlow] approach to branching.

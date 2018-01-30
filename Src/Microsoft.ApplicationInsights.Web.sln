@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.Net45", "Web\Web.Net45\Web.Net45.csproj", "{FE97E6BB-7C7E-4503-AF35-EBBBEDEB850A}"
 EndProject
@@ -80,8 +80,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsServer.Nuget", "Wind
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsServer.Nuget.Tests", "WindowsServer\WindowsServer.Nuget.Tests\WindowsServer.Nuget.Tests.csproj", "{18F21FF0-D6A7-4411-9438-C0D783FA04BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFramework.Net45", "TestFramework\Net45\TestFramework.Net45.csproj", "{1BE54EE7-6627-4206-86DD-3D2C709A1500}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared", "TestFramework\Shared\TestFramework.Shared.shproj", "{9718F051-147F-4F5F-9FF3-C926430EFCF7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PerformanceCollector", "PerformanceCollector", "{A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}"
@@ -133,8 +131,8 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.Tests", "Perfor
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		TestFramework\Shared\TestFramework.Shared.projitems*{1be54ee7-6627-4206-86dd-3d2c709a1500}*SharedItemsImports = 4
 		DependencyCollector\Shared.Tests\DependencyCollector.Shared.Tests.projitems*{257fce5a-0779-45a5-b541-0ce43d79d009}*SharedItemsImports = 4
+		TestFramework\Shared\TestFramework.Shared.projitems*{257fce5a-0779-45a5-b541-0ce43d79d009}*SharedItemsImports = 4
 		Web\Web.Shared.Net\Web.Shared.Net.projitems*{395e03bb-d061-4c9d-9d47-18676566444d}*SharedItemsImports = 13
 		PerformanceCollector\Filtering.Shared\Filtering.Shared.projitems*{568aeb4f-ba4c-47a5-9fa3-68f06cd11fed}*SharedItemsImports = 13
 		WindowsServer\WindowsServer.Shared\WindowsServer.Shared.projitems*{579f42e8-b711-411e-be52-4a3fd208507f}*SharedItemsImports = 13
@@ -150,8 +148,11 @@ Global
 		WindowsServer\WindowsServer.Shared\WindowsServer.Shared.projitems*{e7e874bd-609c-41ca-8594-f793da2fa0d0}*SharedItemsImports = 4
 		Common\Common.projitems*{ea2d14aa-ae1e-4982-9326-11d4dcbb9529}*SharedItemsImports = 4
 		DependencyCollector\Shared\DependencyCollector.Shared.projitems*{ea2d14aa-ae1e-4982-9326-11d4dcbb9529}*SharedItemsImports = 4
+		TestFramework\Shared\TestFramework.Shared.projitems*{f05eb480-b209-47dd-90e3-1ddc47efc579}*SharedItemsImports = 4
 		WindowsServer\WindowsServer.Shared.Tests\WindowsServer.Shared.Tests.projitems*{f05eb480-b209-47dd-90e3-1ddc47efc579}*SharedItemsImports = 4
 		PerformanceCollector\Perf.Shared.Tests\Perf.Shared.Tests.projitems*{f254d4fb-428d-408e-8251-39bca7b4b5ce}*SharedItemsImports = 4
+		TestFramework\Shared\TestFramework.Shared.projitems*{f254d4fb-428d-408e-8251-39bca7b4b5ce}*SharedItemsImports = 4
+		TestFramework\Shared\TestFramework.Shared.projitems*{f71138bb-b3f8-4767-b394-857b0776038e}*SharedItemsImports = 4
 		Web\Web.Shared.Net.Tests\Web.Shared.Net.Tests.projitems*{f71138bb-b3f8-4767-b394-857b0776038e}*SharedItemsImports = 4
 		PerformanceCollector\Filtering.Shared\Filtering.Shared.projitems*{fbfcb985-bbfe-4954-a2ef-8124a42f56c7}*SharedItemsImports = 4
 		PerformanceCollector\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems*{fbfcb985-bbfe-4954-a2ef-8124a42f56c7}*SharedItemsImports = 4
@@ -270,14 +271,6 @@ Global
 		{18F21FF0-D6A7-4411-9438-C0D783FA04BC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{18F21FF0-D6A7-4411-9438-C0D783FA04BC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{18F21FF0-D6A7-4411-9438-C0D783FA04BC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{1BE54EE7-6627-4206-86DD-3D2C709A1500}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1BE54EE7-6627-4206-86DD-3D2C709A1500}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1BE54EE7-6627-4206-86DD-3D2C709A1500}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{1BE54EE7-6627-4206-86DD-3D2C709A1500}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{1BE54EE7-6627-4206-86DD-3D2C709A1500}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1BE54EE7-6627-4206-86DD-3D2C709A1500}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1BE54EE7-6627-4206-86DD-3D2C709A1500}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{1BE54EE7-6627-4206-86DD-3D2C709A1500}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{FBFCB985-BBFE-4954-A2EF-8124A42F56C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FBFCB985-BBFE-4954-A2EF-8124A42F56C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBFCB985-BBFE-4954-A2EF-8124A42F56C7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -390,7 +383,6 @@ Global
 		{84DEA2F9-238D-482C-95BB-9C4792AB0DB8} = {1A75535C-B8E5-4C31-BC6E-50456C8C4052}
 		{89329E2D-8AE5-48B0-9C57-19D640946C03} = {D87119AF-CD35-46F2-84A6-ED54CC42027E}
 		{18F21FF0-D6A7-4411-9438-C0D783FA04BC} = {D87119AF-CD35-46F2-84A6-ED54CC42027E}
-		{1BE54EE7-6627-4206-86DD-3D2C709A1500} = {8CA9F9C9-DA39-4159-86F3-C52F1636715E}
 		{9718F051-147F-4F5F-9FF3-C926430EFCF7} = {8CA9F9C9-DA39-4159-86F3-C52F1636715E}
 		{FBFCB985-BBFE-4954-A2EF-8124A42F56C7} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}
 		{9392CF11-9063-4FC9-B8D1-922C754007D7} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}

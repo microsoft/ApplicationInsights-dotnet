@@ -6,14 +6,15 @@ namespace Microsoft.ApplicationInsights.Tests
     using System.Data.SqlClient;
     using System.Diagnostics;
     using System.Linq;
-
+    using System.Reflection;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using System.Reflection;
+    using Microsoft.ApplicationInsights.Web.TestFramework;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
@@ -32,16 +33,16 @@ namespace Microsoft.ApplicationInsights.Tests
         public void TestInit()
         {
             this.sendItems = new List<ITelemetry>();
-            this.stubTelemetryChannel = new StubTelemetryChannel {OnSend = item => this.sendItems.Add(item)};
+            this.stubTelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
 
             this.configuration = new TelemetryConfiguration
             {
                 InstrumentationKey = Guid.NewGuid().ToString(),
-                TelemetryChannel = stubTelemetryChannel
+                TelemetryChannel = this.stubTelemetryChannel
             };
 
             this.fakeSqlClientDiagnosticSource = new FakeSqlClientDiagnosticSource();
-            this.sqlClientDiagnosticSourceListener = new SqlClientDiagnosticSourceListener(configuration);
+            this.sqlClientDiagnosticSourceListener = new SqlClientDiagnosticSourceListener(this.configuration);
         }
 
         [TestCleanup]
@@ -248,7 +249,6 @@ namespace Microsoft.ApplicationInsights.Tests
                 beforeExecuteEventData);
 
             // Need to create SqlException via reflection because ctor is not public!
-
             var sqlErrorCtor
                 = typeof(SqlError).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
                     .Single(c => c.GetParameters().Count() == 8);
