@@ -150,18 +150,18 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             public void OnNext(KeyValuePair<string, object> evnt)
             {
-                Activity currentActivity = Activity.Current;
-                if (currentActivity == null)
-                {
-                    DependencyCollectorEventSource.Log.CurrentActivityIsNull();
-                    return;
-                }
-
                 // while we provide IsEnabled callback during subscription, it does not gurantee events will not be fired
                 // In case of multiple subscribers, it's enough for one to reply true to IsEnabled.
                 // I.e. check for if activity is not disabled and particular handler wants to receive the event.
                 if (this.telemetryDiagnosticSourceListener.IsActivityEnabled(evnt.Key, this.Context) && this.eventHandler.IsEventEnabled(evnt.Key, null, null))
                 {
+                    Activity currentActivity = Activity.Current;
+                    if (currentActivity == null)
+                    {
+                        DependencyCollectorEventSource.Log.CurrentActivityIsNull(evnt.Key);
+                        return;
+                    }
+
                     DependencyCollectorEventSource.Log.TelemetryDiagnosticSourceListenerEvent(evnt.Key, currentActivity.Id);
 
                     try

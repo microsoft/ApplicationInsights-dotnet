@@ -251,22 +251,24 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         internal void OnException(Exception exception, HttpRequestMessage request)
         {
+            // Even though we have the IsEnabled filter, to reject ApplicationInsights URLs before any events are fired,
+            // Exceptions are special and fired even if request instrumentation is disabled.
+            if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
+            {
+                return;
+            }
+
             Activity currentActivity = Activity.Current;
             if (currentActivity == null)
             {
-                DependencyCollectorEventSource.Log.CurrentActivityIsNull();
+                DependencyCollectorEventSource.Log.CurrentActivityIsNull(HttpExceptionEventName);
                 return;
             }
 
             DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerException(currentActivity.Id);
 
-            // Even though we have the IsEnabled filter, to reject ApplicationInsights URLs before any events are fired,
-            // Exceptions are special and fired even if request instrumentation is disabled.
-            if (!this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
-            {
-                this.pendingExceptions.TryAdd(currentActivity.Id, exception);
-                this.client.TrackException(exception);
-            }
+            this.pendingExceptions.TryAdd(currentActivity.Id, exception);
+            this.client.TrackException(exception);
         }
 
         //// netcoreapp 2.0 event
@@ -276,21 +278,23 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         internal void OnActivityStart(HttpRequestMessage request)
         {
+            // Even though we have the IsEnabled filter to reject ApplicationInsights URLs before any events are fired, if there
+            // are multiple subscribers and one subscriber returns true to IsEnabled then all subscribers will receive the event.
+            if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
+            {
+                return;
+            }
+
             var currentActivity = Activity.Current;
             if (currentActivity == null)
             {
-                DependencyCollectorEventSource.Log.CurrentActivityIsNull();
+                DependencyCollectorEventSource.Log.CurrentActivityIsNull(HttpOutStartEventName);
                 return;
             }
 
             DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStart(currentActivity.Id);
 
-            // Even though we have the IsEnabled filter to reject ApplicationInsights URLs before any events are fired, if there
-            // are multiple subscribers and one subscriber returns true to IsEnabled then all subscribers will receive the event.
-            if (!this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
-            {
-                this.InjectRequestHeaders(request, this.configuration.InstrumentationKey);
-            }
+            this.InjectRequestHeaders(request, this.configuration.InstrumentationKey);
         }
 
         //// netcoreapp 2.0 event
@@ -300,21 +304,21 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         internal void OnActivityStop(HttpResponseMessage response, HttpRequestMessage request, TaskStatus requestTaskStatus)
         {
-            Activity currentActivity = Activity.Current;
-            if (currentActivity == null)
-            {
-                DependencyCollectorEventSource.Log.CurrentActivityIsNull();
-                return;
-            }
-
-            DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStop(currentActivity.Id);
-
             // Even though we have the IsEnabled filter to reject ApplicationInsights URLs before any events are fired, if there
             // are multiple subscribers and one subscriber returns true to IsEnabled then all subscribers will receive the event.
             if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
             {
                 return;
             }
+
+            Activity currentActivity = Activity.Current;
+            if (currentActivity == null)
+            {
+                DependencyCollectorEventSource.Log.CurrentActivityIsNull(HttpOutStopEventName);
+                return;
+            }
+
+            DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStop(currentActivity.Id);
 
             Uri requestUri = request.RequestUri;
             var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;
