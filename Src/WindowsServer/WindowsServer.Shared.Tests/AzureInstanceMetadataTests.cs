@@ -1,9 +1,10 @@
 namespace Microsoft.ApplicationInsights.WindowsServer
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.Mock;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Assert = Xunit.Assert;
 
     [TestClass]
@@ -58,6 +59,28 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             foreach (string fieldName in defaultFields)
             {
                 Assert.False(hbeatMock.HbeatProps.ContainsKey(fieldName));
+            }
+        }
+
+        [TestMethod]
+        public void AzureIMSGetAllFieldsFailsWithException()
+        {
+            var requestor = new AzureMetadataRequestor(makeAzureIMSRequestor: (string uri) =>
+            {
+#if NETSTANDARD1_3
+                throw new System.Net.Http.HttpRequestException("MaxResponseContentLength exceeded");
+#endif
+                throw new System.ArgumentOutOfRangeException("ResponseContentLength", "Response content length was too great.");
+            });
+
+            try
+            {
+                var result = requestor.GetAzureInstanceMetadataComputeFields();
+                Assert.Empty(result.GetAwaiter().GetResult());
+            }
+            catch
+            {
+                Assert.True(true, "Expectation is that exceptions will be handled within AzureMetadataRequestor");
             }
         }
     }

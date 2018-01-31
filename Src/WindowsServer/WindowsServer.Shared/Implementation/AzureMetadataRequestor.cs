@@ -22,6 +22,20 @@
         private static int maxImsResponseBufferSize = 256;
 
         /// <summary>
+        /// Private function for mocking out the actual call to IMS in unit tests. Available to internal only.
+        /// </summary>
+        private Func<string, Task<string>> azureIMSRequestor = null;
+
+        public AzureMetadataRequestor()
+        {
+        }
+
+        internal AzureMetadataRequestor(Func<string, Task<string>> makeAzureIMSRequestor = null)
+        {
+            this.azureIMSRequestor = makeAzureIMSRequestor;
+        }
+
+        /// <summary>
         /// Gets the value of a specific field from the IMS link asynchronously, and returns it.
         /// </summary>
         /// <param name="fieldName">Specific IMS field to retrieve a value for.</param>
@@ -63,47 +77,14 @@
             SdkInternalOperationsMonitor.Enter();
             try
             {
-#if NETSTANDARD1_3
-
-                using (var getFieldValueClient = new HttpClient(new HttpClientHandler() { MaxRequestContentBufferSize = MAX_IMS_RESPONSE_BUFFER_SIZE }))
+                if (this.azureIMSRequestor != null)
                 {
-                    getFieldValueClient.DefaultRequestHeaders.Add("Metadata", "True");
-                    requestResult = await getFieldValueClient.GetStringAsync(metadataRequestUrl).ConfigureAwait(false);
+                    requestResult = await this.azureIMSRequestor(metadataRequestUrl);
                 }
-
-#elif NET45 || NET46
-
-                WebRequest request = WebRequest.Create(metadataRequestUrl);
-                request.Method = "GET";
-                request.Headers.Add("Metadata", "true");
-                using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
+                else
                 {
-                    if (response is HttpWebResponse)
-                    {
-                        var httpResponse = (HttpWebResponse)response;
-                        if (httpResponse.StatusCode == HttpStatusCode.OK)
-                        {
-                            char[] buffer = new char[maxImsResponseBufferSize];
-                            StreamReader content = new StreamReader(httpResponse.GetResponseStream());
-                            {
-                                int bufferIndex = await content.ReadAsync(buffer, 0, buffer.Length);
-
-                                // this will probably never exceed the buffer's size in bytes returned, scrap anything else that is left
-                                if (bufferIndex < buffer.Length - 1)
-                                {
-                                    requestResult = buffer.ToString();
-                                }
-                                else
-                                {
-                                    WindowsServerEventSource.Log.AzureInstanceMetadataRequestFailure(metadataRequestUrl, "Content received from Azure Metadata Instance service exceeds expected size, failing the call to avoid potential attack", string.Empty);
-                                }
-                            }
-                        }
-                    }
+                    requestResult = await this.MakeWebRequest(metadataRequestUrl);
                 }
-#else
-#error Unknown framework
-#endif
             }
             catch (Exception ex)
             {
@@ -112,6 +93,60 @@
             finally
             {
                 SdkInternalOperationsMonitor.Exit();
+            }
+
+            return requestResult;
+        }
+
+        private async Task<string> MakeWebRequest(string requestUrl)
+        {
+            string requestResult = string.Empty;
+            int bufferLengthReceived = 0;
+
+#if NETSTANDARD1_3
+
+            using (var getFieldValueClient = new HttpClient())
+            {
+                getFieldValueClient.MaxResponseContentBufferSize = AzureMetadataRequestor.maxImsResponseBufferSize;
+                getFieldValueClient.DefaultRequestHeaders.Add("Metadata", "True");
+                requestResult = await getFieldValueClient.GetStringAsync(requestUrl).ConfigureAwait(false);
+                bufferLengthReceived = requestResult.Length;
+            }
+
+#elif NET45 || NET46
+
+            WebRequest request = WebRequest.Create(requestUrl);
+            request.Method = "GET";
+            request.Headers.Add("Metadata", "True");
+            using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
+            {
+                if (response is HttpWebResponse)
+                {
+                    var httpResponse = (HttpWebResponse)response;
+                    if (httpResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        char[] buffer = new char[AzureMetadataRequestor.maxImsResponseBufferSize];
+                        StreamReader content = new StreamReader(httpResponse.GetResponseStream());
+                        {
+                            int bufferIndex = await content.ReadAsync(buffer, 0, buffer.Length);
+                            bufferLengthReceived = bufferIndex;
+
+                            // this will probably never exceed the buffer's size in bytes returned, scrap anything else that is left
+                            if (bufferIndex < buffer.Length - 1)
+                            {
+                                requestResult = buffer.ToString();
+                            }
+                        }
+                    }
+                }
+            }
+#else
+#error Unknown framework
+#endif
+            if (bufferLengthReceived > AzureMetadataRequestor.maxImsResponseBufferSize - 1)
+            {
+                WindowsServerEventSource.Log.AzureInstanceMetadataRequestFailure(requestUrl, "Content received from Azure Metadata Instance service exceeds expected size, failing the call to avoid potential attack", string.Empty);
+                requestResult = string.Empty;
             }
 
             return requestResult;

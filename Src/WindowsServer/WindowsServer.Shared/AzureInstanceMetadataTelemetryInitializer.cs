@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights.WindowsServer.Implementation;
 
     /// <summary>
-    /// A telemetry initializer that will gather Azure Role Environment context information.
+    /// A telemetry initializer that adds Azure specific context information to the heartbeat, if it is available.
     /// </summary>
     public class AzureInstanceMetadataTelemetryInitializer : ITelemetryInitializer
     {
@@ -32,9 +32,9 @@
 
                     // start off the heartbeat property collection process, but don't wait for it nor report
                     // any status from here. The thread running the collection will report to the core event log.
-                    var hbeatPropertyHandler = new AzureHeartbeatProperties();
+                    var heartbeatProperties = new AzureHeartbeatProperties();
                     Task.Factory.StartNew(
-                        async () => await hbeatPropertyHandler.SetDefaultPayload(hbeatManager.ExcludedHeartbeatProperties, hbeatManager)
+                        async () => await heartbeatProperties.SetDefaultPayload(hbeatManager.ExcludedHeartbeatProperties, hbeatManager)
                         .ConfigureAwait(false));                    
                 }
             }
