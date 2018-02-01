@@ -31,6 +31,16 @@
             this.HeartbeatInterval = TimeSpan.FromSeconds(31);
         }
 
+        public bool AddHeartbeatProperty(string propertyName, string propertyValue, bool isHealthy)
+        {
+            return this.AddHeartbeatProperty(propertyName, false, propertyValue, isHealthy);
+        }
+
+        public bool SetHeartbeatProperty(string propertyName, string propertyValue, bool? isHealthy)
+        {
+            return this.SetHeartbeatProperty(propertyName, false, propertyValue, isHealthy);
+        }
+
         public bool AddHeartbeatProperty(string propertyName, bool overrideDefaultField, string propertyValue, bool isHealthy)
         {
             this.HeartbeatProperties.Add(

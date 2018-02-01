@@ -94,8 +94,7 @@
         /// 
         /// <remarks>
         /// Default properties supplied by the Application Insights SDK:
-        /// - runtimeFramework
-        /// - baseSdkTargetFramework
+        /// baseSdkTargetFramework, osType, processSessionId
         /// </remarks>
         /// </summary>
         public IList<string> ExcludedHeartbeatProperties

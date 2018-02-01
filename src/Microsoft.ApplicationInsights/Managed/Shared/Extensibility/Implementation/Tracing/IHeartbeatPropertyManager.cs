@@ -5,8 +5,12 @@
 
     /// <summary>
     /// Defines an implementation for management of the heartbeat feature of the 
-    /// Application Insights SDK. Add/Set properties, disable/enable the heartbeat, and set
-    /// the interval between heartbeat pulses with classes that implement this interface.
+    /// Application Insights SDK meant for public consumption. Add/Set properties, 
+    /// disable/enable the heartbeat, and set the interval between heartbeat pulses.
+    /// <remarks>
+    /// If a module is present in the SDK at runtime that implements this interface, the
+    /// heartbeat feature can be extended or configured as necessary.
+    /// </remarks>
     /// </summary>
     public interface IHeartbeatPropertyManager
     {

@@ -1,20 +1,15 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     using System;
-    using System.Collections.Generic;
     using Microsoft.ApplicationInsights.Extensibility;
 
-    internal interface IHeartbeatProvider : IDisposable
+    /// <summary>
+    /// Internal interface for providing heartbeat information into the SDK pipeline. Useful
+    /// for mocking for unit test purposes.
+    /// </summary>
+    internal interface IHeartbeatProvider : IHeartbeatPropertyManager, IDisposable
     {
         string InstrumentationKey { get; set; }
-
-        bool IsHeartbeatEnabled { get; set; }
-
-        TimeSpan HeartbeatInterval { get; set; }
-
-        IList<string> ExcludedHeartbeatPropertyProviders { get; }
-
-        IList<string> ExcludedHeartbeatProperties { get; }
 
         void Initialize(TelemetryConfiguration configuration);
 

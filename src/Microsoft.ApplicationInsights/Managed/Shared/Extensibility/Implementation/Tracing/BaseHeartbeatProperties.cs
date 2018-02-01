@@ -14,9 +14,9 @@
     {
         internal readonly List<string> DefaultFields = new List<string>()
         {
-            "runtimeFramework",
+            // "runtimeFramework",
             "baseSdkTargetFramework",
-            "osVersion",
+            "osType",
             "processSessionId"
         };
 
@@ -49,15 +49,15 @@
                 {
                     switch (fieldName)
                     {
-                        case "runtimeFramework":
-                            provider.AddHeartbeatProperty(fieldName, true, this.GetRuntimeFrameworkVer(), true);
-                            hasSetValues = true;
-                            break;
+                        // case "runtimeFramework":
+                        //    provider.AddHeartbeatProperty(fieldName, true, this.GetRuntimeFrameworkVer(), true);
+                        //    hasSetValues = true;
+                        //    break;
                         case "baseSdkTargetFramework":
                             provider.AddHeartbeatProperty(fieldName, true, this.GetBaseSdkTargetFramework(), true);
                             hasSetValues = true;
                             break;
-                        case "osVersion":
+                        case "osType":
                             provider.AddHeartbeatProperty(fieldName, true, this.GetRuntimeOsType(), true);
                             hasSetValues = true;
                             break;
@@ -79,28 +79,32 @@
             return Task.FromResult(hasSetValues);
         }
 
-        /// <summary>
-        /// This will return the current running .NET framework version, based on the version of the assembly that owns
-        /// the 'Object' type. The version number returned can be used to infer other things such as .NET Core / Standard.
-        /// </summary>
-        /// <returns>a string representing the version of the current .NET framework</returns>
-        private string GetRuntimeFrameworkVer()
-        {
-#if NET45 || NET46
-            Assembly assembly = typeof(Object).GetTypeInfo().Assembly;
-
-            AssemblyFileVersionAttribute objectAssemblyFileVer =
-                        assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute))
-                                .Cast<AssemblyFileVersionAttribute>()
-                                .FirstOrDefault();
-            return objectAssemblyFileVer != null ? objectAssemblyFileVer.Version : "undefined";
-#elif NETSTANDARD1_3
-            return System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
-#else
-#error Unrecognized framework
-            return "unknown";
-#endif
-        }
+        // NOTE: We would like to include the NETSTANDARD/NETCORE/NETFRAMEWORK version in the core heartbeat 
+        // but until we understand how to make the mapping from the runtime version to the standard versions
+        // this information is not entirely useful. Leaving it commented out here for now until such a mapping
+        // can be made in an appropriate manner, or until we can provide such a mapping.
+        //
+        // <summary>
+        // This will return the current running .NET framework version, based on the version of the assembly that owns
+        // the 'Object' type. The version number returned can be used to infer other things such as .NET Core / Standard.
+        // </summary>
+        // <returns>a string representing the version of the current .NET framework</returns>
+        // private string GetRuntimeFrameworkVer()
+        // {
+        // #if NET45 || NET46
+        //            Assembly assembly = typeof(Object).GetTypeInfo().Assembly;
+        //            AssemblyFileVersionAttribute objectAssemblyFileVer =
+        //                        assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute))
+        //                                .Cast<AssemblyFileVersionAttribute>()
+        //                                .FirstOrDefault();
+        //            return objectAssemblyFileVer != null ? objectAssemblyFileVer.Version : "undefined";
+        // #elif NETSTANDARD1_3
+        //            return System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+        // #else
+        // #error Unrecognized framework
+        //            return "unknown";
+        // #endif
+        // }
 
         /// <summary>
         /// Returns the current target framework that the assembly was built against.
@@ -122,8 +126,11 @@
 
         /// <summary>
         /// Runtime information for the underlying OS, should include Linux information here as well.
+        /// Note that in NET45/46 the PlatformId is returned which have slightly different (more specific,
+        /// such as Win32NT/Win32S/MacOSX/Unix) values than in NETSTANDARD assemblies where you will get
+        /// the OS platform Windows/Linux/OSX.
         /// </summary>
-        /// <returns>String representing the OS or 'unknown'</returns>
+        /// <returns>String representing the OS or 'unknown'.</returns>
         private string GetRuntimeOsType()
         {
             string osValue = "unknown";
