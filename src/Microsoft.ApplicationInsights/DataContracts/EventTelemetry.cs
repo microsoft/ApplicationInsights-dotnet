@@ -33,7 +33,6 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="EventTelemetry"/> class with the given <paramref name="name"/>.
         /// </summary>
-        /// <exception cref="ArgumentException">The event <paramref name="name"/> is null or empty string.</exception>
         public EventTelemetry(string name) : this()
         {
             this.Name = name;
