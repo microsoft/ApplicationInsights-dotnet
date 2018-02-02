@@ -10,6 +10,9 @@ To successfully build the sources on your machine, make sure you've installed th
 * .NET Core SDK 1.1.7
 * .NET Core SDK 2.0 or above.(https://www.microsoft.com/net/download/windows)
 
+If using Azure VM, the following image from Microsoft contains the above pre-requisites already installed.
+
+_Visual Studio Enterprise 2017 (latest release) on Windows Server 2016._
 
 Once you've installed the prerequisites execute either ```buildDebug.cmd``` or ```buildRelease.cmd``` script in the repository root to build the project (excluding functional tests) locally.
 
@@ -38,12 +41,16 @@ You can remove the strong name verification exception by running this command as
     "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vu ..\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
 
 ## Functional Tests
-It is recommended to rely on unit tests to test functionalities wherever possible. For doing end-to-end valdation, functional tests exists for all the modules. These tests works like described below:
+It is recommended to rely on unit tests to test functionalities wherever possible. For doing end-to-end validation, functional tests exists for all the modules. Unless doing significant changes,
+it is not required to run func-tests locally. All the tests, including functional tests, are automatically run when a PR is submitted.
+
+These tests works like described below:
 
 Functional tests contain test apps which refers to the product dlls from the local build. Tests deploy the Test apps to IIS/Docker and http requests are fired against it to trigger various scenarios.
 Tests apps are modified to send telemetry to a fake ingestion endpoint controlled by tests. Tests then validate the telemetry received by this endpoint.
 
-Pre-requisites
+Pre-requisites:
+
 To execute the functional tests, you need to install some additional prerequisites:
 
 For Web and PerformanceCollector tests IIS Express should be installed.
@@ -52,8 +59,9 @@ For Dependency Collector, you need to install Docker for windows as these tests 
 		Docker for Windows (https://docs.docker.com/docker-for-windows/install/). 		
 		After installation switch Docker engine to Windows Containers.(https://blogs.msdn.microsoft.com/webdev/2017/09/07/getting-started-with-windows-containers/)
 		And finally, make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready.
+				
+Running functional tests:
 
-Running functional tests
 Before running the functional tests, the product code should be built following 'Build' instructions above.
 
 After building, open the respective solutions from locations given below, build the solution. Tests will appear in Visual Studio Test Explorer and can be run from there.
@@ -67,21 +75,23 @@ Helper script to build product and run all tests in this solution - ```runFuncti
 
 "\Test\PerformanceCollector\FunctionalTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.PerfCounterCollector
 Helper script to build product and run all tests in this solution - ```runFunctionalTestsPerfCollectorAndQuickPulse```
+
 "..\bin\Debug\Test\PerformanceCollector\FunctionalTests" -- Binary location for Test and Test apps.
 
 "\Test\E2ETests\DependencyCollectionTests.sln" -- Functional tests using apps onboarded with the nuget Microsoft.ApplicationInsights.DependencyCollector
 Helper script to build product and run all tests in this solution - ```runFunctionalTestsDependencyCollector```
+
 "..bin\Debug\Test\E2ETests" -- Binary location for Test and Test apps.
 
 Special Notes regarding DependencyCollectionTests
-1. All Docker images are downloaded from internet when ran for first time and this could take several minutes (depends on network speed as around 20GB will be downloaded on first time on a machine.). Tests may appear hung during this time. 
+1. All Docker images are downloaded from internet when ran for first time and this could take several minutes (depends on network speed as **around 20GB will be downloaded on first time on a machine**.). Tests may appear hung during this time. 
 2. If using Visual Studio Test Explorer to run tests, group the tests by namespace and run each namespaces separately to avoid test conflicts. ```runFunctionalTestsDependencyCollector``` does this automatically.
 
 
 Edit the helper scripts to change between 'Release' and 'Debug' as per your build.
 ```runAllFunctionalTests.cmd``` script builds the product and runs all the above functional tests.
 
-Its is important to note that functional tests do no trigger product code build, so explicit build of product code is required before running functional tests.
+Its is important to note that functional tests do not trigger product code build, so explicit build of product code is required before running functional tests.
 A typical work flow would be make-produce-change followed by build-product followed by build-functest-solution and finally run-func-tests. (This helpers scripts does this.)
 
 ## Known issues/workarounds with running functional tests.
@@ -108,6 +118,9 @@ Dependency Collector functional tests fail with messages like "Assert.AreEqual f
 	
 Workaround if you are trying first time - Make sure you can run ```docker run hello-world``` successfully to confirm that your machine is Docker ready. Also, the very first time DependencyCollector tests are run, all Docker images are downloaded from web and this could potentially take an hour or so. This is only one time per machine.	
 Alternate workaround if you have previously run the tests successfully atleast once - execute the ```dockercleanup.ps1``` from repository root to cleanup any containers from prior runs.
+
+All DependencyCollectionTests fail at initialization stage itself with error 'All apps are not healthy'. In the logs you'll find that Docker container has exited with some error codes. Eg: "Exited (2147943452) 53 seconds ago".
+If this error occurs execute ```dockercleanup.ps1``` from repository root, and re-run the tests.
 
 The test code intentionally does not clean up the containers it spun up. This is to enable fast re-runs of the tests. If the Test App code is changed, then Docker-Compose will detect it, and re-build the container.
 If you want to do clean up all the containers created by the test, execute the ```dockercleanup.ps1``` from repository root. This is typically required if tests were aborted in the middle of a run for some reason.
@@ -141,5 +154,6 @@ Following pre-requisite is needed to deploy to IIS locally.
 * Create a web application project to test the SDK on, and install the Microsoft.ApplicationInsights.Web NuGet package from the above directory
 * In your web application, point your project references to Microsoft.AI.Web, Microsoft.AI.WindowsServer, Microsoft.AI.PerfCounterCollector and Microsoft.AI.DependencyCollector to those DLLs in the SDK debug output folder (this makes sure you get the symbol files and that your web application is updated when you recompile the SDK).
 * From your web application, open the .cs file you want your breakpoint in and set it
-* Run your web application
+* Run your web application.
+
 Your breakpoints should be hit now when your web application triggers them.
