@@ -14,7 +14,7 @@
     /// <summary>
     /// Implementation of heartbeat functionality.
     /// </summary>
-    internal class HeartbeatProvider : IDisposable, IHeartbeatProvider, IHeartbeatPropertyManager
+    internal class HeartbeatProvider : IDisposable, IHeartbeatProvider
     {
         /// <summary>
         /// The default interval between heartbeats if not specified by the user. Left public for use in unit tests.

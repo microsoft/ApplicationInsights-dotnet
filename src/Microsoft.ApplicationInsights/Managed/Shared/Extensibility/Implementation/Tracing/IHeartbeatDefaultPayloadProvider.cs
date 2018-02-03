@@ -3,6 +3,9 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
+    /// <summary>
+    /// Provides default properties for the heartbeat.
+    /// </summary>
     internal interface IHeartbeatDefaultPayloadProvider
     {
         /// <summary>

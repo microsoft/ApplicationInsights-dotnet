@@ -7,9 +7,9 @@
 
     internal static class HeartbeatDefaultPayload
     {
-        private static readonly IHeartbeatDefaultPayloadProvider[] DefaultPayloadProviders =
+        internal static readonly IHeartbeatDefaultPayloadProvider[] DefaultPayloadProviders =
         {
-            new BaseHeartbeatProperties()
+            new BaseDefaultHeartbeatPropertyProvider()
         };
 
         public static bool IsDefaultKeyword(string keyword)
