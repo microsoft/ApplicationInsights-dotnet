@@ -5,11 +5,8 @@
     <TargetFrameworks>net46;netcoreapp1.0</TargetFrameworks>
 	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp1.0</TargetFrameworks>
 	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net46' ">win7-x86</RuntimeIdentifier>
-    <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <AssemblyName>WebApi.FunctionalTests</AssemblyName>
-    <AssemblyOriginatorKeyFile>../../keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>    
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <AssemblyName>WebApi.FunctionalTests</AssemblyName>    
     <PackageId>WebApi.FunctionalTests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">$(PackageTargetFallback);portable-net45+win8</PackageTargetFallback>
