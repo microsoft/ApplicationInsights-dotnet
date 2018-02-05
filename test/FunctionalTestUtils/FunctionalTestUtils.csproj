@@ -3,12 +3,9 @@
   <PropertyGroup>
     <VersionPrefix>1.0.2</VersionPrefix>
     <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
-	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard1.6</TargetFrameworks>
-    <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
+	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard1.6</TargetFrameworks>    
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <AssemblyName>FunctionalTestUtils</AssemblyName>
-    <AssemblyOriginatorKeyFile>../../keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>    
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <AssemblyName>FunctionalTestUtils</AssemblyName>        
     <PackageId>FunctionalTestUtils</PackageId>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
 	<OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\test\$(MSBuildProjectName)</OutputPath>
