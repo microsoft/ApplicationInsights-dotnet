@@ -5,6 +5,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     using System.Globalization;
     using System.Threading.Tasks;
 
+    using Microsoft.ApplicationInsights.AspNetCore.Common;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -174,9 +175,23 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
         private string GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
         {
-            string correlationId = string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, appId);
-            this.knownCorrelationIds.TryAdd(ikey, correlationId);
-            return correlationId;
+            // Arbitrary maximum length to guard against injections.
+            appId = StringUtilities.EnforceMaxLength(appId, InjectionGuardConstants.AppIdMaxLengeth);
+
+            if (string.IsNullOrWhiteSpace(appId))
+            {
+                return string.Empty;
+            }
+
+            appId = HeadersUtilities.SanitizeString(appId);
+            if (!string.IsNullOrEmpty(appId))
+            {
+                string correlationId = string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, appId);
+                this.knownCorrelationIds.TryAdd(ikey, correlationId);
+                return correlationId;
+            }
+
+            return string.Empty;
         }
 
         /// <summary>
