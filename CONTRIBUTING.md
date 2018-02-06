@@ -26,9 +26,11 @@ The following solution contains the product code and unit tests
 
 ## Unit Tests
 
-Several tests require that you configure a strong name verification exception for Microsoft.WindowsAzure.ServiceRuntime.dll using the [Strong Name Tool](https://msdn.microsoft.com/en-us/library/k5b5tt23(v=vs.110).aspx). Run this command as Administrator from the repository root to configure the exception (after building Microsoft.ApplicationInsights.Web.sln)
+Several tests require that you configure a strong name verification exception for Microsoft.WindowsAzure.ServiceRuntime.dll using the [Strong Name Tool](https://msdn.microsoft.com/en-us/library/k5b5tt23(v=vs.110).aspx). 
 
-    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vr ..\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
+Using the Developer Command Prompt as Administrator, run this command from the repository root to register the assembly for verification skipping. (after building Microsoft.ApplicationInsights.Web.sln)
+
+    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.1 Tools\sn.exe" -Vr .\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
 	
 (Depending on you OS version, the above exe may be located in different folder. Modify the path according to local path).	
     
@@ -38,7 +40,7 @@ You can also run the tests within Visual Studio using the test explorer. If test
 
 You can remove the strong name verification exception by running this command as Administrator:
 
-    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vu ..\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
+    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.1 Tools\sn.exe" -Vr .\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
 
 ## Functional Tests
 It is recommended to rely on unit tests to test functionalities wherever possible. For doing end-to-end validation, functional tests exists for all the modules. Unless doing significant changes,
