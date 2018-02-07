@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Net;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit.Abstractions;
@@ -49,7 +50,15 @@
             output.WriteLine(string.Format("{0}: Starting listener at: {1}", DateTime.Now.ToString("G"), this.httpListenerConnectionString));
 
             this.listener = new TelemetryHttpListenerObservable(this.httpListenerConnectionString);
-            this.listener.Start();
+            try
+            {
+                this.listener.Start();
+            }
+            catch(HttpListenerException ex)
+            {
+                output.WriteLine(string.Format("{0}: Error starting listener.ErrorCode {1} Native Code {2}", DateTime.Now.ToString("G"), ex.ErrorCode, ex.NativeErrorCode));
+                throw ex;
+            }
         }
 
         public TelemetryHttpListenerObservable Listener

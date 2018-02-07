@@ -3,13 +3,9 @@
   <PropertyGroup>
     <VersionPrefix>1.0.2</VersionPrefix>
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
-	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0</TargetFrameworks>
-    <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
+	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0</TargetFrameworks>    
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <AssemblyName>FunctionalTestUtils20</AssemblyName>
-    <AssemblyOriginatorKeyFile>../../keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <AssemblyName>FunctionalTestUtils20</AssemblyName>    
     <PackageId>FunctionalTestUtils</PackageId>
     <NetStandardImplicitPackageVersion>2.0.0</NetStandardImplicitPackageVersion>
 	<OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\test\$(MSBuildProjectName)</OutputPath>	

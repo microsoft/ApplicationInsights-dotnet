@@ -4,13 +4,9 @@
     <VersionPrefix>2.0.0</VersionPrefix>
     <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
 	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.0</TargetFrameworks>
-	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net461' ">win7-x86</RuntimeIdentifier>
-    <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
+	<RuntimeIdentifier Condition=" '$(TargetFramework)' == 'net461' ">win7-x86</RuntimeIdentifier>    
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>WebApi20.FunctionalTests20</AssemblyName>
-    <AssemblyOriginatorKeyFile>../../keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>WebApi20.FunctionalTests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>    
     <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">2.0.0</RuntimeFrameworkVersion>
