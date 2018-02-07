@@ -1,7 +1,7 @@
 Param([String]$binRoot='..\bin', [String]$configuration='Release')
 
 #Run code coverage tests to generate report
-..\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user "-target:C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" $binRoot\$configuration\src\Adapters.Tests\Log4NetAppender.Net45.Tests\Microsoft.ApplicationInsights.Log4NetAppender.Net45.Tests.dll $binRoot\$configuration\src\Adapters.Tests\NLogTarget.Net45.Tests\Microsoft.ApplicationInsights.NLogTarget.Net45.Tests.dll $binRoot\$configuration\src\Adapters.Tests\TraceListener.Net45.Tests\Microsoft.ApplicationInsights.TraceListener.Net45.Tests.dll $binRoot\$configuration\src\NuGet.Tests\Xdt.Tests\Xdt.Tests.dll /logger:trx" "-filter:+[Microsoft.ApplicationInsights*]* -[*Tests]*" -hideskipped:All -output:.\coverage.xml
+..\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user "-target:C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" "-targetargs:$binRoot\$configuration\src\Adapters.Tests\Log4NetAppender.Net45.Tests\Microsoft.ApplicationInsights.Log4NetAppender.Net45.Tests.dll $binRoot\$configuration\src\Adapters.Tests\NLogTarget.Net45.Tests\Microsoft.ApplicationInsights.NLogTarget.Net45.Tests.dll $binRoot\$configuration\src\Adapters.Tests\TraceListener.Net45.Tests\Microsoft.ApplicationInsights.TraceListener.Net45.Tests.dll $binRoot\$configuration\src\NuGet.Tests\Xdt.Tests\Xdt.Tests.dll /logger:trx" "-filter:+[Microsoft.ApplicationInsights*]* -[*Tests]*" -hideskipped:All -output:.\coverage.xml
 
 #Download report uploader
 (New-Object System.Net.WebClient).DownloadFile("https://codecov.io/bash", ".\CodecovUploader.sh")
