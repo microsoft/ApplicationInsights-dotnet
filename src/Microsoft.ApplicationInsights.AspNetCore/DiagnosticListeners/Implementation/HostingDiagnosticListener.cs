@@ -77,7 +77,7 @@
                 {
                     isActivityCreatedFromRequestIdHeader = true;
                 }
-                else if (httpContext.Request.Headers.TryGetValue(RequestResponseHeaders.StandardRootIdHeader, out xmsRequestRootId))
+                else if (httpContext.Request.Headers.TryGetValue(RequestResponseHeaders.StandardRootIdHeader, out xmsRequestRootId)) //todo: guard
                 {
                     var activity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                     activity.SetParentId(xmsRequestRootId);
@@ -113,12 +113,12 @@
                 StringValues requestId;
                 StringValues standardRootId;
                 IHeaderDictionary requestHeaders = httpContext.Request.Headers;
-                if (requestHeaders.TryGetValue(RequestResponseHeaders.RequestIdHeader, out requestId))
+                if (requestHeaders.TryGetValue(RequestResponseHeaders.RequestIdHeader, out requestId)) //todo: guard
                 {
                     isActivityCreatedFromRequestIdHeader = true;
                     activity.SetParentId(requestId);
 
-                    string[] baggage = requestHeaders.GetCommaSeparatedValues(RequestResponseHeaders.CorrelationContextHeader);
+                    string[] baggage = requestHeaders.GetCommaSeparatedValues(RequestResponseHeaders.CorrelationContextHeader); //todo: guard
                     if (baggage != StringValues.Empty)
                     {
                         foreach (var item in baggage)
@@ -131,7 +131,7 @@
                         }
                     }
                 }
-                else if (requestHeaders.TryGetValue(RequestResponseHeaders.StandardRootIdHeader, out standardRootId))
+                else if (requestHeaders.TryGetValue(RequestResponseHeaders.StandardRootIdHeader, out standardRootId)) //todo: guard
                 {
                     activity.SetParentId(standardRootId);
                 }
@@ -207,7 +207,7 @@
                     }
                 }
             }
-            else if (httpContext.Request.Headers.TryGetValue(RequestResponseHeaders.StandardParentIdHeader, out standardParentId))
+            else if (httpContext.Request.Headers.TryGetValue(RequestResponseHeaders.StandardParentIdHeader, out standardParentId)) //todo: guard
             {
                 requestTelemetry.Context.Operation.ParentId = standardParentId;
             }
