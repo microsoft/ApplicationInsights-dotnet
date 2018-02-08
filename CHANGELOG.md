@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.2.0
+- Updated Web/Base SDK version dependency to 2.5.0
+
 ## Version 2.2.0-beta3
 - Updated Web/Base SDK version dependency to 2.5.0-beta2.
 - This version of Base SDK referred contains fix to a bug in ServerTelemetryChannel which caused application to crash on non-windows platforms. Details on fix and workaround(https://github.com/Microsoft/ApplicationInsights-dotnet/issues/654) Original issue (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/551)
