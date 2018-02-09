@@ -22,6 +22,10 @@
     <PackageTags>$(PackageTags) DiagnosticsSource</PackageTags>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
 
   <PropertyGroup>
     <GenerateAdditionalSources>false</GenerateAdditionalSources>
