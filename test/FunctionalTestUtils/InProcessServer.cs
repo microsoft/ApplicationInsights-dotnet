@@ -31,7 +31,8 @@
         public InProcessServer(string assemblyName, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
             this.configureHost = configureHost;
-            var machineName = Environment.GetEnvironmentVariable("COMPUTERNAME");
+            // localhost instead of machine name, as its not possible to get machine name when running non windows.
+            var machineName = "localhost";
             this.url = "http://" + machineName + ":" + random.Next(5000, 14000).ToString();
             this.backChannel = this.Start(assemblyName);
         }

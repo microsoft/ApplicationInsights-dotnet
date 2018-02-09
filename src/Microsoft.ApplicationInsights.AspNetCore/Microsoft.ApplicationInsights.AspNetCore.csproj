@@ -4,10 +4,11 @@
     <Description>Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/documentation/articles/app-insights-asp-net-five/ for more information. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
     <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
     <AssemblyTitle>Application Insights for ASP.NET Core Web Applications</AssemblyTitle>
-    <VersionPrefix>2.2.0-beta3</VersionPrefix>
+    <VersionPrefix>2.2.0</VersionPrefix>
     <Authors>Microsoft</Authors>
     <TargetFrameworks>net451;net46;netstandard1.6</TargetFrameworks>
-    <DelaySign>true</DelaySign>
+    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard1.6</TargetFrameworks>
+    <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
     <AssemblyOriginatorKeyFile>../../keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
@@ -71,16 +72,16 @@
     <PackageReference Include="System.Threading.Tasks.Analyzers" Version="1.2.0-beta2">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.0-beta2" />
-    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.5.0-beta2" />
-    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.5.0-beta2" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.5.0-beta2" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.5.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.5.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net451' OR '$(TargetFramework)' == 'net46' ">
     <PackageReference Include="System.Net.Http" Version="4.3.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.5.0-beta2" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.5.0-beta2" />
+    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.5.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.5.0" />
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>

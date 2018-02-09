@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Net.Http.Headers;
     using System.Reflection;
     using Extensibility.Implementation.Tracing;
@@ -248,7 +249,7 @@
                 }
 
                 telemetry.Stop(timestamp);
-                telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
+                telemetry.ResponseCode = httpContext.Response.StatusCode.ToString(CultureInfo.InvariantCulture);
 
                 var successExitCode = httpContext.Response.StatusCode < 400;
                 if (telemetry.Success == null)

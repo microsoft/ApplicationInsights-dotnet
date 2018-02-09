@@ -11,7 +11,7 @@
 
     public class CorrelationMvcTests : TelemetryTestsBase
     {
-        private const string assemblyName = "MVCFramework20.FunctionalTests";
+        private const string assemblyName = "MVCFramework20.FunctionalTests20";
 
         public CorrelationMvcTests(ITestOutputHelper output) : base(output)
         {

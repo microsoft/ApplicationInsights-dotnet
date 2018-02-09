@@ -10,7 +10,7 @@ namespace WebApi20.FunctionalTests.FunctionalTest
 
     public class ExceptionTelemetryWebApiTests : TelemetryTestsBase
     {
-        private const string assemblyName = "WebApi20.FunctionalTests";
+        private const string assemblyName = "WebApi20.FunctionalTests20";
 
         
         public ExceptionTelemetryWebApiTests(ITestOutputHelper output) : base (output)

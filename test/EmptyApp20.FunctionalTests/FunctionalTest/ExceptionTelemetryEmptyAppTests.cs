@@ -11,7 +11,7 @@ namespace EmptyApp20.FunctionalTests.FunctionalTest
 
     public class ExceptionTelemetryEmptyAppTests : TelemetryTestsBase
     {
-        private const string assemblyName = "EmptyApp20.FunctionalTests";
+        private const string assemblyName = "EmptyApp20.FunctionalTests20";
         public ExceptionTelemetryEmptyAppTests(ITestOutputHelper output) : base (output)
         {
         }
