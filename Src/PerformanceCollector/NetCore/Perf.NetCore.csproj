@@ -23,7 +23,7 @@
 
   <PropertyGroup>
     <Copyright>Copyright ? Microsoft. All Rights Reserved.</Copyright>
-    <VersionPrefix>2.5.0</VersionPrefix>
+    <VersionPrefix>2.5.0-beta2</VersionPrefix>
     <Authors>Microsoft</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
     <DefineConstants>$(DefineConstants);NETCORE</DefineConstants>
@@ -45,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.0-beta2" />
     <PackageReference Include="MicroBuild.Core" Version="0.2.0" developmentDependency="true" />
     <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
