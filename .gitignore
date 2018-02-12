@@ -171,3 +171,6 @@ coverage.xml
 
 bondcodegen.done
 bonddefaultcodegen.in
+
+# Test Types Generated_Code
+Test/Microsoft.ApplicationInsights.Test/ApplicationInsightsTypes/Generated/
