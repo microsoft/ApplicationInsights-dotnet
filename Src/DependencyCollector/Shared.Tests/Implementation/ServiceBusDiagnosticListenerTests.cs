@@ -10,10 +10,11 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-#if !NETCORE
     using Microsoft.ApplicationInsights.Web.TestFramework;
+#if !NETCORE
+
 #else
-    using Microsoft.ApplicationInsights.Tests;
+    //using Microsoft.ApplicationInsights.Tests;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 

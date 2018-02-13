@@ -9,6 +9,7 @@ namespace Functional
 {
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Net;
 
     using Helpers;
@@ -20,7 +21,7 @@ namespace Functional
     public class TestsRequestTelemetryFW45AspxIntegratedWebSecurityOn : SingleWebHostTestBase
     {
         private const string TestWebApplicaionSourcePath = @"..\TestApps\Wa45Aspx\App";
-        private const string TestWebApplicaionDestPath = "TestApps_TestsRequestTelemetryFW45AspxIntegratedWebSecurityOn_App";
+        private const string TestWebApplicaionDestPath = @"..\TestApps\Wa45Aspx\App";
 
         private const int TestRequestTimeoutInMs = 150000;
 
@@ -30,7 +31,7 @@ namespace Functional
             var applicationDirectory = Path.Combine(
                     Directory.GetCurrentDirectory(),
                     TestWebApplicaionDestPath);
-
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
             Trace.WriteLine("Application directory:" + applicationDirectory);
 
             File.Copy(
@@ -60,10 +61,8 @@ namespace Functional
 
         /// <summary>
         /// Tests request telemetry collecting when [authorization/deny] section is specified
-        /// </summary>
-        [Owner("sergeyni")]
-        [Description("Tests request telemetry collecting when [deny] section is specified")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        /// </summary>        
+        [Description("Tests request telemetry collecting when [deny] section is specified")]        
         [TestMethod]
         public void TestCustomSecuirtyDenyAllRequestCollecting()
         {
@@ -96,9 +95,9 @@ namespace Functional
 
             //// Validating telemetry results
             const int TimeToListenToEvents = 15000;
-            var items = Listener.ReceiveAllItemsDuringTime(TimeToListenToEvents);
+            var items = Listener.ReceiveAllItemsDuringTime(TimeToListenToEvents).Where(i => i is AI.TelemetryItem<AI.RequestData>);
 
-            Assert.AreEqual(1, items.Length, "Unexpected count of events received: expected 1 request");
+            Assert.AreEqual(1, items.Count(), "Unexpected count of request events received: expected 1 request");
         }
     }
 }

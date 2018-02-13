@@ -19,10 +19,10 @@ namespace E2ETestApp
 {
     public partial class Dependencies : System.Web.UI.Page
     {
-        public static string ConnectionStringFormat = "Server = {0};Initial Catalog=dependencytest;User Id = sa; Password=MSDNm4g4z!n4";
+        public static string ConnectionStringFormat = "Server = {0};Initial Catalog=dependencytest;User Id = sa; Password=MSDNm4g4z!n4"; // [SuppressMessage("Microsoft.Security", "CS001:SecretInLine", Justification="Database Password for Docker container.")]
         public static string LocalDbConnectionString;
-        public const string InvalidAccountConnectionString = @"Server =sql-server;User Id = sa; Password=thisiswrong";
-        public const string InvalidServerConnectionString = @"Server =sql-server-dontexist;User Id = sa; Password=MSDNm4g4z!n4";
+        public const string InvalidAccountConnectionString = @"Server =sql-server;User Id = sa; Password=thisiswrong"; // [SuppressMessage("Microsoft.Security", "CS001:SecretInLine", Justification="Database Password for Docker container.")]
+        public const string InvalidServerConnectionString = @"Server =sql-server-dontexist;User Id = sa; Password=MSDNm4g4z!n4"; // [SuppressMessage("Microsoft.Security", "CS001:SecretInLine", Justification="Database Password for Docker container.")]
         private string SqlQuerySuccess = "WAITFOR DELAY '00:00:00:007';select * from dbo.Messages";
         private string SqlQueryError = "WAITFOR DELAY '00:00:00:007';SELECT name FROM master.dbo.sysdatabasesunknown";        
         public static string EndPointAddressFormat = "http://{0}/api/Data/PushItem";
@@ -100,6 +100,8 @@ namespace E2ETestApp
                         {
                             Response.Write(reader.ReadToEnd()); 
                         }
+
+                        File.Delete(Path.Combine(MyDirectoryPath, filename));
 
                         break;
 

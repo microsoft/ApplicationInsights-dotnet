@@ -11,7 +11,7 @@ namespace E2ETests.Helpers
 {
     public class LocalDbHelper
     {
-        internal const string ConnectionStringFormat = @"Server ={0};User Id = sa; Password=MSDNm4g4z!n4";
+        internal const string ConnectionStringFormat = @"Server ={0};User Id = sa; Password=MSDNm4g4z!n4"; // [SuppressMessage("Microsoft.Security", "CS001:SecretInLine", Justification="Database Password for Docker container.")]
         string ConnectionString;
 
         public LocalDbHelper(string serverIp)

@@ -26,7 +26,7 @@ namespace Functional
     public class WebAppAspx45Classic : RequestTelemetryTestBase
     {
         private const string TestWebApplicaionSourcePath = @"..\TestApps\Aspx45\App";
-        private const string TestWebApplicaionDestPath = "TestApps_Aspx45_App";
+        private const string TestWebApplicaionDestPath = @"..\TestApps\Aspx45\App";
 
         private const int TestRequestTimeoutInMs = 15000;
         private const int TestListenerTimeoutInMs = 5000;
@@ -38,6 +38,7 @@ namespace Functional
                     Directory.GetCurrentDirectory(), 
                     TestWebApplicaionDestPath);
 
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
             Trace.WriteLine("Application directory:" + applicationDirectory);
 
             this.StartWebAppHost(
@@ -64,10 +65,8 @@ namespace Functional
         /// <summary>
         /// Tests 200 OK HTTP status code request execution and collecting result 
         /// </summary>
-        [TestMethod]
-        [Owner("sergeyni")]
-        [Description("Tests 200 OK HTTP status code request execution and collecting result ")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [TestMethod]        
+        [Description("Tests 200 OK HTTP status code request execution and collecting result ")]        
         public void TestAspx200StatusCodeOnRequest()
         {
             const string RequestPath = "/TestWebForm.aspx";
@@ -103,10 +102,8 @@ namespace Functional
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "200", true, request, requestStartTime, requestEndTime);
         }
 
-        [TestMethod]
-        [Owner("sergeyni")]
-        [Description("Tests 500 HTTP status code request execution and collecting result ")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [TestMethod]        
+        [Description("Tests 500 HTTP status code request execution and collecting result ")]        
         public void TestAspx500StatusCodeOnRequest()
         {
             const string RequestPath = "/TestWebForm.aspx";
@@ -149,9 +146,7 @@ namespace Functional
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "200", true, request, requestStartTime, requestEndTime);
         }
 
-        [TestMethod]
-        [Owner("abaranch")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [TestMethod]             
         [Ignore]
         // This case works fine for Integrated pipeline mode, and module is not called at all for classic mode
         public void TestAspx_CollectRequestAndExceptionForResourceNotFound()

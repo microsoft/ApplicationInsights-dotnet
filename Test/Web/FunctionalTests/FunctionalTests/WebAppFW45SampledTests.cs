@@ -25,7 +25,7 @@
         private const int TestListenerWaitTimeInMs = 60000;
 
         private const string TestWebApplicationSourcePath = @"..\TestApps\WebAppFW45Sampled\App";
-        private const string TestWebApplicationDestPath = @"TestsUserSessionFW45Sampled";
+        private const string TestWebApplicationDestPath = @"..\TestApps\WebAppFW45Sampled\App";
 
         [TestInitialize]
         public void TestInitialize()
@@ -33,7 +33,7 @@
             var applicationDirectory = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 TestWebApplicationDestPath);
-
+            applicationDirectory = Path.GetFullPath(applicationDirectory);
             Trace.WriteLine("Application directory:" + applicationDirectory);
 
             this.StartWebAppHost(
@@ -57,9 +57,7 @@
             this.StopWebAppHost();
         }
 
-        [TestMethod]
-        [Owner("vitalyf")]
-        [DeploymentItem(TestWebApplicationSourcePath, TestWebApplicationDestPath)]
+        [TestMethod]        
         public void TestMvcRequestWithExceptionSampled()
         {
             const string requestPath = "api/products/5";

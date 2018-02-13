@@ -24,7 +24,7 @@ namespace E2ETestAppCore20.Controllers
         /// <summary>
         /// Connection string format.
         /// </summary>         
-        public string ConnectionStringFormat = "Server = {0};Initial Catalog=dependencytest;User Id = sa; Password=MSDNm4g4z!n4";
+        public string ConnectionStringFormat = "Server = {0};Initial Catalog=dependencytest;User Id = sa; Password=MSDNm4g4z!n4"; // [SuppressMessage("Microsoft.Security", "CS001:SecretInLine", Justification="Database Password for Docker container.")]
 
         /// <summary>
         /// Connection string to local database.

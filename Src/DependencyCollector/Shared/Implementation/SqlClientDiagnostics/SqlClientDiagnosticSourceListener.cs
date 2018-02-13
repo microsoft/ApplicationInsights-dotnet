@@ -1,4 +1,4 @@
-namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
+namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics
 {
     using System;
     using System.Collections.Generic;
@@ -13,6 +13,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using static Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics.SqlClientDiagnosticFetcherTypes;
 
     internal class SqlClientDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
     {
@@ -460,98 +461,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 telemetry.ResultCode = sqlException.Number.ToString(CultureInfo.InvariantCulture);
             }
         }
-
-        #region Fetchers
-
-        // Fetchers for execute command before event
-        private static class CommandBefore
-        {
-            public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
-            public static readonly PropertyFetcher Command = new PropertyFetcher(nameof(Command));
-            public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
-        }
-
-        // Fetchers for execute command after event
-        private static class CommandAfter
-        {
-            public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
-            public static readonly PropertyFetcher Command = new PropertyFetcher(nameof(Command));
-            public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
-        }
-
-        // Fetchers for execute command error event
-        private static class CommandError
-        {
-            public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
-            public static readonly PropertyFetcher Command = new PropertyFetcher(nameof(Command));
-            public static readonly PropertyFetcher Exception = new PropertyFetcher(nameof(Exception));
-            public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
-        }
-
-        // Fetchers for connection open/close before events
-        private static class ConnectionBefore
-        {
-            public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
-            public static readonly PropertyFetcher Operation = new PropertyFetcher(nameof(Operation));
-            public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
-            public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
-        }
-
-        // Fetchers for connection open/close after events
-        private static class ConnectionAfter
-        {
-            public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
-            public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
-        }
-
-        // Fetchers for connection open/close error events
-        private static class ConnectionError
-        {
-            public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
-            public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
-            public static readonly PropertyFetcher Exception = new PropertyFetcher(nameof(Exception));
-            public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
-        }
-
-        // Fetchers for transaction commit/rollback before events
-        private static class TransactionCommitBefore
-        {
-            public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
-            public static readonly PropertyFetcher Operation = new PropertyFetcher(nameof(Operation));
-            public static readonly PropertyFetcher IsolationLevel = new PropertyFetcher(nameof(IsolationLevel));
-            public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
-            public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
-        }
-
-        // Fetchers for transaction commit before events
-        private static class TransactionRollbackBefore
-        {
-            public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
-            public static readonly PropertyFetcher Operation = new PropertyFetcher(nameof(Operation));
-            public static readonly PropertyFetcher IsolationLevel = new PropertyFetcher(nameof(IsolationLevel));
-            public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
-            public static readonly PropertyFetcher TransactionName = new PropertyFetcher(nameof(TransactionName));
-            public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
-        }
-
-        // Fetchers for transaction commit/rollback after events
-        private static class TransactionAfter
-        {
-            public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
-            public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
-            public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
-        }
-
-        // Fetchers for transaction commit/rollback error events
-        private static class TransactionError
-        {
-            public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
-            public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
-            public static readonly PropertyFetcher Exception = new PropertyFetcher(nameof(Exception));
-            public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
-        }
-
-        #endregion
 
         private sealed class SqlClientDiagnosticSourceSubscriber : IObserver<DiagnosticListener>, IDisposable
         {

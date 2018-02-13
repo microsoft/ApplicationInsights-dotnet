@@ -65,9 +65,12 @@ namespace E2ETests
         {
             Trace.WriteLine("Starting ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
             Assert.IsTrue(File.Exists(".\\" + DockerComposeFileName));
-            
+            Trace.WriteLine("DockerComposeFileName:" + DockerComposeFileName);
+
             // Windows Server Machines dont have docker-compose installed.
+            Trace.WriteLine("Getting docker-compose.exe if required.");
             GetDockerCompose();
+            Trace.WriteLine("Getting docker-compose.exe completed.");
 
             //DockerUtils.RemoveDockerImage(Apps[AppNameBeingTested].imageName, true);
             //DockerUtils.RemoveDockerContainer(Apps[AppNameBeingTested].containerName, true);
@@ -99,6 +102,17 @@ namespace E2ETests
             InitializeDatabase();
 
             Thread.Sleep(2000);
+
+            // Wait long enough for first telemetry items from health check requests.
+            // These could arrive several seconds after first request to app is made.
+            Trace.WriteLine("Waiting to receive request telemetry from health check for WebApp");
+            var requestsWebApp = WaitForReceiveRequestItemsFromDataIngestion(Apps[AppNameBeingTested].ipAddress, Apps[AppNameBeingTested].ikey, 30, false);
+            Trace.WriteLine("Waiting to receive request telemetry from health check for WebApp completed. Item received count:" + requestsWebApp.Count);
+
+            Trace.WriteLine("Waiting to receive request telemetry from health check for WebApi");
+            var requestsWebApi = WaitForReceiveRequestItemsFromDataIngestion(Apps[TestConstants.WebApiName].ipAddress, Apps[TestConstants.WebApiName].ikey, 30, false);
+            Trace.WriteLine("Waiting to receive request telemetry from health check for WebApi completed. Item received count:" + requestsWebApi.Count);
+
             Trace.WriteLine("Completed ClassInitialize:" + DateTime.UtcNow.ToLongTimeString());
         }
 
@@ -175,6 +189,7 @@ namespace E2ETests
         public static void MyClassCleanupBase()
         {
             Trace.WriteLine("Started Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
+            RemoveIngestionItems();
             // Not doing cleanup intentional for fast re-runs in local.
             //DockerUtils.ExecuteDockerComposeCommand("down", DockerComposeFileName);            
             Trace.WriteLine("Completed Class Cleanup:" + DateTime.UtcNow.ToLongTimeString());
@@ -923,11 +938,17 @@ namespace E2ETests
             var dependenciesSource = WaitForReceiveDependencyItemsFromDataIngestion(sourceInstanceIp, sourceIKey);
             var requestsTarget = WaitForReceiveRequestItemsFromDataIngestion(targetInstanceIp, targetIKey);
 
-            PrintApplicationTraces(sourceIKey);
-            PrintApplicationTraces(targetIKey);
+            PrintDependencies(dependenciesSource);
+            PrintRequests(requestsSource);
+            PrintRequests(requestsTarget);
+
+            ReadApplicationTraces(sourceInstanceIp, "/Dependencies.aspx?type=etwlogs");
+            ReadApplicationTraces(targetInstanceIp, "/Dependencies.aspx?type=etwlogs");
 
             Trace.WriteLine("RequestCount for Source:" + requestsSource.Count);
-            Assert.IsTrue(requestsSource.Count == 1);
+            // There could be 1 additional request here coming from the health check.
+            // In profiler cases, this request telemetry may arrive quite late
+            Assert.IsTrue(requestsSource.Count >= 1);
 
             Trace.WriteLine("RequestCount for Target:" + requestsTarget.Count);
             Assert.IsTrue(requestsTarget.Count == 1);
@@ -937,10 +958,7 @@ namespace E2ETests
 
             var requestSource = requestsSource[0];
             var requestTarget = requestsTarget[0];
-            var dependencySource = dependenciesSource[0];
-            PrintDependencies(dependenciesSource);
-            PrintRequests(requestsSource);
-            PrintRequests(requestsTarget);
+            var dependencySource = dependenciesSource[0];            
 
             Assert.IsTrue(requestSource.tags["ai.operation.id"].Equals(requestTarget.tags["ai.operation.id"]),
                 "Operation id for request telemetry in source and target must be same.");
@@ -986,19 +1004,19 @@ namespace E2ETests
             ValidateDependency(expectedDependencyTelemetry, dependency, expectedPrefix);
         }
 
-        private IList<TelemetryItem<RemoteDependencyData>> WaitForReceiveDependencyItemsFromDataIngestion(string targetInstanceIp,string ikey)
+        private static IList<TelemetryItem<RemoteDependencyData>> WaitForReceiveDependencyItemsFromDataIngestion(string targetInstanceIp,string ikey, int maxRetryCount = 5, bool flushChannel = true)
         {
             int receivedItemCount = 0;
             int iteration = 0;
             IList<TelemetryItem<RemoteDependencyData>> items = new List<TelemetryItem<RemoteDependencyData>>();
 
-            while (iteration < 5 && receivedItemCount < 1)
+            while (iteration < maxRetryCount && receivedItemCount < 1)
             {
                 Thread.Sleep(AISDKBufferFlushTime);                
                 items = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
                 receivedItemCount = items.Count;
                 iteration++;
-                if (receivedItemCount == 0)
+                if (receivedItemCount == 0 && flushChannel)
                 {                    
                     ExecuteWebRequestToTarget(targetInstanceIp, Apps[AppNameBeingTested].flushPath).Wait();
                 }
@@ -1008,19 +1026,19 @@ namespace E2ETests
             return items;
         }
 
-        private IList<TelemetryItem<RequestData>> WaitForReceiveRequestItemsFromDataIngestion(string targetInstanceIp, string ikey)
+        private static IList<TelemetryItem<RequestData>> WaitForReceiveRequestItemsFromDataIngestion(string targetInstanceIp, string ikey, int maxRetryCount = 5, bool flushChannel = true)
         {
             int receivedItemCount = 0;
             int iteration = 0;
             IList<TelemetryItem<RequestData>> items = new List<TelemetryItem<RequestData>>();
 
-            while (iteration < 10 && receivedItemCount < 1)
+            while (iteration < maxRetryCount && receivedItemCount < 1)
             {
                 Thread.Sleep(AISDKBufferFlushTime);
                 items = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(ikey);
                 receivedItemCount = items.Count;
                 iteration++;
-                if (receivedItemCount == 0)
+                if (receivedItemCount == 0 && flushChannel)
                 {
                     ExecuteWebRequestToTarget(targetInstanceIp, Apps[AppNameBeingTested].flushPath).Wait();
                 }
@@ -1056,7 +1074,8 @@ namespace E2ETests
 
 
                 HttpClient client = new HttpClient();
-                string url = "http://" + targetInstanceIp + targetPath;                
+                string url = "http://" + targetInstanceIp + targetPath;
+                Trace.WriteLine("Hitting url to get traces: " + url);
                 try
                 {
                     var response = client.GetStringAsync(url).Result;
@@ -1085,6 +1104,8 @@ namespace E2ETests
             var dependenciesWebApp = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RemoteDependencyData>>(ikey);
             Trace.WriteLine("Dependencies count for WebApp:" + dependenciesWebApp.Count);
             PrintDependencies(dependenciesWebApp);
+
+            ReadApplicationTraces(targetInstanceIp, "/Dependencies.aspx?type=etwlogs");
 
             Assert.IsTrue(dependenciesWebApp.Count >= minCount, string.Format("Dependeny count is incorrect. Actual: {0} Expected minimum: {1}", dependenciesWebApp.Count, minCount));
             var dependency = dependenciesWebApp[0];
@@ -1195,11 +1216,12 @@ namespace E2ETests
             }
         }
 
-        private void RemoveIngestionItems()
+        private static void RemoveIngestionItems()
         {
             Trace.WriteLine("Deleting items started:" + DateTime.UtcNow.ToLongTimeString());            
             foreach(var app in Apps)
             {
+                Trace.WriteLine("Deleting items for ikey:" + app.Value.ikey);
                 dataendpointClient.DeleteItems(app.Value.ikey);
             }            
             Trace.WriteLine("Deleting items completed:" + DateTime.UtcNow.ToLongTimeString());
@@ -1238,9 +1260,11 @@ namespace E2ETests
             try
             {
                 url = "http://" + app.ipAddress + app.healthCheckPath;
+                Stopwatch sw = Stopwatch.StartNew();
                 Trace.WriteLine(string.Format("{2}:Request fired against {0} using url: {1}", app.containerName, url, DateTime.UtcNow.ToLongTimeString()));
                 var response = new HttpClient().GetAsync(url);
                 Trace.WriteLine(string.Format("Response from {0} : {1}", url, response.Result.StatusCode));
+                Trace.WriteLine("Health check took " + sw.ElapsedMilliseconds + " msec.");
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     isHealthy = false;

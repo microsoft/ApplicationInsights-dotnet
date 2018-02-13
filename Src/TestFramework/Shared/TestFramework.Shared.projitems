@@ -10,15 +10,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)EventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SdkVersionHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubSynchronizationContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetryChannel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetryInitializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)StubTransmission.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TaskExceptionObserver.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TestEventListener.cs" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp1.0' ">
+    <Compile Include="$(MSBuildThisFileDirectory)EventSourceTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StubTransmission.cs" />
   </ItemGroup>
 </Project>

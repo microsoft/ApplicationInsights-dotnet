@@ -145,17 +145,17 @@ namespace E2ETests.Helpers
                 this.DeleteItemsActionUri + "?p=" + instrumentationKey);
 
             Trace.TraceInformation(
-                "Received list of data item ids delected from the data endpoint, data:{0}",
+                "Received list of data items/errors from the data endpoint, data:{0}",
                 delectedItemIdsData);
 
             return JsonConvert.DeserializeObject<string[]>(delectedItemIdsData);
         }
 
         private string GetDataEndpointActionResult(string url)
-        {            
+        {
+            Trace.TraceInformation(DateTime.UtcNow.ToLongTimeString() + " Invoking url:" + url);
             using (var respose = WebRequest.CreateHttp(url).GetResponse())
-            {
-                Trace.TraceInformation(DateTime.UtcNow.ToLongTimeString()+" Invoking url:" + url);
+            {                
                 using (var reader = new StreamReader(respose.GetResponseStream()))
                 {
                     return reader.ReadToEnd();

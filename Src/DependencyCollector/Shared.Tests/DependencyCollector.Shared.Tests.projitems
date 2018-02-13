@@ -10,33 +10,41 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)CorrelationIdLookupHelperTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)HeaderCollectionManipulationTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpDependenciesParsingTelemetryInitializerTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTrackerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HttpWebRequestUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationInsightsUrlFilterTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorDiagnosticListenerTests.Netstandard16.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorDiagnosticListenerTests.Netstandard20.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyTargetNameHelperTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DesktopDiagnosticSourceHttpProcessingTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EnumerableAssert.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpHeadersUtilitiesTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureBlobHttpParserTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureServiceBusHttpParserTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\DocumentDbHttpParserTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\HttpParsingHelperTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheBasedOperationHolderTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ObjectInstanceBasedOperationHolderTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventHubsDiagnosticListenerTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryDiagnosticSourceListenerTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpersTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorTestHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\MockCorrelationIdLookupHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\MockTelemetryInitializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryExtensionsForDependencyCollectorTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ObjectInstanceBasedOperationHolderTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ServiceBusDiagnosticListenerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SqlClientDiagnosticSourceListenerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryDiagnosticSourceListenerTests.cs" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp1.0' ">
     <Compile Include="$(MSBuildThisFileDirectory)DependencyTrackingTelemetryModuleTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationInsightsUrlFilterTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HeaderCollectionManipulationTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTrackerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorEventSourceTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorTestHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DesktopDiagnosticSourceHttpProcessingTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventHubsDiagnosticListenerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpProcessingTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerHttpProcessingTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkSqlProcessingTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheBasedOperationHolderTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerHttpProcessingTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlProcessingTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RetryPolicyTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryExtensionsForDependencyCollectorTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TestUtils.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ServiceBusDiagnosticListenerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpersTests.cs" />
   </ItemGroup>
 </Project>

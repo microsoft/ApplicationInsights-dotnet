@@ -15,6 +15,15 @@
         public DiagnosticsEventListener(EventLevel logLevel)
         {
             this.logLevel = logLevel;
+
+            string MyDirectoryPath = "c:\\mylogs";
+            string filename = "logs.txt";
+            if (!Directory.Exists(MyDirectoryPath))
+            {
+                Directory.CreateDirectory(MyDirectoryPath);
+            }
+            var target = Path.Combine(MyDirectoryPath, filename);
+            File.AppendAllText(target, "Starting..." + DateTime.UtcNow.ToLongTimeString());
         }
 
         protected override void OnEventWritten(EventWrittenEventArgs eventSourceEvent)
@@ -28,8 +37,7 @@
                 string.Format(CultureInfo.CurrentCulture, eventSourceEvent.Message, eventSourceEvent.Payload.ToArray()) :
                 eventSourceEvent.Message;
 
-            WriteToFile(message+ "\n");
-            
+            WriteToFile(DateTime.UtcNow.ToLongTimeString() + " " + message+ "\n");            
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
@@ -45,7 +53,6 @@
             var target = Path.Combine(MyDirectoryPath, filename);
 
             File.AppendAllText(target, data);
-
         }
 
         protected override void OnEventSourceCreated(EventSource eventSource)

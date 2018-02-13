@@ -248,11 +248,11 @@
 
         [Event(
             23,
-            Message = "Current Activity is null",
+            Message = "Current Activity is null for event = '{0}'",
             Level = EventLevel.Error)]
-        public void CurrentActivityIsNull(string appDomainName = "Incorrect")
+        public void CurrentActivityIsNull(string diagnosticsSourceEventName, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(23, this.ApplicationName);
+            this.WriteEvent(23, diagnosticsSourceEventName, this.ApplicationName);
         }
 
         [Event(
@@ -450,6 +450,26 @@
         public void TelemetryDiagnosticSourceCallbackException(string eventName, string id, string error, string appDomainName = "Incorrect")
         {
             this.WriteEvent(43, eventName, id, error, this.ApplicationName);
+        }
+
+        [Event(
+            44,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "AutoTrackingDependencyTelemetry name {0}",
+            Level = EventLevel.Verbose)]
+        public void AutoTrackingDependencyItem(string depName, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(44, depName, this.ApplicationName);
+        }
+
+        [Event(
+            45,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "Ending operation for dependency name {0}, not tracking this item.",
+            Level = EventLevel.Verbose)]
+        public void EndOperationNoTracking(string depName, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(45, depName, this.ApplicationName);
         }
 
         [NonEvent]
