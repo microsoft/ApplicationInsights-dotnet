@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 2.6.0-beta1
+- [Fix: Dependency Telemetry is not collected with DiagnosticSource when response does not have content.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/739)
 
 ## Version 2.5.0
 - [Fix: System.InvalidCastException for SQL Dependency](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/782)
