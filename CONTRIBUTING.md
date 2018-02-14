@@ -30,17 +30,19 @@ Several tests require that you configure a strong name verification exception fo
 
 Using the Developer Command Prompt as Administrator, run this command from the repository root to register the assembly for verification skipping. (after building Microsoft.ApplicationInsights.Web.sln)
 
-    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.1 Tools\sn.exe" -Vr .\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
+    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.1 Tools\sn.exe" -Vr ..\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
 	
 (Depending on you OS version, the above exe may be located in different folder. Modify the path according to local path).	
     
 Once you've configured the strong name verification, execute the ```runUnitTests.cmd``` script in the repository root.
 
+If the script fail with errors like unable to find path to Visual Studio Test runner, please edit the helper script to match you local installation of Visual Studio.
+
 You can also run the tests within Visual Studio using the test explorer. If test explorer is not showing all the tests, please make sure you have installed all updates to Visual Studio.
 
 You can remove the strong name verification exception by running this command as Administrator:
 
-    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.1 Tools\sn.exe" -Vr .\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
+    "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.1 Tools\sn.exe" -Vr ..\bin\Debug\Src\WindowsServer\WindowsServer.Net45.Tests\Microsoft.WindowsAzure.ServiceRuntime.dll
 
 ## Functional Tests
 It is recommended to rely on unit tests to test functionalities wherever possible. For doing end-to-end validation, functional tests exists for all the modules. Unless doing significant changes,
