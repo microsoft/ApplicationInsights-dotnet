@@ -475,6 +475,7 @@
                 try
                 {
                     var rootRequestId = headers[HeaderRootRequestId];
+                    rootRequestId = StringUtilities.EnforceMaxLength(rootRequestId, InjectionGuardConstants.RequestHeaderMaxLength);
                     if (rootRequestId != null)
                     {
                         if (!this.IsRequestKnown(rootRequestId))
