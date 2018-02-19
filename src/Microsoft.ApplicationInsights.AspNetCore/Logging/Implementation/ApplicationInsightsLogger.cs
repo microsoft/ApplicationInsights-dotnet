@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -75,7 +76,7 @@
             {
                 foreach (KeyValuePair<string, object> item in stateDictionary)
                 {
-                    dict[item.Key] = Convert.ToString(item.Value);
+                    dict[item.Key] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
                 }
             }
 

@@ -7,7 +7,7 @@
 
     public class RequestTelemetryWebApiTests : TelemetryTestsBase
     {
-        private const string assemblyName = "WebApi20.FunctionalTests";
+        private const string assemblyName = "WebApi20.FunctionalTests20";
         public RequestTelemetryWebApiTests(ITestOutputHelper output) : base (output)
         {
         }
