@@ -14,7 +14,7 @@
     {
         internal readonly List<string> DefaultFields = new List<string>()
         {
-             "runtimeFramework",
+            "runtimeFramework",
             "baseSdkTargetFramework",
             "osType",
             "processSessionId"

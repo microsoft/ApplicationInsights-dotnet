@@ -82,7 +82,8 @@
 
         /// <summary>
         /// Gets a list of default heartbeat property providers that are disabled and will not contribute to the
-        /// default heartbeat properties.
+        /// default heartbeat properties. The only default heartbeat property provide currently defined is named
+        /// 'Base'.
         /// </summary>
         public IList<string> ExcludedHeartbeatPropertyProviders
         {
