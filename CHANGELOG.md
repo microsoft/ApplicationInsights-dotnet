@@ -1,5 +1,9 @@
 # Changelog 
 
+### Version 2.6.0-beta
+
+- Include NLog GlobalDiagnosticsContext properties.
+
 ### Version 2.5.0
 - Update Application Insights API reference to [2.5.0]
 - Removed framework 4.0 support
