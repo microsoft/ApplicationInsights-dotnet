@@ -34,6 +34,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\CoreEventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ExtensionsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\HeartbeatTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\HeartbeatProviderMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricManagerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricSample.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricTest.cs" />
