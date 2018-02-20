@@ -1,7 +1,16 @@
-$ErrorActionPreference = "silentlycontinue"
-
 Write-Host "Cleaning up iisexpress"
-Get-Process -Name iisexpress | Stop-Process
+
+$s = Get-Process -Name iisexpress -ErrorAction SilentlyContinue
+
+if($s -ne $null)
+{
+    $s | Stop-Process
+}
+else
+{
+    Write-Host "IISExpress.exe not found"
+}
+
 Write-Host "Cleaning up iisexpress completed"
 
 
