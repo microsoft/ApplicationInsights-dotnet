@@ -25,7 +25,8 @@
                     string[] keyNameValueParts = keyNameValue.Trim().Split('=');
                     if (keyNameValueParts.Length == 2 && keyNameValueParts[0].Trim() == keyName)
                     {
-                        return keyNameValueParts[1].Trim();
+                        string value = keyNameValueParts[1].Trim();
+                        return StringUtilities.EnforceMaxLength(value, InjectionGuardConstants.RequestHeaderMaxLength);
                     }
                 }
             }
@@ -47,7 +48,9 @@
                         string keyName = keyNameValueParts[0].Trim();
                         if (!result.ContainsKey(keyName))
                         {
-                            result.Add(keyName, keyNameValueParts[1].Trim());
+                            string value = keyNameValueParts[1].Trim();
+                            value = StringUtilities.EnforceMaxLength(value, InjectionGuardConstants.RequestHeaderMaxLength);
+                            result.Add(keyName, value);
                         }
                     }
                 }

@@ -131,31 +131,6 @@
             Assert.AreEqual(this.testUrl.Host + " | " + this.GetCorrelationIdValue(appId), ((DependencyTelemetry)this.sendItems[0]).Target);
         }
 
-        [TestMethod]
-        [Description("Validates if DependencyTelemetry sent contains the target role name.")]
-        public void RddTestHttpProcessingProfilerOnEndAddsRoleNameToTargetField()
-        {
-            string roleName = "SomeRoleName";
-
-            this.SimulateWebRequestWithGivenRequestContextHeaderValue(RequestResponseHeaders.RequestContextTargetRoleNameKey + "=" + roleName);
-
-            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            Assert.AreEqual(this.testUrl.Host + " | roleName:" + roleName, ((DependencyTelemetry)this.sendItems[0]).Target);
-        }
-
-        [TestMethod]
-        [Description("Validates if DependencyTelemetry sent contains the target role name as well as correlation id.")]
-        public void RddTestHttpProcessingProfilerOnEndAddsBothRoleNameAndCorrelationIdToTargetField()
-        {
-            string roleName = "SomeRoleName";
-            string appId = "0935FC42-FE1A-4C67-975C-0C9D5CBDEE8E";
-
-            this.SimulateWebRequestWithGivenRequestContextHeaderValue(string.Format(CultureInfo.InvariantCulture, "{0}, {1}={2}", this.GetCorrelationIdHeaderValue(appId), RequestResponseHeaders.RequestContextTargetRoleNameKey, roleName));
-
-            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            Assert.AreEqual(this.testUrl.Host + " | " + this.GetCorrelationIdValue(appId) + " | roleName:" + roleName, ((DependencyTelemetry)this.sendItems[0]).Target);
-        }
-
         /// <summary>
         /// Validates that DependencyTelemetry sent does not contains the cross component correlation id when the caller and callee are the same component.
         /// </summary>

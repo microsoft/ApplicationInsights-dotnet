@@ -190,8 +190,12 @@
         /// </summary>
         /// <param name="ikey">Instrumentation Key is expected to be a Guid string.</param>
         /// <param name="appId">Application Id is expected to be a Guid string. App Id needs to be Http Header safe, and all non-ASCII characters will be removed.</param>
+        /// <remarks>To protect against injection attacks, AppId will be truncated to a maximum length.</remarks>
         private void GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
         {
+            // Arbitrary maximum length to guard against injections.
+            appId = StringUtilities.EnforceMaxLength(appId, InjectionGuardConstants.AppIdMaxLengeth);
+            
             if (string.IsNullOrWhiteSpace(appId))
             {
                 return;

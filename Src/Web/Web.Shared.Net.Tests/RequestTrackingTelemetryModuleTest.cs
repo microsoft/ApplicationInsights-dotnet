@@ -384,75 +384,6 @@
         }
 
         [TestMethod]
-        public void OnEndAddsSourceFieldForRequestWithRoleName()
-        {
-            // ARRANGE                       
-            string roleName = "SomeRoleName";
-
-            Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.RequestContextHeader, string.Format(CultureInfo.InvariantCulture, "{0}={1}", RequestResponseHeaders.RequestContextSourceRoleNameKey, roleName));
-
-            var context = HttpModuleHelper.GetFakeHttpContext(headers);
-
-            var module = this.RequestTrackingTelemetryModuleFactory();
-            var config = TelemetryConfiguration.CreateDefault();
-
-            // My instrumentation key and hence app id is random / newly generated. The appId header is different - hence a different component.
-            config.InstrumentationKey = Guid.NewGuid().ToString();
-
-            // ACT
-            module.Initialize(config);
-            module.OnBeginRequest(context);
-            module.OnEndRequest(context);
-
-            // VALIDATE
-            Assert.Equal("roleName:" + roleName, context.GetRequestTelemetry().Source);
-        }
-
-        [TestMethod]
-        public void OnEndAddsSourceFieldForRequestWithCorrelationIdAndRoleName()
-        {
-            // ARRANGE                       
-            string ikey = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
-            string appId = ikey + "-appId";
-            string roleName = "SomeRoleName";
-
-            Dictionary<string, string> headers = new Dictionary<string, string>();
-
-            // Add Request context With both appId and roleName.
-            headers.Add(RequestResponseHeaders.RequestContextHeader, string.Format(CultureInfo.InvariantCulture, "{0}, {1}={2}", this.GetCorrelationIdHeaderValue(appId), RequestResponseHeaders.RequestContextSourceRoleNameKey, roleName));
-
-            var context = HttpModuleHelper.GetFakeHttpContext(headers);
-
-            var config = TelemetryConfiguration.CreateDefault();
-
-            // My instrumentation key and hence app id is random / newly generated. The appId header is different - hence a different component.
-            config.InstrumentationKey = Guid.NewGuid().ToString();
-
-            var correlationHelper = new CorrelationIdLookupHelper(new Dictionary<string, string>()
-            {
-                {
-                    config.InstrumentationKey,
-                    config.InstrumentationKey + "-appId"
-                },
-                {
-                    ikey,
-                    appId
-                }
-            });
-
-            var module = this.RequestTrackingTelemetryModuleFactory(null /*use default config*/, correlationHelper);
-
-            // ACT
-            module.Initialize(config);
-            module.OnBeginRequest(context);
-            module.OnEndRequest(context);
-
-            // VALIDATE
-            Assert.Equal(string.Format(CultureInfo.InvariantCulture, "{0} | {1}", this.GetCorrelationIdValue(appId), "roleName:SomeRoleName"), context.GetRequestTelemetry().Source);
-        }
-
-        [TestMethod]
         public void OnEndDoesNotAddSourceFieldForRequestWithOutSourceIkeyHeader()
         {
             // ARRANGE                                   
@@ -479,11 +410,11 @@
         {
             // ARRANGE                       
             string appIdInHeader = this.GetCorrelationIdHeaderValue("b3eb14d6-bb32-4542-9b93-473cd94aaedf");
-            string roleNameHeader = string.Format(CultureInfo.InvariantCulture, "{0}=SomeNameHere", RequestResponseHeaders.RequestContextSourceRoleNameKey);
+            string someFieldHeader = "SomeField=SomeNameHere";
             string appIdInSourceField = "9AB8EDCB-21D2-44BB-A64A-C33BB4515F20";
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.RequestContextHeader, appIdInHeader + "," + roleNameHeader);
+            headers.Add(RequestResponseHeaders.RequestContextHeader, appIdInHeader + "," + someFieldHeader);
 
             var context = HttpModuleHelper.GetFakeHttpContext(headers);
 

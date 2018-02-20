@@ -38,6 +38,12 @@
         public bool EnableChildRequestTrackingSuppression { get; set; } = true;
 
         /// <summary>
+        /// Gets or sets a value indicating whether Request-Id header is added to Access-Control-Expose-Headers or not. 
+        /// True by default.
+        /// </summary>
+        public bool EnableAccessControlExposeHeader { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets a value indicating the size of internal tracking dictionary.
         /// Must be a positive integer.
         /// </summary>
@@ -184,7 +190,6 @@
 
             if (string.IsNullOrEmpty(requestTelemetry.Source) && context.Request.Headers != null)
             {
-                string telemetrySource = string.Empty;
                 string sourceAppId = null;
 
                 try
@@ -212,33 +217,8 @@
                     && foundMyAppId
                     && sourceAppId != currentComponentAppId)
                 {
-                    telemetrySource = sourceAppId;
+                    requestTelemetry.Source = sourceAppId;
                 }
-
-                string sourceRoleName = null;
-
-                try
-                {
-                    sourceRoleName = context.Request.UnvalidatedGetHeaders().GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceRoleNameKey);
-                }
-                catch (Exception ex)
-                {
-                    AppMapCorrelationEventSource.Log.GetComponentRoleNameHeaderFailed(ex.ToInvariantString());
-                }
-
-                if (!string.IsNullOrEmpty(sourceRoleName))
-                {
-                    if (string.IsNullOrEmpty(telemetrySource))
-                    {
-                        telemetrySource = "roleName:" + sourceRoleName;
-                    }
-                    else
-                    {
-                        telemetrySource += " | roleName:" + sourceRoleName;
-                    }
-                }
-
-                requestTelemetry.Source = telemetrySource;
             }
 
             if (this.childRequestTrackingSuppressionModule?.OnEndRequest_ShouldLog(context) ?? true)
@@ -283,6 +263,13 @@
                     if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out correlationId))
                     {
                         context.Response.Headers.SetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationTargetKey, correlationId);
+
+                        if (this.EnableAccessControlExposeHeader)
+                        {
+                            // set additional header that allows to read this Request-Context from Javascript SDK
+                            // append this header with additional value to the potential ones defined by customer and they will be concatenated on cliend-side
+                            context.Response.AppendHeader(RequestResponseHeaders.AccessControlExposeHeadersHeader, RequestResponseHeaders.RequestContextHeader);
+                        }
                     }
                 }
             }
@@ -475,6 +462,7 @@
                 try
                 {
                     var rootRequestId = headers[HeaderRootRequestId];
+                    rootRequestId = StringUtilities.EnforceMaxLength(rootRequestId, InjectionGuardConstants.RequestHeaderMaxLength);
                     if (rootRequestId != null)
                     {
                         if (!this.IsRequestKnown(rootRequestId))

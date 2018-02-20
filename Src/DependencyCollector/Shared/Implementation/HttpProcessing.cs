@@ -440,24 +440,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         telemetry.Target += " | " + targetAppId;
                     }
                 }
-
-                string targetRoleName = null;
-                try
-                {
-                    targetRoleName = responseHeaders.GetNameValueHeaderValue(
-                        RequestResponseHeaders.RequestContextHeader,
-                        RequestResponseHeaders.RequestContextTargetRoleNameKey);
-                }
-                catch (Exception ex)
-                {
-                    AppMapCorrelationEventSource.Log.GetComponentRoleNameHeaderFailed(ex.ToInvariantString());
-                }
-
-                if (!string.IsNullOrEmpty(targetRoleName))
-                {
-                    telemetry.Type = RemoteDependencyConstants.AI;
-                    telemetry.Target += " | roleName:" + targetRoleName;
-                }
             }
         }
 
