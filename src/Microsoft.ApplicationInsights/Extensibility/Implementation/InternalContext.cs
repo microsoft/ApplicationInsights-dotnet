@@ -56,10 +56,10 @@
 
         internal void CopyFrom(TelemetryContext telemetryContext)
         {
-            var target = telemetryContext.Internal;
-            Tags.CopyTagValue(target.SdkVersion, ref this.sdkVersion);
-            Tags.CopyTagValue(target.AgentVersion, ref this.agentVersion);
-            Tags.CopyTagValue(target.NodeName, ref this.nodeName);
+            var source = telemetryContext.Internal;
+            Tags.CopyTagValue(source.SdkVersion, ref this.sdkVersion);
+            Tags.CopyTagValue(source.AgentVersion, ref this.agentVersion);
+            Tags.CopyTagValue(source.NodeName, ref this.nodeName);
         }
     }
 }

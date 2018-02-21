@@ -37,8 +37,8 @@
 
         internal void CopyFrom(TelemetryContext telemetryContext)
         {
-            var target = telemetryContext.Component;
-            Tags.CopyTagValue(target.Version, ref this.version);
+            var source = telemetryContext.Component;
+            Tags.CopyTagValue(source.Version, ref this.version);
         }
     }
 }
