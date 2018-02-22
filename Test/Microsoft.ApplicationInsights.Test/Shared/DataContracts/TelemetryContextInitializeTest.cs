@@ -20,38 +20,48 @@
         #region Telemetry Context Properties
         private const string TestInstrumentationKey = "00000000-0000-0000-0000-000000000000";
 
-        private const string TestComponentVersion = "TestComponentVersion";
+        private const string TestComponentVersion = nameof(TestComponentVersion);
 
-        private const string TestDeviceType = "TestDeviceType";
-        private const string TestDeviceId = "TestDeviceId";
-        private const string TestDeviceOperatingSystem = "TestDeviceOperatingSystem";
-        private const string TestDeviceOemName = "TestDeviceOemName";
-        private const string TestDeviceModel = "TestDeviceModel";
+        private const string TestDeviceType = nameof(TestDeviceType);
+        private const string TestDeviceId = nameof(TestDeviceId);
+        private const string TestDeviceOperatingSystem = nameof(TestDeviceOperatingSystem);
+        private const string TestDeviceOemName = nameof(TestDeviceOemName);
+        private const string TestDeviceModel = nameof(TestDeviceModel);
 
-        private const string TestCloudRoleName = "TestCloudRoleName";
-        private const string TestCloudRoleInstance = "TestCloudRoleInstance";
+        private const string TestCloudRoleName = nameof(TestCloudRoleName);
+        private const string TestCloudRoleInstance = nameof(TestCloudRoleInstance);
 
-        private const string TestSessionId = "TestSessionId";
+        private const string TestSessionId = nameof(TestSessionId);
         private const bool TestSessionIsFirst = true;
 
-        private const string TestUserId = "TestUserId";
-        private const string TestUserAccountId = "TestUserAccountId";
-        private const string TestUserUserAgent = "TestUserUserAgent";
-        private const string TestUserAuthenticatedUserId = "TestUserAuthenticatedUserId";
+        private const string TestUserId = nameof(TestUserId);
+        private const string TestUserAccountId = nameof(TestUserAccountId);
+        private const string TestUserUserAgent = nameof(TestUserUserAgent);
+        private const string TestUserAuthenticatedUserId = nameof(TestUserAuthenticatedUserId);
 
-        private const string TestOperationId = "TestOperationId";
-        private const string TestOperationParentId = "TestOperationParentId";
-        private const string TestOperationCorrelationVector = "TestOperationCorrelationVector";
-        private const string TestOperationSyntheticSource = "TestOperationSyntheticSource";
-        private const string TestOperationName = "TestOperationName";
+        private const string TestOperationId = nameof(TestOperationId);
+        private const string TestOperationParentId = nameof(TestOperationParentId);
+        private const string TestOperationCorrelationVector = nameof(TestOperationCorrelationVector);
+        private const string TestOperationSyntheticSource = nameof(TestOperationSyntheticSource);
+        private const string TestOperationName = nameof(TestOperationName);
 
-        private const string TestLocationIp = "TestLocationIp";
+        private const string TestLocationIp = nameof(TestLocationIp);
 
-        private const string TestInternalSdkVersion = "TestInternalSdkVersion";
-        private const string TestInternalAgentVersion = "TestInternalAgentVersion";
-        private const string TestInternalNodeName = "TestInternalNodeName";
+        private const string TestInternalSdkVersion = nameof(TestInternalSdkVersion);
+        private const string TestInternalAgentVersion = nameof(TestInternalAgentVersion);
+        private const string TestInternalNodeName = nameof(TestInternalNodeName);
         #endregion
 
+        #region Dependency Telemetry Properties
+        private const string TestDependencyType = nameof(TestDependencyType);
+        private const string TestDependencyName = nameof(TestDependencyName);
+        private const string TestTarget = nameof(TestTarget);
+        private const string TestData = nameof(TestData);
+        #endregion
+
+        /// <summary>
+        /// Initialize InMemory TelemetryChannel, and set every possible property on the TelemetryContext.
+        /// </summary>
         [TestInitialize]
         public void Initialize()
         {
@@ -91,26 +101,84 @@
             this.TelemetryClient.Context.Internal.NodeName = TestInternalNodeName;
         }
 
+        /// <summary>
+        /// Verify that all TelemetryContext properties are set on a TelemetryItem.
+        /// </summary>
         [TestMethod]
         public void VerifyContextPropertiesAreCopied()
         {
-            var testDependencyName = "TestDependency";
-            var testCommandName = "TestCommand";
-            var testStartTime = DateTime.Parse("2000-01-01");
-            var testTimeSpan = new TimeSpan(0, 0, 5);
-            var testSuccess = true;
-
-            this.TelemetryClient.TrackDependency(dependencyName: testDependencyName, commandName: testCommandName, startTime: testStartTime, duration: testTimeSpan, success: testSuccess);
+            var d = GetNewDependencyTelemetry();
+            this.TelemetryClient.TrackDependency(d);
 
             IEnumerable<ITelemetry> telemetryItems = this.TelemetryBuffer.Dequeue();
             Assert.AreEqual(1, telemetryItems.Count());
 
             var dependencyTelemetryItem = telemetryItems.First() as DependencyTelemetry;
-            Assert.AreEqual(testDependencyName, dependencyTelemetryItem.Name);
-            Assert.AreEqual(testCommandName, dependencyTelemetryItem.Data);
-            Assert.AreEqual(testSuccess, dependencyTelemetryItem.Success);
+            Assert.AreEqual(TestDependencyName, dependencyTelemetryItem.Name);
 
             VerifyContext(dependencyTelemetryItem);
+        }
+
+        /// <summary>
+        /// Verify that all TelemetryItem.Context properties are not overridden by the TelemetryContext.
+        /// </summary>
+        [TestMethod]
+        public void VerifyOverridenContextPropertiesPersist()
+        {
+            var d = GetNewDependencyTelemetry(overrideContext: true);
+            this.TelemetryClient.TrackDependency(d);
+
+            IEnumerable<ITelemetry> telemetryItems = this.TelemetryBuffer.Dequeue();
+            Assert.AreEqual(1, telemetryItems.Count());
+
+            var dependencyTelemetryItem = telemetryItems.First() as DependencyTelemetry;
+            Assert.AreEqual(TestDependencyName, dependencyTelemetryItem.Name);
+
+            VerifyOverriddenContext(dependencyTelemetryItem);
+        }
+
+        /// <summary>
+        /// Make a new DependencyTelemetry item, with or without overriding the Context properties.
+        /// </summary>
+        private DependencyTelemetry GetNewDependencyTelemetry(bool overrideContext = false)
+        {
+            var d = new DependencyTelemetry(dependencyTypeName: TestDependencyType, target: TestTarget, dependencyName: TestDependencyName, data: TestData);
+
+            if (overrideContext)
+            {
+                d.Context.Component.Version = TestComponentVersion + "Overridden";
+
+                d.Context.Device.Type = TestDeviceType + "Overridden";
+                d.Context.Device.Id = TestDeviceId + "Overridden";
+                d.Context.Device.OperatingSystem = TestDeviceOperatingSystem + "Overridden";
+                d.Context.Device.OemName = TestDeviceOemName + "Overridden";
+                d.Context.Device.Model = TestDeviceModel + "Overridden";
+
+                d.Context.Cloud.RoleName = TestCloudRoleName + "Overridden";
+                d.Context.Cloud.RoleInstance = TestCloudRoleInstance + "Overridden";
+
+                d.Context.Session.Id = TestSessionId + "Overridden";
+                d.Context.Session.IsFirst = !TestSessionIsFirst;
+
+                d.Context.User.Id = TestUserId + "Overridden";
+                d.Context.User.AccountId = TestUserAccountId + "Overridden";
+                d.Context.User.UserAgent = TestUserUserAgent + "Overridden";
+                d.Context.User.AuthenticatedUserId = TestUserAuthenticatedUserId + "Overridden";
+
+                d.Context.Operation.Id = TestOperationId + "Overridden";
+                d.Context.Operation.ParentId = TestOperationParentId + "Overridden";
+                d.Context.Operation.CorrelationVector = TestOperationCorrelationVector + "Overridden";
+                d.Context.Operation.SyntheticSource = TestOperationSyntheticSource + "Overridden";
+                d.Context.Operation.Name = TestOperationName + "Overridden";
+
+                d.Context.Location.Ip = TestLocationIp + "Overridden";
+
+                d.Context.Internal.SdkVersion = TestInternalSdkVersion + "Overridden";
+                d.Context.Internal.AgentVersion = TestInternalAgentVersion + "Overridden";
+                d.Context.Internal.NodeName = TestInternalNodeName + "Overridden";
+            }
+
+            return d;
         }
 
         private void VerifyContext(ITelemetry telemetryItem)
@@ -147,6 +215,42 @@
             Assert.AreEqual(TestInternalSdkVersion, telemetryItem.Context.Internal.SdkVersion);
             Assert.AreEqual(TestInternalAgentVersion, telemetryItem.Context.Internal.AgentVersion);
             Assert.AreEqual(TestInternalNodeName, telemetryItem.Context.Internal.NodeName);
+        }
+
+        private void VerifyOverriddenContext(ITelemetry telemetryItem)
+        {
+            Assert.AreEqual(TestInstrumentationKey, telemetryItem.Context.InstrumentationKey);
+
+            Assert.AreEqual(TestComponentVersion + "Overridden", telemetryItem.Context.Component.Version);
+
+            Assert.AreEqual(TestDeviceType + "Overridden", telemetryItem.Context.Device.Type);
+            Assert.AreEqual(TestDeviceId + "Overridden", telemetryItem.Context.Device.Id);
+            Assert.AreEqual(TestDeviceOperatingSystem + "Overridden", telemetryItem.Context.Device.OperatingSystem);
+            Assert.AreEqual(TestDeviceOemName + "Overridden", telemetryItem.Context.Device.OemName);
+            Assert.AreEqual(TestDeviceModel + "Overridden", telemetryItem.Context.Device.Model);
+
+            Assert.AreEqual(TestCloudRoleName + "Overridden", telemetryItem.Context.Cloud.RoleName);
+            Assert.AreEqual(TestCloudRoleInstance + "Overridden", telemetryItem.Context.Cloud.RoleInstance);
+
+            Assert.AreEqual(TestSessionId + "Overridden", telemetryItem.Context.Session.Id);
+            Assert.AreEqual(!TestSessionIsFirst, telemetryItem.Context.Session.IsFirst);
+
+            Assert.AreEqual(TestUserId + "Overridden", telemetryItem.Context.User.Id);
+            Assert.AreEqual(TestUserAccountId + "Overridden", telemetryItem.Context.User.AccountId);
+            Assert.AreEqual(TestUserUserAgent + "Overridden", telemetryItem.Context.User.UserAgent);
+            Assert.AreEqual(TestUserAuthenticatedUserId + "Overridden", telemetryItem.Context.User.AuthenticatedUserId);
+
+            Assert.AreEqual(TestOperationId + "Overridden", telemetryItem.Context.Operation.Id);
+            Assert.AreEqual(TestOperationParentId + "Overridden", telemetryItem.Context.Operation.ParentId);
+            Assert.AreEqual(TestOperationCorrelationVector + "Overridden", telemetryItem.Context.Operation.CorrelationVector);
+            Assert.AreEqual(TestOperationSyntheticSource + "Overridden", telemetryItem.Context.Operation.SyntheticSource);
+            Assert.AreEqual(TestOperationName + "Overridden", telemetryItem.Context.Operation.Name);
+
+            Assert.AreEqual(TestLocationIp + "Overridden", telemetryItem.Context.Location.Ip);
+
+            Assert.AreEqual(TestInternalSdkVersion + "Overridden", telemetryItem.Context.Internal.SdkVersion);
+            Assert.AreEqual(TestInternalAgentVersion + "Overridden", telemetryItem.Context.Internal.AgentVersion);
+            Assert.AreEqual(TestInternalNodeName + "Overridden", telemetryItem.Context.Internal.NodeName);
         }
     }
 }
