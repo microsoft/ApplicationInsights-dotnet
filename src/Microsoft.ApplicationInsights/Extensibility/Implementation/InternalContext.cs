@@ -53,13 +53,12 @@
             tags.UpdateTagValue(ContextTagKeys.Keys.InternalAgentVersion, this.AgentVersion);
             tags.UpdateTagValue(ContextTagKeys.Keys.InternalNodeName, this.NodeName);
         }
-
-        internal void CopyFrom(TelemetryContext telemetryContext)
+        
+        internal void CopyTo(InternalContext target)
         {
-            var target = telemetryContext.Internal;
-            Tags.CopyTagValue(target.SdkVersion, ref this.sdkVersion);
-            Tags.CopyTagValue(target.AgentVersion, ref this.agentVersion);
-            Tags.CopyTagValue(target.NodeName, ref this.nodeName);
+            Tags.CopyTagValue(this.SdkVersion, ref target.sdkVersion);
+            Tags.CopyTagValue(this.AgentVersion, ref target.agentVersion);
+            Tags.CopyTagValue(this.NodeName, ref target.nodeName);
         }
     }
 }
