@@ -132,13 +132,13 @@
             get
             {
                 var result = new Dictionary<string, string>();
-                this.Component?.UpdateTags(result);
-                this.Device?.UpdateTags(result);
-                this.Cloud?.UpdateTags(result);
-                this.Session?.UpdateTags(result);
-                this.User?.UpdateTags(result);
-                this.Operation?.UpdateTags(result);
-                this.Location?.UpdateTags(result);
+                this.Component.UpdateTags(result);
+                this.Device.UpdateTags(result);
+                this.Cloud.UpdateTags(result);
+                this.Session.UpdateTags(result);
+                this.User.UpdateTags(result);
+                this.Operation.UpdateTags(result);
+                this.Location.UpdateTags(result);
                 this.Internal.UpdateTags(result);
                 return result;
             }
@@ -156,13 +156,13 @@
         {
             Property.Initialize(ref this.instrumentationKey, instrumentationKey);
 
-            this.Component?.CopyFrom(source);
-            this.Device?.CopyFrom(source);
-            this.Cloud?.CopyFrom(source);
-            this.Session?.CopyFrom(source);
-            this.User?.CopyFrom(source);
-            this.Operation?.CopyFrom(source);
-            this.Location?.CopyFrom(source);
+            this.Component.CopyFrom(source);
+            this.Device.CopyFrom(source);
+            this.Cloud.CopyFrom(source);
+            this.Session.CopyFrom(source);
+            this.User.CopyFrom(source);
+            this.Operation.CopyFrom(source);
+            this.Location.CopyFrom(source);
             this.Internal.CopyFrom(source);
         }
     }
