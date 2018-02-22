@@ -24,6 +24,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\DependencyTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\RequestTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\SessionStateTelemetryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryContextInitializeTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryContextTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryItemTestHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetryTest.cs" />
