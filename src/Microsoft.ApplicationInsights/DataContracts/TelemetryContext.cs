@@ -169,6 +169,6 @@
             source.operation?.CopyTo(this.Operation);
             source.location?.CopyTo(this.Location);
             source.Internal?.CopyTo(this.Internal);
+        }
     }
-}
 }
