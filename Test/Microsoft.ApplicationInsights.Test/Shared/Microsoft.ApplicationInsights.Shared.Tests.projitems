@@ -24,6 +24,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\DependencyTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\RequestTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\SessionStateTelemetryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryContextInitializeTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryContextTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryItemTestHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetryTest.cs" />
@@ -34,6 +35,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\CoreEventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ExtensionsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\HeartbeatTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\HeartbeatProviderMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricManagerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricSample.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricTest.cs" />

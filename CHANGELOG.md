@@ -4,6 +4,13 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 2.6.0-beta1
 - [Added overload of TelemetryClientExtensions.StartOperation(Activity activity).] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/644)
+- [Finalize the architecture for adding default heartbeat properties (supporting proposal from Issue #636).](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/666).
+
+## Version 2.5.1
+- Fix for missing TelemetryContext. Thank you to our community for discovering and reporting this issue! 
+  [Logic bug within Initialize() in TelemetryContext](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/692),
+  [Dependency correlation is broken after upgrade to .NET SDK 2.5](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/706),
+  [Lost many context fields in 2.5.0](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/708)
 
 ## Version 2.5.0-beta2
 - Remove calculation of sampling-score based on Context.User.Id [Issue #625](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/625)
