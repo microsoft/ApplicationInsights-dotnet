@@ -265,7 +265,7 @@
                 client.TrackEvent("Test Event");
             }
 
-            Assert.AreEqual(6, telemetrySentToChannel.Count);
+            Assert.AreEqual(7, telemetrySentToChannel.Count);
             
             AssertEx.IsType<RequestTelemetry>(telemetrySentToChannel[0]);
             Assert.AreEqual(true, ((RequestTelemetry) telemetrySentToChannel[0]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
