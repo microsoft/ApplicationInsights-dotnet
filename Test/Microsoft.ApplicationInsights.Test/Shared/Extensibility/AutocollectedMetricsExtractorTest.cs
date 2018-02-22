@@ -257,8 +257,11 @@
                 TelemetryClient client = new TelemetryClient(telemetryConfig);
                 
                 client.TrackRequest("Test Request", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "200", success: true);
+#pragma warning disable CS0612 // Type or member is obsolete
                 client.TrackDependency("Test Dependency Call 1", "Test Command", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), success: true);
-                client.TrackDependency("Test Dependency Type", "Test Target", "Test Dependency Call 2", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(11), "201", success: true);
+#pragma warning restore CS0612 // Type or member is obsolete
+                client.TrackDependency("Test Dependency Type", "Test Dependency Call 2", "Test Command", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), true);
+                client.TrackDependency("Test Dependency Type", "Test Target", "Test Dependency Call 3", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(11), "201", success: true);
                 client.TrackEvent("Test Event");
             }
 
@@ -276,18 +279,24 @@
                          ((DependencyTelemetry) telemetrySentToChannel[1]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<DependencyTelemetry>(telemetrySentToChannel[2]);
-            Assert.AreEqual("Test Dependency Call 2", ((DependencyTelemetry) telemetrySentToChannel[2]).Name);
-            Assert.AreEqual(true, ((DependencyTelemetry) telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+            Assert.AreEqual("Test Dependency Call 2", ((DependencyTelemetry)telemetrySentToChannel[2]).Name);
+            Assert.AreEqual(true, ((DependencyTelemetry)telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Dependencies', Ver:'1.0')",
-                         ((DependencyTelemetry) telemetrySentToChannel[2]).Properties["_MS.ProcessedByMetricExtractors"]);
+                         ((DependencyTelemetry)telemetrySentToChannel[2]).Properties["_MS.ProcessedByMetricExtractors"]);
 
-            AssertEx.IsType<EventTelemetry>(telemetrySentToChannel[3]);
-            Assert.AreEqual("Test Event", ((EventTelemetry) telemetrySentToChannel[3]).Name);
-            Assert.AreEqual(false, ((EventTelemetry) telemetrySentToChannel[3]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+            AssertEx.IsType<DependencyTelemetry>(telemetrySentToChannel[3]);
+            Assert.AreEqual("Test Dependency Call 3", ((DependencyTelemetry) telemetrySentToChannel[3]).Name);
+            Assert.AreEqual(true, ((DependencyTelemetry) telemetrySentToChannel[3]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+            Assert.AreEqual("(Name:'Dependencies', Ver:'1.0')",
+                         ((DependencyTelemetry) telemetrySentToChannel[3]).Properties["_MS.ProcessedByMetricExtractors"]);
+
+            AssertEx.IsType<EventTelemetry>(telemetrySentToChannel[4]);
+            Assert.AreEqual("Test Event", ((EventTelemetry) telemetrySentToChannel[4]).Name);
+            Assert.AreEqual(false, ((EventTelemetry) telemetrySentToChannel[4]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
 
 
-            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[4]);
             AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[5]);
+            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[6]);
 
             Assert.AreEqual(1, telemetrySentToChannel.Where( (t) => "Server response time".Equals((t as MetricTelemetry)?.Name) ).Count());
             Assert.AreEqual(1, telemetrySentToChannel.Where( (t) => "Dependency duration".Equals((t as MetricTelemetry)?.Name) ).Count());
@@ -465,7 +474,7 @@
 
                 client.TrackDependency("", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(305), "201", success: true);
                 client.TrackDependency(null, "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(310), "202", success: true);
-                client.TrackDependency("Test Dependency Call", "Test Command Name", DateTimeOffset.Now, TimeSpan.FromMilliseconds(315), success: true);
+                client.TrackDependency("", "Test Dependency Call", "Test Command Name", DateTimeOffset.Now, TimeSpan.FromMilliseconds(315), success: true);
 
                 client.TrackDependency("Test Type A", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1070), "501", success: false);
                 client.TrackDependency("Test Type A", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1180), "502", success: false);
@@ -488,7 +497,7 @@
 
                 client.TrackDependency("", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(4062), "201", success: false);
                 client.TrackDependency(null, "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(4012), "202", success: false);
-                client.TrackDependency("Test Dependency Call", "Test Command Name", DateTimeOffset.Now, TimeSpan.FromMilliseconds(4039), success: false);
+                client.TrackDependency("", "Test Dependency Call", "Test Command Name", DateTimeOffset.Now, TimeSpan.FromMilliseconds(4039), success: false);
             }
 
             //// The following metric documents are expected:
