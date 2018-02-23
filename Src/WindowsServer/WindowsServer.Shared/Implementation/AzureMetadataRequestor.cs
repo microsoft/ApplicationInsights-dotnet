@@ -26,7 +26,11 @@
         internal static string imdsApiVersion = $"api-version=2017-08-01"; // this version has the format=text capability
         internal static string imdsTextFormat = "format=text";
         internal static int maxImsResponseBufferSize = 256;
-        
+
+        /// <summary>
+        /// Default timeout for the web requests made to obtain Azure IMS data. Internal to expose to tests.
+        /// </summary>
+        internal TimeSpan AzureImsRequestTimeout = TimeSpan.FromSeconds(10);
 
         public AzureMetadataRequestor()
         {
@@ -120,6 +124,7 @@
             {
                 getFieldValueClient.MaxResponseContentBufferSize = AzureMetadataRequestor.maxImsResponseBufferSize;
                 getFieldValueClient.DefaultRequestHeaders.Add("Metadata", "True");
+                getFieldValueClient.Timeout = this.AzureImsRequestTimeout;
                 requestResult = await getFieldValueClient.GetStringAsync(requestUrl).ConfigureAwait(false);
                 bufferLengthReceived = requestResult.Length;
             }
@@ -129,6 +134,7 @@
             WebRequest request = WebRequest.Create(requestUrl);
             request.Method = "GET";
             request.Headers.Add("Metadata", "True");
+            request.Timeout = this.AzureImsRequestTimeout.Milliseconds;
             using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
             {
                 if (response is HttpWebResponse)
