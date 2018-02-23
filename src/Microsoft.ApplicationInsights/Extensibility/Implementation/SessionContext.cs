@@ -39,12 +39,11 @@
             tags.UpdateTagValue(ContextTagKeys.Keys.SessionId, this.Id);
             tags.UpdateTagValue(ContextTagKeys.Keys.SessionIsFirst, this.IsFirst);
         }
-
-        internal void CopyFrom(TelemetryContext telemetryContext)
+        
+        internal void CopyTo(SessionContext target)
         {
-            var source = telemetryContext.Session;
-            Tags.CopyTagValue(source.Id, ref this.id);
-            Tags.CopyTagValue(source.IsFirst, ref this.isFirst);
+            Tags.CopyTagValue(this.Id, ref target.id);
+            Tags.CopyTagValue(this.IsFirst, ref target.isFirst);
         }
     }
 }
