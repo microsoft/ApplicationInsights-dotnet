@@ -428,8 +428,9 @@ Microsoft.ApplicationInsights.TelemetryClient.Track(Microsoft.ApplicationInsight
 Microsoft.ApplicationInsights.TelemetryClient.TrackAvailability(Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry telemetry) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackAvailability(string name, System.DateTimeOffset timeStamp, System.TimeSpan duration, string runLocation, bool success, string message = null, System.Collections.Generic.IDictionary<string, string> properties = null, System.Collections.Generic.IDictionary<string, double> metrics = null) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry telemetry) -> void
-Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(string dependencyName, string commandName, System.DateTimeOffset startTime, System.TimeSpan duration, bool success) -> void
+Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, bool success) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(string dependencyTypeName, string target, string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, string resultCode, bool success) -> void
+Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(string dependencyTypeName, string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, bool success) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackEvent(Microsoft.ApplicationInsights.DataContracts.EventTelemetry telemetry) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackEvent(string eventName, System.Collections.Generic.IDictionary<string, string> properties = null, System.Collections.Generic.IDictionary<string, double> metrics = null) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackException(Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry telemetry) -> void
