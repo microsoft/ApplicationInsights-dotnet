@@ -8,10 +8,16 @@
 
     internal class AzureHeartbeatProperties
     {
+        private static int ResourceGroupNameLengthMax = 90;
+        private static int ResourceGroupNameLengthMin = 1;
+        private static string ResourceGroupNameValidChars = "[a-zA-Z0-9()_\-\.]";
+        private static int VmNameLenghtMax = 64; // (15 for windows!)
+        private static int VmNameLengthMin = 1;
+        private static string VmNameValidChars = "[a-zA-Z0-9()_-]";
+
         // internal for testing
         internal readonly List<string> DefaultFields = new List<string>()
         {
-            "osType",
             "location",
             "name",
             "offer",
@@ -61,11 +67,6 @@
             }
         }
 
-        public bool IsKeyword(string keyword)
-        {
-            return this.DefaultFields.Contains(keyword, StringComparer.OrdinalIgnoreCase);
-        }
-
         public async Task<bool> SetDefaultPayload(IEnumerable<string> disabledFields, IHeartbeatPropertyManager provider)
         {
             bool hasSetFields = false;
@@ -92,6 +93,57 @@
             }
 
             return hasSetFields;
+        }
+
+        /// <summary>
+        /// Because the Azure IMS is on a hijackable IP we need to do some due diligence in our accepting
+        /// values returned from it. This method takes the fieldname and value recieved for that field, and
+        /// if we can test that value against known limitations of that field we do so here. If the test fails
+        /// we return the empty string, otherwise we return the string given.
+        /// </summary>
+        /// <param name="fieldName">Name of the field acquired from the call to Azure IMS.</param>
+        /// <param name="valueToVerify">The value aquired for the field that may be verified.</param>
+        /// <returns>valueToVerify or the empty string.</returns>
+        private string VerifyExpectedValue(string fieldName, string valueToVerify)
+        {
+            string value = string.Empty;
+            if (fieldName.Equals("resourceGroupName", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var valueOk = valueToVerify.Length <= AzureHeartbeatProperties.ResourceGroupNameLengthMax;
+                valueOk &= valueToVerify.Length >= AzureHeartbeatProperties.ResourceGroupNameLengthMin;
+                System.Text.RegularExpressions.Regex charMatch = new System.Text.RegularExpressions.Regex(AzureHeartbeatProperties.ResourceGroupNameValidChars);
+                valueOk &= valueToVerify.All(a => charMatch.IsMatch(a.ToString()));
+                valueOk &= !valueToVerify.EndsWith(".");
+                if (valueOk)
+                {
+                    value = valueToVerify;
+                }
+            }
+            else if (fieldName.Equals("subscriptionId", StringComparison.InvariantCultureIgnoreCase))
+            {
+                Guid g = new Guid();
+                if (Guid.TryParse(valueToVerify, out g))
+                {
+                    value = valueToVerify;
+                }
+            }
+            else if (fieldName.Equals("name", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var valueOk = valueToVerify.Length <= AzureHeartbeatProperties.VmNameLenghtMax;
+                valueOk &= valueToVerify.Length >= AzureHeartbeatProperties.VmNameLengthMin;
+                System.Text.RegularExpressions.Regex charMatch = new System.Text.RegularExpressions.Regex(AzureHeartbeatProperties.VmNameValidChars);
+                valueOk &= valueToVerify.All(a => charMatch.IsMatch(a.ToString()));
+                if (valueOk)
+                {
+                    value = valueToVerify;
+                }
+            }
+            else
+            {
+                // no sanitization method available for this value, just return the given value
+                value = valueToVerify;
+            }
+            return value;
         }
     }
 }
