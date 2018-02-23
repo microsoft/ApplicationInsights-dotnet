@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.2.1
+- Updated Web/Base SDK version dependency to 2.5.1 which addresses a bug.
+
 ## Version 2.2.0
 - Updated Web/Base SDK version dependency to 2.5.0
 
