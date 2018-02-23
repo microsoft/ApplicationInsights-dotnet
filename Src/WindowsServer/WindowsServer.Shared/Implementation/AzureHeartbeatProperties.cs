@@ -83,9 +83,13 @@
                     var enabledImdsFields = this.DefaultFields.Except(disabledFields).Intersect(allFields);
                     foreach (string field in enabledImdsFields)
                     {
+                        string value = await this.azureInstanceMetadataRequestor.GetAzureComputeMetadata(field).ConfigureAwait(false);
+                        string verifiedValue = this.VerifyExpectedValue(field, value);
+                        // do we want to log if value != verifiedValue?
+
                         provider.AddHeartbeatProperty(
                             propertyName: field,
-                            propertyValue: await this.azureInstanceMetadataRequestor.GetAzureComputeMetadata(field).ConfigureAwait(false),
+                            propertyValue: verifiedValue,
                             isHealthy: true);
                         hasSetFields = true;
                     }
