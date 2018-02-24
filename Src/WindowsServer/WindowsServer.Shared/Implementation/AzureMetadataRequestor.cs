@@ -25,7 +25,7 @@
         /// </summary>
         internal static string imdsApiVersion = $"api-version=2017-08-01"; // this version has the format=text capability
         internal static string imdsTextFormat = "format=text";
-        internal static int maxImsResponseBufferSize = 256;
+        internal static int maxImsResponseBufferSize = 512;
 
         /// <summary>
         /// Default timeout for the web requests made to obtain Azure IMS data. Internal to expose to tests.

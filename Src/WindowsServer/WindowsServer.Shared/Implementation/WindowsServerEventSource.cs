@@ -239,6 +239,56 @@
                 this.ApplicationName);
         }
 
+        [Event(
+            26,
+            Message = "Azure IMS returned unexpected number of fields, expected:{0} recieved:{1}.",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataFieldCountUnexpected(int expectedCount, int receivedCount, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                26,
+                expectedCount,
+                receivedCount,
+                this.ApplicationName);
+        }
+
+        [Event(
+            27,
+            Message = "Azure IMS returned at least one field that was not expected, first unexpected field encountered: '{0}'.",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataFieldNameUnexpected(string unexpectedFieldName, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                27,
+                unexpectedFieldName,
+                this.ApplicationName);
+        }
+
+        [Event(
+            28,
+            Message = "Azure IMS returned field '{0}' with an invalid/unexpected value. Not adding this value to heartbeat properties.",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataValueForFieldInvalid(string fieldWithInvalidValue, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                28,
+                fieldWithInvalidValue,
+                this.ApplicationName);
+        }
+
+        [Event(
+            29,
+            Message = "Azure IMS field and value not added to heartbeat properties. Field name:'{0}', value:'{1}'.",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataWasntAddedToHeartbeatProperties(string azureImsFieldName, string azureImsFieldValue, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                29,
+                azureImsFieldName,
+                azureImsFieldValue,
+                this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {
