@@ -121,7 +121,7 @@
                     isActivityCreatedFromRequestIdHeader = true;
                     activity.SetParentId(requestId);
 
-                    string[] baggage = requestHeaders.GetCommaSeparatedValues(RequestResponseHeaders.CorrelationContextHeader); //todo: guard
+                    string[] baggage = requestHeaders.GetCommaSeparatedValues(RequestResponseHeaders.CorrelationContextHeader);
                     if (baggage != StringValues.Empty)
                     {
                         foreach (var item in baggage)
@@ -129,6 +129,8 @@
                             NameValueHeaderValue baggageItem;
                             if (NameValueHeaderValue.TryParse(item, out baggageItem))
                             {
+                                var itemName = StringUtilities.EnforceMaxLength(baggageItem.Name, InjectionGuardConstants.ContextHeaderKeyMaxLength);
+                                var itemValue = StringUtilities.EnforceMaxLength(baggageItem.Value, InjectionGuardConstants.ContextHeaderValueMaxLength);
                                 activity.AddBaggage(baggageItem.Name, baggageItem.Value);
                             }
                         }

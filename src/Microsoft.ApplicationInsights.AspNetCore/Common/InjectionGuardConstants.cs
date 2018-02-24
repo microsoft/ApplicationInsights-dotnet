@@ -16,5 +16,15 @@
         /// Max length of incoming Request Header value allowed.
         /// </summary>
         public const int RequestHeaderMaxLength = 100;
+
+        /// <summary>
+        /// Max length of context header key.
+        /// </summary>
+        public const int ContextHeaderKeyMaxLength = 50;
+
+        /// <summary>
+        /// Max length of context header value.
+        /// </summary>
+        public const int ContextHeaderValueMaxLength = 100;
     }
 }
