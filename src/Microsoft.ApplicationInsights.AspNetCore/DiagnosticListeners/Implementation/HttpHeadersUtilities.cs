@@ -47,12 +47,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
         internal static string GetRequestContextKeyValue(HttpHeaders headers, string keyName)
         {
-            return GetHeaderKeyValue(headers, RequestResponseHeaders.RequestContextHeader, keyName); //todo: guard
+            return GetHeaderKeyValue(headers, RequestResponseHeaders.RequestContextHeader, keyName);
         }
 
         internal static string GetRequestContextKeyValue(IHeaderDictionary headers, string keyName)
         {
-            return GetHeaderKeyValue(headers, RequestResponseHeaders.RequestContextHeader, keyName); //todo: guard
+            return GetHeaderKeyValue(headers, RequestResponseHeaders.RequestContextHeader, keyName);
         }
 
         internal static bool ContainsRequestContextKeyValue(HttpHeaders headers, string keyName)

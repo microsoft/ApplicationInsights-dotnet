@@ -1,5 +1,6 @@
 namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
+    using Microsoft.ApplicationInsights.AspNetCore.Common;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
@@ -25,7 +26,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                     string[] keyNameValueParts = keyNameValue.Trim().Split('=');
                     if (keyNameValueParts.Length == 2 && keyNameValueParts[0].Trim() == keyName)
                     {
-                        return keyNameValueParts[1].Trim();
+                        string value = keyNameValueParts[1].Trim();
+                        return StringUtilities.EnforceMaxLength(value, InjectionGuardConstants.RequestHeaderMaxLength);
                     }
                 }
             }
