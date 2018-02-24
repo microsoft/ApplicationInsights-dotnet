@@ -1,59 +1,45 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Mock
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts;
 
     internal class AzureInstanceMetadataRequestMock : IAzureMetadataRequestor
     {
-        public Dictionary<string, string> ComputeFields;
+        public AzureInstanceComputeMetadata ComputeMetadata;
 
-        private Func<IEnumerable<string>> getAllFieldsFunc = null;
-        private Func<string, string> getSingleFieldFunc = null;
+        private Func<AzureInstanceComputeMetadata> getComputeMetadata = null;
 
-        public AzureInstanceMetadataRequestMock(Func<IEnumerable<string>> getAllFields = null, Func<string, string> getSingleFieldFunc = null)
+        public AzureInstanceMetadataRequestMock(Func<AzureInstanceComputeMetadata> getComputeMetadata = null)
         {
-            this.getAllFieldsFunc = getAllFields;
-            if (getAllFields == null)
+            this.getComputeMetadata = getComputeMetadata;
+            if (getComputeMetadata == null)
             {
-                this.getAllFieldsFunc = this.GetAllFields;
+                this.getComputeMetadata = () => this.ComputeMetadata;
             }
 
-            this.getSingleFieldFunc = getSingleFieldFunc;
-            if (getSingleFieldFunc == null)
+            this.ComputeMetadata = new AzureInstanceComputeMetadata()
             {
-                this.getSingleFieldFunc = this.GetSingleField;
-            }
-
-            this.ComputeFields = new Dictionary<string, string>();
+                OsType = "Windows",
+                Location = "Here, now",
+                Name = "vm-testRg-num1",
+                Offer = "OneYouCannotPassUp",
+                PlatformFaultDomain = "0",
+                PlatformUpdateDomain = "0",
+                Publisher = "Microsoft-Vancouver",
+                ResourceGroupName = "testRg",
+                Sku = "OSVm01",
+                SubscriptionId = Guid.NewGuid().ToString(),
+                Version = "0.0.0",
+                VmId = Guid.NewGuid().ToString(),
+                VmSize = "A01"
+            };
         }
         
-        public Task<string> GetAzureComputeMetadata(string fieldName)
+        public Task<AzureInstanceComputeMetadata> GetAzureComputeMetadata()
         {
-            return Task.FromResult(this.getSingleFieldFunc(fieldName));
-        }
-
-        public Task<IEnumerable<string>> GetAzureInstanceMetadataComputeFields()
-        {
-            return Task.FromResult(this.getAllFieldsFunc());
-        }
-
-        private string GetSingleField(string fieldName)
-        {
-            if (this.ComputeFields.ContainsKey(fieldName))
-            {
-                return this.ComputeFields[fieldName];
-            }
-
-            return string.Empty;
-        }
-
-        private IEnumerable<string> GetAllFields()
-        {
-            IEnumerable<string> fields = this.ComputeFields.Keys.ToArray();
-            return fields;
+            return Task.FromResult(this.getComputeMetadata());
         }
     }
 }

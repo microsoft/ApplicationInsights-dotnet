@@ -1,6 +1,7 @@
 namespace Microsoft.ApplicationInsights.WindowsServer
 {
     using System.Collections.Generic;
+    using System.Net.Http;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.Mock;
@@ -16,15 +17,11 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             HeartbeatProviderMock hbeatMock = new HeartbeatProviderMock();
             AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock();
             AzureHeartbeatProperties azureIMSFields = new AzureHeartbeatProperties(azureInstanceRequestorMock, true);
-            foreach (string field in azureIMSFields.DefaultFields)
-            {
-                azureInstanceRequestorMock.ComputeFields.Add(field, $"testValue");
-            }
 
             var taskWaiter = azureIMSFields.SetDefaultPayload(new string[] { }, hbeatMock).ConfigureAwait(false);
             Assert.True(taskWaiter.GetAwaiter().GetResult()); // no await for tests
 
-            foreach (string fieldName in azureIMSFields.DefaultFields)
+            foreach (string fieldName in azureIMSFields.ExpectedAzureImsFields)
             {
                 Assert.True(hbeatMock.HbeatProps.ContainsKey(fieldName));
                 Assert.False(string.IsNullOrEmpty(hbeatMock.HbeatProps[fieldName]));
@@ -36,7 +33,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
         {
             HeartbeatProviderMock hbeatMock = new HeartbeatProviderMock();
             AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock(
-                getAllFields: () =>
+                getComputeMetadata: () =>
                 {
                     try
                     {
@@ -47,10 +44,9 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                     }
 
                     return null;
-                }, 
-                getSingleFieldFunc: (a) => a);
+                });
             var azureIMSFields = new AzureHeartbeatProperties(azureInstanceRequestorMock, true);
-            var defaultFields = azureIMSFields.DefaultFields;
+            var defaultFields = azureIMSFields.ExpectedAzureImsFields;
 
             // not adding the fields we're looking for, simulation of the Azure Instance Metadata service not being present...
             var taskWaiter = azureIMSFields.SetDefaultPayload(new string[] { }, hbeatMock).ConfigureAwait(false);
@@ -67,16 +63,13 @@ namespace Microsoft.ApplicationInsights.WindowsServer
         {
             var requestor = new AzureMetadataRequestor(makeAzureIMSRequestor: (string uri) =>
             {
-#if NETSTANDARD1_3
-                throw new System.Net.Http.HttpRequestException("MaxResponseContentLength exceeded");
-#endif
-                throw new System.ArgumentOutOfRangeException("ResponseContentLength", "Response content length was too great.");
+                throw new HttpRequestException("MaxResponseContentLength exceeded");
             });
 
             try
             {
-                var result = requestor.GetAzureInstanceMetadataComputeFields();
-                Assert.Empty(result.GetAwaiter().GetResult());
+                var result = requestor.GetAzureComputeMetadata();
+                Assert.True(null == result.GetAwaiter().GetResult());
             }
             catch
             {

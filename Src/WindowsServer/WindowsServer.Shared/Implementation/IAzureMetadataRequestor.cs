@@ -2,11 +2,10 @@
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts;
 
     internal interface IAzureMetadataRequestor
     {
-        Task<IEnumerable<string>> GetAzureInstanceMetadataComputeFields();
-
-        Task<string> GetAzureComputeMetadata(string fieldName);
+        Task<AzureInstanceComputeMetadata> GetAzureComputeMetadata();
     }
 }

@@ -4,18 +4,21 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Net;
+    using System.Net.Http;
+    using System.Runtime.Serialization.Json;
     using System.Threading.Tasks;
 #if NETSTANDARD1_3
     using System.Net.Http;
 #endif
     using Extensibility;
+    using Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts;
 
     internal class AzureMetadataRequestor : IAzureMetadataRequestor
     {
         /// <summary>
         /// Private function for mocking out the actual call to IMS in unit tests. Available to internal only.
         /// </summary>
-        private Func<string, Task<string>> azureIMSRequestor = null;
+        private Func<string, Task<AzureInstanceComputeMetadata>> azureIMSRequestor = null;
 
         private string baseImdsUri = $"http://169.254.169.254/metadata/instance/compute";
 
@@ -25,6 +28,7 @@
         /// </summary>
         internal static string imdsApiVersion = $"api-version=2017-08-01"; // this version has the format=text capability
         internal static string imdsTextFormat = "format=text";
+        internal static string imdsJsonFormat = "format=json";
         internal static int maxImsResponseBufferSize = 512;
 
         /// <summary>
@@ -45,49 +49,24 @@
             set => baseImdsUri = value;
         }
 
-        internal AzureMetadataRequestor(Func<string, Task<string>> makeAzureIMSRequestor = null)
+        internal AzureMetadataRequestor(Func<string, Task<AzureInstanceComputeMetadata>> makeAzureIMSRequestor = null)
         {
             this.azureIMSRequestor = makeAzureIMSRequestor;
         }
-
-        /// <summary>
-        /// Gets the value of a specific field from the IMS link asynchronously, and returns it.
-        /// </summary>
-        /// <param name="fieldName">Specific IMS field to retrieve a value for.</param>
-        /// <returns>An array of field names available, or null.</returns>
-        public async Task<string> GetAzureComputeMetadata(string fieldName)
+        
+        public async Task<AzureInstanceComputeMetadata> GetAzureComputeMetadata()
         {
-            string metadataRequestUrl = $"{this.BaseAimsUri}/{fieldName}?{imdsTextFormat}&{imdsApiVersion}";
+            string metadataRequestUrl = $"{this.BaseAimsUri}?{imdsJsonFormat}&{imdsApiVersion}";
 
-            string requestResult = await this.MakeAzureMetadataRequest(metadataRequestUrl);
+            AzureInstanceComputeMetadata jsonResponse = await this.MakeAzureMetadataRequest(metadataRequestUrl);
 
-            return requestResult;
+            return null;
         }
 
-        /// <summary>
-        /// Gets all the available fields from the IMS link asynchronously, and returns them as an IEnumerable.
-        /// </summary>
-        /// <returns>An array of field names available, or null.</returns>
-        public async Task<IEnumerable<string>> GetAzureInstanceMetadataComputeFields()
+
+        private async Task<AzureInstanceComputeMetadata> MakeAzureMetadataRequest(string metadataRequestUrl)
         {
-            string allFieldsResponse = string.Empty;
-            string metadataRequestUrl = $"{this.BaseAimsUri}?{imdsTextFormat}&{imdsApiVersion}";
-
-            allFieldsResponse = await this.MakeAzureMetadataRequest(metadataRequestUrl);
-
-            string[] fields = allFieldsResponse?.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            if (fields == null || fields.Length <= 0)
-            {
-                WindowsServerEventSource.Log.CannotObtainAzureInstanceMetadata();
-            }
-
-            return fields;
-        }
-
-        private async Task<string> MakeAzureMetadataRequest(string metadataRequestUrl)
-        {
-            string requestResult = string.Empty;
+            AzureInstanceComputeMetadata requestResult = null;
 
             SdkInternalOperationsMonitor.Enter();
             try
@@ -103,7 +82,8 @@
             }
             catch (Exception ex)
             {
-                WindowsServerEventSource.Log.AzureInstanceMetadataRequestFailure(metadataRequestUrl, ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty);
+                WindowsServerEventSource.Log.AzureInstanceMetadataRequestFailure(
+                    metadataRequestUrl, ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty);
             }
             finally
             {
@@ -112,61 +92,28 @@
 
             return requestResult;
         }
-
-        private async Task<string> MakeWebRequest(string requestUrl)
+        
+        private async Task<AzureInstanceComputeMetadata> MakeWebRequest(string requestUrl)
         {
-            string requestResult = string.Empty;
-            int bufferLengthReceived = 0;
+            AzureInstanceComputeMetadata azureIms = null;
+            DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(AzureInstanceComputeMetadata));
 
-#if NETSTANDARD1_3
-
-            using (var getFieldValueClient = new HttpClient())
+            using (var azureImsClient = new HttpClient())
             {
-                getFieldValueClient.MaxResponseContentBufferSize = AzureMetadataRequestor.maxImsResponseBufferSize;
-                getFieldValueClient.DefaultRequestHeaders.Add("Metadata", "True");
-                getFieldValueClient.Timeout = this.AzureImsRequestTimeout;
-                requestResult = await getFieldValueClient.GetStringAsync(requestUrl).ConfigureAwait(false);
-                bufferLengthReceived = requestResult.Length;
-            }
+                azureImsClient.MaxResponseContentBufferSize = AzureMetadataRequestor.maxImsResponseBufferSize;
+                azureImsClient.DefaultRequestHeaders.Add("Metadata", "True");
+                azureImsClient.Timeout = this.AzureImsRequestTimeout;
 
-#elif NET45 || NET46
+                Stream content = await azureImsClient.GetStreamAsync(requestUrl);
+                azureIms = (AzureInstanceComputeMetadata)deserializer.ReadObject(content);
 
-            WebRequest request = WebRequest.Create(requestUrl);
-            request.Method = "GET";
-            request.Headers.Add("Metadata", "True");
-            request.Timeout = this.AzureImsRequestTimeout.Milliseconds;
-            using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
-            {
-                if (response is HttpWebResponse)
+                if (azureIms == null)
                 {
-                    var httpResponse = (HttpWebResponse)response;
-                    if (httpResponse.StatusCode == HttpStatusCode.OK)
-                    {
-                        char[] buffer = new char[AzureMetadataRequestor.maxImsResponseBufferSize];
-                        StreamReader content = new StreamReader(httpResponse.GetResponseStream());
-                        {
-                            int bufferIndex = await content.ReadAsync(buffer, 0, buffer.Length);
-                            bufferLengthReceived = bufferIndex;
-
-                            // this will probably never exceed the buffer's size in bytes returned, scrap anything else that is left
-                            if (bufferIndex < buffer.Length - 1)
-                            {
-                                requestResult = buffer.ToString();
-                            }
-                        }
-                    }
+                    WindowsServerEventSource.Log.CannotObtainAzureInstanceMetadata();
                 }
             }
-#else
-#error Unknown framework
-#endif
-            if (bufferLengthReceived > AzureMetadataRequestor.maxImsResponseBufferSize - 1)
-            {
-                WindowsServerEventSource.Log.AzureInstanceMetadataRequestFailure(requestUrl, "Content received from Azure Metadata Instance service exceeds expected size, failing the call to avoid potential attack", string.Empty);
-                requestResult = string.Empty;
-            }
 
-            return requestResult;
+            return azureIms;
         }
     }
 }
