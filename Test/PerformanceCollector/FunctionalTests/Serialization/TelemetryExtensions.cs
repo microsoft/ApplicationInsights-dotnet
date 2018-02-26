@@ -51,8 +51,10 @@ namespace Functional.Helpers
                 throw new ArgumentNullException("listener");
             }
 
+            var timeUntil = DateTimeOffset.UtcNow.AddMilliseconds(timeOut);
+
             var result = listener
-                .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(timeOut))
+                .TakeUntil(timeUntil)
                 .Take(count)
                 .ToEnumerable()
                 .ToArray();
@@ -70,10 +72,12 @@ namespace Functional.Helpers
             int count,
             int timeOut)
         {
+            var timeUntil = DateTimeOffset.UtcNow.AddMilliseconds(timeOut);
+
             var result = listener
                 .Where(item => (item is T))
                 .Cast<T>()
-                .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(timeOut))
+                .TakeUntil(timeUntil)
                 .Take(count)
                 .ToEnumerable()
                 .ToArray();

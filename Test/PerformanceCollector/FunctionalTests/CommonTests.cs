@@ -55,9 +55,23 @@
             AssertCustomCounterReported(counterItems, @"Custom counter - will not parse", false);
         }
 
-        internal static void QuickPulseAggregates(QuickPulseHttpListenerObservable listener, HttpClient client)
+        internal static void QuickPulseAggregates(QuickPulseHttpListenerObservable listener, HttpClient client, SingleWebHostTestBase test)
         {
-            var samples = listener.ReceiveItems(15, TestListenerWaitTimeInMs).ToList();
+            var taskSendRequests = new Task(() =>
+            {
+                System.Threading.Thread.Sleep(TimeSpan.FromSeconds(2));
+                test.SendRequest("aspx/TestWebForm.aspx", false);
+            }, TaskCreationOptions.PreferFairness);
+
+            List<MonitoringDataPoint> samples = null;
+            var taskCheckResult = new Task(() =>
+                samples =
+                    listener.ReceiveItems(20, TestListenerWaitTimeInMs).ToList(), TaskCreationOptions.PreferFairness);
+
+            taskCheckResult.Start();
+            taskSendRequests.Start();
+
+            Task.WhenAll(taskSendRequests, taskCheckResult).Wait();
 
             Assert.IsTrue(
                 samples.TrueForAll(
@@ -81,19 +95,27 @@
 
         internal static void QuickPulseMetricsAndDocuments(QuickPulseHttpListenerObservable listener, SingleWebHostTestBase test)
         {
-            Parallel.For(
+            var taskSendRequests = new Task(() => Parallel.For(
                 0,
                 5,
+                new ParallelOptions() {MaxDegreeOfParallelism = 1000},
                 i =>
-                    {
-                        System.Threading.Thread.Sleep(TimeSpan.FromSeconds(i));
-                        test.SendRequest("aspx/GenerateTelemetryItems.aspx", false);
-                    });
+                {
+                    System.Threading.Thread.Sleep(TimeSpan.FromSeconds(i));
+                    test.SendRequest("aspx/GenerateTelemetryItems.aspx", false);
+                }), TaskCreationOptions.PreferFairness);
 
-            var samples =
-                listener.ReceiveItems(5, TestListenerWaitTimeInMs)
-                    .Where(s => s.Documents?.Length > 0 || s.Metrics.Any(m => m.Name == "Metric1"))
-                    .ToList();
+            List<MonitoringDataPoint> samples = null;
+            var taskCheckResult = new Task(() =>
+                samples =
+                    listener.ReceiveItems(20, TestListenerWaitTimeInMs)
+                        .Where(s => s.Documents?.Length > 0 || s.Metrics.Any(m => m.Name == "Metric1"))
+                        .ToList(), TaskCreationOptions.PreferFairness);
+
+            taskCheckResult.Start();
+            taskSendRequests.Start();
+
+            Task.WhenAll(taskSendRequests, taskCheckResult).Wait();
 
             Assert.IsTrue(
                 samples.TrueForAll(
@@ -101,8 +123,8 @@
                     item.InstrumentationKey == "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8" && !string.IsNullOrWhiteSpace(item.Version)
                     && !string.IsNullOrWhiteSpace(item.Instance)));
 
-            Assert.IsTrue(samples.Any(s => s.Metrics.Any(m => m.Name == "Metric1" && m.Value > 0)));
-
+            Assert.AreEqual(5, samples.Where(s => s.Metrics.Any(m => m.Name == "Metric1")).Sum(s => s.Metrics.Single(m => m.Name == "Metric1").Value));
+            
             Assert.IsTrue(
                 samples.Any(
                     s =>
@@ -178,9 +200,23 @@
 
         internal static void QuickPulseTopCpuProcesses(QuickPulseHttpListenerObservable listener, SingleWebHostTestBase test)
         {
-            test.SendRequest("aspx/GenerateTelemetryItems.aspx", false);
+            var taskSendRequests = new Task(() =>
+            {
+                System.Threading.Thread.Sleep(TimeSpan.FromSeconds(2));
+                test.SendRequest("aspx/GenerateTelemetryItems.aspx", false);
+            }, TaskCreationOptions.PreferFairness);
 
-            var samples = listener.ReceiveItems(15, TestListenerWaitTimeInMs).Where(s => s.TopCpuProcesses != null).ToList();
+            List<MonitoringDataPoint> samples = null;
+            var taskCheckResult = new Task(() =>
+                    samples =
+                        listener.ReceiveItems(20, TestListenerWaitTimeInMs).Where(s => s.TopCpuProcesses != null)
+                            .ToList(),
+                TaskCreationOptions.PreferFairness);
+
+            taskCheckResult.Start();
+            taskSendRequests.Start();
+
+            Task.WhenAll(taskSendRequests, taskCheckResult).Wait();
 
             Assert.IsTrue(samples.Count > 0);
 

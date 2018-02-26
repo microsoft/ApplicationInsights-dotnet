@@ -40,9 +40,16 @@
             int minPort = 49152;
             int maxPort = 65535;
 
-            int iisPort = rand.Next(minPort, maxPort + 1);
-            int telemetryPort = rand.Next(minPort, maxPort + 1);
-            int quickPulsePort = rand.Next(minPort, maxPort + 1);
+            int iisPort;
+            int telemetryPort;
+            int quickPulsePort;
+
+            lock (rand)
+            {
+                iisPort = rand.Next(minPort, maxPort + 1);
+                telemetryPort = rand.Next(minPort, maxPort + 1);
+                quickPulsePort = rand.Next(minPort, maxPort + 1);
+            }
 
             Trace.WriteLine("IIS Port:" + iisPort);
             Trace.WriteLine("Telemetry Port:" + telemetryPort);
@@ -140,7 +147,7 @@
         [TestMethod]           
         public void QuickPulseAggregates()
         {
-            CommonTests.QuickPulseAggregates(this.QuickPulseListener, this.HttpClient);
+            CommonTests.QuickPulseAggregates(this.QuickPulseListener, this.HttpClient, this);
         }
 
         [TestMethod]             
