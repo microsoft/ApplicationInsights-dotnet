@@ -25,6 +25,6 @@
         /// <summary>
         /// Max length of context header value.
         /// </summary>
-        public const int ContextHeaderValueMaxLength = 100;
+        public const int ContextHeaderValueMaxLength = 1024;
     }
 }
