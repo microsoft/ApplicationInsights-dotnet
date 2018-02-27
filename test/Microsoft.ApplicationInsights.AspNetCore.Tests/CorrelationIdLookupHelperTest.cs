@@ -15,12 +15,12 @@
         {
             CorrelationIdLookupHelper target = new CorrelationIdLookupHelper((iKey) =>
             {
-                return Task.FromResult(string.Format(CultureInfo.InvariantCulture, "AppId for {0}", iKey));
+                return Task.FromResult(string.Format(CultureInfo.InvariantCulture, "AppId{0}", iKey));
             });
 
             string actual = null;
             target.TryGetXComponentCorrelationId(TestInstrumentationKey, out actual);
-            string expected = string.Format(CultureInfo.InvariantCulture, CorrelationIdLookupHelper.CorrelationIdFormat, "AppId for " + TestInstrumentationKey);
+            string expected = string.Format(CultureInfo.InvariantCulture, CorrelationIdLookupHelper.CorrelationIdFormat, "AppId" + TestInstrumentationKey);
 
             Assert.Equal(expected, actual);
         }
