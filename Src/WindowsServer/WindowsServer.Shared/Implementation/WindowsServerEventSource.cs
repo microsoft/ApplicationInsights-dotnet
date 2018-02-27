@@ -289,6 +289,17 @@
                 this.ApplicationName);
         }
 
+        [Event(
+            30,
+            Message = "Azure IMS data not added to heartbeat properties. Failure to obtain Azure IMS data occurred.",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataNotAdded(string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                30,
+                this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

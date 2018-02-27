@@ -23,8 +23,9 @@ namespace Microsoft.ApplicationInsights.WindowsServer
 
             foreach (string fieldName in azureIMSFields.ExpectedAzureImsFields)
             {
-                Assert.True(hbeatMock.HbeatProps.ContainsKey(fieldName));
-                Assert.False(string.IsNullOrEmpty(hbeatMock.HbeatProps[fieldName]));
+                string expectedFieldName = string.Concat(AzureHeartbeatProperties.HeartbeatPropertyPrefix, fieldName);
+                Assert.True(hbeatMock.HbeatProps.ContainsKey(expectedFieldName));
+                Assert.False(string.IsNullOrEmpty(hbeatMock.HbeatProps[expectedFieldName]));
             }
         }
 
@@ -73,7 +74,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             }
             catch
             {
-                Assert.True(true, "Expectation is that exceptions will be handled within AzureMetadataRequestor");
+                Assert.True(false, "Expectation is that exceptions will be handled within AzureMetadataRequestor, not the calling code.");
             }
         }
     }

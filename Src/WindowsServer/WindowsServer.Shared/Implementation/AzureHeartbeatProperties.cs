@@ -8,7 +8,7 @@
 
     internal class AzureHeartbeatProperties
     {
-        private static string HeartbeatPropertyPrefix = "azInst_"; // to ensure no collisions with base heartbeat properties
+        internal static string HeartbeatPropertyPrefix = "azInst_"; // to ensure no collisions with base heartbeat properties
 
         /// <summary>
         /// Expected fields extracted from Azure IMS to add to the heartbeat properties. 
@@ -83,23 +83,30 @@
                 var azureComputeMetadata = await this.azureInstanceMetadataRequestor.GetAzureComputeMetadata()
                                 .ConfigureAwait(false);
 
-                var enabledImdsFields = this.ExpectedAzureImsFields.Except(disabledFields);
-                foreach (string field in enabledImdsFields)
+                if (azureComputeMetadata != null)
                 {
-                    string value = azureComputeMetadata.GetValueForField(field);
-
-                    string verifiedValue = azureComputeMetadata.VerifyExpectedValue(field);
-
-                    bool addedProperty = provider.AddHeartbeatProperty(
-                                                    propertyName: string.Concat(AzureHeartbeatProperties.HeartbeatPropertyPrefix, field),
-                                                    propertyValue: verifiedValue,
-                                                    isHealthy: true);
-                    if (!addedProperty)
+                    var enabledImdsFields = this.ExpectedAzureImsFields.Except(disabledFields);
+                    foreach (string field in enabledImdsFields)
                     {
-                        WindowsServerEventSource.Log.AzureInstanceMetadataWasntAddedToHeartbeatProperties(field, verifiedValue);
-                    }
+                        string value = azureComputeMetadata.GetValueForField(field);
 
-                    hasSetFields = hasSetFields || addedProperty;
+                        string verifiedValue = azureComputeMetadata.VerifyExpectedValue(field);
+
+                        bool addedProperty = provider.AddHeartbeatProperty(
+                                                        propertyName: string.Concat(AzureHeartbeatProperties.HeartbeatPropertyPrefix, field),
+                                                        propertyValue: verifiedValue,
+                                                        isHealthy: true);
+                        if (!addedProperty)
+                        {
+                            WindowsServerEventSource.Log.AzureInstanceMetadataWasntAddedToHeartbeatProperties(field, verifiedValue);
+                        }
+
+                        hasSetFields = hasSetFields || addedProperty;
+                    }
+                }
+                else
+                {
+                    WindowsServerEventSource.Log.AzureInstanceMetadataNotAdded();
                 }
             }
 
