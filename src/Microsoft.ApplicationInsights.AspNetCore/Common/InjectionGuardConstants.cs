@@ -15,7 +15,7 @@
         /// <summary>
         /// Max length of incoming Request Header value allowed.
         /// </summary>
-        public const int RequestHeaderMaxLength = 100;
+        public const int RequestHeaderMaxLength = 1024;
 
         /// <summary>
         /// Max length of context header key.
