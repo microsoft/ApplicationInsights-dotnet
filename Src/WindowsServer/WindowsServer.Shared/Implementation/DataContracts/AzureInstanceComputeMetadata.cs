@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts
 {
     using System;
+    using System.Globalization;
     using System.Linq;
     using System.Runtime.Serialization;
     using System.Text.RegularExpressions;
@@ -60,24 +61,6 @@
 
         internal string GetValueForField(string fieldName)
         {
-            // I know this is the 'C#-ish' way to do the following, but I personally hate this.
-            // So hard to understand, and so obtuse. 
-            // Kind of reminds me of the old C++ obfuscation email signatures of yore.
-
-            //Type myType = this.GetType();
-            //PropertyInfo[] props = myType.GetProperties();
-
-            //IEnumerable<PropertyInfo> dataMembers = props.Where(p => Attribute.IsDefined(p, typeof(DataMemberAttribute)));
-
-            //PropertyInfo propInf = dataMembers.Single(
-            //                        p => ((DataMemberAttribute)Attribute.GetCustomAttribute(
-            //                            p, typeof(DataMemberAttribute))).Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
-
-            //return (string)propInf.GetValue(this);
-
-            // Here's my approach, and I'll recommend we go this way as I expect this code
-            // will be read far more than written!
-
             string aimsValue = string.Empty;
             switch (fieldName)
             {
@@ -121,7 +104,7 @@
                     aimsValue = this.ResourceGroupName;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException($"No field named '{fieldName}' in AzureInstanceComputeMetadata.");
+                    throw new ArgumentOutOfRangeException(string.Format(CultureInfo.InvariantCulture, "No field named '{0}' in AzureInstanceComputeMetadata.", fieldName));
             }
             return aimsValue;
         }
@@ -140,19 +123,19 @@
             string value = string.Empty;
             bool valueOk = true;
 
-            if (fieldName.Equals("resourceGroupName", StringComparison.InvariantCultureIgnoreCase))
+            if (fieldName.Equals("resourceGroupName", StringComparison.OrdinalIgnoreCase))
             {
                 valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.ResourceGroupNameLengthMax;
                 valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.ResourceGroupNameLengthMin;
                 Regex charMatch = new Regex(AzureInstanceComputeMetadata.ResourceGroupNameValidChars);
                 valueOk &= valueToVerify.All(a => charMatch.IsMatch(a.ToString()));
-                valueOk &= !valueToVerify.EndsWith(".");
+                valueOk &= !valueToVerify.EndsWith(".", StringComparison.OrdinalIgnoreCase);
                 if (valueOk)
                 {
                     value = valueToVerify;
                 }
             }
-            else if (fieldName.Equals("subscriptionId", StringComparison.InvariantCultureIgnoreCase))
+            else if (fieldName.Equals("subscriptionId", StringComparison.OrdinalIgnoreCase))
             {
                 Guid g = new Guid();
                 valueOk = Guid.TryParse(valueToVerify, out g);
@@ -162,7 +145,7 @@
                     value = valueToVerify;
                 }
             }
-            else if (fieldName.Equals("name", StringComparison.InvariantCultureIgnoreCase))
+            else if (fieldName.Equals("name", StringComparison.OrdinalIgnoreCase))
             {
                 valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.VmNameLenghtMax;
                 valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.VmNameLengthMin;
