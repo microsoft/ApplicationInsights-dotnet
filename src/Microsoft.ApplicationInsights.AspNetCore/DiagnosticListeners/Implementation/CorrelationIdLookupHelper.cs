@@ -2,19 +2,18 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Globalization;
-    using System.Threading.Tasks;
-
-    using Microsoft.ApplicationInsights.AspNetCore.Common;
-    using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Extensibility;
-
-#if NET451 || NET46
     using System.IO;
     using System.Net;
-#else
+#if NETCORE
     using System.Net.Http;
 #endif
+    using System.Threading.Tasks;
+    using Extensibility;
+    using Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.AspNetCore.Common;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
     /// A store for instrumentation App Ids. This makes sure we don't query the public endpoint to find an app Id for the same instrumentation key more than once.
@@ -26,18 +25,27 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// </summary>
         private const int MAXSIZE = 100;
 
-        // For now we have decided to go with not waiting to retrieve the app Id, instead we just cache it on retrieval.
-        // This means the initial few attempts to get correlation id might fail and the initial telemetry sent might be missing such data.
-        // However, once it is in the cache - subsequent telemetry should contain this data. 
-        private const int GetAppIdTimeout = 0; // milliseconds
-
         internal const string CorrelationIdFormat = "cid-v1:{0}";
 
         private const string AppIdQueryApiRelativeUriFormat = "api/profiles/{0}/appId";
 
-        private Func<TelemetryConfiguration> configurationProvider;
+        // We have arbitrarily chosen 5 second delay between trying to get app Id once we get a failure while trying to get it. 
+        // This is to throttle tries between failures to safeguard against performance hits. The impact would be that telemetry generated during this interval would not have x-component correlation id.
+        private readonly TimeSpan intervalBetweenFailedRetries = TimeSpan.FromSeconds(30);
 
         private Uri endpointAddress;
+
+        private ConcurrentDictionary<string, string> knownCorrelationIds = new ConcurrentDictionary<string, string>();
+
+        private ConcurrentDictionary<string, int> fetchTasks = new ConcurrentDictionary<string, int>();
+
+        // Stores failed instrumentation keys along with the time we tried to retrieve them.
+        private ConcurrentDictionary<string, FailedResult> failingInstrumentationKeys = new ConcurrentDictionary<string, FailedResult>();
+
+        private Func<string, Task<string>> provideAppId;
+
+        private Func<TelemetryConfiguration> configurationProvider;
+        
         // Get the base URI, so that we can append the known relative segments to it.
         private Uri EndpointAddress
         {
@@ -55,13 +63,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             }
         }
 
-        private ConcurrentDictionary<string, string> knownCorrelationIds = new ConcurrentDictionary<string, string>();
-
-        // Dedup dictionary to hold task status. Use iKey as Key, use task id as Value.
-        private ConcurrentDictionary<string, int> iKeyTaskIdMapping = new ConcurrentDictionary<string, int>();
-
-        private Func<string, Task<string>> provideAppId;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="CorrelationIdLookupHelper" /> class mostly to be used by the test classes to provide an override for fetching appId logic.
         /// </summary>
@@ -74,7 +75,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             }
 
             this.provideAppId = appIdProviderMethod;
-        }
+        }        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CorrelationIdLookupHelper" /> class.
@@ -117,29 +118,22 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
                 try
                 {
-                    // We wait for <getAppIdTimeout> seconds (which is 0 at this point) to retrieve the appId. If retrieved during that time, we return success setting the correlation id.
-                    // If we are still waiting on the result beyond the timeout - for this particular call we return the failure but queue a task continuation for it to be cached for next time.
-                    string iKeyLowered = instrumentationKey.ToLowerInvariant();
-                    int taskId;
-                    if (!this.iKeyTaskIdMapping.TryGetValue(iKeyLowered, out taskId))
+                    FailedResult lastFailedResult;
+                    if (this.failingInstrumentationKeys.TryGetValue(instrumentationKey, out lastFailedResult))
                     {
-                        Task<string> getAppIdTask = this.provideAppId(iKeyLowered);
-                        if (getAppIdTask.Wait(GetAppIdTimeout))
+                        if (!lastFailedResult.ShouldRetry || DateTime.UtcNow - lastFailedResult.FailureTime <= this.intervalBetweenFailedRetries)
                         {
-                            if (string.IsNullOrEmpty(getAppIdTask.Result))
-                            {
-                                correlationId = string.Empty;
-                            }
-                            else
-                            {
-                                correlationId = this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
-                            }
-                            return true;
+                            // We tried not too long ago and failed to retrieve app Id for this instrumentation key from breeze. Let wait a while before we try again. For now just report failure.
+                            correlationId = string.Empty;
+                            return false;
                         }
-                        else
-                        {
-                            this.iKeyTaskIdMapping.TryAdd(iKeyLowered, getAppIdTask.Id);
-                            getAppIdTask.ContinueWith((appId) =>
+                    }
+
+                    // We only want one task to be there to fetch the ikey. If initial requests come in a bunch, only one of them gets to take responsibility of creating the fetch task. Rest return.
+                    if (this.fetchTasks.TryAdd(instrumentationKey, int.MinValue))
+                    {
+                        this.provideAppId(instrumentationKey.ToLowerInvariant())
+                            .ContinueWith((appId) =>
                             {
                                 try
                                 {
@@ -147,51 +141,64 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                                 }
                                 catch (Exception ex)
                                 {
-                                    AspNetCoreEventSource.Instance.LogFetchAppIdFailed(ExceptionUtilities.GetExceptionDetailString(ex));
+                                    this.RegisterFailure(instrumentationKey, ex);
                                 }
                                 finally
                                 {
-                                    int currentTaskId;
-                                    iKeyTaskIdMapping.TryRemove(iKeyLowered, out currentTaskId);
+                                    this.fetchTasks.TryRemove(instrumentationKey, out int taskId);
                                 }
                             });
-                            return false;
-                        }
+
+                        return false;
                     }
                     else
                     {
-                        // A existing task is running; Report false for not getting the appId yet.
+                        // Fetch tasks are scheduled - don't queue a task.
+                        correlationId = string.Empty;
                         return false;
                     }
                 }
                 catch (Exception ex)
                 {
-                    AspNetCoreEventSource.Instance.LogFetchAppIdFailed(ExceptionUtilities.GetExceptionDetailString(ex));
+                    this.RegisterFailure(instrumentationKey, ex);
+
                     correlationId = string.Empty;
                     return false;
                 }
             }
         }
 
-        private string GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
+        /// <summary>
+        /// This method is purely a test helper at this point. It checks whether the task to get app ID is still running.
+        /// </summary>
+        /// <returns>True if fetch task is still in progress, false otherwise.</returns>
+        public bool IsFetchAppInProgress(string ikey)
+        {
+            int value;
+            return this.fetchTasks.TryGetValue(ikey, out value);
+        }
+
+        /// <summary>
+        /// Format and store an iKey and appId pair into the dictionary of known correlation ids.
+        /// </summary>
+        /// <param name="ikey">Instrumentation Key is expected to be a Guid string.</param>
+        /// <param name="appId">Application Id is expected to be a Guid string. App Id needs to be Http Header safe, and all non-ASCII characters will be removed.</param>
+        /// <remarks>To protect against injection attacks, AppId will be truncated to a maximum length.</remarks>
+        private void GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
         {
             // Arbitrary maximum length to guard against injections.
             appId = StringUtilities.EnforceMaxLength(appId, InjectionGuardConstants.AppIdMaxLengeth);
 
             if (string.IsNullOrWhiteSpace(appId))
             {
-                return string.Empty;
+                return;
             }
 
             appId = HeadersUtilities.SanitizeString(appId);
             if (!string.IsNullOrEmpty(appId))
             {
-                string correlationId = string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, appId);
-                this.knownCorrelationIds.TryAdd(ikey, correlationId);
-                return correlationId;
+                this.knownCorrelationIds[ikey] = string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, appId);
             }
-
-            return string.Empty;
         }
 
         /// <summary>
@@ -201,18 +208,34 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// <returns>App id.</returns>
         private async Task<string> FetchAppIdFromService(string instrumentationKey)
         {
+#if NETCORE
+            string result = null;
+            Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey);
+
+            using (HttpClient client = new HttpClient())
+            {
+                var resultMessage = await client.GetAsync(appIdEndpoint).ConfigureAwait(false);
+                if (resultMessage.IsSuccessStatusCode)
+                {
+                    result = await resultMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    this.RegisterFetchFailure(instrumentationKey, resultMessage.StatusCode);
+                }
+            }
+
+            return result;
+#else
             try
             {
-                Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey);
-                if (appIdEndpoint == null)
-                {
-                    return null;
-                }
+                SdkInternalOperationsMonitor.Enter();
 
                 string result = null;
-#if NET451 || NET46
+                Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey);
                 WebRequest request = WebRequest.Create(appIdEndpoint);
                 request.Method = "GET";
+
                 using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync().ConfigureAwait(false))
                 {
                     if (response.StatusCode == HttpStatusCode.OK)
@@ -222,24 +245,19 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                             result = await reader.ReadToEndAsync();
                         }
                     }
+                    else
+                    {
+                        this.RegisterFetchFailure(instrumentationKey, response.StatusCode);
+                    }
                 }
-#else
-                using (HttpClient client = new HttpClient())
-                {
-                    var resultMessage = await client.GetAsync(appIdEndpoint).ConfigureAwait(false);
-                    if (resultMessage.IsSuccessStatusCode)
-                        result = await resultMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-                }
-#endif
+
                 return result;
-            }
-            catch (Exception ex)
-            {
-                return null;
             }
             finally
             {
+                SdkInternalOperationsMonitor.Exit();
             }
+#endif
         }
 
         /// <summary>
@@ -249,11 +267,109 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// <returns>Computed Uri.</returns>
         private Uri GetAppIdEndPointUri(string instrumentationKey)
         {
-            if (this.EndpointAddress != null)
+            return new Uri(this.EndpointAddress, string.Format(CultureInfo.InvariantCulture, AppIdQueryApiRelativeUriFormat, instrumentationKey));
+        }
+
+        /// <summary>
+        /// Registers failure for further action in future.
+        /// </summary>
+        /// <param name="instrumentationKey">Instrumentation key for which the failure occurred.</param>
+        /// <param name="ex">Exception indicating failure.</param>
+        private void RegisterFailure(string instrumentationKey, Exception ex)
+        {
+#if !NETCORE
+            var ae = ex as AggregateException;
+
+            if (ae != null)
             {
-                return new Uri(this.EndpointAddress, string.Format(CultureInfo.InvariantCulture, AppIdQueryApiRelativeUriFormat, instrumentationKey));
+                ae = ae.Flatten();
+                if (ae.InnerException != null)
+                {
+                    this.RegisterFailure(instrumentationKey, ae.InnerException);
+                    return;
+                }
             }
-            return null;
+
+            var webException = ex as WebException;
+            if (webException != null && webException.Response != null)
+            {
+                this.failingInstrumentationKeys[instrumentationKey] = new FailedResult(
+                    DateTime.UtcNow,
+                    ((HttpWebResponse)webException.Response).StatusCode);
+            }
+            else
+            {
+#endif
+                this.failingInstrumentationKeys[instrumentationKey] = new FailedResult(DateTime.UtcNow);
+#if !NETCORE
+            }
+#endif
+
+            AspNetCoreEventSource.Instance.LogFetchAppIdFailed(ExceptionUtilities.GetExceptionDetailString(ex));
+        }
+
+        /// <summary>
+        /// FetchAppIdFromService failed.
+        /// Registers failure for further action in future.
+        /// </summary>
+        /// <param name="instrumentationKey">Instrumentation key for which the failure occurred.</param>
+        /// <param name="httpStatusCode">Response code from AppId Endpoint.</param>
+        private void RegisterFetchFailure(string instrumentationKey, HttpStatusCode httpStatusCode)
+        {
+            this.failingInstrumentationKeys[instrumentationKey] = new FailedResult(DateTime.UtcNow, httpStatusCode);
+
+            AspNetCoreEventSource.Instance.FetchAppIdFailedWithResponseCode(httpStatusCode.ToString());
+        }     
+
+        /// <summary>
+        /// Structure that represents a failed fetch app Id call.
+        /// </summary>
+        private class FailedResult
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="FailedResult" /> class.
+            /// </summary>
+            /// <param name="failureTime">Time when the failure occurred.</param>
+            /// <param name="failureCode">Failure response code.</param>
+            public FailedResult(DateTime failureTime, HttpStatusCode failureCode)
+            {
+                this.FailureTime = failureTime;
+                this.FailureCode = (int)failureCode;
+            }
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="FailedResult" /> class.
+            /// </summary>
+            /// <param name="failureTime">Time when the failure occurred.</param>
+            public FailedResult(DateTime failureTime)
+            {
+                this.FailureTime = failureTime;
+
+                // Unknown failure code.
+                this.FailureCode = int.MinValue;
+            }
+
+            /// <summary>
+            /// Gets the time of failure.
+            /// </summary>
+            public DateTime FailureTime { get; private set; }
+
+            /// <summary>
+            /// Gets the integer value for response code representing the type of failure.
+            /// </summary>
+            public int FailureCode { get; private set; }
+
+            /// <summary>
+            /// Gets a value indicating whether the failure is likely to go away when a retry happens.
+            /// </summary>
+            public bool ShouldRetry
+            {
+                get
+                {
+                    // If not in the 400 range.
+                    return !(this.FailureCode >= 400 && this.FailureCode < 500);
+                }
+            }
         }
     }
 }
