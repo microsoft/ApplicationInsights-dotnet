@@ -1,8 +1,8 @@
 # Changelog 
 
-### Version 2.6.0-beta
-
+### Version 2.6.0-beta1
 - Include NLog GlobalDiagnosticsContext properties.
+- Remove automatic collection of User Id (https://github.com/Microsoft/ApplicationInsights-dotnet-logging/issues/153)
 
 ### Version 2.5.0
 - Update Application Insights API reference to [2.5.0]

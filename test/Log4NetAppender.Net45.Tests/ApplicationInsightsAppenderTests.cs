@@ -165,7 +165,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
 
         [TestMethod]
         [TestCategory("Log4NetAppender")]
-        public void Log4NetSetsAuthenticatedUser()
+        public void Log4NetDoesNotSetAuthenticatedUser()
         {
             this.appendableLogger.Logger.Debug("Trace Debug");
 
@@ -173,7 +173,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
             Assert.AreEqual(1, sentItems.Length);
 
             var telemetry = (TraceTelemetry)sentItems[0];
-            Assert.IsNotNull(telemetry.Context.User.AuthenticatedUserId);
+            Assert.IsNull(telemetry.Context.User.AuthenticatedUserId);
         }
 
         [TestMethod]
