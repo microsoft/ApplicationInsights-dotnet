@@ -112,7 +112,7 @@
         }
 
         /// <summary>
-        /// Because the Azure IMS is on a hijackable IP we need to do some due diligence in our accepting
+        /// Because the Azure IMS is on a non-routable IP we need to do some due diligence in our accepting
         /// values returned from it. This method takes the fieldname and value received for that field, and
         /// if we can test that value against known limitations of that field we do so here. If the test fails
         /// we return the empty string, otherwise we return the string given.
