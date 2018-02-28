@@ -15,7 +15,7 @@
 
     public class CommonTests
     {
-        private const int TestListenerWaitTimeInMs = 35000;
+        private const int TestListenerWaitTimeInMs = 60000;
 
         public static void DefaultCounterCollection(HttpListenerObservable listener)
         {
@@ -60,7 +60,7 @@
             var taskSendRequests = new Task(() =>
             {
                 System.Threading.Thread.Sleep(TimeSpan.FromSeconds(2));
-                test.SendRequest("aspx/TestWebForm.aspx", false);
+                test.SendRequest("aspx/TestWebForm.aspx", "PerformanceCollector application");
             }, TaskCreationOptions.PreferFairness);
 
             List<MonitoringDataPoint> samples = null;
@@ -101,8 +101,8 @@
                 new ParallelOptions() {MaxDegreeOfParallelism = 1000},
                 i =>
                 {
-                    System.Threading.Thread.Sleep(TimeSpan.FromSeconds(i));
-                    test.SendRequest("aspx/GenerateTelemetryItems.aspx", false);
+                    System.Threading.Thread.Sleep(TimeSpan.FromSeconds(5 + i));
+                    test.SendRequest("aspx/GenerateTelemetryItems.aspx", "GenerateTelemetryItems.aspx");
                 }), TaskCreationOptions.PreferFairness);
 
             List<MonitoringDataPoint> samples = null;
@@ -115,7 +115,7 @@
             taskCheckResult.Start();
             taskSendRequests.Start();
 
-            Task.WhenAll(taskSendRequests, taskCheckResult).Wait();
+            Task.WaitAll(taskSendRequests, taskCheckResult);
 
             Assert.IsTrue(
                 samples.TrueForAll(
@@ -123,7 +123,9 @@
                     item.InstrumentationKey == "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8" && !string.IsNullOrWhiteSpace(item.Version)
                     && !string.IsNullOrWhiteSpace(item.Instance)));
 
-            Assert.AreEqual(5, samples.Where(s => s.Metrics.Any(m => m.Name == "Metric1")).Sum(s => s.Metrics.Single(m => m.Name == "Metric1").Value));
+            Assert.AreEqual(5,
+                samples.Where(s => s.Metrics.Any(m => m.Name == "Metric1"))
+                    .Sum(s => s.Metrics.Single(m => m.Name == "Metric1").Value));
             
             Assert.IsTrue(
                 samples.Any(
@@ -203,7 +205,7 @@
             var taskSendRequests = new Task(() =>
             {
                 System.Threading.Thread.Sleep(TimeSpan.FromSeconds(2));
-                test.SendRequest("aspx/GenerateTelemetryItems.aspx", false);
+                test.SendRequest("aspx/GenerateTelemetryItems.aspx", "GenerateTelemetryItems.aspx");
             }, TaskCreationOptions.PreferFairness);
 
             List<MonitoringDataPoint> samples = null;
