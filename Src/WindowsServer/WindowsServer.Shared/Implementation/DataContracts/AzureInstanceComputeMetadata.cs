@@ -13,12 +13,12 @@
     [DataContract]
     internal class AzureInstanceComputeMetadata
     {
-        private const int resourceGroupNameLengthMax = 90;
-        private const int resourceGroupNameLengthMin = 1;
-        private const string resourceGroupNameValidChars = @"^[a-zA-Z0-9\.\-_]+$";
-        private const int nameLenghtMax = 64; // 15 for windows, go with Linux for MAX
-        private const int nameLengthMin = 1;
-        private const string nameValidChars = @"^[a-zA-Z0-9()_\-]+$";
+        private const int ResourceGroupNameLengthMax = 90;
+        private const int ResourceGroupNameLengthMin = 1;
+        private const string ResourceGroupNameValidChars = @"^[a-zA-Z0-9\.\-_]+$";
+        private const int NameLenghtMax = 64; // 15 for windows, go with Linux for MAX
+        private const int NameLengthMin = 1;
+        private const string NameValidChars = @"^[a-zA-Z0-9()_\-]+$";
         private readonly TimeSpan regexTimeout = TimeSpan.FromMilliseconds(1000);
 
         [DataMember(Name = "osType", IsRequired = true)]
@@ -127,9 +127,9 @@
 
             if (fieldName.Equals("resourceGroupName", StringComparison.OrdinalIgnoreCase))
             {
-                valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.resourceGroupNameLengthMax;
-                valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.resourceGroupNameLengthMin;
-                var resGrpMatcher = new Regex(AzureInstanceComputeMetadata.resourceGroupNameValidChars, RegexOptions.None, this.regexTimeout);
+                valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.ResourceGroupNameLengthMax;
+                valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.ResourceGroupNameLengthMin;
+                var resGrpMatcher = new Regex(AzureInstanceComputeMetadata.ResourceGroupNameValidChars, RegexOptions.None, this.regexTimeout);
                 valueOk &= resGrpMatcher.IsMatch(valueToVerify);
                 valueOk &= !valueToVerify.EndsWith(".", StringComparison.OrdinalIgnoreCase);
 
@@ -150,9 +150,9 @@
             }
             else if (fieldName.Equals("name", StringComparison.OrdinalIgnoreCase))
             {
-                valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.nameLenghtMax;
-                valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.nameLengthMin;
-                var nameMatcher = new Regex(AzureInstanceComputeMetadata.nameValidChars, RegexOptions.None, this.regexTimeout);
+                valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.NameLenghtMax;
+                valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.NameLengthMin;
+                var nameMatcher = new Regex(AzureInstanceComputeMetadata.NameValidChars, RegexOptions.None, this.regexTimeout);
                 valueOk &= nameMatcher.IsMatch(valueToVerify);
 
                 if (valueOk)

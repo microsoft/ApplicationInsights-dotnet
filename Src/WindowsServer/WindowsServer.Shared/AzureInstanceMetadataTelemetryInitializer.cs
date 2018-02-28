@@ -24,12 +24,9 @@
 
             var telemetryModules = TelemetryModules.Instance;
             foreach (var module in telemetryModules.Modules)
-
             {
-                if (module is IHeartbeatPropertyManager)
+                if (module is IHeartbeatPropertyManager hbeatManager)
                 {
-                    var hbeatManager = (IHeartbeatPropertyManager)module;
-
                     // start off the heartbeat property collection process, but don't wait for it nor report
                     // any status from here. The thread running the collection will report to the core event log.
                     var heartbeatProperties = new AzureComputeMetadataHeartbeatPropertyProvider();
