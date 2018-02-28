@@ -13,12 +13,12 @@
     [DataContract]
     internal class AzureInstanceComputeMetadata
     {
-        private static int ResourceGroupNameLengthMax = 90;
-        private static int ResourceGroupNameLengthMin = 1;
-        private static string ResourceGroupNameValidChars = @"[a-zA-Z0-9()_\-\.]";
-        private static int VmNameLenghtMax = 64; // 15 for windows, go with Linux for MAX
-        private static int VmNameLengthMin = 1;
-        private static string VmNameValidChars = @"[a-zA-Z0-9()_\-]";
+        private static int resourceGroupNameLengthMax = 90;
+        private static int resourceGroupNameLengthMin = 1;
+        private static string resourceGroupNameValidChars = @"[a-zA-Z0-9()_\-\.]";
+        private static int nameLenghtMax = 64; // 15 for windows, go with Linux for MAX
+        private static int nameLengthMin = 1;
+        private static string nameValidChars = @"[a-zA-Z0-9()_\-]";
 
         [DataMember(Name = "osType", IsRequired = true)]
         internal string OsType { get; set; }
@@ -106,17 +106,18 @@
                 default:
                     throw new ArgumentOutOfRangeException(string.Format(CultureInfo.InvariantCulture, "No field named '{0}' in AzureInstanceComputeMetadata.", fieldName));
             }
+
             return aimsValue;
         }
 
         /// <summary>
         /// Because the Azure IMS is on a hijackable IP we need to do some due diligence in our accepting
-        /// values returned from it. This method takes the fieldname and value recieved for that field, and
+        /// values returned from it. This method takes the fieldname and value received for that field, and
         /// if we can test that value against known limitations of that field we do so here. If the test fails
         /// we return the empty string, otherwise we return the string given.
         /// </summary>
         /// <param name="fieldName">Name of the field acquired from the call to Azure IMS.</param>
-        /// <returns>valueToVerify or the empty string.</returns>
+        /// <returns>The value of the field, verified, or the empty string.</returns>
         internal string VerifyExpectedValue(string fieldName)
         {
             string valueToVerify = this.GetValueForField(fieldName);
@@ -125,9 +126,9 @@
 
             if (fieldName.Equals("resourceGroupName", StringComparison.OrdinalIgnoreCase))
             {
-                valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.ResourceGroupNameLengthMax;
-                valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.ResourceGroupNameLengthMin;
-                Regex charMatch = new Regex(AzureInstanceComputeMetadata.ResourceGroupNameValidChars);
+                valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.resourceGroupNameLengthMax;
+                valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.resourceGroupNameLengthMin;
+                Regex charMatch = new Regex(AzureInstanceComputeMetadata.resourceGroupNameValidChars);
                 valueOk &= valueToVerify.All(a => charMatch.IsMatch(a.ToString()));
                 valueOk &= !valueToVerify.EndsWith(".", StringComparison.OrdinalIgnoreCase);
                 if (valueOk)
@@ -147,9 +148,9 @@
             }
             else if (fieldName.Equals("name", StringComparison.OrdinalIgnoreCase))
             {
-                valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.VmNameLenghtMax;
-                valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.VmNameLengthMin;
-                Regex charMatch = new Regex(AzureInstanceComputeMetadata.VmNameValidChars);
+                valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.nameLenghtMax;
+                valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.nameLengthMin;
+                Regex charMatch = new Regex(AzureInstanceComputeMetadata.nameValidChars);
                 valueOk &= valueToVerify.All(a => charMatch.IsMatch(a.ToString()));
                 if (valueOk)
                 {
@@ -169,6 +170,5 @@
 
             return value;
         }
-
     }
 }

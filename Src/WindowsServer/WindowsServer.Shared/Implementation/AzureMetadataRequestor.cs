@@ -16,53 +16,47 @@
     internal class AzureMetadataRequestor : IAzureMetadataRequestor
     {
         /// <summary>
-        /// Private function for mocking out the actual call to IMS in unit tests. Available to internal only.
-        /// </summary>
-        private Func<string, Task<AzureInstanceComputeMetadata>> azureIMSRequestor = null;
-
-        private string baseImdsUri = $"http://169.254.169.254/metadata/instance/compute";
-
-        /// <summary>
         /// Azure Instance Metadata Service exists on a single non-routable IP on machines configured
         /// by the Azure Resource Manager. See <a href="https://go.microsoft.com/fwlink/?linkid=864683">to learn more.</a>
         /// </summary>
-        internal static string imdsApiVersion = $"api-version=2017-08-01"; // this version has the format=text capability
-        internal static string imdsTextFormat = "format=text";
-        internal static string imdsJsonFormat = "format=json";
-        internal static int maxImsResponseBufferSize = 512;
+        internal static string AzureImsApiVersion = $"api-version=2017-08-01"; // this version has the format=text capability
+        internal static string AzureImsJsonFormat = "format=json";
+        internal static int AzureImsMaxResponseBufferSize = 512;
 
         /// <summary>
         /// Default timeout for the web requests made to obtain Azure IMS data. Internal to expose to tests.
         /// </summary>
         internal TimeSpan AzureImsRequestTimeout = TimeSpan.FromSeconds(10);
 
-        public AzureMetadataRequestor()
-        {
-        }
-
         /// <summary>
-        /// Base URI for the Azure Instance Metadata service. Internal to allow overriding in test.
+        /// Private function for mocking out the actual call to IMS in unit tests. Available to internal only.
         /// </summary>
-        internal string BaseAimsUri
-        {
-            get => baseImdsUri;
-            set => baseImdsUri = value;
-        }
+        private Func<string, Task<AzureInstanceComputeMetadata>> azureIMSRequestor = null;
+
+        private string baseImdsUri = $"http://169.254.169.254/metadata/instance/compute";
 
         internal AzureMetadataRequestor(Func<string, Task<AzureInstanceComputeMetadata>> makeAzureIMSRequestor = null)
         {
             this.azureIMSRequestor = makeAzureIMSRequestor;
         }
-        
+
+        /// <summary>
+        /// Gets or sets the base URI for the Azure Instance Metadata service. Internal to allow overriding in test.
+        /// </summary>
+        internal string BaseAimsUri
+        {
+            get => this.baseImdsUri;
+            set => this.baseImdsUri = value;
+        }
+
         public async Task<AzureInstanceComputeMetadata> GetAzureComputeMetadata()
         {
-            string metadataRequestUrl = $"{this.BaseAimsUri}?{imdsJsonFormat}&{imdsApiVersion}";
+            string metadataRequestUrl = $"{this.BaseAimsUri}?{AzureMetadataRequestor.AzureImsJsonFormat}&{AzureMetadataRequestor.AzureImsApiVersion}";
 
             AzureInstanceComputeMetadata jsonResponse = await this.MakeAzureMetadataRequest(metadataRequestUrl);
 
             return null;
         }
-
 
         private async Task<AzureInstanceComputeMetadata> MakeAzureMetadataRequest(string metadataRequestUrl)
         {
@@ -100,7 +94,7 @@
 
             using (var azureImsClient = new HttpClient())
             {
-                azureImsClient.MaxResponseContentBufferSize = AzureMetadataRequestor.maxImsResponseBufferSize;
+                azureImsClient.MaxResponseContentBufferSize = AzureMetadataRequestor.AzureImsMaxResponseBufferSize;
                 azureImsClient.DefaultRequestHeaders.Add("Metadata", "True");
                 azureImsClient.Timeout = this.AzureImsRequestTimeout;
 

@@ -70,7 +70,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             try
             {
                 var result = requestor.GetAzureComputeMetadata();
-                Assert.True(null == result.GetAwaiter().GetResult());
+                Assert.Null(result.GetAwaiter().GetResult());                
             }
             catch
             {
