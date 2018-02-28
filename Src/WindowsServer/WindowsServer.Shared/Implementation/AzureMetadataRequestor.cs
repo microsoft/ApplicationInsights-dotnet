@@ -31,6 +31,8 @@
         /// <summary>
         /// Private function for mocking out the actual call to IMS in unit tests. Available to internal only.
         /// </summary>
+        /// parameter sent to the func is a string representing the Uri to request Azure IMS data from.
+        /// <returns>An instance of AzureInstanceComputeMetadata or null.</returns>
         private Func<string, Task<AzureInstanceComputeMetadata>> azureIMSRequestor = null;
 
         private string baseImdsUri = $"http://169.254.169.254/metadata/instance/compute";

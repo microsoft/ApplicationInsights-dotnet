@@ -32,9 +32,9 @@
 
                     // start off the heartbeat property collection process, but don't wait for it nor report
                     // any status from here. The thread running the collection will report to the core event log.
-                    var heartbeatProperties = new AzureHeartbeatProperties();
+                    var heartbeatProperties = new AzureComputeMetadataHeartbeatPropertyProvider();
                     Task.Factory.StartNew(
-                        async () => await heartbeatProperties.SetDefaultPayload(hbeatManager.ExcludedHeartbeatProperties, hbeatManager)
+                        async () => await heartbeatProperties.SetDefaultPayload(hbeatManager)
                         .ConfigureAwait(false));                    
                 }
             }
