@@ -15,11 +15,11 @@ struct AvailabilityData
     21: required string 	 id;
     
     [MaxStringLength("1024")]
-    [Description("Name of the test that these availability results represents.")]
+    [Description("Name of the test that these availability results represent.")]
     [ActAsRequired("Renaming testName to name.")]
     41: required string 	 name;
     
-    [Description("Duration in TimeSpan 'G' (general long) format: d:hh:mm:ss.fffffff")]
+    [Description("Duration in format: DD.HH:MM:SS.MMMMMM. Must be less than 1000 days.")]
     [CSType("TimeSpan")]
     50: required string 	 duration;
     

@@ -26,6 +26,7 @@
             {
                 otherPageView.url = this.url;
                 otherPageView.duration = this.duration;
+                otherPageView.id = this.id;
             }
         }
     }
