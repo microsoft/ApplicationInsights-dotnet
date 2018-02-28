@@ -1,9 +1,14 @@
 namespace Microsoft.ApplicationInsights.WindowsServer
 {
+    using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Net.Http;
+    using System.Runtime.Serialization.Json;
+    using System.Text;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts;
     using Microsoft.ApplicationInsights.WindowsServer.Mock;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
@@ -55,12 +60,218 @@ namespace Microsoft.ApplicationInsights.WindowsServer
 
             foreach (string fieldName in defaultFields)
             {
-                Assert.False(hbeatMock.HbeatProps.ContainsKey(fieldName));
+                string heartbeatFieldName = string.Concat(AzureHeartbeatProperties.HeartbeatPropertyPrefix, fieldName);
+                Assert.False(hbeatMock.HbeatProps.ContainsKey(heartbeatFieldName));
             }
         }
 
         [TestMethod]
-        public void AzureIMSGetAllFieldsFailsWithException()
+        public void AzureInstanceMetadataObtainedSuccessfully()
+        {
+            AzureInstanceComputeMetadata expected = new AzureInstanceComputeMetadata()
+            {
+                Location = "US-West",
+                Name = "test-vm01",
+                Offer = "D9_USWest",
+                OsType = "Linux",
+                PlatformFaultDomain = "0",
+                PlatformUpdateDomain = "0",
+                Publisher = "Microsoft",
+                ResourceGroupName = "test.resource-group_01",
+                Sku = "Windows_10",
+                SubscriptionId = Guid.NewGuid().ToString(),
+                Version = "10.8a",
+                VmId = Guid.NewGuid().ToString(),
+                VmSize = "A8"
+            };
+
+            HeartbeatProviderMock hbeatMock = new HeartbeatProviderMock();
+            AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock(
+                getComputeMetadata: () =>
+                {
+                    return expected;
+                });
+            var azureIMSFields = new AzureHeartbeatProperties(azureInstanceRequestorMock, true);
+            var defaultFields = azureIMSFields.ExpectedAzureImsFields;
+
+            // not adding the fields we're looking for, simulation of the Azure Instance Metadata service not being present...
+            var taskWaiter = azureIMSFields.SetDefaultPayload(new string[] { }, hbeatMock).ConfigureAwait(false);
+            Assert.False(taskWaiter.GetAwaiter().GetResult()); // nop await for tests
+
+            foreach (string fieldName in defaultFields)
+            {
+                string heartbeatFieldName = string.Concat(AzureHeartbeatProperties.HeartbeatPropertyPrefix, fieldName);
+                Assert.True(hbeatMock.HbeatProps.ContainsKey(heartbeatFieldName));
+                Assert.Equal(expected.GetValueForField(fieldName), hbeatMock.HbeatProps[heartbeatFieldName]);
+            }
+        }
+
+        [TestMethod]
+        public void AzureIMSTestFieldGoodValueVerification()
+        {
+            // there are three fields we verify within the AzureInstanceComputeMetadata class, test the
+            // verification routines
+            AzureInstanceComputeMetadata md = new AzureInstanceComputeMetadata();
+
+            List<string> acceptableNames = new List<string>
+            {
+                "acceptable-(Name)_Here",
+                "A",
+                "0123456789012345678901234567890123456789012345678901234567890123",
+                "(should-work-fine)"
+            };
+            foreach (string goodName in acceptableNames)
+            {
+                md.Name = goodName;
+                Assert.Equal(md.Name, md.VerifyExpectedValue("name"));
+            }
+
+            List<string> acceptableResourceGroupNames = new List<string>
+            {
+                "1",
+                "acceptable_resourceGr0uP.Name-Here",
+                "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789",
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-",
+                "0123startsWithANumber"
+            };
+            foreach (string goodResourceGroupName in acceptableResourceGroupNames)
+            {
+                md.Name = goodResourceGroupName;
+                Assert.Equal(md.Name, md.VerifyExpectedValue("resourceGroupName"));
+            }
+
+            var subId = Guid.NewGuid();
+            List<string> acceptableSubscriptionIds = new List<string>
+            {
+                subId.ToString(),
+                subId.ToString().ToLowerInvariant(),
+                subId.ToString().ToUpperInvariant()
+            };
+            foreach (string goodSubscriptionId in acceptableSubscriptionIds)
+            {
+                md.Name = goodSubscriptionId;
+                Assert.Equal(md.Name, md.VerifyExpectedValue("subscriptionId"));
+            }
+        }
+
+        [TestMethod]
+        public void AzureIMSTestFieldBadValuesFailVerification()
+        {
+            // there are three fields we verify within the AzureInstanceComputeMetadata class, test the
+            // verification routines
+            AzureInstanceComputeMetadata md = new AzureInstanceComputeMetadata();
+
+            List<string> unacceptableNames = new List<string>{
+                "unacceptable name spaces",
+                "string-too-long-0123456789012345678901234567890123456789012345678901234567890123456789",
+                "unacceptable=name+punctuation",
+                string.Empty
+            };
+            foreach (string failName in unacceptableNames)
+            {
+                md.Name = failName;
+                Assert.Empty(md.VerifyExpectedValue("name"));
+            }
+
+            List<string> unacceptableResourceGroupNames = new List<string>
+            {
+                "unacceptable name spaces",
+                "string-too-long-012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789",
+                "unacceptable#punctuation!",
+                "ends.with.a.period.",
+                string.Empty
+            };
+            foreach (string failResGrpName in unacceptableResourceGroupNames)
+            {
+                md.ResourceGroupName = failResGrpName;
+                Assert.Empty(md.VerifyExpectedValue("resourceGroupName"));
+            }
+
+            List<string> unacceptableSubscriptionIds = new List<string>
+            {
+                "unacceptable name not a guid",
+                string.Empty
+            };
+            foreach (string failSubscriptionId in unacceptableSubscriptionIds)
+            {
+                md.SubscriptionId = failSubscriptionId;
+                Assert.Empty(md.VerifyExpectedValue("subscriptionId"));
+            }
+        }
+
+        [TestMethod]
+        public void AzureIMSGetFieldByNameFailsWithException()
+        {
+            AzureInstanceComputeMetadata md = new AzureInstanceComputeMetadata();
+            Assert.Throws(typeof(ArgumentOutOfRangeException), () => md.GetValueForField("not-a-field"));
+        }
+
+        [TestMethod]
+        public void AzureIMSReturnsExpectedValuesForEachFieldAfterSerialization()
+        {
+            AzureInstanceComputeMetadata expectMetadata = new AzureInstanceComputeMetadata()
+            {
+                Location = "US-West",
+                Name = "test-vm01",
+                Offer = "D9_USWest",
+                OsType = "Linux",
+                PlatformFaultDomain = "0",
+                PlatformUpdateDomain = "0",
+                Publisher = "Microsoft",
+                ResourceGroupName = "test.resource-group_01",
+                Sku = "Windows_10",
+                SubscriptionId = Guid.NewGuid().ToString(),
+                Version = "10.8a",
+                VmId = Guid.NewGuid().ToString(),
+                VmSize = "A8"
+            };
+
+            DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(AzureInstanceComputeMetadata));
+            // use the expected JSON field name style, uses camelCase...
+            string json = string.Format(System.Globalization.CultureInfo.InvariantCulture, 
+@"{ 
+  ""osType"": ""{0}"",
+  ""location"": ""{1}"",
+  ""name"": ""{2}"",
+  ""offer"": ""{3}"",
+  ""platformFaultDomain"": ""{4}"",
+  ""platformUpdateDomain"": ""{5}"",
+  ""publisher"": ""{6}"",
+  ""sku"": ""{7}"",
+  ""version"": ""{8}"",
+  ""vmId"": ""{9}"",
+  ""vmSize"": ""{10}"",
+  ""subscriptionId"": ""{11}"",
+  ""resourceGroupName"": ""{12}""
+}",
+                expectMetadata.OsType,
+                expectMetadata.Location,
+                expectMetadata.Name,
+                expectMetadata.Offer,
+                expectMetadata.PlatformFaultDomain,
+                expectMetadata.PlatformUpdateDomain,
+                expectMetadata.Publisher,
+                expectMetadata.Sku,
+                expectMetadata.Version,
+                expectMetadata.VmId,
+                expectMetadata.VmSize,
+                expectMetadata.SubscriptionId,
+                expectMetadata.ResourceGroupName);
+
+            var jsonBytes = Encoding.UTF8.GetBytes(json);
+            MemoryStream jsonStream = new MemoryStream(jsonBytes, 0, jsonBytes.Length);
+
+            AzureInstanceComputeMetadata compareMetadata = (AzureInstanceComputeMetadata)deserializer.ReadObject(jsonStream);
+
+            AzureHeartbeatProperties azHb = new AzureHeartbeatProperties();
+            foreach (string fieldName in azHb.ExpectedAzureImsFields)
+            {
+                Assert.Equal(expectMetadata.GetValueForField(fieldName), compareMetadata.GetValueForField(fieldName));
+            }
+        }
+
+        [TestMethod]
+        public void AzureIMSGetFailsWithException()
         {
             var requestor = new AzureMetadataRequestor(makeAzureIMSRequestor: (string uri) =>
             {

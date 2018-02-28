@@ -15,10 +15,11 @@
     {
         private static int resourceGroupNameLengthMax = 90;
         private static int resourceGroupNameLengthMin = 1;
-        private static string resourceGroupNameValidChars = @"[a-zA-Z0-9()_\-\.]";
+        private static string resourceGroupNameValidChars = @"^[a-zA-Z0-9\.\-_]+[^\.]$";
         private static int nameLenghtMax = 64; // 15 for windows, go with Linux for MAX
         private static int nameLengthMin = 1;
-        private static string nameValidChars = @"[a-zA-Z0-9()_\-]";
+        private static string nameValidChars = @"^[a-zA-Z0-9()_\-]+$";
+        private static TimeSpan regexTimeout = TimeSpan.FromMilliseconds(1000);
 
         [DataMember(Name = "osType", IsRequired = true)]
         internal string OsType { get; set; }
@@ -62,9 +63,9 @@
         internal string GetValueForField(string fieldName)
         {
             string aimsValue = string.Empty;
-            switch (fieldName)
+            switch (fieldName.ToLower())
             {
-                case "osType":
+                case "ostype":
                     aimsValue = this.OsType;
                     break;
                 case "location":
@@ -76,10 +77,10 @@
                 case "offer":
                     aimsValue = this.Offer;
                     break;
-                case "platformFaultDomain":
+                case "platformfaultdomain":
                     aimsValue = this.PlatformFaultDomain;
                     break;
-                case "platformUpdateDomain":
+                case "platformupdatedomain":
                     aimsValue = this.PlatformUpdateDomain;
                     break;
                 case "publisher":
@@ -91,16 +92,16 @@
                 case "version":
                     aimsValue = this.Version;
                     break;
-                case "vmId":
+                case "vmid":
                     aimsValue = this.VmId;
                     break;
-                case "vmSize":
+                case "vmsize":
                     aimsValue = this.VmSize;
                     break;
-                case "subscriptionId":
+                case "subscriptionid":
                     aimsValue = this.SubscriptionId;
                     break;
-                case "resourceGroupName":
+                case "resourcegroupname":
                     aimsValue = this.ResourceGroupName;
                     break;
                 default:
@@ -128,9 +129,9 @@
             {
                 valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.resourceGroupNameLengthMax;
                 valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.resourceGroupNameLengthMin;
-                Regex charMatch = new Regex(AzureInstanceComputeMetadata.resourceGroupNameValidChars);
-                valueOk &= valueToVerify.All(a => charMatch.IsMatch(a.ToString()));
-                valueOk &= !valueToVerify.EndsWith(".", StringComparison.OrdinalIgnoreCase);
+                var resGrpMatcher = new Regex(AzureInstanceComputeMetadata.resourceGroupNameValidChars, RegexOptions.None, AzureInstanceComputeMetadata.regexTimeout);
+                valueOk &= resGrpMatcher.IsMatch(valueToVerify);
+
                 if (valueOk)
                 {
                     value = valueToVerify;
@@ -150,8 +151,9 @@
             {
                 valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.nameLenghtMax;
                 valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.nameLengthMin;
-                Regex charMatch = new Regex(AzureInstanceComputeMetadata.nameValidChars);
-                valueOk &= valueToVerify.All(a => charMatch.IsMatch(a.ToString()));
+                var nameMatcher = new Regex(AzureInstanceComputeMetadata.nameValidChars, RegexOptions.None, AzureInstanceComputeMetadata.regexTimeout);
+                valueOk &= nameMatcher.IsMatch(valueToVerify);
+
                 if (valueOk)
                 {
                     value = valueToVerify;

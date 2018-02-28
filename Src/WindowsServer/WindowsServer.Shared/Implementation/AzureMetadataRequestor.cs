@@ -55,7 +55,7 @@
 
             AzureInstanceComputeMetadata jsonResponse = await this.MakeAzureMetadataRequest(metadataRequestUrl);
 
-            return null;
+            return jsonResponse;
         }
 
         private async Task<AzureInstanceComputeMetadata> MakeAzureMetadataRequest(string metadataRequestUrl)
