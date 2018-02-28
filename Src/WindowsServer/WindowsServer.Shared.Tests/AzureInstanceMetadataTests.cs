@@ -96,7 +96,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
 
             // not adding the fields we're looking for, simulation of the Azure Instance Metadata service not being present...
             var taskWaiter = azureIMSFields.SetDefaultPayload(new string[] { }, hbeatMock).ConfigureAwait(false);
-            Assert.False(taskWaiter.GetAwaiter().GetResult()); // nop await for tests
+            Assert.True(taskWaiter.GetAwaiter().GetResult()); // nop await for tests
 
             foreach (string fieldName in defaultFields)
             {
@@ -120,6 +120,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 "0123456789012345678901234567890123456789012345678901234567890123",
                 "(should-work-fine)"
             };
+
             foreach (string goodName in acceptableNames)
             {
                 md.Name = goodName;
@@ -134,10 +135,11 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-",
                 "0123startsWithANumber"
             };
+
             foreach (string goodResourceGroupName in acceptableResourceGroupNames)
             {
-                md.Name = goodResourceGroupName;
-                Assert.Equal(md.Name, md.VerifyExpectedValue("resourceGroupName"));
+                md.ResourceGroupName = goodResourceGroupName;
+                Assert.Equal(md.ResourceGroupName, md.VerifyExpectedValue("resourceGroupName"));
             }
 
             var subId = Guid.NewGuid();
@@ -147,10 +149,11 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 subId.ToString().ToLowerInvariant(),
                 subId.ToString().ToUpperInvariant()
             };
+
             foreach (string goodSubscriptionId in acceptableSubscriptionIds)
             {
-                md.Name = goodSubscriptionId;
-                Assert.Equal(md.Name, md.VerifyExpectedValue("subscriptionId"));
+                md.SubscriptionId = goodSubscriptionId;
+                Assert.Equal(md.SubscriptionId, md.VerifyExpectedValue("subscriptionId"));
             }
         }
 
@@ -161,12 +164,14 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             // verification routines
             AzureInstanceComputeMetadata md = new AzureInstanceComputeMetadata();
 
-            List<string> unacceptableNames = new List<string>{
+            List<string> unacceptableNames = new List<string>
+            {
                 "unacceptable name spaces",
                 "string-too-long-0123456789012345678901234567890123456789012345678901234567890123456789",
                 "unacceptable=name+punctuation",
                 string.Empty
             };
+
             foreach (string failName in unacceptableNames)
             {
                 md.Name = failName;
@@ -181,6 +186,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 "ends.with.a.period.",
                 string.Empty
             };
+
             foreach (string failResGrpName in unacceptableResourceGroupNames)
             {
                 md.ResourceGroupName = failResGrpName;
@@ -192,6 +198,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 "unacceptable name not a guid",
                 string.Empty
             };
+
             foreach (string failSubscriptionId in unacceptableSubscriptionIds)
             {
                 md.SubscriptionId = failSubscriptionId;
@@ -227,9 +234,10 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             };
 
             DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(AzureInstanceComputeMetadata));
+
             // use the expected JSON field name style, uses camelCase...
-            string json = string.Format(System.Globalization.CultureInfo.InvariantCulture, 
-@"{ 
+            string jsonFormatString = 
+@"{{ 
   ""osType"": ""{0}"",
   ""location"": ""{1}"",
   ""name"": ""{2}"",
@@ -243,7 +251,10 @@ namespace Microsoft.ApplicationInsights.WindowsServer
   ""vmSize"": ""{10}"",
   ""subscriptionId"": ""{11}"",
   ""resourceGroupName"": ""{12}""
-}",
+}}";
+            string json = string.Format(
+                System.Globalization.CultureInfo.InvariantCulture,
+                jsonFormatString,
                 expectMetadata.OsType,
                 expectMetadata.Location,
                 expectMetadata.Name,
@@ -263,8 +274,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer
 
             AzureInstanceComputeMetadata compareMetadata = (AzureInstanceComputeMetadata)deserializer.ReadObject(jsonStream);
 
-            AzureHeartbeatProperties azHb = new AzureHeartbeatProperties();
-            foreach (string fieldName in azHb.ExpectedAzureImsFields)
+            AzureHeartbeatProperties heartbeatProps = new AzureHeartbeatProperties();
+            foreach (string fieldName in heartbeatProps.ExpectedAzureImsFields)
             {
                 Assert.Equal(expectMetadata.GetValueForField(fieldName), compareMetadata.GetValueForField(fieldName));
             }

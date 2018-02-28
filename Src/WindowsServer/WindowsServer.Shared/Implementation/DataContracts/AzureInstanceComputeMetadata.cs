@@ -15,7 +15,7 @@
     {
         private static int resourceGroupNameLengthMax = 90;
         private static int resourceGroupNameLengthMin = 1;
-        private static string resourceGroupNameValidChars = @"^[a-zA-Z0-9\.\-_]+[^\.]$";
+        private static string resourceGroupNameValidChars = @"^[a-zA-Z0-9\.\-_]+$";
         private static int nameLenghtMax = 64; // 15 for windows, go with Linux for MAX
         private static int nameLengthMin = 1;
         private static string nameValidChars = @"^[a-zA-Z0-9()_\-]+$";
@@ -33,7 +33,7 @@
         [DataMember(Name = "offer", IsRequired = true)]
         internal string Offer { get; set; }
 
-        [DataMember(Name = "platformDefaultDomain", IsRequired = true)]
+        [DataMember(Name = "platformFaultDomain", IsRequired = true)]
         internal string PlatformFaultDomain { get; set; }
 
         [DataMember(Name = "platformUpdateDomain", IsRequired = true)]
@@ -63,7 +63,7 @@
         internal string GetValueForField(string fieldName)
         {
             string aimsValue = string.Empty;
-            switch (fieldName.ToLower())
+            switch (fieldName.ToLower(CultureInfo.InvariantCulture))
             {
                 case "ostype":
                     aimsValue = this.OsType;
@@ -131,6 +131,7 @@
                 valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.resourceGroupNameLengthMin;
                 var resGrpMatcher = new Regex(AzureInstanceComputeMetadata.resourceGroupNameValidChars, RegexOptions.None, AzureInstanceComputeMetadata.regexTimeout);
                 valueOk &= resGrpMatcher.IsMatch(valueToVerify);
+                valueOk &= !valueToVerify.EndsWith(".", StringComparison.OrdinalIgnoreCase);
 
                 if (valueOk)
                 {
