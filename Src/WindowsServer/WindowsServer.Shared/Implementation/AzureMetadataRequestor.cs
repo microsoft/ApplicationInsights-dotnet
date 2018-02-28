@@ -35,7 +35,7 @@
         /// <returns>An instance of AzureInstanceComputeMetadata or null.</returns>
         private Func<string, Task<AzureInstanceComputeMetadata>> azureIMSRequestor = null;
 
-        private string baseImdsUri = $"http://169.254.169.254/metadata/instance/compute";
+        private string baseImdsUri = "http://169.254.169.254/metadata/instance/compute";
 
         internal AzureMetadataRequestor(Func<string, Task<AzureInstanceComputeMetadata>> makeAzureIMSRequestor = null)
         {

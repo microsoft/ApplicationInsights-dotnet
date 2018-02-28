@@ -13,13 +13,13 @@
     [DataContract]
     internal class AzureInstanceComputeMetadata
     {
-        private static int resourceGroupNameLengthMax = 90;
-        private static int resourceGroupNameLengthMin = 1;
-        private static string resourceGroupNameValidChars = @"^[a-zA-Z0-9\.\-_]+$";
-        private static int nameLenghtMax = 64; // 15 for windows, go with Linux for MAX
-        private static int nameLengthMin = 1;
-        private static string nameValidChars = @"^[a-zA-Z0-9()_\-]+$";
-        private static TimeSpan regexTimeout = TimeSpan.FromMilliseconds(1000);
+        private const int resourceGroupNameLengthMax = 90;
+        private const int resourceGroupNameLengthMin = 1;
+        private const string resourceGroupNameValidChars = @"^[a-zA-Z0-9\.\-_]+$";
+        private const int nameLenghtMax = 64; // 15 for windows, go with Linux for MAX
+        private const int nameLengthMin = 1;
+        private const string nameValidChars = @"^[a-zA-Z0-9()_\-]+$";
+        private readonly TimeSpan regexTimeout = TimeSpan.FromMilliseconds(1000);
 
         [DataMember(Name = "osType", IsRequired = true)]
         internal string OsType { get; set; }
@@ -129,7 +129,7 @@
             {
                 valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.resourceGroupNameLengthMax;
                 valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.resourceGroupNameLengthMin;
-                var resGrpMatcher = new Regex(AzureInstanceComputeMetadata.resourceGroupNameValidChars, RegexOptions.None, AzureInstanceComputeMetadata.regexTimeout);
+                var resGrpMatcher = new Regex(AzureInstanceComputeMetadata.resourceGroupNameValidChars, RegexOptions.None, this.regexTimeout);
                 valueOk &= resGrpMatcher.IsMatch(valueToVerify);
                 valueOk &= !valueToVerify.EndsWith(".", StringComparison.OrdinalIgnoreCase);
 
@@ -152,7 +152,7 @@
             {
                 valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.nameLenghtMax;
                 valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.nameLengthMin;
-                var nameMatcher = new Regex(AzureInstanceComputeMetadata.nameValidChars, RegexOptions.None, AzureInstanceComputeMetadata.regexTimeout);
+                var nameMatcher = new Regex(AzureInstanceComputeMetadata.nameValidChars, RegexOptions.None, this.regexTimeout);
                 valueOk &= nameMatcher.IsMatch(valueToVerify);
 
                 if (valueOk)
