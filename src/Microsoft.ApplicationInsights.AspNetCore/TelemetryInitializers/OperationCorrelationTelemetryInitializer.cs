@@ -12,7 +12,7 @@
     /// <summary>
     /// A telemetry initializer that will set the correlation context for all telemetry items in web application.
     /// </summary>
-    internal class OperationCorrelationTelemetryInitializer : TelemetryInitializerBase
+    public class OperationCorrelationTelemetryInitializer : TelemetryInitializerBase
     {
         private ICorrelationIdLookupHelper correlationIdLookupHelper = null;
 
