@@ -8,7 +8,7 @@
 
     internal class AzureComputeMetadataHeartbeatPropertyProvider
     {
-        internal static string HeartbeatPropertyPrefix = "azInst_"; // to ensure no collisions with base heartbeat properties
+        internal const string HeartbeatPropertyPrefix = "azInst_"; // to ensure no collisions with base heartbeat properties
 
         /// <summary>
         /// Expected fields extracted from Azure IMS to add to the heartbeat properties. 

@@ -17,7 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DeveloperModeWithDebuggerAttachedTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeviceTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DomainNameRoleInstanceTelemetryInitializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureHeartbeatProperties.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureComputeMetadataHeartbeatPropertyProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureMetadataRequestor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureRoleEnvironmentContextReader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DataContracts\AzureInstanceComputeMetadata.cs" />
