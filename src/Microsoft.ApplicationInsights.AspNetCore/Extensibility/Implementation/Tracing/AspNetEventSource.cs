@@ -128,6 +128,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(9, this.ApplicationName);
         }
 
+        [Event(10, Message = "Failed to retrieve App ID for the current application insights resource. Endpoint returned HttpStatusCode: {0}", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void FetchAppIdFailedWithResponseCode(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(10, exception, this.ApplicationName);
+        }
+
         /// <summary>
         /// Keywords for the AspNetEventSource.
         /// </summary>
