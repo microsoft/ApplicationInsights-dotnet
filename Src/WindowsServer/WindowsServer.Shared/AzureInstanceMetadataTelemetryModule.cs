@@ -40,10 +40,17 @@
                                 // start off the heartbeat property collection process, but don't wait for it nor report
                                 // any status from here, fire and forget. The thread running the collection will report 
                                 // to the core event log.
-                                var heartbeatProperties = new AzureComputeMetadataHeartbeatPropertyProvider();
-                                Task.Factory.StartNew(
-                                    async () => await heartbeatProperties.SetDefaultPayloadAsync(hbeatManager)
-                                    .ConfigureAwait(false));
+                                try
+                                {
+                                    var heartbeatProperties = new AzureComputeMetadataHeartbeatPropertyProvider();
+                                    Task.Factory.StartNew(
+                                        async () => await heartbeatProperties.SetDefaultPayloadAsync(hbeatManager)
+                                        .ConfigureAwait(false));
+                                }
+                                catch (Exception heartbeatAquisitionException)
+                                {
+                                    WindowsServerEventSource.Log.AzureInstanceMetadataFailureWithException(heartbeatAquisitionException.Message, heartbeatAquisitionException.InnerException?.Message);
+                                }
                             }
                         }
 
