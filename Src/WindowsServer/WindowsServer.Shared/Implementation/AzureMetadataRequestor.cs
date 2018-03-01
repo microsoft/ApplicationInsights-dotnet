@@ -43,7 +43,8 @@
 
         public Task<AzureInstanceComputeMetadata> GetAzureComputeMetadataAsync()
         {
-            string metadataRequestUrl = string.Format(CultureInfo.InvariantCulture,
+            string metadataRequestUrl = string.Format(
+                CultureInfo.InvariantCulture,
                 "{0}?{1}&{2}",
                 this.BaseAimsUri,
                 AzureMetadataRequestor.AzureImsJsonFormat,
