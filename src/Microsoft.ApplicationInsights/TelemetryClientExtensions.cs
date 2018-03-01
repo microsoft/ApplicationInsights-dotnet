@@ -125,7 +125,15 @@
                 if (parentActivity == null)
                 {
                     // telemetryContext.Id is always set: if it was null, it is set to opTelemetry.Id and opTelemetry.Id is never null
-                    operationActivity.SetParentId(telemetryContext.Id);
+                    if (telemetryContext.ParentId != null && GetRootId(telemetryContext.ParentId) == telemetryContext.Id)
+                    {
+                        // support of the Hierarchical Request-Id model https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/HierarchicalRequestId.md
+                        operationActivity.SetParentId(telemetryContext.ParentId);
+                    }
+                    else
+                    {
+                        operationActivity.SetParentId(telemetryContext.Id);
+                    }                    
                 }
 
                 operationActivity.Start();
@@ -227,6 +235,21 @@
             operationTelemetry.Start();
 
             return new OperationHolder<T>(telemetryClient, operationTelemetry);
+        }
+
+        private static string GetRootId(string id)
+        {
+            // id MAY start with '|' and contain '.'. We return substring between them
+            // ParentId MAY NOT have hierarchical structure and we don't know if initially rootId was started with '|',
+            // so we must NOT include first '|' to allow mixed hierarchical and non-hierarchical request id scenarios
+            int rootEnd = id.IndexOf('.');
+            if (rootEnd < 0)
+            {
+                rootEnd = id.Length;
+            }
+
+            int rootStart = id[0] == '|' ? 1 : 0;
+            return id.Substring(rootStart, rootEnd - rootStart);
         }
 
         private static T ActivityToTelemetry<T>(Activity activity) where T : OperationTelemetry, new()
