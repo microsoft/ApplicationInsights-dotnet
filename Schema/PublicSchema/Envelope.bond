@@ -21,6 +21,7 @@ struct Envelope
     [HockeyAppMinDateOffsetFromNow("2592000000")]
     [MinDateOffsetFromNow("172800000")]
     [MaxDateOffsetFromNow("7200000")]
+    [MaxStringLength("64")]
     30: required string 	 time;
     
     [Name("SamplingRate")]
@@ -32,7 +33,7 @@ struct Envelope
     [MaxStringLength("64")]
     50: string 	 seq;
     
-    [Description("The application's instrumentation key.")]
+    [Description("The application's instrumentation key. The key is typically represented as a GUID, but there are cases when it is not a guid. No code should rely on iKey being a GUID. Instrumentation key is case insensitive.")]
     [Name("InstrumentationKey")]
     [MaxStringLength("40")]
     60: string 	 iKey;

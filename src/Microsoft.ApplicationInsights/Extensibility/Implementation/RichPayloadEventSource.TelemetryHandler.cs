@@ -657,11 +657,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             {
                 PartA_iKey = this.dummyPartAiKeyValue,
                 PartA_Tags = this.dummyPartATagsValue,
-                PartB_PageViewPerfData = new
+                PartB_PageViewData = new
                 {
                     // The properties and layout should be the same as PageViewData_types.cs (EventData_types.cs)
                     dummyPageViewData.url,
                     dummyPageViewData.duration,
+                    dummyPageViewData.id,
                     dummyPageViewData.ver,
                     dummyPageViewData.name,
                     dummyPageViewData.properties,
@@ -681,10 +682,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
                         PartA_iKey = telemetryItem.Context.InstrumentationKey,
                         PartA_Tags = telemetryItem.Context.SanitizedTags,
-                        PartB_PageViewPerfData = new
+                        PartB_PageViewData = new
                         {
                             data.url,
                             data.duration,
+                            data.id,
                             data.ver,
                             data.name,
                             data.properties,
