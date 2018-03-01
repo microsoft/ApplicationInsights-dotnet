@@ -296,30 +296,48 @@
         }
 
         /// <summary>
-        /// Send information about external dependency call in the application.
+        /// Send information about an external dependency (outgoing call) in the application.
         /// </summary>
-        /// <param name="dependencyName">External dependency name.</param>
-        /// <param name="commandName">Dependency call command name.</param>
+        /// <param name="dependencyName">Name of the command initiated with this dependency call. Low cardinality value. Examples are stored procedure name and URL path template.</param>
+        /// <param name="data">Command initiated by this dependency call. Examples are SQL statement and HTTP URL's with all query parameters.</param>
         /// <param name="startTime">The time when the dependency was called.</param>
         /// <param name="duration">The time taken by the external dependency to handle the call.</param>
         /// <param name="success">True if the dependency call was handled successfully.</param>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
         /// </remarks>
-        public void TrackDependency(string dependencyName, string commandName, DateTimeOffset startTime, TimeSpan duration, bool success)
+        [Obsolete]
+        public void TrackDependency(string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
         {
 #pragma warning disable 618
-            this.TrackDependency(new DependencyTelemetry(dependencyName, commandName, startTime, duration, success));
+            this.TrackDependency(new DependencyTelemetry(dependencyName, data, startTime, duration, success));
 #pragma warning restore 618
         }
 
         /// <summary>
-        /// Send information about external dependency call in the application.
+        /// Send information about an external dependency (outgoing call) in the application.
         /// </summary>
-        /// <param name="dependencyTypeName">External dependency type.</param>
+        /// <param name="dependencyTypeName">External dependency type. Very low cardinality value for logical grouping and interpretation of fields. Examples are SQL, Azure table, and HTTP.</param>
+        /// <param name="dependencyName">Name of the command initiated with this dependency call. Low cardinality value. Examples are stored procedure name and URL path template.</param>
+        /// <param name="data">Command initiated by this dependency call. Examples are SQL statement and HTTP URL's with all query parameters.</param>
+        /// <param name="startTime">The time when the dependency was called.</param>
+        /// <param name="duration">The time taken by the external dependency to handle the call.</param>
+        /// <param name="success">True if the dependency call was handled successfully.</param>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
+        /// </remarks>
+        public void TrackDependency(string dependencyTypeName, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
+        {
+            this.TrackDependency(new DependencyTelemetry(dependencyTypeName, null, dependencyName, data, startTime, duration, null, success));
+        }
+
+        /// <summary>
+        /// Send information about an external dependency (outgoing call) in the application.
+        /// </summary>
+        /// <param name="dependencyTypeName">External dependency type. Very low cardinality value for logical grouping and interpretation of fields. Examples are SQL, Azure table, and HTTP.</param>
         /// <param name="target">External dependency target.</param>
-        /// <param name="dependencyName">External dependency name.</param>
-        /// <param name="data">Dependency call command name.</param>
+        /// <param name="dependencyName">Name of the command initiated with this dependency call. Low cardinality value. Examples are stored procedure name and URL path template.</param>
+        /// <param name="data">Command initiated by this dependency call. Examples are SQL statement and HTTP URL's with all query parameters.</param>
         /// <param name="startTime">The time when the dependency was called.</param>
         /// <param name="duration">The time taken by the external dependency to handle the call.</param>
         /// <param name="resultCode">Result code of dependency call execution.</param>
