@@ -19,7 +19,7 @@
         private const int NameLenghtMax = 64; // 15 for windows, go with Linux for MAX
         private const int NameLengthMin = 1;
         private const string NameValidChars = @"^[a-zA-Z0-9()_\-]+$";
-        private readonly TimeSpan regexTimeout = TimeSpan.FromMilliseconds(1000);
+        private const int RegexTimeoutMs = 1000;
 
         [DataMember(Name = "location", IsRequired = true)]
         internal string Location { get; set; }
@@ -142,12 +142,13 @@
 
             string value = string.Empty;
             bool valueOk = true;
+            TimeSpan regexTimeout = TimeSpan.FromMilliseconds(AzureInstanceComputeMetadata.RegexTimeoutMs);
 
             if (fieldName.Equals("resourceGroupName", StringComparison.OrdinalIgnoreCase))
             {
                 valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.ResourceGroupNameLengthMax;
                 valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.ResourceGroupNameLengthMin;
-                var resGrpMatcher = new Regex(AzureInstanceComputeMetadata.ResourceGroupNameValidChars, RegexOptions.None, this.regexTimeout);
+                var resGrpMatcher = new Regex(AzureInstanceComputeMetadata.ResourceGroupNameValidChars, RegexOptions.None, regexTimeout);
                 valueOk &= resGrpMatcher.IsMatch(valueToVerify);
                 valueOk &= !valueToVerify.EndsWith(".", StringComparison.OrdinalIgnoreCase);
 
@@ -170,7 +171,7 @@
             {
                 valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.NameLenghtMax;
                 valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.NameLengthMin;
-                var nameMatcher = new Regex(AzureInstanceComputeMetadata.NameValidChars, RegexOptions.None, this.regexTimeout);
+                var nameMatcher = new Regex(AzureInstanceComputeMetadata.NameValidChars, RegexOptions.None, regexTimeout);
                 valueOk &= nameMatcher.IsMatch(valueToVerify);
 
                 if (valueOk)
