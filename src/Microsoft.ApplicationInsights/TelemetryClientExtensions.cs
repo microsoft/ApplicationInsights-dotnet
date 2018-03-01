@@ -125,7 +125,7 @@
                 if (parentActivity == null)
                 {
                     // telemetryContext.Id is always set: if it was null, it is set to opTelemetry.Id and opTelemetry.Id is never null
-                    operationActivity.SetParentId(telemetryContext.Id);
+                    operationActivity.SetParentId(telemetryContext.ParentId ?? telemetryContext.Id);
                 }
 
                 operationActivity.Start();
