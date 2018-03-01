@@ -44,27 +44,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureComputeMetadataHeartbeatPropertyProvider"/> class.
         /// </summary>
-        public AzureComputeMetadataHeartbeatPropertyProvider() : this(null, false)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AzureComputeMetadataHeartbeatPropertyProvider"/> class.
-        /// </summary>
         /// <param name="azureInstanceMetadataHandler">For testing: Azure metadata request handler to use when requesting data from azure specifically. If left as null, an instance of AzureMetadataRequestor is used.</param>
-        /// <param name="resetCheckCompleteFlag">For testing: set to true to reset the check that we've already acquired this data.</param>
-        internal AzureComputeMetadataHeartbeatPropertyProvider(IAzureMetadataRequestor azureInstanceMetadataHandler = null, bool resetCheckCompleteFlag = false)
+        internal AzureComputeMetadataHeartbeatPropertyProvider(IAzureMetadataRequestor azureInstanceMetadataHandler = null)
         {
-            this.azureInstanceMetadataRequestor = azureInstanceMetadataHandler;
-            if (this.azureInstanceMetadataRequestor == null)
-            {
-                this.azureInstanceMetadataRequestor = new AzureMetadataRequestor();
-            }
-
-            if (resetCheckCompleteFlag)
-            {
-                this.isAzureMetadataCheckCompleted = false;
-            }
+            this.azureInstanceMetadataRequestor = azureInstanceMetadataHandler ?? new AzureMetadataRequestor();
         }
 
         /// <summary>
@@ -75,37 +58,44 @@
         public async Task<bool> SetDefaultPayloadAsync(IHeartbeatPropertyManager provider)
         {
             bool hasSetFields = false;
-            
-            if (!this.isAzureMetadataCheckCompleted)
+
+            try
             {
-                this.isAzureMetadataCheckCompleted = true;
-
-                var azureComputeMetadata = await this.azureInstanceMetadataRequestor.GetAzureComputeMetadataAsync()
-                                .ConfigureAwait(false);
-
-                if (azureComputeMetadata != null)
+                if (!this.isAzureMetadataCheckCompleted)
                 {
-                    var enabledImdsFields = this.ExpectedAzureImsFields.Except(provider.ExcludedHeartbeatProperties);
-                    foreach (string field in enabledImdsFields)
+                    this.isAzureMetadataCheckCompleted = true;
+
+                    var azureComputeMetadata = await this.azureInstanceMetadataRequestor.GetAzureComputeMetadataAsync()
+                                    .ConfigureAwait(false);
+
+                    if (azureComputeMetadata != null)
                     {
-                        string verifiedValue = azureComputeMetadata.VerifyExpectedValue(field);
-
-                        bool addedProperty = provider.AddHeartbeatProperty(
-                                                        propertyName: string.Concat(AzureComputeMetadataHeartbeatPropertyProvider.HeartbeatPropertyPrefix, field),
-                                                        propertyValue: verifiedValue,
-                                                        isHealthy: true);
-                        if (!addedProperty)
+                        var enabledImdsFields = this.ExpectedAzureImsFields.Except(provider.ExcludedHeartbeatProperties);
+                        foreach (string field in enabledImdsFields)
                         {
-                            WindowsServerEventSource.Log.AzureInstanceMetadataWasntAddedToHeartbeatProperties(field, verifiedValue);
-                        }
+                            string verifiedValue = azureComputeMetadata.VerifyExpectedValue(field);
 
-                        hasSetFields = hasSetFields || addedProperty;
+                            bool addedProperty = provider.AddHeartbeatProperty(
+                                                            propertyName: string.Concat(AzureComputeMetadataHeartbeatPropertyProvider.HeartbeatPropertyPrefix, field),
+                                                            propertyValue: verifiedValue,
+                                                            isHealthy: true);
+                            if (!addedProperty)
+                            {
+                                WindowsServerEventSource.Log.AzureInstanceMetadataWasntAddedToHeartbeatProperties(field, verifiedValue);
+                            }
+
+                            hasSetFields = hasSetFields || addedProperty;
+                        }
+                    }
+                    else
+                    {
+                        WindowsServerEventSource.Log.AzureInstanceMetadataNotAdded();
                     }
                 }
-                else
-                {
-                    WindowsServerEventSource.Log.AzureInstanceMetadataNotAdded();
-                }
+            }
+            catch (Exception setPayloadException)
+            {
+                WindowsServerEventSource.Log.AzureInstanceMetadataFailureSettingDefaultPayload(setPayloadException.Message, setPayloadException.InnerException?.Message);
             }
 
             return hasSetFields;

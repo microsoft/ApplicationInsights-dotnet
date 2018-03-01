@@ -313,6 +313,19 @@
                 this.ApplicationName);
         }
 
+        [Event(
+            32,
+            Message = "Azure IMS data not added to heartbeat properties, there was a failure obtaining and setting them. Exception occurred: {0} (1st Inner exception: {1}).",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataFailureSettingDefaultPayload(string exception, string innerException, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                32,
+                exception ?? string.Empty,
+                innerException ?? string.Empty,
+                this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

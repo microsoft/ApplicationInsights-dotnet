@@ -21,7 +21,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
         {
             HeartbeatProviderMock hbeatMock = new HeartbeatProviderMock();
             AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock();
-            AzureComputeMetadataHeartbeatPropertyProvider azureIMSFields = new AzureComputeMetadataHeartbeatPropertyProvider(azureInstanceRequestorMock, true);
+            AzureComputeMetadataHeartbeatPropertyProvider azureIMSFields = new AzureComputeMetadataHeartbeatPropertyProvider(azureInstanceRequestorMock);
 
             var taskWaiter = azureIMSFields.SetDefaultPayloadAsync(hbeatMock).ConfigureAwait(false);
             Assert.True(taskWaiter.GetAwaiter().GetResult()); // no await for tests
@@ -51,7 +51,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
 
                     return null;
                 });
-            var azureIMSFields = new AzureComputeMetadataHeartbeatPropertyProvider(azureInstanceRequestorMock, true);
+            var azureIMSFields = new AzureComputeMetadataHeartbeatPropertyProvider(azureInstanceRequestorMock);
             var defaultFields = azureIMSFields.ExpectedAzureImsFields;
 
             // not adding the fields we're looking for, simulation of the Azure Instance Metadata service not being present...
@@ -91,7 +91,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 {
                     return expected;
                 });
-            var azureIMSFields = new AzureComputeMetadataHeartbeatPropertyProvider(azureInstanceRequestorMock, true);
+            var azureIMSFields = new AzureComputeMetadataHeartbeatPropertyProvider(azureInstanceRequestorMock);
             var defaultFields = azureIMSFields.ExpectedAzureImsFields;
 
             // not adding the fields we're looking for, simulation of the Azure Instance Metadata service not being present...
