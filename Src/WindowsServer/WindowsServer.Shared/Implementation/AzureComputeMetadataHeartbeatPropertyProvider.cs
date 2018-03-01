@@ -14,7 +14,7 @@
         /// Expected fields extracted from Azure IMS to add to the heartbeat properties. 
         /// Set as internal for testing.
         /// </summary>
-        internal readonly IReadOnlyCollection<string> ExpectedAzureImsFields = new List<string>()
+        internal readonly IReadOnlyCollection<string> ExpectedAzureImsFields = new string[]
         {
             "location",
             "name",
@@ -72,7 +72,7 @@
         /// </summary>
         /// <param name="provider">Heartbeat provider to set the properties on.</param>
         /// <returns>True if any property values were successfully set, false if none were set.</returns>
-        public async Task<bool> SetDefaultPayload(IHeartbeatPropertyManager provider)
+        public async Task<bool> SetDefaultPayloadAsync(IHeartbeatPropertyManager provider)
         {
             bool hasSetFields = false;
             

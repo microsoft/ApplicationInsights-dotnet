@@ -23,7 +23,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             AzureInstanceMetadataRequestMock azureInstanceRequestorMock = new AzureInstanceMetadataRequestMock();
             AzureComputeMetadataHeartbeatPropertyProvider azureIMSFields = new AzureComputeMetadataHeartbeatPropertyProvider(azureInstanceRequestorMock, true);
 
-            var taskWaiter = azureIMSFields.SetDefaultPayload(hbeatMock).ConfigureAwait(false);
+            var taskWaiter = azureIMSFields.SetDefaultPayloadAsync(hbeatMock).ConfigureAwait(false);
             Assert.True(taskWaiter.GetAwaiter().GetResult()); // no await for tests
 
             foreach (string fieldName in azureIMSFields.ExpectedAzureImsFields)
@@ -55,7 +55,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             var defaultFields = azureIMSFields.ExpectedAzureImsFields;
 
             // not adding the fields we're looking for, simulation of the Azure Instance Metadata service not being present...
-            var taskWaiter = azureIMSFields.SetDefaultPayload(hbeatMock).ConfigureAwait(false);
+            var taskWaiter = azureIMSFields.SetDefaultPayloadAsync(hbeatMock).ConfigureAwait(false);
             Assert.False(taskWaiter.GetAwaiter().GetResult()); // nop await for tests
 
             foreach (string fieldName in defaultFields)
@@ -95,7 +95,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
             var defaultFields = azureIMSFields.ExpectedAzureImsFields;
 
             // not adding the fields we're looking for, simulation of the Azure Instance Metadata service not being present...
-            var taskWaiter = azureIMSFields.SetDefaultPayload(hbeatMock).ConfigureAwait(false);
+            var taskWaiter = azureIMSFields.SetDefaultPayloadAsync(hbeatMock).ConfigureAwait(false);
             Assert.True(taskWaiter.GetAwaiter().GetResult()); // nop await for tests
 
             foreach (string fieldName in defaultFields)

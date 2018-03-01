@@ -146,11 +146,11 @@
 
             if (fieldName.Equals("resourceGroupName", StringComparison.OrdinalIgnoreCase))
             {
-                valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.ResourceGroupNameLengthMax;
-                valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.ResourceGroupNameLengthMin;
                 var resGrpMatcher = new Regex(AzureInstanceComputeMetadata.ResourceGroupNameValidChars, RegexOptions.None, regexTimeout);
-                valueOk &= resGrpMatcher.IsMatch(valueToVerify);
-                valueOk &= !valueToVerify.EndsWith(".", StringComparison.OrdinalIgnoreCase);
+                valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.ResourceGroupNameLengthMax
+                    && valueToVerify.Length >= AzureInstanceComputeMetadata.ResourceGroupNameLengthMin
+                    && resGrpMatcher.IsMatch(valueToVerify)
+                    && !valueToVerify.EndsWith(".", StringComparison.OrdinalIgnoreCase);
 
                 if (valueOk)
                 {
@@ -169,10 +169,10 @@
             }
             else if (fieldName.Equals("name", StringComparison.OrdinalIgnoreCase))
             {
-                valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.NameLenghtMax;
-                valueOk &= valueToVerify.Length >= AzureInstanceComputeMetadata.NameLengthMin;
                 var nameMatcher = new Regex(AzureInstanceComputeMetadata.NameValidChars, RegexOptions.None, regexTimeout);
-                valueOk &= nameMatcher.IsMatch(valueToVerify);
+                valueOk = valueToVerify.Length <= AzureInstanceComputeMetadata.NameLenghtMax
+                    && valueToVerify.Length >= AzureInstanceComputeMetadata.NameLengthMin
+                    && nameMatcher.IsMatch(valueToVerify);
 
                 if (valueOk)
                 {

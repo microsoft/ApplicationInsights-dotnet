@@ -1,15 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
     using System;
-    using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
-    using System.Net;
     using System.Net.Http;
     using System.Runtime.Serialization.Json;
     using System.Threading.Tasks;
-#if NETSTANDARD1_3
-    using System.Net.Http;
-#endif
     using Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts;
 
@@ -45,13 +41,15 @@
         /// </summary>
         internal string BaseAimsUri { get; set; } = "http://169.254.169.254/metadata/instance/compute";
 
-        public async Task<AzureInstanceComputeMetadata> GetAzureComputeMetadataAsync()
+        public Task<AzureInstanceComputeMetadata> GetAzureComputeMetadataAsync()
         {
-            string metadataRequestUrl = $"{this.BaseAimsUri}?{AzureMetadataRequestor.AzureImsJsonFormat}&{AzureMetadataRequestor.AzureImsApiVersion}";
+            string metadataRequestUrl = string.Format(CultureInfo.InvariantCulture,
+                "{0}?{1}&{2}",
+                this.BaseAimsUri,
+                AzureMetadataRequestor.AzureImsJsonFormat,
+                AzureMetadataRequestor.AzureImsApiVersion);
 
-            AzureInstanceComputeMetadata jsonResponse = await this.MakeAzureMetadataRequestAsync(metadataRequestUrl);
-
-            return jsonResponse;
+            return this.MakeAzureMetadataRequestAsync(metadataRequestUrl);
         }
 
         private async Task<AzureInstanceComputeMetadata> MakeAzureMetadataRequestAsync(string metadataRequestUrl)
@@ -63,11 +61,11 @@
             {
                 if (this.azureIMSRequestor != null)
                 {
-                    requestResult = await this.azureIMSRequestor(metadataRequestUrl);
+                    requestResult = await this.azureIMSRequestor(metadataRequestUrl).ConfigureAwait(false);
                 }
                 else
                 {
-                    requestResult = await this.MakeWebRequestAsync(metadataRequestUrl);
+                    requestResult = await this.MakeWebRequestAsync(metadataRequestUrl).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
@@ -94,8 +92,9 @@
                 azureImsClient.DefaultRequestHeaders.Add("Metadata", "True");
                 azureImsClient.Timeout = this.AzureImsRequestTimeout;
 
-                Stream content = await azureImsClient.GetStreamAsync(requestUrl);
+                Stream content = await azureImsClient.GetStreamAsync(requestUrl).ConfigureAwait(false);
                 azureIms = (AzureInstanceComputeMetadata)deserializer.ReadObject(content);
+                content.Dispose();
 
                 if (azureIms == null)
                 {

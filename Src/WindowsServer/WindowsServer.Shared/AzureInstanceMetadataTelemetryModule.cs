@@ -10,7 +10,7 @@
     /// <summary>
     /// A telemetry module that adds Azure instance metadata context information to the heartbeat, if it is available.
     /// </summary>
-    public sealed class AzureInstanceMetadataTelemetryModule : ITelemetryModule, IDisposable
+    public sealed class AzureInstanceMetadataTelemetryModule : ITelemetryModule
     {
         private bool isInitialized = false;
         private object lockObject = new object();
@@ -42,7 +42,7 @@
                                 // to the core event log.
                                 var heartbeatProperties = new AzureComputeMetadataHeartbeatPropertyProvider();
                                 Task.Factory.StartNew(
-                                    async () => await heartbeatProperties.SetDefaultPayload(hbeatManager)
+                                    async () => await heartbeatProperties.SetDefaultPayloadAsync(hbeatManager)
                                     .ConfigureAwait(false));
                             }
                         }
@@ -51,14 +51,6 @@
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Dispose of this class, is expected to be disposed of by the infrastructure.
-        /// </summary>
-        public void Dispose()
-        {
-            // nothing to do here
         }
     }
 }
