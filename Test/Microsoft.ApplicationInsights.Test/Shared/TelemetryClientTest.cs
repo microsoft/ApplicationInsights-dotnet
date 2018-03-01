@@ -427,16 +427,37 @@
         #region TrackDependency
 
         [TestMethod]
+        public void ObsoleteTrackDependencySendsDependencyTelemetryWithGivenNameCommandnameTimestampDurationAndSuccessToTelemetryChannel()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
+
+            var timestamp = DateTimeOffset.Now;
+#pragma warning disable CS0612 // Type or member is obsolete
+            client.TrackDependency("name", "command name", timestamp, TimeSpan.FromSeconds(42), false);
+#pragma warning restore CS0612 // Type or member is obsolete
+
+            var dependency = (DependencyTelemetry)sentTelemetry.Single();
+
+            Assert.AreEqual("name", dependency.Name);
+            Assert.AreEqual("command name", dependency.Data);
+            Assert.AreEqual(timestamp, dependency.Timestamp);
+            Assert.AreEqual(TimeSpan.FromSeconds(42), dependency.Duration);
+            Assert.AreEqual(false, dependency.Success);
+        }
+
+        [TestMethod]
         public void TrackDependencySendsDependencyTelemetryWithGivenNameCommandnameTimestampDurationAndSuccessToTelemetryChannel()
         {
             var sentTelemetry = new List<ITelemetry>();
             TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
 
             var timestamp = DateTimeOffset.Now;
-            client.TrackDependency("name", "command name", timestamp, TimeSpan.FromSeconds(42), false);
+            client.TrackDependency("type name", "name", "command name", timestamp, TimeSpan.FromSeconds(42), false);
 
             var dependency = (DependencyTelemetry)sentTelemetry.Single();
 
+            Assert.AreEqual("type name", dependency.Type);
             Assert.AreEqual("name", dependency.Name);
             Assert.AreEqual("command name", dependency.Data);
             Assert.AreEqual(timestamp, dependency.Timestamp);

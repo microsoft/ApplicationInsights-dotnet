@@ -6,9 +6,10 @@
     using System.Linq;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Mocks;
 
     [TestClass]
-    public class HealthHeartbeatTests
+    public class HeartbeatTests
     {
         [TestMethod]
         public void InitializeHealthHeartbeatDoesntThrow()
@@ -52,7 +53,7 @@
                 Assert.AreNotEqual(userSetInterval, hbeat.HeartbeatInterval);
                 hbeat.HeartbeatInterval = userSetInterval;
 
-                // initialize the DiagnosticsTelemetryModule, and check that the interval is stil intact
+                // initialize the DiagnosticsTelemetryModule, and check that the interval is still intact
                 initializedModule.Initialize(new TelemetryConfiguration());
                 Assert.AreEqual(userSetInterval, hbeat.HeartbeatInterval);
             }
@@ -99,6 +100,51 @@
         }
 
         [TestMethod]
+        public void InitializationOfTelemetryClientDoesntResetHeartbeat()
+        {
+            TelemetryClient client = new TelemetryClient();
+
+            bool origIsEnabled = true;
+            string origExcludedHbProvider = "Nonsense-Test";
+            TimeSpan origInterval = TimeSpan.MaxValue;
+            TimeSpan setInterval = TimeSpan.MaxValue;
+
+            foreach (var module in TelemetryModules.Instance.Modules)
+            {
+                if (module is IHeartbeatPropertyManager hbeatMan)
+                {
+                    origIsEnabled = hbeatMan.IsHeartbeatEnabled;
+                    hbeatMan.IsHeartbeatEnabled = !origIsEnabled;
+
+                    Assert.IsFalse(hbeatMan.ExcludedHeartbeatPropertyProviders.Contains(origExcludedHbProvider));
+                    hbeatMan.ExcludedHeartbeatPropertyProviders.Add(origExcludedHbProvider);
+
+
+                    hbeatMan.ExcludedHeartbeatProperties.Add("Test01");
+
+                    origInterval = hbeatMan.HeartbeatInterval;
+                    setInterval = origInterval + TimeSpan.FromMinutes(2);
+                    hbeatMan.HeartbeatInterval = setInterval;
+                }
+            }
+
+            TelemetryClient client2 = new TelemetryClient();
+
+            foreach (var module in TelemetryModules.Instance.Modules)
+            {
+                if (module is IHeartbeatPropertyManager hbeatMan)
+                {
+                    Assert.AreNotEqual(hbeatMan.IsHeartbeatEnabled, origIsEnabled);
+                    Assert.IsTrue(hbeatMan.ExcludedHeartbeatPropertyProviders.Contains(origExcludedHbProvider));
+                    Assert.IsTrue(hbeatMan.ExcludedHeartbeatProperties.Contains("Test01"));
+                    Assert.AreNotEqual(hbeatMan.HeartbeatInterval, origInterval);
+                    Assert.AreEqual(hbeatMan.HeartbeatInterval, setInterval);
+                }
+            }
+
+        }
+
+        [TestMethod]
         public void IsHeartbeatEnabledByDefault()
         {
             using (var initializedModule = new DiagnosticsTelemetryModule())
@@ -129,6 +175,44 @@
 
                 // dig into the heartbeat provider itself to ensure this is indeed disabled
                 Assert.IsFalse(initializedModule.HeartbeatProvider.IsHeartbeatEnabled);
+            }
+        }
+
+        [TestMethod]
+        public void CanDisableHeartbeatPropertyProviderPriorToInitialize()
+        {
+            using (var initializedModule = new DiagnosticsTelemetryModule())
+            {
+                // disable the heartbeat property provider 'Base' at construction time but before initialize
+                // (this simulates the flow of disabling the heartbeat via config)
+                IHeartbeatPropertyManager hbeat = initializedModule;
+                IHeartbeatDefaultPayloadProvider hbeatPropProvider = HeartbeatDefaultPayload.DefaultPayloadProviders.First();
+                hbeat.ExcludedHeartbeatPropertyProviders.Add(hbeatPropProvider.Name);
+
+                // dig into the heartbeat provider itself to ensure this is indeed disabled
+                Assert.IsTrue(initializedModule.HeartbeatProvider.ExcludedHeartbeatPropertyProviders.Contains(hbeatPropProvider.Name));
+
+                // initialize the DiagnosticsTelemetryModule, and check that heartbeats are still disabled
+                initializedModule.Initialize(new TelemetryConfiguration());
+
+                // ensure this heartbeat property provider is still disabled after init
+                Assert.IsTrue(initializedModule.HeartbeatProvider.ExcludedHeartbeatPropertyProviders.Contains(hbeatPropProvider.Name));
+            }
+        }
+
+        [TestMethod]
+        public void DefaultHeartbeatPropertyProviderSendsNoFieldWhenDisabled()
+        {
+            var mockHbeat = new HeartbeatProviderMock();
+            IHeartbeatDefaultPayloadProvider baseDefaultProvider = HeartbeatDefaultPayload.DefaultPayloadProviders.First();
+            var hbeatPayload = HeartbeatDefaultPayload.PopulateDefaultPayload(new string[] { }, new string[] { baseDefaultProvider.Name }, mockHbeat);
+            hbeatPayload.GetAwaiter().GetResult();
+
+            // for each heartbeat property recorded into the heartbeat provider, none should be a registered keyword on 
+            // this base default heartbeat property provider.
+            foreach (string payloadPropertyName in mockHbeat.HeartbeatProperties.Keys)
+            {
+                Assert.IsFalse(baseDefaultProvider.IsKeyword(payloadPropertyName));
             }
         }
 
@@ -173,16 +257,20 @@
         [TestMethod]
         public void HeartbeatPayloadContainsOnlyAllowedDefaultPayloadFields()
         {
+            var assemblyDefFields = new BaseDefaultHeartbeatPropertyProvider();
+
+            var allDefaultFields = assemblyDefFields.DefaultFields;
+
             using (var hbeat = new HeartbeatProvider())
             {
                 List<string> disableHbProps = new List<string>();
 
-                for (int i = 0; i < HeartbeatDefaultPayload.DefaultFields.Length; ++i)
+                for (int i = 0; i < allDefaultFields.Count(); ++i)
                 {
                     if (i % 2 == 0)
                     {
-                        disableHbProps.Add(HeartbeatDefaultPayload.DefaultFields[i]);
-                        hbeat.ExcludedHeartbeatProperties.Add(HeartbeatDefaultPayload.DefaultFields[i]);
+                        disableHbProps.Add(allDefaultFields[i]);
+                        hbeat.ExcludedHeartbeatProperties.Add(allDefaultFields[i]);
                     }
                 }
 
@@ -246,25 +334,16 @@
         [TestMethod]
         public void SentHeartbeatContainsExpectedDefaultFields()
         {
-            using (var hbeat = new HeartbeatProvider())
+            using (var hbeatMock = new HeartbeatProviderMock())
             {
-                hbeat.Initialize(configuration: null);
+                var baseHbeatProps = new BaseDefaultHeartbeatPropertyProvider().DefaultFields;
 
-                var msg = (MetricTelemetry)hbeat.GatherData();
-                Assert.IsNotNull(msg);
+                var taskWaiter = HeartbeatDefaultPayload.PopulateDefaultPayload(new string[] { }, new string[] { }, hbeatMock).ConfigureAwait(false);
+                Assert.IsTrue(taskWaiter.GetAwaiter().GetResult()); // no await for tests
 
-                foreach (string field in HeartbeatDefaultPayload.DefaultFields)
+                foreach (string fieldName in baseHbeatProps)
                 {
-                    try
-                    {
-                        var fieldPayload = msg.Properties.Single(a => string.Compare(a.Key, field) == 0);
-                        Assert.IsNotNull(fieldPayload);
-                        Assert.IsFalse(string.IsNullOrEmpty(fieldPayload.Value));
-                    }
-                    catch (Exception)
-                    {
-                        Assert.Fail(string.Format(CultureInfo.CurrentCulture, "The default field '{0}' is not present exactly once in a sent message.", field));
-                    }
+                    Assert.IsTrue(hbeatMock.HeartbeatProperties.ContainsKey(fieldName));
                 }
             }
         }
@@ -300,8 +379,9 @@
             using (var hbeat = new HeartbeatProvider())
             {
                 hbeat.Initialize(configuration: null);
-
-                foreach (string key in HeartbeatDefaultPayload.DefaultFields)
+                BaseDefaultHeartbeatPropertyProvider defFields = new BaseDefaultHeartbeatPropertyProvider();
+                
+                foreach (string key in defFields.DefaultFields)
                 {
                     Assert.IsFalse(hbeat.SetHeartbeatProperty(key, "test", true));
                 }
@@ -314,8 +394,9 @@
             using (var hbeat = new HeartbeatProvider())
             {
                 hbeat.Initialize(configuration: null);
-
-                foreach (string key in HeartbeatDefaultPayload.DefaultFields)
+                BaseDefaultHeartbeatPropertyProvider defFields = new BaseDefaultHeartbeatPropertyProvider();
+                
+                foreach (string key in defFields.DefaultFields)
                 {
                     Assert.IsFalse(hbeat.AddHeartbeatProperty(key, "test", true));
                 }
@@ -325,15 +406,10 @@
         [TestMethod]
         public void EnsureAllTargetFrameworksRepresented()
         {
-            using (var hbeat = new HeartbeatProvider())
-            {
-                hbeat.Initialize(configuration: null);
-
-                var msg = (MetricTelemetry)hbeat.GatherData();
-
-                Assert.IsTrue(msg.Properties.ContainsKey("baseSdkTargetFramework"));
-                Assert.IsFalse(msg.Properties["baseSdkTargetFramework"].Equals("undefined", StringComparison.OrdinalIgnoreCase));
-            }
+            BaseDefaultHeartbeatPropertyProvider bp = new BaseDefaultHeartbeatPropertyProvider();
+            var noAwaiterForTests = bp.SetDefaultPayload(new string[] { }, new HeartbeatProviderMock()).ConfigureAwait(false);
+            Assert.IsTrue(noAwaiterForTests.GetAwaiter().GetResult());
+            // this is enough to ensure we've hit all of our target framework paths (unless a new one has been added, the purpose of this test)
         }
 
         [TestMethod]
@@ -372,6 +448,36 @@
                 Assert.IsTrue(msg.Properties.ContainsKey(key));
                 Assert.IsTrue(msg.Properties[key].Equals("value01", StringComparison.Ordinal));
                 Assert.IsTrue(msg.Sum == 1.0); // one false message in payload only
+            }
+        }
+
+        [TestMethod]
+        public void HandleUnknownDefaultProperty()
+        {
+            var defProps = new BaseDefaultHeartbeatPropertyProvider();
+            string testKey = "TestProp";
+            defProps.DefaultFields.Add(testKey);
+            using (var hbeat = new HeartbeatProvider())
+            {
+                var waitForProps = defProps.SetDefaultPayload(new string[] { }, hbeat).ConfigureAwait(false);
+                Assert.IsTrue(waitForProps.GetAwaiter().GetResult());
+                var heartbeat = (MetricTelemetry)hbeat.GatherData();
+                Assert.IsTrue(heartbeat.Properties.ContainsKey(testKey));
+                Assert.IsFalse(string.IsNullOrEmpty(heartbeat.Properties[testKey]));
+            }
+        }
+
+        [TestMethod]
+        public void CanOverrideDefaultHeartbeatValuesInternally()
+        {
+            using (var hbeat = (IHeartbeatProvider)new HeartbeatProvider())
+            {
+                var baseProps = new BaseDefaultHeartbeatPropertyProvider();
+                var defaultFieldName = baseProps.DefaultFields[0];
+                Assert.IsTrue(hbeat.AddHeartbeatProperty(defaultFieldName, true, "test", true));
+                Assert.IsFalse(hbeat.AddHeartbeatProperty(defaultFieldName, true, "test", true));
+                Assert.IsTrue(hbeat.SetHeartbeatProperty(defaultFieldName, true, "test-1", false));
+                Assert.IsFalse(hbeat.SetHeartbeatProperty(defaultFieldName, false, "test-2", false));
             }
         }
     }

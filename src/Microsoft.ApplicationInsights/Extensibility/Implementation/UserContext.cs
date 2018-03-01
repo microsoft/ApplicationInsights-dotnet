@@ -66,14 +66,13 @@
             tags.UpdateTagValue(ContextTagKeys.Keys.UserAgent, this.UserAgent);
             tags.UpdateTagValue(ContextTagKeys.Keys.UserAuthUserId, this.AuthenticatedUserId);
         }
-
-        internal void CopyFrom(TelemetryContext telemetryContext)
+        
+        internal void CopyTo(UserContext target)
         {
-            var source = telemetryContext.User;
-            Tags.CopyTagValue(source.Id, ref this.id);
-            Tags.CopyTagValue(source.AccountId, ref this.accountId);
-            Tags.CopyTagValue(source.UserAgent, ref this.userAgent);
-            Tags.CopyTagValue(source.AuthenticatedUserId, ref this.authenticatedUserId);
+            Tags.CopyTagValue(this.Id, ref target.id);
+            Tags.CopyTagValue(this.AccountId, ref target.accountId);
+            Tags.CopyTagValue(this.UserAgent, ref target.userAgent);
+            Tags.CopyTagValue(this.AuthenticatedUserId, ref target.authenticatedUserId);
         }
     }
 }

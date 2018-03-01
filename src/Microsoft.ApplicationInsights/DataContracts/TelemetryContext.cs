@@ -152,18 +152,23 @@
             return other;
         }
 
+        /// <summary>
+        /// Initialize this instance's Context properties with the values from another TelemetryContext.
+        /// First check that source is not null, then copy to this instance.
+        /// Note that invoking the public getter instead of the private field will call the LazyInitializer.
+        /// </summary>
         internal void Initialize(TelemetryContext source, string instrumentationKey)
         {
             Property.Initialize(ref this.instrumentationKey, instrumentationKey);
 
-            this.component?.CopyFrom(source);
-            this.device?.CopyFrom(source);
-            this.cloud?.CopyFrom(source);
-            this.session?.CopyFrom(source);
-            this.user?.CopyFrom(source);
-            this.operation?.CopyFrom(source);
-            this.location?.CopyFrom(source);
-            this.Internal.CopyFrom(source);
+            source.component?.CopyTo(this.Component);
+            source.device?.CopyTo(this.Device);
+            source.cloud?.CopyTo(this.Cloud);
+            source.session?.CopyTo(this.Session);
+            source.user?.CopyTo(this.User);
+            source.operation?.CopyTo(this.Operation);
+            source.location?.CopyTo(this.Location);
+            source.Internal.CopyTo(this.Internal);
         }
     }
 }
