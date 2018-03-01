@@ -3,92 +3,45 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
+    using System.Threading.Tasks;
 
     internal static class HeartbeatDefaultPayload
     {
-       public static readonly string[] DefaultFields =
+        internal static readonly IHeartbeatDefaultPayloadProvider[] DefaultPayloadProviders =
         {
-            "runtimeFramework",
-            "baseSdkTargetFramework"
+            new BaseDefaultHeartbeatPropertyProvider()
         };
 
-        public static void PopulateDefaultPayload(IEnumerable<string> disabledFields, IHeartbeatProvider provider)
+        public static bool IsDefaultKeyword(string keyword)
         {
-            var enabledProperties = RemoveDisabledDefaultFields(disabledFields);
-
-            var payload = new Dictionary<string, HeartbeatPropertyPayload>();
-            foreach (string fieldName in enabledProperties)
+            foreach (var payloadProvider in DefaultPayloadProviders)
             {
-                try
+                if (payloadProvider.IsKeyword(keyword))
                 {
-                    switch (fieldName)
-                    {
-                        case "runtimeFramework":
-                            provider.AddHeartbeatProperty(fieldName, GetRuntimeFrameworkVer(), true);
-                            break;
-                        case "baseSdkTargetFramework":
-                            provider.AddHeartbeatProperty(fieldName, GetBaseSdkTargetFramework(), true);
-                            break;
-                        default:
-                            provider.AddHeartbeatProperty(fieldName, "UNDEFINED", false);
-                            break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    CoreEventSource.Log.FailedToObtainDefaultHeartbeatProperty(fieldName, ex.ToString());
-                }
-            }
-        }
-
-        private static List<string> RemoveDisabledDefaultFields(IEnumerable<string> disabledFields)
-        {
-            List<string> enabledProperties = new List<string>();
-
-            if (disabledFields == null || disabledFields.Count() <= 0)
-            {
-                enabledProperties = DefaultFields.ToList();
-            }
-            else
-            {
-                enabledProperties = new List<string>();
-                foreach (string fieldName in DefaultFields)
-                {
-                    if (!disabledFields.Contains(fieldName, StringComparer.OrdinalIgnoreCase))
-                    {
-                        enabledProperties.Add(fieldName);
-                    }
+                    return true;
                 }
             }
 
-            return enabledProperties;
+            return false;
         }
 
-        private static string GetBaseSdkTargetFramework()
+        public static async Task<bool> PopulateDefaultPayload(IEnumerable<string> disabledFields, IEnumerable<string> disabledProviders, IHeartbeatProvider provider)
         {
-#if NET45
-            return "net45";
-#elif NET46
-            return "net46";
-#elif NETSTANDARD1_3
-            return "netstandard1.3";
-#else
-#error Unrecognized framework
-            return "undefined";
-#endif
-        }
+            bool populatedFields = false;
 
-        private static string GetRuntimeFrameworkVer()
-        {
-            Assembly assembly = typeof(Object).GetTypeInfo().Assembly;
+            foreach (var payloadProvider in DefaultPayloadProviders)
+            {
+                if (disabledProviders != null && disabledProviders.Contains(payloadProvider.Name, StringComparer.OrdinalIgnoreCase))
+                {
+                    // skip any azure specific modules here
+                    continue;
+                }
 
-            AssemblyFileVersionAttribute objectAssemblyFileVer =
-                        assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute))
-                                .Cast<AssemblyFileVersionAttribute>()
-                                .FirstOrDefault();
+                bool fieldsAreSet = await payloadProvider.SetDefaultPayload(disabledFields, provider).ConfigureAwait(false);
+                populatedFields = populatedFields || fieldsAreSet;
+            }
 
-            return objectAssemblyFileVer != null ? objectAssemblyFileVer.Version : "undefined";
+            return populatedFields;
         }
     }
 }

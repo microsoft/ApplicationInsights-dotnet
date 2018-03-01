@@ -1,5 +1,6 @@
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.AddHeartbeatProperty(string propertyName, string propertyValue, bool isHealthy) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.ExcludedHeartbeatProperties.get -> System.Collections.Generic.IList<string>
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.ExcludedHeartbeatPropertyProviders.get -> System.Collections.Generic.IList<string>
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.HeartbeatInterval.get -> System.TimeSpan
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.HeartbeatInterval.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.IsHeartbeatEnabled.get -> bool
@@ -8,6 +9,7 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTe
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHeartbeatPropertyManager
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHeartbeatPropertyManager.AddHeartbeatProperty(string propertyName, string propertyValue, bool isHealthy) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHeartbeatPropertyManager.ExcludedHeartbeatProperties.get -> System.Collections.Generic.IList<string>
+Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHeartbeatPropertyManager.ExcludedHeartbeatPropertyProviders.get -> System.Collections.Generic.IList<string>
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHeartbeatPropertyManager.HeartbeatInterval.get -> System.TimeSpan
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHeartbeatPropertyManager.HeartbeatInterval.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHeartbeatPropertyManager.IsHeartbeatEnabled.get -> bool
