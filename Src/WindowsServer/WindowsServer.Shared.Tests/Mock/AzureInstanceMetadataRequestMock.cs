@@ -21,16 +21,18 @@
 
             this.ComputeMetadata = new AzureInstanceComputeMetadata()
             {
-                OsType = "Windows",
                 Location = "Here, now",
                 Name = "vm-testRg-num1",
                 Offer = "OneYouCannotPassUp",
+                OsType = "Windows",
+                PlacementGroupId = "plat-grp-id",
                 PlatformFaultDomain = "0",
                 PlatformUpdateDomain = "0",
                 Publisher = "Microsoft-Vancouver",
                 ResourceGroupName = "testRg",
                 Sku = "OSVm01",
                 SubscriptionId = Guid.NewGuid().ToString(),
+                Tags = "thisTag;thatTag",
                 Version = "0.0.0",
                 VmId = Guid.NewGuid().ToString(),
                 VmSize = "A01"

@@ -222,12 +222,14 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 Name = "test-vm01",
                 Offer = "D9_USWest",
                 OsType = "Linux",
+                PlacementGroupId = "placement-grp",
                 PlatformFaultDomain = "0",
                 PlatformUpdateDomain = "0",
                 Publisher = "Microsoft",
                 ResourceGroupName = "test.resource-group_01",
                 Sku = "Windows_10",
                 SubscriptionId = Guid.NewGuid().ToString(),
+                Tags = "thisTag;thatTag",
                 Version = "10.8a",
                 VmId = Guid.NewGuid().ToString(),
                 VmSize = "A8"
@@ -242,15 +244,17 @@ namespace Microsoft.ApplicationInsights.WindowsServer
   ""location"": ""{1}"",
   ""name"": ""{2}"",
   ""offer"": ""{3}"",
-  ""platformFaultDomain"": ""{4}"",
-  ""platformUpdateDomain"": ""{5}"",
-  ""publisher"": ""{6}"",
-  ""sku"": ""{7}"",
-  ""version"": ""{8}"",
-  ""vmId"": ""{9}"",
-  ""vmSize"": ""{10}"",
-  ""subscriptionId"": ""{11}"",
-  ""resourceGroupName"": ""{12}""
+  ""placementGroupId"": ""{4}"",
+  ""platformFaultDomain"": ""{5}"",
+  ""platformUpdateDomain"": ""{6}"",
+  ""publisher"": ""{7}"",
+  ""sku"": ""{8}"",
+  ""version"": ""{9}"",
+  ""vmId"": ""{10}"",
+  ""vmSize"": ""{11}"",
+  ""subscriptionId"": ""{12}"",
+  ""tags"": ""{13}"",
+  ""resourceGroupName"": ""{14}""
 }}";
             string json = string.Format(
                 System.Globalization.CultureInfo.InvariantCulture,
@@ -259,6 +263,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 expectMetadata.Location,
                 expectMetadata.Name,
                 expectMetadata.Offer,
+                expectMetadata.PlacementGroupId,
                 expectMetadata.PlatformFaultDomain,
                 expectMetadata.PlatformUpdateDomain,
                 expectMetadata.Publisher,
@@ -267,6 +272,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 expectMetadata.VmId,
                 expectMetadata.VmSize,
                 expectMetadata.SubscriptionId,
+                expectMetadata.Tags,
                 expectMetadata.ResourceGroupName);
 
             var jsonBytes = Encoding.UTF8.GetBytes(json);
