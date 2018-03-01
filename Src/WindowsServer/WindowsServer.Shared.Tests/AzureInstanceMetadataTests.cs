@@ -291,7 +291,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer
 
             try
             {
-                var result = requestor.GetAzureComputeMetadata();
+                var result = requestor.GetAzureComputeMetadataAsync();
                 Assert.Null(result.GetAwaiter().GetResult());                
             }
             catch

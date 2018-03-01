@@ -14,7 +14,7 @@
         /// Expected fields extracted from Azure IMS to add to the heartbeat properties. 
         /// Set as internal for testing.
         /// </summary>
-        internal readonly List<string> ExpectedAzureImsFields = new List<string>()
+        internal readonly IReadOnlyCollection<string> ExpectedAzureImsFields = new List<string>()
         {
             "location",
             "name",
@@ -80,7 +80,7 @@
             {
                 this.isAzureMetadataCheckCompleted = true;
 
-                var azureComputeMetadata = await this.azureInstanceMetadataRequestor.GetAzureComputeMetadata()
+                var azureComputeMetadata = await this.azureInstanceMetadataRequestor.GetAzureComputeMetadataAsync()
                                 .ConfigureAwait(false);
 
                 if (azureComputeMetadata != null)

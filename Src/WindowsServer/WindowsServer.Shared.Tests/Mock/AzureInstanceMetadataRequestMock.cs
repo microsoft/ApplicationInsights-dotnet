@@ -37,7 +37,7 @@
             };
         }
         
-        public Task<AzureInstanceComputeMetadata> GetAzureComputeMetadata()
+        public Task<AzureInstanceComputeMetadata> GetAzureComputeMetadataAsync()
         {
             return Task.FromResult(this.getComputeMetadata());
         }

@@ -35,8 +35,6 @@
         /// <returns>An instance of AzureInstanceComputeMetadata or null.</returns>
         private Func<string, Task<AzureInstanceComputeMetadata>> azureIMSRequestor = null;
 
-        private string baseImdsUri = "http://169.254.169.254/metadata/instance/compute";
-
         internal AzureMetadataRequestor(Func<string, Task<AzureInstanceComputeMetadata>> makeAzureIMSRequestor = null)
         {
             this.azureIMSRequestor = makeAzureIMSRequestor;
@@ -45,22 +43,18 @@
         /// <summary>
         /// Gets or sets the base URI for the Azure Instance Metadata service. Internal to allow overriding in test.
         /// </summary>
-        internal string BaseAimsUri
-        {
-            get => this.baseImdsUri;
-            set => this.baseImdsUri = value;
-        }
+        internal string BaseAimsUri { get; set; } = "http://169.254.169.254/metadata/instance/compute";
 
-        public async Task<AzureInstanceComputeMetadata> GetAzureComputeMetadata()
+        public async Task<AzureInstanceComputeMetadata> GetAzureComputeMetadataAsync()
         {
             string metadataRequestUrl = $"{this.BaseAimsUri}?{AzureMetadataRequestor.AzureImsJsonFormat}&{AzureMetadataRequestor.AzureImsApiVersion}";
 
-            AzureInstanceComputeMetadata jsonResponse = await this.MakeAzureMetadataRequest(metadataRequestUrl);
+            AzureInstanceComputeMetadata jsonResponse = await this.MakeAzureMetadataRequestAsync(metadataRequestUrl);
 
             return jsonResponse;
         }
 
-        private async Task<AzureInstanceComputeMetadata> MakeAzureMetadataRequest(string metadataRequestUrl)
+        private async Task<AzureInstanceComputeMetadata> MakeAzureMetadataRequestAsync(string metadataRequestUrl)
         {
             AzureInstanceComputeMetadata requestResult = null;
 
@@ -73,7 +67,7 @@
                 }
                 else
                 {
-                    requestResult = await this.MakeWebRequest(metadataRequestUrl);
+                    requestResult = await this.MakeWebRequestAsync(metadataRequestUrl);
                 }
             }
             catch (Exception ex)
@@ -89,7 +83,7 @@
             return requestResult;
         }
         
-        private async Task<AzureInstanceComputeMetadata> MakeWebRequest(string requestUrl)
+        private async Task<AzureInstanceComputeMetadata> MakeWebRequestAsync(string requestUrl)
         {
             AzureInstanceComputeMetadata azureIms = null;
             DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(AzureInstanceComputeMetadata));

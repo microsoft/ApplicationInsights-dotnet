@@ -6,6 +6,6 @@
 
     internal interface IAzureMetadataRequestor
     {
-        Task<AzureInstanceComputeMetadata> GetAzureComputeMetadata();
+        Task<AzureInstanceComputeMetadata> GetAzureComputeMetadataAsync();
     }
 }
