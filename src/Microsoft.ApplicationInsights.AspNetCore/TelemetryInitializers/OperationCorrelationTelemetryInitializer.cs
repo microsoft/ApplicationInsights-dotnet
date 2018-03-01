@@ -2,6 +2,7 @@
 {
     using System;
     using System.Net.Http.Headers;
+    using Microsoft.ApplicationInsights.AspNetCore.Common;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -45,12 +46,13 @@
             HttpRequest currentRequest = platformContext.Request;
             if (currentRequest?.Headers != null && string.IsNullOrEmpty(requestTelemetry.Source))
             {
-                string headerCorrelationId = HttpHeadersUtilities.GetRequestContextKeyValue(currentRequest.Headers, RequestResponseHeaders.RequestContextSourceKey);
-                
+                string headerCorrelationId = HttpHeadersUtilities.GetRequestContextKeyValue(currentRequest.Headers, RequestResponseHeaders.RequestContextSourceKey);                
+
                 string appCorrelationId = null;
                 // If the source header is present on the incoming request, and it is an external component (not the same ikey as the one used by the current component), populate the source field.
                 if (!string.IsNullOrEmpty(headerCorrelationId))
                 {
+                    headerCorrelationId = StringUtilities.EnforceMaxLength(headerCorrelationId, InjectionGuardConstants.AppIdMaxLengeth);
                     if (string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey))
                     {
                         requestTelemetry.Source = headerCorrelationId;
