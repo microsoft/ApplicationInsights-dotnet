@@ -3,6 +3,7 @@
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
 ## Version 2.6.0-beta1
+- [Changed signature of TelemetryClient.TrackDependency](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/684)
 - [Added overload of TelemetryClientExtensions.StartOperation(Activity activity).] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/644)
 - [Finalize the architecture for adding default heartbeat properties (supporting proposal from Issue #636).](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/666).
 
