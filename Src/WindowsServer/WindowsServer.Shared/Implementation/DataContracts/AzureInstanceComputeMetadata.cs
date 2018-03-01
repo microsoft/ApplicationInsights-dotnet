@@ -21,9 +21,6 @@
         private const string NameValidChars = @"^[a-zA-Z0-9()_\-]+$";
         private readonly TimeSpan regexTimeout = TimeSpan.FromMilliseconds(1000);
 
-        [DataMember(Name = "osType", IsRequired = true)]
-        internal string OsType { get; set; }
-
         [DataMember(Name = "location", IsRequired = true)]
         internal string Location { get; set; }
 
@@ -32,6 +29,12 @@
 
         [DataMember(Name = "offer", IsRequired = true)]
         internal string Offer { get; set; }
+
+        [DataMember(Name = "osType", IsRequired = true)]
+        internal string OsType { get; set; }
+
+        [DataMember(Name = "placementGroupId", IsRequired = true)]
+        internal string PlacementGroupId { get; set; }
 
         [DataMember(Name = "platformFaultDomain", IsRequired = true)]
         internal string PlatformFaultDomain { get; set; }
@@ -42,8 +45,17 @@
         [DataMember(Name = "publisher", IsRequired = true)]
         internal string Publisher { get; set; }
 
+        [DataMember(Name = "resourceGroupName", IsRequired = true)]
+        internal string ResourceGroupName { get; set; }
+
         [DataMember(Name = "sku", IsRequired = true)]
         internal string Sku { get; set; }
+
+        [DataMember(Name = "subscriptionId", IsRequired = true)]
+        internal string SubscriptionId { get; set; }
+
+        [DataMember(Name = "tags", IsRequired = false)]
+        internal string Tags { get; set; }
 
         [DataMember(Name = "version", IsRequired = true)]
         internal string Version { get; set; }
@@ -54,15 +66,9 @@
         [DataMember(Name = "vmSize", IsRequired = true)]
         internal string VmSize { get; set; }
 
-        [DataMember(Name = "subscriptionId", IsRequired = true)]
-        internal string SubscriptionId { get; set; }
-
-        [DataMember(Name = "resourceGroupName", IsRequired = true)]
-        internal string ResourceGroupName { get; set; }
-
         internal string GetValueForField(string fieldName)
         {
-            string aimsValue = string.Empty;
+            string aimsValue = null;
             switch (fieldName.ToLower(CultureInfo.InvariantCulture))
             {
                 case "ostype":
@@ -76,6 +82,9 @@
                     break;
                 case "offer":
                     aimsValue = this.Offer;
+                    break;
+                case "placementgroupid":
+                    aimsValue = this.PlacementGroupId;
                     break;
                 case "platformfaultdomain":
                     aimsValue = this.PlatformFaultDomain;
@@ -104,8 +113,16 @@
                 case "resourcegroupname":
                     aimsValue = this.ResourceGroupName;
                     break;
+                case "tags":
+                    aimsValue = this.Tags;
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(string.Format(CultureInfo.InvariantCulture, "No field named '{0}' in AzureInstanceComputeMetadata.", fieldName));
+            }
+
+            if (aimsValue == null)
+            {
+                aimsValue = string.Empty;
             }
 
             return aimsValue;
@@ -122,6 +139,7 @@
         internal string VerifyExpectedValue(string fieldName)
         {
             string valueToVerify = this.GetValueForField(fieldName);
+
             string value = string.Empty;
             bool valueOk = true;
 

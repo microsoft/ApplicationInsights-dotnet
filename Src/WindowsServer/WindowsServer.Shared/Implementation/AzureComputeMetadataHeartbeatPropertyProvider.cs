@@ -16,19 +16,21 @@
         /// </summary>
         internal readonly List<string> ExpectedAzureImsFields = new List<string>()
         {
-            "osType",
             "location",
             "name",
             "offer",
+            "osType",
+            "placementGroupId",
             "platformFaultDomain",
             "platformUpdateDomain",
             "publisher",
+            "resourceGroupName",
             "sku",
+            "subscriptionId",
+            "tags",
             "version",
             "vmId",
-            "vmSize",
-            "subscriptionId",
-            "resourceGroupName"
+            "vmSize"
         };
 
         /// <summary>
