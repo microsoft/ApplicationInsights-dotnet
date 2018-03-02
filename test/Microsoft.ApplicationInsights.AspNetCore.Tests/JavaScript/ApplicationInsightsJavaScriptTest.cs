@@ -67,7 +67,7 @@
             string unittestkey = "unittestkey";
             var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = unittestkey };
             var snippet = new JavaScriptSnippet(telemetryConfiguration, GetOptions(true), GetHttpContextAccessor("username", false), encoder);
-            Assert.DoesNotContain("setAuthenticatedUserContext", snippet.FullScript);
+            Assert.DoesNotContain("appInsights.setAuthenticatedUserContext(", snippet.FullScript);
         }
 
         [Fact]
