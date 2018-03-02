@@ -227,13 +227,18 @@
         {
             using (this.telemetryClient.StartOperation<RequestTelemetry>("Request", operationId: "ROOT", parentOperationId: "PARENT"))
             {
+                this.telemetryClient.TrackTrace("child trace");
             }
 
-            Assert.AreEqual(1, this.sendItems.Count);
+            Assert.AreEqual(2, this.sendItems.Count);
 
-            var requestTelmetry = (RequestTelemetry)this.sendItems[0];
+            var requestTelmetry = (RequestTelemetry)this.sendItems.Single(t => t is RequestTelemetry);
             Assert.AreEqual("PARENT", requestTelmetry.Context.Operation.ParentId);
             Assert.AreEqual("ROOT", requestTelmetry.Context.Operation.Id);
+
+            var traceTelemetry = (TraceTelemetry)this.sendItems.Single(t => t is TraceTelemetry);
+            Assert.AreEqual(requestTelmetry.Id, traceTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual("ROOT", traceTelemetry.Context.Operation.Id);
         }
 
         [TestMethod]
