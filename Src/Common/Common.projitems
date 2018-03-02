@@ -15,7 +15,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)ExceptionUtilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HeadersUtilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ICorrelationIdLookupHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InjectionGuardConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RequestResponseHeaders.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StringUtilities.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.6' ">
     <Compile Include="$(MSBuildThisFileDirectory)WebHeaderCollectionExtensions.cs" />

@@ -214,6 +214,118 @@
             this.WriteEvent(23, durationMsec, this.ApplicationName);
         }
 
+        [Event(
+            24,
+            Message = "System doesn't have access to Azure Instance Metadata Service. Azure VM instance metadata fields will not be added to heartbeat data.",
+            Level = EventLevel.Informational)]
+        public void CannotObtainAzureInstanceMetadata(string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                24,
+                this.ApplicationName);
+        }
+
+        [Event(
+            25,
+            Message = "Request to obtain information from the Azure Instance Metadata Service failed. Request URI is '{0}', exception: {1} (inner: '{2}')",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataRequestFailure(string requestUrl, string ex, string innerEx, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                25,
+                requestUrl,
+                ex ?? string.Empty,
+                innerEx ?? string.Empty,
+                this.ApplicationName);
+        }
+
+        [Event(
+            26,
+            Message = "Azure IMS returned unexpected number of fields, expected:{0} recieved:{1}.",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataFieldCountUnexpected(int expectedCount, int receivedCount, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                26,
+                expectedCount,
+                receivedCount,
+                this.ApplicationName);
+        }
+
+        [Event(
+            27,
+            Message = "Azure IMS returned at least one field that was not expected, first unexpected field encountered: '{0}'.",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataFieldNameUnexpected(string unexpectedFieldName, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                27,
+                unexpectedFieldName,
+                this.ApplicationName);
+        }
+
+        [Event(
+            28,
+            Message = "Azure IMS returned field '{0}' with an invalid/unexpected value. Not adding this value to heartbeat properties.",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataValueForFieldInvalid(string fieldWithInvalidValue, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                28,
+                fieldWithInvalidValue,
+                this.ApplicationName);
+        }
+
+        [Event(
+            29,
+            Message = "Azure IMS field and value not added to heartbeat properties. Field name:'{0}', value:'{1}'.",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataWasntAddedToHeartbeatProperties(string azureImsFieldName, string azureImsFieldValue, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                29,
+                azureImsFieldName,
+                azureImsFieldValue,
+                this.ApplicationName);
+        }
+
+        [Event(
+            30,
+            Message = "Azure IMS data not added to heartbeat properties. Failure to obtain Azure IMS data occurred.",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataNotAdded(string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                30,
+                this.ApplicationName);
+        }
+
+        [Event(
+            31,
+            Message = "Azure IMS data not added to heartbeat properties. Exception occurred: {0} (1st Inner exception: {1}).",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataFailureWithException(string exception, string innerException, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                31,
+                exception ?? string.Empty,
+                innerException ?? string.Empty,
+                this.ApplicationName);
+        }
+
+        [Event(
+            32,
+            Message = "Azure IMS data not added to heartbeat properties, there was a failure obtaining and setting them. Exception occurred: {0} (1st Inner exception: {1}).",
+            Level = EventLevel.Informational)]
+        public void AzureInstanceMetadataFailureSettingDefaultPayload(string exception, string innerException, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(
+                32,
+                exception ?? string.Empty,
+                innerException ?? string.Empty,
+                this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

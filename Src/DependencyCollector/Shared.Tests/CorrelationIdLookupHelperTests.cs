@@ -24,9 +24,7 @@
             var correlationIdLookupHelper = new CorrelationIdLookupHelper((ikey) =>
             {
                 // Pretend App Id is the same as Ikey
-                var tcs = new TaskCompletionSource<string>();
-                tcs.SetResult(ikey);
-                return tcs.Task;
+                return Task.FromResult(ikey);
             });
 
             string instrumenationKey = Guid.NewGuid().ToString();
@@ -43,6 +41,41 @@
 
             // Once fetch is complete, subsequent calls should return correlation id.
             Assert.IsTrue(correlationIdLookupHelper.TryGetXComponentCorrelationId(instrumenationKey, out cid));
+        }
+
+        /// <summary>
+        /// Test that if an malicious value is returned, that value will be truncated.
+        /// </summary>
+        [TestMethod]
+        public void CorrelationIdLookupHelperTruncatesMaliciousValue()
+        {
+            // 50 character string.
+            var value = "a123456789b123546789c123456789d123456798e123456789";
+
+            // An arbitrary string that is expected to be truncated.
+            var malicious = "00000000000000000000000000000000000000000000000000000000000";
+
+            var cidPrefix = "cid-v1:";
+
+            var correlationIdLookupHelper = new CorrelationIdLookupHelper((ikey) =>
+            {
+                return Task.FromResult(value + malicious);
+            });
+
+            string instrumenationKey = Guid.NewGuid().ToString();
+
+            // first request fails because this will create the fetch task.
+            Assert.IsFalse(correlationIdLookupHelper.TryGetXComponentCorrelationId(instrumenationKey, out string ignore));
+
+            // Let's wait for the task to complete. It should be really quick (based on the test setup) but not immediate.
+            while (correlationIdLookupHelper.IsFetchAppInProgress(instrumenationKey))
+            {
+                Thread.Sleep(10); // wait 10 ms.
+            }
+
+            // Once fetch is complete, subsequent calls should return correlation id.
+            Assert.IsTrue(correlationIdLookupHelper.TryGetXComponentCorrelationId(instrumenationKey, out string cid));
+            Assert.AreEqual(cidPrefix + value, cid);
         }
     }
 }

@@ -7,6 +7,32 @@
   </TelemetryInitializers>
 
   <TelemetryModules xdt:Transform="InsertIfMissing">
+    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.WindowsServer.AzureInstanceMetadataTelemetryModule, Microsoft.AI.WindowsServer">
+      <!--
+      Remove individual fields collected here by adding them to the ApplicationInsighs.HeartbeatProvider 
+      with the following syntax:
+      
+      <Add Type="Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule, Microsoft.ApplicationInsights">
+        <ExcludedHeartbeatProperties>
+          <Add>osType</Add>
+          <Add>location</Add>
+          <Add>name</Add>
+          <Add>offer</Add>
+          <Add>platformFaultDomain</Add>
+          <Add>platformUpdateDomain</Add>
+          <Add>publisher</Add>
+          <Add>sku</Add>
+          <Add>version</Add>
+          <Add>vmId</Add>
+          <Add>vmSize</Add>
+          <Add>subscriptionId</Add>
+          <Add>resourceGroupName</Add>
+        </ExcludedHeartbeatProperties>
+      </Add>
+      
+      NOTE: exclusions will be lost upon upgrade.
+      -->
+    </Add>
     <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.WindowsServer.DeveloperModeWithDebuggerAttachedTelemetryModule, Microsoft.AI.WindowsServer" />
     <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.WindowsServer.UnhandledExceptionTelemetryModule, Microsoft.AI.WindowsServer" />
     <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.WindowsServer.UnobservedExceptionTelemetryModule, Microsoft.AI.WindowsServer"><!--</Add>

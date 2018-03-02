@@ -25,6 +25,8 @@
 
         private static readonly TimeSpan RequestProcessingTimeout = TimeSpan.FromSeconds(30.0);
 
+        private static Random rand = new Random();
+
         /// <summary>
         /// Tuple of (Timestamp, CollectionConfigurationETag, MonitoringDataPoint).
         /// </summary>
@@ -43,8 +45,6 @@
 
         private Action<HttpListenerResponse> submitResponse;
 
-        private HttpListener listener;
-
         private int pingCount;
 
         private int submitCount;
@@ -59,10 +59,6 @@
 
         private bool emulateTimeout;
 
-        private Random rand = new Random();
-
-        private SemaphoreSlim assertionSync;
-
         public QuickPulseServiceClientTests()
         {
             CollectionConfigurationError[] errors;
@@ -74,6 +70,18 @@
         }
 
         public TestContext TestContext { get; set; }
+
+        private SemaphoreSlim AssertionSync
+        {
+            get { return this.TestContext.Properties[nameof(this.AssertionSync)] as SemaphoreSlim; }
+            set { this.TestContext.Properties[nameof(this.AssertionSync)] = value; }
+        }
+
+        private HttpListener Listener
+        {
+            get { return this.TestContext.Properties[nameof(this.Listener)] as HttpListener; }
+            set { this.TestContext.Properties[nameof(this.Listener)] = value; }
+        }
 
         [TestInitialize]
         public void TestInitialize()
@@ -110,23 +118,32 @@
                 };
 
             // dynamic port range is [49152, 65535]
-            int port = this.rand.Next(49152, 65536);
+            int port;
+            lock (rand)
+            {
+                port = rand.Next(49152, 65536);
+            }
 
             Uri serviceEndpoint = new Uri(string.Format(CultureInfo.InvariantCulture, "http://localhost:{0}", port));
             this.TestContext.Properties[ServiceEndpointPropertyName] = serviceEndpoint;
         
 #if NETCORE
-            this.listener = new HttpListener(IPAddress.Loopback, port);
+            this.Listener = new HttpListener(IPAddress.Loopback, port);
 #else
-            this.listener = new HttpListener();
+            this.Listener = new HttpListener();
             string uriPrefix = string.Format(CultureInfo.InvariantCulture, "http://localhost:{0}/", port);
-            this.listener.Prefixes.Add(uriPrefix);
+            this.Listener.Prefixes.Add(uriPrefix);
 #endif
 
-            this.listener.Start();
+            this.Listener.Start();
 
-            this.assertionSync = new SemaphoreSlim(0);
-            Task.Factory.StartNew(() => this.ProcessRequest(this.listener));
+            this.AssertionSync = new SemaphoreSlim(0);
+
+            var eventListenerReady = new AutoResetEvent(false);
+            new Thread(() => this.ProcessRequest(this.Listener, eventListenerReady)).Start();
+
+            eventListenerReady.WaitOne(QuickPulseServiceClientTests.RequestProcessingTimeout);
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
         }
 
         [TestCleanup]
@@ -134,18 +151,19 @@
         {
             try
             {
-                this.listener.Close();
+                this.Listener.Close();
             }
             catch
             {
             }
             finally
             {
-                Interlocked.Exchange(ref this.assertionSync, null)?.Dispose();
+                this.AssertionSync.Dispose();
+                this.AssertionSync = null;
             }
         }
 
-        [TestMethod]
+    [TestMethod]
         public void QuickPulseServiceClientPingsTheService()
         {
             // ARRANGE
@@ -1968,11 +1986,11 @@
         {
             try
             {
-                ((IDisposable)this.listener).Dispose();
-                if (this.assertionSync != null)
+                ((IDisposable)this.Listener).Dispose();
+                if (this.AssertionSync != null)
                 {
-                    this.assertionSync.Dispose();
-                    this.assertionSync = null;
+                    this.AssertionSync.Dispose();
+                    this.AssertionSync = null;
                 }
             }
             catch (Exception)
@@ -1980,17 +1998,18 @@
             }
         }
 
-#region Helpers
+        #region Helpers
 
-        private void ProcessRequest(HttpListener listener)
+        private void ProcessRequest(HttpListener listener, AutoResetEvent ev)
         {
             var serializerDataPoint = new DataContractJsonSerializer(typeof(MonitoringDataPoint));
             var serializerDataPointArray = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
 
-            while (listener.IsListening)
+            while (listener?.IsListening ?? false)
             {
                 try
                 {
+                    ev.Set();
                     HttpListenerContext context = listener.GetContextAsync().GetAwaiter().GetResult();
 
                     var request = context.Request;
@@ -2020,7 +2039,7 @@
                             var streamId = context.Request.Headers[QuickPulseConstants.XMsQpsStreamIdHeaderName];
                             var collectionConfigurationETag = context.Request.Headers[QuickPulseConstants.XMsQpsConfigurationETagHeaderName];
 
-                            this.pings.Add(
+                                this.pings.Add(
                                 Tuple.Create(
                                     new PingHeaders()
                                     {
@@ -2068,7 +2087,7 @@
                 }
                 finally
                 {
-                    this.assertionSync.Release();
+                    this.AssertionSync.Release();
                 }
             }
         }
@@ -2077,11 +2096,10 @@
         {
             TimeSpan timeout = QuickPulseServiceClientTests.RequestProcessingTimeout;
 
-            Task<bool>[] waitTasks = Enumerable.Range(0, requestCount).Select(_ => Task.Run(() => this.assertionSync.Wait(timeout))).ToArray();
-            Task.WhenAll(waitTasks);
+            Task<bool>[] waitTasks = Enumerable.Range(0, requestCount).Select(_ => Task.Run(() => this.AssertionSync.Wait(timeout))).ToArray();
 
             Assert.IsTrue(
-                condition: waitTasks.All(task => task.Result), 
+                condition: waitTasks.All(task => task.Result),
                 message: string.Format(CultureInfo.InvariantCulture, "Not all requests finished processing: expected {0}, actual: {1}", requestCount, waitTasks.Count(task => task.Result)));
         }
 

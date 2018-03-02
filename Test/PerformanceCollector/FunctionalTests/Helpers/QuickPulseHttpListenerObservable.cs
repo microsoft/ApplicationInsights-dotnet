@@ -99,7 +99,7 @@
                 string requestLocalPath = request.Url.LocalPath;
 
                 Trace.WriteLine("=>");
-                Trace.WriteLine("Item received: " + content);
+                Trace.WriteLine("Item received (QPS - " + DateTimeOffset.Now + "): " + content);
                 Trace.WriteLine("<=");
 
                 var response = context.Response;
@@ -151,6 +151,7 @@
                         new CalculatedMetricInfo()
                         {
                             Id = "Metric1",
+                            TelemetryType = TelemetryType.Request,
                             Aggregation = AggregationType.Sum,
                             Projection = "Count()",
                             FilterGroups =
