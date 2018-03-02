@@ -62,7 +62,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 
         
         
-        public bool? success { get; set; }
+        public bool success { get; set; }
 
         
         

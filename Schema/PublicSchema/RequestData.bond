@@ -14,14 +14,14 @@ struct RequestData
     20: required string 	 id;
     
     [CSType("TimeSpan")]
-    [Description("Request duration in TimeSpan 'G' (general long) format: d:hh:mm:ss.fffffff.")]
+    [Description("Request duration in format: DD.HH:MM:SS.MMMMMM. Must be less than 1000 days.")]
     50: required string 	 duration;
     
     [MaxStringLength("1024")]
     [Description("Result of a request execution. HTTP status code for HTTP requests.")]
     60: required string 	 responseCode;
     
-    [Description("Indication of successful or unsuccessful call.")]
+    [Description("Indication of successfull or unsuccessfull call.")]
     70: required bool 	 success;
     
     [MaxStringLength("1024")]

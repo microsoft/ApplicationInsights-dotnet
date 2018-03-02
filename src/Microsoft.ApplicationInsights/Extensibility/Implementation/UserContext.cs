@@ -63,7 +63,6 @@
         {
             tags.UpdateTagValue(ContextTagKeys.Keys.UserId, this.Id);
             tags.UpdateTagValue(ContextTagKeys.Keys.UserAccountId, this.AccountId);
-            tags.UpdateTagValue(ContextTagKeys.Keys.UserAgent, this.UserAgent);
             tags.UpdateTagValue(ContextTagKeys.Keys.UserAuthUserId, this.AuthenticatedUserId);
         }
         

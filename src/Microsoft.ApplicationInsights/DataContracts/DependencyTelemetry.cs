@@ -22,6 +22,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         private double? samplingPercentage;
 
+        private bool successFieldSet;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class.
         /// </summary>
@@ -89,6 +91,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
+            this.successFieldSet = source.successFieldSet;
         }
 
         /// <summary>
@@ -197,8 +200,29 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override bool? Success
         {
-            get { return this.InternalData.success; }
-            set { this.InternalData.success = value; }
+            get
+            {
+                if (this.successFieldSet)
+                {
+                    return this.InternalData.success;
+                }
+
+                return null;
+            }
+
+            set
+            {
+                if (value != null && value.HasValue)
+                {
+                    this.InternalData.success = value.Value;
+                    this.successFieldSet = true;
+                }
+                else
+                {
+                    this.InternalData.success = true;
+                    this.successFieldSet = false;
+                }
+            }
         }
 
         /// <summary>

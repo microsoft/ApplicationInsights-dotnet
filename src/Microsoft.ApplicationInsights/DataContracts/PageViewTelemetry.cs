@@ -76,6 +76,15 @@
         }
 
         /// <summary>
+        /// Gets or sets page view ID.
+        /// </summary>
+        public string Id
+        {
+            get { return this.Data.id; }
+            set { this.Data.id = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the name of the page.
         /// </summary>
         public string Name
@@ -168,6 +177,7 @@
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
             this.Url = this.Url.SanitizeUri();
+            this.Id.SanitizeName();
         }
     }
 }

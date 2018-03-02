@@ -321,7 +321,6 @@
             var userContext = telemetryContext.User;
             userContext.Id = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserId] + 1);
             userContext.AccountId = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAccountId] + 1);
-            userContext.UserAgent = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAgent] + 1);
             userContext.AuthenticatedUserId = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAuthUserId] + 1);
 
             var cloudContext = telemetryContext.Cloud;
@@ -355,7 +354,6 @@
 
             Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserId]), tags[ContextTagKeys.Keys.UserId]);
             Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAccountId]), tags[ContextTagKeys.Keys.UserAccountId]);
-            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAgent]), tags[ContextTagKeys.Keys.UserAgent]);
             Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAuthUserId]), tags[ContextTagKeys.Keys.UserAuthUserId]);
 
             Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.CloudRole]), tags[ContextTagKeys.Keys.CloudRole]);

@@ -33,9 +33,21 @@ struct ContextTagKeys
     [MaxStringLength("64")]
     160: string 	 DeviceType = "ai.device.type";
     
-    [Description("The IP address of the client device. IPv4 and IPv6 is supported. Information in the location context fields is always about the end user. When telemetry is sent from a service, the location context is about the user that initiated the operation in the service.")]
-    [MaxStringLength("45")]
+    [Description("The IP address of the client device. IPv4 and IPv6 are supported. Information in the location context fields is always about the end user. When telemetry is sent from a service, the location context is about the user that initiated the operation in the service.")]
+    [MaxStringLength("46")]
     200: string 	 LocationIp = "ai.location.ip";
+    
+    [Description("The country of the client device. If any of Country, Province, or City is specified, those values will be preferred over geolocation of the IP address field. Information in the location context fields is always about the end user. When telemetry is sent from a service, the location context is about the user that initiated the operation in the service.")]
+    [MaxStringLength("256")]
+    201: string 	 LocationCountry = "ai.location.country";
+    
+    [Description("The province/state of the client device. If any of Country, Province, or City is specified, those values will be preferred over geolocation of the IP address field. Information in the location context fields is always about the end user. When telemetry is sent from a service, the location context is about the user that initiated the operation in the service.")]
+    [MaxStringLength("256")]
+    202: string 	 LocationProvince = "ai.location.province";
+    
+    [Description("The city of the client device. If any of Country, Province, or City is specified, those values will be preferred over geolocation of the IP address field. Information in the location context fields is always about the end user. When telemetry is sent from a service, the location context is about the user that initiated the operation in the service.")]
+    [MaxStringLength("256")]
+    203: string 	 LocationCity = "ai.location.city";
     
     [Description("A unique identifier for the operation instance. The operation.id is created by either a request or a page view. All other telemetry sets this to the value for the containing request or page view. Operation.id is used for finding all the telemetry items for a specific operation instance.")]
     [MaxStringLength("128")]
@@ -70,10 +82,6 @@ struct ContextTagKeys
     [MaxStringLength("1024")]
     505: string 	 UserAccountId = "ai.user.accountId";
     
-    [Description("The browser's user agent string as reported by the browser. This property will be used to extract information regarding the customer's browser but will not be stored. Use custom properties to store the original user agent.")]
-    [MaxStringLength("2048")]
-    510: string 	 UserAgent = "ai.user.userAgent";
-    
     [Description("Anonymous user id. Represents the end user of the application. When telemetry is sent from a service, the user context is about the user that initiated the operation in the service.")]
     [MaxStringLength("128")]
     515: string 	 UserId = "ai.user.id";
@@ -86,7 +94,7 @@ struct ContextTagKeys
     [MaxStringLength("256")]
     705: string 	 CloudRole = "ai.cloud.role";
     
-    [Description("Name of the instance where the application is running. Computer name for on-premises, instance name for Azure.")]
+    [Description("Name of the instance where the application is running. Computer name for on-premisis, instance name for Azure.")]
     [MaxStringLength("256")]
     715: string 	 CloudRoleInstance = "ai.cloud.roleInstance";
     
