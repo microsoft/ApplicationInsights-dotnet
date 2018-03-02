@@ -13,6 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AzureWebAppRoleEnvironmentTelemetryInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AzureInstanceMetadataTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AzureRoleEnvironmentTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Azure\Emulation\TestAzureServiceRuntimeAssemblyLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Azure\Emulation\TestRole.cs" />
@@ -24,6 +25,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ServiceRuntimeTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WindowsServerEventSourceTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FirstChanceExceptionStatisticsTelemetryModuleTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mock\AzureInstanceMetadataRequestMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mock\HeartbeatProviderMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnhandledExceptionTelemetryModuleTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnobservedExceptionTelemetryModuleTest.cs" />
   </ItemGroup>

@@ -1,14 +1,13 @@
 # Changelog
 
-## Version 2.6.0-beta2
-- [Added a max length restriction to values passed in through requests.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/810)
-
 
 ## Version 2.6.0-beta1
+- [Added a max length restriction to values passed in through requests.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/810)
 - [Fix: Dependency Telemetry is not collected with DiagnosticSource when response does not have content.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/739)
 - [Expose Request-Context in Access-Control-Expose-Headers header, and that allows cross-component correlation between AJAX dependencies and server-side requests.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/802)
 - [Improve DependencyCollectorEventSource.Log.CurrentActivityIsNull](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/799)
 - A significant number of upgrades to our testing infrastructure.
+- Add Azure Instance Metadata information to heartbeat properties in WindowsServer package (full framework only). [Completes issue #666 from -dotnet repo](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/666)
 
 
 ## Version 2.5.0

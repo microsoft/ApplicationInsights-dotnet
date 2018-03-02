@@ -10,14 +10,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AzureInstanceMetadataTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AzureWebAppRoleEnvironmentTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AzureRoleEnvironmentTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BuildInfoConfigComponentVersionTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeveloperModeWithDebuggerAttachedTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeviceTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DomainNameRoleInstanceTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureComputeMetadataHeartbeatPropertyProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureMetadataRequestor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureRoleEnvironmentContextReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DataContracts\AzureInstanceComputeMetadata.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DeviceContextReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\IAzureMetadataRequestor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\IAzureRoleEnvironmentContextReader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Role.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RoleEnvironment.cs" />
