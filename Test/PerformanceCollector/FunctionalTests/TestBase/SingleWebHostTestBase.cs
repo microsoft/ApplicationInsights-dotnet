@@ -34,42 +34,30 @@ namespace Functional.Helpers
 
         public TestContext TestContext { get; set; }
 
-        public Task<string> SendRequest(string requestPath, bool wait = true)
+        public void SendRequest(string requestPath, string expectedResponse)
         {
-            const int TimeoutInMs = 15000;
+            const int timeoutInMs = 15000;
 
             string expectedRequestUrl = this.Config.ApplicationUri + "/" + requestPath;
 
-            // spin up the application
             var client = new HttpClient();
-            var requestMessage = new HttpRequestMessage { RequestUri = new Uri(expectedRequestUrl), Method = HttpMethod.Get, };
+            var requestMessage =
+                new HttpRequestMessage {RequestUri = new Uri(expectedRequestUrl), Method = HttpMethod.Get};
 
             var responseTask = client.SendAsync(requestMessage);
 
-            if (wait)
-            {
-                responseTask.Wait(TimeoutInMs);
+            responseTask.Wait(timeoutInMs);
 
-                var responseTextTask = responseTask.Result.Content.ReadAsStringAsync();
-                responseTextTask.Wait(TimeoutInMs);
+            var responseTextTask = responseTask.Result.Content.ReadAsStringAsync();
+            responseTextTask.Wait(timeoutInMs);
 
-                return responseTextTask;
-            }
-            else
-            {
-                return null;
-            }
+            Assert.AreEqual(expectedResponse, responseTextTask.Result);
         }
 
         protected void StartWebAppHost(
             SingleWebHostTestConfiguration configuration)
         {
-            if (null == configuration)
-            {
-                throw new ArgumentNullException("configuration");
-            }
-
-            this.Config = configuration;
+            this.Config = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
             this.Server = IisExpress.Start(
                 configuration.WebHostConfig,
@@ -136,11 +124,8 @@ namespace Functional.Helpers
 
         protected void LaunchAndVerifyApplication()
         {
-            const string RequestPath = "aspx/TestWebForm.aspx";
-            var responseTextTask = this.SendRequest(RequestPath);
-
-            // make sure it's the correct application
-            Assert.AreEqual("PerformanceCollector application", responseTextTask.Result);
+            const string requestPath = "aspx/TestWebForm.aspx";
+            this.SendRequest(requestPath, "PerformanceCollector application");
         }
     }
 }
