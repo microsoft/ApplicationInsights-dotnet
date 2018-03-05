@@ -9,6 +9,7 @@
         public bool Enabled = true;
         public TimeSpan Interval = TimeSpan.FromMinutes(15);
         public List<string> ExcludedProps = new List<string>();
+        public List<string> ExcludedPropProviders = new List<string>();
         public Dictionary<string, string> HbeatProps = new Dictionary<string, string>();
         public Dictionary<string, bool> HbeatHealth = new Dictionary<string, bool>();
 
@@ -17,6 +18,8 @@
         public TimeSpan HeartbeatInterval { get => this.Interval; set => this.Interval = value; }
 
         public IList<string> ExcludedHeartbeatProperties => this.ExcludedProps;
+
+        public IList<string> ExcludedHeartbeatPropertyProviders => this.ExcludedPropProviders;
 
         public bool AddHeartbeatProperty(string propertyName, string propertyValue, bool isHealthy)
         {
