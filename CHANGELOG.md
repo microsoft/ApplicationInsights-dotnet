@@ -2,19 +2,19 @@
 
 ### Version 2.6.0-beta1
 - Include NLog GlobalDiagnosticsContext properties.
-- Remove automatic collection of User Id (https://github.com/Microsoft/ApplicationInsights-dotnet-logging/issues/153)
+- [Remove automatic collection of User Id](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/issues/153)
 
 ### Version 2.5.0
-- Update Application Insights API reference to [2.5.0]
+- Update Application Insights API reference to 2.5.0
 - Removed framework 4.0 support
 - For EventSourceTelemetryModule, allows black list the event sources. Drops the events to those in the list.
-- Fix Deadlock over EventSourceTelemetryModule(https://github.com/Microsoft/ApplicationInsights-dotnet-logging/issues/109)
-- Extensibel payload handler(https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/111)
-- Add ProviderName and ProviderGuid properties to TraceTelemetry(https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/120)
-- Add support for disabledEventSourceNamePrefix configuration(https://github.com/Microsoft/ApplicationInsights-dotnet-logging/issues/122)
-- Fix ApplicationInsights TraceListener does not respect Flush(https://github.com/Microsoft/ApplicationInsights-dotnet-logging/issues/67)
-- Fix NullReferenceException in DiagnosticSourceListener(https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/143)
-- Use InvariantCulture to convert property values(https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/144)
+- [Fix Deadlock over EventSourceTelemetryModule](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/issues/109)
+- [Extensibel payload handler](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/111)
+- [Add ProviderName and ProviderGuid properties to TraceTelemetry](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/120)
+- [Add support for disabledEventSourceNamePrefix configuration](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/issues/122)
+- [Fix ApplicationInsights TraceListener does not respect Flush](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/issues/67)
+- [Fix NullReferenceException in DiagnosticSourceListener](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/143)
+- [Use InvariantCulture to convert property values](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/144)
 - Update NLog reference to [4.4.12](https://github.com/NLog/NLog/releases/tag/v4.4.12)
 
 ### Version 2.4.0
