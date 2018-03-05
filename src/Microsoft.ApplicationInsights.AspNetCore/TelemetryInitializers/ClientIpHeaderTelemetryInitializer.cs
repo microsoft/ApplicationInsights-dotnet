@@ -13,7 +13,7 @@
     /// <summary>
     /// This telemetry initializer extracts client IP address and populates telemetry.Context.Location.Ip property.
     /// </summary>
-    internal class ClientIpHeaderTelemetryInitializer : TelemetryInitializerBase
+    public class ClientIpHeaderTelemetryInitializer : TelemetryInitializerBase
     {
         private const string HeaderNameDefault = "X-Forwarded-For";
         private readonly char[] headerValuesSeparatorDefault = { ',' };

@@ -5,7 +5,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Http;
 
-    internal class WebUserTelemetryInitializer : TelemetryInitializerBase
+    public class WebUserTelemetryInitializer : TelemetryInitializerBase
     {
         private const string WebUserCookieName = "ai_user";
 
