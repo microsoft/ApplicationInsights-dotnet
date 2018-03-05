@@ -59,7 +59,7 @@
                     !string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
                 {
                     string additionalJS = string.Empty;
-                    IIdentity identity = httpContextAccessor?.HttpContext.User?.Identity;
+                    IIdentity identity = httpContextAccessor?.HttpContext?.User?.Identity;
                     if (enableAuthSnippet &&
                         identity != null &&
                         identity.IsAuthenticated)
