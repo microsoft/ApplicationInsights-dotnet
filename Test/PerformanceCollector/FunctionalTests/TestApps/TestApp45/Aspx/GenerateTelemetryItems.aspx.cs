@@ -18,10 +18,10 @@
                 telemetryClient.TrackRequest("RequestFailed", DateTimeOffset.Now, TimeSpan.FromSeconds(1), "500",
                     false);
 
-                telemetryClient.TrackDependency("DependencySuccess", "DependencySuccess", DateTimeOffset.Now,
-                    TimeSpan.FromMilliseconds(10), true);
-                telemetryClient.TrackDependency("DependencyFailed", "DependencyFailed", DateTimeOffset.Now,
-                    TimeSpan.FromSeconds(1), false);
+                telemetryClient.TrackDependency(dependencyTypeName: "TestDependency", dependencyName: "DependencySuccess",data: "DependencySuccess", startTime: DateTimeOffset.Now,
+                    duration: TimeSpan.FromMilliseconds(10), success: true);
+                telemetryClient.TrackDependency(dependencyTypeName: "TestDependency", dependencyName: "DependencyFailed", data: "DependencyFailed", startTime: DateTimeOffset.Now,
+                    duration: TimeSpan.FromSeconds(1), success: false);
 
                 telemetryClient.TrackException(new ArgumentNullException());
 
