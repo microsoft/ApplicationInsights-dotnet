@@ -11,6 +11,16 @@ else
     Write-Host "IISExpress.exe not found"
 }
 
-Write-Host "Cleaning up iisexpress completed"
+$s = Get-Process -Name iisexpresstray -ErrorAction SilentlyContinue
 
+if($s -ne $null)
+{
+    $s | Stop-Process
+}
+else
+{
+    Write-Host "iisexpresstray.exe not found"
+}
+
+Write-Host "Cleaning up iisexpresstray completed"
 

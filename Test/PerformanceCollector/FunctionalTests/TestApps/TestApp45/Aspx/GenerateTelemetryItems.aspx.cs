@@ -1,7 +1,6 @@
 ﻿namespace TestApp45.Aspx
 {
     using System;
-    using System.IO;
     using System.Threading;
 
     using Microsoft.ApplicationInsights;
@@ -10,25 +9,36 @@
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            Thread.Sleep(TimeSpan.FromSeconds(1));
+            try
+            {
+                var telemetryClient = new TelemetryClient();
 
-            new TelemetryClient().TrackRequest("RequestSuccess", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "200", true);
-            new TelemetryClient().TrackRequest("RequestFailed", DateTimeOffset.Now, TimeSpan.FromSeconds(1), "500", false);
+                telemetryClient.TrackRequest("RequestSuccess", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "200",
+                    true);
+                telemetryClient.TrackRequest("RequestFailed", DateTimeOffset.Now, TimeSpan.FromSeconds(1), "500",
+                    false);
 
-            new TelemetryClient().TrackDependency("DependencySuccess", "DependencySuccess", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), true);
-            new TelemetryClient().TrackDependency("DependencyFailed", "DependencyFailed", DateTimeOffset.Now, TimeSpan.FromSeconds(1), false);
+                telemetryClient.TrackDependency(dependencyTypeName: "TestDependency", dependencyName: "DependencySuccess",data: "DependencySuccess", startTime: DateTimeOffset.Now,
+                    duration: TimeSpan.FromMilliseconds(10), success: true);
+                telemetryClient.TrackDependency(dependencyTypeName: "TestDependency", dependencyName: "DependencyFailed", data: "DependencyFailed", startTime: DateTimeOffset.Now,
+                    duration: TimeSpan.FromSeconds(1), success: false);
 
-            new TelemetryClient().TrackException(new ArgumentNullException());
+                telemetryClient.TrackException(new ArgumentNullException());
 
-            new TelemetryClient().TrackEvent("Event1");
-            new TelemetryClient().TrackEvent("Event2");
+                telemetryClient.TrackEvent("Event1");
+                telemetryClient.TrackEvent("Event2");
 
-            new TelemetryClient().TrackTrace("Trace1");
-            new TelemetryClient().TrackTrace("Trace2");
+                telemetryClient.TrackTrace("Trace1");
+                telemetryClient.TrackTrace("Trace2");
 
-            Response.Clear();
-            Response.Write("GenerateTelemetryItems.aspx");
-            Response.End();
+                Thread.Sleep(TimeSpan.FromSeconds(2));
+            }
+            finally
+            {
+                Response.Clear();
+                Response.Write("GenerateTelemetryItems.aspx");
+                Response.End();
+            }
         }
     }
 }
