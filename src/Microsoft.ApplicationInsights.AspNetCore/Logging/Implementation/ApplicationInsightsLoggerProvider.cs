@@ -10,8 +10,6 @@
     [ProviderAlias("ApplicationInsights")]
     internal class ApplicationInsightsLoggerProvider : ILoggerProvider
     {
-        private static readonly Func<string, LogLevel, bool> trueFilter = (cat, level) => true;
-
         private readonly TelemetryClient telemetryClient;
         private readonly Func<string, LogLevel, bool> filter;
         private readonly ApplicationInsightsLoggerOptions options;
