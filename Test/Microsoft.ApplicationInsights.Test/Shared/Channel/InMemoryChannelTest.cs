@@ -75,7 +75,7 @@
                 channel.Send(telemetry);
             
                 listener.EnableEvents(CoreEventSource.Log, EventLevel.Warning);
-                channel.Flush(TimeSpan.FromSeconds(1));
+                channel.Flush(TimeSpan.FromTicks(1)); // very small to force Send to fail.
                 
                 var expectedMessage = listener.Messages.First();
                 Assert.AreEqual(24, expectedMessage.EventId);
