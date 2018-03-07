@@ -70,7 +70,21 @@ logger.Error("An error message");
 
 # System.Diagnostics
 
-Microsoft.ApplicationInsights.TraceListener nuget package modifies web.config and adds application insights listener. (If your application type does not have web.config, add listener programmatically or in the configuration file appropriate to your application type)
+Microsoft.ApplicationInsights.TraceListener nuget package modifies web.config and adds application insights listener. 
+
+```
+<configuration>
+  <system.diagnostics>
+    <trace>
+      <listeners>
+        <add name="myAppInsightsListener" type="Microsoft.ApplicationInsights.TraceListener.ApplicationInsightsTraceListener, Microsoft.ApplicationInsights.TraceListener" />
+      </listeners>
+    </trace>
+  </system.diagnostics>
+</configuration>
+```
+
+If your application type does not have web.config, add listener programmatically or in the configuration file appropriate to your application type
 
 ```csharp
 // You do not need this if you have instrumentation key in the ApplicationInsights.config
@@ -78,9 +92,3 @@ TelemetryConfiguration.Active.InstrumentationKey = "Your_Resource_Key";
 System.Diagnostics.Trace.TraceWarning("Slow response - database01");
 
 ``` 
-
-
-
-
-
-
