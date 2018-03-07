@@ -3,10 +3,10 @@
     using System;
     using System.Diagnostics.Tracing;
     using System.Text;
-    
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+
 
     [TestClass]
     public class TelemetryProcessorChainBuilderTest
@@ -21,7 +21,7 @@
             builder.Use(next => null);
 
             builder.Build();
-            
+
             Assert.AreEqual(1, configuration.TelemetryProcessors.Count); // Transmission is added by default
         }
 
@@ -45,7 +45,7 @@
         public void TransmissionProcessorIsAddedDefaultWhenNoOtherTelemetryProcessorsAreConfigured()
         {
             var config = new TelemetryConfiguration();
-            var builder = new TelemetryProcessorChainBuilder(config);            
+            var builder = new TelemetryProcessorChainBuilder(config);
             builder.Build();
             AssertEx.IsType<TransmissionProcessor>(config.DefaultTelemetrySink.TelemetryProcessorChain.FirstTelemetryProcessor);
         }
@@ -55,7 +55,7 @@
         {
             var config = new TelemetryConfiguration();
             var builder = new TelemetryProcessorChainBuilder(config);
-            builder.Use(next => new StubTelemetryProcessor(next));                    
+            builder.Use(next => new StubTelemetryProcessor(next));
             builder.Build();
             AssertEx.IsType<StubTelemetryProcessor>(config.TelemetryProcessorChain.FirstTelemetryProcessor);
         }
@@ -72,22 +72,51 @@
             var builder2 = new TelemetryProcessorChainBuilder(tc2);
             builder2.Use((next) => new StubTelemetryProcessor(next));
             builder2.Build();
-            
+
             Assert.AreNotSame(tc1.TelemetryProcessors, tc2.TelemetryProcessors);
         }
 
         [TestMethod]
         public void BuildOrdersTelemetryChannelsInOrderOfUseCalls()
         {
-           var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
-           StringBuilder outputCollector = new StringBuilder();
-           var builder = new TelemetryProcessorChainBuilder(config);
-           builder.Use((next) => new StubTelemetryProcessor(next) { OnProcess = (item) => { outputCollector.Append("processor1"); } });
-           builder.Use((next) => new StubTelemetryProcessor(next) { OnProcess = (item) => { outputCollector.Append("processor2"); } });
-           builder.Build();
-           config.TelemetryProcessorChain.Process(new StubTelemetry());            
+            var config = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
+            StringBuilder outputCollector = new StringBuilder();
+            var builder = new TelemetryProcessorChainBuilder(config);
+            builder.Use((next) => new StubTelemetryProcessor(next) { OnProcess = (item) => { outputCollector.Append("processor1"); } });
+            builder.Use((next) => new StubTelemetryProcessor(next) { OnProcess = (item) => { outputCollector.Append("processor2"); } });
+            builder.Build();
+            config.TelemetryProcessorChain.Process(new StubTelemetry());
 
-           Assert.AreEqual("processor1processor2", outputCollector.ToString());
+            Assert.AreEqual("processor1processor2", outputCollector.ToString());
+        }
+
+        [TestMethod]
+        public void BuildWillInitializeModules()
+        {
+            var tc1 = new TelemetryConfiguration();
+            var builder1 = new TelemetryProcessorChainBuilder(tc1);
+            builder1.Use((next) => new MockProcessorModule());
+            builder1.Build();
+
+            Assert.IsTrue(tc1.TelemetryProcessors.Count == 2);
+            Assert.IsTrue(((MockProcessorModule)tc1.TelemetryProcessors[0]).ModuleInitialized);
+
+            Assert.Inconclusive();
+        }
+
+        private class MockProcessorModule : ITelemetryProcessor, ITelemetryModule
+        {
+            public bool ModuleInitialized = false;
+
+            public void Initialize(TelemetryConfiguration configuration)
+            {
+                this.ModuleInitialized = true;
+            }
+
+            public void Process(ITelemetry item)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
