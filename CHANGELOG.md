@@ -2,6 +2,7 @@
 
 ## Version 2.3.0-beta1
 - Updated Javascript Snippet with latest from [Github/ApplicationInsights-JS](https://github.com/Microsoft/ApplicationInsights-JS)
+- ApplicationInsightsLogger adds EventId into telemetry properties. It is off by default for compatibility. It can be switched on by configuring ApplicationInsightsLoggerOptions.
 
 ## Version 2.2.1
 - Updated Web/Base SDK version dependency to 2.5.1 which addresses a bug.
@@ -24,7 +25,6 @@
 - Live metrics collection is enabled by default for .NET Core applications (was already enabled for full .NET applications).
 - Updated Web/Base SDK version dependency to 2.5.0-beta1.
 - DependencyCollector referred from 2.5.0-beta1 supports collecting SQL dependency calls in .NET Core Applications using EntityFramework.
-- ApplicationInsightsLogger adds EventId into telemetry properties. It is off by default for compatibility. It can be switched on by configuring ApplicationInsightsLoggerOptions.
 
 ## Version 2.1.1
 
