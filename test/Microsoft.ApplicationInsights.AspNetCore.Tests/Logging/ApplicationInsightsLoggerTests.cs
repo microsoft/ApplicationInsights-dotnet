@@ -13,6 +13,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
     /// </summary>
     public class ApplicationInsightsLoggerTests
     {
+        private static readonly ApplicationInsightsLoggerOptions defaultOptions = new ApplicationInsightsLoggerOptions();
+
         /// <summary>
         /// Tests that the SDK version is correctly set on the telemetry context when messages are logged to AI.
         /// </summary>
@@ -25,7 +27,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 isCorrectVersion = t.Context.GetInternalContext().SdkVersion.StartsWith(SdkVersionUtils.VersionPrefix);
             });
 
-            ILogger logger = new ApplicationInsightsLogger("test", client, (s, l) => { return true; });
+            ILogger logger = new ApplicationInsightsLogger("test", client, (s, l) => { return true; }, null);
             logger.LogTrace("This is a test.", new object[] { });
             Assert.True(isCorrectVersion);
         }
@@ -45,7 +47,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.Equal("test-category", traceTelemetry.Properties["CategoryName"]);
             });
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; });
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, null);
             logger.LogInformation(0, "This is an information");
         }
 
@@ -67,7 +69,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.Equal("Hello, World!", traceTelemetry.Properties["param2"]);
             });
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; });
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, null);
             logger.LogWarning(0, "This is {testParam} value: {param2}", 123, "Hello, World!");
         }
 
@@ -89,7 +91,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.False(traceTelemetry.Properties.ContainsKey("EventName"));
             });
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; });
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, null);
             logger.LogDebug(new EventId(22, "TestEvent"), "This is an information");
         }
 
@@ -110,8 +112,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.Equal("22", traceTelemetry.Properties["EventId"]);
                 Assert.Equal("TestEvent", traceTelemetry.Properties["EventName"]);
             });
+            var options = new ApplicationInsightsLoggerOptions { IncludeEventId = true };
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, options);
             logger.LogError(new EventId(22, "TestEvent"), "This is an error");
         }
 
@@ -132,8 +135,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.False(traceTelemetry.Properties.ContainsKey("EventId"));
                 Assert.False(traceTelemetry.Properties.ContainsKey("EventName"));
             });
+            var options = new ApplicationInsightsLoggerOptions { IncludeEventId = true };
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, options);
             logger.LogInformation(0, "This is an information");
         }
 
@@ -154,8 +158,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.Equal("100", traceTelemetry.Properties["EventId"]);
                 Assert.False(traceTelemetry.Properties.ContainsKey("EventName"));
             });
+            var options = new ApplicationInsightsLoggerOptions { IncludeEventId = true };
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, options);
             logger.LogInformation(new EventId(100, string.Empty), "This is an information");
         }
 
@@ -178,8 +183,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.Equal("TestEvent", traceTelemetry.Properties["EventName"]);
                 Assert.Equal("15", traceTelemetry.Properties["Message"]);
             });
+            var options = new ApplicationInsightsLoggerOptions { IncludeEventId = true };
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, options);
             logger.LogError(new EventId(22, "TestEvent"), "This is an {EventId} error. {Message}", "ERROR", 15);
         }
 
@@ -192,7 +198,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
             bool trackedTelemetry = false;
             TelemetryClient client = CommonMocks.MockTelemetryClient((t) => trackedTelemetry = true);
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return false; });
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return false; }, defaultOptions);
             logger.LogInformation(0, "This is an information");
 
             Assert.False(trackedTelemetry);
@@ -214,7 +220,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.Equal("Error: This is an error", exceptionTelemetry.Message);
             });
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; });
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, defaultOptions);
             var exception = new Exception("This is an error");
             logger.LogError(0, exception, "Error: " + exception.Message);
         }
@@ -238,7 +244,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.Equal("123", exceptionTelemetry.Properties["value"]);
             });
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; });
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, defaultOptions);
             var exception = new Exception("This is an error");
             logger.LogError(0, exception, "Error: {ex}, Value: {value}", exception.Message, 123);
         }
@@ -262,7 +268,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.False(exceptionTelemetry.Properties.ContainsKey("EventName"));
             });
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; });
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, defaultOptions);
             var exception = new Exception("This is an error");
             logger.LogError(new EventId(22, "TestEvent"), exception, "Error: " + exception.Message);
         }
@@ -285,8 +291,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.Equal("22", exceptionTelemetry.Properties["EventId"]);
                 Assert.Equal("TestEvent", exceptionTelemetry.Properties["EventName"]);
             });
+            var options = new ApplicationInsightsLoggerOptions { IncludeEventId = true };
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, options);
             var exception = new Exception("This is an error");
             logger.LogError(new EventId(22, "TestEvent"), exception, "Error: " + exception.Message);
         }
@@ -309,8 +316,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.False(exceptionTelemetry.Properties.ContainsKey("EventId"));
                 Assert.False(exceptionTelemetry.Properties.ContainsKey("EventName"));
             });
+            var options = new ApplicationInsightsLoggerOptions { IncludeEventId = true };
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, options);
             var exception = new Exception("This is an error");
             logger.LogError(0, exception, "Error: " + exception.Message);
         }
@@ -333,8 +341,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.Equal("100", exceptionTelemetry.Properties["EventId"]);
                 Assert.False(exceptionTelemetry.Properties.ContainsKey("EventName"));
             });
+            var options = new ApplicationInsightsLoggerOptions { IncludeEventId = true };
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, options);
             var exception = new Exception("This is an error");
             logger.LogError(new EventId(100, string.Empty), exception, "Error: " + exception.Message);
         }
@@ -359,8 +368,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
                 Assert.Equal("ERROR", exceptionTelemetry.Properties["EventName"]);
                 Assert.Equal("This is an error", exceptionTelemetry.Properties["Message"]);
             });
+            var options = new ApplicationInsightsLoggerOptions { IncludeEventId = true };
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, true);
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, options);
             var exception = new Exception("This is an error");
             logger.LogError(new EventId(22, "TestEvent"), exception, "Error: {EventName} {Message}", "ERROR", exception.Message);
         }
@@ -374,7 +384,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
             bool trackedTelemetry = false;
             TelemetryClient client = CommonMocks.MockTelemetryClient((t) => trackedTelemetry = true);
 
-            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return false; });
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return false; }, defaultOptions);
             var exception = new Exception("This is an error");
             logger.LogError(0, exception, "Error: " + exception.Message);
 
@@ -387,7 +397,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
         [Fact]
         public void TestUninitializedLoggerDoesNotThrowExceptions()
         {
-            ILogger logger = new ApplicationInsightsLogger("test", null, null);
+            ILogger logger = new ApplicationInsightsLogger("test", null, null, null);
             logger.LogTrace("This won't do anything.", new object[] { });
         }
     }

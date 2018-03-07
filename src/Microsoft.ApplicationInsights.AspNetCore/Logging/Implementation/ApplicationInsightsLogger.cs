@@ -17,26 +17,18 @@
         private readonly string categoryName;
         private readonly TelemetryClient telemetryClient;
         private readonly Func<string, LogLevel, bool> filter;
-        private readonly bool includeEventId;
+        private readonly ApplicationInsightsLoggerOptions options;
         private readonly string sdkVersion;
 
         /// <summary>
         /// Creates a new instance of <see cref="ApplicationInsightsLogger"/>
         /// </summary>
-        public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter)
-            : this(name, telemetryClient, filter, false)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new instance of <see cref="ApplicationInsightsLogger"/>
-        /// </summary>
-        public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter, bool includeEventId)
+        public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter, ApplicationInsightsLoggerOptions options)
         {
             this.categoryName = name;
             this.telemetryClient = telemetryClient;
             this.filter = filter;
-            this.includeEventId = includeEventId;
+            this.options = options;
             this.sdkVersion = SdkVersionUtils.VersionPrefix + SdkVersionUtils.GetAssemblyVersion();
         }
 
@@ -81,7 +73,7 @@
             IDictionary<string, string> dict = telemetry.Context.Properties;
             dict["CategoryName"] = this.categoryName;
 
-            if (includeEventId)
+            if (this.options?.IncludeEventId ?? false)
             {
                 if (eventId.Id != 0)
                 {
