@@ -4,6 +4,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 2.6.0-beta3
 - [Fix: TelemetryProcessor chain building should also initialize Modules.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/549)
+- [Fix: Wrong error message in AutocollectedMetricsExtractor.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/611)
 
 ## Version 2.6.0-beta2
 - [Changed signature of TelemetryClient.TrackDependency](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/684)
