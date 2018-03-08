@@ -63,20 +63,20 @@
                 EndpointAddress = "http://localhost/bad"
             };
             
-            var telemetry = new TraceTelemetry("test");
-            telemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
-            channel.Send(telemetry); // Send telemetry so that it sets next send interval and does not interfere with Flush
-            channel.Flush();
-
-            telemetry = new TraceTelemetry("test");
-            telemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
-            channel.Send(telemetry);
-
             using (TestEventListener listener = new TestEventListener())
             {
-                listener.EnableEvents(CoreEventSource.Log, EventLevel.Warning);
-                channel.Flush(TimeSpan.FromSeconds(1));
+                var telemetry = new TraceTelemetry("test1");
+                telemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
+                channel.Send(telemetry); // Send telemetry so that it sets next send interval and does not interfere with Flush
+                channel.Flush();
 
+                telemetry = new TraceTelemetry("test2");
+                telemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
+                channel.Send(telemetry);
+            
+                listener.EnableEvents(CoreEventSource.Log, EventLevel.Warning);
+                channel.Flush(TimeSpan.FromTicks(1)); // very small to force Send to fail.
+                
                 var expectedMessage = listener.Messages.First();
                 Assert.AreEqual(24, expectedMessage.EventId);
             }
