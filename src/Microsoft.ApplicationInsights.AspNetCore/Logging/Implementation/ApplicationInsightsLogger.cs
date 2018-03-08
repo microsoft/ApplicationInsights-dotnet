@@ -17,16 +17,18 @@
         private readonly string categoryName;
         private readonly TelemetryClient telemetryClient;
         private readonly Func<string, LogLevel, bool> filter;
+        private readonly ApplicationInsightsLoggerOptions options;
         private readonly string sdkVersion;
 
         /// <summary>
         /// Creates a new instance of <see cref="ApplicationInsightsLogger"/>
         /// </summary>
-        public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter)
+        public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter, ApplicationInsightsLoggerOptions options)
         {
             this.categoryName = name;
             this.telemetryClient = telemetryClient;
             this.filter = filter;
+            this.options = options;
             this.sdkVersion = SdkVersionUtils.VersionPrefix + SdkVersionUtils.GetAssemblyVersion();
         }
 
@@ -51,7 +53,7 @@
                 if (exception == null)
                 {
                     var traceTelemetry = new TraceTelemetry(formatter(state, exception), this.GetSeverityLevel(logLevel));
-                    PopulateTelemetry(traceTelemetry, stateDictionary);
+                    PopulateTelemetry(traceTelemetry, stateDictionary, eventId);
                     this.telemetryClient.TrackTrace(traceTelemetry);
                 }
                 else
@@ -60,16 +62,30 @@
                     exceptionTelemetry.Message = formatter(state, exception);
                     exceptionTelemetry.SeverityLevel = this.GetSeverityLevel(logLevel);
                     exceptionTelemetry.Context.Properties["Exception"] = exception.ToString();
-                    PopulateTelemetry(exceptionTelemetry, stateDictionary);
+                    PopulateTelemetry(exceptionTelemetry, stateDictionary, eventId);
                     this.telemetryClient.TrackException(exceptionTelemetry);
                 }
             }
         }
 
-        private void PopulateTelemetry(ITelemetry telemetry, IReadOnlyList<KeyValuePair<string, object>> stateDictionary)
+        private void PopulateTelemetry(ITelemetry telemetry, IReadOnlyList<KeyValuePair<string, object>> stateDictionary, EventId eventId)
         {
             IDictionary<string, string> dict = telemetry.Context.Properties;
             dict["CategoryName"] = this.categoryName;
+
+            if (this.options?.IncludeEventId ?? false)
+            {
+                if (eventId.Id != 0)
+                {
+                    dict["EventId"] = eventId.Id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                }
+
+                if (!string.IsNullOrEmpty(eventId.Name))
+                {
+                    dict["EventName"] = eventId.Name;
+                }
+            }
+
             if (stateDictionary != null)
             {
                 foreach (KeyValuePair<string, object> item in stateDictionary)
