@@ -1,9 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-    using System;
-    using System.Diagnostics.Tracing;
     using System.Text;
-    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -99,15 +96,6 @@
 
             Assert.AreEqual(2, tc1.TelemetryProcessors.Count); // Transmission is added by default
             Assert.IsTrue(((MockProcessorModule)tc1.TelemetryProcessors[0]).ModuleInitialized, "Module was not initialized.");
-        }
-
-        private class MockProcessorModule : ITelemetryProcessor, ITelemetryModule
-        {
-            public bool ModuleInitialized { get; private set; } = false;
-
-            public void Initialize(TelemetryConfiguration configuration) => this.ModuleInitialized = true;
-
-            public void Process(ITelemetry item) => throw new NotImplementedException();
         }
     }
 }

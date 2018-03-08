@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Shared.Extensibility.Implementation;
 
     /// <summary>
@@ -98,7 +99,14 @@
                 // If a Processor also implements ITelemtryModule, We should Initialize that Module
                 if (linkedTelemetryProcessor is ITelemetryModule telemetryModule)
                 {
-                    telemetryModule.Initialize(this.configuration);
+                    try
+                    {
+                        telemetryModule.Initialize(this.configuration);
+                    }
+                    catch (Exception ex)
+                    {
+                        CoreEventSource.Log.ComponentInitializationConfigurationError(telemetryModule.ToString(), ex.ToInvariantString());
+                    }
                 }
             }
             
