@@ -40,13 +40,7 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.XML" />
-    <Reference Include="System.Xml.Linq" />  
-    <Compile Include="..\Net45\Extensibility\Implementation\Platform\PlatformReferencesTests.cs" Condition="$(OS) == 'Windows_NT'">
-      <Link>Extensibility\Implementation\Platform\PlatformReferencesTests.cs</Link>
-    </Compile>
-    <Compile Include="..\Net46\Extensibility\Implementation\RichPayloadEventSourceTest.cs" Condition="$(OS) == 'Windows_NT'">
-      <Link>Extensibility\Implementation\RichPayloadEventSourceTest.cs</Link>
-    </Compile>
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
 
   <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" Condition="$(OS) == 'Windows_NT'" />

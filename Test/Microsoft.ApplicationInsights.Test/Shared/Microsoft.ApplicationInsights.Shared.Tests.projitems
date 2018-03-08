@@ -87,4 +87,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)TransmissionProcessorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientTest.cs" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp1.1'">
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Platform\PlatformReferencesTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\RichPayloadEventSourceTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FailOnAssertSetup.cs" />
+  </ItemGroup>
 </Project>
