@@ -94,14 +94,13 @@
                 }
 
                 telemetryProcessorsList.Add(linkedTelemetryProcessor);
-            }
 
-            // Check that all Processors that implement ITelemtryModule are also Initialized
-            ////var telemetryProcessors = this.telemetrySink == null ? this.configuration.TelemetryProcessors : this.telemetrySink.TelemetryProcessors;
-            ////foreach (var module in telemetryProcessors.OfType<ITelemetryModule>())
-            ////{
-            ////    module.Initialize(this.configuration);
-            ////}
+                // If a Processor also implements ITelemtryModule, We should Initialize that Module
+                if (linkedTelemetryProcessor is ITelemetryModule telemetryModule)
+                {
+                    telemetryModule.Initialize(this.configuration);
+                }
+            }
             
             // Save changes to the TelemetryProcessorChain
             var telemetryProcessorChain = new TelemetryProcessorChain(telemetryProcessorsList.AsEnumerable().Reverse());

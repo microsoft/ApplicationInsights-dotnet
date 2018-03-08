@@ -103,17 +103,11 @@
 
         private class MockProcessorModule : ITelemetryProcessor, ITelemetryModule
         {
-            public bool ModuleInitialized = false;
+            public bool ModuleInitialized { get; private set; } = false;
 
-            public void Initialize(TelemetryConfiguration configuration)
-            {
-                this.ModuleInitialized = true;
-            }
+            public void Initialize(TelemetryConfiguration configuration) => this.ModuleInitialized = true;
 
-            public void Process(ITelemetry item)
-            {
-                throw new NotImplementedException();
-            }
+            public void Process(ITelemetry item) => throw new NotImplementedException();
         }
     }
 }
