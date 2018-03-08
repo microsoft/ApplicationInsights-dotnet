@@ -10,7 +10,6 @@
 
     [TestClass]
     public class TelemetryProcessorChainBuilderTest
-
     {
         [TestMethod]
         public void NoExceptionOnReturningNullFromUse()
@@ -100,8 +99,6 @@
 
             Assert.IsTrue(tc1.TelemetryProcessors.Count == 2);
             Assert.IsTrue(((MockProcessorModule)tc1.TelemetryProcessors[0]).ModuleInitialized);
-
-            Assert.Inconclusive();
         }
 
         private class MockProcessorModule : ITelemetryProcessor, ITelemetryModule
