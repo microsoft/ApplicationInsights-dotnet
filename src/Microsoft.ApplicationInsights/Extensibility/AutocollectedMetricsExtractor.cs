@@ -265,7 +265,7 @@
                 }
                 catch (Exception ex)
                 {
-                    CoreEventSource.Log.LogError("Error in " + typeof(RequestMetricsExtractor).Name + ": " + ex.ToString());
+                    CoreEventSource.Log.LogError("Error in " + participant.Extractor.GetType().Name + ": " + ex.ToString());
                 }
             }
         }
