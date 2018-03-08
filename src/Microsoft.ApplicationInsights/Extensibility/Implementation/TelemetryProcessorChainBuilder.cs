@@ -97,11 +97,11 @@
             }
 
             // Check that all Processors that implement ITelemtryModule are also Initialized
-            var telemetryProcessors = this.telemetrySink == null ? this.configuration.TelemetryProcessors : this.telemetrySink.TelemetryProcessors;
-            foreach (var module in telemetryProcessors.OfType<ITelemetryModule>())
-            {
-                module.Initialize(this.configuration);
-            }
+            ////var telemetryProcessors = this.telemetrySink == null ? this.configuration.TelemetryProcessors : this.telemetrySink.TelemetryProcessors;
+            ////foreach (var module in telemetryProcessors.OfType<ITelemetryModule>())
+            ////{
+            ////    module.Initialize(this.configuration);
+            ////}
             
             // Save changes to the TelemetryProcessorChain
             var telemetryProcessorChain = new TelemetryProcessorChain(telemetryProcessorsList.AsEnumerable().Reverse());

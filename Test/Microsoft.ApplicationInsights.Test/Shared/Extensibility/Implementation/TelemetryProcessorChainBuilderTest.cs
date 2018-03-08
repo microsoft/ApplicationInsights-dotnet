@@ -97,8 +97,8 @@
             builder1.Use((next) => new MockProcessorModule());
             builder1.Build();
 
-            Assert.IsTrue(tc1.TelemetryProcessors.Count == 2);
-            Assert.IsTrue(((MockProcessorModule)tc1.TelemetryProcessors[0]).ModuleInitialized);
+            Assert.AreEqual(2, tc1.TelemetryProcessors.Count); // Transmission is added by default
+            Assert.IsTrue(((MockProcessorModule)tc1.TelemetryProcessors[0]).ModuleInitialized, "Module was not initialized.");
         }
 
         private class MockProcessorModule : ITelemetryProcessor, ITelemetryModule
