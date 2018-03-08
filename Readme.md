@@ -1,3 +1,9 @@
+## NuGet packages
+
+- [Microsoft.ApplicationInsights.AspNetCore](https://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.AspNetCore.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore)
+
+
 Microsoft Application Insights for ASP.NET Core applications
 =============================================================
 
