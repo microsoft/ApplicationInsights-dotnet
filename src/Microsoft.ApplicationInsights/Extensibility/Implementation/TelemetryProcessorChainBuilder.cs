@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Shared.Extensibility.Implementation;
 
     /// <summary>
@@ -21,12 +22,7 @@
         /// <param name="configuration"> The <see cref="TelemetryConfiguration"/> instance to which the constructed processing chain should be set to.</param>        
         public TelemetryProcessorChainBuilder(TelemetryConfiguration configuration)
         {
-            if (configuration == null)
-            {
-                throw new ArgumentNullException("configuration");
-            }
-
-            this.configuration = configuration;
+            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             this.factories = new List<Func<ITelemetryProcessor, ITelemetryProcessor>>();
             this.telemetrySink = null;
         }
@@ -38,12 +34,7 @@
         /// <param name="telemetrySink">Telemetry sink the processor chain will be assigned to.</param>
         public TelemetryProcessorChainBuilder(TelemetryConfiguration configuration, TelemetrySink telemetrySink) : this(configuration)
         {
-            if (telemetrySink == null)
-            {
-                throw new ArgumentNullException(nameof(telemetrySink));
-            }
-
-            this.telemetrySink = telemetrySink;
+            this.telemetrySink = telemetrySink ?? throw new ArgumentNullException(nameof(telemetrySink));
         }
 
         internal TelemetrySink TelemetrySink => this.telemetrySink;
@@ -104,8 +95,22 @@
                 }
 
                 telemetryProcessorsList.Add(linkedTelemetryProcessor);
-            }
 
+                // If a Processor also implements ITelemtryModule, We should Initialize that Module
+                if (linkedTelemetryProcessor is ITelemetryModule telemetryModule)
+                {
+                    try
+                    {
+                        telemetryModule.Initialize(this.configuration);
+                    }
+                    catch (Exception ex)
+                    {
+                        CoreEventSource.Log.ComponentInitializationConfigurationError(telemetryModule.ToString(), ex.ToInvariantString());
+                    }
+                }
+            }
+            
+            // Save changes to the TelemetryProcessorChain
             var telemetryProcessorChain = new TelemetryProcessorChain(telemetryProcessorsList.AsEnumerable().Reverse());
             if (this.telemetrySink != null)
             {
