@@ -410,6 +410,24 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
             logger.LogError(0, exception, "Error: " + exception.Message);
         }
 
+        [Fact]
+        public void TestLoggerCreatesExceptionTelemetryOnLoggedErrorWhenTrackExceptionsAsExceptionTelemetryIsSetToTrue()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<ExceptionTelemetry>(t);
+                var exceptionTelemetry = (ExceptionTelemetry)t;
+
+                Assert.Equal("Error: This is an error", exceptionTelemetry.Message);
+                Assert.Equal(SeverityLevel.Error, exceptionTelemetry.SeverityLevel);
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test", client, (s, l) => { return true; }, new ApplicationInsightsLoggerOptions { TrackExceptionsAsExceptionTelemetry = true });
+            var exception = new Exception("This is an error");
+
+            logger.LogError(0, exception, "Error: " + exception.Message);
+        }
+
         /// <summary>
         /// Tests that an incorrectly constructed or uninitialized Application Insights ILogger does not throw exceptions.
         /// </summary>
