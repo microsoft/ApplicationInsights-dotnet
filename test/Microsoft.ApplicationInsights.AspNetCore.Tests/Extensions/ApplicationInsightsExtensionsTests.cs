@@ -123,7 +123,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// See Microsoft/ApplicationInsights-dotnet#613
             /// </summary>
             [Fact]
-            
             public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
             {
                 var activeConfig = TelemetryConfiguration.Active;

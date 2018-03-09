@@ -6,7 +6,7 @@
     using Microsoft.Extensions.Options;
 
     /// <summary>
-    /// The <see cref="IOptions{TelemetryConfiguration}"/> implementation that create new <see cref="TelemetryConfiguration"/> every time when called"/>.
+    /// The <see cref="IOptions{TelemetryConfiguration}"/> implementation that create new <see cref="TelemetryConfiguration"/> every time when called".
     /// </summary>
     internal class TelemetryConfigurationOptions : IOptions<TelemetryConfiguration>
     {
@@ -21,9 +21,8 @@
                 c.Configure(this.Value);
             }
 
-            // as we expect some customers to use TelemetryConfiguration.Active even together with DependencyInjection
-            // we make sure it has been set up
-            // it must be done only once even if there are multiple Web Hosts in the process
+            // as we expect some customers to use TelemetryConfiguration.Active together with dependency injection
+            // we make sure it has been set up, it must be done only once even if there are multiple Web Hosts in the process
             if (!IsActiveConfigured(this.Value.InstrumentationKey))
             { 
                 foreach (var c in configureOptionsArray)
@@ -37,11 +36,11 @@
         public TelemetryConfiguration Value { get; }
 
         /// <summary>
-        /// Determines is TelemetryConfiguration.Active needs to be configured
+        /// Determines if TelemetryConfiguration.Active needs to be configured.
         /// </summary>
-        /// <param name="instrumentationKey">Instrumentation key configuration</param>
-        /// <returns>True is Active TelemertryConfiguration was previously configured</returns>
-        private bool IsActiveConfigured(string instrumentationKey)
+        /// <param name="instrumentationKey">Instrumentation key.</param>
+        /// <returns>True is TelemertryConfiguration.Active was previously configured.</returns>
+        private static bool IsActiveConfigured(string instrumentationKey)
         {
             var active = TelemetryConfiguration.Active;
             if (string.IsNullOrEmpty(active.InstrumentationKey) && !string.IsNullOrEmpty(instrumentationKey))
@@ -49,7 +48,7 @@
                 return false;
             }
 
-            if (active.TelemetryInitializers.Count <= 1 && active.TelemetryProcessors.Count <= 1)
+            if (active.TelemetryInitializers.Count <= 1)
             {
                 return false;
             }
