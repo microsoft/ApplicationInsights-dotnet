@@ -12,6 +12,7 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Azure\Emulation\Microsoft.WindowsAzure.ServiceRuntime.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AzureInstanceMetadataEndToEndTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AzureWebAppRoleEnvironmentTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AzureInstanceMetadataTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AzureRoleEnvironmentTelemetryInitializerTest.cs" />
@@ -26,6 +27,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WindowsServerEventSourceTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FirstChanceExceptionStatisticsTelemetryModuleTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mock\AzureInstanceMetadataRequestMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mock\AzureInstanceMetadataServiceMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mock\HeartbeatProviderMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnhandledExceptionTelemetryModuleTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnobservedExceptionTelemetryModuleTest.cs" />
