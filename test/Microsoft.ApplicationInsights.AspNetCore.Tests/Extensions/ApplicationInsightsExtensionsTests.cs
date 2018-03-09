@@ -4,7 +4,6 @@
 namespace Microsoft.Extensions.DependencyInjection.Test
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
@@ -29,9 +28,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 #if NET451 || NET46
     using ApplicationInsights.Extensibility.PerfCounterCollector;
     using ApplicationInsights.WindowsServer.TelemetryChannel;
-    using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;    
+    using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 #endif
-
+    
     public static class ApplicationInsightsExtensionsTests
     {
         /// <summary>Constant instrumentation key value for testintg.</summary>
@@ -125,7 +124,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// </summary>
             [Fact]
             
-            public static void ConfigurationFactoryMethodDoesUpdatesTheActiveConfigurationSingletonByDefault()
+            public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
             {
                 var activeConfig = TelemetryConfiguration.Active;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content","config-instrumentation-key.json"), null);

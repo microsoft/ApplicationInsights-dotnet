@@ -1,8 +1,7 @@
-﻿
-namespace Microsoft.ApplicationInsights.AspNetCore.Tests
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests
 {
     using System;
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
@@ -62,13 +61,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             return context;
         }
 
-        private List<ITelemetry> sentTelemetry = new List<ITelemetry>();
+        private ConcurrentQueue<ITelemetry> sentTelemetry = new ConcurrentQueue<ITelemetry>();
 
         private readonly HostingDiagnosticListener middleware;
 
         public RequestTrackingMiddlewareTest()
         {
-            this.middleware = new HostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Add(telemetry)),
+            this.middleware = new HostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry)),
                 CommonMocks.MockCorrelationIdLookupHelper());
         }
 
@@ -111,8 +110,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             HandleRequestEnd(context, 0);
 
             Assert.Equal(1, sentTelemetry.Count);
-            Assert.IsType<RequestTelemetry>(this.sentTelemetry[0]);
-            RequestTelemetry requestTelemetry = sentTelemetry[0] as RequestTelemetry;
+            Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
+            RequestTelemetry requestTelemetry = sentTelemetry.First() as RequestTelemetry;
             Assert.NotNull(requestTelemetry.Url);
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
             Assert.True(requestTelemetry.Success);
@@ -136,11 +135,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             middleware.OnDiagnosticsUnhandledException(context, null);
             HandleRequestEnd(context, 0);
 
+            var telemetries = sentTelemetry.ToArray();
             Assert.Equal(2, sentTelemetry.Count);
-            Assert.IsType<ExceptionTelemetry>(this.sentTelemetry[0]);
+            Assert.IsType<ExceptionTelemetry>(telemetries[0]);
 
-            Assert.IsType<RequestTelemetry>(this.sentTelemetry[1]);
-            RequestTelemetry requestTelemetry = this.sentTelemetry[1] as RequestTelemetry;
+            Assert.IsType<RequestTelemetry>(telemetries[1]);
+            RequestTelemetry requestTelemetry = telemetries[1] as RequestTelemetry;
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
             Assert.False(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
@@ -251,7 +251,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             middleware.OnHttpRequestInStop(context);
 
             Assert.Equal(1, sentTelemetry.Count);
-            var requestTelemetry = this.sentTelemetry[0] as RequestTelemetry;
+            var requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
 
             Assert.Equal(requestTelemetry.Id, activity.Id);
             Assert.Equal(requestTelemetry.Context.Operation.Id, activity.RootId);
@@ -291,7 +291,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             middleware.OnHttpRequestInStop(context);
 
             Assert.Equal(1, sentTelemetry.Count);
-            var requestTelemetry = this.sentTelemetry[0] as RequestTelemetry;
+            var requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
 
             Assert.Equal(requestTelemetry.Id, activityInitializedByStandardHeader.Id);
             Assert.Equal(requestTelemetry.Context.Operation.Id, standardRequestRootId);
@@ -311,8 +311,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             HandleRequestEnd(context, 0);
 
             Assert.Equal(1, sentTelemetry.Count);
-            Assert.IsType<RequestTelemetry>(this.sentTelemetry[0]);
-            RequestTelemetry requestTelemetry = this.sentTelemetry[0] as RequestTelemetry;
+            Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
+            RequestTelemetry requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
             Assert.True(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
@@ -337,8 +337,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             HandleRequestEnd(context, 0);
 
             Assert.NotNull(this.sentTelemetry);
-            Assert.IsType<RequestTelemetry>(this.sentTelemetry[0]);
-            RequestTelemetry requestTelemetry = this.sentTelemetry[0] as RequestTelemetry;
+            Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
+            RequestTelemetry requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
             Assert.True(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
@@ -365,8 +365,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             HandleRequestEnd(context, 0);
 
             Assert.NotNull(this.sentTelemetry);
-            Assert.IsType<RequestTelemetry>(this.sentTelemetry[0]);
-            RequestTelemetry requestTelemetry = this.sentTelemetry[0] as RequestTelemetry;
+            Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
+            RequestTelemetry requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
             Assert.True(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
@@ -392,8 +392,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             HandleRequestEnd(context, 0);
 
             Assert.Equal(1, sentTelemetry.Count);
-            Assert.IsType<RequestTelemetry>(this.sentTelemetry[0]);
-            RequestTelemetry requestTelemetry = this.sentTelemetry[0] as RequestTelemetry;
+            Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
+            RequestTelemetry requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
             Assert.True(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
@@ -439,8 +439,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             await Task.WhenAll(task1, task2);
 
             Assert.Equal(2, sentTelemetry.Count);
-            var id1 = ((RequestTelemetry)sentTelemetry[0]).Id;
-            var id2 = ((RequestTelemetry)sentTelemetry[1]).Id;
+
+            var telemetries = this.sentTelemetry.ToArray();
+            Assert.IsType<RequestTelemetry>(telemetries[0]);
+            Assert.IsType<RequestTelemetry>(telemetries[1]);
+            var id1 = ((RequestTelemetry)telemetries[0]).Id;
+            var id2 = ((RequestTelemetry)telemetries[1]).Id;
             Assert.NotEqual(id1, id2);
         }
 
@@ -472,9 +476,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             HandleRequestEnd(context1, startTime + simulatedSeconds * 5);
             HandleRequestEnd(context2, startTime + simulatedSeconds * 10);
 
-            Assert.Equal(2, sentTelemetry.Count);
-            Assert.Equal(TimeSpan.FromSeconds(5), ((RequestTelemetry)sentTelemetry[0]).Duration);
-            Assert.Equal(TimeSpan.FromSeconds(9), ((RequestTelemetry)sentTelemetry[1]).Duration);
+            var telemetries = this.sentTelemetry.ToArray();
+            Assert.Equal(2, telemetries.Length);
+            Assert.Equal(TimeSpan.FromSeconds(5), ((RequestTelemetry)telemetries[0]).Duration);
+            Assert.Equal(TimeSpan.FromSeconds(9), ((RequestTelemetry)telemetries[1]).Duration);
         }
 
         [Fact]
@@ -499,8 +504,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
 
             HandleRequestEnd(context, startTime + (long)durationInStopwatchTicks);
 
-            Assert.Equal(1, sentTelemetry.Count);
-            Assert.Equal(Math.Round(expectedDuration.TotalMilliseconds, 3), Math.Round(((RequestTelemetry)sentTelemetry[0]).Duration.TotalMilliseconds, 3));
+            Assert.Single(sentTelemetry);
+            Assert.Equal(Math.Round(expectedDuration.TotalMilliseconds, 3), Math.Round(((RequestTelemetry)sentTelemetry.First()).Duration.TotalMilliseconds, 3));
         }
 
         private void HandleRequestBegin(HttpContext context, long timestamp)
