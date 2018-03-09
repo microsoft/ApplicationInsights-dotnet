@@ -24,6 +24,7 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
             {
                 this.ExecuteRequest(server1.BaseHost + requestPath);
                 var telemetry = server1.Listener.ReceiveItems(TestListenerTimeoutInMs);
+                this.DebugTelemetryItems(telemetry);
 
                 Assert.Single(telemetry.Where(t => t is TelemetryItem<RequestData>));
                 Assert.Single(telemetry.Where(IsServiceDependencyCall));
@@ -37,6 +38,7 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
             {
                 this.ExecuteRequest(server2.BaseHost + requestPath);
                 var telemetry = server2.Listener.ReceiveItems(TestListenerTimeoutInMs);
+                this.DebugTelemetryItems(telemetry);
 
                 Assert.Single(telemetry.Where(t => t is TelemetryItem<RequestData>));
                 Assert.Single(telemetry.Where(IsServiceDependencyCall));
@@ -55,10 +57,12 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
             {
                 this.ExecuteRequest(server1.BaseHost + requestPath);
                 var telemetry1 = server1.Listener.ReceiveItems(TestListenerTimeoutInMs);
+                this.DebugTelemetryItems(telemetry1);
 
                 this.ExecuteRequest(server2.BaseHost + requestPath);
-                var telemetry2 = server2.Listener.ReceiveItems(TestListenerTimeoutInMs); 
+                var telemetry2 = server2.Listener.ReceiveItems(TestListenerTimeoutInMs);
 
+                this.DebugTelemetryItems(telemetry2);
                 Assert.Single(telemetry1.Where(t => t is TelemetryItem<RequestData>));
                 Assert.Single(telemetry1.Where(IsServiceDependencyCall));
                 Assert.DoesNotContain(telemetry1, t => t is TelemetryItem<ExceptionData>);
@@ -78,7 +82,7 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
         }
 
         [Fact]
-        public void TwoWebHostsAfterOneIsDisposed()
+        public void TwoWebHostsOneIsDisposed()
         {
             using (var server1 = new InProcessServer(assemblyName, this.output))
             {
@@ -109,6 +113,7 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
                 this.ExecuteRequest(server1.BaseHost + requestPath);
                 
                 var telemetry = server1.Listener.ReceiveItems(TestListenerTimeoutInMs);
+                this.DebugTelemetryItems(telemetry);
 
                 Assert.Single(telemetry.Where(t => t is TelemetryItem<RequestData>));
                 var request = telemetry.Single(t => t is TelemetryItem<RequestData>);
@@ -129,9 +134,7 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
             var url = dependency.data.baseData.data;
 
             // check if it's not tracked call from service to the test and a not call to get appid
-            var res = !(url.Contains(requestPath)  || url.Contains("api/profile"));
-            output.WriteLine($" dependency {url} {res}");
-            return res;
+            return !(url.Contains(requestPath)  || url.Contains("api/profile"));
         }
     }
 }

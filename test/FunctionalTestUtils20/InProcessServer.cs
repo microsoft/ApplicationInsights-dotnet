@@ -79,15 +79,6 @@
 
         public IServiceProvider ApplicationServices { get; private set; }
 
-        public void DisposeHostingEngine()
-        {
-            if (this.hostingEngine != null)
-            {
-                this.hostingEngine.Dispose();
-                this.hostingEngine = null;
-            }
-        }
-
         private string Start(string assemblyName)
         {
             var builder = new WebHostBuilder()
