@@ -17,7 +17,7 @@
         {
             if (senders == null || senders.Count < 1)
             {
-                throw new ArgumentNullException("senders");
+                throw new ArgumentNullException(nameof(senders));
             }
 
             this.diagnosticsSenders = senders;

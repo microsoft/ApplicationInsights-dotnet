@@ -25,7 +25,7 @@
         /// </summary>
         public string Id
         {
-            get { return this.id == string.Empty ? null : this.id; }
+            get { return string.IsNullOrEmpty(this.id) ? null : this.id; }
             set { this.id = value; }
         }
 
@@ -34,7 +34,7 @@
         /// </summary>
         public string ParentId
         {
-            get { return this.parentId == string.Empty ? null : this.parentId; }
+            get { return string.IsNullOrEmpty(this.parentId) ? null : this.parentId; }
             set { this.parentId = value; }
         }
 
@@ -44,7 +44,7 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public string CorrelationVector
         {
-            get { return this.correlationVector == string.Empty ? null : this.correlationVector; }
+            get { return string.IsNullOrEmpty(this.correlationVector) ? null : this.correlationVector; }
             set { this.correlationVector = value; }
         }
 
@@ -53,7 +53,7 @@
         /// </summary>
         public string Name
         {
-            get { return this.name == string.Empty ? null : this.name; }
+            get { return string.IsNullOrEmpty(this.name) ? null : this.name; }
             set { this.name = value; }
         }
 
@@ -62,7 +62,7 @@
         /// </summary>
         public string SyntheticSource
         {
-            get { return this.syntheticSource == string.Empty ? null : this.syntheticSource; }
+            get { return string.IsNullOrEmpty(this.syntheticSource) ? null : this.syntheticSource; }
             set { this.syntheticSource = value; }
         }
 

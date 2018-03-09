@@ -51,7 +51,7 @@
 
             if (this.configuration.TelemetryChannel == null)
             {
-                throw new ArgumentException("The specified configuration does not have a telemetry channel.", "configuration");
+                throw new ArgumentException("The specified configuration does not have a telemetry channel.", nameof(configuration));
             }
         }
 

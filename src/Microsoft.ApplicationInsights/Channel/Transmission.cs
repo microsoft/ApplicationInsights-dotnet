@@ -37,17 +37,17 @@
         {
             if (address == null)
             {
-                throw new ArgumentNullException("address");
+                throw new ArgumentNullException(nameof(address));
             }
 
             if (content == null)
             {
-                throw new ArgumentNullException("content");
+                throw new ArgumentNullException(nameof(content));
             }
 
             if (contentType == null)
             {
-                throw new ArgumentNullException("contentType");
+                throw new ArgumentNullException(nameof(contentType));
             }
 
             this.EndpointAddress = address;

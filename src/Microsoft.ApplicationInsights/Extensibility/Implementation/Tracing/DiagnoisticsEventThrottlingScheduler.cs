@@ -36,12 +36,12 @@
         {
             if (interval <= 0)
             {
-                throw new ArgumentOutOfRangeException("interval");
+                throw new ArgumentOutOfRangeException(nameof(interval));
             }
 
             if (actionToExecute == null)
             {
-                throw new ArgumentNullException("actionToExecute");
+                throw new ArgumentNullException(nameof(actionToExecute));
             }
 
             var token = InternalCreateAndStartTimer(interval, actionToExecute);
@@ -56,13 +56,13 @@
         {
             if (token == null)
             {
-                throw new ArgumentNullException("token");
+                throw new ArgumentNullException(nameof(token));
             }
 
             var timer = token as TaskTimerInternal;
             if (timer == null)
             {
-                throw new ArgumentException("token");
+                throw new ArgumentException($"{nameof(token)} is not of type {nameof(TaskTimerInternal)}", nameof(token));
             }
 
             if (this.timers.Remove(timer))

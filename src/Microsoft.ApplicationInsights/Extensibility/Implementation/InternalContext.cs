@@ -25,7 +25,7 @@
         /// </summary>
         public string SdkVersion
         {
-            get { return this.sdkVersion == string.Empty ? null : this.sdkVersion; }
+            get { return string.IsNullOrEmpty(this.sdkVersion) ? null : this.sdkVersion; }
             set { this.sdkVersion = value; }
         }
 
@@ -34,7 +34,7 @@
         /// </summary>
         public string AgentVersion
         {
-            get { return this.agentVersion == string.Empty ? null : this.agentVersion; }
+            get { return string.IsNullOrEmpty(this.agentVersion) ? null : this.agentVersion; }
             set { this.agentVersion = value; }
         }
 
@@ -43,7 +43,7 @@
         /// </summary>
         public string NodeName
         {
-            get { return this.nodeName == string.Empty ? null : this.nodeName; }
+            get { return string.IsNullOrEmpty(this.nodeName) ? null : this.nodeName; }
             set { this.nodeName = value; }
         }
 

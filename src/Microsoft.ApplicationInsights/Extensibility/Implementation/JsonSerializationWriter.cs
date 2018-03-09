@@ -201,12 +201,12 @@
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
 
             if (name.Length == 0)
             {
-                throw new ArgumentException("name");
+                throw new ArgumentException($"{nameof(name)} cannot be empty", nameof(name));
             }
 
             if (this.currentObjectHasProperties)

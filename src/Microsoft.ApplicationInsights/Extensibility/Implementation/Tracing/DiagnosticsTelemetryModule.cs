@@ -168,7 +168,7 @@
         {
             if (configuration == null)
             {
-                throw new ArgumentNullException("configuration");
+                throw new ArgumentNullException(nameof(configuration));
             }
 
             // Temporary fix to make sure that we initialize module once.
