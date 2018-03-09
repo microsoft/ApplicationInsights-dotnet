@@ -1,3 +1,9 @@
+## NuGet packages
+
+- [Microsoft.ApplicationInsights.AspNetCore](https://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.AspNetCore.svg)](https://nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore)
+
+
 Microsoft Application Insights for ASP.NET Core applications
 =============================================================
 
@@ -35,14 +41,15 @@ Developing
 To successfully build the sources on your machine, make sure you've installed the following prerequisites:
 * Visual Studio 2017 Community or Enterprise. Please make sure to install all the latest updates to Visual Studio
 * .NET 4.6
-* .NET Core 2.0
+* .NET Core SDK 1.1.7
+* .NET Core SDK 2.0 or above.(https://www.microsoft.com/net/download/windows)
 
 ## Building
 Once you've installed the prerequisites execute ```buildDebug.cmd``` or ```buildRelease.cmd``` script in the repository root to build the project locally.
 You can also open the solution in Visual Studio and build the ApplicationInsights.AspNetCore.sln solution directly.
 
 ## Testing/Debugging
-Execute the ```runAllTests.cmd``` script in the repository root.
+Execute the ```RunTests.cmd``` script in the repository root.
 
 You can also open the solution in Visual Studio and run tests directly from Visual Studio Test Explorer. However, as the tests has multiple targets, Test Explorer only shows the first target
 from <TargetFrameworks> in .csproj. To debug/run tests from a particular TargetFramework with Visual Studio, only option is to re-arrange the <TargetFrameworks>

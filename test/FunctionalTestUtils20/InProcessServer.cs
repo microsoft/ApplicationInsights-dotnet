@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Net;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit.Abstractions;
@@ -38,7 +39,8 @@
         {
             this.output = output;
 
-            var machineName = Environment.GetEnvironmentVariable("COMPUTERNAME");
+            // localhost instead of machine name, as its not possible to get machine name when running non windows.
+            var machineName = "localhost";
             this.url = "http://" + machineName + ":" + random.Next(5000, 14000).ToString();
 
             output.WriteLine(string.Format("{0}: Launching application at: {1}", DateTime.Now.ToString("G"), this.url));
@@ -48,7 +50,15 @@
             output.WriteLine(string.Format("{0}: Starting listener at: {1}", DateTime.Now.ToString("G"), this.httpListenerConnectionString));
 
             this.listener = new TelemetryHttpListenerObservable(this.httpListenerConnectionString);
-            this.listener.Start();
+            try
+            {
+                this.listener.Start();
+            }
+            catch(HttpListenerException ex)
+            {
+                output.WriteLine(string.Format("{0}: Error starting listener.ErrorCode {1} Native Code {2}", DateTime.Now.ToString("G"), ex.ErrorCode, ex.NativeErrorCode));
+                throw ex;
+            }
         }
 
         public TelemetryHttpListenerObservable Listener

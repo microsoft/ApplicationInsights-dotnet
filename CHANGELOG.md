@@ -1,5 +1,24 @@
 # Changelog
 
+## Version 2.3.0-beta1
+- Updated Javascript Snippet with latest from [Github/ApplicationInsights-JS](https://github.com/Microsoft/ApplicationInsights-JS)
+- [Make all built-in TelemetryInitializers public to allow easy removal from DI Container.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/351)
+- [Enforced limits of values read from incoming http requests to prevent security vulnerability](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/608)
+- [ApplicationInsightsLogger adds EventId into telemetry properties. It is off by default for compatibility. It can be switched on by configuring ApplicationInsightsLoggerOptions.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/569)
+
+## Version 2.2.1
+- Updated Web/Base SDK version dependency to 2.5.1 which addresses a bug.
+
+## Version 2.2.0
+- Updated Web/Base SDK version dependency to 2.5.0
+
+## Version 2.2.0-beta3
+- Updated Web/Base SDK version dependency to 2.5.0-beta2.
+- This version of Base SDK referred contains fix to a bug in ServerTelemetryChannel which caused application to crash on non-windows platforms. Details on fix and workaround(https://github.com/Microsoft/ApplicationInsights-dotnet/issues/654) Original issue (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/551)
+
+## Version 2.2.0-beta2
+- Same bits as beta1. Only change is that the symbols for the binaries are indexed in Microsoft symbol servers. Beta1 symbols will not be available.
+
 ## Version 2.2.0-beta1
 
 - Project is upgraded to work with Visual Studio 2017. Also projects are modified to use csproj instead of project.json.

@@ -24,11 +24,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
+    using System.IO;
 
 #if NET451 || NET46
     using ApplicationInsights.Extensibility.PerfCounterCollector;
     using ApplicationInsights.WindowsServer.TelemetryChannel;
-    using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+    using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;    
 #endif
 
     public static class ApplicationInsightsExtensionsTests
@@ -104,12 +105,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             /// <summary>
-            /// Tests that the instrumentation key configuration can be read from a JSON file by the configuration factory.
+            /// Tests that the instrumentation key configuration can be read from a JSON file by the configuration factory.            
             /// </summary>
             [Fact]
+            
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
-            {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-instrumentation-key.json", null);
+            {                
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-instrumentation-key.json"), null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -121,10 +123,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// This demonstrates that existing documentation for how to create a telemetry client and track custom events etc. works in ASP.NET 5
             /// when no ApplicationInsights.config file exists but a project.json file does exist which contains the instrumentation key.
             /// </summary>
+            /// 
             [Fact]
+            
             public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
             {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-instrumentation-key.json", null);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content","config-instrumentation-key.json"), null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 TelemetryConfiguration telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -132,9 +136,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Fact]
+            
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromConfiguration()
             {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-developer-mode.json", null);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-developer-mode.json"), null);                
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -142,9 +147,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Fact]
+            
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration()
             {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-endpoint-address.json", null);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content", "config-endpoint-address.json"), null);                
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
@@ -584,7 +590,17 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             if (jsonPath != null)
             {
-                config = new ConfigurationBuilder().AddJsonFile(jsonPath).Build();
+                var jsonFullPath = Path.Combine(Directory.GetCurrentDirectory(), jsonPath);
+                Console.WriteLine("json:" + jsonFullPath);
+                Trace.WriteLine("json:" + jsonFullPath);
+                try
+                {
+                    config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile(jsonFullPath).Build();
+                }
+                catch(Exception ex)
+                {
+                    throw new Exception("Unable to build with json:" + jsonFullPath);
+                }
             }
             else  if (channelEndPointAddress != null)
             {

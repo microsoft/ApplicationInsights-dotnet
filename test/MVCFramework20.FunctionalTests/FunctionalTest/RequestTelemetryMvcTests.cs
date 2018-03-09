@@ -11,7 +11,7 @@
     
     public class RequestTelemetryMvcTests : TelemetryTestsBase
     {
-        private const string assemblyName = "MVCFramework20.FunctionalTests";
+        private const string assemblyName = "MVCFramework20.FunctionalTests20";
 
         public RequestTelemetryMvcTests(ITestOutputHelper output) : base(output)
         {
@@ -75,10 +75,12 @@
             {
                 this.ExecuteRequest(server.BaseHost + "/Home/Contact");
 
-                var telemetries = server.Listener.ReceiveItems(5, TestListenerTimeoutInMs);
+                var telemetries = server.Listener.ReceiveItems(TestListenerTimeoutInMs);
                 this.DebugTelemetryItems(telemetries);
 
-                Assert.True(telemetries.Length >= 5);
+                // In linux 6 items as it'll always have an Error trace from SDK itself about 
+                // local storage folder.
+                Assert.InRange(telemetries.Length, 5, 6);
 
                 Assert.Contains(telemetries.OfType<TelemetryItem<RemoteDependencyData>>(),
                     t => ((TelemetryItem<RemoteDependencyData>)t).data.baseData.name == "GET /Home/Contact");

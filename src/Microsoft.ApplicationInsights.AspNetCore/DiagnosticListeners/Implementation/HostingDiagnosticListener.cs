@@ -2,9 +2,11 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Net.Http.Headers;
     using System.Reflection;
     using Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.AspNetCore.Common;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -78,6 +80,7 @@
                 }
                 else if (httpContext.Request.Headers.TryGetValue(RequestResponseHeaders.StandardRootIdHeader, out xmsRequestRootId))
                 {
+                    xmsRequestRootId = StringUtilities.EnforceMaxLength(xmsRequestRootId, InjectionGuardConstants.RequestHeaderMaxLength);
                     var activity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                     activity.SetParentId(xmsRequestRootId);
                     activity.Start();
@@ -114,6 +117,7 @@
                 IHeaderDictionary requestHeaders = httpContext.Request.Headers;
                 if (requestHeaders.TryGetValue(RequestResponseHeaders.RequestIdHeader, out requestId))
                 {
+                    requestId = StringUtilities.EnforceMaxLength(requestId, InjectionGuardConstants.RequestHeaderMaxLength);
                     isActivityCreatedFromRequestIdHeader = true;
                     activity.SetParentId(requestId);
 
@@ -125,6 +129,8 @@
                             NameValueHeaderValue baggageItem;
                             if (NameValueHeaderValue.TryParse(item, out baggageItem))
                             {
+                                var itemName = StringUtilities.EnforceMaxLength(baggageItem.Name, InjectionGuardConstants.ContextHeaderKeyMaxLength);
+                                var itemValue = StringUtilities.EnforceMaxLength(baggageItem.Value, InjectionGuardConstants.ContextHeaderValueMaxLength);
                                 activity.AddBaggage(baggageItem.Name, baggageItem.Value);
                             }
                         }
@@ -132,6 +138,7 @@
                 }
                 else if (requestHeaders.TryGetValue(RequestResponseHeaders.StandardRootIdHeader, out standardRootId))
                 {
+                    standardRootId = StringUtilities.EnforceMaxLength(standardRootId, InjectionGuardConstants.RequestHeaderMaxLength);
                     activity.SetParentId(standardRootId);
                 }
 
@@ -208,6 +215,7 @@
             }
             else if (httpContext.Request.Headers.TryGetValue(RequestResponseHeaders.StandardParentIdHeader, out standardParentId))
             {
+                standardParentId = StringUtilities.EnforceMaxLength(standardParentId, InjectionGuardConstants.RequestHeaderMaxLength);
                 requestTelemetry.Context.Operation.ParentId = standardParentId;
             }
 
@@ -248,7 +256,7 @@
                 }
 
                 telemetry.Stop(timestamp);
-                telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
+                telemetry.ResponseCode = httpContext.Response.StatusCode.ToString(CultureInfo.InvariantCulture);
 
                 var successExitCode = httpContext.Response.StatusCode < 400;
                 if (telemetry.Success == null)

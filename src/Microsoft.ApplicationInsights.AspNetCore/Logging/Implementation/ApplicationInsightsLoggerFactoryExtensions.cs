@@ -68,7 +68,9 @@
             var options = serviceProvider.GetService<IOptions<ApplicationInsightsLoggerOptions>>();
 
             if (options == null)
+            {
                 options = Options.Create(new ApplicationInsightsLoggerOptions());
+            }
 
             if (debugLoggerControl != null)
             {

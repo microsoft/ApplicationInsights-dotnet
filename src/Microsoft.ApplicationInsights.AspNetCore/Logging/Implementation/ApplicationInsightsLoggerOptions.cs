@@ -22,5 +22,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Logging
         /// </summary>
         public bool TrackExceptionsAsExceptionTelemetry
         { get; set; }
+
+        /// <summary>
+        /// Gets or sets value indicating, whether EventId and EventName properties should be included in telemetry.
+        /// </summary>
+        public bool IncludeEventId { get; set; }
     }
 }
