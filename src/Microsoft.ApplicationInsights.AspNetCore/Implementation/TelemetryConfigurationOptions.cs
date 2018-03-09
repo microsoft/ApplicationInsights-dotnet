@@ -11,12 +11,14 @@
     {
         public TelemetryConfigurationOptions(IEnumerable<IConfigureOptions<TelemetryConfiguration>> configureOptions)
         {
+            // workaround for Microsoft/ApplicationInsights-dotnet#613
             this.Value = new TelemetryConfiguration();
             this.Value.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
 
             foreach (var c in configureOptions)
             {
                 c.Configure(this.Value);
+                c.Configure(TelemetryConfiguration.Active);
             }
         }
 

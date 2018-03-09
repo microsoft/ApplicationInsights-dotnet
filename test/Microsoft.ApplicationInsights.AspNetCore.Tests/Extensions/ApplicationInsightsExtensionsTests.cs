@@ -119,20 +119,22 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             /// <summary>
-            /// Tests that the Active configuration singleton is used as the telemetry configuration instance by the configuration factory.
-            /// This demonstrates that existing documentation for how to create a telemetry client and track custom events etc. works in ASP.NET 5
-            /// when no ApplicationInsights.config file exists but a project.json file does exist which contains the instrumentation key.
+            /// Tests that the Active configuration singleton is updated, but another instance of telemetry configuration is created for dependency injection.
+            /// ASP.NET Core developers should always use Dependency Injection instead of static singleton approach. 
+            /// See Microsoft/ApplicationInsights-dotnet#613
             /// </summary>
-            /// 
             [Fact]
             
-            public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
+            public static void ConfigurationFactoryMethodDoesUpdatesTheActiveConfigurationSingletonByDefault()
             {
+                var activeConfig = TelemetryConfiguration.Active;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content","config-instrumentation-key.json"), null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 TelemetryConfiguration telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Equal(TestInstrumentationKey, TelemetryConfiguration.Active.InstrumentationKey);
+                Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
+                Assert.Equal(TestInstrumentationKey, activeConfig.InstrumentationKey);
+                Assert.NotEqual(activeConfig, telemetryConfiguration);
             }
 
             [Fact]
