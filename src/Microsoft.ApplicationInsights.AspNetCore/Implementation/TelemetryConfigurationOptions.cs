@@ -12,6 +12,8 @@
         public TelemetryConfigurationOptions(IEnumerable<IConfigureOptions<TelemetryConfiguration>> configureOptions)
         {
             this.Value = new TelemetryConfiguration();
+            this.Value.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+
             foreach (var c in configureOptions)
             {
                 c.Configure(this.Value);
