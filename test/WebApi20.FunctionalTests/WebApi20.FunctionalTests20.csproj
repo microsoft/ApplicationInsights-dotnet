@@ -35,11 +35,16 @@
   </ItemGroup>
 
   <ItemGroup>
+     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.1" />
+     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.1" />
+     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.1" />
      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.2" />
     <PackageReference Include="xunit" Version="2.3.0" />
 	<PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.0.0" />
 	<PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />

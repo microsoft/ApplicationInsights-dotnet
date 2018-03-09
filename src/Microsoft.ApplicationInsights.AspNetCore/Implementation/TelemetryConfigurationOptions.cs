@@ -11,6 +11,7 @@
     {
         public TelemetryConfigurationOptions(IEnumerable<IConfigureOptions<TelemetryConfiguration>> configureOptions)
         {
+            this.Value = new TelemetryConfiguration();
             foreach (var c in configureOptions)
             {
                 c.Configure(this.Value);
@@ -18,6 +19,6 @@
         }
 
         /// <inheritdoc />
-        public TelemetryConfiguration Value => TelemetryConfiguration.Active;
+        public TelemetryConfiguration Value { get; }
     }
 }
