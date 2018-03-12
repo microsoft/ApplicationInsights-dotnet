@@ -140,6 +140,20 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 propertyBag.Add("UserStackFrameNumber", logEvent.UserStackFrameNumber.ToString(CultureInfo.InvariantCulture));
             }
 
+            this.LoadGlobalDiagnosticsContextProperties(propertyBag);
+            this.LoadLogEventProperties(logEvent, propertyBag);
+        }
+
+        private void LoadGlobalDiagnosticsContextProperties(IDictionary<string, string> propertyBag)
+        {
+            foreach (string key in GlobalDiagnosticsContext.GetNames())
+            {
+                this.PopulatePropertyBag(propertyBag, key, GlobalDiagnosticsContext.GetObject(key));
+            }
+        }
+
+        private void LoadLogEventProperties(LogEventInfo logEvent, IDictionary<string, string> propertyBag)
+        {
             var properties = logEvent.Properties;
             if (properties != null)
             {
@@ -147,25 +161,30 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 {
                     string key = keyValuePair.Key.ToString();
                     object valueObj = keyValuePair.Value;
-                    if (valueObj == null)
-                    {
-                        continue;
-                    }
-
-                    string value = valueObj.ToString();
-                    if (propertyBag.ContainsKey(key))
-                    {
-                        if (value == propertyBag[key])
-                        {
-                            continue;
-                        }
-
-                        key += "_1";
-                    }
-
-                    propertyBag.Add(key, value);
+                    this.PopulatePropertyBag(propertyBag, key, valueObj);
                 }
             }
+        }
+
+        private void PopulatePropertyBag(IDictionary<string, string> propertyBag, string key, object valueObj)
+        {
+            if (valueObj == null)
+            {
+                return;
+            }
+
+            string value = valueObj.ToString();
+            if (propertyBag.ContainsKey(key))
+            {
+                if (value == propertyBag[key])
+                {
+                    return;
+                }
+
+                key += "_1";
+            }
+
+            propertyBag.Add(key, value);
         }
 
         private SeverityLevel? GetSeverityLevel(LogLevel logEventLevel)

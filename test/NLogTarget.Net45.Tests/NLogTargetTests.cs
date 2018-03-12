@@ -31,6 +31,7 @@
         [TestCleanup]
         public void Cleanup()
         {
+            NLog.GlobalDiagnosticsContext.Clear();
             this.adapterHelper.Dispose();
         }
 
@@ -214,6 +215,54 @@
             Assert.IsNotNull(telemetry, "Didn't get the log event from the channel");
 
             Assert.AreEqual("Value", telemetry.Context.Properties["Name"]);
+        }
+
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void GlobalDiagnosticContextPropertiesAreAddedToProperties()
+        {
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+
+            NLog.GlobalDiagnosticsContext.Set("global_prop", "global_value");
+            aiLogger.Debug("Message");
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
+            Assert.AreEqual("global_value", telemetry.Context.Properties["global_prop"]);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void GlobalDiagnosticContextPropertiesSupplementEventProperties()
+        {
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+
+            NLog.GlobalDiagnosticsContext.Set("global_prop", "global_value");
+
+            var eventInfo = new LogEventInfo(LogLevel.Trace, "TestLogger", "Hello!");
+            eventInfo.Properties["Name"] = "Value";
+            aiLogger.Log(eventInfo);
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
+            Assert.AreEqual("global_value", telemetry.Context.Properties["global_prop"]);
+            Assert.AreEqual("Value", telemetry.Context.Properties["Name"]);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void EventPropertyKeyNameIsAppendedWith_1_IfSameAsGlobalDiagnosticContextKeyName()
+        {
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+
+            NLog.GlobalDiagnosticsContext.Set("Name", "Global Value");
+            var eventInfo = new LogEventInfo(LogLevel.Trace, "TestLogger", "Hello!");
+            eventInfo.Properties["Name"] = "Value";
+            aiLogger.Log(eventInfo);
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
+            Assert.IsTrue(telemetry.Context.Properties.ContainsKey("Name_1"), "Key name altered");
+            Assert.AreEqual("Global Value", telemetry.Context.Properties["Name"]);
+            Assert.AreEqual("Value", telemetry.Context.Properties["Name_1"]);
         }
 
         [TestMethod]

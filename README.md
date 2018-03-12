@@ -3,12 +3,19 @@
 
 ## Nuget packages
 
-- [For NLog](http://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/).
-[![NLog Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.NLogTarget.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/)
-- [For Log4Net](http://www.nuget.org/packages/Microsoft.ApplicationInsights.Log4NetAppender/)
-[![Log4Net Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.Log4NetAppender.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.Log4NetAppender/)
-- [For System.Diagnostics](http://www.nuget.org/packages/Microsoft.ApplicationInsights.TraceListener/)
-[![System.Diagnostics Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.TraceListener.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.TraceListener/)
+- For NLog:
+ [Microsoft.ApplicationInsights.NLogTarget](http://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.NLogTarget.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/)
+- For Log4Net: [Microsoft.ApplicationInsights.Log4NetAppender](http://www.nuget.org/packages/Microsoft.ApplicationInsights.Log4NetAppender/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.Log4NetAppender.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.Log4NetAppender/)
+- For System.Diagnostics: [Microsoft.ApplicationInsights.TraceListener](http://www.nuget.org/packages/Microsoft.ApplicationInsights.TraceListener/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.TraceListener.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.TraceListener/)
+- [Microsoft.ApplicationInsights.DiagnosticSourceListener](http://www.nuget.org/packages/Microsoft.ApplicationInsights.DiagnosticSourceListener/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.DiagnosticSourceListener.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.DiagnosticSourceListener/)
+- [Microsoft.ApplicationInsights.EtwCollector](http://www.nuget.org/packages/Microsoft.ApplicationInsights.EtwCollector/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.EtwCollector.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.EtwCollector/)
+- [Microsoft.ApplicationInsights.EventSourceListener](http://www.nuget.org/packages/Microsoft.ApplicationInsights.EventSourceListener/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.EventSourceListener.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.EventSourceListener/)
 
 Application Insights logging adapters. 
 ==============================
@@ -70,7 +77,21 @@ logger.Error("An error message");
 
 # System.Diagnostics
 
-Microsoft.ApplicationInsights.TraceListener nuget package modifies web.config and adds application insights listener. (If your application type does not have web.config, add listener programmatically or in the configuration file appropriate to your application type)
+Microsoft.ApplicationInsights.TraceListener nuget package modifies web.config and adds application insights listener. 
+
+```
+<configuration>
+  <system.diagnostics>
+    <trace>
+      <listeners>
+        <add name="myAppInsightsListener" type="Microsoft.ApplicationInsights.TraceListener.ApplicationInsightsTraceListener, Microsoft.ApplicationInsights.TraceListener" />
+      </listeners>
+    </trace>
+  </system.diagnostics>
+</configuration>
+```
+
+If your application type does not have web.config, add listener programmatically or in the configuration file appropriate to your application type
 
 ```csharp
 // You do not need this if you have instrumentation key in the ApplicationInsights.config
@@ -78,9 +99,3 @@ TelemetryConfiguration.Active.InstrumentationKey = "Your_Resource_Key";
 System.Diagnostics.Trace.TraceWarning("Slow response - database01");
 
 ``` 
-
-
-
-
-
-
