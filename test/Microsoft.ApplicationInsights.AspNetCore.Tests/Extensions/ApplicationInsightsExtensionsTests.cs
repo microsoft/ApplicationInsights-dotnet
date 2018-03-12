@@ -126,6 +126,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
             {
                 var activeConfig = TelemetryConfiguration.Active;
+
+                // we determine if Active telemtery needs to be configured based on the assumptions about 'default' configuration
+                // created by base SDK.
+                // If it ever changes, change TelemetryConfigurationOptions.IsActiveConfigured method as well.
+                Assert.Equal(1, activeConfig.TelemetryInitializers.Count);
+
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content","config-instrumentation-key.json"), null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -571,7 +577,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
             }
-
         }
 
         public static TelemetryConfiguration GetTelemetryConfiguration(this IServiceProvider serviceProvider)

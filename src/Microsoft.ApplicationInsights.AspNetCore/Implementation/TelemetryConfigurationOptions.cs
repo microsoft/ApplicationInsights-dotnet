@@ -10,9 +10,10 @@
     /// </summary>
     internal class TelemetryConfigurationOptions : IOptions<TelemetryConfiguration>
     {
+        private readonly object lockObject = new object();
+
         public TelemetryConfigurationOptions(IEnumerable<IConfigureOptions<TelemetryConfiguration>> configureOptions)
         {
-            // workaround for Microsoft/ApplicationInsights-dotnet#613
             this.Value = TelemetryConfiguration.CreateDefault();
 
             var configureOptionsArray = configureOptions.ToArray();
@@ -21,13 +22,17 @@
                 c.Configure(this.Value);
             }
 
-            // as we expect some customers to use TelemetryConfiguration.Active together with dependency injection
-            // we make sure it has been set up, it must be done only once even if there are multiple Web Hosts in the process
-            if (!IsActiveConfigured(this.Value.InstrumentationKey))
-            { 
-                foreach (var c in configureOptionsArray)
+            lock (lockObject)
+            {
+                // workaround for Microsoft/ApplicationInsights-dotnet#613
+                // as we expect some customers to use TelemetryConfiguration.Active together with dependency injection
+                // we make sure it has been set up, it must be done only once even if there are multiple Web Hosts in the process
+                if (!IsActiveConfigured(this.Value.InstrumentationKey))
                 {
-                    c.Configure(TelemetryConfiguration.Active);
+                    foreach (var c in configureOptionsArray)
+                    {
+                        c.Configure(TelemetryConfiguration.Active);
+                    }
                 }
             }
         }

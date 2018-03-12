@@ -1,7 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Net;
 using System.Threading;
 using AI;
 using FunctionalTestUtils;
+using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 using Xunit;
 using Xunit.Abstractions;
@@ -121,6 +124,33 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
 
                 Assert.DoesNotContain(telemetry, t => t is TelemetryItem<ExceptionData>);
                 Assert.Single(telemetry.Where(IsServiceDependencyCall));
+            }
+        }
+
+        [Fact]
+        public void ActiveConfigurationIsNotCorruptedAfterWebHostIsDisposed()
+        {
+            var activeConfig = TelemetryConfiguration.Active;
+            using (var server = new InProcessServer(assemblyName, this.output))
+            {
+                this.ExecuteRequest(server.BaseHost + requestPath);
+
+                // receive everything and clean up
+                server.Listener.ReceiveItemsOfType<TelemetryItem<RequestData>>(1, TestListenerTimeoutInMs);
+            }
+
+            Assert.NotNull(activeConfig.TelemetryChannel);
+
+            using (var listener = new TelemetryHttpListenerObservable(activeConfig.TelemetryChannel.EndpointAddress))
+            {
+                listener.Start();
+
+                var telemetryClient = new TelemetryClient(activeConfig);
+                telemetryClient.TrackTrace("some message after web host is disposed");
+
+                var message = listener.ReceiveItemsOfType<TelemetryItem<MessageData>>(1, TestListenerTimeoutInMs);
+                Assert.Single(message);
+                Assert.Equal("some message after web host is disposed", ((TelemetryItem<MessageData>) message.Single()).data.baseData.message);
             }
         }
 
