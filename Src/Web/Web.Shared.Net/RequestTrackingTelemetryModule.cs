@@ -462,9 +462,9 @@
                 try
                 {
                     var rootRequestId = headers[HeaderRootRequestId];
-                    rootRequestId = StringUtilities.EnforceMaxLength(rootRequestId, InjectionGuardConstants.RequestHeaderMaxLength);
                     if (rootRequestId != null)
                     {
+                        rootRequestId = StringUtilities.EnforceMaxLength(rootRequestId, InjectionGuardConstants.RequestHeaderMaxLength);
                         if (!this.IsRequestKnown(rootRequestId))
                         {
                             // doesn't exist add to dictionary and return true

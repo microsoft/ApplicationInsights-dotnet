@@ -1,8 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
     using System;
-    using System.Collections.Generic;
-    
+    using System.Collections.Concurrent;
+    using System.Linq;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -17,13 +18,13 @@
     public class ExceptionTrackingTelemetryModuleTests
     {
         private TelemetryConfiguration configuration;
-        private IList<ITelemetry> sendItems;
+        private ConcurrentQueue<ITelemetry> sendItems;
 
         [TestInitialize]
         public void TestInit()
         {
-            this.sendItems = new List<ITelemetry>();
-            var stubTelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
+            this.sendItems = new ConcurrentQueue<ITelemetry>();
+            var stubTelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Enqueue(item) };
             this.configuration = new TelemetryConfiguration
             {
                 InstrumentationKey = Guid.NewGuid().ToString(),
@@ -39,12 +40,14 @@
             platformContext.AddError(exception1);
             platformContext.AddError(new Exception("2"));
 
-            var module = new ExceptionTrackingTelemetryModule();
-            module.Initialize(this.configuration);
-            module.OnError(platformContext);
-            
+            using (var module = new ExceptionTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+                module.OnError(platformContext);
+            }
+
             Assert.Equal(2, this.sendItems.Count);
-            Assert.Equal(exception1, ((ExceptionTelemetry)this.sendItems[0]).Exception);
+            Assert.Equal(exception1, ((ExceptionTelemetry)this.sendItems.First()).Exception);
         }
 
         [TestMethod]
@@ -54,20 +57,23 @@
             platformContext.Response.StatusCode = 500;
             platformContext.AddError(new Exception());
 
-            var module = new ExceptionTrackingTelemetryModule();
-            module.Initialize(this.configuration);
-            module.OnError(platformContext);
-            
-            Assert.Equal(SeverityLevel.Critical, ((ExceptionTelemetry)this.sendItems[0]).SeverityLevel);
+            using (var module = new ExceptionTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+                module.OnError(platformContext);
+            }
+
+            Assert.Equal(SeverityLevel.Critical, ((ExceptionTelemetry)this.sendItems.First()).SeverityLevel);
         }
 
         [TestMethod]
         public void OnErrorDoesNotThrowOnNullContext()
         {
-            var module = new ExceptionTrackingTelemetryModule();
-
-            module.Initialize(this.configuration);
-            module.OnError(null); // is not supposed to throw
+            using (var module = new ExceptionTrackingTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+                module.OnError(null); // is not supposed to throw
+            }
         }
     }
 }

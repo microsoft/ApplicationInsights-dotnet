@@ -58,7 +58,7 @@
         }
 
         [TestMethod]        
-        public void TestMvcRequestWithExceptionSampled()
+        public void TestWebApiRequestWithExceptionSampledCustomErrorsOff()
         {
             const string requestPath = "api/products/5";
             

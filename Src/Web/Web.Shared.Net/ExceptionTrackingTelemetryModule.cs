@@ -11,11 +11,19 @@
     /// <summary>
     /// Telemetry module to collect unhandled exceptions caught by http module.
     /// </summary>
-    public class ExceptionTrackingTelemetryModule : ITelemetryModule
+    public class ExceptionTrackingTelemetryModule : ITelemetryModule, IDisposable
     {
-        private TelemetryClient telemetryClient;
+        private readonly object lockObject = new object();
 
+        private TelemetryClient telemetryClient;
         private bool initializationErrorReported;
+        private bool isInitialized = false;
+        private bool disposed = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether automatic MVC 5 and WebAPI 2 exceptions tracking should be done.
+        /// </summary>
+        public bool EnableMvcAndWebApiExceptionAutoTracking { get; set; } = true;
 
         /// <summary>
         /// Implements on error callback of http module.
@@ -67,8 +75,48 @@
         /// <param name="configuration">Telemetry configuration to use for initialization.</param>
         public void Initialize(TelemetryConfiguration configuration)
         {
-            this.telemetryClient = new TelemetryClient(configuration);
-            this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("web:");
+            if (this.EnableMvcAndWebApiExceptionAutoTracking)
+            {
+                if (!this.isInitialized)
+                {
+                    lock (this.lockObject)
+                    {
+                        if (!this.isInitialized)
+                        {
+                            this.telemetryClient = new TelemetryClient(configuration);
+                            this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("web:");
+                            ExceptionHandlersInjector.Inject(this.telemetryClient);
+                            this.isInitialized = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// IDisposable implementation.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// IDisposable implementation.
+        /// </summary>
+        /// <param name="disposing">The method has been called directly or indirectly by a user's code.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    this.isInitialized = false;
+                }
+
+                this.disposed = true;
+            }
         }
     }
 }

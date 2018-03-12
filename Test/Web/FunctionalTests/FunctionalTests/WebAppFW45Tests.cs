@@ -69,7 +69,7 @@
         }
 
         [TestMethod]        
-        public void Mvc200RequestFW45BasicRequestValidationAndHeaders()
+        public void WebApi200RequestFW45BasicRequestValidationAndHeaders()
         {
             const string requestPath = "api/products";
             const string expectedRequestName = "GET products";
@@ -107,9 +107,42 @@
             Assert.IsTrue(request.data.baseData.id.StartsWith("|guid."), "Request Id is not properly set");
         }
 
+        [TestMethod]
+        public void WebApi500RequestFW45ExceptionTracking()
+        {
+            const string requestPath = "api/products/5";
+            const string expectedRequestName = "POST products [id]";
+            string expectedRequestUrl = this.Config.ApplicationUri + "/" + requestPath;
+
+            DateTimeOffset testStart = DateTimeOffset.UtcNow;
+
+            //Call an applicaiton page
+            var client = new HttpClient();
+            var requestMessage = new HttpRequestMessage
+            {
+                RequestUri = new Uri(expectedRequestUrl),
+                Method = HttpMethod.Post,
+            };
+
+            var responseTask = client.SendAsync(requestMessage);
+            responseTask.Wait(TimeoutInMs);
+
+            var telemetry = Listener.ReceiveAllItemsDuringTime(TimeoutInMs);
+            var requests = telemetry.OfType<TelemetryItem<RequestData>>().ToArray();
+            Assert.AreEqual(1, requests.Length);
+
+            var allExceptions = telemetry.OfType<TelemetryItem<ExceptionData>>();
+            // select only test exception, and filter out those that are collected by first chance module - the module is not enabled by default
+            var controllerException = allExceptions.Where(i => i.data.baseData.exceptions.FirstOrDefault()?.message == "Test exception to get 500" && i.tags[new ContextTagKeys().InternalSdkVersion].StartsWith("web"));
+            Assert.AreEqual(1, controllerException.Count());
+
+            var testFinish = DateTimeOffset.UtcNow;
+
+            this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "500", false, requests.Single(), testStart, testFinish);
+        }
 
         [TestMethod]        
-        public void Mvc200RequestFW45BasicRequestValidationAndLegacyIdHeaders()
+        public void WebApi200RequestFW45BasicRequestValidationAndLegacyIdHeaders()
         {
             const string requestPath = "api/products";
             string expectedRequestUrl = this.Config.ApplicationUri + "/" + requestPath;
@@ -142,7 +175,7 @@
         }
 
         [TestMethod]        
-        public void Mvc200RequestFW45BasicRequestSyntheticFiltering()
+        public void WebApi200RequestFW45BasicRequestSyntheticFiltering()
         {
             const string requestPath = "api/products";
             const string expectedRequestName = "GET products";
@@ -175,7 +208,7 @@
         }
 
         [TestMethod]        
-        public void TestMvc404Request()
+        public void TestWebApi404Request()
         {
             const string requestPath = "api/products/101";
             const string expectedRequestName = "GET products [id]";

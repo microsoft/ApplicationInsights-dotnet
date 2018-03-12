@@ -12,7 +12,6 @@
         /// </summary>
         public static string EnforceMaxLength(string input, int maxLength)
         {
-            Debug.Assert(input != null, $"{nameof(input)} must not be null");
             Debug.Assert(maxLength > 0, $"{nameof(maxLength)} must be greater than 0");
 
             if (input != null && input.Length > maxLength)

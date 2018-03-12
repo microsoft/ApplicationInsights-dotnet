@@ -411,6 +411,62 @@
                 this.ApplicationName);
         }
 
+        [Event(42,
+            Keywords = Keywords.Diagnostics,
+            Message = "Injection started.",
+            Level = EventLevel.Verbose)]
+        public void InjectionStarted(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(42, this.ApplicationName);
+        }
+
+        [Event(43,
+            Keywords = Keywords.Diagnostics,
+            Message = "{0} Injection failed. Error message: {1}",
+            Level = EventLevel.Informational)]
+        public void InjectionFailed(string component, string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(43, component ?? string.Empty, error ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(44,
+            Keywords = Keywords.Diagnostics,
+            Message = "Version '{0}' of component '{1}' is not supported",
+            Level = EventLevel.Verbose)]
+        public void InjectionVersionNotSupported(string version, string component, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(44, version ?? string.Empty, component ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(
+            45,
+            Keywords = Keywords.Diagnostics,
+            Message = "Unknown exception. Error message: {0}.",
+            Level = EventLevel.Error)]
+        public void InjectionUnknownError(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(45, error ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(
+            46,
+            Keywords = Keywords.Diagnostics,
+            Message = "Another exception filter or logger is already injected. Type: '{0}', component: '{1}'",
+            Level = EventLevel.Verbose)]
+        public void InjectionSkipped(string type, string component, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(46, type ?? string.Empty, component ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(47,
+            Keywords = Keywords.Diagnostics,
+            Message = "Injection completed.",
+            Level = EventLevel.Verbose)]
+        public void InjectionCompleted(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(47, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {
