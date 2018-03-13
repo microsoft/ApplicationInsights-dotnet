@@ -10,7 +10,7 @@
     /// </summary>
     internal class TelemetryConfigurationOptions : IOptions<TelemetryConfiguration>
     {
-        private readonly object lockObject = new object();
+        private static readonly object lockObject = new object();
 
         public TelemetryConfigurationOptions(IEnumerable<IConfigureOptions<TelemetryConfiguration>> configureOptions)
         {
