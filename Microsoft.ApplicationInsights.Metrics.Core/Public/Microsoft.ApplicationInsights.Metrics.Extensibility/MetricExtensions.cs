@@ -13,7 +13,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// </summary>
         /// <param name="metric"></param>
         /// <returns></returns>
-        public static IMetricConfiguration GetConfiguration(this Metric metric)
+        public static MetricConfiguration GetConfiguration(this Metric metric)
         {
             return metric._configuration;
         }

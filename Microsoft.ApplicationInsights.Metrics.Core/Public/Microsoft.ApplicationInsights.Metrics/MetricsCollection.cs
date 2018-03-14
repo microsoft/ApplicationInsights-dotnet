@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                 string metricId,
                                 string dimension1Name,
                                 string dimension2Name,
-                                IMetricConfiguration metricConfiguration)
+                                MetricConfiguration metricConfiguration)
         {
             metricId = metricId?.Trim();
             Util.ValidateNotNullOrWhitespace(metricId, nameof(metricId));

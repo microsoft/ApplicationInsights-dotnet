@@ -13,11 +13,11 @@ namespace Microsoft.ApplicationInsights
     public static class MetricConfigurationsCoreExtensions
     {
         private const int DefaultSeriesCountLimit = 1000;
-        private const int DefaultaluesPerDimensionLimit = 100;
+        private const int DefaultValuesPerDimensionLimit = 100;
 
-        private static SimpleMetricConfiguration s_defaultConfigForMeasurement = new SimpleMetricConfiguration(
+        private static MetricConfiguration s_defaultConfigForMeasurement = new MetricConfiguration(
                                                         DefaultSeriesCountLimit,
-                                                        DefaultaluesPerDimensionLimit,
+                                                        DefaultValuesPerDimensionLimit,
                                                         new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Microsoft.ApplicationInsights
         /// </summary>
         /// <param name="metricConfigPresets"></param>
         /// <returns></returns>
-        public static IMetricConfiguration Measurement(this MetricConfigurations metricConfigPresets)
+        public static MetricConfiguration Measurement(this MetricConfigurations metricConfigPresets)
         {
             return s_defaultConfigForMeasurement;
         }
@@ -43,7 +43,7 @@ namespace Microsoft.ApplicationInsights
         /// <param name="defaultConfigurationForMeasurement">Future default config.</param>
         public static void SetDefaultForMeasurement(
                                                 this MetricConfigurations metricConfigPresets,
-                                                SimpleMetricConfiguration defaultConfigurationForMeasurement)
+                                                MetricConfiguration defaultConfigurationForMeasurement)
         {
             Util.ValidateNotNull(defaultConfigurationForMeasurement, nameof(defaultConfigurationForMeasurement));
             Util.ValidateNotNull(defaultConfigurationForMeasurement.SeriesConfig, nameof(defaultConfigurationForMeasurement) + "." + nameof(defaultConfigurationForMeasurement.SeriesConfig));
@@ -58,7 +58,7 @@ namespace Microsoft.ApplicationInsights
             s_defaultConfigForMeasurement = defaultConfigurationForMeasurement;
         }
 
-        internal static IMetricConfiguration Default(this MetricConfigurations metricConfigPresets)
+        internal static MetricConfiguration Default(this MetricConfigurations metricConfigPresets)
         {
             return metricConfigPresets.Measurement();
         }

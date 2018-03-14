@@ -5,7 +5,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// <summary>
     /// 
     /// </summary>
-    public class SimpleMetricConfiguration : IMetricConfiguration
+    public sealed class MetricConfiguration : IEquatable<MetricConfiguration>
     {
         private readonly int _hashCode;
 
@@ -13,7 +13,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <param name="seriesCountLimit"></param>
         /// <param name="valuesPerDimensionLimit"></param>
         /// <param name="seriesConfig"></param>
-        public SimpleMetricConfiguration(
+        public MetricConfiguration(
                                 int seriesCountLimit,
                                 int valuesPerDimensionLimit,
                                 IMetricSeriesConfiguration seriesConfig)
@@ -56,7 +56,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             if (obj != null)
             {
-                var otherConfig = obj as SimpleMetricConfiguration;
+                var otherConfig = obj as MetricConfiguration;
                 if (otherConfig != null)
                 {
                     return Equals(otherConfig);
@@ -69,15 +69,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary />
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool Equals(IMetricConfiguration other)
-        {
-            return Equals((object) other);
-        }
-
-        /// <summary />
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public bool Equals(SimpleMetricConfiguration other)
+        public bool Equals(MetricConfiguration other)
         {
             if (other == null)
             {

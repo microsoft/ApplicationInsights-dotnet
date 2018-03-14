@@ -15,16 +15,16 @@ namespace Microsoft.ApplicationInsights
     public static class MetricConfigurationsExtendedExtensions
     {
         private const int DefaultSeriesCountLimit = 1000;
-        private const int DefaultaluesPerDimensionLimit = 100;
+        private const int DefaultValuesPerDimensionLimit = 100;
 
-        private static IMetricConfiguration s_defaultConfigForAccumulator = new SimpleMetricConfiguration(
+        private static MetricConfiguration s_defaultConfigForAccumulator = new MetricConfiguration(
                                                         DefaultSeriesCountLimit,
-                                                        DefaultaluesPerDimensionLimit,
+                                                        DefaultValuesPerDimensionLimit,
                                                         new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
 
-        private static IMetricConfiguration s_defaultConfigForGauge = new SimpleMetricConfiguration(
+        private static MetricConfiguration s_defaultConfigForGauge = new MetricConfiguration(
                                                         DefaultSeriesCountLimit,
-                                                        DefaultaluesPerDimensionLimit,
+                                                        DefaultValuesPerDimensionLimit,
                                                         new MetricSeriesConfigurationForGauge(alwaysResendLastValue: true, restrictToUInt32Values: false));
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Microsoft.ApplicationInsights
         /// </summary>
         /// <param name="metricConfigPresets"></param>
         /// <returns></returns>
-        public static IMetricConfiguration Accumulator(this MetricConfigurations metricConfigPresets)
+        public static MetricConfiguration Accumulator(this MetricConfigurations metricConfigPresets)
         {
             return s_defaultConfigForAccumulator;
         }
@@ -49,7 +49,7 @@ namespace Microsoft.ApplicationInsights
         /// </summary>
         /// <param name="metricConfigPresets"></param>
         /// <returns></returns>
-        public static IMetricConfiguration Gauge(this MetricConfigurations metricConfigPresets)
+        public static MetricConfiguration Gauge(this MetricConfigurations metricConfigPresets)
         {
             return s_defaultConfigForGauge;
         }
@@ -61,7 +61,7 @@ namespace Microsoft.ApplicationInsights
         /// <param name="defaultConfigurationForAccumulator">Future default config.</param>
         public static void SetDefaultForAccumulator(
                                                 this MetricConfigurations metricConfigPresets,
-                                                SimpleMetricConfiguration defaultConfigurationForAccumulator)
+                                                MetricConfiguration defaultConfigurationForAccumulator)
         {
             Util.ValidateNotNull(defaultConfigurationForAccumulator, nameof(defaultConfigurationForAccumulator));
             Util.ValidateNotNull(
@@ -87,7 +87,7 @@ namespace Microsoft.ApplicationInsights
         /// <param name="defaultConfigurationForGauge"></param>
         public static void SetDefaultForGauge(
                                                 this MetricConfigurations metricConfigPresets,
-                                                SimpleMetricConfiguration defaultConfigurationForGauge)
+                                                MetricConfiguration defaultConfigurationForGauge)
         {
             Util.ValidateNotNull(defaultConfigurationForGauge, nameof(defaultConfigurationForGauge));
             Util.ValidateNotNull(

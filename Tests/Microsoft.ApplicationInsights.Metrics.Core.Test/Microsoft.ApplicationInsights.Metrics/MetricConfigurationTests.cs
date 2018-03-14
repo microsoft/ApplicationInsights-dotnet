@@ -10,14 +10,14 @@ namespace Microsoft.ApplicationInsights.Metrics
 {
     /// <summary />
     [TestClass]
-    public class SimpleMetricConfigurationTests
+    public class MetricConfigurationTests
     {
         /// <summary />
         [TestMethod]
         public void Ctor()
         {
             { 
-                var config = new SimpleMetricConfiguration(
+                var config = new MetricConfiguration(
                                     seriesCountLimit:           1000,
                                     valuesPerDimensionLimit:    100,
                                     seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
@@ -30,7 +30,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(false, ((MetricSeriesConfigurationForMeasurement) config.SeriesConfig).RestrictToUInt32Values);
             }
             { 
-                var config = new SimpleMetricConfiguration(
+                var config = new MetricConfiguration(
                                     seriesCountLimit:           1,
                                     valuesPerDimensionLimit:    0,
                                     seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true));
@@ -43,7 +43,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(true, ((MetricSeriesConfigurationForMeasurement) config.SeriesConfig).RestrictToUInt32Values);
             }
             { 
-                var config = new SimpleMetricConfiguration(
+                var config = new MetricConfiguration(
                                     seriesCountLimit:           Int32.MaxValue,
                                     valuesPerDimensionLimit:    Int32.MaxValue,
                                     seriesConfig:               new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
@@ -56,25 +56,25 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(false, ((MetricSeriesConfigurationForAccumulator) config.SeriesConfig).RestrictToUInt32Values);
             }
             { 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => new SimpleMetricConfiguration(
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => new MetricConfiguration(
                                     seriesCountLimit:           0,
                                     valuesPerDimensionLimit:    100,
                                     seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false)) );
             }
             { 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => new SimpleMetricConfiguration(
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => new MetricConfiguration(
                                     seriesCountLimit:           -1,
                                     valuesPerDimensionLimit:    100,
                                     seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false)) );
             }
             { 
-                Assert.ThrowsException<ArgumentOutOfRangeException>( () => new SimpleMetricConfiguration(
+                Assert.ThrowsException<ArgumentOutOfRangeException>( () => new MetricConfiguration(
                                     seriesCountLimit:           1000,
                                     valuesPerDimensionLimit:    -1,
                                     seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false)) );
             }
             {
-                Assert.ThrowsException<ArgumentNullException>(() => new SimpleMetricConfiguration(
+                Assert.ThrowsException<ArgumentNullException>(() => new MetricConfiguration(
                                     seriesCountLimit:           1000,
                                     valuesPerDimensionLimit:    100,
                                     seriesConfig:               null) );
@@ -109,14 +109,14 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void TestEquals()
         {
-            var config1 = new SimpleMetricConfiguration(
+            var config1 = new MetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
                                 seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             Assert.IsTrue(config1.Equals(config1));
 
-            var config2 = new SimpleMetricConfiguration(
+            var config2 = new MetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
                                 seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
@@ -124,7 +124,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.IsTrue(config1.Equals(config2));
             Assert.IsTrue(config2.Equals(config1));
 
-            config2 = new SimpleMetricConfiguration(
+            config2 = new MetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
                                 seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true));
@@ -132,7 +132,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.IsFalse(config1.Equals(config2));
             Assert.IsFalse(config2.Equals(config1));
 
-            config2 = new SimpleMetricConfiguration(
+            config2 = new MetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
                                 seriesConfig:               new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
@@ -140,7 +140,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.IsFalse(config1.Equals(config2));
             Assert.IsFalse(config2.Equals(config1));
 
-            config2 = new SimpleMetricConfiguration(
+            config2 = new MetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    101,
                                 seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
@@ -148,7 +148,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.IsFalse(config1.Equals(config2));
             Assert.IsFalse(config2.Equals(config1));
 
-            config2 = new SimpleMetricConfiguration(
+            config2 = new MetricConfiguration(
                                 seriesCountLimit:           1001,
                                 valuesPerDimensionLimit:    100,
                                 seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
@@ -161,21 +161,21 @@ namespace Microsoft.ApplicationInsights.Metrics
         [TestMethod]
         public void TestGetHashCode()
         {
-            var config1 = new SimpleMetricConfiguration(
+            var config1 = new MetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
                                 seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             Assert.AreNotEqual(0, config1.GetHashCode());
 
-            var config2 = new SimpleMetricConfiguration(
+            var config2 = new MetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
                                 seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             Assert.AreEqual(config1.GetHashCode(), config2.GetHashCode());
 
-            config2 = new SimpleMetricConfiguration(
+            config2 = new MetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
                                 seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true));
@@ -183,7 +183,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreNotEqual(config1.GetHashCode(), config2.GetHashCode());
             Assert.AreNotEqual(0, config2.GetHashCode());
 
-            config2 = new SimpleMetricConfiguration(
+            config2 = new MetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    100,
                                 seriesConfig:               new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
@@ -191,7 +191,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreNotEqual(config1.GetHashCode(), config2.GetHashCode());
             Assert.AreNotEqual(0, config2.GetHashCode());
 
-            config2 = new SimpleMetricConfiguration(
+            config2 = new MetricConfiguration(
                                 seriesCountLimit:           1000,
                                 valuesPerDimensionLimit:    101,
                                 seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
@@ -199,7 +199,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.AreNotEqual(config1.GetHashCode(), config2.GetHashCode());
             Assert.AreNotEqual(0, config2.GetHashCode());
 
-            config2 = new SimpleMetricConfiguration(
+            config2 = new MetricConfiguration(
                                 seriesCountLimit:           1001,
                                 valuesPerDimensionLimit:    100,
                                 seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));

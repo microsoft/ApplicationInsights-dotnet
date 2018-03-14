@@ -62,7 +62,7 @@ namespace Microsoft.ApplicationInsights
         public static Metric GetMetric(
                                     this TelemetryClient telemetryClient,
                                     string metricId,
-                                    IMetricConfiguration metricConfiguration)
+                                    MetricConfiguration metricConfiguration)
         {
             return GetOrCreateMetric(
                                 telemetryClient,
@@ -94,7 +94,7 @@ namespace Microsoft.ApplicationInsights
         public static Metric GetMetric(
                                     this TelemetryClient telemetryClient,
                                     string metricId,
-                                    IMetricConfiguration metricConfiguration,
+                                    MetricConfiguration metricConfiguration,
                                     MetricAggregationScope aggregationScope)
         {
             return GetOrCreateMetric(
@@ -164,7 +164,7 @@ namespace Microsoft.ApplicationInsights
                                     this TelemetryClient telemetryClient,
                                     string metricId,
                                     string dimension1Name,
-                                    IMetricConfiguration metricConfiguration)
+                                    MetricConfiguration metricConfiguration)
         {
             Util.ValidateNotNullOrWhitespace(dimension1Name, nameof(dimension1Name));
 
@@ -199,7 +199,7 @@ namespace Microsoft.ApplicationInsights
                                     this TelemetryClient telemetryClient,
                                     string metricId,
                                     string dimension1Name,
-                                    IMetricConfiguration metricConfiguration,
+                                    MetricConfiguration metricConfiguration,
                                     MetricAggregationScope aggregationScope)
         {
             Util.ValidateNotNullOrWhitespace(dimension1Name, nameof(dimension1Name));
@@ -274,7 +274,7 @@ namespace Microsoft.ApplicationInsights
                                     string metricId,
                                     string dimension1Name,
                                     string dimension2Name,
-                                    IMetricConfiguration metricConfiguration)
+                                    MetricConfiguration metricConfiguration)
         {
             Util.ValidateNotNullOrWhitespace(dimension1Name, nameof(dimension1Name));
             Util.ValidateNotNullOrWhitespace(dimension2Name, nameof(dimension2Name));
@@ -312,7 +312,7 @@ namespace Microsoft.ApplicationInsights
                                     string metricId,
                                     string dimension1Name,
                                     string dimension2Name,
-                                    IMetricConfiguration metricConfiguration,
+                                    MetricConfiguration metricConfiguration,
                                     MetricAggregationScope aggregationScope)
         {
             Util.ValidateNotNullOrWhitespace(dimension1Name, nameof(dimension1Name));
@@ -333,7 +333,7 @@ namespace Microsoft.ApplicationInsights
                                     string metricId,
                                     string dimension1Name,
                                     string dimension2Name,
-                                    IMetricConfiguration metricConfiguration)
+                                    MetricConfiguration metricConfiguration)
         {
             Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));
 

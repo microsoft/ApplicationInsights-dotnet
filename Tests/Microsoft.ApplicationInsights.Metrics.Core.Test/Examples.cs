@@ -402,17 +402,17 @@ namespace User.Namespace.Example03
             // *** CUSTOM METRIC CONFIGURATIONS ***
 
             // Above we have seen two fixed presets for metric configurations: MetricConfigurations.Common.Measurement() and MetricConfigurations.Common.Accumulator().
-            // Both are static objects of class SimpleMetricConfiguration which in turn implements the IMetricConfiguration interface.
-            // You can provide your own implementations of IMetricConfiguration if you want to implement your own custom aggregators; that
-            // is covered elsewhere.
-            // Here, let's focus on creating your own instances of SimpleMetricConfiguration to configure more options.
-            // SimpleMetricConfiguration ctor takes some options on how to manage different series within the respective metric and an
+            // Both are static objects of class MetricConfiguration.
+            // You can provide your own implementations of IMetricSeriesConfiguration which is used by MetricConfiguration if you
+            // want to implement your own custom aggregators; that is covered elsewhere.
+            // Here, let's focus on creating your own instances of MetricConfiguration to configure more options.
+            // MetricConfiguration ctor takes some options on how to manage different series within the respective metric and an
             // object of class MetricSeriesConfigurationForMeasurement : IMetricSeriesConfiguration that specifies aggregation behavior for
             // each individual series of the metric:
 
-            Metric customConfiguredMeasurement= client.GetMetric(
+            Metric customConfiguredMeasurement = client.GetMetric(
                                                         "Custom Metric 1",
-                                                        new SimpleMetricConfiguration(
+                                                        new MetricConfiguration(
                                                                     seriesCountLimit:           1000,
                                                                     valuesPerDimensionLimit:    100,
                                                                     seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false)));
@@ -435,7 +435,7 @@ namespace User.Namespace.Example03
             Metric someAccumulator1 = client.GetMetric("Some Accumulator 1", MetricConfigurations.Common.Accumulator()); 
 
             MetricConfigurations.Common.SetDefaultForAccumulator(
-                                            new SimpleMetricConfiguration(
+                                            new MetricConfiguration(
                                                         seriesCountLimit:        10000,
                                                         valuesPerDimensionLimit: 5000,
                                                         seriesConfig:            new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false)));

@@ -211,7 +211,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
             }
             {
-                IMetricConfiguration customConfig = new SimpleMetricConfiguration(
+                MetricConfiguration customConfig = new MetricConfiguration(
                                                                     seriesCountLimit: 10,
                                                                     valuesPerDimensionLimit: 10,
                                                                     seriesConfig: new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: true));
@@ -350,7 +350,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(7, metric.SeriesCount);
             }
             {
-                IMetricConfiguration config = new SimpleMetricConfiguration(
+                MetricConfiguration config = new MetricConfiguration(
                                                             5,
                                                             1000,
                                                             new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
@@ -543,7 +543,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
             }
             {
-                IMetricConfiguration config = new SimpleMetricConfiguration(
+                MetricConfiguration config = new MetricConfiguration(
                                                             4,
                                                             1000,
                                                             new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
@@ -579,7 +579,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
             }
             {
-                IMetricConfiguration config = new SimpleMetricConfiguration(
+                MetricConfiguration config = new MetricConfiguration(
                                                             4,
                                                             1000,
                                                             new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
@@ -612,7 +612,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
             }
             {
-                IMetricConfiguration config = new SimpleMetricConfiguration(
+                MetricConfiguration config = new MetricConfiguration(
                                                             1000,
                                                             2,
                                                             new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
@@ -649,7 +649,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.ThrowsException<ArgumentOutOfRangeException>( () => metric.GetDimensionValues(3) );
             }
             {
-                IMetricConfiguration config = new SimpleMetricConfiguration(
+                MetricConfiguration config = new MetricConfiguration(
                                                             1000,
                                                             2,
                                                             new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
@@ -690,7 +690,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             MetricManager metricManager = new MetricManager(telemetryCollector);
 
             {
-                IMetricConfiguration config = new SimpleMetricConfiguration(
+                MetricConfiguration config = new MetricConfiguration(
                                                             5,
                                                             1000,
                                                             new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
@@ -1160,7 +1160,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             MetricManager metricManager = new MetricManager(telemetryCollector);
 
             {
-                IMetricConfiguration config = new SimpleMetricConfiguration(
+                MetricConfiguration config = new MetricConfiguration(
                                                     seriesCountLimit: 10,
                                                     valuesPerDimensionLimit: 2,
                                                     seriesConfig: new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
@@ -1250,7 +1250,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             telemetryCollector.Clear();
             {
-                IMetricConfiguration config = new SimpleMetricConfiguration(
+                MetricConfiguration config = new MetricConfiguration(
                                                     seriesCountLimit: 4,
                                                     valuesPerDimensionLimit: 25,
                                                     seriesConfig: new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
@@ -1575,7 +1575,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         }
 
 
-        private static Metric InvokeMetricCtor(MetricManager metricManager, string metricId, string dimension1Name, string dimension2Name, IMetricConfiguration configuration)
+        private static Metric InvokeMetricCtor(MetricManager metricManager, string metricId, string dimension1Name, string dimension2Name, MetricConfiguration configuration)
         {
             // Metric ctor is private..
 
@@ -1589,7 +1589,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                                                         typeof(string),
                                                                                         typeof(string),
                                                                                         typeof(string),
-                                                                                        typeof(IMetricConfiguration)},
+                                                                                        typeof(MetricConfiguration)},
                                                                     modifiers: null);
 
             if (ctor == null)

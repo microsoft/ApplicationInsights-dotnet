@@ -16,7 +16,7 @@ namespace Microsoft.ApplicationInsights
     public sealed class Metric : IEquatable<Metric>
     {
 #pragma warning disable SA1401 // Field must be private
-        internal readonly IMetricConfiguration _configuration;
+        internal readonly MetricConfiguration _configuration;
         internal readonly string _objectId;
 #pragma warning restore SA1401 // Field must be private
 
@@ -33,7 +33,7 @@ namespace Microsoft.ApplicationInsights
 
         private readonly MetricManager _metricManager;
 
-        internal Metric(MetricManager metricManager, string metricId, string dimension1Name, string dimension2Name, IMetricConfiguration configuration)
+        internal Metric(MetricManager metricManager, string metricId, string dimension1Name, string dimension2Name, MetricConfiguration configuration)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
             Util.ValidateNotNullOrWhitespace(metricId, nameof(metricId));
@@ -82,8 +82,8 @@ namespace Microsoft.ApplicationInsights
                     //        subdimensionsCountLimits:   new int[2] { configuration.ValuesPerDimensionLimit, configuration.ValuesPerDimensionLimit });
 
                     _metricSeries = new MultidimensionalCube2<MetricSeries>(
-                            totalPointsCountLimit: configuration.SeriesCountLimit - 1,
-                            pointsFactory: CreateNewMetricSeries,
+                            totalPointsCountLimit:      configuration.SeriesCountLimit - 1,
+                            pointsFactory:              CreateNewMetricSeries,
                             dimensionValuesCountLimits: new int[2] { configuration.ValuesPerDimensionLimit, configuration.ValuesPerDimensionLimit });
                     break;
 
@@ -412,7 +412,7 @@ namespace Microsoft.ApplicationInsights
 
         private static void EnsureConfigurationValid(
                                     int dimensionCount,
-                                    IMetricConfiguration configuration)
+                                    MetricConfiguration configuration)
         {
             Util.ValidateNotNull(configuration, nameof(configuration));
             Util.ValidateNotNull(configuration.SeriesConfig, nameof(configuration.SeriesConfig));
