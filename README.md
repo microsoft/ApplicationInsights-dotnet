@@ -22,10 +22,14 @@ Application Insights logging adapters.
 
 If you use NLog, log4Net or System.Diagnostics.Trace for diagnostic tracing in your  application, you can have your logs sent to Application Insights, where you can explore and search them. Your logs will be merged with the other telemetry coming from your application, so that you can identify the traces associated with servicing each user request, and correlate them with other events and exception reports.
 
-[Application Insights Documentation](https://azure.microsoft.com/en-us/documentation/articles/app-insights-search-diagnostic-logs/#trace).
+Read more:
+- [Microsoft Docs: "Explore .NET trace logs in Application Insights"](https://docs.microsoft.com/azure/application-insights/app-insights-asp-net-trace-logs)
+- [Microsoft Docs: "Diagnose sudden changes in your app telemetry"](https://docs.microsoft.com/azure/application-insights/app-insights-analytics-diagnostics#trace)
 
-# NLog
+## NLog
 Application Insights NLog Target nuget package adds ApplicationInsights target in your web.config (If you use application type that does not have web.config you can install the package but you need to configure ApplicationInsights programmatically; see below). 
+
+For more information, see [NLog Documentation](https://github.com/nlog/NLog/wiki/Configuration-API) 
 
 - If you configure NLog though web config then you just need do the following:
 
@@ -57,11 +61,13 @@ Logger logger = LogManager.GetLogger("Example");
 logger.Trace("trace log message");
 ``` 
 
-[NLog Documentation](https://github.com/nlog/NLog/wiki/Configuration-API) 
 
-# Log4Net
+
+## Log4Net
 
 Application Insights Log4Net adapter nuget modifies web.config and adds Application Insights Appender.
+
+For more information, see [Log4Net Configuration](https://logging.apache.org/log4net/release/manual/configuration.html)
 
 ```csharp
 // You do not need this if you have instrumentation key in the ApplicationInsights.config
@@ -75,9 +81,11 @@ logger.Warn("A warning message");
 logger.Error("An error message");
 ```
 
-# System.Diagnostics
+## System.Diagnostics
 
 Microsoft.ApplicationInsights.TraceListener nuget package modifies web.config and adds application insights listener. 
+
+For more information, see ["Microsoft Docs: "Tracing and Instrumenting Applications"](https://docs.microsoft.com/dotnet/framework/debug-trace-profile/tracing-and-instrumenting-applications)
 
 ```
 <configuration>
@@ -99,3 +107,35 @@ TelemetryConfiguration.Active.InstrumentationKey = "Your_Resource_Key";
 System.Diagnostics.Trace.TraceWarning("Slow response - database01");
 
 ``` 
+
+
+## EventSource
+
+`EventSourceTelemetryModule` allows you to configure EventSource events to be sent to Application Insights as traces. 
+
+For more information, see [Microsoft Docs: "Using EventSource Events"](https://docs.microsoft.com/azure/application-insights/app-insights-asp-net-trace-logs#using-eventsource-events).
+
+
+## ETW
+
+`EtwCollectorTelemetryModule` allows you to configure events from ETW providers to be sent to Application Insights as traces. 
+
+For more information, see [Microsoft Docs: "Using ETW Events"](https://docs.microsoft.com/azure/application-insights/app-insights-asp-net-trace-logs#using-etw-events).
+
+
+## DiagnosticSource
+
+You can configure `System.Diagnostics.DiagnosticSource` events to be sent to Application Insights as traces.
+
+For more information, see [CoreFX: "Diagnostic Source Users Guide"](https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/DiagnosticSourceUsersGuide.md).
+
+To enable, edit the `TelemetryModules` section of the ApplicationInsights.config file:
+
+```
+<Add Type="Microsoft.ApplicationInsights.DiagnsoticSourceListener.DiagnosticSourceTelemetryModule, Microsoft.ApplicationInsights.DiagnosticSourceListener">
+      <Sources>
+        <Add Name="MyDiagnosticSourceName" />
+      </Sources>
+ </Add>
+ ```
+
