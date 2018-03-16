@@ -52,17 +52,13 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Web\Web.Net45\Implementation\SdkVersionUtils.cs">
-      <Link>SdkVersionUtils.cs</Link>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Analyzer Include="..\..\..\..\packages\Desktop.Analyzers.1.1.0\analyzers\dotnet\cs\Desktop.Analyzers.dll" />
     <Analyzer Include="..\..\..\..\packages\Desktop.Analyzers.1.1.0\analyzers\dotnet\cs\Desktop.CSharp.Analyzers.dll" />
   </ItemGroup>
   <Import Project="..\Filtering.Shared\Filtering.Shared.projitems" Label="Shared" />
   <Import Project="..\Perf.Shared\Perf.Shared.projitems" Label="Shared" />
   <Import Project="..\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems" Label="Shared" />
+  <Import Project="..\..\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

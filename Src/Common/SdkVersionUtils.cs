@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Web.Implementation
+﻿namespace Microsoft.ApplicationInsights.Common
 {
     using System;
     using System.Globalization;

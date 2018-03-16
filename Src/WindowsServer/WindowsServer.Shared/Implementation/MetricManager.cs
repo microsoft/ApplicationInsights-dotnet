@@ -19,6 +19,7 @@
     using System.Xml.Linq;
 
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -668,35 +669,6 @@
                     }
                 }
             }
-        }
-    }
-
-    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
-    internal class SdkVersionUtils
-    {
-        /// <summary>
-        /// Builds a string representing file version of the assembly with added prefix
-        /// in format prefix:major.minor-revision.
-        /// </summary>
-        /// <param name="versionPrefix">Prefix to add to version.</param>
-        /// <returns>String representation of the version with prefix added.</returns>
-        internal static string GetSdkVersion(string versionPrefix)
-        {
-#if !NETSTANDARD1_3
-            string versionStr = typeof(SdkVersionUtils).Assembly.GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-
-#else
-            string versionStr = typeof(TelemetryClient).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-#endif
-
-            Version version = new Version(versionStr);
-            string postfix = version.Revision.ToString(CultureInfo.InvariantCulture);
-            return versionPrefix + version.ToString(3) + "-" + postfix;
         }
     }
 

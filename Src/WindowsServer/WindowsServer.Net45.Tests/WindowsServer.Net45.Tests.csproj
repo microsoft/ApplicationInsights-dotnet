@@ -76,7 +76,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <Import Project="..\WindowsServer.Shared.Tests\WindowsServer.Shared.Tests.projitems" Label="Shared" Condition="Exists('..\WindowsServer.Shared.Tests\WindowsServer.Shared.Tests.projitems')" />
+  <Import Project="..\WindowsServer.Shared.Tests\WindowsServer.Shared.Tests.projitems" Label="Shared" />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />

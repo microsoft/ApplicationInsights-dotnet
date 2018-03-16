@@ -37,7 +37,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\OperationWatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RDDSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RemoteDependencyConstants.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SdkVersionUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventHandlers\EventHubsDiagnosticsEventHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventHandlers\ServiceBusDiagnosticsEventHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SqlClientDiagnostics\SqlClientDiagnosticFetcherTypes.cs" />

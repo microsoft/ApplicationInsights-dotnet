@@ -8,7 +8,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
     using System.Globalization;
     using System.Linq;
     using System.Threading;
-
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
@@ -19,7 +19,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.PerfLib;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector;
-    using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
     /// Telemetry module for collecting QuickPulse data.

@@ -4,6 +4,7 @@
     using System.Data.SqlClient;
     using System.Globalization;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;

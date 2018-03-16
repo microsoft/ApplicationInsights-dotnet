@@ -4,6 +4,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using System.Collections.Generic;
     using System.Diagnostics;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;

@@ -46,7 +46,6 @@
   <ItemGroup>
     <Compile Include="AspNetDiagnosticTelemetryModule.cs" />
     <Compile Include="Implementation\HttpRequestExtensions.cs" />
-    <Compile Include="Implementation\SdkVersionUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

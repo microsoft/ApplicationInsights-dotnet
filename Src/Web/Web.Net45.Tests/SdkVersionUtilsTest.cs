@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
