@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.ComponentModel;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using Microsoft.ApplicationInsights.Metrics.Extensions;
 
@@ -37,7 +37,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             MetricAggregateToTelemetryPipelineConverters.Registry.Add(
                                                                     typeof(ApplicationInsightsTelemetryPipeline),
-                                                                    MetricConfigurations.Common.AggregateKinds().NaiveDistinctCount().Moniker,
+                                                                    MetricSeriesConfigurationForNaiveDistinctCount.Constants.AggregateKindMoniker,
                                                                     new NaiveDistinctCountAggregateToApplicationInsightsPipelineConverter());
         }
 
@@ -132,6 +132,87 @@ namespace Microsoft.ApplicationInsights.Metrics
         public override int GetHashCode()
         {
             return _hashCode;
+        }
+
+        /// <summary>
+        /// Groups constants used by metric aggregates produced by aggregators that are configured by metric configurations represented through
+        /// instances of <see cref="MetricSeriesConfigurationForNaiveDistinctCount"/>. This class cannot be instantiated. To access the constants, use the 
+        /// extension method <c>MetricConfigurations.Common.NaiveDistinctCount().Constants()</c> or <see cref="MetricSeriesConfigurationForNaiveDistinctCount.Constants"/>.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public sealed class AggregateKindConstants
+        {
+            internal static readonly AggregateKindConstants Instance = new AggregateKindConstants();
+
+            private AggregateKindConstants()
+            {
+            }
+
+            /// <summary>
+            /// The kind moniker for aggregates produced by aggregators that are configured by metric configurations represented
+            /// through instances of <see cref="MetricSeriesConfigurationForNaiveDistinctCount"/>.
+            /// </summary>
+            public string AggregateKindMoniker { get { return Constants.AggregateKindMoniker; } }
+
+            /// <summary>
+            /// Constants used to refer to data fields contained within aggregates produced by aggregators that are configured
+            /// by metric configurations represented through instances of <see cref="MetricSeriesConfigurationForNaiveDistinctCount"/>.
+            /// </summary>
+            public DataKeysConstants AggregateKindDataKeys { get { return DataKeysConstants.Instance; } }
+
+            /// <summary>
+            /// Groups constants used to refer to data fields contained within aggregates produced by aggregators that are configured
+            /// by metric configurations represented through instances of <see cref="MetricSeriesConfigurationForNaiveDistinctCount"/>.
+            /// </summary>
+            [EditorBrowsable(EditorBrowsableState.Never)]
+            public sealed class DataKeysConstants
+            {
+                internal static readonly DataKeysConstants Instance = new DataKeysConstants();
+
+                private DataKeysConstants()
+                {
+                }
+
+                /// <summary>
+                /// The name of the Total Count field in <see cref="MetricAggregate"/> objects produced by naive-distinct-count aggregators.
+                /// </summary>
+                public string TotalCount { get { return Constants.AggregateKindDataKeys.TotalCount; } }
+
+                /// <summary>
+                /// The name of the Distinct Count field in <see cref="MetricAggregate"/> objects produced by naive-distinct-count aggregators.
+                /// </summary>
+                public string DistinctCount { get { return Constants.AggregateKindDataKeys.DistinctCount; } }
+            }
+        }
+
+        /// <summary>
+        /// Defines constants used my metric aggregates produced by aggregators that are configured by metric configurations represented
+        /// through instances of <see cref="MetricSeriesConfigurationForNaiveDistinctCount"/>.
+        /// </summary>
+        public static class Constants
+        {
+            /// <summary>
+            /// The kind moniker for aggregates produced by aggregators that are configured by metric configurations represented
+            /// through instances of <see cref="MetricSeriesConfigurationForNaiveDistinctCount"/>.
+            /// </summary>
+            public const string AggregateKindMoniker = "Microsoft.Azure.NaiveDistinctCount";
+
+            /// <summary>
+            /// Defines constants used to refer to data fields contained within aggregates produced by aggregators that are configured
+            /// by metric configurations represented through instances of <see cref="MetricSeriesConfigurationForNaiveDistinctCount"/>.
+            /// </summary>
+            public static class AggregateKindDataKeys
+            {
+                /// <summary>
+                /// The name of the Total Count field in <see cref="MetricAggregate"/> objects produced by naive-distinct-count aggregators.
+                /// </summary>
+                public const string TotalCount = "TotalCount";
+
+                /// <summary>
+                /// The name of the Distinct Count field in <see cref="MetricAggregate"/> objects produced by naive-distinct-count aggregators.
+                /// </summary>
+                public const string DistinctCount = "DistinctCount";
+            }
         }
     }
 }

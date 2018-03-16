@@ -10,18 +10,18 @@ namespace Microsoft.ApplicationInsights
     /// Do not use directly. Instead, use: <c>MetricConfigurations.Common.Xxxx()</c>.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static class MetricConfigurationsCoreExtensions
+    public static class MetricConfigurationsExtensions
     {
         private const int DefaultSeriesCountLimit = 1000;
         private const int DefaultValuesPerDimensionLimit = 100;
 
-        private static MetricConfiguration s_defaultConfigForMeasurement = new MetricConfiguration(
-                                                        DefaultSeriesCountLimit,
-                                                        DefaultValuesPerDimensionLimit,
-                                                        new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
+        private static MetricConfigurationForMeasurement s_defaultConfigForMeasurement = new MetricConfigurationForMeasurement(
+                                                                    DefaultSeriesCountLimit,
+                                                                    DefaultValuesPerDimensionLimit,
+                                                                    new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
         /// <summary>
-        /// <para>Use to measure attributes and/or counts of items. Also, use to measure attributes and/or rates of events.<br />
+        /// <para>Use to measure properties and/or counts of items. Also, use to measure attributes and/or rates of events.<br />
         /// Produces aggregates that contain simple statistics about tracked values per time period: Count, Sum, Min, Max.<br />
         /// (This is the most commonly used metric configuration and is the default unless otherwise specified.)</para>
         /// 
@@ -31,30 +31,27 @@ namespace Microsoft.ApplicationInsights
         /// </summary>
         /// <param name="metricConfigPresets"></param>
         /// <returns></returns>
-        public static MetricConfiguration Measurement(this MetricConfigurations metricConfigPresets)
+        public static MetricConfigurationForMeasurement Measurement(this MetricConfigurations metricConfigPresets)
         {
             return s_defaultConfigForMeasurement;
         }
 
         /// <summary>
-        /// Set the configuration returnred from <c>MetricConfigurations.Use.Measurement()</c>.
+        /// Set the configuration returned from <c>MetricConfigurations.Common.Measurement()</c>.
         /// </summary>
         /// <param name="metricConfigPresets">Will be ignored.</param>
         /// <param name="defaultConfigurationForMeasurement">Future default config.</param>
         public static void SetDefaultForMeasurement(
                                                 this MetricConfigurations metricConfigPresets,
-                                                MetricConfiguration defaultConfigurationForMeasurement)
+                                                MetricConfigurationForMeasurement defaultConfigurationForMeasurement)
         {
-            Util.ValidateNotNull(defaultConfigurationForMeasurement, nameof(defaultConfigurationForMeasurement));
-            Util.ValidateNotNull(defaultConfigurationForMeasurement.SeriesConfig, nameof(defaultConfigurationForMeasurement) + "." + nameof(defaultConfigurationForMeasurement.SeriesConfig));
+            Util.ValidateNotNull(
+                        defaultConfigurationForMeasurement, 
+                        nameof(defaultConfigurationForMeasurement));
+            Util.ValidateNotNull(
+                        defaultConfigurationForMeasurement.SeriesConfig, 
+                        nameof(defaultConfigurationForMeasurement) + "." + nameof(defaultConfigurationForMeasurement.SeriesConfig));
             
-            if (false == (defaultConfigurationForMeasurement.SeriesConfig is MetricSeriesConfigurationForMeasurement))
-            {
-                throw new ArgumentException($"{nameof(defaultConfigurationForMeasurement) + "." + nameof(defaultConfigurationForMeasurement.SeriesConfig)}"
-                                          + $" must be a \"{nameof(MetricSeriesConfigurationForMeasurement)}\", but it is"
-                                          + $" \"{defaultConfigurationForMeasurement.SeriesConfig.GetType().Name}\".");
-            }
-
             s_defaultConfigForMeasurement = defaultConfigurationForMeasurement;
         }
 

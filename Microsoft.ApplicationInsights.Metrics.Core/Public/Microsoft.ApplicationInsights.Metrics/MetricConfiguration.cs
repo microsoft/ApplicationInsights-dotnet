@@ -5,7 +5,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// <summary>
     /// 
     /// </summary>
-    public sealed class MetricConfiguration : IEquatable<MetricConfiguration>
+    public class MetricConfiguration : IEquatable<MetricConfiguration>
     {
         private readonly int _hashCode;
 
@@ -73,7 +73,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary />
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool Equals(MetricConfiguration other)
+        public virtual bool Equals(MetricConfiguration other)
         {
             if (other == null)
             {
@@ -87,11 +87,12 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             return (this.SeriesCountLimit == other.SeriesCountLimit)
                 && (this.ValuesPerDimensionLimit == other.ValuesPerDimensionLimit)
+                && (this.GetType().Equals(other.GetType()))
                 && (this.SeriesConfig.Equals(other.SeriesConfig));
         }
 
         /// <summary />
-        /// <returns></returns>
+        /// <returns />
         public override int GetHashCode()
         {
             return _hashCode;

@@ -96,7 +96,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     {
                         cancelControl.Cancel();
                         await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => pipelineAdapter.TrackAsync(
-                                                                                new MetricAggregate("mns", "mid", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker),
+                                                                                new MetricAggregate("mns", "mid", MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker),
                                                                                 cancelControl.Token));
                     }
                 }
@@ -112,24 +112,24 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
                     {
-                        var agregate = new MetricAggregate("NS", "M1", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker);
+                        var agregate = new MetricAggregate("NS", "M1", MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker);
                         agregate.Data["Count"] = 1;
                         agregate.Data["Sum"] = 10;
                         await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
                     }
                     {
-                        var agregate = new MetricAggregate("NS", "M2", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker);
+                        var agregate = new MetricAggregate("NS", "M2", MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker);
                         agregate.Data["Count"] = 0;
                         agregate.Data["Sum"] = 20;
                         await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
                     }
                     {
-                        var agregate = new MetricAggregate("NS", "M3", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker);
+                        var agregate = new MetricAggregate("NS", "M3", MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker);
                         agregate.Data["Sum"] = 30;
                         await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
                     }
                     {
-                        var agregate = new MetricAggregate("NS", "M4", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker);
+                        var agregate = new MetricAggregate("NS", "M4", MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker);
                         agregate.Data["Count"] = 2.9;
                         agregate.Data["Sum"] = -40;
                         await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
@@ -310,11 +310,11 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
                     aggregate.Data["Murr"] = "Miau";
                     aggregate.Data["Purr"] = null;
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Count] = 1.2;
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Sum] = "one";
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Min] = "2.3";
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Max] = "-4";
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.StdDev] = 5;
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.Count] = 1.2;
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.Sum] = "one";
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.Min] = "2.3";
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.Max] = "-4";
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.StdDev] = 5;
 
                     await pipelineAdapter.TrackAsync(aggregate, CancellationToken.None);
 
@@ -352,11 +352,11 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     aggregate.AggregationPeriodDuration = TimeSpan.FromSeconds(90);
 
                     aggregate.Data["Murr"] = "Miau";
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Count] = -3.7;
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Sum] = "-100";
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Min] = -10000000000;
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Max] = ((double) Int32.MaxValue) + 100;
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.StdDev] = -2;
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.Count] = -3.7;
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.Sum] = "-100";
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.Min] = -10000000000;
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.Max] = ((double) Int32.MaxValue) + 100;
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.StdDev] = -2;
 
                     aggregate.Dimensions["Dim 1"] = "DV1";
                     aggregate.Dimensions["Dim 2"] = "DV2";
@@ -452,11 +452,11 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     aggregate.AggregationPeriodDuration = TimeSpan.FromSeconds(90);
 
                     aggregate.Data["Murr"] = "Miau";
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Count] = -3.7;
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Sum] = null;
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Min] = -10000000000;
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Max] = ((double) Int32.MaxValue) + 100;
-                    aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.StdDev] = -2;
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.Count] = -3.7;
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.Sum] = null;
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.Min] = -10000000000;
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.Max] = ((double) Int32.MaxValue) + 100;
+                    aggregate.Data[MetricConfigurations.Common.Measurement().Constants().AggregateKindDataKeys.StdDev] = -2;
 
                     aggregate.Dimensions["Dim 1"] = "DV1";
                     aggregate.Dimensions["Dim 2"] = "DV2";

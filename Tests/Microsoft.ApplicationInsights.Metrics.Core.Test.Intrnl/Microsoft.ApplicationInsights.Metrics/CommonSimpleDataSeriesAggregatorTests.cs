@@ -139,7 +139,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public static void Reset_NonersistentAggregator(IMetricSeriesAggregator aggregator, string aggregateKindMoniker)
         {
-            Assert.AreEqual(MetricConfigurations.Common.AggregateKinds().Measurement().Moniker, aggregateKindMoniker);
+            Assert.AreEqual(MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker, aggregateKindMoniker);
 
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
@@ -203,7 +203,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public static void Reset_PersistentAggregator(IMetricSeriesAggregator aggregator, string aggregateKindMoniker)
         {
-            Assert.AreEqual(MetricConfigurations.Common.AggregateKinds().Accumulator().Moniker, aggregateKindMoniker);
+            Assert.AreEqual(MetricConfigurations.Common.Accumulator().Constants().AggregateKindMoniker, aggregateKindMoniker);
 
             var startTS = new DateTimeOffset(2017, 9, 25, 17, 0, 0, TimeSpan.FromHours(-8));
             var endTS = new DateTimeOffset(2017, 9, 25, 17, 1, 0, TimeSpan.FromHours(-8));
