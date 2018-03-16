@@ -26,7 +26,6 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         private readonly MetricAggregationManager _aggregationManager;
         private readonly bool _requiresPersistentAggregator;
-        private readonly string _metricId;
         private readonly IReadOnlyDictionary<string, string> _dimensionNamesAndValues;
 
         private IMetricSeriesAggregator _aggregatorPersistent;
@@ -40,35 +39,25 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         internal MetricSeries(
                             MetricAggregationManager aggregationManager,
-                            string metricId,
+                            MetricIdentifier metricIdentifier,
                             IEnumerable<KeyValuePair<string, string>> dimensionNamesAndValues,
                             IMetricSeriesConfiguration configuration)
         {
+            // Validate and store aggregationManager:
             Util.ValidateNotNull(aggregationManager, nameof(aggregationManager));
-            Util.ValidateNotNull(metricId, nameof(metricId));
-            Util.ValidateNotNull(configuration, nameof(configuration));
-
             _aggregationManager = aggregationManager;
-            _metricId = metricId;
-            _configuration = configuration;
-            _requiresPersistentAggregator = configuration.RequiresPersistentAggregation;
 
+            // Validate and store metricIdentifier:
+            Util.ValidateNotNull(metricIdentifier, nameof(metricIdentifier));
+            MetricIdentifier = metricIdentifier;
+
+            // Copy dimensionNamesAndValues, validate values (keys are implicitly validated as they need to match the keys in the identifier):
             var dimNameVals = new Dictionary<string, string>();
             if (dimensionNamesAndValues != null)
             {
                 int dimIndex = 0;
                 foreach (KeyValuePair<string, string> dimNameVal in dimensionNamesAndValues)
                 {
-                    if (dimNameVal.Key == null)
-                    {
-                        throw new ArgumentNullException($"The name for dimension at 0-based index '{dimIndex}' is null.");
-                    }
-
-                    if (String.IsNullOrWhiteSpace(dimNameVal.Key))
-                    {
-                        throw new ArgumentException($"The name for dimension at 0-based index '{dimIndex}' is empty or white-space");
-                    }
-
                     if (dimNameVal.Value == null)
                     {
                         throw new ArgumentNullException($"The value for dimension '{dimNameVal.Key}' number is null.");
@@ -84,8 +73,31 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
             }
 
+            // Validate that metricIdentifier and dimensionNamesAndValues contain consistent dimension names:
+            if (metricIdentifier.DimensionsCount != dimNameVals.Count)
+            {
+                throw new ArgumentException($"The specified {nameof(metricIdentifier)} contains {metricIdentifier.DimensionsCount} dimensions,"
+                                          + $" however the specified {nameof(dimensionNamesAndValues)} contains {dimNameVals.Count} name-value pairs with unique names.");
+            }
+
+            foreach (string dimName in metricIdentifier.GetDimensionNames())
+            {
+                if (false == dimNameVals.ContainsKey(dimName))
+                {
+                    throw new ArgumentException($"The specified {nameof(metricIdentifier)} contains a dimension named \"{dimName}\","
+                                              + $" however the specified {nameof(dimensionNamesAndValues)} does not contain an entry for that name.");
+                }
+            }
+
+            // Store copied dimensionNamesAndValues:
             _dimensionNamesAndValues = dimNameVals;
 
+            // Validate and store configuration:
+            Util.ValidateNotNull(configuration, nameof(configuration));
+            _configuration = configuration;
+            _requiresPersistentAggregator = configuration.RequiresPersistentAggregation;
+
+            // Init other instance vars:
             _aggregatorPersistent = null;
             _aggregatorDefault = null;
             _aggregatorQuickPulse = null;
@@ -100,7 +112,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        public string MetricId { get { return _metricId; } }
+        public MetricIdentifier MetricIdentifier { get; }
 
         /// <summary>
         /// Tracks the specified value.<br />

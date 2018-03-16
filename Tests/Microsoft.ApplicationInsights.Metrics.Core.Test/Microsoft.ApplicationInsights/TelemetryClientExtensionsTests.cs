@@ -28,14 +28,14 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 Metric metric = client.GetMetric("CowsSold");
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(0, metric.DimensionsCount);
-                Assert.AreEqual("CowsSold", metric.MetricId);
+                Assert.AreEqual(0, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("CowsSold", metric.Identifier.MetricId);
                 Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
 
                 metric.TrackValue(0.5);
                 metric.TrackValue(0.6);
-                Assert.ThrowsException<InvalidOperationException>(() => metric.TryTrackValue(1.5, "A"));
-                Assert.ThrowsException<InvalidOperationException>(() => metric.TryTrackValue(2.5, "A", "X"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TryTrackValue(1.5, "A"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TryTrackValue(2.5, "A", "X"));
 
                 telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
@@ -57,13 +57,13 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 Metric metric = client.GetMetric("CowsSold", "Color", MetricConfigurations.Common.Accumulator());
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(1, metric.DimensionsCount);
-                Assert.AreEqual("CowsSold", metric.MetricId);
+                Assert.AreEqual(1, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("CowsSold", metric.Identifier.MetricId);
                 Assert.AreEqual(MetricConfigurations.Common.Accumulator(), metric.GetConfiguration());
 
                 metric.TryTrackValue(0.5, "Purple");
                 metric.TryTrackValue(0.6, "Purple");
-                Assert.ThrowsException<InvalidOperationException>(() => metric.TryTrackValue(2.5, "A", "X"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TryTrackValue(2.5, "A", "X"));
 
                 telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
@@ -87,8 +87,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 Metric metric = client.GetMetric("CowsSold", "Color", "Size", MetricConfigurations.Common.Accumulator());
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(2, metric.DimensionsCount);
-                Assert.AreEqual("CowsSold", metric.MetricId);
+                Assert.AreEqual(2, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("CowsSold", metric.Identifier.MetricId);
                 Assert.AreEqual(MetricConfigurations.Common.Accumulator(), metric.GetConfiguration());
 
                 metric.TryTrackValue(0.5, "Purple", "Large");
@@ -163,8 +163,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 Metric metric = client.GetMetric("M1");
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(0, metric.DimensionsCount);
-                Assert.AreEqual("M1", metric.MetricId);
+                Assert.AreEqual(0, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("M1", metric.Identifier.MetricId);
                 Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
                 Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
 
@@ -176,8 +176,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 Metric metric = client.GetMetric("M2", MetricConfigurations.Common.Measurement());
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(0, metric.DimensionsCount);
-                Assert.AreEqual("M2", metric.MetricId);
+                Assert.AreEqual(0, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("M2", metric.Identifier.MetricId);
                 Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
                 Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
 
@@ -189,8 +189,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 Metric metric = client.GetMetric("M3", MetricConfigurations.Common.Accumulator());
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(0, metric.DimensionsCount);
-                Assert.AreEqual("M3", metric.MetricId);
+                Assert.AreEqual(0, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("M3", metric.Identifier.MetricId);
                 Assert.AreEqual(MetricConfigurations.Common.Accumulator(), metric.GetConfiguration());
                 Assert.AreSame(MetricConfigurations.Common.Accumulator(), metric.GetConfiguration());
 
@@ -203,8 +203,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 MetricConfiguration config = new MetricConfiguration(10, 10, new MetricSeriesConfigurationForMeasurement(true));
                 Metric metric = client.GetMetric("M4", config);
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(0, metric.DimensionsCount);
-                Assert.AreEqual("M4", metric.MetricId);
+                Assert.AreEqual(0, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("M4", metric.Identifier.MetricId);
                 Assert.AreEqual(config, metric.GetConfiguration());
                 Assert.AreSame(config, metric.GetConfiguration());
 
@@ -216,9 +216,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 Metric metric = client.GetMetric("M5", "Dim1");
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(1, metric.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.GetDimensionName(1));
-                Assert.AreEqual("M5", metric.MetricId);
+                Assert.AreEqual(1, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
+                Assert.AreEqual("M5", metric.Identifier.MetricId);
                 Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
                 Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
 
@@ -233,9 +233,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 Metric metric = client.GetMetric("M6", "Dim1", MetricConfigurations.Common.Measurement());
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(1, metric.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.GetDimensionName(1));
-                Assert.AreEqual("M6", metric.MetricId);
+                Assert.AreEqual(1, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
+                Assert.AreEqual("M6", metric.Identifier.MetricId);
                 Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
                 Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
 
@@ -250,9 +250,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 Metric metric = client.GetMetric("M7", "Dim1", MetricConfigurations.Common.Accumulator());
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(1, metric.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.GetDimensionName(1));
-                Assert.AreEqual("M7", metric.MetricId);
+                Assert.AreEqual(1, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
+                Assert.AreEqual("M7", metric.Identifier.MetricId);
                 Assert.AreEqual(MetricConfigurations.Common.Accumulator(), metric.GetConfiguration());
                 Assert.AreSame(MetricConfigurations.Common.Accumulator(), metric.GetConfiguration());
 
@@ -268,9 +268,9 @@ namespace Microsoft.ApplicationInsights.Metrics
                 MetricConfiguration config = new MetricConfiguration(10, 10, new MetricSeriesConfigurationForMeasurement(true));
                 Metric metric = client.GetMetric("M8", "Dim1", config);
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(1, metric.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.GetDimensionName(1));
-                Assert.AreEqual("M8", metric.MetricId);
+                Assert.AreEqual(1, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
+                Assert.AreEqual("M8", metric.Identifier.MetricId);
                 Assert.AreEqual(config, metric.GetConfiguration());
                 Assert.AreSame(config, metric.GetConfiguration());
 
@@ -285,10 +285,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 Metric metric = client.GetMetric("M9", "Dim1", "Dim2");
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(2, metric.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.GetDimensionName(1));
-                Assert.AreEqual("Dim2", metric.GetDimensionName(2));
-                Assert.AreEqual("M9", metric.MetricId);
+                Assert.AreEqual(2, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
+                Assert.AreEqual("Dim2", metric.Identifier.GetDimensionName(2));
+                Assert.AreEqual("M9", metric.Identifier.MetricId);
                 Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
                 Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
 
@@ -303,10 +303,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 Metric metric = client.GetMetric("M10", "Dim1", "Dim2", MetricConfigurations.Common.Measurement());
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(2, metric.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.GetDimensionName(1));
-                Assert.AreEqual("Dim2", metric.GetDimensionName(2));
-                Assert.AreEqual("M10", metric.MetricId);
+                Assert.AreEqual(2, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
+                Assert.AreEqual("Dim2", metric.Identifier.GetDimensionName(2));
+                Assert.AreEqual("M10", metric.Identifier.MetricId);
                 Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
                 Assert.AreSame(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
 
@@ -321,10 +321,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 Metric metric = client.GetMetric("M11", "Dim1", "Dim2", MetricConfigurations.Common.Accumulator());
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(2, metric.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.GetDimensionName(1));
-                Assert.AreEqual("Dim2", metric.GetDimensionName(2));
-                Assert.AreEqual("M11", metric.MetricId);
+                Assert.AreEqual(2, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
+                Assert.AreEqual("Dim2", metric.Identifier.GetDimensionName(2));
+                Assert.AreEqual("M11", metric.Identifier.MetricId);
                 Assert.AreEqual(MetricConfigurations.Common.Accumulator(), metric.GetConfiguration());
                 Assert.AreSame(MetricConfigurations.Common.Accumulator(), metric.GetConfiguration());
 
@@ -340,10 +340,10 @@ namespace Microsoft.ApplicationInsights.Metrics
                 MetricConfiguration config = new MetricConfiguration(10, 10, new MetricSeriesConfigurationForMeasurement(true));
                 Metric metric = client.GetMetric("M12", "Dim1", "Dim2", config);
                 Assert.IsNotNull(metric);
-                Assert.AreEqual(2, metric.DimensionsCount);
-                Assert.AreEqual("Dim1", metric.GetDimensionName(1));
-                Assert.AreEqual("Dim2", metric.GetDimensionName(2));
-                Assert.AreEqual("M12", metric.MetricId);
+                Assert.AreEqual(2, metric.Identifier.DimensionsCount);
+                Assert.AreEqual("Dim1", metric.Identifier.GetDimensionName(1));
+                Assert.AreEqual("Dim2", metric.Identifier.GetDimensionName(2));
+                Assert.AreEqual("M12", metric.Identifier.MetricId);
                 Assert.AreEqual(config, metric.GetConfiguration());
                 Assert.AreSame(config, metric.GetConfiguration());
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -14,6 +15,10 @@ namespace Microsoft.ApplicationInsights.Metrics
         private static string s_defaultMetricNamespace = "Custom Metrics";
 
         /// <summary>
+        /// </summary>
+        public const int MaxDimensionsCount = 10;
+
+        /// <summary>
         /// This is what metric namespace will be set to if it is not specified.
         /// </summary>
         public static string DefaultMetricNamespace
@@ -24,24 +29,28 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
+                ValidateLiteral(value, nameof(value));
+                s_defaultMetricNamespace = value.Trim();
+            }
+        }
 
-                value = value.Trim();
-                if (String.IsNullOrEmpty(value))
-                {
-                    throw new ArgumentException($"{nameof(value)} may not be empty.");
-                }
+        /// <summary />
+        public static void ValidateLiteral(string partValue, string partName)
+        {
+            if (partValue == null)
+            {
+                throw new ArgumentNullException(partName);
+            }
 
-                int pos = value.IndexOfAny(InvalidMetricChars);
-                if (pos >= 0)
-                {
-                    throw new ArgumentException($"{nameof(value)} (\"{value}\") contains a disallowed character at position {pos}.");
-                }
+            if (String.IsNullOrWhiteSpace(partValue))
+            {
+                throw new ArgumentException($"{partName} may not be empty.");
+            }
 
-                s_defaultMetricNamespace = value;
+            int pos = partName.IndexOfAny(InvalidMetricChars);
+            if (pos >= 0)
+            {
+                throw new ArgumentException($"{partName} (\"{partValue}\") contains a disallowed character at position {pos}.");
             }
         }
 
@@ -335,23 +344,11 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
             else
             {
+                ValidateLiteral(metricNamespace, nameof(metricNamespace));
                 metricNamespace = metricNamespace.Trim();
-
-                int posMNS = metricNamespace.IndexOfAny(InvalidMetricChars);
-                if (posMNS >= 0)
-                {
-                    throw new ArgumentException($"{nameof(metricNamespace)} (\"{metricNamespace}\") contains a disallowed character at position {posMNS}.");
-                }
             }
 
-            Util.ValidateNotNullOrWhitespace(metricId, nameof(metricId));
-
-            int posMID = metricId.IndexOfAny(InvalidMetricChars);
-            if (posMID >= 0)
-            {
-                throw new ArgumentException($"{nameof(metricId)} (\"{metricId}\") contains a disallowed character at position {posMID}.");
-            }
-
+            ValidateLiteral(metricId, nameof(metricId));
             metricId = metricId.Trim();
 
             int dimCount;
@@ -391,26 +388,25 @@ namespace Microsoft.ApplicationInsights.Metrics
         public MetricIdentifier(
                         string metricNamespace,
                         string metricId,
-                        string[] dimensionNames)
+                        IList<string> dimensionNames)
             : this(
                     metricNamespace,
                     metricId,
-                    (dimensionNames?.Length > 0) ? dimensionNames[0] : null,
-                    (dimensionNames?.Length > 1) ? dimensionNames[1] : null,
-                    (dimensionNames?.Length > 2) ? dimensionNames[2] : null,
-                    (dimensionNames?.Length > 3) ? dimensionNames[3] : null,
-                    (dimensionNames?.Length > 4) ? dimensionNames[4] : null,
-                    (dimensionNames?.Length > 5) ? dimensionNames[5] : null,
-                    (dimensionNames?.Length > 6) ? dimensionNames[6] : null,
-                    (dimensionNames?.Length > 7) ? dimensionNames[7] : null,
-                    (dimensionNames?.Length > 8) ? dimensionNames[8] : null,
-                    (dimensionNames?.Length > 9) ? dimensionNames[9] : null)
+                    (dimensionNames?.Count > 0) ? dimensionNames[0] : null,
+                    (dimensionNames?.Count > 1) ? dimensionNames[1] : null,
+                    (dimensionNames?.Count > 2) ? dimensionNames[2] : null,
+                    (dimensionNames?.Count > 3) ? dimensionNames[3] : null,
+                    (dimensionNames?.Count > 4) ? dimensionNames[4] : null,
+                    (dimensionNames?.Count > 5) ? dimensionNames[5] : null,
+                    (dimensionNames?.Count > 6) ? dimensionNames[6] : null,
+                    (dimensionNames?.Count > 7) ? dimensionNames[7] : null,
+                    (dimensionNames?.Count > 8) ? dimensionNames[8] : null,
+                    (dimensionNames?.Count > 9) ? dimensionNames[9] : null)
         {
-            Util.ValidateNotNull(dimensionNames, nameof(dimensionNames));
-            if (dimensionNames.Length > 10)
+            if (dimensionNames?.Count > MaxDimensionsCount)
             {
-                throw new ArgumentException($"May not have more than {10} dimensions,"
-                                          + $" but {nameof(dimensionNames)} has {dimensionNames.Length} elemets.");
+                throw new ArgumentException($"May not have more than {MaxDimensionsCount} dimensions,"
+                                          + $" but {nameof(dimensionNames)} has {dimensionNames.Count} elemets.");
             }
         }
 
@@ -430,9 +426,22 @@ namespace Microsoft.ApplicationInsights.Metrics
         public int DimensionsCount { get; }
 
         /// <summary>
-        /// Gets the name of a dimension identified by the specified 1-based dimension index.
+        /// Get an enumeration of the dimension names contained in this identity. The enumeration will have <c>DimensionsCount</c> elements.
         /// </summary>
-        /// <param name="dimensionNumber">1-based dimension number. Currently it can be <c>1</c> or <c>2</c>.</param>
+        /// <returns></returns>
+        public IEnumerable<string> GetDimensionNames()
+        {
+            for (int d = 1; d <= DimensionsCount; d++)
+            {
+                yield return GetDimensionName(d);
+            }
+        }
+
+        /// <summary>
+        /// Gets the name of a dimension identified by the specified 1-based dimension index.
+        /// For zero-dimensional metrics, this method will always fail.
+        /// </summary>
+        /// <param name="dimensionNumber">1-based dimension number. Allowed values are <c>1</c> through <c>10</c>.</param>
         /// <returns>The name of the specified dimension.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2233", Justification = "dimensionNumber is validated.")]
         public string GetDimensionName(int dimensionNumber)
@@ -457,14 +466,26 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         /// <summary />
         /// <returns />
+        public override string ToString()
+        {
+            return _identifierString;
+        }
+
+        /// <summary>
+        /// Gets the hash code for this <c>MetricIdentifier</c> instance.
+        /// </summary>
+        /// <returns>Hash code for this <c>MetricIdentifier</c> instance.</returns>
         public override int GetHashCode()
         {
             return _hashCode;
         }
 
-        /// <summary />
-        /// <param name="otherObj"></param>
-        /// <returns />
+        /// <summary>
+        /// Determines whether the specified object is a <c>MetricIdentifier</c> that is equal to this <c>MetricIdentifier</c> based on the
+        /// respective metric namespaces, metric IDs and the number and the names of dimensions.
+        /// </summary>
+        /// <param name="otherObj">Another object.</param>
+        /// <returns>Whether the specified other object is equal to this object based on the respective namespaces, IDs and dimension names.</returns>
         public override bool Equals(object otherObj)
         {
             MetricIdentifier otherMetricIdentifier = otherObj as MetricIdentifier;
@@ -479,9 +500,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        /// <summary />
-        /// <param name="otherMetricIdentifier"></param>
-        /// <returns />
+        /// <summary>
+        /// Determines whether the specified object is a <c>MetricIdentifier</c> that is equal to this <c>MetricIdentifier</c> based on the
+        /// respective metric namespaces, metric IDs and the number and the names of dimensions.
+        /// </summary>
+        /// <param name="otherMetricIdentifier">Another object.</param>
+        /// <returns>Whether the specified other object is equal to this object based on the respective namespaces, IDs and dimension names.</returns>
         public bool Equals(MetricIdentifier otherMetricIdentifier)
         {
             if (otherMetricIdentifier == null)

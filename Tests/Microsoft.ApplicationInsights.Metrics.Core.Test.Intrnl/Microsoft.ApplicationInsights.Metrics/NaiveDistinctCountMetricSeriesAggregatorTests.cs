@@ -316,7 +316,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var seriesConfig = new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false);
             var metric = new MetricSeries(
                                 aggregationManager,
-                                "Distinct Cows Sold",
+                                new MetricIdentifier(null, "Distinct Cows Sold", "Dim 2", "Dim 3", "Dim 1"),
                                 new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("Dim 1", "DV1"),
                                                                      new KeyValuePair<string, string>("Dim 2", "DV2"),
                                                                      new KeyValuePair<string, string>("Dim 3", "DV3"),
@@ -430,7 +430,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             var aggregationManager = new MetricAggregationManager();
             var seriesConfig = new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false);
-            var metric = new MetricSeries(aggregationManager, "Cows Sold", null, seriesConfig);
+            var metric = new MetricSeries(aggregationManager, new MetricIdentifier("Cows Sold"), null, seriesConfig);
 
             var aggregatorForConcreteSeries = new NaiveDistinctCountMetricSeriesAggregator(
                                                     (MetricSeriesConfigurationForNaiveDistinctCount) metric.GetConfiguration(),
@@ -548,7 +548,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var aggregationManager = new MetricAggregationManager();
 
             var nonPersistentConfig = new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: false);
-            var nonPersistentMetric = new MetricSeries(aggregationManager, "Unique Cows Sold", null, nonPersistentConfig);
+            var nonPersistentMetric = new MetricSeries(aggregationManager, new MetricIdentifier("Unique Cows Sold"), null, nonPersistentConfig);
 
             var nonPersistentAggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     (MetricSeriesConfigurationForNaiveDistinctCount) nonPersistentMetric.GetConfiguration(),
@@ -556,7 +556,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                     CycleKind.Custom);
 
             var persistentConfig = new MetricSeriesConfigurationForNaiveDistinctCount(usePersistentAggregation: true);
-            var persistentMetric = new MetricSeries(aggregationManager, "Unique Cows Sold", null, persistentConfig);
+            var persistentMetric = new MetricSeries(aggregationManager, new MetricIdentifier("Unique Cows Sold"), null, persistentConfig);
 
             var persistentAggregator = new NaiveDistinctCountMetricSeriesAggregator(
                                                     (MetricSeriesConfigurationForNaiveDistinctCount) persistentMetric.GetConfiguration(),

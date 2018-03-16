@@ -65,7 +65,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     {
                         cancelControl.Cancel();
                         await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => pipelineAdapter.TrackAsync(
-                                                                                                        new MetricAggregate("mid", "BadMoniker"),
+                                                                                                        new MetricAggregate("mns", "mid", "BadMoniker"),
                                                                                                         cancelControl.Token));
                     }
                 }
@@ -80,7 +80,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     using (var cancelControl = new CancellationTokenSource())
                     {
                         await Assert.ThrowsExceptionAsync<ArgumentException>(() => pipelineAdapter.TrackAsync(
-                                                                                                        new MetricAggregate("mid", "BadMoniker"),
+                                                                                                        new MetricAggregate("mns", "mid", "BadMoniker"),
                                                                                                         cancelControl.Token));
                     }
                 }
@@ -96,7 +96,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     {
                         cancelControl.Cancel();
                         await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => pipelineAdapter.TrackAsync(
-                                                                                new MetricAggregate("mid", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker),
+                                                                                new MetricAggregate("mns", "mid", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker),
                                                                                 cancelControl.Token));
                     }
                 }
@@ -112,24 +112,24 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
                     {
-                        var agregate = new MetricAggregate("M1", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker);
+                        var agregate = new MetricAggregate("NS", "M1", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker);
                         agregate.Data["Count"] = 1;
                         agregate.Data["Sum"] = 10;
                         await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
                     }
                     {
-                        var agregate = new MetricAggregate("M2", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker);
+                        var agregate = new MetricAggregate("NS", "M2", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker);
                         agregate.Data["Count"] = 0;
                         agregate.Data["Sum"] = 20;
                         await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
                     }
                     {
-                        var agregate = new MetricAggregate("M3", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker);
+                        var agregate = new MetricAggregate("NS", "M3", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker);
                         agregate.Data["Sum"] = 30;
                         await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
                     }
                     {
-                        var agregate = new MetricAggregate("M4", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker);
+                        var agregate = new MetricAggregate("NS", "M4", MetricConfigurations.Common.AggregateKinds().Measurement().Moniker);
                         agregate.Data["Count"] = 2.9;
                         agregate.Data["Sum"] = -40;
                         await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
@@ -176,7 +176,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                 {
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Something");
+                    var aggregate = new MetricAggregate("NS", "mid-foobar", "Something");
                     await Assert.ThrowsExceptionAsync<ArgumentException>( () => pipelineAdapter.TrackAsync(aggregate, CancellationToken.None) );
 
                     Assert.AreEqual(0, telemetrySentToChannel.Count);
@@ -190,7 +190,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.Azure.Measurement");
+                    var aggregate = new MetricAggregate("NS", "mid-foobar", "Microsoft.Azure.Measurement");
                     await pipelineAdapter.TrackAsync(aggregate, CancellationToken.None);
 
                     Assert.AreEqual(1, telemetrySentToChannel.Count);
@@ -221,7 +221,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.Azure.Measurement");
+                    var aggregate = new MetricAggregate("NS", "mid-foobar", "Microsoft.Azure.Measurement");
 
                     aggregate.AggregationPeriodStart = new DateTimeOffset(2017, 10, 30, 0, 1, 0, TimeSpan.FromHours(8));
                     aggregate.AggregationPeriodDuration = TimeSpan.FromSeconds(90);
@@ -261,7 +261,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.Azure.Measurement");
+                    var aggregate = new MetricAggregate("NS", "mid-foobar", "Microsoft.Azure.Measurement");
 
                     aggregate.AggregationPeriodStart = new DateTimeOffset(2017, 10, 30, 0, 1, 0, TimeSpan.FromHours(8));
                     aggregate.AggregationPeriodDuration = TimeSpan.FromSeconds(90);
@@ -303,7 +303,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.Azure.Measurement");
+                    var aggregate = new MetricAggregate("NS", "mid-foobar", "Microsoft.Azure.Measurement");
 
                     aggregate.AggregationPeriodStart = new DateTimeOffset(2017, 10, 30, 0, 1, 0, TimeSpan.FromHours(8));
                     aggregate.AggregationPeriodDuration = TimeSpan.FromSeconds(90);
@@ -346,7 +346,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.Azure.Measurement");
+                    var aggregate = new MetricAggregate("NS", "mid-foobar", "Microsoft.Azure.Measurement");
 
                     aggregate.AggregationPeriodStart = new DateTimeOffset(2017, 10, 30, 0, 1, 0, TimeSpan.FromHours(8));
                     aggregate.AggregationPeriodDuration = TimeSpan.FromSeconds(90);
@@ -446,7 +446,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.Azure.Measurement");
+                    var aggregate = new MetricAggregate("NS", "mid-foobar", "Microsoft.Azure.Measurement");
 
                     aggregate.AggregationPeriodStart = new DateTimeOffset(2017, 10, 30, 0, 1, 0, TimeSpan.FromHours(8));
                     aggregate.AggregationPeriodDuration = TimeSpan.FromSeconds(90);
@@ -583,7 +583,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.Azure.Measurement");
+                    var aggregate = new MetricAggregate("NS", "mid-foobar", "Microsoft.Azure.Measurement");
 
                     aggregate.AggregationPeriodStart = new DateTimeOffset(1492, 10, 12, 0, 0, 0, TimeSpan.Zero);
 
@@ -749,7 +749,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.Azure.Measurement");
+                    var aggregate = new MetricAggregate("NS", "mid-foobar", "Microsoft.Azure.Measurement");
 
                     aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Cloud.RoleName] = "";
                     aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Device.Model] = null;
@@ -781,7 +781,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     telemetryPipeline.InstrumentationKey = mockInstrumentationKey;
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
-                    var aggregate = new MetricAggregate("mid-foobar", "Microsoft.Azure.Measurement");
+                    var aggregate = new MetricAggregate("NS", "mid-foobar", "Microsoft.Azure.Measurement");
                     
                     aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Session.Id] = "some string";
                     aggregate.Dimensions[MetricDimensionNames.TelemetryContext.Session.IsFirst] = "bad string";

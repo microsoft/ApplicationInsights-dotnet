@@ -16,13 +16,16 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         /// <summary>
         /// </summary>
+        /// <param name="metricNamespace"></param>
         /// <param name="metricId"></param>
         /// <param name="aggregationKindMoniker"></param>
-        public MetricAggregate(string metricId, string aggregationKindMoniker)
+        public MetricAggregate(string metricNamespace, string metricId, string aggregationKindMoniker)
         {
+            Util.ValidateNotNull(metricNamespace, nameof(metricNamespace));
             Util.ValidateNotNull(metricId, nameof(metricId));
             Util.ValidateNotNull(aggregationKindMoniker, nameof(aggregationKindMoniker));
 
+            MetricNamespace = metricNamespace;
             MetricId = metricId;
             AggregationKindMoniker = aggregationKindMoniker;
 
@@ -32,6 +35,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             Dimensions = new ConcurrentDictionary<string, string>();
             Data = new ConcurrentDictionary<string, object>();
         }
+
+        /// <summary>
+        /// </summary>
+        public string MetricNamespace { get; }
 
         /// <summary>
         /// </summary>

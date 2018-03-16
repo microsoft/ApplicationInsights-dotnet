@@ -23,9 +23,10 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             var manager = new MetricManager(new MemoryMetricTelemetryPipeline());
             IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
-            MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
+            MetricSeries series = manager.CreateNewSeries("namespace", "Foo Bar", config);
 
-            Assert.AreEqual("Foo Bar", series.MetricId);
+            Assert.AreEqual("namespace", series.MetricIdentifier.MetricNamespace);
+            Assert.AreEqual("Foo Bar", series.MetricIdentifier.MetricId);
 
             Assert.AreEqual(config, series.GetConfiguration());
             Assert.AreSame(config, series.GetConfiguration());
@@ -43,7 +44,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
             IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
-            MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
+            MetricSeries series = manager.CreateNewSeries("ns", "Foo Bar", config);
 
             Thread.Sleep(1500);
 
@@ -95,7 +96,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
             IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
-            MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
+            MetricSeries series = manager.CreateNewSeries("ns", "Foo Bar", config);
 
             Assert.ThrowsException<ArgumentException>( () => series.TrackValue("xxx") );
             series.TrackValue((float) 0.8);
@@ -147,7 +148,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
             IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
-            MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
+            MetricSeries series = manager.CreateNewSeries("ns", "Foo Bar", config);
 
             series.TrackValue(0.4);
             series.TrackValue(2);
@@ -203,7 +204,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
             IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
-            MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
+            MetricSeries series = manager.CreateNewSeries("ns", "Foo Bar", config);
 
             series.TrackValue(0.4);
             series.TrackValue(2);
@@ -261,7 +262,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
-            MetricSeries series = manager.CreateNewSeries("Foo Bar", seriesConfig);
+            MetricSeries series = manager.CreateNewSeries("ns", "Foo Bar", seriesConfig);
 
             {
                 MetricAggregate aggregate = series.GetCurrentAggregateUnsafe();
@@ -353,7 +354,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
-            MetricSeries series = manager.CreateNewSeries("Foo Bar", seriesConfig);
+            MetricSeries series = manager.CreateNewSeries("ns", "Foo Bar", seriesConfig);
 
             {
                 MetricAggregate aggregate = series.GetCurrentAggregateUnsafe();
@@ -453,7 +454,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
-            MetricSeries series = manager.CreateNewSeries("Foo Bar", seriesConfig);
+            MetricSeries series = manager.CreateNewSeries("ns", "Foo Bar", seriesConfig);
 
             DateTimeOffset stepTS = startTS.AddMinutes(2);
             DateTimeOffset stepTSRounded = new DateTimeOffset(stepTS.Year, stepTS.Month, stepTS.Day, stepTS.Hour, stepTS.Minute, stepTS.Second, 0, stepTS.Offset);
@@ -684,7 +685,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
-            MetricSeries series = manager.CreateNewSeries("Foo Bar", seriesConfig);
+            MetricSeries series = manager.CreateNewSeries("ns", "Foo Bar", seriesConfig);
 
             DateTimeOffset stepTS = startTS.AddMinutes(2);
             DateTimeOffset stepTSRounded = new DateTimeOffset(stepTS.Year, stepTS.Month, stepTS.Day, stepTS.Hour, stepTS.Minute, stepTS.Second, 0, stepTS.Offset);

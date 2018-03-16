@@ -91,7 +91,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             MetricAggregate aggregate = new MetricAggregate(
-                                                DataSeries?.MetricId ?? Util.NullString,
+                                                DataSeries?.MetricIdentifier.MetricNamespace ?? Util.NullString,
+                                                DataSeries?.MetricIdentifier.MetricId ?? Util.NullString,
                                                 MetricConfigurations.Common.AggregateKinds().Measurement().Moniker);
 
             aggregate.Data[MetricConfigurations.Common.AggregateKinds().Measurement().DataKeys.Count] = count;

@@ -10,7 +10,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     public class MetricsCollection : ICollection<Metric>
     {
         private readonly MetricManager _metricManager;
-        private readonly ConcurrentDictionary<string, Metric> _metrics = new ConcurrentDictionary<string, Metric>();
+        private readonly ConcurrentDictionary<MetricIdentifier, Metric> _metrics = new ConcurrentDictionary<MetricIdentifier, Metric>();
 
         /// <summary>
         /// </summary>
@@ -37,39 +37,31 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         /// <summary>
         /// </summary>
-        /// <param name="metricId"></param>
-        /// <param name="dimension1Name"></param>
-        /// <param name="dimension2Name"></param>
+        /// <param name="metricIdentifier"></param>
         /// <param name="metricConfiguration"></param>
         /// <returns></returns>
         public Metric GetOrCreate(
-                                string metricId,
-                                string dimension1Name,
-                                string dimension2Name,
+                                MetricIdentifier metricIdentifier,
                                 MetricConfiguration metricConfiguration)
         {
-            metricId = metricId?.Trim();
-            Util.ValidateNotNullOrWhitespace(metricId, nameof(metricId));
+            Util.ValidateNotNull(metricIdentifier, nameof(metricIdentifier));
             
-            string metricObjectId = Metric.GetObjectId(metricId, dimension1Name, dimension2Name);
             Metric metric = _metrics.GetOrAdd(
-                                            metricObjectId,
+                                            metricIdentifier,
                                             (key) => new Metric(
                                                                 _metricManager,
-                                                                metricId,
-                                                                dimension1Name,
-                                                                dimension2Name,
+                                                                metricIdentifier,
                                                                 metricConfiguration ?? MetricConfigurations.Common.Default())
                                              );
 
-            if (metricConfiguration != null && ! metric._configuration.Equals(metricConfiguration))
+            if (metricConfiguration != null && false == metric._configuration.Equals(metricConfiguration))
             {
-                throw new ArgumentException("A Metric with the specified Id and dimension names already exists, but it has a configuration"
+                throw new ArgumentException("A Metric with the specified Namespace, Id and dimension names already exists, but it has a configuration"
                                           + " that is different from the specified configuration. You may not change configurations once a"
                                           + " metric was created for the first time. Either specify the same configuration every time, or"
                                           + " specify 'null' during every invocation except the first one. 'Null' will match against any"
                                           + " previously specified configuration when retrieving existing metrics, or fall back to"
-                                          +$" the default when creating new metrics. (Metric Object Id: \"{metricObjectId}\".)");
+                                          +$" the default when creating new metrics. ({nameof(metricIdentifier)} = \"{metricIdentifier.ToString()}\".)");
             }
 
             return metric;
@@ -93,7 +85,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 return false;
             }
 
-            return _metrics.ContainsKey(metric._objectId);
+            return _metrics.ContainsKey(metric.Identifier);
         }
 
         /// <summary>
@@ -124,7 +116,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             Metric removedMetric;
-            return _metrics.TryRemove(metric._objectId, out removedMetric);
+            return _metrics.TryRemove(metric.Identifier, out removedMetric);
         }
 
         /// <summary>

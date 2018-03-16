@@ -36,16 +36,17 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
 
-            Assert.ThrowsException<ArgumentNullException>( () => manager.CreateNewSeries(null, config) );
-            Assert.ThrowsException<ArgumentNullException>( () => manager.CreateNewSeries("Foo Bar", null) );
+            Assert.ThrowsException<ArgumentNullException>( () => manager.CreateNewSeries("ns", null, config) );
+            Assert.ThrowsException<ArgumentNullException>( () => manager.CreateNewSeries("ns", "Foo Bar", null) );
 
-            MetricSeries series = manager.CreateNewSeries("Foo Bar", config);
+            MetricSeries series = manager.CreateNewSeries("NS", "Foo Bar", config);
             Assert.IsNotNull(series);
 
             Assert.AreEqual(config, series.GetConfiguration());
             Assert.AreSame(config, series.GetConfiguration());
 
-            Assert.AreEqual("Foo Bar", series.MetricId);
+            Assert.AreEqual("NS", series.MetricIdentifier.MetricNamespace);
+            Assert.AreEqual("Foo Bar", series.MetricIdentifier.MetricId);
 
             Util.CompleteDefaultAggregationCycle(manager);
         }
@@ -70,9 +71,9 @@ namespace Microsoft.ApplicationInsights.Metrics
                 IMetricSeriesConfiguration measurementConfig = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
                 IMetricSeriesConfiguration accumulatorConfig = new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false);
 
-                MetricSeries series1 = manager.CreateNewSeries("Measurement 1", measurementConfig);
-                MetricSeries series2 = manager.CreateNewSeries("Measurement 2", measurementConfig);
-                MetricSeries series3 = manager.CreateNewSeries("Accumulator 1", accumulatorConfig);
+                MetricSeries series1 = manager.CreateNewSeries("Test Metrics", "Measurement 1", measurementConfig);
+                MetricSeries series2 = manager.CreateNewSeries("Test Metrics", "Measurement 2", measurementConfig);
+                MetricSeries series3 = manager.CreateNewSeries("Other Test Metrics", "Accumulator 1", accumulatorConfig);
 
                 series1.TrackValue(1);
                 series1.TrackValue(1);
@@ -91,14 +92,17 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual(3, metricsCollector.Count);
 
                 Assert.AreEqual(1, metricsCollector.Where( (item) => item.MetricId.Equals("Measurement 1") ).Count());
+                Assert.AreEqual("Test Metrics", (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 1") )).MetricNamespace);
                 Assert.AreEqual(3, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 1") )).Data["Count"]);
                 Assert.AreEqual(3.0, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 1") )).Data["Sum"]);
 
                 Assert.AreEqual(1, metricsCollector.Where( (item) => item.MetricId.Equals("Measurement 2") ).Count());
+                Assert.AreEqual("Test Metrics", (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 2") )).MetricNamespace);
                 Assert.AreEqual(3, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 2") )).Data["Count"]);
                 Assert.AreEqual(-3.0, (metricsCollector.First( (item) => item.MetricId.Equals("Measurement 2") )).Data["Sum"]);
 
                 Assert.AreEqual(1, metricsCollector.Where( (item) => item.MetricId.Equals("Accumulator 1") ).Count());
+                Assert.AreEqual("Other Test Metrics", (metricsCollector.First( (item) => item.MetricId.Equals("Accumulator 1") )).MetricNamespace);
                 Assert.AreEqual(0.0, (metricsCollector.First( (item) => item.MetricId.Equals("Accumulator 1") )).Data["Sum"]);
 
                 metricsCollector.Clear();

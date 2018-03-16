@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -407,7 +408,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                                                                                           new KeyValuePair<string, string>("Dim 2", "DV2a"),
                                                                                                                           new KeyValuePair<string, string>("Dim 3", "DV3") };
 
-            var metric = new MetricSeries(aggregationManager, "Cows Sold", setDimensionNamesValues, seriesConfig);
+            var metric = new MetricSeries(
+                                    aggregationManager,
+                                    new MetricIdentifier(String.Empty, "Cows Sold", expectedDimensionNamesValues.Select( nv => nv.Key ).ToArray()),
+                                    setDimensionNamesValues,
+                                    seriesConfig);
 
             var aggregator = new MeasurementAggregator(
                                                     (MetricSeriesConfigurationForMeasurement) metric.GetConfiguration(),
@@ -435,7 +440,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             var aggregationManager = new MetricAggregationManager();
             var seriesConfig = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true);
-            var metric = new MetricSeries(aggregationManager, "Cows Sold", null, seriesConfig);
+            var metric = new MetricSeries(aggregationManager, new MetricIdentifier("Cows Sold"), null, seriesConfig);
 
             var aggregatorForConcreteSeries = new MeasurementAggregator(
                                                     (MetricSeriesConfigurationForMeasurement) metric.GetConfiguration(),
@@ -471,7 +476,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var aggregationManager = new MetricAggregationManager();
 
             var mesurementConfig = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: true);
-            var measurementMetric = new MetricSeries(aggregationManager, "Cows Sold", null, mesurementConfig);
+            var measurementMetric = new MetricSeries(aggregationManager, new MetricIdentifier("Cows Sold"), null, mesurementConfig);
 
             var measurementAggregator = new MeasurementAggregator(
                                                     (MetricSeriesConfigurationForMeasurement) measurementMetric.GetConfiguration(),

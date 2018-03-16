@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Threading;
 
 using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
+using System.Linq;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -463,7 +464,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                                                                                           new KeyValuePair<string, string>("Dim 2", "DV2a"),
                                                                                                                           new KeyValuePair<string, string>("Dim 3", "DV3") };
 
-            var metric = new MetricSeries(aggregationManager, "Cows Sold", setDimensionNamesValues, seriesConfig);
+            var metric = new MetricSeries(
+                                    aggregationManager,
+                                    new MetricIdentifier(String.Empty, "Cows Sold", expectedDimensionNamesValues.Select( nv => nv.Key ).ToArray()),
+                                    setDimensionNamesValues,
+                                    seriesConfig);
 
             var aggregator = new MeasurementAggregator(
                                                     (MetricSeriesConfigurationForMeasurement) metric.GetConfiguration(),
@@ -498,7 +503,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             var aggregationManager = new MetricAggregationManager();
             var seriesConfig = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
-            var metric = new MetricSeries(aggregationManager, "Cows Sold", null, seriesConfig);
+            var metric = new MetricSeries(aggregationManager, new MetricIdentifier("Cows Sold"), null, seriesConfig);
 
             var aggregatorForConcreteSeries = new MeasurementAggregator(
                                                     (MetricSeriesConfigurationForMeasurement) metric.GetConfiguration(),
@@ -543,7 +548,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var aggregationManager = new MetricAggregationManager();
 
             var mesurementConfig = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
-            var measurementMetric = new MetricSeries(aggregationManager, "Cows Sold", null, mesurementConfig);
+            var measurementMetric = new MetricSeries(aggregationManager, new MetricIdentifier("Cows Sold"), null, mesurementConfig);
 
             var measurementAggregator = new MeasurementAggregator(
                                                     (MetricSeriesConfigurationForMeasurement) measurementMetric.GetConfiguration(),
@@ -551,7 +556,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                     CycleKind.Custom);
 
             var accumulatorConfig = new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false);
-            var accumulatorMetric = new MetricSeries(aggregationManager, "Cows Sold", null, accumulatorConfig);
+            var accumulatorMetric = new MetricSeries(aggregationManager, new MetricIdentifier("Cows Sold"), null, accumulatorConfig);
 
             var accumulatorAggregator = new AccumulatorAggregator(
                                                     (MetricSeriesConfigurationForAccumulator) accumulatorMetric.GetConfiguration(),

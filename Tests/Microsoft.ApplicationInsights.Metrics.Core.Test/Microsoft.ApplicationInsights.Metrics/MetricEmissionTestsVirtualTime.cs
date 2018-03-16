@@ -38,6 +38,7 @@ namespace SomeCustomerNamespace
         private void RecordNormalMetric(TelemetryConfiguration telemetryPipeline)
         {
             MetricSeries durationMeric = telemetryPipeline.GetMetricManager().CreateNewSeries(
+                                                                        "Test Metrics",
                                                                         "Item Add duration",
                                                                         new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 

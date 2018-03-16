@@ -77,7 +77,7 @@ namespace User.Namespace.Example01
 
             if (!animalsSold.TryTrackValue(count, species))
             {
-                client.TrackTrace($"Data series or dimension cap was reached for metric {animalsSold.MetricId}.", TraceSeveretyLevel.Error);
+                client.TrackTrace($"Data series or dimension cap was reached for metric {animalsSold.Identifier.MetricId}.", TraceSeveretyLevel.Error);
             }
 
             // You can inspect a metric object to reason about its current state. For example:
@@ -160,7 +160,7 @@ namespace User.Namespace.Example02
 
             // A zero-dimensional metric has exactly one metric data series:
             Metric cowsSold = client.GetMetric("CowsSold");
-            Assert.AreEqual(0, cowsSold.DimensionsCount);
+            Assert.AreEqual(0, cowsSold.Identifier.DimensionsCount);
 
             MetricSeries cowsSoldValues;
             cowsSold.TryGetDataSeries(out cowsSoldValues);
@@ -188,7 +188,7 @@ namespace User.Namespace.Example02
                 MetricSeries epicTragediesSold;
                 booksSold.TryGetDataSeries(out epicTragediesSold, "Epic Tragedy");
             }
-            catch(InvalidOperationException)
+            catch(ArgumentException)
             {
                 client.TrackTrace(
                                 $"This error will always happen because '{nameof(booksSold)}' has 2 dimensions, but we only specified one.",
@@ -496,6 +496,7 @@ namespace User.Namespace.Example04
             MetricManager metrics = TelemetryConfiguration.Active.GetMetricManager();
 
             MetricSeries itemAccumulator = metrics.CreateNewSeries(
+                                                    "Example Metrics",
                                                     "Items in Queue",
                                                     new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
 
@@ -511,11 +512,13 @@ namespace User.Namespace.Example04
             // take care of series capping and dimension capping. You need to take care of it yourself.
 
             MetricSeries purpleCowsSold = metrics.CreateNewSeries(
+                                             "Example Metrics",
                                              "Animals Sold",
                                              new Dictionary<string, string>() { ["Species"] = "Cows", ["Color"] = "Purple" },
                                              new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             MetricSeries yellowHorsesSold = metrics.CreateNewSeries(
+                                             "Example Metrics",
                                              "Animals Sold",
                                              new[] { new KeyValuePair<string, string>("Species", "Horses"), new KeyValuePair<string, string>("Color", "Yellow") },
                                              new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
@@ -1070,7 +1073,7 @@ namespace User.Namespace.Example06c
         public bool WillConsume(MetricSeries dataSeries, out IMetricValueFilter valueFilter)
         {
             valueFilter = null;
-            return !dataSeries.MetricId.StartsWith("Items");
+            return !dataSeries.MetricIdentifier.MetricId.StartsWith("Items");
         }
     }
 

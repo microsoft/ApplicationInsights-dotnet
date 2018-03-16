@@ -98,10 +98,10 @@ namespace SomeCustomerNamespace
 
             IMetricSeriesConfiguration seriesConfig = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
 
-            manager1.CreateNewSeries("Metric A", seriesConfig).TrackValue(42);
-            manager1.CreateNewSeries("Metric A", seriesConfig).TrackValue("18");
-            manager2.CreateNewSeries("Metric A", seriesConfig).TrackValue(10000);
-            manager2.CreateNewSeries("Metric B", seriesConfig).TrackValue(-0.001);
+            manager1.CreateNewSeries("ns", "Metric A", seriesConfig).TrackValue(42);
+            manager1.CreateNewSeries("ns", "Metric A", seriesConfig).TrackValue("18");
+            manager2.CreateNewSeries("ns", "Metric A", seriesConfig).TrackValue(10000);
+            manager2.CreateNewSeries("ns", "Metric B", seriesConfig).TrackValue(-0.001);
             manager1.Flush();
 
             Assert.AreEqual(4, telemetryCollector.TelemetryItems.Count);

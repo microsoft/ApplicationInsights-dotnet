@@ -31,13 +31,13 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var measurementMetric = new MetricSeries(
                                             aggregationManager,
-                                            "Measurement Metric",
+                                            new MetricIdentifier("Measurement Metric"),
                                             null,
                                             new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             var accumulatorMetric = new MetricSeries(
                                             aggregationManager,
-                                            "Accumulator Metric",
+                                            new MetricIdentifier("Accumulator Metric"),
                                             null,
                                             new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
 
@@ -105,13 +105,13 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var measurementMetric = new MetricSeries(
                                             aggregationManager,
-                                            "Measurement Metric",
+                                            new MetricIdentifier("Measurement Metric"),
                                             null,
                                             new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             var accumulatorMetric = new MetricSeries(
                                             aggregationManager,
-                                            "Accumulator Metric",
+                                            new MetricIdentifier("Accumulator Metric"),
                                             null,
                                             new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
 
@@ -237,13 +237,13 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var measurementMetric = new MetricSeries(
                                             aggregationManager,
-                                            "Measurement Metric",
+                                            new MetricIdentifier("Measurement Metric"),
                                             null,
                                             new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
 
             var accumulatorMetric = new MetricSeries(
                                             aggregationManager,
-                                            "Accumulator Metric",
+                                            new MetricIdentifier("Accumulator Metric"),
                                             null,
                                             new MetricSeriesConfigurationForAccumulator(restrictToUInt32Values: false));
 

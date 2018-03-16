@@ -68,7 +68,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             max = Util.EnsureConcreteValue(max);
 
             MetricAggregate aggregate = new MetricAggregate(
-                                                DataSeries?.MetricId ?? Util.NullString,
+                                                DataSeries?.MetricIdentifier.MetricNamespace ?? Util.NullString,
+                                                DataSeries?.MetricIdentifier.MetricId ?? Util.NullString,
                                                 MetricConfigurations.Common.AggregateKinds().Accumulator().Moniker);
 
             aggregate.Data[MetricConfigurations.Common.AggregateKinds().Accumulator().DataKeys.Sum] = sum;
