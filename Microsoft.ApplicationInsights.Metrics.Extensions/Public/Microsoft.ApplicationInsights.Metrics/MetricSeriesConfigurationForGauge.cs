@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
+using Microsoft.ApplicationInsights.Metrics.Extensions;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -32,10 +33,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             _alwaysResendLastValue = alwaysResendLastValue;
             _restrictToUInt32Values = restrictToUInt32Values;
 
-            unchecked
-            {
-                _hashCode = (((17 * 23) + _alwaysResendLastValue.GetHashCode()) * 23) + _restrictToUInt32Values.GetHashCode();
-            }
+            _hashCode = Util.CombineHashCodes(_alwaysResendLastValue.GetHashCode(), _restrictToUInt32Values.GetHashCode());
         }
 
         /// <summary />

@@ -25,10 +25,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             _restrictToUInt32Values = restrictToUInt32Values;
 
-            unchecked
-            {
-                _hashCode = (((17 * 23) + _restrictToUInt32Values.GetHashCode()) * 23);
-            }
+            _hashCode = Util.CombineHashCodes(_restrictToUInt32Values.GetHashCode());
         }
 
         /// <summary />

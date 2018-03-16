@@ -169,5 +169,38 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensions
                 }
             }
         }
+
+        public static int CombineHashCodes(int hash1)
+        {
+            int hash = 17;
+            unchecked
+            {
+                hash = hash * 23 + hash1;
+            }
+            return hash;
+        }
+
+        public static int CombineHashCodes(int hash1, int hash2)
+        {
+            int hash = 17;
+            unchecked
+            {
+                hash = hash * 23 + hash1;
+                hash = hash * 23 + hash2;
+            }
+            return hash;
+        }
+
+        public static int CombineHashCodes(int hash1, int hash2, int hash3)
+        {
+            int hash = 17;
+            unchecked
+            {
+                hash = hash * 23 + hash1;
+                hash = hash * 23 + hash2;
+                hash = hash * 23 + hash3;
+            }
+            return hash;
+        }
     }
 }

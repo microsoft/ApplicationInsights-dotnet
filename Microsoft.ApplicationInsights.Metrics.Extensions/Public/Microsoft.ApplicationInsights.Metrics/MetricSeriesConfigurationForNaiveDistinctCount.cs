@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
+using Microsoft.ApplicationInsights.Metrics.Extensions;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -57,10 +58,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             _usePersistentAggregation = usePersistentAggregation;
             _caseSensitive = caseSensitiveDistinctions;
 
-            unchecked
-            {
-                _hashCode = ((17 * 23) + (_usePersistentAggregation.GetHashCode() * 23) + _caseSensitive.GetHashCode());
-            }
+            _hashCode = Util.CombineHashCodes(_usePersistentAggregation.GetHashCode(), _caseSensitive.GetHashCode());
         }
 
         /// <summary>
