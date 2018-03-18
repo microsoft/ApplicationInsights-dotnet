@@ -10,7 +10,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
     /// <summary>
     /// 
     /// </summary>
-    public static class TelemetryClientExtensionsAdvanced
+    public static class TelemetryClientExtensions
     {
         private static ConditionalWeakTable<TelemetryClient, MetricManager> s_metricManagersForTelemetryClients;
 
@@ -26,7 +26,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             switch (aggregationScope)
             {
                 case MetricAggregationScope.TelemetryConfiguration:
-                    TelemetryConfiguration pipeline = Util.GetTelemetryConfiguration(telemetryClient);
+                    TelemetryConfiguration pipeline = telemetryClient.TelemetryConfiguration;
                     return pipeline.GetMetricManager();
 
                 case MetricAggregationScope.TelemetryClient:

@@ -289,7 +289,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         }
 
         /// <summary>
-        /// We are working on adding a publically exposed method to a future version of the Core SDK so that the reflection employed here is not necesary.
         /// </summary>
         /// <param name="source"></param>
         /// <param name="target"></param>
@@ -299,8 +298,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Util.ValidateNotNull(target, nameof(target));
 
             // Copy internal tags:
-            Action<TelemetryContext, TelemetryContext, string> initializeDelegate = GetDelegate_TelemetryContextInitialize();
-            initializeDelegate(target, source, null);
+            target.Initialize(source, instrumentationKey: null);
 
             // Copy public properties:
             IDictionary<string, string> sourceProperties = source.Properties;
@@ -388,81 +386,6 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             s_sdkVersionMoniker = sdkVersionMoniker;
             return sdkVersionMoniker;
-        }
-
-        /// <summary>
-        /// We are working on adding a publically exposed method to a future version of the Core SDK so that the reflection employed here is not necesary.
-        /// </summary>
-        /// <param name="telemetryClient"></param>
-        /// <returns></returns>
-        internal static TelemetryConfiguration GetTelemetryConfiguration(TelemetryClient telemetryClient)
-        {
-            Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));
-
-            Func<TelemetryClient, TelemetryConfiguration> getTelemetryConfigurationDelegate = GetDelegate_TelemetryClientGetConfiguration();
-            TelemetryConfiguration pipeline = getTelemetryConfigurationDelegate(telemetryClient);
-
-            return pipeline;
-        }
-
-        private static Func<TelemetryClient, TelemetryConfiguration> GetDelegate_TelemetryClientGetConfiguration()
-        {
-            Func<TelemetryClient, TelemetryConfiguration> currentDel = s_delegateTelemetryClientGetConfiguration;
-
-            if (currentDel == null)
-            {
-                Type apiType = typeof(TelemetryClient);
-                const string apiName = "TelemetryConfiguration";
-                PropertyInfo property = apiType.GetTypeInfo().GetProperty(apiName, BindingFlags.NonPublic | BindingFlags.Instance);
-
-                if (property == null)
-                {
-                    throw new InvalidOperationException($"Could not get PropertyInfo for {apiType.Name}.{apiName} via reflection."
-                                                       + " This is either an internal SDK bug or there is a mismatch between the Metrics-SDK version"
-                                                       + " and the Application Insights Base SDK version. Please report this issue.");
-                }
-
-                MethodInfo propertyGetMethod = property.GetGetMethod(nonPublic: true);
-
-                Func<TelemetryClient, TelemetryConfiguration> newDel =
-                                            (Func<TelemetryClient, TelemetryConfiguration>)
-                                             propertyGetMethod.CreateDelegate(typeof(Func<TelemetryClient, TelemetryConfiguration>));
-
-                Func<TelemetryClient, TelemetryConfiguration> prevDel = Interlocked.CompareExchange(ref s_delegateTelemetryClientGetConfiguration, newDel, null);
-                currentDel = prevDel ?? newDel;
-            }
-
-            return currentDel;
-        }
-
-        private static Action<TelemetryContext, TelemetryContext, string> GetDelegate_TelemetryContextInitialize()
-        {
-            //Need to invoke: void TelemetryContext.Initialize(TelemetryContext source, string instrumentationKey)
-
-            Action<TelemetryContext, TelemetryContext, string> currentDel = s_delegateTelemetryContextInitialize;
-
-            if (currentDel == null)
-            {
-                Type apiType = typeof(TelemetryContext);
-                const string apiName = "Initialize";
-                MethodInfo method = apiType.GetTypeInfo().GetMethod(apiName, BindingFlags.NonPublic | BindingFlags.Instance);
-
-                if (method == null)
-                {
-                    throw new InvalidOperationException($"Could not get MethodInfo for {apiType.Name}.{apiName} via reflection."
-                                                       + " This is either an internal SDK bug or there is a mismatch between the Metrics-SDK version"
-                                                       + " and the Application Insights Base SDK version. Please report this issue.");
-                }
-
-                Action<TelemetryContext, TelemetryContext, string> newDel =
-                                            (Action<TelemetryContext, TelemetryContext, string>)
-                                            method.CreateDelegate(typeof(Action<TelemetryContext, TelemetryContext, string>));
-
-                Action<TelemetryContext, TelemetryContext, string> prevDel = Interlocked.CompareExchange(ref s_delegateTelemetryContextInitialize, newDel, null);
-                currentDel = prevDel ?? newDel;
-            }
-
-            return currentDel;
         }
     }
 }

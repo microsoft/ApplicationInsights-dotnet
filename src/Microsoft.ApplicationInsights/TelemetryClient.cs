@@ -13,6 +13,8 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
     /// <summary>
     /// Send events, metrics and other telemetry to the Application Insights service.
@@ -1001,7 +1003,6 @@
                             string dimension4Name)
         {
             return GetOrCreateMetric(
-                        telemetryClient,
                         MetricAggregationScope.TelemetryConfiguration,
                         new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name, dimension4Name),
                         metricConfiguration: null);
@@ -1152,10 +1153,10 @@
         /// configuration used earlier.</exception>
         /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
         /// See <see cref="MetricAggregationScope" /> for more info.</param>
-        public static Metric GetMetric(
-                                    MetricIdentifier metricIdentifier,
-                                    MetricConfiguration metricConfiguration,
-                                    MetricAggregationScope aggregationScope)
+        public Metric GetMetric(
+                            MetricIdentifier metricIdentifier,
+                            MetricConfiguration metricConfiguration,
+                            MetricAggregationScope aggregationScope)
         {
             return GetOrCreateMetric(
                         aggregationScope,
@@ -1164,14 +1165,11 @@
         }
 
         private Metric GetOrCreateMetric(
-                                    TelemetryClient telemetryClient,
                                     MetricAggregationScope aggregationScope,
                                     MetricIdentifier metricIdentifier,
                                     MetricConfiguration metricConfiguration)
         {
-            Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));
-
-            MetricManager metricManager = telemetryClient.GetMetricManager(aggregationScope);
+            MetricManager metricManager = this.GetMetricManager(aggregationScope);
             Metric metric = metricManager.Metrics.GetOrCreate(metricIdentifier, metricConfiguration);
             return metric;
         }
