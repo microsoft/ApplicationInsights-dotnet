@@ -20,7 +20,7 @@
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 // Act
                 MetricV1 metric = manager.CreateMetric("Test Metric");
@@ -47,7 +47,7 @@
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
 
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 // Act
                 MetricV1 metric = manager.CreateMetric("Test Metric", null);
@@ -79,7 +79,7 @@
                 { "Dim2", "Value2"}
             };
 
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 // Act
                 MetricV1 metric = manager.CreateMetric("Test Metric", dimensions);
@@ -108,7 +108,7 @@
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 MetricV1 metric = manager.CreateMetric("Test Metric");
 
@@ -134,7 +134,7 @@
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 MetricV1 metric = manager.CreateMetric("Test Metric");
 
@@ -165,7 +165,7 @@
             MetricV1 metric1 = null;
             MetricV1 metric2 = null;
 
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 // note: on first go aggregators may be different because manager may
                 // snapshot after first got created but before the second
@@ -203,9 +203,9 @@
         [TestMethod]
         public void CanDisposeMetricManagerMultipleTimes()
         {
-            MetricManager manager = null;
+            MetricManagerV1 manager = null;
 
-            using (manager = new MetricManager()) { }
+            using (manager = new MetricManagerV1()) { }
 
             //Assert.DoesNotThrow
             manager.Dispose();
@@ -218,7 +218,7 @@
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 MetricV1 metric = manager.CreateMetric("Test Metric");
 
@@ -242,7 +242,7 @@
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 MetricV1 metric = manager.CreateMetric("Test Metric");
 

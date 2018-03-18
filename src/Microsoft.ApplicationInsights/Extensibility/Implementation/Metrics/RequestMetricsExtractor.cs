@@ -24,7 +24,7 @@
 
         public string ExtractorVersion { get; } = "1.0";
 
-        public void InitializeExtractor(MetricManager metricManager)
+        public void InitializeExtractor(MetricManagerV1 metricManager)
         {
             this.responseSuccessTimeMetric = metricManager.CreateMetric(
                     MetricTerms.Autocollection.Metric.RequestDuration.Name,

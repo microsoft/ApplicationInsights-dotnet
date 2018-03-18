@@ -25,7 +25,7 @@
         /// Pre-initialize this extractor.
         /// </summary>
         /// <param name="metricManager">The manager to be used for aggregation.</param>
-        void InitializeExtractor(MetricManager metricManager);
+        void InitializeExtractor(MetricManagerV1 metricManager);
 
         /// <summary>
         /// Perform actual metric data point extraction from the specified item.

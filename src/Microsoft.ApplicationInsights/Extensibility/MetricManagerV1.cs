@@ -18,7 +18,7 @@
     /// Metric factory and controller. Sends metrics to Application Insights service. Pre-aggregates metrics to reduce bandwidth.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#send-metrics">Learn more</a>
     /// </summary>
-    internal sealed class MetricManager : IDisposable
+    internal sealed class MetricManagerV1 : IDisposable
     {
         /// <summary>
         /// Value of the property indicating 'app insights version' allowing to tell metric was built using metric manager.
@@ -51,18 +51,18 @@
         private ConcurrentDictionary<MetricV1, SimpleMetricStatisticsAggregator> metricDictionary;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MetricManager"/> class.
+        /// Initializes a new instance of the <see cref="MetricManagerV1"/> class.
         /// </summary>
-        public MetricManager()
+        public MetricManagerV1()
             : this(new TelemetryClient())
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MetricManager"/> class.
+        /// Initializes a new instance of the <see cref="MetricManagerV1"/> class.
         /// </summary>
         /// <param name="client">Telemetry client to use to output aggregated metric data.</param>
-        public MetricManager(TelemetryClient client)
+        public MetricManagerV1(TelemetryClient client)
         {
             this.telemetryClient = client ?? new TelemetryClient();
 
@@ -76,7 +76,7 @@
 
         /// <summary>
         /// Gets a list of metric processors associated
-        /// with this instance of <see cref="MetricManager"/>.
+        /// with this instance of <see cref="MetricManagerV1"/>.
         /// </summary>
         internal IList<IMetricProcessor> MetricProcessors
         {

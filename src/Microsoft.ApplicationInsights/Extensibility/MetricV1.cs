@@ -17,7 +17,7 @@
         /// <summary>
         /// Aggregator manager for the aggregator.
         /// </summary>
-        private readonly MetricManager manager;
+        private readonly MetricManagerV1 manager;
 
         /// <summary>
         /// Metric aggregator id to look for in the aggregator dictionary.
@@ -36,7 +36,7 @@
         /// <param name="name">Metric name.</param>
         /// <param name="dimensions">Metric dimensions.</param>
         internal MetricV1(
-            MetricManager manager,
+            MetricManagerV1 manager,
             string name, 
             IDictionary<string, string> dimensions = null)
         {

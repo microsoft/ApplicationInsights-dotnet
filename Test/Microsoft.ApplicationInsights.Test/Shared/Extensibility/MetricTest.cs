@@ -27,7 +27,7 @@
                 { "Dim2", "Value2"}
             };
 
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 MetricV1 metric = manager.CreateMetric("Test Metric", dimensions);
 
@@ -57,7 +57,7 @@
 
             var client = this.InitializeTelemetryClient(sentTelemetry, sentSamples);
 
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 MetricV1 metric = manager.CreateMetric("Test Metric");
 
@@ -89,7 +89,7 @@
 
             var client = this.InitializeTelemetryClient(sentTelemetry, sentSamples);
 
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 MetricV1 metric = manager.CreateMetric("Test Metric");
 
@@ -121,7 +121,7 @@
 
             var client = this.InitializeTelemetryClient(sentTelemetry, sentSamples);
 
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 MetricV1 metric = manager.CreateMetric("Test Metric");
 
@@ -153,7 +153,7 @@
 
             var client = this.InitializeTelemetryClient(sentTelemetry, sentSamples);
 
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 MetricV1 metric = manager.CreateMetric("Test Metric");
 
@@ -185,7 +185,7 @@
 
             var client = this.InitializeTelemetryClient(sentTelemetry, sentSamples);
 
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 MetricV1 metric = manager.CreateMetric("Test Metric");
 
@@ -228,7 +228,7 @@
         [TestMethod]
         public void MetricNeverEqualsNull()
         {
-            using (var manager = new MetricManager())
+            using (var manager = new MetricManagerV1())
             {
                 MetricV1 metric = manager.CreateMetric("My metric");
                 object other = null;
@@ -240,7 +240,7 @@
         [TestMethod]
         public void MetricEqualsItself()
         {
-            using (var manager = new MetricManager())
+            using (var manager = new MetricManagerV1())
             {
                 MetricV1 metric = manager.CreateMetric("My metric");
 
@@ -251,7 +251,7 @@
         [TestMethod]
         public void MetricNotEqualsOtherObject()
         {
-            using (var manager = new MetricManager())
+            using (var manager = new MetricManagerV1())
             {
                 MetricV1 metric = manager.CreateMetric("My metric");
                 var other = new object();
@@ -263,7 +263,7 @@
         [TestMethod]
         public void MetricsAreEqualForTheSameMetricNameWithoutDimensions()
         {
-            using (var manager = new MetricManager())
+            using (var manager = new MetricManagerV1())
             {
                 MetricV1 metric = manager.CreateMetric("My metric");
                 MetricV1 other = manager.CreateMetric("My metric");
@@ -275,7 +275,7 @@
         [TestMethod]
         public void MetricNameIsCaseSensitive()
         {
-            using (var manager = new MetricManager())
+            using (var manager = new MetricManagerV1())
             {
                 MetricV1 metric = manager.CreateMetric("My metric");
                 MetricV1 other = manager.CreateMetric("My Metric");
@@ -287,7 +287,7 @@
         [TestMethod]
         public void MetricNameIsAccentSensitive()
         {
-            using (var manager = new MetricManager())
+            using (var manager = new MetricManagerV1())
             {
                 MetricV1 metric = manager.CreateMetric("My metric");
                 MetricV1 other = manager.CreateMetric("My métric");
@@ -299,7 +299,7 @@
         [TestMethod]
         public void MetricsAreEqualIfDimensionsSetToNothingImplicitlyAndExplicitly()
         {
-            using (var manager = new MetricManager())
+            using (var manager = new MetricManagerV1())
             {
                 MetricV1 metric = manager.CreateMetric("My metric", null);
                 MetricV1 other = manager.CreateMetric("My metric");
@@ -311,7 +311,7 @@
         [TestMethod]
         public void MetricsAreEqualIfDimensionsSetToNothingImplicitlyAndExplicitlyAsEmptySet()
         {
-            using (var manager = new MetricManager())
+            using (var manager = new MetricManagerV1())
             {
                 MetricV1 metric = manager.CreateMetric("My metric", new Dictionary<string, string>());
                 MetricV1 other = manager.CreateMetric("My metric");
@@ -323,7 +323,7 @@
         [TestMethod]
         public void DimensionsAreOrderInsensitive()
         {
-            using (var manager = new MetricManager())
+            using (var manager = new MetricManagerV1())
             {
                 var dimensionSet1 = new Dictionary<string, string>() {
                     { "Dim1", "Value1"},
@@ -345,7 +345,7 @@
         [TestMethod]
         public void DimensionNamesAreCaseSensitive()
         {
-            using (var manager = new MetricManager())
+            using (var manager = new MetricManagerV1())
             {
                 var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
                 var dimensionSet2 = new Dictionary<string, string>() { { "dim1", "Value1" } };
@@ -360,7 +360,7 @@
         [TestMethod]
         public void DimensionNamesAreAccentSensitive()
         {
-            using (var manager = new MetricManager())
+            using (var manager = new MetricManagerV1())
             {
                 var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
                 var dimensionSet2 = new Dictionary<string, string>() { { "Dím1", "Value1" } };
@@ -375,7 +375,7 @@
         [TestMethod]
         public void DimensionValuesAreCaseSensitive()
         {
-            using (var manager = new MetricManager())
+            using (var manager = new MetricManagerV1())
             {
                 var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
                 var dimensionSet2 = new Dictionary<string, string>() { { "Dim1", "value1" } };
@@ -390,7 +390,7 @@
         [TestMethod]
         public void DimensionValuesAreAccentSensitive()
         {
-            using (var manager = new MetricManager())
+            using (var manager = new MetricManagerV1())
             {
                 var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
                 var dimensionSet2 = new Dictionary<string, string>() { { "Dim1", "Válue1" } };
