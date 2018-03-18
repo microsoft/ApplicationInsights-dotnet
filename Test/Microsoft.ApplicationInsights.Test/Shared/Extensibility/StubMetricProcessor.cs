@@ -17,7 +17,7 @@
             this.sampleList = sampleList;
         }
 
-        public void Track(Metric metric, double value)
+        public void Track(MetricV1 metric, double value)
         {
             this.sampleList.Add(
                 new MetricSample()

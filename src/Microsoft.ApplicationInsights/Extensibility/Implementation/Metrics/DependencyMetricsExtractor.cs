@@ -132,7 +132,7 @@
             bool dependencyFailed = (dependencyCall.Success != null) && (dependencyCall.Success == false);
 
             //// Now we need to determine which data series to use:
-            Metric metricToTrack = null;
+            MetricV1 metricToTrack = null;
 
             if (thisMetrics.MaxDependencyTypesToDiscover == 0)
             {
@@ -353,15 +353,15 @@
             {
             }
 
-            public SucceessAndFailureMetrics(Metric successMetric, Metric failureMetric)
+            public SucceessAndFailureMetrics(MetricV1 successMetric, MetricV1 failureMetric)
             {
                 this.Success = successMetric;
                 this.Failure = failureMetric;
             }
 
-            public Metric Success { get; private set; }
+            public MetricV1 Success { get; private set; }
 
-            public Metric Failure { get; private set; }
+            public MetricV1 Failure { get; private set; }
         }
 
         /// <summary>

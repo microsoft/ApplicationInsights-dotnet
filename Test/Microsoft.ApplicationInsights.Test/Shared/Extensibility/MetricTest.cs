@@ -29,7 +29,7 @@
 
             using (MetricManager manager = new MetricManager(client))
             {
-                Metric metric = manager.CreateMetric("Test Metric", dimensions);
+                MetricV1 metric = manager.CreateMetric("Test Metric", dimensions);
 
                 // Act
                 metric.Track(42);
@@ -59,7 +59,7 @@
 
             using (MetricManager manager = new MetricManager(client))
             {
-                Metric metric = manager.CreateMetric("Test Metric");
+                MetricV1 metric = manager.CreateMetric("Test Metric");
 
                 // Act
                 for (int i = 0; i < testValues.Length; i++)
@@ -91,7 +91,7 @@
 
             using (MetricManager manager = new MetricManager(client))
             {
-                Metric metric = manager.CreateMetric("Test Metric");
+                MetricV1 metric = manager.CreateMetric("Test Metric");
 
                 // Act
                 for (int i = 0; i < testValues.Length; i++)
@@ -123,7 +123,7 @@
 
             using (MetricManager manager = new MetricManager(client))
             {
-                Metric metric = manager.CreateMetric("Test Metric");
+                MetricV1 metric = manager.CreateMetric("Test Metric");
 
                 // Act
                 for (int i = 0; i < testValues.Length; i++)
@@ -155,7 +155,7 @@
 
             using (MetricManager manager = new MetricManager(client))
             {
-                Metric metric = manager.CreateMetric("Test Metric");
+                MetricV1 metric = manager.CreateMetric("Test Metric");
 
                 // Act
                 for (int i = 0; i < testValues.Length; i++)
@@ -187,7 +187,7 @@
 
             using (MetricManager manager = new MetricManager(client))
             {
-                Metric metric = manager.CreateMetric("Test Metric");
+                MetricV1 metric = manager.CreateMetric("Test Metric");
 
                 // Act
                 for (int i = 0; i < testValues.Length; i++)
@@ -230,7 +230,7 @@
         {
             using (var manager = new MetricManager())
             {
-                Metric metric = manager.CreateMetric("My metric");
+                MetricV1 metric = manager.CreateMetric("My metric");
                 object other = null;
 
                 Assert.IsFalse(metric.Equals(other));
@@ -242,7 +242,7 @@
         {
             using (var manager = new MetricManager())
             {
-                Metric metric = manager.CreateMetric("My metric");
+                MetricV1 metric = manager.CreateMetric("My metric");
 
                 Assert.IsTrue(metric.Equals(metric));
             }
@@ -253,7 +253,7 @@
         {
             using (var manager = new MetricManager())
             {
-                Metric metric = manager.CreateMetric("My metric");
+                MetricV1 metric = manager.CreateMetric("My metric");
                 var other = new object();
 
                 Assert.IsFalse(metric.Equals(other));
@@ -265,8 +265,8 @@
         {
             using (var manager = new MetricManager())
             {
-                Metric metric = manager.CreateMetric("My metric");
-                Metric other = manager.CreateMetric("My metric");
+                MetricV1 metric = manager.CreateMetric("My metric");
+                MetricV1 other = manager.CreateMetric("My metric");
 
                 Assert.IsTrue(metric.Equals(other));
             }
@@ -277,8 +277,8 @@
         {
             using (var manager = new MetricManager())
             {
-                Metric metric = manager.CreateMetric("My metric");
-                Metric other = manager.CreateMetric("My Metric");
+                MetricV1 metric = manager.CreateMetric("My metric");
+                MetricV1 other = manager.CreateMetric("My Metric");
 
                 Assert.IsFalse(metric.Equals(other));
             }
@@ -289,8 +289,8 @@
         {
             using (var manager = new MetricManager())
             {
-                Metric metric = manager.CreateMetric("My metric");
-                Metric other = manager.CreateMetric("My métric");
+                MetricV1 metric = manager.CreateMetric("My metric");
+                MetricV1 other = manager.CreateMetric("My métric");
 
                 Assert.IsFalse(metric.Equals(other));
             }
@@ -301,8 +301,8 @@
         {
             using (var manager = new MetricManager())
             {
-                Metric metric = manager.CreateMetric("My metric", null);
-                Metric other = manager.CreateMetric("My metric");
+                MetricV1 metric = manager.CreateMetric("My metric", null);
+                MetricV1 other = manager.CreateMetric("My metric");
 
                 Assert.IsTrue(metric.Equals(other));
             }
@@ -313,8 +313,8 @@
         {
             using (var manager = new MetricManager())
             {
-                Metric metric = manager.CreateMetric("My metric", new Dictionary<string, string>());
-                Metric other = manager.CreateMetric("My metric");
+                MetricV1 metric = manager.CreateMetric("My metric", new Dictionary<string, string>());
+                MetricV1 other = manager.CreateMetric("My metric");
 
                 Assert.IsTrue(metric.Equals(other));
             }
@@ -335,8 +335,8 @@
                     { "Dim1", "Value1"},
                 };
 
-                Metric metric = manager.CreateMetric("My metric", dimensionSet1);
-                Metric other = manager.CreateMetric("My metric", dimensionSet2);
+                MetricV1 metric = manager.CreateMetric("My metric", dimensionSet1);
+                MetricV1 other = manager.CreateMetric("My metric", dimensionSet2);
 
                 Assert.IsTrue(metric.Equals(other));
             }
@@ -350,8 +350,8 @@
                 var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
                 var dimensionSet2 = new Dictionary<string, string>() { { "dim1", "Value1" } };
 
-                Metric metric = manager.CreateMetric("My metric", dimensionSet1);
-                Metric other = manager.CreateMetric("My metric", dimensionSet2);
+                MetricV1 metric = manager.CreateMetric("My metric", dimensionSet1);
+                MetricV1 other = manager.CreateMetric("My metric", dimensionSet2);
 
                 Assert.IsFalse(metric.Equals(other));
             }
@@ -365,8 +365,8 @@
                 var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
                 var dimensionSet2 = new Dictionary<string, string>() { { "Dím1", "Value1" } };
 
-                Metric metric = manager.CreateMetric("My metric", dimensionSet1);
-                Metric other = manager.CreateMetric("My metric", dimensionSet2);
+                MetricV1 metric = manager.CreateMetric("My metric", dimensionSet1);
+                MetricV1 other = manager.CreateMetric("My metric", dimensionSet2);
 
                 Assert.IsFalse(metric.Equals(other));
             }
@@ -380,8 +380,8 @@
                 var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
                 var dimensionSet2 = new Dictionary<string, string>() { { "Dim1", "value1" } };
 
-                Metric metric = manager.CreateMetric("My metric", dimensionSet1);
-                Metric other = manager.CreateMetric("My metric", dimensionSet2);
+                MetricV1 metric = manager.CreateMetric("My metric", dimensionSet1);
+                MetricV1 other = manager.CreateMetric("My metric", dimensionSet2);
 
                 Assert.IsFalse(metric.Equals(other));
             }
@@ -395,8 +395,8 @@
                 var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
                 var dimensionSet2 = new Dictionary<string, string>() { { "Dim1", "Válue1" } };
 
-                Metric metric = manager.CreateMetric("My metric", dimensionSet1);
-                Metric other = manager.CreateMetric("My metric", dimensionSet2);
+                MetricV1 metric = manager.CreateMetric("My metric", dimensionSet1);
+                MetricV1 other = manager.CreateMetric("My metric", dimensionSet2);
 
                 Assert.IsFalse(metric.Equals(other));
             }

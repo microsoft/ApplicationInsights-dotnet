@@ -13,8 +13,8 @@
     /// </summary>
     internal class RequestMetricsExtractor : ISpecificAutocollectedMetricsExtractor
     {
-        private Metric responseSuccessTimeMetric;
-        private Metric responseFailureTimeMetric;
+        private MetricV1 responseSuccessTimeMetric;
+        private MetricV1 responseFailureTimeMetric;
 
         public RequestMetricsExtractor()
         {
@@ -56,7 +56,7 @@
                                 ? (request.Success.Value == false)
                                 : false;
 
-            Metric metric = isFailed
+            MetricV1 metric = isFailed
                                 ? this.responseFailureTimeMetric
                                 : this.responseSuccessTimeMetric;
 

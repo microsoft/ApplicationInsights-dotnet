@@ -48,7 +48,7 @@
         /// <summary>
         /// A dictionary of all metrics instantiated via this manager.
         /// </summary>
-        private ConcurrentDictionary<Metric, SimpleMetricStatisticsAggregator> metricDictionary;
+        private ConcurrentDictionary<MetricV1, SimpleMetricStatisticsAggregator> metricDictionary;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetricManager"/> class.
@@ -66,7 +66,7 @@
         {
             this.telemetryClient = client ?? new TelemetryClient();
 
-            this.metricDictionary = new ConcurrentDictionary<Metric, SimpleMetricStatisticsAggregator>();
+            this.metricDictionary = new ConcurrentDictionary<MetricV1, SimpleMetricStatisticsAggregator>();
 
             this.lastSnapshotStartDateTime = DateTimeOffset.UtcNow;
 
@@ -97,9 +97,9 @@
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#send-metrics">Learn more</a>
         /// </remarks>
-        public Metric CreateMetric(string name, IDictionary<string, string> dimensions = null)
+        public MetricV1 CreateMetric(string name, IDictionary<string, string> dimensions = null)
         {
-            return new Metric(this, name, dimensions);
+            return new MetricV1(this, name, dimensions);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@
             this.Flush();
         }
 
-        internal SimpleMetricStatisticsAggregator GetStatisticsAggregator(Metric metric)
+        internal SimpleMetricStatisticsAggregator GetStatisticsAggregator(MetricV1 metric)
         {
             return this.metricDictionary.GetOrAdd(metric, (m) => { return new SimpleMetricStatisticsAggregator(); });
         }
@@ -161,7 +161,7 @@
         /// <param name="metric">Metric definition.</param>
         /// <param name="statistics">Metric aggregator statistics calculated for a period of time.</param>
         /// <returns>Metric telemetry object resulting from aggregation.</returns>
-        private static MetricTelemetry CreateAggregatedMetricTelemetry(Metric metric, SimpleMetricStatisticsAggregator statistics)
+        private static MetricTelemetry CreateAggregatedMetricTelemetry(MetricV1 metric, SimpleMetricStatisticsAggregator statistics)
         {
             var telemetry = new MetricTelemetry(
                 metric.Name,
@@ -216,8 +216,8 @@
         /// </summary>
         private void Snapshot()
         {
-            ConcurrentDictionary<Metric, SimpleMetricStatisticsAggregator> aggregatorSnapshot =
-                Interlocked.Exchange(ref this.metricDictionary, new ConcurrentDictionary<Metric, SimpleMetricStatisticsAggregator>());
+            ConcurrentDictionary<MetricV1, SimpleMetricStatisticsAggregator> aggregatorSnapshot =
+                Interlocked.Exchange(ref this.metricDictionary, new ConcurrentDictionary<MetricV1, SimpleMetricStatisticsAggregator>());
 
             // calculate aggregation interval duration interval
             TimeSpan aggregationIntervalDuation = DateTimeOffset.UtcNow - this.lastSnapshotStartDateTime;
@@ -239,7 +239,7 @@
 
             if (aggregatorSnapshot.Count > 0)
             {
-                foreach (KeyValuePair<Metric, SimpleMetricStatisticsAggregator> aggregatorWithStats in aggregatorSnapshot)
+                foreach (KeyValuePair<MetricV1, SimpleMetricStatisticsAggregator> aggregatorWithStats in aggregatorSnapshot)
                 {
                     if (aggregatorWithStats.Value.Count > 0)
                     { 
