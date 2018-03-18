@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.Metrics.Core", "Microsoft.ApplicationInsights.Metrics.Core\Microsoft.ApplicationInsights.Metrics.Core.csproj", "{B9938C09-9CB3-45CF-BA3C-847FF85EC750}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ApplicationInsights.Metrics.QuickPulse", "Microsoft.ApplicationInsights.Metrics.QuickPulse\Microsoft.ApplicationInsights.Metrics.QuickPulse.csproj", "{BC2E960B-6353-4BA3-A6ED-769C45DB25A2}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F3D8B07E-31C6-4053-9A13-4DF786CE6B3C}"
 	ProjectSection(SolutionItems) = preProject
 		Microsoft.ApplicationInsights.Metrics.props = Microsoft.ApplicationInsights.Metrics.props
