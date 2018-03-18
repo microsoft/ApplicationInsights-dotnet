@@ -25,6 +25,10 @@
   </PropertyGroup>
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Microsoft.ApplicationInsights.Metrics.props'))\Microsoft.ApplicationInsights.Metrics.props" />
+
+  <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
   
   <PropertyGroup>
     <AssemblyAttributesPath>$(IntermediateOutputPath)\$(TargetFramework)\Microsoft.ApplicationInsights.Metrics.QuickPulse.AssemblyInfo.cs</AssemblyAttributesPath>

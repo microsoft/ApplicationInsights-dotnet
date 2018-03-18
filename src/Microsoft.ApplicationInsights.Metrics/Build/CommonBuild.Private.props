@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <!-- This file (CommonBuild.Private.props) is included into CommonBuild.Global.props                                     -->
+    <!-- and via that into all projects in all solutions of this product.                                                    -->
+    <!-- Do not modify CommonBuild.Global.props.                                                                             -->
+    <!-- Instead use THIS file to overwrite settings from the global common build properties or to define product            -->
+    <!-- specific properties for all projects in this repository.                                                            -->
+    
+    <PropertyGroup>
+        <CommonBuildPrivatePropsIncluded>True</CommonBuildPrivatePropsIncluded>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <!-- By default, this definition is used:                                                                            -->
+        <!--
+        <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(EnlistmentRoot.Length)))</RelativeOutputPathBase>
+        -->
+        <!-- This means that different projects located in the same directory will be built into the same directory as well. -->
+        <!-- To isolate different projects located in the same directory, uncomment the following line:                      -->
+        <!--
+        <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(EnlistmentRoot.Length)))\$(MSBuildProjectName)</RelativeOutputPathBase>
+        -->
+    </PropertyGroup>
+        
+    <PropertyGroup>
+        <!-- Your stuff goes here.                                                                                           -->
+        <StyleCopTreatErrorsAsWarnings>false</StyleCopTreatErrorsAsWarnings>
+    </PropertyGroup>
+        
+    <!-- Or here.                                                                                                            -->
+    
+</Project>

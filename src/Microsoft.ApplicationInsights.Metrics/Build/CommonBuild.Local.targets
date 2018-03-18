@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+      
+    <!--
+    Copy the website files for a web role to a location in Intermediates after every build.
+    This is so IIS can be permanently pointed there, avoiding the need for contant redeployment.
+    This location is chosen becasue then doing a propper publish build for a service package that same location
+    is used by the local emulator. THis way everything points to the same place.
+    In order to activate this target, include the following in your CSPROJ file:
+   
+      <HostedServiceFolderName>HostedService.Hyperion</HostedServiceFolderName>
+      <PublishSiteFilesLocally>True</PublishSiteFilesLocally>
+    
+    Additionally, include this *after* importing CommonBuild.Global.props:
+    
+      <Import Project="$(CommonBuildPropsLocation)\CommonBuild.Local.targets" />
+    -->
+    <Target Name="LocalPublishSiteFiles" AfterTargets="Build" Condition="$(PublishSiteFilesLocally) == 'true'">
+  
+        <ItemGroup>
+            <LocalWebFiles Include="*.*" />
+            <LocalBinFiles Include="$(OutputPath)\*.*" />
+        </ItemGroup>
+    
+      <PropertyGroup>
+          <HostedServiceFolderName Condition=" '$(HostedServiceFolderName)' == ''">HostedService</HostedServiceFolderName>
+          <LocalWebsiteRoot Condition=" '$(LocalWebsiteRoot)' == ''">$(IntermediateOutputPath)\..\$(HostedServiceFolderName)\$(RelativeOutputPathBase)\</LocalWebsiteRoot>
+      </PropertyGroup>    
+  
+      <Copy SourceFiles="@(LocalWebFiles)"
+            DestinationFolder="$(LocalWebsiteRoot)"
+            SkipUnchangedFiles="true" />
+          
+      <Copy SourceFiles="@(LocalBinFiles)"
+            DestinationFolder="$(LocalWebsiteRoot)Bin"
+            SkipUnchangedFiles="true" />
+    </Target>
+</Project>
