@@ -22,6 +22,7 @@
             this.telemetryClient = telemetryClient;
             this.filter = filter;
             this.options = options.Value;
+
         }
 
         /// <inheritdoc />

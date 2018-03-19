@@ -5,6 +5,7 @@
 - [Make all built-in TelemetryInitializers public to allow easy removal from DI Container.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/351)
 - [Enforced limits of values read from incoming http requests to prevent security vulnerability](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/608)
 - [ApplicationInsightsLogger adds EventId into telemetry properties. It is off by default for compatibility. It can be switched on by configuring ApplicationInsightsLoggerOptions.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/569)
+- [ApplicationInsightsLogger logs exceptions as ExceptionTelemetry by default. This can now be configured with ApplicationInsightsLoggerOptions.TrackExceptionsAsExceptionTelemetry] (https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/574)
 
 ## Version 2.2.1
 - Updated Web/Base SDK version dependency to 2.5.1 which addresses a bug.
