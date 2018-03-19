@@ -84,7 +84,7 @@
         <ConfigurationFolderName Condition=" '$(Configuration)' == 'Release' ">Release</ConfigurationFolderName>
         <ConfigurationFolderName Condition=" '$(Configuration)' != 'Debug' And '$(Configuration)' != 'Release'">Other</ConfigurationFolderName>
         
-        <BaseIntermediateOutputPath>$(EnlistmentRoot)\..\Intermediate</BaseIntermediateOutputPath>
+        <BaseIntermediateOutputPath>$(EnlistmentRoot)\..\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
         <BaseIntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(BaseIntermediateOutputPath) ))</BaseIntermediateOutputPath>
         
         <OutputPath>$(BinRoot)\$(ConfigurationFolderName)\$(RelativeOutputPathBase)</OutputPath>
@@ -117,8 +117,10 @@
         <GenerateBuildInfoConfigFile>true</GenerateBuildInfoConfigFile>
     </PropertyGroup>
     
+    <!--
     <ImportGroup Label="Product specific common build properties" Condition="$(CommonBuildPrivatePropsIncluded) == '' Or $(CommonBuildPrivatePropsIncluded) == '*Undefined*' Or $(CommonBuildPrivatePropsIncluded) == 'False'">
         <Import Project="$(BuildFilesDir)\CommonBuild.Private.props" />
     </ImportGroup>
+    -->
       
 </Project>

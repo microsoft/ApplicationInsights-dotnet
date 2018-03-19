@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Microsoft.ApplicationInsights.Metrics.sln'))\Global.props" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Microsoft.ApplicationInsights.Metrics.Extensions.csproj'))\CommonBuild.Global.props" />
   
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <DebugSymbols>true</DebugSymbols>
@@ -16,7 +16,7 @@
     <Optimize>true</Optimize>
     
     <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Microsoft.ApplicationInsights.Metrics.ruleset'))\Microsoft.ApplicationInsights.Metrics.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Microsoft.ApplicationInsights.Metrics.Extensions.ruleset'))\Microsoft.ApplicationInsights.Metrics.Extensions.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     
     <StyleCopEnabled>True</StyleCopEnabled>
