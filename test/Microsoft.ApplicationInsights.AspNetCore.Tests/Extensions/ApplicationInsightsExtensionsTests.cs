@@ -126,12 +126,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
             {
                 var activeConfig = TelemetryConfiguration.Active;
-
-                // we determine if Active telemtery needs to be configured based on the assumptions about 'default' configuration
-                // created by base SDK.
-                // If it ever changes, change TelemetryConfigurationOptions.IsActiveConfigured method as well.
-                Assert.Equal(1, activeConfig.TelemetryInitializers.Count);
-
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content","config-instrumentation-key.json"), null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -139,6 +133,18 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
                 Assert.Equal(TestInstrumentationKey, activeConfig.InstrumentationKey);
                 Assert.NotEqual(activeConfig, telemetryConfiguration);
+            }
+
+            /// <summary>
+            /// We determine if Active telemtery needs to be configured based on the assumptions that 'default' configuration
+            // created by base SDK has single preset ITelemetryIntitializer. If it ever changes, change TelemetryConfigurationOptions.IsActiveConfigured method as well.
+            /// </summary>
+            [Fact]
+            public static void DefaultTelemetryconfigurationHasOneTelemetryInitializer()
+            {
+                //
+                var defaultConfig = TelemetryConfiguration.CreateDefault();
+                Assert.Equal(1, defaultConfig.TelemetryInitializers.Count);
             }
 
             [Fact]

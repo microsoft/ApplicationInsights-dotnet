@@ -109,7 +109,7 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
                 //receive everything and clean up, server1 also received all telemetry from host 2, issue #621
                 server1.Listener.ReceiveItemsOfType<TelemetryItem<RequestData>>(1, TestListenerTimeoutInMs);
 
-                // baceuse of some async(?) issue in Listener, we need to wait here, otherwise it won't receive items later
+                // because of some async(?) issue in Listener, we need to wait here, otherwise it won't receive items later
                 // while in reality telemetry is being tracked correctly
                 Thread.Sleep(1000);
 
