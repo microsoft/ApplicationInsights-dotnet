@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Common
 {
     using System.Diagnostics;
+    using System.Globalization;
 
     /// <summary>
     /// Generic functions to perform common operations on a string.
@@ -12,7 +13,9 @@
         /// </summary>
         public static string EnforceMaxLength(string input, int maxLength)
         {
-            Debug.Assert(maxLength > 0, $"{nameof(maxLength)} must be greater than 0");
+            Debug.Assert(
+                maxLength > 0,
+                string.Format(CultureInfo.CurrentCulture, "{0} must be greater than 0", nameof(maxLength)));
 
             if (input != null && input.Length > maxLength)
             {

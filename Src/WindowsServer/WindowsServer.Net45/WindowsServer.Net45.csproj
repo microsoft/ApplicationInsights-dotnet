@@ -54,6 +54,7 @@
     <Compile Include="Implementation\AzureServiceRuntimeAssemblyLoader.cs" />
     <Compile Include="Implementation\DeviceContextReader.cs" />
     <Compile Include="Implementation\IAzureRoleEnvironmentContextReader.cs" />
+    <Compile Include="Implementation\MetricManager.cs" />
     <Compile Include="Implementation\Role.cs" />
     <Compile Include="Implementation\RoleEnvironment.cs" />
     <Compile Include="Implementation\RoleInstance.cs" />

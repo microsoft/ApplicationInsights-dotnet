@@ -20,7 +20,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DataContracts\AzureInstanceComputeMetadata.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\IAzureMetadataRequestor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WindowsServerEventSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\MetricManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnobservedExceptionTelemetryModule.cs" />
   </ItemGroup>
 </Project>

@@ -74,16 +74,21 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 {
                     response.StatusCode = (int)HttpStatusCode.OK;
 
-                    var jsonStream = this.GetTestMetadataStream();
+                    var tester = this.GetTestMetadata();
+                    
+                    // ensure we will be outside the max allowed content size by setting a single text field to max length + 1
+                    var testStuff = new char[AzureMetadataRequestor.AzureImsMaxResponseBufferSize + 1];
+                    for (int i = 0; i < (AzureMetadataRequestor.AzureImsMaxResponseBufferSize + 1); ++i)
+                    {
+                        testStuff[i] = (char)( (int)'a' + (i % 26) );
+                    }
+                    tester.Publisher = new string(testStuff);
+
+                    var jsonStream = this.GetTestMetadataStream(tester);
                     response.SetContentLength(3 * jsonStream.Length);
                     response.ContentType = "application/json";
                     response.SetContentEncoding(Encoding.UTF8);
-
-                    for (int i = 0; i < 3; i++)
-                    {
-                        jsonStream.Position = 0;
-                        response.WriteStreamToBody(jsonStream);
-                    }
+                    response.WriteStreamToBody(jsonStream);
                 }))
             {
                 var azureIms = new AzureMetadataRequestor
