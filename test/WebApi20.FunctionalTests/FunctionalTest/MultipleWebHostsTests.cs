@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Threading;
 using AI;
 using FunctionalTestUtils;
@@ -130,6 +131,14 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
         [Fact]
         public void ActiveConfigurationIsNotCorruptedAfterWebHostIsDisposed()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // https://github.com/dotnet/corefx/issues/25016
+                // HttpListener on Linux/MacOS cannot be reused on the same port until connection
+                // is closed on the OS level. So we run this test on windows only.
+                return;
+            }
+
             var activeConfig = TelemetryConfiguration.Active;
             using (var server = new InProcessServer(assemblyName, this.output))
             {
