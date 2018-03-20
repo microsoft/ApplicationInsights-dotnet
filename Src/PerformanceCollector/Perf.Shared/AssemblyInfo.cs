@@ -1,7 +1,12 @@
 ﻿// <copyright file="AssemblyInfo.cs" company="Microsoft">
 // Copyright © Microsoft. All Rights Reserved.
 // </copyright>
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyCopyright("Copyright © Microsoft. All Rights Reserved.")]
 
 [assembly: InternalsVisibleTo("TestApp40, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("TestApp45, PublicKey=" + AssemblyInfo.PublicKey)]

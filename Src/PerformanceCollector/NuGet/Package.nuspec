@@ -4,8 +4,8 @@
     <id>Microsoft.ApplicationInsights.PerfCounterCollector</id>
     <version>$version$</version>
     <title>Application Insights Performance Counters Collector</title>
-    <authors>Microsoft</authors>
-    <owners>Microsoft</owners>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
     <licenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</licenseUrl>
     <projectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</projectUrl>
     <iconUrl>$image$</iconUrl>
