@@ -118,12 +118,12 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
                 var telemetry = server1.Listener.ReceiveItems(TestListenerTimeoutInMs);
                 this.DebugTelemetryItems(telemetry);
 
-                Assert.Single(telemetry.Where(t => t is TelemetryItem<RequestData>));
-                var request = telemetry.Single(t => t is TelemetryItem<RequestData>);
+                Assert.NotEmpty(telemetry.Where(t => t is TelemetryItem<RequestData>));
+                var request = telemetry.First(t => t is TelemetryItem<RequestData>);
                 Assert.Equal("200", ((TelemetryItem<RequestData>) request).data.baseData.responseCode);
 
                 Assert.DoesNotContain(telemetry, t => t is TelemetryItem<ExceptionData>);
-                Assert.Single(telemetry.Where(IsServiceDependencyCall));
+                Assert.NotEmpty(telemetry.Where(IsServiceDependencyCall));
             }
         }
 
