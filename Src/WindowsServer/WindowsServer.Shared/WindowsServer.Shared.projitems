@@ -12,28 +12,15 @@
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AzureInstanceMetadataTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AzureWebAppRoleEnvironmentTelemetryInitializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)AzureRoleEnvironmentTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BuildInfoConfigComponentVersionTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeveloperModeWithDebuggerAttachedTelemetryModule.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DeviceTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DomainNameRoleInstanceTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureComputeMetadataHeartbeatPropertyProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureMetadataRequestor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureRoleEnvironmentContextReader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DataContracts\AzureInstanceComputeMetadata.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DeviceContextReader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\IAzureMetadataRequestor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\IAzureRoleEnvironmentContextReader.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Role.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RoleEnvironment.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RoleInstance.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RuntimeBindingObject.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ServiceRuntime.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WindowsServerEventSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureServiceRuntimeAssemblyLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\MetricManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)UnhandledExceptionTelemetryModule.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FirstChanceExceptionStatisticsTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnobservedExceptionTelemetryModule.cs" />
   </ItemGroup>
 </Project>

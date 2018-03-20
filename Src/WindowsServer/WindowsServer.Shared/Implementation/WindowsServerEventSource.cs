@@ -332,7 +332,11 @@
             string name;
             try
             {
+#if NETSTANDARD1_6
+                name = System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
+#else
                 name = AppDomain.CurrentDomain.FriendlyName;
+#endif
             }
             catch (Exception exp)
             {

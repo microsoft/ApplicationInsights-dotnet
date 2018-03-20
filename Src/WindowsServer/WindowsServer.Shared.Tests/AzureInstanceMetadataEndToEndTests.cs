@@ -9,6 +9,9 @@ namespace Microsoft.ApplicationInsights.WindowsServer
     using Microsoft.ApplicationInsights.WindowsServer.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts;
     using Microsoft.ApplicationInsights.WindowsServer.Mock;
+#if NETCORE
+    using Microsoft.AspNetCore.Http;
+#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
 
@@ -24,26 +27,26 @@ namespace Microsoft.ApplicationInsights.WindowsServer
         [TestMethod]
         public void SpoofedResponseFromAzureIMSDoesntCrash()
         {
-            CancellationTokenSource cts = new CancellationTokenSource();
             var testMetadata = this.GetTestMetadata();
+            string testPath = "spoofedResponse";
 
             using (new AzureInstanceMetadataServiceMock(
-                AzureInstanceMetadataEndToEndTests.MockTestUri, 
-                (HttpListenerContext context) =>
-            {
-                HttpListenerResponse response = context.Response;
-                context.Response.StatusCode = 200;
+                AzureInstanceMetadataEndToEndTests.MockTestUri,
+                testPath,
+                (response) =>
+                {
+                    response.StatusCode = (int)HttpStatusCode.OK;
 
-                response.ContentEncoding = Encoding.UTF8;
-                var jsonStream = this.GetTestMetadataStream(testMetadata);
-                response.ContentLength64 = (int)jsonStream.Length;
-                context.Response.ContentType = "application/json";
-                jsonStream.WriteTo(context.Response.OutputStream);
-            }))
+                    var jsonStream = this.GetTestMetadataStream(testMetadata);
+                    response.SetContentLength(jsonStream.Length);
+                    response.ContentType = "application/json";
+                    response.SetContentEncoding(Encoding.UTF8);
+                    response.WriteStreamToBody(jsonStream);
+                }))
             {
                 var azureIms = new AzureMetadataRequestor
                 {
-                    BaseAimsUri = AzureInstanceMetadataEndToEndTests.MockTestUri
+                    BaseAimsUri = string.Concat(AzureInstanceMetadataEndToEndTests.MockTestUri, testPath, "/")
                 };
 
                 var azureImsProps = new AzureComputeMetadataHeartbeatPropertyProvider();
@@ -62,32 +65,30 @@ namespace Microsoft.ApplicationInsights.WindowsServer
         [TestMethod]
         public void AzureImsResponseTooLargeStopsCollection()
         {
-            CancellationTokenSource cts = new CancellationTokenSource();
+            string testPath = "tooLarge";
 
             using (new AzureInstanceMetadataServiceMock(
-                AzureInstanceMetadataEndToEndTests.MockTestUri, 
-                (HttpListenerContext context) =>
-            {
-                HttpListenerResponse response = context.Response;
-                context.Response.StatusCode = 200;
+                AzureInstanceMetadataEndToEndTests.MockTestUri,
+                testPath,
+                (response) =>
+                {
+                    response.StatusCode = (int)HttpStatusCode.OK;
 
-                // Construct a response just like in the positive test but triple it.
-                response.ContentEncoding = Encoding.UTF8;
+                    var jsonStream = this.GetTestMetadataStream();
+                    response.SetContentLength(3 * jsonStream.Length);
+                    response.ContentType = "application/json";
+                    response.SetContentEncoding(Encoding.UTF8);
 
-                // Get a response stream and write the response to it.
-                var jsonStream = this.GetTestMetadataStream();
-                response.ContentLength64 = 3 * (int)jsonStream.Length;
-                context.Response.ContentType = "application/json";
-                jsonStream.WriteTo(context.Response.OutputStream);
-                jsonStream.Position = 0;
-                jsonStream.WriteTo(context.Response.OutputStream);
-                jsonStream.Position = 0;
-                jsonStream.WriteTo(context.Response.OutputStream);
-            }))
+                    for (int i = 0; i < 3; i++)
+                    {
+                        jsonStream.Position = 0;
+                        response.WriteStreamToBody(jsonStream);
+                    }
+                }))
             {
                 var azureIms = new AzureMetadataRequestor
                 {
-                    BaseAimsUri = AzureInstanceMetadataEndToEndTests.MockTestUri
+                    BaseAimsUri = string.Concat(AzureInstanceMetadataEndToEndTests.MockTestUri, testPath, "/")
                 };
 
                 var azureIMSData = azureIms.GetAzureComputeMetadataAsync();
@@ -100,31 +101,30 @@ namespace Microsoft.ApplicationInsights.WindowsServer
         [TestMethod]
         public void AzureImsResponseExcludesMalformedValues()
         {
-            CancellationTokenSource cts = new CancellationTokenSource();
-
+            string testPath = "malformedValues";
             using (new AzureInstanceMetadataServiceMock(
-                AzureInstanceMetadataEndToEndTests.MockTestUri, 
-                (HttpListenerContext context) =>
-            {
-                HttpListenerResponse response = context.Response;
-                context.Response.StatusCode = 200;
+                AzureInstanceMetadataEndToEndTests.MockTestUri,
+                testPath,
+                (response) =>
+                {
+                    response.StatusCode = (int)HttpStatusCode.OK;
 
-                // make it a malicious-ish response...
-                var malformedData = this.GetTestMetadata();
-                malformedData.Name = "Not allowed for VM names";
-                malformedData.ResourceGroupName = "Not allowed for resource group name";
-                malformedData.SubscriptionId = "Definitely-not-a GUID up here";
-                var malformedJsonStream = this.GetTestMetadataStream(malformedData);
+                    // make it a malicious-ish response...
+                    var malformedData = this.GetTestMetadata();
+                    malformedData.Name = "Not allowed for VM names";
+                    malformedData.ResourceGroupName = "Not allowed for resource group name";
+                    malformedData.SubscriptionId = "Definitely-not-a GUID up here";
+                    var malformedJsonStream = this.GetTestMetadataStream(malformedData);
 
-                response.ContentEncoding = Encoding.UTF8;
-                response.ContentLength64 = (int)malformedJsonStream.Length;
-                context.Response.ContentType = "application/json";
-                malformedJsonStream.WriteTo(context.Response.OutputStream);
-            }))
+                    response.SetContentLength(malformedJsonStream.Length);
+                    response.ContentType = "application/json";
+                    response.SetContentEncoding(Encoding.UTF8);
+                    response.WriteStreamToBody(malformedJsonStream);
+                }))
             {
                 var azureIms = new AzureMetadataRequestor
                 {
-                    BaseAimsUri = AzureInstanceMetadataEndToEndTests.MockTestUri
+                    BaseAimsUri = string.Concat(AzureInstanceMetadataEndToEndTests.MockTestUri, testPath, "/")
                 };
 
                 var azureImsProps = new AzureComputeMetadataHeartbeatPropertyProvider(azureIms);
@@ -141,28 +141,27 @@ namespace Microsoft.ApplicationInsights.WindowsServer
         [TestMethod]
         public void AzureImsResponseTimesOut()
         {
-            CancellationTokenSource cts = new CancellationTokenSource();
-
+            string testPath = "timeOut";
             using (new AzureInstanceMetadataServiceMock(
-                AzureInstanceMetadataEndToEndTests.MockTestUri, 
-                (HttpListenerContext context) =>
-            {
-                // wait for longer than the request timeout
-                System.Threading.Thread.Sleep(TimeSpan.FromSeconds(5));
+                AzureInstanceMetadataEndToEndTests.MockTestUri,
+                testPath,
+                (response) =>
+                {
+                    // wait for longer than the request timeout
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
 
-                HttpListenerResponse response = context.Response;
-                context.Response.StatusCode = 200;
+                    response.StatusCode = (int)HttpStatusCode.OK;
 
-                response.ContentEncoding = Encoding.UTF8;
-                var jsonStream = this.GetTestMetadataStream();
-                response.ContentLength64 = (int)jsonStream.Length;
-                context.Response.ContentType = "application/json";
-                jsonStream.WriteTo(context.Response.OutputStream);
-            }))
+                    var jsonStream = this.GetTestMetadataStream();
+                    response.SetContentLength(jsonStream.Length);
+                    response.ContentType = "application/json";
+                    response.SetContentEncoding(Encoding.UTF8);
+                    response.WriteStreamToBody(jsonStream);
+                }))
             {
                 var azureIms = new AzureMetadataRequestor
                 {
-                    BaseAimsUri = AzureInstanceMetadataEndToEndTests.MockTestUri,
+                    BaseAimsUri = string.Concat(AzureInstanceMetadataEndToEndTests.MockTestUri, testPath, "/"),
                     AzureImsRequestTimeout = TimeSpan.FromSeconds(1)
                 };
 
@@ -176,19 +175,20 @@ namespace Microsoft.ApplicationInsights.WindowsServer
         [TestMethod]
         public void AzureImsResponseUnsuccessful()
         {
-            CancellationTokenSource cts = new CancellationTokenSource();
+            string testPath = "errorForbidden";
 
             using (new AzureInstanceMetadataServiceMock(
-                AzureInstanceMetadataEndToEndTests.MockTestUri, 
-                (HttpListenerContext context) =>
-            {
-                // don't send anything in content at all, or the context defaults to 200 OK
-                context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-            }))
+                AzureInstanceMetadataEndToEndTests.MockTestUri,
+                testPath,
+                (response) =>
+                {
+                    // don't send anything in content at all, or the context defaults to 200 OK
+                    response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }))
             {
                 var azureIms = new AzureMetadataRequestor
                 {
-                    BaseAimsUri = AzureInstanceMetadataEndToEndTests.MockTestUri
+                    BaseAimsUri = string.Concat(AzureInstanceMetadataEndToEndTests.MockTestUri, testPath, "/")
                 };
 
                 var azureIMSData = azureIms.GetAzureComputeMetadataAsync();

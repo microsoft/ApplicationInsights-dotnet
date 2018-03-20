@@ -1,30 +1,29 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), NetCore.props))\NetCore.props" />  
+
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <DelaySign>true</DelaySign>
-    <DefineConstants>$(DefineConstants);NETCORE</DefineConstants>    
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Microsoft.AI.DependencyCollector.Tests</AssemblyName>
-    <AssemblyOriginatorKeyFile>../../../Keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+	<AssemblyOriginatorKeyFile>../../../Keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+	<SignAssembly>true</SignAssembly>
+	<PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>Microsoft.AI.DependencyCollector.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <DoNotSign>true</DoNotSign>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;1705;1591</NoWarn>
+    <DefineConstants>TRACE;DEBUG;NETCORE;NETCOREAPP1_0</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <NoWarn>1701;1702;1705;1591</NoWarn>
+    <DefineConstants>TRACE;RELEASE;NETCORE;NETCOREAPP1_0</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

@@ -42,7 +42,7 @@
 
         private static bool? isAzureWebApp = null;
 
-#if !NETCORE
+#if !NETSTANDARD1_6
         /// <summary>
         /// Formats a counter into a readable string.
         /// </summary>
@@ -250,7 +250,7 @@
 
         internal static string GetInstanceForCurrentW3SvcWorker()
         {
-#if NETCORE
+#if NETSTANDARD1_6
             string name = new AssemblyName(Assembly.GetEntryAssembly().FullName).Name;
 #else
             string name = AppDomain.CurrentDomain.FriendlyName;
@@ -274,7 +274,7 @@
 
         internal static string GetInstanceForWin32Process(IEnumerable<string> win32Instances)
         {
-#if NETCORE
+#if NETSTANDARD1_6
             return string.Empty;
 #else
             return FindProcessInstance(
@@ -287,7 +287,7 @@
 
         internal static string GetInstanceForClrProcess(IEnumerable<string> clrInstances)
         {
-#if NETCORE
+#if NETSTANDARD1_6
             return string.Empty;
 #else
             return FindProcessInstance(
@@ -298,7 +298,7 @@
 #endif
         }
 
-#if !NETCORE        
+#if !NETSTANDARD1_6        
         internal static IList<string> GetWin32ProcessInstances()
         {
             return GetInstances(Win32ProcessCategoryName);
@@ -366,7 +366,7 @@
             return cachedResult;
         }
 
-#if !NETCORE
+#if !NETSTANDARD1_6
         private static string FindProcessInstance(
             int pid,
             IEnumerable<string> instances,

@@ -2,7 +2,7 @@
 {
     using System;
     using System.Diagnostics.Tracing;
-#if NETCORE
+#if NETSTANDARD1_6
     using System.Reflection;
 #endif
     using Extensibility.Implementation.Tracing;
@@ -88,10 +88,10 @@
             string name;
             try
             {
-#if NETCORE
-                name = Assembly.GetEntryAssembly().FullName;
-#else
+#if !NETSTANDARD1_6
                 name = AppDomain.CurrentDomain.FriendlyName;
+#else
+                name = Assembly.GetEntryAssembly().FullName;
 #endif
             }
             catch (Exception exp)

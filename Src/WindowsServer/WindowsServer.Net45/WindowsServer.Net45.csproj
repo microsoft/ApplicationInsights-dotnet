@@ -47,6 +47,19 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AzureRoleEnvironmentTelemetryInitializer.cs" />
+    <Compile Include="DeviceTelemetryInitializer.cs" />
+    <Compile Include="FirstChanceExceptionStatisticsTelemetryModule.cs" />
+    <Compile Include="Implementation\AzureRoleEnvironmentContextReader.cs" />
+    <Compile Include="Implementation\AzureServiceRuntimeAssemblyLoader.cs" />
+    <Compile Include="Implementation\DeviceContextReader.cs" />
+    <Compile Include="Implementation\IAzureRoleEnvironmentContextReader.cs" />
+    <Compile Include="Implementation\Role.cs" />
+    <Compile Include="Implementation\RoleEnvironment.cs" />
+    <Compile Include="Implementation\RoleInstance.cs" />
+    <Compile Include="Implementation\RuntimeBindingObject.cs" />
+    <Compile Include="Implementation\ServiceRuntime.cs" />
+    <Compile Include="UnhandledExceptionTelemetryModule.cs" />
     <Analyzer Include="..\..\..\..\packages\Desktop.Analyzers.1.1.0\analyzers\dotnet\cs\Desktop.Analyzers.dll" />
     <Analyzer Include="..\..\..\..\packages\Desktop.Analyzers.1.1.0\analyzers\dotnet\cs\Desktop.CSharp.Analyzers.dll" />
   </ItemGroup>

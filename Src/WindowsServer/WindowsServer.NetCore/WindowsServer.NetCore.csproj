@@ -11,45 +11,38 @@
     <Error Condition="!Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets'))" />
   </Target>
 
-  <Import Project="..\Perf.Shared\Perf.Shared.projitems" Label="Shared" />
-
-  <Import Project="..\Filtering.Shared\Filtering.Shared.projitems" Label="Shared" />
+  <Import Project="..\WindowsServer.Shared\WindowsServer.Shared.projitems" Label="Shared" />
 
   <Import Project="..\..\Common\Common.projitems" Label="Shared" />
 
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" />
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-
   <PropertyGroup>
-    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
     <VersionPrefix>2.6.0-beta2</VersionPrefix>
-    <Authors>Microsoft</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
     <DelaySign>true</DelaySign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>Microsoft.AI.PerfCounterCollector</AssemblyName>
+    <AssemblyName>Microsoft.AI.WindowsServer</AssemblyName>
     <AssemblyOriginatorKeyFile>../../../Keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <PackageId>Microsoft.AI.PerformanceCollector</PackageId>
+    <PackageId>Microsoft.AI.WindowsServer</PackageId>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;RELEASE;NETSTANDARD1_6</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_6</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta2" />
     <PackageReference Include="MicroBuild.Core" Version="0.2.0" developmentDependency="true" />
-    <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta2" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Implementation\QuickPulse\QuickPulseServiceClient.cs">
-      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
-    </Compile>
-  </ItemGroup>
 </Project>

@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), NetCore.props))\NetCore.props" />  
+
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <DelaySign>true</DelaySign>
-    <DefineConstants>$(DefineConstants);NETCORE</DefineConstants>    
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Microsoft.AI.PerformanceCollector.NetCore.Tests</AssemblyName>
     <AssemblyOriginatorKeyFile>../../../Keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
@@ -12,19 +13,18 @@
     <PackageId>Microsoft.AI.DependencyCollector.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <DoNotSign>true</DoNotSign>
     <RootNamespace>Microsoft.ApplicationInsights.Tests</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;1705;1591</NoWarn>
+    <DefineConstants>TRACE;DEBUG;NETCORE;NETCOREAPP1_0</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <NoWarn>1701;1702;1705;1591</NoWarn>
+    <DefineConstants>TRACE;RELEASE;NETCORE;NETCOREAPP1_0</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

@@ -191,7 +191,7 @@
             string name;
             try
             {
-#if NETCORE
+#if NETSTANDARD1_6
                 name = new AssemblyName(Assembly.GetEntryAssembly().FullName).Name;
 #else
                 name = AppDomain.CurrentDomain.FriendlyName;

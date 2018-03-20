@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props')" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), NetCore.props))\NetCore.props" />  
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" Condition="'$(DoNotSign)' == ''" />
 
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -25,7 +26,6 @@
     <VersionPrefix>2.6.0-beta2</VersionPrefix>
     <Authors>Microsoft</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
-    <DefineConstants>$(DefineConstants);NETCORE</DefineConstants>
     <DelaySign>true</DelaySign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Microsoft.AI.DependencyCollector</AssemblyName>
@@ -34,10 +34,6 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>Microsoft.AI.DependencyCollector</PackageId>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-	<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
   </PropertyGroup>
 
   <ItemGroup>
@@ -48,6 +44,6 @@
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.3.1" />
     <PackageReference Include="MicroBuild.Core" Version="0.2.0" developmentDependency="true" />
-
   </ItemGroup>
+  
 </Project>

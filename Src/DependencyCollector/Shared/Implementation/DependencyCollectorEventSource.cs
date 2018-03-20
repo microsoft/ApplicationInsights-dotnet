@@ -3,7 +3,7 @@
     using System;
     using System.Diagnostics.Tracing;
     using System.Globalization;
-#if NETCORE
+#if NETSTANDARD1_6
     using System.Reflection;
 #endif
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -478,7 +478,7 @@
             string name;
             try
             {
-#if NETCORE
+#if NETSTANDARD1_6
                 name = Assembly.GetEntryAssembly().FullName;
 #else
                 name = AppDomain.CurrentDomain.FriendlyName;

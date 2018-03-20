@@ -25,7 +25,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
     /// </summary>
     public sealed class QuickPulseTelemetryModule : ITelemetryModule, IDisposable
     {
-#if NETCORE
+#if NETSTANDARD1_6
         internal static IQuickPulseModuleScheduler moduleScheduler = QuickPulseTaskModuleScheduler.Instance;
 #else
         internal static IQuickPulseModuleScheduler moduleScheduler = QuickPulseThreadModuleScheduler.Instance;

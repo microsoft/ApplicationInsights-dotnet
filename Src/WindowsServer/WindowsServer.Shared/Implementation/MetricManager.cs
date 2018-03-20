@@ -301,6 +301,7 @@
             {
                 foreach (KeyValuePair<string, string> property in metric.Dimensions)
                 {
+#if !NETSTANDARD1_6
                     if (string.Compare(property.Key, FirstChanceExceptionStatisticsTelemetryModule.OperationNameTag, StringComparison.Ordinal) == 0)
                     {
                         if (string.IsNullOrEmpty(property.Value) == false)
@@ -309,6 +310,7 @@
                         }
                     }
                     else
+#endif
                     {
                         telemetry.Properties.Add(property);
                     }
@@ -973,10 +975,10 @@
             string name;
             try
             {
-#if !NETSTANDARD1_3
-                name = AppDomain.CurrentDomain.FriendlyName;
-#else
+#if NETSTANDARD1_6
                 name = string.Empty;
+#else
+                name = AppDomain.CurrentDomain.FriendlyName;
 #endif
             }
             catch (Exception exp)

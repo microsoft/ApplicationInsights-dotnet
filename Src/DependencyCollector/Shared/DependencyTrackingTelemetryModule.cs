@@ -9,12 +9,12 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-#if !NETCORE
-    using Microsoft.Diagnostics.Instrumentation.Extensions.Intercept;
-#else
+#if NETSTANDARD1_6
     using Microsoft.Extensions.PlatformAbstractions;
     using System.Reflection;
     using System.Runtime.Versioning;
+#else
+    using Microsoft.Diagnostics.Instrumentation.Extensions.Intercept;
 #endif
 
     /// <summary>
@@ -35,7 +35,7 @@
         private TelemetryDiagnosticSourceListener telemetryDiagnosticSourceListener;
         private SqlClientDiagnosticSourceListener sqlClientDiagnosticSourceListener;
 
-#if !NETCORE
+#if !NETSTANDARD1_6
         private ProfilerSqlCommandProcessing sqlCommandProcessing;
         private ProfilerSqlConnectionProcessing sqlConnectionProcessing;
         private ProfilerHttpProcessing httpProcessing;
@@ -134,9 +134,9 @@
                     {
                         try
                         {                            
-                            this.telemetryConfiguration = configuration;                            
+                            this.telemetryConfiguration = configuration;
 
-#if !NETCORE
+#if !NETSTANDARD1_6
                             // Net40 only supports runtime instrumentation
                             // Net45 supports either but not both to avoid duplication
                             this.InitializeForRuntimeInstrumentationOrFramework();
@@ -164,7 +164,7 @@
                         catch (Exception exc)
                         {
                             string clrVersion;
-#if NETCORE                            
+#if NETSTANDARD1_6                            
                             clrVersion = System.Reflection.Assembly.GetEntryAssembly().GetCustomAttribute<TargetFrameworkAttribute>().FrameworkName;
 #else
                             clrVersion = Environment.Version.ToString();
@@ -180,7 +180,7 @@
             }
         }
 
-#if !NETCORE
+#if !NETSTANDARD1_6
         internal virtual void InitializeForRuntimeProfiler()
         {
             // initialize instrumentation extension
@@ -258,7 +258,7 @@
             }
         }
 
-#if !NETCORE
+#if !NETSTANDARD1_6
         /// <summary>
         /// Initialize for framework event source (not supported for Net40).
         /// </summary>
