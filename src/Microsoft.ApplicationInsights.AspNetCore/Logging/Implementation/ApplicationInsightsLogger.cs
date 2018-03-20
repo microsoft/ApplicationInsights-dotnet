@@ -50,7 +50,7 @@
             if (this.IsEnabled(logLevel))
             {
                 var stateDictionary = state as IReadOnlyList<KeyValuePair<string, object>>;
-                if (exception == null)
+                if (exception == null || this.options?.TrackExceptionsAsExceptionTelemetry == false)
                 {
                     var traceTelemetry = new TraceTelemetry(formatter(state, exception), this.GetSeverityLevel(logLevel));
                     PopulateTelemetry(traceTelemetry, stateDictionary, eventId);

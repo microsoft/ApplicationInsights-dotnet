@@ -386,9 +386,46 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
 
             ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return false; }, defaultOptions);
             var exception = new Exception("This is an error");
+
             logger.LogError(0, exception, "Error: " + exception.Message);
 
             Assert.False(trackedTelemetry);
+        }
+
+        [Fact]
+        public void TestLoggerCreatesTraceTelemetryOnLoggedErrorWhenTrackExceptionsAsExceptionTelemetryIsSetToFalse()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<TraceTelemetry>(t);
+                var traceTelemetry = (TraceTelemetry)t;
+
+                Assert.Equal("Error: This is an error", traceTelemetry.Message);
+                Assert.Equal(SeverityLevel.Error, traceTelemetry.SeverityLevel);
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test", client, (s, l) => { return true; }, new ApplicationInsightsLoggerOptions { TrackExceptionsAsExceptionTelemetry = false });
+            var exception = new Exception("This is an error");
+
+            logger.LogError(0, exception, "Error: " + exception.Message);
+        }
+
+        [Fact]
+        public void TestLoggerCreatesExceptionTelemetryOnLoggedErrorWhenTrackExceptionsAsExceptionTelemetryIsSetToTrue()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<ExceptionTelemetry>(t);
+                var exceptionTelemetry = (ExceptionTelemetry)t;
+
+                Assert.Equal("Error: This is an error", exceptionTelemetry.Message);
+                Assert.Equal(SeverityLevel.Error, exceptionTelemetry.SeverityLevel);
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test", client, (s, l) => { return true; }, new ApplicationInsightsLoggerOptions { TrackExceptionsAsExceptionTelemetry = true });
+            var exception = new Exception("This is an error");
+
+            logger.LogError(0, exception, "Error: " + exception.Message);
         }
 
         /// <summary>
