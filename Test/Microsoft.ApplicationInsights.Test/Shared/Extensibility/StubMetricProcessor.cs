@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    internal class StubMetricProcessor : IMetricProcessor
+    internal class StubMetricProcessor : IMetricProcessorV1
     {
         private IList<MetricSample> sampleList;
 

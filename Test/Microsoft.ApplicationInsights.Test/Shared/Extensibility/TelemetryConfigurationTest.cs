@@ -348,7 +348,7 @@
         public void MetricPrcessorsReturnsThreadSafeList()
         {		
             var configuration = new TelemetryConfiguration();		
-            Assert.AreEqual(typeof(SnapshottingList<IMetricProcessor>), configuration.MetricProcessors.GetType());		
+            Assert.AreEqual(typeof(SnapshottingList<IMetricProcessorV1>), configuration.MetricProcessors.GetType());		
         }		
 		
         #endregion

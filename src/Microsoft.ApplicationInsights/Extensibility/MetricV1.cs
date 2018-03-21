@@ -150,7 +150,7 @@
         {
             // create a local reference to metric processor collection
             // if collection changes after that - it will be copied not affecting local reference
-            IList<IMetricProcessor> metricProcessors = this.manager.MetricProcessors;
+            IList<IMetricProcessorV1> metricProcessors = this.manager.MetricProcessors;
 
             if (metricProcessors != null)
             {
@@ -158,7 +158,7 @@
 
                 for (int i = 0; i < processorCount; i++)
                 {
-                    IMetricProcessor processor = metricProcessors[i];
+                    IMetricProcessorV1 processor = metricProcessors[i];
 
                     try
                     {

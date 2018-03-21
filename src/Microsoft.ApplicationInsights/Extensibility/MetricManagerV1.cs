@@ -78,7 +78,7 @@
         /// Gets a list of metric processors associated
         /// with this instance of <see cref="MetricManagerV1"/>.
         /// </summary>
-        internal IList<IMetricProcessor> MetricProcessors
+        internal IList<IMetricProcessorV1> MetricProcessors
         {
             get
             {
