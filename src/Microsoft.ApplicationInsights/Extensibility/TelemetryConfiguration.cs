@@ -234,7 +234,7 @@
         public TelemetrySink DefaultTelemetrySink => this.telemetrySinks.DefaultSink;
 
         /// <summary>
-        /// Gets the list of <see cref="IMetricProcessor"/> objects used for custom metric data processing        
+        /// Gets the list of <see cref="IMetricProcessorV1"/> objects used for custom metric data processing        
         /// before client-side metric aggregation process.
         /// </summary>
         internal IList<IMetricProcessorV1> MetricProcessors

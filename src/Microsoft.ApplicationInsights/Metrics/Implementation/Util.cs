@@ -21,9 +21,6 @@
         private const string FallbackParemeterName = "specified parameter";
         private const string MetricsSdkVersionMonikerPrefix = "msdk-";
 
-        private static Action<TelemetryContext, TelemetryContext, string> delegateTelemetryContextInitialize = null;
-        private static Func<TelemetryClient, TelemetryConfiguration> delegateTelemetryClientGetConfiguration = null;
-
         private static string sdkVersionMoniker = null;
 
         /// <summary>

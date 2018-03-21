@@ -301,7 +301,7 @@
 
             eventData.Context.Operation.SyntheticSource = heartbeatSyntheticMetricName;
 
-            this.telemetryClient.TrackMetric(eventData);
+            this.telemetryClient.Track(eventData);
         }
 
         private void HeartbeatPulse(object state)

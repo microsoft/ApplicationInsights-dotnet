@@ -140,6 +140,7 @@
             var sentTelemetry = new List<ITelemetry>();
             var client = this.InitializeTelemetryClient(sentTelemetry);
 
+#pragma warning disable CS0618 // Type or member is obsolete
             client.TrackMetric(
                 new MetricTelemetry()
                 {
@@ -150,6 +151,7 @@
                     Max = 4.0,
                     StandardDeviation = 1.0
                 });
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var metric = (MetricTelemetry)sentTelemetry.Single();
 

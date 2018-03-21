@@ -224,7 +224,9 @@
 #if DEBUG
 #pragma warning disable SA1307 // Accessible fields must begin with upper-case letter
 #pragma warning disable SA1201 // Elements must appear in the correct order
-                              /// <summary>For debug purposes. Not compiled into release build.</summary>
+#pragma warning disable CS3026 // CLS-compliant field cannot be volatile
+
+        /// <summary>For debug purposes. Not compiled into release build.</summary>
         public static volatile int countBufferWaitSpinEvents = 0;
 
         /// <summary>For debug purposes. Not compiled into release build.</summary>
@@ -238,6 +240,8 @@
 
         /// <summary>For debug purposes. Not compiled into release build.</summary>
         public static volatile int countNewBufferObjectsCreated = 0;
+
+#pragma warning restore CS3026 // CLS-compliant field cannot be volatile
 #pragma warning restore SA1201 // Elements must appear in the correct order
 #pragma warning restore SA1307 // Accessible fields must begin with upper-case letter
 #endif
