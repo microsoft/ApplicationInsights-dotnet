@@ -18,9 +18,9 @@
     /// </summary>
     public sealed class MetricSeries
     {
-#pragma warning disable SA1401 // Field must be private
+#pragma warning disable SA1401, SA1304, SA1307 // intended to be an internal, lower-case field 
         internal readonly IMetricSeriesConfiguration configuration;
-#pragma warning restore SA1401 // Field must be private
+#pragma warning restore SA1307, SA1304, SA1401
 
         private readonly MetricAggregationManager aggregationManager;
         private readonly bool requiresPersistentAggregator;
