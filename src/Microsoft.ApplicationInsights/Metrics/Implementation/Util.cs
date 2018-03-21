@@ -21,10 +21,10 @@
         private const string FallbackParemeterName = "specified parameter";
         private const string MetricsSdkVersionMonikerPrefix = "msdk-";
 
-        private static Action<TelemetryContext, TelemetryContext, string> s_delegateTelemetryContextInitialize = null;
-        private static Func<TelemetryClient, TelemetryConfiguration> s_delegateTelemetryClientGetConfiguration = null;
+        private static Action<TelemetryContext, TelemetryContext, string> delegateTelemetryContextInitialize = null;
+        private static Func<TelemetryClient, TelemetryConfiguration> delegateTelemetryClientGetConfiguration = null;
 
-        private static string s_sdkVersionMoniker = null;
+        private static string sdkVersionMoniker = null;
 
         /// <summary>
         /// Paramater check for Null with a little more informative exception.
@@ -344,7 +344,7 @@
         /// <returns>String representation of the version with prefix added.</returns>
         public static string GetSdkVersionMoniker()
         {
-            string sdkVersionMoniker = s_sdkVersionMoniker;
+            string sdkVersionMoniker = Util.sdkVersionMoniker;
             if (sdkVersionMoniker != null)
             {
                 return sdkVersionMoniker;
@@ -384,7 +384,7 @@
             string baseSdkVersionMoniker = $"{baseSdkVersion?.ToString(3) ?? "0"}-{baseSdkPostfix}";
             sdkVersionMoniker = $"{metricsSdkVersionMoniker}:{baseSdkVersionMoniker}";
 
-            s_sdkVersionMoniker = sdkVersionMoniker;
+            Util.sdkVersionMoniker = sdkVersionMoniker;
             return sdkVersionMoniker;
         }
     }

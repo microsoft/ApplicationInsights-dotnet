@@ -225,19 +225,19 @@
 #pragma warning disable SA1307 // Accessible fields must begin with upper-case letter
 #pragma warning disable SA1201 // Elements must appear in the correct order
                               /// <summary>For debug purposes. Not compiled into release build.</summary>
-        public static volatile int s_countBufferWaitSpinEvents = 0;
+        public static volatile int countBufferWaitSpinEvents = 0;
 
         /// <summary>For debug purposes. Not compiled into release build.</summary>
-        public static volatile int s_countBufferWaitSpinCycles = 0;
+        public static volatile int countBufferWaitSpinCycles = 0;
 
         /// <summary>For debug purposes. Not compiled into release build.</summary>
-        public static volatile int s_timeBufferWaitSpinMillis = 0;
+        public static volatile int timeBufferWaitSpinMillis = 0;
 
         /// <summary>For debug purposes. Not compiled into release build.</summary>
-        public static volatile int s_countBufferFlushes = 0;
+        public static volatile int countBufferFlushes = 0;
 
         /// <summary>For debug purposes. Not compiled into release build.</summary>
-        public static volatile int s_countNewBufferObjectsCreated = 0;
+        public static volatile int countNewBufferObjectsCreated = 0;
 #pragma warning restore SA1201 // Elements must appear in the correct order
 #pragma warning restore SA1307 // Accessible fields must begin with upper-case letter
 #endif
@@ -279,7 +279,7 @@
 #if DEBUG
                     unchecked
                     {
-                        Interlocked.Increment(ref s_countBufferWaitSpinCycles);
+                        Interlocked.Increment(ref countBufferWaitSpinCycles);
                     }
 #endif
                     if (spinWait.Count % 100 == 0)
@@ -300,15 +300,15 @@
                 unchecked
                 {
                     int periodMillis = Environment.TickCount - startMillis;
-                    int currentSpinMillis = s_timeBufferWaitSpinMillis;
-                    int prevSpinMillis = Interlocked.CompareExchange(ref s_timeBufferWaitSpinMillis, currentSpinMillis + periodMillis, currentSpinMillis);
+                    int currentSpinMillis = timeBufferWaitSpinMillis;
+                    int prevSpinMillis = Interlocked.CompareExchange(ref timeBufferWaitSpinMillis, currentSpinMillis + periodMillis, currentSpinMillis);
                     while (prevSpinMillis != currentSpinMillis)
                     {
-                        currentSpinMillis = s_timeBufferWaitSpinMillis;
-                        prevSpinMillis = Interlocked.CompareExchange(ref s_timeBufferWaitSpinMillis, currentSpinMillis + periodMillis, currentSpinMillis);
+                        currentSpinMillis = timeBufferWaitSpinMillis;
+                        prevSpinMillis = Interlocked.CompareExchange(ref timeBufferWaitSpinMillis, currentSpinMillis + periodMillis, currentSpinMillis);
                     }
 
-                    Interlocked.Increment(ref s_countBufferWaitSpinEvents);
+                    Interlocked.Increment(ref countBufferWaitSpinEvents);
                 }
 #endif
             }
@@ -376,7 +376,7 @@
 #if DEBUG
             unchecked
             {
-                Interlocked.Increment(ref s_countBufferFlushes);
+                Interlocked.Increment(ref countBufferFlushes);
             }
 #endif
 
@@ -407,7 +407,7 @@
 #if DEBUG
             unchecked
             {
-                Interlocked.Increment(ref s_countNewBufferObjectsCreated);
+                Interlocked.Increment(ref countNewBufferObjectsCreated);
             }
 #endif
             MetricValuesBufferBase<TBufferedValue> buffer = this._metricValuesBufferFactory();

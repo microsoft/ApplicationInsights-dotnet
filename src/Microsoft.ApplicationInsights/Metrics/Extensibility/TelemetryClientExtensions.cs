@@ -9,7 +9,7 @@
     /// <summary>ToDo: Complete documentation before stable release.</summary>
     public static class TelemetryClientExtensions
     {
-        private static ConditionalWeakTable<TelemetryClient, MetricManager> s_metricManagersForTelemetryClients;
+        private static ConditionalWeakTable<TelemetryClient, MetricManager> metricManagersForTelemetryClients;
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="telemetryClient">ToDo: Complete documentation before stable release.</param>
@@ -38,11 +38,11 @@
 
         private static MetricManager GetOrCreateMetricManager(TelemetryClient telemetryClient)
         {
-            ConditionalWeakTable<TelemetryClient, MetricManager> metricManagers = s_metricManagersForTelemetryClients;
+            ConditionalWeakTable<TelemetryClient, MetricManager> metricManagers = metricManagersForTelemetryClients;
             if (metricManagers == null)
             {
                 ConditionalWeakTable<TelemetryClient, MetricManager> newTable = new ConditionalWeakTable<TelemetryClient, MetricManager>();
-                ConditionalWeakTable<TelemetryClient, MetricManager> prevTable = Interlocked.CompareExchange(ref s_metricManagersForTelemetryClients, newTable, null);
+                ConditionalWeakTable<TelemetryClient, MetricManager> prevTable = Interlocked.CompareExchange(ref metricManagersForTelemetryClients, newTable, null);
                 metricManagers = prevTable ?? newTable;
             }
 

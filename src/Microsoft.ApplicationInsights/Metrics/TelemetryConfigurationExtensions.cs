@@ -10,8 +10,8 @@
     /// <summary>ToDo: Complete documentation before stable release.</summary>
     public static class TelemetryConfigurationExtensions
     {
-        private static MetricManager s_defaultMetricManager = null;
-        private static ConditionalWeakTable<TelemetryConfiguration, MetricManager> s_metricManagers = null;
+        private static MetricManager defaultMetricManager = null;
+        private static ConditionalWeakTable<TelemetryConfiguration, MetricManager> metricManagers = null;
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="telemetryPipeline">ToDo: Complete documentation before stable release.</param>
@@ -26,12 +26,12 @@
             // Fast path for the default configuration:
             if (telemetryPipeline == TelemetryConfiguration.Active)
             {
-                MetricManager manager = s_defaultMetricManager;
+                MetricManager manager = defaultMetricManager;
                 if (manager == null)
                 {
                     var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
                     MetricManager newManager = new MetricManager(pipelineAdapter);
-                    MetricManager prevManager = Interlocked.CompareExchange(ref s_defaultMetricManager, newManager, null);
+                    MetricManager prevManager = Interlocked.CompareExchange(ref defaultMetricManager, newManager, null);
 
                     if (prevManager == null)
                     {
@@ -49,17 +49,17 @@
 
             // Ok, we have a non-default config. Get the table:
 
-            ConditionalWeakTable<TelemetryConfiguration, MetricManager> metricManagers = s_metricManagers;
-            if (metricManagers == null)
+            ConditionalWeakTable<TelemetryConfiguration, MetricManager> managers = metricManagers;
+            if (managers == null)
             {
                 ConditionalWeakTable<TelemetryConfiguration, MetricManager> newTable = new ConditionalWeakTable<TelemetryConfiguration, MetricManager>();
-                ConditionalWeakTable<TelemetryConfiguration, MetricManager> prevTable = Interlocked.CompareExchange(ref s_metricManagers, newTable, null);
-                metricManagers = prevTable ?? newTable;
+                ConditionalWeakTable<TelemetryConfiguration, MetricManager> prevTable = Interlocked.CompareExchange(ref metricManagers, newTable, null);
+                managers = prevTable ?? newTable;
             }
 
             // Get the manager from the table:
             {
-                MetricManager manager = GetOrGreateFromTable(telemetryPipeline, metricManagers);
+                MetricManager manager = GetOrGreateFromTable(telemetryPipeline, managers);
                 return manager;
             }
         }

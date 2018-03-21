@@ -17,7 +17,7 @@
                         '`',  '~', '!',  '@', '#', '$', '%', '^', '&', '*', '+', '?'
             };
 
-        private static string s_defaultMetricNamespace = "Custom Metrics";
+        private static string defaultMetricNamespace = "Custom Metrics";
 
         /// <summary>
         /// This is what metric namespace will be set to if it is not specified.
@@ -26,13 +26,13 @@
         {
             get
             {
-                return s_defaultMetricNamespace;
+                return defaultMetricNamespace;
             }
 
             set
             {
                 ValidateLiteral(value, nameof(value));
-                s_defaultMetricNamespace = value.Trim();
+                defaultMetricNamespace = value.Trim();
             }
         }
 

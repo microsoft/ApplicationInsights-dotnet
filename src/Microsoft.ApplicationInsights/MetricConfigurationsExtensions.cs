@@ -15,7 +15,7 @@
         private const int DefaultSeriesCountLimit = 1000;
         private const int DefaultValuesPerDimensionLimit = 100;
 
-        private static MetricConfigurationForMeasurement s_defaultConfigForMeasurement = new MetricConfigurationForMeasurement(
+        private static MetricConfigurationForMeasurement defaultConfigForMeasurement = new MetricConfigurationForMeasurement(
                                                                     DefaultSeriesCountLimit,
                                                                     DefaultValuesPerDimensionLimit,
                                                                     new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false));
@@ -33,7 +33,7 @@
         /// <returns>The default <see cref="MetricConfiguration"/> for measurement metrics.</returns>
         public static MetricConfigurationForMeasurement Measurement(this MetricConfigurations metricConfigPresets)
         {
-            return s_defaultConfigForMeasurement;
+            return defaultConfigForMeasurement;
         }
 
         /// <summary>
@@ -52,7 +52,7 @@
                         defaultConfigurationForMeasurement.SeriesConfig, 
                         nameof(defaultConfigurationForMeasurement) + "." + nameof(defaultConfigurationForMeasurement.SeriesConfig));
             
-            s_defaultConfigForMeasurement = defaultConfigurationForMeasurement;
+            defaultConfigForMeasurement = defaultConfigurationForMeasurement;
         }
 
         internal static MetricConfiguration Default(this MetricConfigurations metricConfigPresets)
