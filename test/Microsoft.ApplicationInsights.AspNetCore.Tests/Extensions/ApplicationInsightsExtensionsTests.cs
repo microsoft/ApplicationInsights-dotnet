@@ -4,7 +4,6 @@
 namespace Microsoft.Extensions.DependencyInjection.Test
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
@@ -29,9 +28,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 #if NET451 || NET46
     using ApplicationInsights.Extensibility.PerfCounterCollector;
     using ApplicationInsights.WindowsServer.TelemetryChannel;
-    using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;    
+    using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 #endif
-
+    
     public static class ApplicationInsightsExtensionsTests
     {
         /// <summary>Constant instrumentation key value for testintg.</summary>
@@ -119,20 +118,33 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             /// <summary>
-            /// Tests that the Active configuration singleton is used as the telemetry configuration instance by the configuration factory.
-            /// This demonstrates that existing documentation for how to create a telemetry client and track custom events etc. works in ASP.NET 5
-            /// when no ApplicationInsights.config file exists but a project.json file does exist which contains the instrumentation key.
+            /// Tests that the Active configuration singleton is updated, but another instance of telemetry configuration is created for dependency injection.
+            /// ASP.NET Core developers should always use Dependency Injection instead of static singleton approach. 
+            /// See Microsoft/ApplicationInsights-dotnet#613
             /// </summary>
-            /// 
             [Fact]
-            
             public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
             {
+                var activeConfig = TelemetryConfiguration.Active;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content","config-instrumentation-key.json"), null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 TelemetryConfiguration telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Equal(TestInstrumentationKey, TelemetryConfiguration.Active.InstrumentationKey);
+                Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
+                Assert.Equal(TestInstrumentationKey, activeConfig.InstrumentationKey);
+                Assert.NotEqual(activeConfig, telemetryConfiguration);
+            }
+
+            /// <summary>
+            /// We determine if Active telemtery needs to be configured based on the assumptions that 'default' configuration
+            // created by base SDK has single preset ITelemetryIntitializer. If it ever changes, change TelemetryConfigurationOptions.IsActiveConfigured method as well.
+            /// </summary>
+            [Fact]
+            public static void DefaultTelemetryconfigurationHasOneTelemetryInitializer()
+            {
+                //
+                var defaultConfig = TelemetryConfiguration.CreateDefault();
+                Assert.Equal(1, defaultConfig.TelemetryInitializers.Count);
             }
 
             [Fact]
@@ -571,7 +583,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
             }
-
         }
 
         public static TelemetryConfiguration GetTelemetryConfiguration(this IServiceProvider serviceProvider)
