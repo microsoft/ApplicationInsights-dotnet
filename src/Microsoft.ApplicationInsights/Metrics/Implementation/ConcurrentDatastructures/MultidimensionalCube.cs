@@ -159,12 +159,12 @@
 
         private const string ExceptionThrownByPointsFactoryKey = "Microsoft.ApplicationInsights.ConcurrentDatastructures.MultidimensionalCube.ExceptionThrownByPointsFactory";
 
-        private readonly int[] _subdimensionsCountLimits;
-        private readonly MultidimensionalCubeDimension<TDimensionValue, TPoint> _points;
-        private readonly Func<TDimensionValue[], TPoint> _pointsFactory;
-        private readonly int _totalPointsCountLimit;
+        private readonly int[] subdimensionsCountLimits;
+        private readonly MultidimensionalCubeDimension<TDimensionValue, TPoint> points;
+        private readonly Func<TDimensionValue[], TPoint> pointsFactory;
+        private readonly int totalPointsCountLimit;
 
-        private int _totalPointsCount;
+        private int totalPointsCount;
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="pointsFactory">ToDo: Complete documentation before stable release.</param>
@@ -225,29 +225,29 @@
                 }
             }
 
-            this._totalPointsCountLimit = totalPointsCountLimit;
+            this.totalPointsCountLimit = totalPointsCountLimit;
 
-            this._subdimensionsCountLimits = subdimensionsCountLimits;
-            this._points = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(this, subdimensionsCountLimits[0], subdimensionsCountLimits.Length == 1);
-            this._pointsFactory = pointsFactory;
+            this.subdimensionsCountLimits = subdimensionsCountLimits;
+            this.points = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(this, subdimensionsCountLimits[0], subdimensionsCountLimits.Length == 1);
+            this.pointsFactory = pointsFactory;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int DimensionsCount
         {
-            get { return this._subdimensionsCountLimits.Length; }
+            get { return this.subdimensionsCountLimits.Length; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int TotalPointsCountLimit
         {
-            get { return this._totalPointsCountLimit; }
+            get { return this.totalPointsCountLimit; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int TotalPointsCount
         {
-            get { return Volatile.Read(ref this._totalPointsCount); }
+            get { return Volatile.Read(ref this.totalPointsCount); }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -255,7 +255,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public int GetSubdimensionsCountLimit(int dimension)
         {
-            return this._subdimensionsCountLimits[dimension];
+            return this.subdimensionsCountLimits[dimension];
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -273,7 +273,7 @@
         {
             var vectors = new List<KeyValuePair<TDimensionValue[], TPoint>>();
 
-            IReadOnlyCollection<KeyValuePair<IList<TDimensionValue>, TPoint>> reversedVectors = this._points.GetAllPointsReversed();
+            IReadOnlyCollection<KeyValuePair<IList<TDimensionValue>, TPoint>> reversedVectors = this.points.GetAllPointsReversed();
             foreach (KeyValuePair<IList<TDimensionValue>, TPoint> rv in reversedVectors)
             {
                 var v = new KeyValuePair<TDimensionValue[], TPoint>(new TDimensionValue[rv.Key.Count], rv.Value);
@@ -292,7 +292,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MultidimensionalPointResult<TPoint> TryGetOrCreatePoint(params TDimensionValue[] coordinates)
         {
-            MultidimensionalPointResult<TPoint> result = this._points.TryGetOrAddVector(coordinates);
+            MultidimensionalPointResult<TPoint> result = this.points.TryGetOrAddVector(coordinates);
             return result;
         }
 
@@ -301,7 +301,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MultidimensionalPointResult<TPoint> TryGetPoint(params TDimensionValue[] coordinates)
         {
-            MultidimensionalPointResult<TPoint> result = this._points.TryGetVector(coordinates);
+            MultidimensionalPointResult<TPoint> result = this.points.TryGetVector(coordinates);
             return result;
         }
 
@@ -431,7 +431,7 @@
         {
             try
             {
-                TPoint point = this._pointsFactory(coordinates);
+                TPoint point = this.pointsFactory(coordinates);
                 return point;
             }
             catch (Exception ex)
@@ -446,20 +446,20 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         internal bool TryIncTotalPointsCount()
         {
-            int newTotalPointsCount = Interlocked.Increment(ref this._totalPointsCount);
+            int newTotalPointsCount = Interlocked.Increment(ref this.totalPointsCount);
 
-            if (newTotalPointsCount <= this._totalPointsCountLimit)
+            if (newTotalPointsCount <= this.totalPointsCountLimit)
             {
                 return true;
             }
 
-            Interlocked.Decrement(ref this._totalPointsCount);
+            Interlocked.Decrement(ref this.totalPointsCount);
             return false;
         }
 
         internal int DecTotalPointsCount()
         {
-            int newTotalPointsCount = Interlocked.Decrement(ref this._totalPointsCount);
+            int newTotalPointsCount = Interlocked.Decrement(ref this.totalPointsCount);
             return newTotalPointsCount;
         }
 

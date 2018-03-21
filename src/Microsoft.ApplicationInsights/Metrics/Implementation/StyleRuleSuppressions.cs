@@ -36,12 +36,3 @@
             category:       "StyleCop.CSharp.DocumentationRules",
             checkId:        "SA1643: Destructor Summary Documentation Must Begin With Standard Text",
             Justification = "Useless rule. It is not even clear what this standard text should be.")]
-
-// These might be controversial:
-
-[assembly:SuppressMessage(
-            category:       "StyleCop.CSharp.NamingRules",
-            checkId:        "SA1309: Field Names Must Not Begin With Underscore",
-            Justification = "A large body of code was moved from a different repo with different conventions."
-                          + " Modifying the code to comply with this rule is a lot of work. However, there is also value in consistency."
-                          + " Need to discuss with the wider group. For now, suppressing to unblock progress.")]

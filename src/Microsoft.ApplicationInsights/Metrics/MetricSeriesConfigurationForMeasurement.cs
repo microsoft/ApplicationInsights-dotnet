@@ -8,8 +8,8 @@
     /// <summary>ToDo: Complete documentation before stable release.</summary>
     public class MetricSeriesConfigurationForMeasurement : IMetricSeriesConfiguration
     {
-        private readonly bool _restrictToUInt32Values;
-        private readonly int _hashCode;
+        private readonly bool restrictToUInt32Values;
+        private readonly int hashCode;
 
         static MetricSeriesConfigurationForMeasurement()
         {
@@ -23,9 +23,9 @@
         /// <param name="restrictToUInt32Values">ToDo: Complete documentation before stable release.</param>
         public MetricSeriesConfigurationForMeasurement(bool restrictToUInt32Values)
         {
-            this._restrictToUInt32Values = restrictToUInt32Values;
+            this.restrictToUInt32Values = restrictToUInt32Values;
 
-            this._hashCode = Util.CombineHashCodes(this._restrictToUInt32Values.GetHashCode());
+            this.hashCode = Util.CombineHashCodes(this.restrictToUInt32Values.GetHashCode());
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -39,7 +39,7 @@
         public bool RestrictToUInt32Values
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return this._restrictToUInt32Values; }
+            get { return this.restrictToUInt32Values; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -99,7 +99,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public override int GetHashCode()
         {
-            return this._hashCode;
+            return this.hashCode;
         }
 
         /// <summary>

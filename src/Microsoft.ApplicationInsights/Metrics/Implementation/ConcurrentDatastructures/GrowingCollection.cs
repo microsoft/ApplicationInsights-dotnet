@@ -12,12 +12,12 @@
     {
         private const int SegmentSize = 32;
 
-        private Segment _dataHead;
+        private Segment dataHead;
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public GrowingCollection()
         {
-            this._dataHead = new Segment(null);
+            this.dataHead = new Segment(null);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -26,7 +26,7 @@
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                Segment currHead = Volatile.Read(ref this._dataHead);
+                Segment currHead = Volatile.Read(ref this.dataHead);
                 return currHead.GlobalCount;
             }
         }
@@ -35,13 +35,13 @@
         /// <param name="item">ToDo: Complete documentation before stable release.</param>
         public void Add(T item)
         {
-            Segment currHead = Volatile.Read(ref this._dataHead);
+            Segment currHead = Volatile.Read(ref this.dataHead);
 
             bool added = currHead.TryAdd(item);
             while (false == added)
             {
                 Segment newHead = new Segment(currHead);
-                Segment prevHead = Interlocked.CompareExchange(ref this._dataHead, newHead, currHead);
+                Segment prevHead = Interlocked.CompareExchange(ref this.dataHead, newHead, currHead);
 
                 Segment updatedHead = (prevHead == currHead) ? newHead : prevHead;
                 added = updatedHead.TryAdd(item);
@@ -53,7 +53,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public GrowingCollection<T>.Enumerator GetEnumerator()
         {
-            var enumerator = new GrowingCollection<T>.Enumerator(this._dataHead);
+            var enumerator = new GrowingCollection<T>.Enumerator(this.dataHead);
             return enumerator;
         }
 
@@ -76,19 +76,19 @@
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public class Enumerator : IEnumerator<T>
         {
-            private readonly Segment _head;
-            private readonly int _headOffset;
-            private readonly int _count;
-            private Segment _currentSegment;
-            private int _currentSegmentOffset;
+            private readonly Segment head;
+            private readonly int headOffset;
+            private readonly int count;
+            private Segment currentSegment;
+            private int currentSegmentOffset;
 
             internal Enumerator(Segment head)
             {
                 Util.ValidateNotNull(head, nameof(head));
                 
-                this._head = this._currentSegment = head;
-                this._headOffset = this._currentSegmentOffset = head.LocalCount;
-                this._count = this._headOffset + (this._head.NextSegment == null ? 0 : this._head.NextSegment.GlobalCount);
+                this.head = this.currentSegment = head;
+                this.headOffset = this.currentSegmentOffset = head.LocalCount;
+                this.count = this.headOffset + (this.head.NextSegment == null ? 0 : this.head.NextSegment.GlobalCount);
             }
 
             /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -97,7 +97,7 @@
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return this._count;
+                    return this.count;
                 }
             }
 
@@ -107,7 +107,7 @@
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return this._currentSegment[this._currentSegmentOffset];
+                    return this.currentSegment[this.currentSegmentOffset];
                 }
             }
 
@@ -130,22 +130,22 @@
             /// <returns>ToDo: Complete documentation before stable release.</returns>
             public bool MoveNext()
             {
-                if (this._currentSegmentOffset == 0)
+                if (this.currentSegmentOffset == 0)
                 {
-                    if (this._currentSegment.NextSegment == null)
+                    if (this.currentSegment.NextSegment == null)
                     {
                         return false;
                     }
                     else
                     {
-                        this._currentSegment = this._currentSegment.NextSegment;
-                        this._currentSegmentOffset = this._currentSegment.LocalCount - 1;
+                        this.currentSegment = this.currentSegment.NextSegment;
+                        this.currentSegmentOffset = this.currentSegment.LocalCount - 1;
                         return true;
                     }
                 }
                 else
                 {
-                    this._currentSegmentOffset--;
+                    this.currentSegmentOffset--;
                     return true;
                 }
             }
@@ -153,8 +153,8 @@
             /// <summary>ToDo: Complete documentation before stable release.</summary>
             public void Reset()
             {
-                this._currentSegment = this._head;
-                this._currentSegmentOffset = this._headOffset;
+                this.currentSegment = this.head;
+                this.currentSegmentOffset = this.headOffset;
             }
         }
         #endregion class Enumerator 
@@ -162,22 +162,22 @@
         #region class Segment
         internal class Segment
         {
-            private readonly Segment _nextSegment;
-            private readonly int _nextSegmentGlobalCount;
-            private readonly T[] _data = new T[SegmentSize];
-            private int _localCount = 0;
+            private readonly Segment nextSegment;
+            private readonly int nextSegmentGlobalCount;
+            private readonly T[] data = new T[SegmentSize];
+            private int localCount = 0;
 
             public Segment(Segment nextSegment)
             {
-                this._nextSegment = nextSegment;
-                this._nextSegmentGlobalCount = (nextSegment == null) ? 0 : nextSegment.GlobalCount;
+                this.nextSegment = nextSegment;
+                this.nextSegmentGlobalCount = (nextSegment == null) ? 0 : nextSegment.GlobalCount;
             }
 
             public int LocalCount
             {
                 get
                 {
-                    int lc = Volatile.Read(ref this._localCount);
+                    int lc = Volatile.Read(ref this.localCount);
                     if (lc > SegmentSize)
                     {
                         return SegmentSize;
@@ -194,7 +194,7 @@
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return this._nextSegment;
+                    return this.nextSegment;
                 }
             }
 
@@ -203,7 +203,7 @@
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return this.LocalCount + this._nextSegmentGlobalCount;
+                    return this.LocalCount + this.nextSegmentGlobalCount;
                 }
             }
 
@@ -211,25 +211,25 @@
             {
                 get
                 {
-                    if (index < 0 || this._localCount <= index || SegmentSize <= index)
+                    if (index < 0 || this.localCount <= index || SegmentSize <= index)
                     {
                         throw new ArgumentOutOfRangeException(nameof(index), $"Invalid index ({index})");
                     }
 
-                    return this._data[index];
+                    return this.data[index];
                 }
             }
 
             internal bool TryAdd(T item)
             {
-                int index = Interlocked.Increment(ref this._localCount) - 1;
+                int index = Interlocked.Increment(ref this.localCount) - 1;
                 if (index >= SegmentSize)
                 {
-                    Interlocked.Decrement(ref this._localCount);
+                    Interlocked.Decrement(ref this.localCount);
                     return false;
                 }
 
-                this._data[index] = item;
+                this.data[index] = item;
                 return true;
             }
         }

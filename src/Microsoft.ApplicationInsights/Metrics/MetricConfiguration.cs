@@ -5,7 +5,7 @@
     /// <summary>ToDo: Complete documentation before stable release.</summary>
     public class MetricConfiguration : IEquatable<MetricConfiguration>
     {
-        private readonly int _hashCode;
+        private readonly int hashCode;
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="seriesCountLimit">ToDo: Complete documentation before stable release.</param>
@@ -35,7 +35,7 @@
 
             this.SeriesConfig = seriesConfig;
 
-            this._hashCode = Util.CombineHashCodes(
+            this.hashCode = Util.CombineHashCodes(
                                         this.SeriesCountLimit.GetHashCode(),
                                         this.ValuesPerDimensionLimit.GetHashCode(),
                                         this.SeriesConfig.GetType().FullName.GetHashCode(),
@@ -93,7 +93,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public override int GetHashCode()
         {
-            return this._hashCode;
+            return this.hashCode;
         }
     }
 }

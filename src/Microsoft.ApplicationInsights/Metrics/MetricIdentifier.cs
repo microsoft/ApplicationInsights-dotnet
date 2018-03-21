@@ -60,19 +60,19 @@
         // We want to avoid the allocation of an erray every tim ewe use an ID, so we unwind all loops and list all 10 names explicitly.
         // There is no plan to support more dimension names any time soon.
 #pragma warning disable SA1201 // Elements must appear in the correct order: We want these fields after the above statics.
-        private readonly string _dimension1Name;
-        private readonly string _dimension2Name;
-        private readonly string _dimension3Name;
-        private readonly string _dimension4Name;
-        private readonly string _dimension5Name;
-        private readonly string _dimension6Name;
-        private readonly string _dimension7Name;
-        private readonly string _dimension8Name;
-        private readonly string _dimension9Name;
-        private readonly string _dimension10Name;
+        private readonly string dimension1Name;
+        private readonly string dimension2Name;
+        private readonly string dimension3Name;
+        private readonly string dimension4Name;
+        private readonly string dimension5Name;
+        private readonly string dimension6Name;
+        private readonly string dimension7Name;
+        private readonly string dimension8Name;
+        private readonly string dimension9Name;
+        private readonly string dimension10Name;
 
-        private readonly string _identifierString;
-        private readonly int _hashCode;
+        private readonly string identifierString;
+        private readonly int hashCode;
 #pragma warning restore SA1201 // Elements must appear in the correct order
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -371,19 +371,19 @@
             this.MetricId = metricId;
             this.DimensionsCount = dimCount;
 
-            this._dimension1Name = dimension1Name;
-            this._dimension2Name = dimension2Name;
-            this._dimension3Name = dimension3Name;
-            this._dimension4Name = dimension4Name;
-            this._dimension5Name = dimension5Name;
-            this._dimension6Name = dimension6Name;
-            this._dimension7Name = dimension7Name;
-            this._dimension8Name = dimension8Name;
-            this._dimension9Name = dimension9Name;
-            this._dimension10Name = dimension10Name;
+            this.dimension1Name = dimension1Name;
+            this.dimension2Name = dimension2Name;
+            this.dimension3Name = dimension3Name;
+            this.dimension4Name = dimension4Name;
+            this.dimension5Name = dimension5Name;
+            this.dimension6Name = dimension6Name;
+            this.dimension7Name = dimension7Name;
+            this.dimension8Name = dimension8Name;
+            this.dimension9Name = dimension9Name;
+            this.dimension10Name = dimension10Name;
 
-            this._identifierString = this.GetIdentifierString();
-            this._hashCode = this._identifierString.GetHashCode();
+            this.identifierString = this.GetIdentifierString();
+            this.hashCode = this.identifierString.GetHashCode();
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -452,16 +452,16 @@
 
             switch (dimensionNumber)
             {
-                case 1:  return this._dimension1Name;
-                case 2:  return this._dimension2Name;
-                case 3:  return this._dimension3Name;
-                case 4:  return this._dimension4Name;
-                case 5:  return this._dimension5Name;
-                case 6:  return this._dimension6Name;
-                case 7:  return this._dimension7Name;
-                case 8:  return this._dimension8Name;
-                case 9:  return this._dimension9Name;
-                case 10: return this._dimension10Name;
+                case 1:  return this.dimension1Name;
+                case 2:  return this.dimension2Name;
+                case 3:  return this.dimension3Name;
+                case 4:  return this.dimension4Name;
+                case 5:  return this.dimension5Name;
+                case 6:  return this.dimension6Name;
+                case 7:  return this.dimension7Name;
+                case 8:  return this.dimension8Name;
+                case 9:  return this.dimension9Name;
+                case 10: return this.dimension10Name;
                 default: throw new ArgumentOutOfRangeException(nameof(dimensionNumber));
             }
         }
@@ -470,7 +470,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public override string ToString()
         {
-            return this._identifierString;
+            return this.identifierString;
         }
 
         /// <summary>
@@ -479,7 +479,7 @@
         /// <returns>Hash code for this <c>MetricIdentifier</c> instance.</returns>
         public override int GetHashCode()
         {
-            return this._hashCode;
+            return this.hashCode;
         }
 
         /// <summary>
@@ -515,7 +515,7 @@
                 return false;
             }
 
-            return (this._hashCode == otherMetricIdentifier._hashCode) && (this._identifierString.Equals(otherMetricIdentifier._identifierString));
+            return (this.hashCode == otherMetricIdentifier.hashCode) && (this.identifierString.Equals(otherMetricIdentifier.identifierString));
         }
 
         internal void ValidateDimensionNumberForGetter(int dimensionNumber)

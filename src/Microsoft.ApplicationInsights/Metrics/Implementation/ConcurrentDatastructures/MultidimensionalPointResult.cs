@@ -6,40 +6,40 @@
     /// <typeparam name="TPoint">Type of the set over which the cube is build. For metics, it is a metric series.</typeparam>
     internal struct MultidimensionalPointResult<TPoint>
     {
-        private TPoint _point;
-        private int _failureCoordinateIndex;
-        private MultidimensionalPointResultCodes _resultCode;
+        private TPoint point;
+        private int failureCoordinateIndex;
+        private MultidimensionalPointResultCodes resultCode;
 
         internal MultidimensionalPointResult(MultidimensionalPointResultCodes failureCode, int failureCoordinateIndex)
         {
-            this._resultCode = failureCode;
-            this._failureCoordinateIndex = failureCoordinateIndex;
-            this._point = default(TPoint);
+            this.resultCode = failureCode;
+            this.failureCoordinateIndex = failureCoordinateIndex;
+            this.point = default(TPoint);
         }
 
         internal MultidimensionalPointResult(MultidimensionalPointResultCodes successCode, TPoint point)
         {
-            this._resultCode = successCode;
-            this._failureCoordinateIndex = -1;
-            this._point = point;
+            this.resultCode = successCode;
+            this.failureCoordinateIndex = -1;
+            this.point = point;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public TPoint Point
         {
-            get { return this._point; }
+            get { return this.point; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int FailureCoordinateIndex
         {
-            get { return this._failureCoordinateIndex; }
+            get { return this.failureCoordinateIndex; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MultidimensionalPointResultCodes ResultCode
         {
-            get { return this._resultCode; }
+            get { return this.resultCode; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -60,7 +60,7 @@
 
         internal void SetAsyncTimeoutReachedFailure()
         {
-            this._resultCode |= MultidimensionalPointResultCodes.Failure_AsyncTimeoutReached;
+            this.resultCode |= MultidimensionalPointResultCodes.Failure_AsyncTimeoutReached;
         }
     }
 }

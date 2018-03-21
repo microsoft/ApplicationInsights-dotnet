@@ -7,8 +7,8 @@
     /// <summary>ToDo: Complete documentation before stable release.</summary>
     public class ApplicationInsightsTelemetryPipeline : IMetricTelemetryPipeline
     {
-        private readonly ApplicationInsights.TelemetryClient _trackingClient;
-        private readonly Task _completedTask = Task.FromResult(true);
+        private readonly ApplicationInsights.TelemetryClient trackingClient;
+        private readonly Task completedTask = Task.FromResult(true);
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="telemetryPipeline">ToDo: Complete documentation before stable release.</param>
@@ -16,7 +16,7 @@
         {
             Util.ValidateNotNull(telemetryPipeline, nameof(telemetryPipeline));
 
-            this._trackingClient = new ApplicationInsights.TelemetryClient(telemetryPipeline);
+            this.trackingClient = new ApplicationInsights.TelemetryClient(telemetryPipeline);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -25,7 +25,7 @@
         {
             Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));
 
-            this._trackingClient = telemetryClient;
+            this.trackingClient = telemetryClient;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -55,9 +55,9 @@
 
             object telemetryItem = converter.Convert(metricAggregate);
             var metricTelemetryItem = (ApplicationInsights.DataContracts.MetricTelemetry)telemetryItem;
-            this._trackingClient.Track(metricTelemetryItem);
+            this.trackingClient.Track(metricTelemetryItem);
 
-            return this._completedTask;
+            return this.completedTask;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -68,14 +68,14 @@
             cancelToken.ThrowIfCancellationRequested();
             try
             {
-                this._trackingClient.Flush();
+                this.trackingClient.Flush();
             }
             catch (NullReferenceException)
             {
                 // If the user has disposed the pipeline and we are subsequently completing the last aggregation cycle, the above can throw.
             }
 
-            return this._completedTask;
+            return this.completedTask;
         }
     }
 }

@@ -8,10 +8,10 @@
     public class MetricAggregate
     {
         // We want to make the aggregate thread safe, but we expect no signiicant contention, so a simple lock will suffice.
-        private readonly object _lock = new object();
+        private readonly object updateLock = new object();
 
-        private DateTimeOffset _aggregationPeriodStart;
-        private TimeSpan _aggregationPeriodDuration;
+        private DateTimeOffset aggregationPeriodStart;
+        private TimeSpan aggregationPeriodDuration;
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="metricNamespace">ToDo: Complete documentation before stable release.</param>
@@ -27,8 +27,8 @@
             this.MetricId = metricId;
             this.AggregationKindMoniker = aggregationKindMoniker;
 
-            this._aggregationPeriodStart = default(DateTimeOffset);
-            this._aggregationPeriodDuration = default(TimeSpan);
+            this.aggregationPeriodStart = default(DateTimeOffset);
+            this.aggregationPeriodDuration = default(TimeSpan);
 
             this.Dimensions = new ConcurrentDictionary<string, string>();
             this.Data = new ConcurrentDictionary<string, object>();
@@ -48,17 +48,17 @@
         {
             get
             {
-                lock (this._lock)
+                lock (this.updateLock)
                 {
-                    return this._aggregationPeriodStart;
+                    return this.aggregationPeriodStart;
                 }
             }
 
             set
             {
-                lock (this._lock)
+                lock (this.updateLock)
                 {
-                    this._aggregationPeriodStart = value;
+                    this.aggregationPeriodStart = value;
                 }
             }
         }
@@ -68,17 +68,17 @@
         {
             get
             {
-                lock (this._lock)
+                lock (this.updateLock)
                 {
-                    return this._aggregationPeriodDuration;
+                    return this.aggregationPeriodDuration;
                 }
             }
 
             set
             {
-                lock (this._lock)
+                lock (this.updateLock)
                 {
-                    this._aggregationPeriodDuration = value;
+                    this.aggregationPeriodDuration = value;
                 }
             }
         }

@@ -16,26 +16,26 @@
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming Rules", "SA1310: C# Field must not contain an underscore", Justification = "By design: Structured name.")]
         private const int RunningState_Stopped = 2;
 
-        private readonly Action _workerMethod;
+        private readonly Action workerMethod;
 
-        private readonly MetricAggregationManager _aggregationManager;
-        private readonly MetricManager _metricManager;
+        private readonly MetricAggregationManager aggregationManager;
+        private readonly MetricManager metricManager;
 
-        private int _runningState;
-        private Task _workerTask;
+        private int runningState;
+        private Task workerTask;
 
         public DefaultAggregationPeriodCycle(MetricAggregationManager aggregationManager, MetricManager metricManager)
         {
             Util.ValidateNotNull(aggregationManager, nameof(aggregationManager));
             Util.ValidateNotNull(metricManager, nameof(metricManager));
 
-            this._workerMethod = this.Run;
+            this.workerMethod = this.Run;
 
-            this._aggregationManager = aggregationManager;
-            this._metricManager = metricManager;
+            this.aggregationManager = aggregationManager;
+            this.metricManager = metricManager;
 
-            this._runningState = RunningState_NotStarted;
-            this._workerTask = null;
+            this.runningState = RunningState_NotStarted;
+            this.workerTask = null;
         }
 
         ~DefaultAggregationPeriodCycle()
@@ -45,27 +45,27 @@
 
         public bool Start()
         {
-            int prev = Interlocked.CompareExchange(ref this._runningState, RunningState_Running, RunningState_NotStarted);
+            int prev = Interlocked.CompareExchange(ref this.runningState, RunningState_Running, RunningState_NotStarted);
 
             if (prev != RunningState_NotStarted)
             {
                 return false; // Was already running or stopped.
             }
 
-            this._workerTask = Task.Run(this._workerMethod)
+            this.workerTask = Task.Run(this.workerMethod)
                               .ContinueWith(
-                                        (t) => { this._workerTask = null; },
+                                        (t) => { this.workerTask = null; },
                                         TaskContinuationOptions.ExecuteSynchronously);
             return true;
         }
 
         public Task StopAsync()
         {
-            Interlocked.Exchange(ref this._runningState, RunningState_Stopped);
+            Interlocked.Exchange(ref this.runningState, RunningState_Stopped);
             
             // Benign race on being called very soon after start. Will miss a cycle but eventually complete correctly.
 
-            Task workerTask = this._workerTask;
+            Task workerTask = this.workerTask;
             return workerTask ?? Task.FromResult(true);
         }
 
@@ -87,13 +87,13 @@
                 now = Util.RoundDownToSecond(now);
             }
 
-            AggregationPeriodSummary aggregates = this._aggregationManager.StartOrCycleAggregators(
+            AggregationPeriodSummary aggregates = this.aggregationManager.StartOrCycleAggregators(
                                                                             MetricAggregationCycleKind.Default,
                                                                             futureFilter: null,
                                                                             tactTimestamp: now);
             if (aggregates != null)
             {
-                Task fireAndForget = Task.Run(() => this._metricManager.TrackMetricAggregates(aggregates, flush: false));
+                Task fireAndForget = Task.Run(() => this.metricManager.TrackMetricAggregates(aggregates, flush: false));
             }
         }
 
@@ -142,7 +142,7 @@
                 //Thread.Sleep(waitPeriod);
                 Task.Delay(waitPeriod).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
 
-                int shouldBeRunning = Volatile.Read(ref this._runningState);
+                int shouldBeRunning = Volatile.Read(ref this.runningState);
                 if (shouldBeRunning != RunningState_Running)
                 {
                     return;

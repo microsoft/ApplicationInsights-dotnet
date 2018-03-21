@@ -7,29 +7,29 @@
 
     internal class MultidimensionalCubeDimension<TDimensionValue, TPoint>
     {
-        private readonly MultidimensionalCube<TDimensionValue, TPoint> _ownerCube;
-        private readonly int _subdimensionsCountLimit;
-        private readonly bool _isLastDimensionLevel;
-        private ConcurrentDictionary<TDimensionValue, object> _elements = new ConcurrentDictionary<TDimensionValue, object>();
+        private readonly MultidimensionalCube<TDimensionValue, TPoint> ownerCube;
+        private readonly int subdimensionsCountLimit;
+        private readonly bool isLastDimensionLevel;
+        private ConcurrentDictionary<TDimensionValue, object> elements = new ConcurrentDictionary<TDimensionValue, object>();
 
-        private int _subdimensionsCount = 0;
+        private int subdimensionsCount = 0;
 
         public MultidimensionalCubeDimension(MultidimensionalCube<TDimensionValue, TPoint> ownerCube, int subdimensionsCountLimit, bool isLastDimensionLevel)
         {
-            this._ownerCube = ownerCube;
-            this._subdimensionsCountLimit = subdimensionsCountLimit;
-            this._isLastDimensionLevel = isLastDimensionLevel;
+            this.ownerCube = ownerCube;
+            this.subdimensionsCountLimit = subdimensionsCountLimit;
+            this.isLastDimensionLevel = isLastDimensionLevel;
         }
 
         public MultidimensionalPointResult<TPoint> TryGetOrAddVector(TDimensionValue[] coordinates)
         {
             Util.ValidateNotNull(coordinates, nameof(coordinates));
 
-            if (coordinates.Length != this._ownerCube.DimensionsCount)
+            if (coordinates.Length != this.ownerCube.DimensionsCount)
             {
                 throw new ArgumentException(
                             $"The specified {nameof(coordinates)}-vector has {coordinates.Length} dimensions."
-                          + $" However {nameof(this._ownerCube)} has {this._ownerCube.DimensionsCount} dimensions.",
+                          + $" However {nameof(this.ownerCube)} has {this.ownerCube.DimensionsCount} dimensions.",
                             nameof(coordinates));
             }
 
@@ -41,11 +41,11 @@
         {
             Util.ValidateNotNull(coordinates, nameof(coordinates));
 
-            if (coordinates.Length != this._ownerCube.DimensionsCount)
+            if (coordinates.Length != this.ownerCube.DimensionsCount)
             {
                 throw new ArgumentException(
                             $"The specified {nameof(coordinates)}-vector has {coordinates.Length} dimensions."
-                          + $" However {nameof(this._ownerCube)} has {this._ownerCube.DimensionsCount} dimensions.",
+                          + $" However {nameof(this.ownerCube)} has {this.ownerCube.DimensionsCount} dimensions.",
                             nameof(coordinates));
             }
 
@@ -57,9 +57,9 @@
         {
             List<KeyValuePair<IList<TDimensionValue>, TPoint>> pointDescriptions = new List<KeyValuePair<IList<TDimensionValue>, TPoint>>();
 
-            if (this._isLastDimensionLevel)
+            if (this.isLastDimensionLevel)
             {
-                foreach (KeyValuePair<TDimensionValue, object> element in this._elements)
+                foreach (KeyValuePair<TDimensionValue, object> element in this.elements)
                 {
                     var pointDesc = new KeyValuePair<IList<TDimensionValue>, TPoint>(new List<TDimensionValue>(), (TPoint)element.Value);
                     pointDesc.Key.Add(element.Key);
@@ -68,7 +68,7 @@
             }
             else
             {
-                foreach (KeyValuePair<TDimensionValue, object> element in this._elements)
+                foreach (KeyValuePair<TDimensionValue, object> element in this.elements)
                 {
                     var elementValue = (MultidimensionalCubeDimension<TDimensionValue, TPoint>)element.Value;
                     IReadOnlyCollection<KeyValuePair<IList<TDimensionValue>, TPoint>> subCube = elementValue.GetAllPointsReversed();
@@ -89,12 +89,12 @@
 
             // Try and get the referenced element:
             object subElement;
-            bool subElementExists = this._elements.TryGetValue(subElementKey, out subElement);
+            bool subElementExists = this.elements.TryGetValue(subElementKey, out subElement);
 
             // If the referenced element exists, we can simply proceed:
             if (subElementExists)
             {
-                if (this._isLastDimensionLevel)
+                if (this.isLastDimensionLevel)
                 {
                     var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, (TPoint)subElement);
                     return result;
@@ -117,7 +117,7 @@
                 }
                 else
                 {
-                    MultidimensionalPointResult<TPoint> result = this._isLastDimensionLevel
+                    MultidimensionalPointResult<TPoint> result = this.isLastDimensionLevel
                                                         ? this.TryAddPoint(coordinates, currentDim)
                                                         : this.TryAddSubvector(coordinates, currentDim);
                     return result;
@@ -146,7 +146,7 @@
             {
                 // We are on the last level and we need to create the actual point. However, before doing that we need to check and pre-book the total
                 // count limit using the same pattern as the dimension values limit:
-                if (false == this._ownerCube.TryIncTotalPointsCount())
+                if (false == this.ownerCube.TryIncTotalPointsCount())
                 {
                     return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, failureCoordinateIndex: -1);
                 }
@@ -154,10 +154,10 @@
                 bool mustRestoreTotalPointsCount = true;
                 try
                 {
-                    TPoint newPoint = this._ownerCube.InvokePointsFactory(coordinates);
+                    TPoint newPoint = this.ownerCube.InvokePointsFactory(coordinates);
 
                     TDimensionValue subElementKey = coordinates[currentDim];
-                    bool couldInsert = this._elements.TryAdd(subElementKey, newPoint);
+                    bool couldInsert = this.elements.TryAdd(subElementKey, newPoint);
 
                     // There is a race on someone calling GetOrAddVector(..) with the same coordinates. So point may or may not already be in the list.
                     if (couldInsert)
@@ -169,7 +169,7 @@
                     else
                     {
                         // If the point was already in the list, then that other point created by the race winner is the one we want.
-                        TPoint existingPoint = (TPoint)this._elements[subElementKey];
+                        TPoint existingPoint = (TPoint)this.elements[subElementKey];
                         return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, existingPoint);
                     }
                 }
@@ -177,7 +177,7 @@
                 {
                     if (mustRestoreTotalPointsCount)
                     {
-                        this._ownerCube.DecTotalPointsCount();
+                        this.ownerCube.DecTotalPointsCount();
                     }
                 }
             }
@@ -207,7 +207,7 @@
 
                 // Do a soft-check to see if we reached the total points limit. If we do, there is no need to bother:
                 // (We will do a hard check and pre-booking later when we actually about to create the point.)
-                if (this._ownerCube.TotalPointsCount >= this._ownerCube.TotalPointsCountLimit)
+                if (this.ownerCube.TotalPointsCount >= this.ownerCube.TotalPointsCountLimit)
                 {
                     return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, failureCoordinateIndex: -1);
                 }
@@ -216,8 +216,8 @@
                 int nextDim = currentDim + 1;
                 bool isLastDimensionLevel = (nextDim == coordinates.Length - 1);
                 var newSubDim = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(
-                                                                                           this._ownerCube, 
-                                                                                           this._ownerCube.GetSubdimensionsCountLimit(nextDim),
+                                                                                           this.ownerCube, 
+                                                                                           this.ownerCube.GetSubdimensionsCountLimit(nextDim),
                                                                                            isLastDimensionLevel);
                 MultidimensionalPointResult<TPoint> newSubDimResult = newSubDim.TryGetOrAddVectorInternal(coordinates, nextDim, createIfNotExists: true);
 
@@ -231,7 +231,7 @@
 
                 // The new point has been created and we need to add its sub-space to the list.
                 // However, there is a race on someone calling GetOrAddVector(..) with the same coordinates. So newSubDim may or may not already be in the list.
-                bool couldInsert = this._elements.TryAdd(subElementKey, newSubDim);
+                bool couldInsert = this.elements.TryAdd(subElementKey, newSubDim);
 
                 if (couldInsert)
                 {
@@ -244,7 +244,7 @@
                     // The point was already in the list. It's that other point (created by the race winner) that we want.
                     // We need to discard the sub-space and the point we just created: Decrement total points count and Decrement the dimension value count.
                     // After that we just call TryGetOrAddVectorInternal(..) again on the same recursion level.
-                    this._ownerCube.DecTotalPointsCount();
+                    this.ownerCube.DecTotalPointsCount();
                 }
             }
             finally
@@ -261,20 +261,20 @@
 
         private bool TryIncSubdimensionsCount()
         {
-            int newSubdimensionsCount = Interlocked.Increment(ref this._subdimensionsCount);
+            int newSubdimensionsCount = Interlocked.Increment(ref this.subdimensionsCount);
 
-            if (newSubdimensionsCount <= this._subdimensionsCountLimit)
+            if (newSubdimensionsCount <= this.subdimensionsCountLimit)
             {
                 return true;
             }
 
-            Interlocked.Decrement(ref this._subdimensionsCount);
+            Interlocked.Decrement(ref this.subdimensionsCount);
             return false;
         }
 
         private int DecSubdimensionsCount()
         {
-            int newSubdimensionsCount = Interlocked.Decrement(ref this._subdimensionsCount);
+            int newSubdimensionsCount = Interlocked.Decrement(ref this.subdimensionsCount);
             return newSubdimensionsCount;
         }
     }

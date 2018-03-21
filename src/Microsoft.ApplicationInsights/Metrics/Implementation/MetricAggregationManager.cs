@@ -11,18 +11,18 @@
     {
         // We support 4 aggregation cycles. 2 of them can be accessed from the outside:
 
-        private AggregatorCollection _aggregatorsForPersistent = null;
-        private AggregatorCollection _aggregatorsForDefault = null;
-        private AggregatorCollection _aggregatorsForQuickPulse = null;
-        private AggregatorCollection _aggregatorsForCustom = null;
+        private AggregatorCollection aggregatorsForPersistent = null;
+        private AggregatorCollection aggregatorsForDefault = null;
+        private AggregatorCollection aggregatorsForQuickPulse = null;
+        private AggregatorCollection aggregatorsForCustom = null;
 
         internal MetricAggregationManager()
         {
             DateTimeOffset now = DateTimeOffset.Now;
             DateTimeOffset timestamp = Util.RoundDownToSecond(now);
 
-            this._aggregatorsForDefault = new AggregatorCollection(timestamp, filter: null);
-            this._aggregatorsForPersistent = new AggregatorCollection(timestamp, filter: null);
+            this.aggregatorsForDefault = new AggregatorCollection(timestamp, filter: null);
+            this.aggregatorsForPersistent = new AggregatorCollection(timestamp, filter: null);
         }
 
         public AggregationPeriodSummary StartOrCycleAggregators(MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter futureFilter)
@@ -35,13 +35,13 @@
                         throw new ArgumentException($"Cannot specify non-null {nameof(futureFilter)} when {nameof(aggregationCycleKind)} is {aggregationCycleKind}.");
                     }
 
-                    return this.CycleAggregators(ref this._aggregatorsForDefault, tactTimestamp, futureFilter, stopAggregators: false);
+                    return this.CycleAggregators(ref this.aggregatorsForDefault, tactTimestamp, futureFilter, stopAggregators: false);
 
                 case CycleKind.QuickPulse:
-                    return this.CycleAggregators(ref this._aggregatorsForQuickPulse, tactTimestamp, futureFilter, stopAggregators: false);
+                    return this.CycleAggregators(ref this.aggregatorsForQuickPulse, tactTimestamp, futureFilter, stopAggregators: false);
 
                 case CycleKind.Custom:
-                    return this.CycleAggregators(ref this._aggregatorsForCustom, tactTimestamp, futureFilter, stopAggregators: false);
+                    return this.CycleAggregators(ref this.aggregatorsForCustom, tactTimestamp, futureFilter, stopAggregators: false);
 
                 default:
                     throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
@@ -53,10 +53,10 @@
             switch (aggregationCycleKind)
             {
                 case CycleKind.QuickPulse:
-                    return this.CycleAggregators(ref this._aggregatorsForQuickPulse, tactTimestamp, futureFilter: null, stopAggregators: true);
+                    return this.CycleAggregators(ref this.aggregatorsForQuickPulse, tactTimestamp, futureFilter: null, stopAggregators: true);
 
                 case CycleKind.Custom:
-                    return this.CycleAggregators(ref this._aggregatorsForCustom, tactTimestamp, futureFilter: null, stopAggregators: true);
+                    return this.CycleAggregators(ref this.aggregatorsForCustom, tactTimestamp, futureFilter: null, stopAggregators: true);
 
                 case CycleKind.Default:
                     throw new ArgumentException($"Cannot invoke {nameof(this.StopAggregators)} for Default {nameof(MetricAggregationCycleKind)}: Default aggregators are always active.");
@@ -75,11 +75,11 @@
                     return true;
 
                 case CycleKind.QuickPulse:
-                    AggregatorCollection qpAggs = this._aggregatorsForQuickPulse;
+                    AggregatorCollection qpAggs = this.aggregatorsForQuickPulse;
                     filter = qpAggs?.Filter;
                     return (qpAggs != null);
                 case CycleKind.Custom:
-                    AggregatorCollection cAggs = this._aggregatorsForCustom;
+                    AggregatorCollection cAggs = this.aggregatorsForCustom;
                     filter = cAggs?.Filter;
                     return (cAggs != null);
 
@@ -92,21 +92,21 @@
         {
             Util.ValidateNotNull(aggregator, nameof(aggregator));
 
-            if (aggregator.DataSeries._configuration.RequiresPersistentAggregation)
+            if (aggregator.DataSeries.configuration.RequiresPersistentAggregation)
             {
-                return AddAggregator(aggregator, this._aggregatorsForPersistent);
+                return AddAggregator(aggregator, this.aggregatorsForPersistent);
             }
 
             switch (aggregationCycleKind)
             {
                 case CycleKind.Default:
-                    return AddAggregator(aggregator, this._aggregatorsForDefault);
+                    return AddAggregator(aggregator, this.aggregatorsForDefault);
 
                 case CycleKind.QuickPulse:
-                    return AddAggregator(aggregator, this._aggregatorsForQuickPulse);
+                    return AddAggregator(aggregator, this.aggregatorsForQuickPulse);
 
                 case CycleKind.Custom:
-                    return AddAggregator(aggregator, this._aggregatorsForCustom);
+                    return AddAggregator(aggregator, this.aggregatorsForCustom);
 
                 default:
                     throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
@@ -139,7 +139,7 @@
                                                 IMetricSeriesFilter futureFilter,
                                                 bool stopAggregators)
         {
-            if (aggregators == this._aggregatorsForPersistent)
+            if (aggregators == this.aggregatorsForPersistent)
             {
                 throw new InvalidOperationException("Internal SDK bug. Please report. Cannot cycle persistent aggregators.");
             }
@@ -175,7 +175,7 @@
             // time when the enumerator is created. We expand the foreach statement (like the compiler normally does) so that we can use the typed
             // enumerator's Count property which is constsent with the data in the snapshot.
 
-            GrowingCollection<IMetricSeriesAggregator>.Enumerator persistentValsAggregators = this._aggregatorsForPersistent.Aggregators.GetEnumerator();
+            GrowingCollection<IMetricSeriesAggregator>.Enumerator persistentValsAggregators = this.aggregatorsForPersistent.Aggregators.GetEnumerator();
             List<MetricAggregate> persistentValsAggregations = new List<MetricAggregate>(capacity: persistentValsAggregators.Count);
             try
             {

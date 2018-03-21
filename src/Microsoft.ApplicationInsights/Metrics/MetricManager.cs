@@ -9,10 +9,10 @@
     /// <summary>ToDo: Complete documentation before stable release.</summary>
     public sealed class MetricManager
     {
-        private readonly MetricAggregationManager _aggregationManager;
-        private readonly DefaultAggregationPeriodCycle _aggregationCycle;
-        private readonly IMetricTelemetryPipeline _telemetryPipeline;
-        private readonly MetricsCollection _metrics;
+        private readonly MetricAggregationManager aggregationManager;
+        private readonly DefaultAggregationPeriodCycle aggregationCycle;
+        private readonly IMetricTelemetryPipeline telemetryPipeline;
+        private readonly MetricsCollection metrics;
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="telemetryPipeline">ToDo: Complete documentation before stable release.</param>
@@ -20,39 +20,39 @@
         {
             Util.ValidateNotNull(telemetryPipeline, nameof(telemetryPipeline));
 
-            this._telemetryPipeline = telemetryPipeline;
-            this._aggregationManager = new MetricAggregationManager();
-            this._aggregationCycle = new DefaultAggregationPeriodCycle(this._aggregationManager, this);
+            this.telemetryPipeline = telemetryPipeline;
+            this.aggregationManager = new MetricAggregationManager();
+            this.aggregationCycle = new DefaultAggregationPeriodCycle(this.aggregationManager, this);
 
-            this._metrics = new MetricsCollection(this);
+            this.metrics = new MetricsCollection(this);
 
-            this._aggregationCycle.Start();
+            this.aggregationCycle.Start();
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         ~MetricManager()
         {
-            DefaultAggregationPeriodCycle aggregationCycle = this._aggregationCycle;
+            DefaultAggregationPeriodCycle aggregationCycle = this.aggregationCycle;
             if (aggregationCycle != null)
             {
-                Task fireAndForget = this._aggregationCycle.StopAsync();
+                Task fireAndForget = this.aggregationCycle.StopAsync();
             }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricsCollection Metrics
         {
-            get { return this._metrics; }
+            get { return this.metrics; }
         }
 
         internal MetricAggregationManager AggregationManager
         {
-            get { return this._aggregationManager; }
+            get { return this.aggregationManager; }
         }
 
         internal DefaultAggregationPeriodCycle AggregationCycle
         {
-            get { return this._aggregationCycle; }
+            get { return this.aggregationCycle; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -108,7 +108,7 @@
             Util.ValidateNotNull(metricIdentifier, nameof(metricIdentifier));
             Util.ValidateNotNull(config, nameof(config));
 
-            var dataSeries = new MetricSeries(this._aggregationManager, metricIdentifier, dimensionNamesAndValues, config);
+            var dataSeries = new MetricSeries(this.aggregationManager, metricIdentifier, dimensionNamesAndValues, config);
             return dataSeries;
         }
 
@@ -116,7 +116,7 @@
         public void Flush()
         {
             DateTimeOffset now = DateTimeOffset.Now;
-            AggregationPeriodSummary aggregates = this._aggregationManager.StartOrCycleAggregators(MetricAggregationCycleKind.Default, futureFilter: null, tactTimestamp: now);
+            AggregationPeriodSummary aggregates = this.aggregationManager.StartOrCycleAggregators(MetricAggregationCycleKind.Default, futureFilter: null, tactTimestamp: now);
             this.TrackMetricAggregates(aggregates, flush: true);
         }
 
@@ -145,7 +145,7 @@
                 {
                     if (telemetryItem != null)
                     {
-                        Task trackTask = this._telemetryPipeline.TrackAsync(telemetryItem, CancellationToken.None);
+                        Task trackTask = this.telemetryPipeline.TrackAsync(telemetryItem, CancellationToken.None);
                         trackTasks[taskIndex++] = trackTask;
                     }
                 }
@@ -157,7 +157,7 @@
                 {
                     if (telemetryItem != null)
                     {
-                        Task trackTask = this._telemetryPipeline.TrackAsync(telemetryItem, CancellationToken.None);
+                        Task trackTask = this.telemetryPipeline.TrackAsync(telemetryItem, CancellationToken.None);
                         trackTasks[taskIndex++] = trackTask;
                     }
                 }
@@ -167,7 +167,7 @@
 
             if (flush)
             {
-                Task flushTask = this._telemetryPipeline.FlushAsync(CancellationToken.None);
+                Task flushTask = this.telemetryPipeline.FlushAsync(CancellationToken.None);
                 flushTask.Wait();
             }
         }

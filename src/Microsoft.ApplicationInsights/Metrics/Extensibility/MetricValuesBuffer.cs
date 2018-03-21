@@ -12,10 +12,10 @@
     /// <typeparam name="TValue">The tyoe of values held in the buffer.</typeparam>
     public abstract class MetricValuesBufferBase<TValue>
     {
-        private readonly TValue[] _values;
+        private readonly TValue[] values;
 
-        private int _lastWriteIndex = -1;
-        private volatile int _nextFlushIndex = 0;
+        private int lastWriteIndex = -1;
+        private volatile int nextFlushIndex = 0;
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="capacity">ToDo: Complete documentation before stable release.</param>
@@ -26,22 +26,22 @@
                 throw new ArgumentOutOfRangeException(nameof(capacity));
             }
 
-            this._values = new TValue[capacity];
-            this.ResetValues(this._values);
+            this.values = new TValue[capacity];
+            this.ResetValues(this.values);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int Capacity
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return this._values.Length; }
+            get { return this.values.Length; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int NextFlushIndex
         {
-            get { return this._nextFlushIndex; }
-            set { this._nextFlushIndex = value; }
+            get { return this.nextFlushIndex; }
+            set { this.nextFlushIndex = value; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -49,7 +49,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int IncWriteIndex()
         {
-            return Interlocked.Increment(ref this._lastWriteIndex);
+            return Interlocked.Increment(ref this.lastWriteIndex);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -57,7 +57,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int PeekLastWriteIndex()
         {
-            return Volatile.Read(ref this._lastWriteIndex);
+            return Volatile.Read(ref this.lastWriteIndex);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -66,21 +66,21 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteValue(int index, TValue value)
         {
-            this.WriteValueOnce(this._values, index, value);
+            this.WriteValueOnce(this.values, index, value);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public void ResetIndices()
         {
-            this._nextFlushIndex = 0;
-            Interlocked.Exchange(ref this._lastWriteIndex, -1);
+            this.nextFlushIndex = 0;
+            Interlocked.Exchange(ref this.lastWriteIndex, -1);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public void ResetIndicesAndData()
         {
-            Interlocked.Exchange(ref this._lastWriteIndex, this.Capacity);
-            this.ResetValues(this._values);
+            Interlocked.Exchange(ref this.lastWriteIndex, this.Capacity);
+            this.ResetValues(this.values);
             this.ResetIndices();
         }
 
@@ -89,7 +89,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public TValue GetAndResetValue(int index)
         {
-            TValue value = this.GetAndResetValueOnce(this._values, index);
+            TValue value = this.GetAndResetValueOnce(this.values, index);
 
             if (this.IsInvalidValue(value))
             {
@@ -97,7 +97,7 @@
                 var spinWait = new SpinWait();
 #pragma warning restore SA1129 // Do not use default value type constructor
 
-                value = this.GetAndResetValueOnce(this._values, index);
+                value = this.GetAndResetValueOnce(this.values, index);
                 while (this.IsInvalidValue(value))
                 {
                     spinWait.SpinOnce();
@@ -109,7 +109,7 @@
                         Task.Delay(10).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
                     }
 
-                    value = this.GetAndResetValueOnce(this._values, index);
+                    value = this.GetAndResetValueOnce(this.values, index);
                 }
             }
 

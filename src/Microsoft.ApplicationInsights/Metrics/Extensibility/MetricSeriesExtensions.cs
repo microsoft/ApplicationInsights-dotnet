@@ -16,7 +16,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public static IMetricSeriesConfiguration GetConfiguration(this MetricSeries metricSeries)
         {
-            return metricSeries._configuration;
+            return metricSeries.configuration;
         }
     }
 }

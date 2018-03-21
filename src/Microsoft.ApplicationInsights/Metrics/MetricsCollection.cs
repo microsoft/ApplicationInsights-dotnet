@@ -8,21 +8,21 @@
     /// <summary>ToDo: Complete documentation before stable release.</summary>
     public class MetricsCollection : ICollection<Metric>
     {
-        private readonly MetricManager _metricManager;
-        private readonly ConcurrentDictionary<MetricIdentifier, Metric> _metrics = new ConcurrentDictionary<MetricIdentifier, Metric>();
+        private readonly MetricManager metricManager;
+        private readonly ConcurrentDictionary<MetricIdentifier, Metric> metrics = new ConcurrentDictionary<MetricIdentifier, Metric>();
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="metricManager">ToDo: Complete documentation before stable release.</param>
         internal MetricsCollection(MetricManager metricManager)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
-            this._metricManager = metricManager;
+            this.metricManager = metricManager;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int Count
         {
-            get { return this._metrics.Count; }
+            get { return this.metrics.Count; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -41,14 +41,14 @@
         {
             Util.ValidateNotNull(metricIdentifier, nameof(metricIdentifier));
             
-            Metric metric = this._metrics.GetOrAdd(
+            Metric metric = this.metrics.GetOrAdd(
                                             metricIdentifier,
                                             (key) => new Metric(
-                                                                this._metricManager,
+                                                                this.metricManager,
                                                                 metricIdentifier,
                                                                 metricConfiguration ?? MetricConfigurations.Common.Default()));
 
-            if (metricConfiguration != null && false == metric._configuration.Equals(metricConfiguration))
+            if (metricConfiguration != null && false == metric.configuration.Equals(metricConfiguration))
             {
                 throw new ArgumentException("A Metric with the specified Namespace, Id and dimension names already exists, but it has a configuration"
                                           + " that is different from the specified configuration. You may not change configurations once a"
@@ -64,7 +64,7 @@
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public void Clear()
         {
-            this._metrics.Clear();
+            this.metrics.Clear();
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -77,7 +77,7 @@
                 return false;
             }
 
-            return this._metrics.ContainsKey(metric.Identifier);
+            return this.metrics.ContainsKey(metric.Identifier);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -92,7 +92,7 @@
                 throw new ArgumentOutOfRangeException(nameof(arrayIndex));
             }
 
-            this._metrics.Values.CopyTo(array, arrayIndex);
+            this.metrics.Values.CopyTo(array, arrayIndex);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -106,14 +106,14 @@
             }
 
             Metric removedMetric;
-            return this._metrics.TryRemove(metric.Identifier, out removedMetric);
+            return this.metrics.TryRemove(metric.Identifier, out removedMetric);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public IEnumerator<Metric> GetEnumerator()
         {
-            return this._metrics.Values.GetEnumerator();
+            return this.metrics.Values.GetEnumerator();
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>

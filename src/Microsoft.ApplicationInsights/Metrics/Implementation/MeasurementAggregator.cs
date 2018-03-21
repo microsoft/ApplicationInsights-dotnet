@@ -8,25 +8,25 @@
     {
         private static readonly Func<MetricValuesBufferBase<double>> MetricValuesBufferFactory = () => new MetricValuesBuffer_Double(capacity: 500);
 
-        private readonly object _updateLock = new object();
+        private readonly object updateLock = new object();
 
-        private readonly bool _restrictToUInt32Values;
+        private readonly bool restrictToUInt32Values;
 
-        private readonly Data _data = new Data();
+        private readonly Data data = new Data();
 
         public MeasurementAggregator(MetricSeriesConfigurationForMeasurement configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
             : base(MetricValuesBufferFactory, configuration, dataSeries, aggregationCycleKind)
         {
             Util.ValidateNotNull(configuration, nameof(configuration));
 
-            this._restrictToUInt32Values = configuration.RestrictToUInt32Values;
+            this.restrictToUInt32Values = configuration.RestrictToUInt32Values;
             this.ResetAggregate();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override double ConvertMetricValue(double metricValue)
         {
-            if (this._restrictToUInt32Values)
+            if (this.restrictToUInt32Values)
             {
                 return Util.RoundAndValidateValue(metricValue);
             }
@@ -53,27 +53,27 @@
             int count;
             double sum, min, max, stdDev;
 
-            lock (this._updateLock)
+            lock (this.updateLock)
             {
-                count = this._data.Count;
-                sum = this._data.Sum;
+                count = this.data.Count;
+                sum = this.data.Sum;
                 min = 0.0;
                 max = 0.0;
                 stdDev = 0.0;
 
                 if (count > 0)
                 {
-                    min = this._data.Min;
-                    max = this._data.Max;
+                    min = this.data.Min;
+                    max = this.data.Max;
 
-                    if (Double.IsInfinity(this._data.SumOfSquares) || Double.IsInfinity(sum))
+                    if (Double.IsInfinity(this.data.SumOfSquares) || Double.IsInfinity(sum))
                     {
                         stdDev = Double.NaN;
                     }
                     else
                     {
                         double mean = sum / count;
-                        double variance = (this._data.SumOfSquares / count) - (mean * mean);
+                        double variance = (this.data.SumOfSquares / count) - (mean * mean);
                         stdDev = Math.Sqrt(variance);
                     }
                 }
@@ -106,13 +106,13 @@
 
         protected override void ResetAggregate()
         {
-            lock (this._updateLock)
+            lock (this.updateLock)
             {
-                this._data.Count = 0;
-                this._data.Min = Double.MaxValue;
-                this._data.Max = Double.MinValue;
-                this._data.Sum = 0.0;
-                this._data.SumOfSquares = 0.0;
+                this.data.Count = 0;
+                this.data.Min = Double.MaxValue;
+                this.data.Max = Double.MinValue;
+                this.data.Sum = 0.0;
+                this.data.SumOfSquares = 0.0;
             }
         }
 
@@ -142,7 +142,7 @@
                 bufferData.SumOfSquares += (metricValue * metricValue);
             }
 
-            if (this._restrictToUInt32Values)
+            if (this.restrictToUInt32Values)
             {
                 bufferData.Max = Math.Round(bufferData.Max);
                 bufferData.Min = Math.Round(bufferData.Min);
@@ -161,18 +161,18 @@
             }
 
             // Take a lock and update the aggregate:
-            lock (this._updateLock)
+            lock (this.updateLock)
             {
-                this._data.Count += bufferData.Count;
-                this._data.Max = (bufferData.Max > this._data.Max) ? bufferData.Max : this._data.Max;
-                this._data.Min = (bufferData.Min < this._data.Min) ? bufferData.Min : this._data.Min;
-                this._data.Sum += bufferData.Sum;
-                this._data.SumOfSquares += bufferData.SumOfSquares;
+                this.data.Count += bufferData.Count;
+                this.data.Max = (bufferData.Max > this.data.Max) ? bufferData.Max : this.data.Max;
+                this.data.Min = (bufferData.Min < this.data.Min) ? bufferData.Min : this.data.Min;
+                this.data.Sum += bufferData.Sum;
+                this.data.SumOfSquares += bufferData.SumOfSquares;
 
-                if (this._restrictToUInt32Values)
+                if (this.restrictToUInt32Values)
                 {
-                    this._data.Sum = Math.Round(this._data.Sum);
-                    this._data.SumOfSquares = Math.Round(this._data.SumOfSquares);
+                    this.data.Sum = Math.Round(this.data.Sum);
+                    this.data.SumOfSquares = Math.Round(this.data.SumOfSquares);
                 }
             }
         }

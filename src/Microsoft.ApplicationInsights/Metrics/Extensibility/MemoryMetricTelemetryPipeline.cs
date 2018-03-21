@@ -12,10 +12,10 @@
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public const int CountLimitDefault = 1000;
 
-        private readonly Task _completedTask = Task.FromResult(true);
-        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1);
+        private readonly Task completedTask = Task.FromResult(true);
+        private readonly SemaphoreSlim updateLock = new SemaphoreSlim(1);
 
-        private readonly IList<MetricAggregate> _metricAgregates = new List<MetricAggregate>();
+        private readonly IList<MetricAggregate> metricAgregates = new List<MetricAggregate>();
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MemoryMetricTelemetryPipeline()
@@ -44,14 +44,14 @@
             get
             {
                 int count;
-                this._lock.WaitAsync().GetAwaiter().GetResult();
+                this.updateLock.WaitAsync().GetAwaiter().GetResult();
                 try
                 {
-                    count = this._metricAgregates.Count;
+                    count = this.metricAgregates.Count;
                 }
                 finally
                 {
-                    this._lock.Release();
+                    this.updateLock.Release();
                 }
 
                 return count;
@@ -66,14 +66,14 @@
             get
             {
                 MetricAggregate metricAggregate;
-                this._lock.WaitAsync().GetAwaiter().GetResult();
+                this.updateLock.WaitAsync().GetAwaiter().GetResult();
                 try
                 {
-                    metricAggregate = this._metricAgregates[index];
+                    metricAggregate = this.metricAgregates[index];
                 }
                 finally
                 {
-                    this._lock.Release();
+                    this.updateLock.Release();
                 }
 
                 return metricAggregate;
@@ -83,14 +83,14 @@
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public void Clear()
         {
-            this._lock.WaitAsync().GetAwaiter().GetResult();
+            this.updateLock.WaitAsync().GetAwaiter().GetResult();
             try
             {
-                this._metricAgregates.Clear();
+                this.metricAgregates.Clear();
             }
             finally
             {
-                this._lock.Release();
+                this.updateLock.Release();
             }
         }
 
@@ -102,19 +102,19 @@
         {
             Util.ValidateNotNull(metricAggregate, nameof(metricAggregate));
 
-            await this._lock.WaitAsync(cancelToken);
+            await this.updateLock.WaitAsync(cancelToken);
             try
             {
-                while (this._metricAgregates.Count >= this.CountLimit)
+                while (this.metricAgregates.Count >= this.CountLimit)
                 {
-                    this._metricAgregates.RemoveAt(0);
+                    this.metricAgregates.RemoveAt(0);
                 }
 
-                this._metricAgregates.Add(metricAggregate);
+                this.metricAgregates.Add(metricAggregate);
             }
             finally
             {
-                this._lock.Release();
+                this.updateLock.Release();
             }
         }
 
@@ -129,14 +129,14 @@
         IEnumerator<MetricAggregate> IEnumerable<MetricAggregate>.GetEnumerator()
         {
             IEnumerator<MetricAggregate> enumerator;
-            this._lock.WaitAsync().GetAwaiter().GetResult();
+            this.updateLock.WaitAsync().GetAwaiter().GetResult();
             try
             {
-                enumerator = this._metricAgregates.GetEnumerator();
+                enumerator = this.metricAgregates.GetEnumerator();
             }
             finally
             {
-                this._lock.Release();
+                this.updateLock.Release();
             }
 
             return enumerator;

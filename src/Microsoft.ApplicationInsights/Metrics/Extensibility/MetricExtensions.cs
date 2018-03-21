@@ -15,7 +15,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public static MetricConfiguration GetConfiguration(this Metric metric)
         {
-            return metric._configuration;
+            return metric.configuration;
         }
 
         ///// <summary>

@@ -15,17 +15,17 @@
     public sealed class Metric
     {
 #pragma warning disable SA1401 // Field must be private
-        internal readonly MetricConfiguration _configuration;
+        internal readonly MetricConfiguration configuration;
 #pragma warning restore SA1401 // Field must be private
 
         private const string NullMetricObjectId = "null";
 
-        private readonly MetricSeries _zeroDimSeries;
-        private readonly IReadOnlyList<KeyValuePair<string[], MetricSeries>> _zeroDimSeriesList;
+        private readonly MetricSeries zeroDimSeries;
+        private readonly IReadOnlyList<KeyValuePair<string[], MetricSeries>> zeroDimSeriesList;
 
-        private readonly MultidimensionalCube2<MetricSeries> _metricSeries;
+        private readonly MultidimensionalCube2<MetricSeries> metricSeries;
 
-        private readonly MetricManager _metricManager;
+        private readonly MetricManager metricManager;
 
         internal Metric(MetricManager metricManager, MetricIdentifier metricIdentifier, MetricConfiguration configuration)
         {
@@ -33,19 +33,19 @@
             Util.ValidateNotNull(metricIdentifier, nameof(metricIdentifier));
             EnsureConfigurationValid(metricIdentifier.DimensionsCount > 0, configuration);
 
-            this._metricManager = metricManager;
+            this.metricManager = metricManager;
             this.Identifier = metricIdentifier;
-            this._configuration = configuration;
+            this.configuration = configuration;
 
-            this._zeroDimSeries = this._metricManager.CreateNewSeries(
+            this.zeroDimSeries = this.metricManager.CreateNewSeries(
                                                         new MetricIdentifier(this.Identifier.MetricNamespace, this.Identifier.MetricId),
                                                         dimensionNamesAndValues: null,
-                                                        config: this._configuration.SeriesConfig);
+                                                        config: this.configuration.SeriesConfig);
 
             if (metricIdentifier.DimensionsCount == 0)
             {
-                this._metricSeries = null;
-                this._zeroDimSeriesList = new KeyValuePair<string[], MetricSeries>[1] { new KeyValuePair<string[], MetricSeries>(new string[0], this._zeroDimSeries) };
+                this.metricSeries = null;
+                this.zeroDimSeriesList = new KeyValuePair<string[], MetricSeries>[1] { new KeyValuePair<string[], MetricSeries>(new string[0], this.zeroDimSeries) };
             }
             else
             {
@@ -55,12 +55,12 @@
                     dimensionValuesCountLimits[d] = configuration.ValuesPerDimensionLimit;
                 }
 
-                this._metricSeries = new MultidimensionalCube2<MetricSeries>(
+                this.metricSeries = new MultidimensionalCube2<MetricSeries>(
                             totalPointsCountLimit: configuration.SeriesCountLimit - 1,
                             pointsFactory: this.CreateNewMetricSeries,
                             dimensionValuesCountLimits: dimensionValuesCountLimits);
 
-                this._zeroDimSeriesList = null;
+                this.zeroDimSeriesList = null;
             }
         }
 
@@ -75,7 +75,7 @@
         /// </summary>
         public int SeriesCount
         {
-            get { return 1 + (this._metricSeries?.TotalPointsCount ?? 0); }
+            get { return 1 + (this.metricSeries?.TotalPointsCount ?? 0); }
         }
 
         /// <summary>
@@ -89,7 +89,7 @@
             this.Identifier.ValidateDimensionNumberForGetter(dimensionNumber);
 
             int dimensionIndex = dimensionNumber - 1;
-            return this._metricSeries.GetDimensionValues(dimensionIndex);
+            return this.metricSeries.GetDimensionValues(dimensionIndex);
         }
 
         /// <summary>
@@ -106,12 +106,12 @@
         {
             if (this.Identifier.DimensionsCount == 0)
             {
-                return this._zeroDimSeriesList;
+                return this.zeroDimSeriesList;
             }
 
             var series = new List<KeyValuePair<string[], MetricSeries>>(this.SeriesCount);
-            series.Add(new KeyValuePair<string[], MetricSeries>(new string[0], this._zeroDimSeries));
-            this._metricSeries.GetAllPoints(series);
+            series.Add(new KeyValuePair<string[], MetricSeries>(new string[0], this.zeroDimSeries));
+            this.metricSeries.GetAllPoints(series);
             return series;
         }
 
@@ -124,7 +124,7 @@
         /// <returns><c>True</c>.</returns>
         public bool TryGetDataSeries(out MetricSeries series)
         {
-            series = this._zeroDimSeries;
+            series = this.zeroDimSeries;
             return true;
         }
 
@@ -434,7 +434,7 @@
         {
             if (dimensionValues == null || dimensionValues.Length == 0)
             {
-                series = this._zeroDimSeries;
+                series = this.zeroDimSeries;
                 return true;
             }
 
@@ -450,8 +450,8 @@
             }
 
             MultidimensionalPointResult<MetricSeries> result = createIfNotExists
-                                                                    ? this._metricSeries.TryGetOrCreatePoint(dimensionValues)
-                                                                    : this._metricSeries.TryGetPoint(dimensionValues);
+                                                                    ? this.metricSeries.TryGetOrCreatePoint(dimensionValues)
+                                                                    : this.metricSeries.TryGetPoint(dimensionValues);
 
             if (result.IsSuccess)
             {
@@ -474,7 +474,7 @@
         /// <param name="metricValue">The value to be aggregated.</param>
         public void TrackValue(double metricValue)
         {
-            this._zeroDimSeries.TrackValue(metricValue);
+            this.zeroDimSeries.TrackValue(metricValue);
         }
 
         /// <summary>
@@ -486,7 +486,7 @@
         /// <param name="metricValue">The value to be aggregated.</param>
         public void TrackValue(object metricValue)
         {
-            this._zeroDimSeries.TrackValue(metricValue);
+            this.zeroDimSeries.TrackValue(metricValue);
         }
 
         /// <summary>
@@ -1254,10 +1254,10 @@
                 }
             }
 
-            MetricSeries series = this._metricManager.CreateNewSeries(
+            MetricSeries series = this.metricManager.CreateNewSeries(
                                                         this.Identifier,
                                                         dimensionNamesAndValues,
-                                                        this._configuration.SeriesConfig);
+                                                        this.configuration.SeriesConfig);
             return series;
         }
     }
