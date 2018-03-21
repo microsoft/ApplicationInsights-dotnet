@@ -21,7 +21,7 @@
             ValidateKeys(pipelineType, aggregationKindMoniker);
             Util.ValidateNotNull(converter, nameof(converter));
 
-            ConcurrentDictionary<string, IMetricAggregateToTelemetryPipelineConverter> converters = _pipelineTable.GetOrAdd(
+            ConcurrentDictionary<string, IMetricAggregateToTelemetryPipelineConverter> converters = this._pipelineTable.GetOrAdd(
                                                                                 pipelineType,
                                                                                 new ConcurrentDictionary<string, IMetricAggregateToTelemetryPipelineConverter>());
 
@@ -38,7 +38,7 @@
             ValidateKeys(pipelineType, aggregationKindMoniker);
 
             ConcurrentDictionary<string, IMetricAggregateToTelemetryPipelineConverter> converters;
-            if (false == _pipelineTable.TryGetValue(pipelineType, out converters))
+            if (false == this._pipelineTable.TryGetValue(pipelineType, out converters))
             {
                 converter = null;
                 return false;

@@ -17,7 +17,7 @@
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public GrowingCollection()
         {
-            _dataHead = new Segment(null);
+            this._dataHead = new Segment(null);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -26,7 +26,7 @@
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                Segment currHead = Volatile.Read(ref _dataHead);
+                Segment currHead = Volatile.Read(ref this._dataHead);
                 return currHead.GlobalCount;
             }
         }
@@ -35,13 +35,13 @@
         /// <param name="item">ToDo: Complete documentation before stable release.</param>
         public void Add(T item)
         {
-            Segment currHead = Volatile.Read(ref _dataHead);
+            Segment currHead = Volatile.Read(ref this._dataHead);
 
             bool added = currHead.TryAdd(item);
             while (false == added)
             {
                 Segment newHead = new Segment(currHead);
-                Segment prevHead = Interlocked.CompareExchange(ref _dataHead, newHead, currHead);
+                Segment prevHead = Interlocked.CompareExchange(ref this._dataHead, newHead, currHead);
 
                 Segment updatedHead = (prevHead == currHead) ? newHead : prevHead;
                 added = updatedHead.TryAdd(item);
@@ -53,7 +53,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public GrowingCollection<T>.Enumerator GetEnumerator()
         {
-            var enumerator = new GrowingCollection<T>.Enumerator(_dataHead);
+            var enumerator = new GrowingCollection<T>.Enumerator(this._dataHead);
             return enumerator;
         }
 
@@ -86,9 +86,9 @@
             {
                 Util.ValidateNotNull(head, nameof(head));
                 
-                _head = _currentSegment = head;
-                _headOffset = _currentSegmentOffset = head.LocalCount;
-                _count = _headOffset + (_head.NextSegment == null ? 0 : _head.NextSegment.GlobalCount);
+                this._head = this._currentSegment = head;
+                this._headOffset = this._currentSegmentOffset = head.LocalCount;
+                this._count = this._headOffset + (this._head.NextSegment == null ? 0 : this._head.NextSegment.GlobalCount);
             }
 
             /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -97,7 +97,7 @@
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return _count;
+                    return this._count;
                 }
             }
 
@@ -107,7 +107,7 @@
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return _currentSegment[_currentSegmentOffset];
+                    return this._currentSegment[this._currentSegmentOffset];
                 }
             }
 
@@ -130,22 +130,22 @@
             /// <returns>ToDo: Complete documentation before stable release.</returns>
             public bool MoveNext()
             {
-                if (_currentSegmentOffset == 0)
+                if (this._currentSegmentOffset == 0)
                 {
-                    if (_currentSegment.NextSegment == null)
+                    if (this._currentSegment.NextSegment == null)
                     {
                         return false;
                     }
                     else
                     {
-                        _currentSegment = _currentSegment.NextSegment;
-                        _currentSegmentOffset = _currentSegment.LocalCount - 1;
+                        this._currentSegment = this._currentSegment.NextSegment;
+                        this._currentSegmentOffset = this._currentSegment.LocalCount - 1;
                         return true;
                     }
                 }
                 else
                 {
-                    _currentSegmentOffset--;
+                    this._currentSegmentOffset--;
                     return true;
                 }
             }
@@ -153,8 +153,8 @@
             /// <summary>ToDo: Complete documentation before stable release.</summary>
             public void Reset()
             {
-                _currentSegment = _head;
-                _currentSegmentOffset = _headOffset;
+                this._currentSegment = this._head;
+                this._currentSegmentOffset = this._headOffset;
             }
         }
         #endregion class Enumerator 
@@ -169,15 +169,15 @@
 
             public Segment(Segment nextSegment)
             {
-                _nextSegment = nextSegment;
-                _nextSegmentGlobalCount = (nextSegment == null) ? 0 : nextSegment.GlobalCount;
+                this._nextSegment = nextSegment;
+                this._nextSegmentGlobalCount = (nextSegment == null) ? 0 : nextSegment.GlobalCount;
             }
 
             public int LocalCount
             {
                 get
                 {
-                    int lc = Volatile.Read(ref _localCount);
+                    int lc = Volatile.Read(ref this._localCount);
                     if (lc > SegmentSize)
                     {
                         return SegmentSize;
@@ -194,7 +194,7 @@
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return _nextSegment;
+                    return this._nextSegment;
                 }
             }
 
@@ -203,7 +203,7 @@
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return LocalCount + _nextSegmentGlobalCount;
+                    return this.LocalCount + this._nextSegmentGlobalCount;
                 }
             }
 
@@ -211,25 +211,25 @@
             {
                 get
                 {
-                    if (index < 0 || _localCount <= index || SegmentSize <= index)
+                    if (index < 0 || this._localCount <= index || SegmentSize <= index)
                     {
                         throw new ArgumentOutOfRangeException(nameof(index), $"Invalid index ({index})");
                     }
 
-                    return _data[index];
+                    return this._data[index];
                 }
             }
 
             internal bool TryAdd(T item)
             {
-                int index = Interlocked.Increment(ref _localCount) - 1;
+                int index = Interlocked.Increment(ref this._localCount) - 1;
                 if (index >= SegmentSize)
                 {
-                    Interlocked.Decrement(ref _localCount);
+                    Interlocked.Decrement(ref this._localCount);
                     return false;
                 }
 
-                _data[index] = item;
+                this._data[index] = item;
                 return true;
             }
         }

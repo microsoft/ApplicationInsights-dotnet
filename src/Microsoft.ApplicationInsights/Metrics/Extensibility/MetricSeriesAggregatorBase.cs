@@ -35,20 +35,20 @@
             Util.ValidateNotNull(metricValuesBufferFactory, nameof(metricValuesBufferFactory));
             Util.ValidateNotNull(configuration, nameof(configuration));
 
-            _dataSeries = dataSeries;
-            _aggregationCycleKind = aggregationCycleKind;
-            _isPersistent = configuration.RequiresPersistentAggregation;
+            this._dataSeries = dataSeries;
+            this._aggregationCycleKind = aggregationCycleKind;
+            this._isPersistent = configuration.RequiresPersistentAggregation;
 
-            _metricValuesBufferFactory = metricValuesBufferFactory;
-            _metricValuesBuffer = InvokeMetricValuesBufferFactory();
+            this._metricValuesBufferFactory = metricValuesBufferFactory;
+            this._metricValuesBuffer = this.InvokeMetricValuesBufferFactory();
 
-            Reset(default(DateTimeOffset), default(IMetricValueFilter));
+            this.Reset(default(DateTimeOffset), default(IMetricValueFilter));
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricSeries DataSeries
         {
-            get { return _dataSeries; }
+            get { return this._dataSeries; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -56,12 +56,12 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MetricAggregate CompleteAggregation(DateTimeOffset periodEnd)
         {
-            if (!_isPersistent)
+            if (!this._isPersistent)
             {
-                DataSeries.ClearAggregator(_aggregationCycleKind);
+                this.DataSeries.ClearAggregator(this._aggregationCycleKind);
             }
 
-            MetricAggregate aggregate = CreateAggregateUnsafe(periodEnd);
+            MetricAggregate aggregate = this.CreateAggregateUnsafe(periodEnd);
             return aggregate;
         }
 
@@ -69,11 +69,11 @@
         /// <param name="periodStart">ToDo: Complete documentation before stable release.</param>
         public void Reset(DateTimeOffset periodStart)
         {
-            _periodStart = periodStart;
+            this._periodStart = periodStart;
 
-            _metricValuesBuffer.ResetIndicesAndData();
+            this._metricValuesBuffer.ResetIndicesAndData();
 
-            ResetAggregate();
+            this.ResetAggregate();
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -81,8 +81,8 @@
         /// <param name="valueFilter">ToDo: Complete documentation before stable release.</param>
         public void Reset(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
         {
-            _valueFilter = valueFilter;
-            Reset(periodStart);
+            this._valueFilter = valueFilter;
+            this.Reset(periodStart);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -95,15 +95,15 @@
             }
 
             // Respect the filter. Note: Filter may be user code. If user code is broken, assume we accept the value.
-            if (false == Util.FilterWillConsume(_valueFilter, _dataSeries, metricValue))
+            if (false == Util.FilterWillConsume(this._valueFilter, this._dataSeries, metricValue))
             {
                 return;
             }
 
             // Prepare the metric value. If it is invalid, ConvertMetricValue may throw. This wil be propagated to the user.
 
-            TBufferedValue value = ConvertMetricValue(metricValue);
-            TrackFilteredConvertedValue(value);
+            TBufferedValue value = this.ConvertMetricValue(metricValue);
+            this.TrackFilteredConvertedValue(value);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -116,26 +116,26 @@
             }
 
             // Respect the filter. Note: Filter may be user code. If user code is broken, assume we accept the value.
-            if (false == Util.FilterWillConsume(_valueFilter, _dataSeries, metricValue))
+            if (false == Util.FilterWillConsume(this._valueFilter, this._dataSeries, metricValue))
             {
                 return;
             }
 
             // Prepare the metric value. If it is invalid, ConvertMetricValue may throw. This wil be propagated to the user.
-            TBufferedValue value = ConvertMetricValue(metricValue);
-            TrackFilteredConvertedValue(value);
+            TBufferedValue value = this.ConvertMetricValue(metricValue);
+            this.TrackFilteredConvertedValue(value);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public bool TryRecycle()
         {
-            if (_isPersistent)
+            if (this._isPersistent)
             {
                 return false;
             }
 
-            Reset(default(DateTimeOffset), default(IMetricValueFilter));
+            this.Reset(default(DateTimeOffset), default(IMetricValueFilter));
             return true;
         }
 
@@ -144,9 +144,9 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MetricAggregate CreateAggregateUnsafe(DateTimeOffset periodEnd)
         {
-            UpdateAggregate(_metricValuesBuffer);
+            this.UpdateAggregate(this._metricValuesBuffer);
 
-            return CreateAggregate(periodEnd);
+            return this.CreateAggregate(periodEnd);
         }
 
         #region Abstract Methods
@@ -204,16 +204,16 @@
 
             // Stamp Timing Info: 
 
-            aggregate.AggregationPeriodStart = _periodStart;
-            aggregate.AggregationPeriodDuration = periodEnd - _periodStart;
+            aggregate.AggregationPeriodStart = this._periodStart;
+            aggregate.AggregationPeriodDuration = periodEnd - this._periodStart;
 
-            if (DataSeries != null)
+            if (this.DataSeries != null)
             {
                 // Stamp dimensions:
 
-                if (DataSeries.DimensionNamesAndValues != null)
+                if (this.DataSeries.DimensionNamesAndValues != null)
                 {
-                    foreach (KeyValuePair<string, string> dimNameVal in DataSeries.DimensionNamesAndValues)
+                    foreach (KeyValuePair<string, string> dimNameVal in this.DataSeries.DimensionNamesAndValues)
                     {
                         aggregate.Dimensions[dimNameVal.Key] = dimNameVal.Value;
                     }
@@ -250,7 +250,7 @@
         private void TrackFilteredConvertedValue(TBufferedValue metricValue)
         {
             // Get reference to the current buffer:
-            MetricValuesBufferBase<TBufferedValue> buffer = _metricValuesBuffer;
+            MetricValuesBufferBase<TBufferedValue> buffer = this._metricValuesBuffer;
 
             // Get the index at which to store metricValue into the buffer:
             int index = buffer.IncWriteIndex();
@@ -269,7 +269,7 @@
 
                 // It could be that the thread that was flushing is done and has updated the buffer pointer.
                 // We refresh our local reference and see if we now have a valid index into the buffer.
-                buffer = _metricValuesBuffer;
+                buffer = this._metricValuesBuffer;
                 index = buffer.IncWriteIndex();
 
                 while (index >= buffer.Capacity)
@@ -293,7 +293,7 @@
 
                     // Check to see whether the thread that was flushing is done and has updated the buffer pointer.
                     // We refresh our local reference and see if we now have a valid index into the buffer.
-                    buffer = _metricValuesBuffer;
+                    buffer = this._metricValuesBuffer;
                     index = buffer.IncWriteIndex();
                 }
 #if DEBUG
@@ -328,7 +328,7 @@
                 // a simple form of best-effort object pooling.
 
                 // Get buffer from pool and reset the pool:
-                MetricValuesBufferBase<TBufferedValue> newBufer = Interlocked.Exchange(ref _metricValuesBufferRecycle, null);
+                MetricValuesBufferBase<TBufferedValue> newBufer = Interlocked.Exchange(ref this._metricValuesBufferRecycle, null);
                 
                 if (newBufer != null)
                 {
@@ -336,7 +336,7 @@
                     // If we successfully the the recycled buffer to be the new buffer, we will reset it to prepare for data.
                     // Otherwise we will just throw it away.
 
-                    MetricValuesBufferBase<TBufferedValue> prevBuffer = Interlocked.CompareExchange(ref _metricValuesBuffer, newBufer, buffer);
+                    MetricValuesBufferBase<TBufferedValue> prevBuffer = Interlocked.CompareExchange(ref this._metricValuesBuffer, newBufer, buffer);
                     if (prevBuffer == buffer)
                     {
                         newBufer.ResetIndices();
@@ -346,8 +346,8 @@
                 {
                     // If we were succesful in getting a recycled buffer from the pool, we will create a new one.
 
-                    newBufer = InvokeMetricValuesBufferFactory();
-                    Interlocked.CompareExchange(ref _metricValuesBuffer, newBufer, buffer);
+                    newBufer = this.InvokeMetricValuesBufferFactory();
+                    Interlocked.CompareExchange(ref this._metricValuesBuffer, newBufer, buffer);
                 }
 
                 // Ok, now we have either set a new buffer that is ready to be used, or we have determined using CompareExchange
@@ -355,10 +355,10 @@
 
                 // Now we can actually flush the buffer:
 
-                UpdateAggregate(buffer);
+                this.UpdateAggregate(buffer);
 
                 // The buffer is now flushed. If the slot for the best-effor object pooling is free, use it:
-                Interlocked.CompareExchange(ref _metricValuesBufferRecycle, buffer, null);
+                Interlocked.CompareExchange(ref this._metricValuesBufferRecycle, buffer, null);
             }
         }
 
@@ -394,12 +394,12 @@
                     return;
                 }
 
-                stage1Result = UpdateAggregate_Stage1(buffer, minFlushIndex, maxFlushIndex);
+                stage1Result = this.UpdateAggregate_Stage1(buffer, minFlushIndex, maxFlushIndex);
                 
                 buffer.NextFlushIndex = maxFlushIndex + 1;
             }
 
-            UpdateAggregate_Stage2(stage1Result);
+            this.UpdateAggregate_Stage2(stage1Result);
         }
 
         private MetricValuesBufferBase<TBufferedValue> InvokeMetricValuesBufferFactory()
@@ -410,11 +410,11 @@
                 Interlocked.Increment(ref s_countNewBufferObjectsCreated);
             }
 #endif
-            MetricValuesBufferBase<TBufferedValue> buffer = _metricValuesBufferFactory();
+            MetricValuesBufferBase<TBufferedValue> buffer = this._metricValuesBufferFactory();
 
             if (buffer == null)
             {
-                throw new InvalidOperationException($"{nameof(_metricValuesBufferFactory)}-delegate returned null. This is not allowed. Bad aggregator?");
+                throw new InvalidOperationException($"{nameof(this._metricValuesBufferFactory)}-delegate returned null. This is not allowed. Bad aggregator?");
             }
 
             return buffer;

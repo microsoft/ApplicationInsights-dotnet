@@ -225,29 +225,29 @@
                 }
             }
 
-            _totalPointsCountLimit = totalPointsCountLimit;
+            this._totalPointsCountLimit = totalPointsCountLimit;
 
-            _subdimensionsCountLimits = subdimensionsCountLimits;
-            _points = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(this, subdimensionsCountLimits[0], subdimensionsCountLimits.Length == 1);
-            _pointsFactory = pointsFactory;
+            this._subdimensionsCountLimits = subdimensionsCountLimits;
+            this._points = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(this, subdimensionsCountLimits[0], subdimensionsCountLimits.Length == 1);
+            this._pointsFactory = pointsFactory;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int DimensionsCount
         {
-            get { return _subdimensionsCountLimits.Length; }
+            get { return this._subdimensionsCountLimits.Length; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int TotalPointsCountLimit
         {
-            get { return _totalPointsCountLimit; }
+            get { return this._totalPointsCountLimit; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int TotalPointsCount
         {
-            get { return Volatile.Read(ref _totalPointsCount); }
+            get { return Volatile.Read(ref this._totalPointsCount); }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -255,7 +255,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public int GetSubdimensionsCountLimit(int dimension)
         {
-            return _subdimensionsCountLimits[dimension];
+            return this._subdimensionsCountLimits[dimension];
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -263,7 +263,7 @@
         public IReadOnlyCollection<KeyValuePair<TDimensionValue[], TPoint>> GetAllPoints()
         {
             var vectors = new List<KeyValuePair<TDimensionValue[], TPoint>>();
-            GetAllPoints(vectors);
+            this.GetAllPoints(vectors);
             return vectors;
         }
 
@@ -273,7 +273,7 @@
         {
             var vectors = new List<KeyValuePair<TDimensionValue[], TPoint>>();
 
-            IReadOnlyCollection<KeyValuePair<IList<TDimensionValue>, TPoint>> reversedVectors = _points.GetAllPointsReversed();
+            IReadOnlyCollection<KeyValuePair<IList<TDimensionValue>, TPoint>> reversedVectors = this._points.GetAllPointsReversed();
             foreach (KeyValuePair<IList<TDimensionValue>, TPoint> rv in reversedVectors)
             {
                 var v = new KeyValuePair<TDimensionValue[], TPoint>(new TDimensionValue[rv.Key.Count], rv.Value);
@@ -292,7 +292,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MultidimensionalPointResult<TPoint> TryGetOrCreatePoint(params TDimensionValue[] coordinates)
         {
-            MultidimensionalPointResult<TPoint> result = _points.TryGetOrAddVector(coordinates);
+            MultidimensionalPointResult<TPoint> result = this._points.TryGetOrAddVector(coordinates);
             return result;
         }
 
@@ -301,7 +301,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MultidimensionalPointResult<TPoint> TryGetPoint(params TDimensionValue[] coordinates)
         {
-            MultidimensionalPointResult<TPoint> result = _points.TryGetVector(coordinates);
+            MultidimensionalPointResult<TPoint> result = this._points.TryGetVector(coordinates);
             return result;
         }
 
@@ -310,7 +310,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(params TDimensionValue[] coordinates)
         {
-            return TryGetOrCreatePointAsync(
+            return this.TryGetOrCreatePointAsync(
                         sleepDuration: TimeSpan.FromMilliseconds(2),
                         timeout:        TimeSpan.FromMilliseconds(11),
                         cancelToken:    CancellationToken.None,
@@ -347,7 +347,7 @@
             }
             catch (Exception ex)
             {
-                if ((false == IsThrownByPointsFactoryKey(ex)) || (timeout == TimeSpan.Zero))
+                if ((false == this.IsThrownByPointsFactoryKey(ex)) || (timeout == TimeSpan.Zero))
                 {
                     ExceptionDispatchInfo.Capture(ex).Throw();
                 }
@@ -409,7 +409,7 @@
                 }
                 catch (Exception ex)
                 {
-                    if (false == IsThrownByPointsFactoryKey(ex))
+                    if (false == this.IsThrownByPointsFactoryKey(ex))
                     {
                         ExceptionDispatchInfo.Capture(ex).Throw();
                     }
@@ -431,7 +431,7 @@
         {
             try
             {
-                TPoint point = _pointsFactory(coordinates);
+                TPoint point = this._pointsFactory(coordinates);
                 return point;
             }
             catch (Exception ex)
@@ -446,20 +446,20 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         internal bool TryIncTotalPointsCount()
         {
-            int newTotalPointsCount = Interlocked.Increment(ref _totalPointsCount);
+            int newTotalPointsCount = Interlocked.Increment(ref this._totalPointsCount);
 
-            if (newTotalPointsCount <= _totalPointsCountLimit)
+            if (newTotalPointsCount <= this._totalPointsCountLimit)
             {
                 return true;
             }
 
-            Interlocked.Decrement(ref _totalPointsCount);
+            Interlocked.Decrement(ref this._totalPointsCount);
             return false;
         }
 
         internal int DecTotalPointsCount()
         {
-            int newTotalPointsCount = Interlocked.Decrement(ref _totalPointsCount);
+            int newTotalPointsCount = Interlocked.Decrement(ref this._totalPointsCount);
             return newTotalPointsCount;
         }
 

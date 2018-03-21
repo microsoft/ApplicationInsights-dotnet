@@ -19,9 +19,9 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public object Convert(MetricAggregate aggregate)
         {
-            ValidateAggregate(aggregate);
+            this.ValidateAggregate(aggregate);
 
-            MetricTelemetry telemetryItem = ConvertAggregateToTelemetry(aggregate);
+            MetricTelemetry telemetryItem = this.ConvertAggregateToTelemetry(aggregate);
             return telemetryItem;
         }
 
@@ -204,7 +204,7 @@
             Util.ValidateNotNull(metricAggregate, nameof(metricAggregate));
             Util.ValidateNotNull(metricAggregate.AggregationKindMoniker, nameof(metricAggregate.AggregationKindMoniker));
 
-            string expectedMoniker = AggregationKindMoniker;
+            string expectedMoniker = this.AggregationKindMoniker;
 
             if (!metricAggregate.AggregationKindMoniker.Equals(expectedMoniker, StringComparison.OrdinalIgnoreCase))
             {
@@ -222,7 +222,7 @@
 
             telemetryItem.Name = aggregate.MetricId;
 
-            PopulateDataValues(telemetryItem, aggregate);
+            this.PopulateDataValues(telemetryItem, aggregate);
 
             // Set timing values:
 

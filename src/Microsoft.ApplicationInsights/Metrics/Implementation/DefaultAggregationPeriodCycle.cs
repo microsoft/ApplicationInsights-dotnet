@@ -29,43 +29,43 @@
             Util.ValidateNotNull(aggregationManager, nameof(aggregationManager));
             Util.ValidateNotNull(metricManager, nameof(metricManager));
 
-            _workerMethod = this.Run;
+            this._workerMethod = this.Run;
 
-            _aggregationManager = aggregationManager;
-            _metricManager = metricManager;
+            this._aggregationManager = aggregationManager;
+            this._metricManager = metricManager;
 
-            _runningState = RunningState_NotStarted;
-            _workerTask = null;
+            this._runningState = RunningState_NotStarted;
+            this._workerTask = null;
         }
 
         ~DefaultAggregationPeriodCycle()
         {
-            Task fireAndForget = StopAsync();
+            Task fireAndForget = this.StopAsync();
         }
 
         public bool Start()
         {
-            int prev = Interlocked.CompareExchange(ref _runningState, RunningState_Running, RunningState_NotStarted);
+            int prev = Interlocked.CompareExchange(ref this._runningState, RunningState_Running, RunningState_NotStarted);
 
             if (prev != RunningState_NotStarted)
             {
                 return false; // Was already running or stopped.
             }
 
-            _workerTask = Task.Run(_workerMethod)
+            this._workerTask = Task.Run(this._workerMethod)
                               .ContinueWith(
-                                        (t) => { _workerTask = null; },
+                                        (t) => { this._workerTask = null; },
                                         TaskContinuationOptions.ExecuteSynchronously);
             return true;
         }
 
         public Task StopAsync()
         {
-            Interlocked.Exchange(ref _runningState, RunningState_Stopped);
+            Interlocked.Exchange(ref this._runningState, RunningState_Stopped);
             
             // Benign race on being called very soon after start. Will miss a cycle but eventually complete correctly.
 
-            Task workerTask = _workerTask;
+            Task workerTask = this._workerTask;
             return workerTask ?? Task.FromResult(true);
         }
 
@@ -87,13 +87,13 @@
                 now = Util.RoundDownToSecond(now);
             }
 
-            AggregationPeriodSummary aggregates = _aggregationManager.StartOrCycleAggregators(
+            AggregationPeriodSummary aggregates = this._aggregationManager.StartOrCycleAggregators(
                                                                             MetricAggregationCycleKind.Default,
                                                                             futureFilter: null,
                                                                             tactTimestamp: now);
             if (aggregates != null)
             {
-                Task fireAndForget = Task.Run(() => _metricManager.TrackMetricAggregates(aggregates, flush: false));
+                Task fireAndForget = Task.Run(() => this._metricManager.TrackMetricAggregates(aggregates, flush: false));
             }
         }
 
@@ -142,13 +142,13 @@
                 //Thread.Sleep(waitPeriod);
                 Task.Delay(waitPeriod).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
 
-                int shouldBeRunning = Volatile.Read(ref _runningState);
+                int shouldBeRunning = Volatile.Read(ref this._runningState);
                 if (shouldBeRunning != RunningState_Running)
                 {
                     return;
                 }
 
-                FetchAndTrackMetrics();
+                this.FetchAndTrackMetrics();
             }
         }
     }

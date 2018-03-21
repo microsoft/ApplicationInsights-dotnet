@@ -26,22 +26,22 @@
                 throw new ArgumentOutOfRangeException(nameof(capacity));
             }
 
-            _values = new TValue[capacity];
-            ResetValues(_values);
+            this._values = new TValue[capacity];
+            this.ResetValues(this._values);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int Capacity
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return _values.Length; }
+            get { return this._values.Length; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int NextFlushIndex
         {
-            get { return _nextFlushIndex; }
-            set { _nextFlushIndex = value; }
+            get { return this._nextFlushIndex; }
+            set { this._nextFlushIndex = value; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -49,7 +49,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int IncWriteIndex()
         {
-            return Interlocked.Increment(ref _lastWriteIndex);
+            return Interlocked.Increment(ref this._lastWriteIndex);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -57,7 +57,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int PeekLastWriteIndex()
         {
-            return Volatile.Read(ref _lastWriteIndex);
+            return Volatile.Read(ref this._lastWriteIndex);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -66,22 +66,22 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteValue(int index, TValue value)
         {
-            WriteValueOnce(_values, index, value);
+            this.WriteValueOnce(this._values, index, value);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public void ResetIndices()
         {
-            _nextFlushIndex = 0;
-            Interlocked.Exchange(ref _lastWriteIndex, -1);
+            this._nextFlushIndex = 0;
+            Interlocked.Exchange(ref this._lastWriteIndex, -1);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public void ResetIndicesAndData()
         {
-            Interlocked.Exchange(ref _lastWriteIndex, Capacity);
-            ResetValues(_values);
-            ResetIndices();
+            Interlocked.Exchange(ref this._lastWriteIndex, this.Capacity);
+            this.ResetValues(this._values);
+            this.ResetIndices();
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -89,16 +89,16 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public TValue GetAndResetValue(int index)
         {
-            TValue value = GetAndResetValueOnce(_values, index);
+            TValue value = this.GetAndResetValueOnce(this._values, index);
 
-            if (IsInvalidValue(value))
+            if (this.IsInvalidValue(value))
             {
 #pragma warning disable SA1129 // Do not use default value type constructor
                 var spinWait = new SpinWait();
 #pragma warning restore SA1129 // Do not use default value type constructor
 
-                value = GetAndResetValueOnce(_values, index);
-                while (IsInvalidValue(value))
+                value = this.GetAndResetValueOnce(this._values, index);
+                while (this.IsInvalidValue(value))
                 {
                     spinWait.SpinOnce();
                     
@@ -109,7 +109,7 @@
                         Task.Delay(10).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
                     }
 
-                    value = GetAndResetValueOnce(_values, index);
+                    value = this.GetAndResetValueOnce(this._values, index);
                 }
             }
 

@@ -21,8 +21,8 @@
             DateTimeOffset now = DateTimeOffset.Now;
             DateTimeOffset timestamp = Util.RoundDownToSecond(now);
 
-            _aggregatorsForDefault = new AggregatorCollection(timestamp, filter: null);
-            _aggregatorsForPersistent = new AggregatorCollection(timestamp, filter: null);
+            this._aggregatorsForDefault = new AggregatorCollection(timestamp, filter: null);
+            this._aggregatorsForPersistent = new AggregatorCollection(timestamp, filter: null);
         }
 
         public AggregationPeriodSummary StartOrCycleAggregators(MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter futureFilter)
@@ -35,13 +35,13 @@
                         throw new ArgumentException($"Cannot specify non-null {nameof(futureFilter)} when {nameof(aggregationCycleKind)} is {aggregationCycleKind}.");
                     }
 
-                    return CycleAggregators(ref _aggregatorsForDefault, tactTimestamp, futureFilter, stopAggregators: false);
+                    return this.CycleAggregators(ref this._aggregatorsForDefault, tactTimestamp, futureFilter, stopAggregators: false);
 
                 case CycleKind.QuickPulse:
-                    return CycleAggregators(ref _aggregatorsForQuickPulse, tactTimestamp, futureFilter, stopAggregators: false);
+                    return this.CycleAggregators(ref this._aggregatorsForQuickPulse, tactTimestamp, futureFilter, stopAggregators: false);
 
                 case CycleKind.Custom:
-                    return CycleAggregators(ref _aggregatorsForCustom, tactTimestamp, futureFilter, stopAggregators: false);
+                    return this.CycleAggregators(ref this._aggregatorsForCustom, tactTimestamp, futureFilter, stopAggregators: false);
 
                 default:
                     throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
@@ -53,13 +53,13 @@
             switch (aggregationCycleKind)
             {
                 case CycleKind.QuickPulse:
-                    return CycleAggregators(ref _aggregatorsForQuickPulse, tactTimestamp, futureFilter: null, stopAggregators: true);
+                    return this.CycleAggregators(ref this._aggregatorsForQuickPulse, tactTimestamp, futureFilter: null, stopAggregators: true);
 
                 case CycleKind.Custom:
-                    return CycleAggregators(ref _aggregatorsForCustom, tactTimestamp, futureFilter: null, stopAggregators: true);
+                    return this.CycleAggregators(ref this._aggregatorsForCustom, tactTimestamp, futureFilter: null, stopAggregators: true);
 
                 case CycleKind.Default:
-                    throw new ArgumentException($"Cannot invoke {nameof(StopAggregators)} for Default {nameof(MetricAggregationCycleKind)}: Default aggregators are always active.");
+                    throw new ArgumentException($"Cannot invoke {nameof(this.StopAggregators)} for Default {nameof(MetricAggregationCycleKind)}: Default aggregators are always active.");
 
                 default:
                     throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
@@ -75,11 +75,11 @@
                     return true;
 
                 case CycleKind.QuickPulse:
-                    AggregatorCollection qpAggs = _aggregatorsForQuickPulse;
+                    AggregatorCollection qpAggs = this._aggregatorsForQuickPulse;
                     filter = qpAggs?.Filter;
                     return (qpAggs != null);
                 case CycleKind.Custom:
-                    AggregatorCollection cAggs = _aggregatorsForCustom;
+                    AggregatorCollection cAggs = this._aggregatorsForCustom;
                     filter = cAggs?.Filter;
                     return (cAggs != null);
 
@@ -94,19 +94,19 @@
 
             if (aggregator.DataSeries._configuration.RequiresPersistentAggregation)
             {
-                return AddAggregator(aggregator, _aggregatorsForPersistent);
+                return AddAggregator(aggregator, this._aggregatorsForPersistent);
             }
 
             switch (aggregationCycleKind)
             {
                 case CycleKind.Default:
-                    return AddAggregator(aggregator, _aggregatorsForDefault);
+                    return AddAggregator(aggregator, this._aggregatorsForDefault);
 
                 case CycleKind.QuickPulse:
-                    return AddAggregator(aggregator, _aggregatorsForQuickPulse);
+                    return AddAggregator(aggregator, this._aggregatorsForQuickPulse);
 
                 case CycleKind.Custom:
-                    return AddAggregator(aggregator, _aggregatorsForCustom);
+                    return AddAggregator(aggregator, this._aggregatorsForCustom);
 
                 default:
                     throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
@@ -139,7 +139,7 @@
                                                 IMetricSeriesFilter futureFilter,
                                                 bool stopAggregators)
         {
-            if (aggregators == _aggregatorsForPersistent)
+            if (aggregators == this._aggregatorsForPersistent)
             {
                 throw new InvalidOperationException("Internal SDK bug. Please report. Cannot cycle persistent aggregators.");
             }
@@ -159,10 +159,10 @@
             }
 
             // Get persistent aggregations. We do this for any cycle kind, i.e. for whatever the aggregators collection was:
-            List<MetricAggregate> persistentValsAggregations = GetPersistentAggregations(tactTimestamp, prevAggregators?.Filter);
+            List<MetricAggregate> persistentValsAggregations = this.GetPersistentAggregations(tactTimestamp, prevAggregators?.Filter);
 
             // Get non-persistent aggregations:
-            List<MetricAggregate> nonpersistentAggregations = GetNonpersistentAggregations(tactTimestamp, prevAggregators);
+            List<MetricAggregate> nonpersistentAggregations = this.GetNonpersistentAggregations(tactTimestamp, prevAggregators);
 
             var summary = new AggregationPeriodSummary(persistentValsAggregations, nonpersistentAggregations);
             return summary;
@@ -175,7 +175,7 @@
             // time when the enumerator is created. We expand the foreach statement (like the compiler normally does) so that we can use the typed
             // enumerator's Count property which is constsent with the data in the snapshot.
 
-            GrowingCollection<IMetricSeriesAggregator>.Enumerator persistentValsAggregators = _aggregatorsForPersistent.Aggregators.GetEnumerator();
+            GrowingCollection<IMetricSeriesAggregator>.Enumerator persistentValsAggregators = this._aggregatorsForPersistent.Aggregators.GetEnumerator();
             List<MetricAggregate> persistentValsAggregations = new List<MetricAggregate>(capacity: persistentValsAggregators.Count);
             try
             {

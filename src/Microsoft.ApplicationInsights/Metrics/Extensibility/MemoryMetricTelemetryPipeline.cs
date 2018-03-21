@@ -32,7 +32,7 @@
                 throw new ArgumentOutOfRangeException(nameof(countLimit));
             }
 
-            CountLimit = countLimit;
+            this.CountLimit = countLimit;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -44,14 +44,14 @@
             get
             {
                 int count;
-                _lock.WaitAsync().GetAwaiter().GetResult();
+                this._lock.WaitAsync().GetAwaiter().GetResult();
                 try
                 {
-                    count = _metricAgregates.Count;
+                    count = this._metricAgregates.Count;
                 }
                 finally
                 {
-                    _lock.Release();
+                    this._lock.Release();
                 }
 
                 return count;
@@ -66,14 +66,14 @@
             get
             {
                 MetricAggregate metricAggregate;
-                _lock.WaitAsync().GetAwaiter().GetResult();
+                this._lock.WaitAsync().GetAwaiter().GetResult();
                 try
                 {
-                    metricAggregate = _metricAgregates[index];
+                    metricAggregate = this._metricAgregates[index];
                 }
                 finally
                 {
-                    _lock.Release();
+                    this._lock.Release();
                 }
 
                 return metricAggregate;
@@ -83,14 +83,14 @@
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public void Clear()
         {
-            _lock.WaitAsync().GetAwaiter().GetResult();
+            this._lock.WaitAsync().GetAwaiter().GetResult();
             try
             {
-                _metricAgregates.Clear();
+                this._metricAgregates.Clear();
             }
             finally
             {
-                _lock.Release();
+                this._lock.Release();
             }
         }
 
@@ -102,19 +102,19 @@
         {
             Util.ValidateNotNull(metricAggregate, nameof(metricAggregate));
 
-            await _lock.WaitAsync(cancelToken);
+            await this._lock.WaitAsync(cancelToken);
             try
             {
-                while (_metricAgregates.Count >= CountLimit)
+                while (this._metricAgregates.Count >= this.CountLimit)
                 {
-                    _metricAgregates.RemoveAt(0);
+                    this._metricAgregates.RemoveAt(0);
                 }
 
-                _metricAgregates.Add(metricAggregate);
+                this._metricAgregates.Add(metricAggregate);
             }
             finally
             {
-                _lock.Release();
+                this._lock.Release();
             }
         }
 
@@ -129,14 +129,14 @@
         IEnumerator<MetricAggregate> IEnumerable<MetricAggregate>.GetEnumerator()
         {
             IEnumerator<MetricAggregate> enumerator;
-            _lock.WaitAsync().GetAwaiter().GetResult();
+            this._lock.WaitAsync().GetAwaiter().GetResult();
             try
             {
-                enumerator = _metricAgregates.GetEnumerator();
+                enumerator = this._metricAgregates.GetEnumerator();
             }
             finally
             {
-                _lock.Release();
+                this._lock.Release();
             }
 
             return enumerator;

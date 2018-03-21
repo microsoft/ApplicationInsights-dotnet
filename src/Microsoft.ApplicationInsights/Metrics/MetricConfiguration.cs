@@ -30,16 +30,16 @@
            
             Util.ValidateNotNull(seriesConfig, nameof(seriesConfig));
 
-            SeriesCountLimit = seriesCountLimit;
-            ValuesPerDimensionLimit = valuesPerDimensionLimit;
+            this.SeriesCountLimit = seriesCountLimit;
+            this.ValuesPerDimensionLimit = valuesPerDimensionLimit;
 
-            SeriesConfig = seriesConfig;
+            this.SeriesConfig = seriesConfig;
 
-            _hashCode = Util.CombineHashCodes(
-                                        SeriesCountLimit.GetHashCode(),
-                                        ValuesPerDimensionLimit.GetHashCode(),
-                                        SeriesConfig.GetType().FullName.GetHashCode(),
-                                        SeriesConfig.GetHashCode());
+            this._hashCode = Util.CombineHashCodes(
+                                        this.SeriesCountLimit.GetHashCode(),
+                                        this.ValuesPerDimensionLimit.GetHashCode(),
+                                        this.SeriesConfig.GetType().FullName.GetHashCode(),
+                                        this.SeriesConfig.GetHashCode());
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -61,7 +61,7 @@
                 var otherConfig = obj as MetricConfiguration;
                 if (otherConfig != null)
                 {
-                    return Equals(otherConfig);
+                    return this.Equals(otherConfig);
                 }
             }
 
@@ -93,7 +93,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public override int GetHashCode()
         {
-            return _hashCode;
+            return this._hashCode;
         }
     }
 }

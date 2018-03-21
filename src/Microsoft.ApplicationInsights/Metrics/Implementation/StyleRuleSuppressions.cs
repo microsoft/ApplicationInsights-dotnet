@@ -40,13 +40,6 @@
 // These might be controversial:
 
 [assembly:SuppressMessage(
-            category:       "StyleCop.CSharp.ReadabilityRules",
-            checkId:        "SA1101: Prefix Local Calls With This",
-            Justification = "A large body of code was moved from a different repo with different conventions."
-                          + " Modifying the code to comply with this rule is a lot of work. However, there is also value in consistency."
-                          + " Need to discuss with the wider group. For now, suppressing to unblock progress.")]
-
-[assembly:SuppressMessage(
             category:       "StyleCop.CSharp.NamingRules",
             checkId:        "SA1308: Variable Names Must Not Be Prefixed",
             Justification = "A large body of code was moved from a different repo with different conventions."

@@ -75,36 +75,36 @@
                 }
             }
 
-            _totalPointsCountLimit = totalPointsCountLimit;
-            _dimensionValuesCountLimits = dimensionValuesCountLimits;
-            _dimensionValues = new HashSet<string>[dimensionValuesCountLimits.Length];
-            _points = new ConcurrentDictionary<string, TPoint>();
-            _pointsFactory = pointsFactory;
+            this._totalPointsCountLimit = totalPointsCountLimit;
+            this._dimensionValuesCountLimits = dimensionValuesCountLimits;
+            this._dimensionValues = new HashSet<string>[dimensionValuesCountLimits.Length];
+            this._points = new ConcurrentDictionary<string, TPoint>();
+            this._pointsFactory = pointsFactory;
 
-            _totalPointsCount = 0;
+            this._totalPointsCount = 0;
 
-            for (int i = 0; i < _dimensionValues.Length; i++)
+            for (int i = 0; i < this._dimensionValues.Length; i++)
             {
-                _dimensionValues[i] = new HashSet<string>();
+                this._dimensionValues[i] = new HashSet<string>();
             }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int DimensionsCount
         {
-            get { return _dimensionValuesCountLimits.Length; }
+            get { return this._dimensionValuesCountLimits.Length; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int TotalPointsCountLimit
         {
-            get { return _totalPointsCountLimit; }
+            get { return this._totalPointsCountLimit; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int TotalPointsCount
         {
-            get { return Volatile.Read(ref _totalPointsCount); }
+            get { return Volatile.Read(ref this._totalPointsCount); }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -112,8 +112,8 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public int GetDimensionValuesCountLimit(int dimension)
         {
-            ValidateDimensionIndex(dimension);
-            return _dimensionValuesCountLimits[dimension];
+            this.ValidateDimensionIndex(dimension);
+            return this._dimensionValuesCountLimits[dimension];
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -121,16 +121,16 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public IReadOnlyCollection<string> GetDimensionValues(int dimension)
         {
-            ValidateDimensionIndex(dimension);
-            return (IReadOnlyCollection<string>)_dimensionValues[dimension];
+            this.ValidateDimensionIndex(dimension);
+            return (IReadOnlyCollection<string>)this._dimensionValues[dimension];
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public IReadOnlyList<KeyValuePair<string[], TPoint>> GetAllPoints()
         {
-            List<KeyValuePair<string[], TPoint>> currentPoints = new List<KeyValuePair<string[], TPoint>>(TotalPointsCount);
-            GetAllPoints(currentPoints);
+            List<KeyValuePair<string[], TPoint>> currentPoints = new List<KeyValuePair<string[], TPoint>>(this.TotalPointsCount);
+            this.GetAllPoints(currentPoints);
             return currentPoints;
         }
 
@@ -140,7 +140,7 @@
         public int GetAllPoints(ICollection<KeyValuePair<string[], TPoint>> pointContainer)
         {
             int count = 0;
-            foreach (KeyValuePair<string, TPoint> storedPoint in _points)
+            foreach (KeyValuePair<string, TPoint> storedPoint in this._points)
             {
                 string[] coordinates = ParsePointMoniker(storedPoint.Key);
                 KeyValuePair<string[], TPoint> parsedPoint = new KeyValuePair<string[], TPoint>(coordinates, storedPoint.Value);
@@ -156,10 +156,10 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MultidimensionalPointResult<TPoint> TryGetOrCreatePoint(params string[] coordinates)
         {
-            string pointMoniker = GetPointMoniker(coordinates);
+            string pointMoniker = this.GetPointMoniker(coordinates);
 
             TPoint point;
-            bool hasPoint = _points.TryGetValue(pointMoniker, out point);
+            bool hasPoint = this._points.TryGetValue(pointMoniker, out point);
 
             if (hasPoint)
             {
@@ -167,21 +167,21 @@
                 return result;
             }
 
-            if (_totalPointsCount >= _totalPointsCountLimit)
+            if (this._totalPointsCount >= this._totalPointsCountLimit)
             {
                 var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, -1);
                 return result;
             }
 
-            _pointCreationLock.Wait();
+            this._pointCreationLock.Wait();
             try
             {
-                MultidimensionalPointResult<TPoint> result = TryCreatePoint(coordinates, pointMoniker);
+                MultidimensionalPointResult<TPoint> result = this.TryCreatePoint(coordinates, pointMoniker);
                 return result;
             }
             finally
             {
-                _pointCreationLock.Release();
+                this._pointCreationLock.Release();
             }
         }
 
@@ -190,7 +190,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(params string[] coordinates)
         {
-            return TryGetOrCreatePointAsync(CancellationToken.None, coordinates);
+            return this.TryGetOrCreatePointAsync(CancellationToken.None, coordinates);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -199,10 +199,10 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public async Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(CancellationToken cancelToken, params string[] coordinates)
         {
-            string pointMoniker = GetPointMoniker(coordinates);
+            string pointMoniker = this.GetPointMoniker(coordinates);
 
             TPoint point;
-            bool hasPoint = _points.TryGetValue(pointMoniker, out point);
+            bool hasPoint = this._points.TryGetValue(pointMoniker, out point);
 
             if (hasPoint)
             {
@@ -210,21 +210,21 @@
                 return result;
             }
 
-            if (_totalPointsCount >= _totalPointsCountLimit)
+            if (this._totalPointsCount >= this._totalPointsCountLimit)
             {
                 var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, -1);
                 return result;
             }
 
-            await _pointCreationLock.WaitAsync(cancelToken).ConfigureAwait(continueOnCapturedContext: false);
+            await this._pointCreationLock.WaitAsync(cancelToken).ConfigureAwait(continueOnCapturedContext: false);
             try
             {
-                MultidimensionalPointResult<TPoint> result = TryCreatePoint(coordinates, pointMoniker);
+                MultidimensionalPointResult<TPoint> result = this.TryCreatePoint(coordinates, pointMoniker);
                 return result;
             }
             finally
             {
-                _pointCreationLock.Release();
+                this._pointCreationLock.Release();
             }
         }
 
@@ -233,10 +233,10 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MultidimensionalPointResult<TPoint> TryGetPoint(params string[] coordinates)
         {
-            string pointMoniker = GetPointMoniker(coordinates);
+            string pointMoniker = this.GetPointMoniker(coordinates);
 
             TPoint point;
-            bool hasPoint = _points.TryGetValue(pointMoniker, out point);
+            bool hasPoint = this._points.TryGetValue(pointMoniker, out point);
 
             if (hasPoint)
             {
@@ -300,7 +300,7 @@
 
             // First, we need to try retrieving the point again, now under the lock:
             TPoint point;
-            bool hasPoint = _points.TryGetValue(pointMoniker, out point);
+            bool hasPoint = this._points.TryGetValue(pointMoniker, out point);
             if (hasPoint)
             {
                 var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, point);
@@ -308,7 +308,7 @@
             }
 
             // Then, check total count again now that we are under lock:
-            if (_totalPointsCount >= _totalPointsCountLimit)
+            if (this._totalPointsCount >= this._totalPointsCountLimit)
             {
                 var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, -1);
                 return result;
@@ -321,10 +321,10 @@
 
             for (int i = 0; i < coordinates.Length; i++)
             {
-                HashSet<string> dimVals = _dimensionValues[i];
+                HashSet<string> dimVals = this._dimensionValues[i];
                 string coordinateVal = coordinates[i];
 
-                if ((dimVals.Count >= _dimensionValuesCountLimits[i]) && (false == dimVals.Contains(coordinateVal)))
+                if ((dimVals.Count >= this._dimensionValuesCountLimits[i]) && (false == dimVals.Contains(coordinateVal)))
                 {
                     reachedValsLimitDim = i;
                     break;
@@ -343,7 +343,7 @@
                 {
                     if (valueAddedToDims.Get(i))
                     {
-                        _dimensionValues[i].Remove(coordinates[i]);
+                        this._dimensionValues[i].Remove(coordinates[i]);
                     }
                 }
 
@@ -355,7 +355,7 @@
 
             try
             {
-                point = _pointsFactory(coordinates);
+                point = this._pointsFactory(coordinates);
             }
             catch (Exception ex)
             {
@@ -364,7 +364,7 @@
                 {
                     if (valueAddedToDims.Get(i))
                     {
-                        _dimensionValues[i].Remove(coordinates[i]);
+                        this._dimensionValues[i].Remove(coordinates[i]);
                     }
                 }
 
@@ -373,17 +373,17 @@
             }
 
             { 
-                bool added = _points.TryAdd(pointMoniker, point);
+                bool added = this._points.TryAdd(pointMoniker, point);
                 if (false == added)
                 {
                     throw new InvalidOperationException($"Internal SDK bug. Please report this! (pointMoniker: {pointMoniker})"
-                                                      + $" Info: Failed to add a point to the {nameof(_points)}-collection in"
+                                                      + $" Info: Failed to add a point to the {nameof(this._points)}-collection in"
                                                       + $" class {nameof(MultidimensionalCube2<TPoint>)} despite passing all the cerfification checks.");
                 }
             }
 
             // Inc total points coint.
-            _totalPointsCount++;
+            this._totalPointsCount++;
 
             {
                 var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_NewPointCreated, point);
@@ -399,9 +399,9 @@
                 throw new ArgumentOutOfRangeException(nameof(dimension), "Dimension index may not be negative.");
             }
 
-            if (dimension >= DimensionsCount)
+            if (dimension >= this.DimensionsCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(dimension), $"Dimension index (zero-based) exceeds the number of dimensions of this cube ({DimensionsCount}).");
+                throw new ArgumentOutOfRangeException(nameof(dimension), $"Dimension index (zero-based) exceeds the number of dimensions of this cube ({this.DimensionsCount}).");
             }
         }
 
@@ -409,11 +409,11 @@
         {
             Util.ValidateNotNull(coordinates, nameof(coordinates));
 
-            if (coordinates.Length != DimensionsCount)
+            if (coordinates.Length != this.DimensionsCount)
             {
                 throw new ArgumentException(
                             $"The specified {nameof(coordinates)}-vector has {coordinates.Length} dimensions."
-                          + $" However this has {DimensionsCount} dimensions.",
+                          + $" However this has {this.DimensionsCount} dimensions.",
                             nameof(coordinates));
             }
 

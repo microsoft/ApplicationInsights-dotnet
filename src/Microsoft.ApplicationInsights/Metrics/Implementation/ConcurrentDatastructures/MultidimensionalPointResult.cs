@@ -12,34 +12,34 @@
 
         internal MultidimensionalPointResult(MultidimensionalPointResultCodes failureCode, int failureCoordinateIndex)
         {
-            _resultCode = failureCode;
-            _failureCoordinateIndex = failureCoordinateIndex;
-            _point = default(TPoint);
+            this._resultCode = failureCode;
+            this._failureCoordinateIndex = failureCoordinateIndex;
+            this._point = default(TPoint);
         }
 
         internal MultidimensionalPointResult(MultidimensionalPointResultCodes successCode, TPoint point)
         {
-            _resultCode = successCode;
-            _failureCoordinateIndex = -1;
-            _point = point;
+            this._resultCode = successCode;
+            this._failureCoordinateIndex = -1;
+            this._point = point;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public TPoint Point
         {
-            get { return _point; }
+            get { return this._point; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int FailureCoordinateIndex
         {
-            get { return _failureCoordinateIndex; }
+            get { return this._failureCoordinateIndex; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MultidimensionalPointResultCodes ResultCode
         {
-            get { return _resultCode; }
+            get { return this._resultCode; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -60,7 +60,7 @@
 
         internal void SetAsyncTimeoutReachedFailure()
         {
-            _resultCode |= MultidimensionalPointResultCodes.Failure_AsyncTimeoutReached;
+            this._resultCode |= MultidimensionalPointResultCodes.Failure_AsyncTimeoutReached;
         }
     }
 }

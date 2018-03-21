@@ -613,7 +613,7 @@
         public Metric GetMetric(
                             string metricId)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         MetricAggregationScope.TelemetryConfiguration,
                         new MetricIdentifier(metricId),
                         metricConfiguration: null);
@@ -644,7 +644,7 @@
                             string metricId,
                             MetricConfiguration metricConfiguration)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         MetricAggregationScope.TelemetryConfiguration,
                         new MetricIdentifier(metricId),
                         metricConfiguration: metricConfiguration);
@@ -674,7 +674,7 @@
                             MetricConfiguration metricConfiguration,
                             MetricAggregationScope aggregationScope)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         aggregationScope,
                         new MetricIdentifier(metricId),
                         metricConfiguration: metricConfiguration);
@@ -702,7 +702,7 @@
                             string metricId,
                             string dimension1Name)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         MetricAggregationScope.TelemetryConfiguration,
                         new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name),
                         metricConfiguration: null);
@@ -735,7 +735,7 @@
                             string dimension1Name,
                             MetricConfiguration metricConfiguration)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         MetricAggregationScope.TelemetryConfiguration,
                         new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name),
                         metricConfiguration: metricConfiguration);
@@ -766,7 +766,7 @@
                             MetricConfiguration metricConfiguration,
                             MetricAggregationScope aggregationScope)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         aggregationScope,
                         new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name),
                         metricConfiguration: metricConfiguration);
@@ -796,7 +796,7 @@
                             string dimension1Name,
                             string dimension2Name)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         MetricAggregationScope.TelemetryConfiguration,
                         new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name),
                         metricConfiguration: null);
@@ -831,7 +831,7 @@
                             string dimension2Name,
                             MetricConfiguration metricConfiguration)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         MetricAggregationScope.TelemetryConfiguration,
                         new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name),
                         metricConfiguration);
@@ -864,7 +864,7 @@
                             MetricConfiguration metricConfiguration,
                             MetricAggregationScope aggregationScope)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         aggregationScope,
                         new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name),
                         metricConfiguration);
@@ -896,7 +896,7 @@
                             string dimension2Name,
                             string dimension3Name)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         MetricAggregationScope.TelemetryConfiguration,
                         new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name),
                         metricConfiguration: null);
@@ -933,7 +933,7 @@
                             string dimension3Name,
                             MetricConfiguration metricConfiguration)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         MetricAggregationScope.TelemetryConfiguration,
                         new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name),
                         metricConfiguration);
@@ -968,7 +968,7 @@
                             MetricConfiguration metricConfiguration,
                             MetricAggregationScope aggregationScope)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         aggregationScope,
                         new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name),
                         metricConfiguration);
@@ -1002,7 +1002,7 @@
                             string dimension3Name,
                             string dimension4Name)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         MetricAggregationScope.TelemetryConfiguration,
                         new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name, dimension4Name),
                         metricConfiguration: null);
@@ -1041,7 +1041,7 @@
                             string dimension4Name,
                             MetricConfiguration metricConfiguration)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         MetricAggregationScope.TelemetryConfiguration,
                         new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name, dimension4Name),
                         metricConfiguration);
@@ -1078,7 +1078,7 @@
                             MetricConfiguration metricConfiguration,
                             MetricAggregationScope aggregationScope)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         aggregationScope,
                         new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name, dimension4Name),
                         metricConfiguration);
@@ -1102,7 +1102,7 @@
         public Metric GetMetric(
                             MetricIdentifier metricIdentifier)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         MetricAggregationScope.TelemetryConfiguration,
                         metricIdentifier,
                         metricConfiguration: null);
@@ -1131,7 +1131,7 @@
                             MetricIdentifier metricIdentifier,
                             MetricConfiguration metricConfiguration)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         MetricAggregationScope.TelemetryConfiguration,
                         metricIdentifier,
                         metricConfiguration);
@@ -1158,7 +1158,7 @@
                             MetricConfiguration metricConfiguration,
                             MetricAggregationScope aggregationScope)
         {
-            return GetOrCreateMetric(
+            return this.GetOrCreateMetric(
                         aggregationScope,
                         metricIdentifier,
                         metricConfiguration);

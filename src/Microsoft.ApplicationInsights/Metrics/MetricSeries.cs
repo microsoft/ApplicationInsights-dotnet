@@ -43,11 +43,11 @@
         {
             // Validate and store aggregationManager:
             Util.ValidateNotNull(aggregationManager, nameof(aggregationManager));
-            _aggregationManager = aggregationManager;
+            this._aggregationManager = aggregationManager;
 
             // Validate and store metricIdentifier:
             Util.ValidateNotNull(metricIdentifier, nameof(metricIdentifier));
-            MetricIdentifier = metricIdentifier;
+            this.MetricIdentifier = metricIdentifier;
 
             // Copy dimensionNamesAndValues, validate values (keys are implicitly validated as they need to match the keys in the identifier):
             var dimNameVals = new Dictionary<string, string>();
@@ -88,24 +88,24 @@
             }
 
             // Store copied dimensionNamesAndValues:
-            _dimensionNamesAndValues = dimNameVals;
+            this._dimensionNamesAndValues = dimNameVals;
 
             // Validate and store configuration:
             Util.ValidateNotNull(configuration, nameof(configuration));
-            _configuration = configuration;
-            _requiresPersistentAggregator = configuration.RequiresPersistentAggregation;
+            this._configuration = configuration;
+            this._requiresPersistentAggregator = configuration.RequiresPersistentAggregation;
 
             // Init other instance vars:
-            _aggregatorPersistent = null;
-            _aggregatorDefault = null;
-            _aggregatorQuickPulse = null;
-            _aggregatorCustom = null;
+            this._aggregatorPersistent = null;
+            this._aggregatorDefault = null;
+            this._aggregatorQuickPulse = null;
+            this._aggregatorCustom = null;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public IReadOnlyDictionary<string, string> DimensionNamesAndValues
         {
-            get { return _dimensionNamesAndValues; }
+            get { return this._dimensionNamesAndValues; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -122,21 +122,21 @@
         {
             List<Exception> errors = null;
 
-            if (_requiresPersistentAggregator)
+            if (this._requiresPersistentAggregator)
             {
-                TrackValue(GetOrCreatePersistentAggregator(), metricValue, ref errors);
+                TrackValue(this.GetOrCreatePersistentAggregator(), metricValue, ref errors);
             }
             else
             {
                 IMetricSeriesAggregator aggregator;
 
-                aggregator = GetOrCreateAggregator(CycleKind.Default, ref _aggregatorDefault);
+                aggregator = this.GetOrCreateAggregator(CycleKind.Default, ref this._aggregatorDefault);
                 TrackValue(aggregator, metricValue, ref errors);
 
-                aggregator = GetOrCreateAggregator(CycleKind.QuickPulse, ref _aggregatorQuickPulse);
+                aggregator = this.GetOrCreateAggregator(CycleKind.QuickPulse, ref this._aggregatorQuickPulse);
                 TrackValue(aggregator, metricValue, ref errors);
 
-                aggregator = GetOrCreateAggregator(CycleKind.Custom, ref _aggregatorCustom);
+                aggregator = this.GetOrCreateAggregator(CycleKind.Custom, ref this._aggregatorCustom);
                 TrackValue(aggregator, metricValue, ref errors);
             }
 
@@ -164,21 +164,21 @@
         {
             List<Exception> errors = null;
 
-            if (_requiresPersistentAggregator)
+            if (this._requiresPersistentAggregator)
             {
-                TrackValue(GetOrCreatePersistentAggregator(), metricValue, ref errors);
+                TrackValue(this.GetOrCreatePersistentAggregator(), metricValue, ref errors);
             }
             else
             {
                 IMetricSeriesAggregator aggregator;
 
-                aggregator = GetOrCreateAggregator(CycleKind.Default, ref _aggregatorDefault);
+                aggregator = this.GetOrCreateAggregator(CycleKind.Default, ref this._aggregatorDefault);
                 TrackValue(aggregator, metricValue, ref errors);
 
-                aggregator = GetOrCreateAggregator(CycleKind.QuickPulse, ref _aggregatorQuickPulse);
+                aggregator = this.GetOrCreateAggregator(CycleKind.QuickPulse, ref this._aggregatorQuickPulse);
                 TrackValue(aggregator, metricValue, ref errors);
 
-                aggregator = GetOrCreateAggregator(CycleKind.Custom, ref _aggregatorCustom);
+                aggregator = this.GetOrCreateAggregator(CycleKind.Custom, ref this._aggregatorCustom);
                 TrackValue(aggregator, metricValue, ref errors);
             }
 
@@ -198,7 +198,7 @@
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public void ResetAggregation()
         {
-            ResetAggregation(periodStart: DateTimeOffset.Now);
+            this.ResetAggregation(periodStart: DateTimeOffset.Now);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -207,25 +207,25 @@
         {
             periodStart = Util.RoundDownToSecond(periodStart);
 
-            if (_requiresPersistentAggregator)
+            if (this._requiresPersistentAggregator)
             {
-                IMetricSeriesAggregator aggregator = _aggregatorPersistent;
+                IMetricSeriesAggregator aggregator = this._aggregatorPersistent;
                 aggregator?.Reset(periodStart);
             }
             else
             {
                 {
-                    IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorDefault);
+                    IMetricSeriesAggregator aggregator = UnwrapAggregator(this._aggregatorDefault);
                     aggregator?.Reset(periodStart);
                 }
 
                 {
-                    IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorQuickPulse);
+                    IMetricSeriesAggregator aggregator = UnwrapAggregator(this._aggregatorQuickPulse);
                     aggregator?.Reset(periodStart);
                 }
 
                 {
-                    IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorCustom);
+                    IMetricSeriesAggregator aggregator = UnwrapAggregator(this._aggregatorCustom);
                     aggregator?.Reset(periodStart);
                 }
             }
@@ -235,7 +235,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MetricAggregate GetCurrentAggregateUnsafe()
         {
-            return GetCurrentAggregateUnsafe(CycleKind.Default, DateTimeOffset.Now);
+            return this.GetCurrentAggregateUnsafe(CycleKind.Default, DateTimeOffset.Now);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -246,24 +246,24 @@
         {
             IMetricSeriesAggregator aggregator = null;
 
-            if (_requiresPersistentAggregator)
+            if (this._requiresPersistentAggregator)
             {
-                aggregator = _aggregatorPersistent;
+                aggregator = this._aggregatorPersistent;
             }
             else
             {
                 switch (aggregationCycleKind)
                 {
                     case CycleKind.Default:
-                        aggregator = UnwrapAggregator(_aggregatorDefault);
+                        aggregator = UnwrapAggregator(this._aggregatorDefault);
                         break;
 
                     case CycleKind.QuickPulse:
-                        aggregator = UnwrapAggregator(_aggregatorQuickPulse);
+                        aggregator = UnwrapAggregator(this._aggregatorQuickPulse);
                         break;
 
                     case CycleKind.Custom:
-                        aggregator = UnwrapAggregator(_aggregatorCustom);
+                        aggregator = UnwrapAggregator(this._aggregatorCustom);
                         break;
 
                     default:
@@ -278,7 +278,7 @@
 
         internal void ClearAggregator(MetricAggregationCycleKind aggregationCycleKind)
         {
-            if (_requiresPersistentAggregator)
+            if (this._requiresPersistentAggregator)
             {
                 return;
             }
@@ -287,18 +287,18 @@
             switch (aggregationCycleKind)
             {
                 case CycleKind.Default:
-                    aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorDefault, null);
-                    _aggregatorRecycleCacheDefault = UnwrapAggregator(aggregatorWeakRef);
+                    aggregatorWeakRef = Interlocked.Exchange(ref this._aggregatorDefault, null);
+                    this._aggregatorRecycleCacheDefault = UnwrapAggregator(aggregatorWeakRef);
                     break;
 
                 case CycleKind.QuickPulse:
-                    aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorQuickPulse, null);
-                    _aggregatorRecycleCacheQuickPulse = UnwrapAggregator(aggregatorWeakRef);
+                    aggregatorWeakRef = Interlocked.Exchange(ref this._aggregatorQuickPulse, null);
+                    this._aggregatorRecycleCacheQuickPulse = UnwrapAggregator(aggregatorWeakRef);
                     break;
 
                 case CycleKind.Custom:
-                    aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorCustom, null);
-                    _aggregatorRecycleCacheCustom = UnwrapAggregator(aggregatorWeakRef);
+                    aggregatorWeakRef = Interlocked.Exchange(ref this._aggregatorCustom, null);
+                    this._aggregatorRecycleCacheCustom = UnwrapAggregator(aggregatorWeakRef);
                     break;
 
                 default:
@@ -353,16 +353,16 @@
 
         private IMetricSeriesAggregator GetOrCreatePersistentAggregator()
         {
-            IMetricSeriesAggregator aggregator = _aggregatorPersistent;
+            IMetricSeriesAggregator aggregator = this._aggregatorPersistent;
 
             if (aggregator == null)
             {
-                aggregator = _configuration.CreateNewAggregator(this, CycleKind.Default);
-                IMetricSeriesAggregator prevAggregator = Interlocked.CompareExchange(ref _aggregatorPersistent, aggregator, null);
+                aggregator = this._configuration.CreateNewAggregator(this, CycleKind.Default);
+                IMetricSeriesAggregator prevAggregator = Interlocked.CompareExchange(ref this._aggregatorPersistent, aggregator, null);
 
                 if (prevAggregator == null)
                 {
-                    bool added = _aggregationManager.AddAggregator(aggregator, CycleKind.Default);
+                    bool added = this._aggregationManager.AddAggregator(aggregator, CycleKind.Default);
                     if (added == false)
                     {
                         throw new InvalidOperationException("Internal SDK gub. Please report!"
@@ -400,7 +400,7 @@
                 if (aggregationCycleKind != CycleKind.Default)
                 { 
                     IMetricSeriesFilter dataSeriesFilter;
-                    if (false == _aggregationManager.IsCycleActive(aggregationCycleKind, out dataSeriesFilter))
+                    if (false == this._aggregationManager.IsCycleActive(aggregationCycleKind, out dataSeriesFilter))
                     {
                         return null;
                     }
@@ -417,7 +417,7 @@
 
                 // Ok, they want to consume us. Create new aggregator and a weak reference to it:
 
-                IMetricSeriesAggregator newAggregator = GetNewOrRecycledAggregatorInstance(aggregationCycleKind);
+                IMetricSeriesAggregator newAggregator = this.GetNewOrRecycledAggregatorInstance(aggregationCycleKind);
                 WeakReference<IMetricSeriesAggregator> newAggregatorWeakRef = new WeakReference<IMetricSeriesAggregator>(newAggregator, trackResurrection: false);
 
                 // Store the weak reference to the aggregator. However, there is a race on doing it, so check for it:
@@ -432,7 +432,7 @@
                     // Becasue the aggregator collection reference is always updated before telling the aggregators to cycle,
                     // we know that any aggregator added will be eventually cycled.
                     // If adding succeeds, AddAggregator(..) will have set the correct filter.
-                    bool added = _aggregationManager.AddAggregator(newAggregator, aggregationCycleKind);
+                    bool added = this._aggregationManager.AddAggregator(newAggregator, aggregationCycleKind);
 
                     // If the manager does not accept the addition, it means that the aggregationCycleKind is disabled or that the filter is not interested in this data series.
                     // Either way we need to give up.
@@ -454,8 +454,8 @@
 
         private IMetricSeriesAggregator GetNewOrRecycledAggregatorInstance(MetricAggregationCycleKind aggregationCycleKind)
         {
-            IMetricSeriesAggregator aggregator = GetRecycledAggregatorInstance(aggregationCycleKind);
-            return (aggregator ?? _configuration.CreateNewAggregator(this, aggregationCycleKind));
+            IMetricSeriesAggregator aggregator = this.GetRecycledAggregatorInstance(aggregationCycleKind);
+            return (aggregator ?? this._configuration.CreateNewAggregator(this, aggregationCycleKind));
         }
 
         /// <summary>
@@ -469,7 +469,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         private IMetricSeriesAggregator GetRecycledAggregatorInstance(MetricAggregationCycleKind aggregationCycleKind)
         {
-            if (_requiresPersistentAggregator)
+            if (this._requiresPersistentAggregator)
             {
                 return null;
             }
@@ -478,15 +478,15 @@
             switch (aggregationCycleKind)
             {
                 case CycleKind.Default:
-                    aggregator = Interlocked.Exchange(ref _aggregatorRecycleCacheDefault, null);
+                    aggregator = Interlocked.Exchange(ref this._aggregatorRecycleCacheDefault, null);
                     break;
 
                 case CycleKind.QuickPulse:
-                    aggregator = Interlocked.Exchange(ref _aggregatorRecycleCacheQuickPulse, null);
+                    aggregator = Interlocked.Exchange(ref this._aggregatorRecycleCacheQuickPulse, null);
                     break;
 
                 case CycleKind.Custom:
-                    aggregator = Interlocked.Exchange(ref _aggregatorRecycleCacheCustom, null);
+                    aggregator = Interlocked.Exchange(ref this._aggregatorRecycleCacheCustom, null);
                     break;
             }
 

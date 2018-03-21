@@ -367,23 +367,23 @@
                                 ref dimension9Name,
                                 ref dimension10Name);
 
-            MetricNamespace = metricNamespace;
-            MetricId = metricId;
-            DimensionsCount = dimCount;
+            this.MetricNamespace = metricNamespace;
+            this.MetricId = metricId;
+            this.DimensionsCount = dimCount;
 
-            _dimension1Name = dimension1Name;
-            _dimension2Name = dimension2Name;
-            _dimension3Name = dimension3Name;
-            _dimension4Name = dimension4Name;
-            _dimension5Name = dimension5Name;
-            _dimension6Name = dimension6Name;
-            _dimension7Name = dimension7Name;
-            _dimension8Name = dimension8Name;
-            _dimension9Name = dimension9Name;
-            _dimension10Name = dimension10Name;
+            this._dimension1Name = dimension1Name;
+            this._dimension2Name = dimension2Name;
+            this._dimension3Name = dimension3Name;
+            this._dimension4Name = dimension4Name;
+            this._dimension5Name = dimension5Name;
+            this._dimension6Name = dimension6Name;
+            this._dimension7Name = dimension7Name;
+            this._dimension8Name = dimension8Name;
+            this._dimension9Name = dimension9Name;
+            this._dimension10Name = dimension10Name;
 
-            _identifierString = GetIdentifierString();
-            _hashCode = _identifierString.GetHashCode();
+            this._identifierString = this.GetIdentifierString();
+            this._hashCode = this._identifierString.GetHashCode();
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -433,9 +433,9 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public IEnumerable<string> GetDimensionNames()
         {
-            for (int d = 1; d <= DimensionsCount; d++)
+            for (int d = 1; d <= this.DimensionsCount; d++)
             {
-                yield return GetDimensionName(d);
+                yield return this.GetDimensionName(d);
             }
         }
 
@@ -448,20 +448,20 @@
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2233", Justification = "dimensionNumber is validated.")]
         public string GetDimensionName(int dimensionNumber)
         {
-            ValidateDimensionNumberForGetter(dimensionNumber);
+            this.ValidateDimensionNumberForGetter(dimensionNumber);
 
             switch (dimensionNumber)
             {
-                case 1:  return _dimension1Name;
-                case 2:  return _dimension2Name;
-                case 3:  return _dimension3Name;
-                case 4:  return _dimension4Name;
-                case 5:  return _dimension5Name;
-                case 6:  return _dimension6Name;
-                case 7:  return _dimension7Name;
-                case 8:  return _dimension8Name;
-                case 9:  return _dimension9Name;
-                case 10: return _dimension10Name;
+                case 1:  return this._dimension1Name;
+                case 2:  return this._dimension2Name;
+                case 3:  return this._dimension3Name;
+                case 4:  return this._dimension4Name;
+                case 5:  return this._dimension5Name;
+                case 6:  return this._dimension6Name;
+                case 7:  return this._dimension7Name;
+                case 8:  return this._dimension8Name;
+                case 9:  return this._dimension9Name;
+                case 10: return this._dimension10Name;
                 default: throw new ArgumentOutOfRangeException(nameof(dimensionNumber));
             }
         }
@@ -470,7 +470,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public override string ToString()
         {
-            return _identifierString;
+            return this._identifierString;
         }
 
         /// <summary>
@@ -479,7 +479,7 @@
         /// <returns>Hash code for this <c>MetricIdentifier</c> instance.</returns>
         public override int GetHashCode()
         {
-            return _hashCode;
+            return this._hashCode;
         }
 
         /// <summary>
@@ -494,7 +494,7 @@
 
             if (otherMetricIdentifier != null)
             {
-                return Equals(otherMetricIdentifier);
+                return this.Equals(otherMetricIdentifier);
             }
             else
             {
@@ -515,7 +515,7 @@
                 return false;
             }
 
-            return (_hashCode == otherMetricIdentifier._hashCode) && (_identifierString.Equals(otherMetricIdentifier._identifierString));
+            return (this._hashCode == otherMetricIdentifier._hashCode) && (this._identifierString.Equals(otherMetricIdentifier._identifierString));
         }
 
         internal void ValidateDimensionNumberForGetter(int dimensionNumber)
@@ -534,15 +534,15 @@
                                 $"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Only {nameof(dimensionNumber)} = 1, 2, ..., 10 are supported.");
             }
 
-            if (DimensionsCount < 1)
+            if (this.DimensionsCount < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(dimensionNumber), "Cannot access dimension becasue this metric has no dimensions.");
             }
 
-            if (dimensionNumber > DimensionsCount)
+            if (dimensionNumber > this.DimensionsCount)
             {
                 throw new ArgumentOutOfRangeException($"Cannot access dimension for {nameof(dimensionNumber)}={dimensionNumber}"
-                                                    + $" becasue this metric only has {DimensionsCount} dimensions."
+                                                    + $" becasue this metric only has {this.DimensionsCount} dimensions."
                                                     + " Note that {nameof(dimensionNumber)} is a 1-based index.");
             }
         }
@@ -610,17 +610,17 @@
         {
             StringBuilder idStr = new StringBuilder();
 
-            idStr.Append(MetricNamespace);
+            idStr.Append(this.MetricNamespace);
             idStr.Append("+");
-            idStr.Append(MetricId);
+            idStr.Append(this.MetricId);
 
             idStr.Append("[");
-            idStr.Append(DimensionsCount);
+            idStr.Append(this.DimensionsCount);
             idStr.Append("]");
 
             idStr.Append("(");
 
-            for (int d = 1; d <= DimensionsCount; d++)
+            for (int d = 1; d <= this.DimensionsCount; d++)
             {
                 if (d > 1)
                 {
@@ -628,7 +628,7 @@
                 }
 
                 idStr.Append('"');
-                idStr.Append(GetDimensionName(d));
+                idStr.Append(this.GetDimensionName(d));
                 idStr.Append('"');
             }
 

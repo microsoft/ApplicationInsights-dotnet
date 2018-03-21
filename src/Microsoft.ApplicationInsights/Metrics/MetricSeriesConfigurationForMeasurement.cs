@@ -23,9 +23,9 @@
         /// <param name="restrictToUInt32Values">ToDo: Complete documentation before stable release.</param>
         public MetricSeriesConfigurationForMeasurement(bool restrictToUInt32Values)
         {
-            _restrictToUInt32Values = restrictToUInt32Values;
+            this._restrictToUInt32Values = restrictToUInt32Values;
 
-            _hashCode = Util.CombineHashCodes(_restrictToUInt32Values.GetHashCode());
+            this._hashCode = Util.CombineHashCodes(this._restrictToUInt32Values.GetHashCode());
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -39,7 +39,7 @@
         public bool RestrictToUInt32Values
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return _restrictToUInt32Values; }
+            get { return this._restrictToUInt32Values; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -62,7 +62,7 @@
                 var otherConfig = obj as MetricSeriesConfigurationForMeasurement;
                 if (otherConfig != null)
                 {
-                    return Equals(otherConfig);
+                    return this.Equals(otherConfig);
                 }
             }
 
@@ -74,7 +74,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public bool Equals(IMetricSeriesConfiguration other)
         {
-            return Equals((object)other);
+            return this.Equals((object)other);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -99,7 +99,7 @@
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public override int GetHashCode()
         {
-            return _hashCode;
+            return this._hashCode;
         }
 
         /// <summary>

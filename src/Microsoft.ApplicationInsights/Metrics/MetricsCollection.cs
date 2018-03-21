@@ -16,13 +16,13 @@
         internal MetricsCollection(MetricManager metricManager)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
-            _metricManager = metricManager;
+            this._metricManager = metricManager;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int Count
         {
-            get { return _metrics.Count; }
+            get { return this._metrics.Count; }
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -41,10 +41,10 @@
         {
             Util.ValidateNotNull(metricIdentifier, nameof(metricIdentifier));
             
-            Metric metric = _metrics.GetOrAdd(
+            Metric metric = this._metrics.GetOrAdd(
                                             metricIdentifier,
                                             (key) => new Metric(
-                                                                _metricManager,
+                                                                this._metricManager,
                                                                 metricIdentifier,
                                                                 metricConfiguration ?? MetricConfigurations.Common.Default()));
 
@@ -64,7 +64,7 @@
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public void Clear()
         {
-            _metrics.Clear();
+            this._metrics.Clear();
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -77,7 +77,7 @@
                 return false;
             }
 
-            return _metrics.ContainsKey(metric.Identifier);
+            return this._metrics.ContainsKey(metric.Identifier);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -92,7 +92,7 @@
                 throw new ArgumentOutOfRangeException(nameof(arrayIndex));
             }
 
-            _metrics.Values.CopyTo(array, arrayIndex);
+            this._metrics.Values.CopyTo(array, arrayIndex);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -106,14 +106,14 @@
             }
 
             Metric removedMetric;
-            return _metrics.TryRemove(metric.Identifier, out removedMetric);
+            return this._metrics.TryRemove(metric.Identifier, out removedMetric);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <returns>ToDo: Complete documentation before stable release.</returns>
         public IEnumerator<Metric> GetEnumerator()
         {
-            return _metrics.Values.GetEnumerator();
+            return this._metrics.Values.GetEnumerator();
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>

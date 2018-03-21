@@ -19,14 +19,14 @@
         {
             Util.ValidateNotNull(configuration, nameof(configuration));
 
-            _restrictToUInt32Values = configuration.RestrictToUInt32Values;
-            ResetAggregate();
+            this._restrictToUInt32Values = configuration.RestrictToUInt32Values;
+            this.ResetAggregate();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override double ConvertMetricValue(double metricValue)
         {
-            if (_restrictToUInt32Values)
+            if (this._restrictToUInt32Values)
             {
                 return Util.RoundAndValidateValue(metricValue);
             }
@@ -45,7 +45,7 @@
             }
 
             double value = Util.ConvertToDoubleValue(metricValue);
-            return ConvertMetricValue(value);
+            return this.ConvertMetricValue(value);
         }
 
         protected override MetricAggregate CreateAggregate(DateTimeOffset periodEnd)
@@ -53,27 +53,27 @@
             int count;
             double sum, min, max, stdDev;
 
-            lock (_updateLock)
+            lock (this._updateLock)
             {
-                count = _data.Count;
-                sum = _data.Sum;
+                count = this._data.Count;
+                sum = this._data.Sum;
                 min = 0.0;
                 max = 0.0;
                 stdDev = 0.0;
 
                 if (count > 0)
                 {
-                    min = _data.Min;
-                    max = _data.Max;
+                    min = this._data.Min;
+                    max = this._data.Max;
 
-                    if (Double.IsInfinity(_data.SumOfSquares) || Double.IsInfinity(sum))
+                    if (Double.IsInfinity(this._data.SumOfSquares) || Double.IsInfinity(sum))
                     {
                         stdDev = Double.NaN;
                     }
                     else
                     {
                         double mean = sum / count;
-                        double variance = (_data.SumOfSquares / count) - (mean * mean);
+                        double variance = (this._data.SumOfSquares / count) - (mean * mean);
                         stdDev = Math.Sqrt(variance);
                     }
                 }
@@ -89,8 +89,8 @@
             }
 
             MetricAggregate aggregate = new MetricAggregate(
-                                                DataSeries?.MetricIdentifier.MetricNamespace ?? Util.NullString,
-                                                DataSeries?.MetricIdentifier.MetricId ?? Util.NullString,
+                                                this.DataSeries?.MetricIdentifier.MetricNamespace ?? Util.NullString,
+                                                this.DataSeries?.MetricIdentifier.MetricId ?? Util.NullString,
                                                 MetricSeriesConfigurationForMeasurement.Constants.AggregateKindMoniker);
 
             aggregate.Data[MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys.Count] = count;
@@ -99,20 +99,20 @@
             aggregate.Data[MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys.Max] = max;
             aggregate.Data[MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys.StdDev] = stdDev;
 
-            AddInfo_Timing_Dimensions_Context(aggregate, periodEnd);
+            this.AddInfo_Timing_Dimensions_Context(aggregate, periodEnd);
 
             return aggregate;
         }
 
         protected override void ResetAggregate()
         {
-            lock (_updateLock)
+            lock (this._updateLock)
             {
-                _data.Count = 0;
-                _data.Min = Double.MaxValue;
-                _data.Max = Double.MinValue;
-                _data.Sum = 0.0;
-                _data.SumOfSquares = 0.0;
+                this._data.Count = 0;
+                this._data.Min = Double.MaxValue;
+                this._data.Max = Double.MinValue;
+                this._data.Sum = 0.0;
+                this._data.SumOfSquares = 0.0;
             }
         }
 
@@ -142,7 +142,7 @@
                 bufferData.SumOfSquares += (metricValue * metricValue);
             }
 
-            if (_restrictToUInt32Values)
+            if (this._restrictToUInt32Values)
             {
                 bufferData.Max = Math.Round(bufferData.Max);
                 bufferData.Min = Math.Round(bufferData.Min);
@@ -161,18 +161,18 @@
             }
 
             // Take a lock and update the aggregate:
-            lock (_updateLock)
+            lock (this._updateLock)
             {
-                _data.Count += bufferData.Count;
-                _data.Max = (bufferData.Max > _data.Max) ? bufferData.Max : _data.Max;
-                _data.Min = (bufferData.Min < _data.Min) ? bufferData.Min : _data.Min;
-                _data.Sum += bufferData.Sum;
-                _data.SumOfSquares += bufferData.SumOfSquares;
+                this._data.Count += bufferData.Count;
+                this._data.Max = (bufferData.Max > this._data.Max) ? bufferData.Max : this._data.Max;
+                this._data.Min = (bufferData.Min < this._data.Min) ? bufferData.Min : this._data.Min;
+                this._data.Sum += bufferData.Sum;
+                this._data.SumOfSquares += bufferData.SumOfSquares;
 
-                if (_restrictToUInt32Values)
+                if (this._restrictToUInt32Values)
                 {
-                    _data.Sum = Math.Round(_data.Sum);
-                    _data.SumOfSquares = Math.Round(_data.SumOfSquares);
+                    this._data.Sum = Math.Round(this._data.Sum);
+                    this._data.SumOfSquares = Math.Round(this._data.SumOfSquares);
                 }
             }
         }

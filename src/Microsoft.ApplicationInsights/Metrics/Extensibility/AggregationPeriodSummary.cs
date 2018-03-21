@@ -11,8 +11,8 @@
         /// <param name="nonpersistentAggregates">ToDo: Complete documentation before stable release.</param>
         public AggregationPeriodSummary(IReadOnlyList<MetricAggregate> persistentAggregates, IReadOnlyList<MetricAggregate> nonpersistentAggregates)
         {
-            PersistentAggregates = persistentAggregates;
-            NonpersistentAggregates = nonpersistentAggregates;
+            this.PersistentAggregates = persistentAggregates;
+            this.NonpersistentAggregates = nonpersistentAggregates;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>

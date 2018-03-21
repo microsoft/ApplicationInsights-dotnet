@@ -16,7 +16,7 @@
         {
             Util.ValidateNotNull(telemetryPipeline, nameof(telemetryPipeline));
 
-            _trackingClient = new ApplicationInsights.TelemetryClient(telemetryPipeline);
+            this._trackingClient = new ApplicationInsights.TelemetryClient(telemetryPipeline);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -25,7 +25,7 @@
         {
             Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));
 
-            _trackingClient = telemetryClient;
+            this._trackingClient = telemetryClient;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -55,9 +55,9 @@
 
             object telemetryItem = converter.Convert(metricAggregate);
             var metricTelemetryItem = (ApplicationInsights.DataContracts.MetricTelemetry)telemetryItem;
-            _trackingClient.Track(metricTelemetryItem);
+            this._trackingClient.Track(metricTelemetryItem);
 
-            return _completedTask;
+            return this._completedTask;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -68,14 +68,14 @@
             cancelToken.ThrowIfCancellationRequested();
             try
             {
-                _trackingClient.Flush();
+                this._trackingClient.Flush();
             }
             catch (NullReferenceException)
             {
                 // If the user has disposed the pipeline and we are subsequently completing the last aggregation cycle, the above can throw.
             }
 
-            return _completedTask;
+            return this._completedTask;
         }
     }
 }

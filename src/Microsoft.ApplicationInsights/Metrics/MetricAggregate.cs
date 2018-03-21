@@ -23,15 +23,15 @@
             Util.ValidateNotNull(metricId, nameof(metricId));
             Util.ValidateNotNull(aggregationKindMoniker, nameof(aggregationKindMoniker));
 
-            MetricNamespace = metricNamespace;
-            MetricId = metricId;
-            AggregationKindMoniker = aggregationKindMoniker;
+            this.MetricNamespace = metricNamespace;
+            this.MetricId = metricId;
+            this.AggregationKindMoniker = aggregationKindMoniker;
 
-            _aggregationPeriodStart = default(DateTimeOffset);
-            _aggregationPeriodDuration = default(TimeSpan);
+            this._aggregationPeriodStart = default(DateTimeOffset);
+            this._aggregationPeriodDuration = default(TimeSpan);
 
-            Dimensions = new ConcurrentDictionary<string, string>();
-            Data = new ConcurrentDictionary<string, object>();
+            this.Dimensions = new ConcurrentDictionary<string, string>();
+            this.Data = new ConcurrentDictionary<string, object>();
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -48,17 +48,17 @@
         {
             get
             {
-                lock (_lock)
+                lock (this._lock)
                 {
-                    return _aggregationPeriodStart;
+                    return this._aggregationPeriodStart;
                 }
             }
 
             set
             {
-                lock (_lock)
+                lock (this._lock)
                 {
-                    _aggregationPeriodStart = value;
+                    this._aggregationPeriodStart = value;
                 }
             }
         }
@@ -68,17 +68,17 @@
         {
             get
             {
-                lock (_lock)
+                lock (this._lock)
                 {
-                    return _aggregationPeriodDuration;
+                    return this._aggregationPeriodDuration;
                 }
             }
 
             set
             {
-                lock (_lock)
+                lock (this._lock)
                 {
-                    _aggregationPeriodDuration = value;
+                    this._aggregationPeriodDuration = value;
                 }
             }
         }
@@ -100,7 +100,7 @@
         public T GetDataValue<T>(string dataKey, T defaultValue)
         {
             object dataValue;
-            if (Data.TryGetValue(dataKey, out dataValue))
+            if (this.Data.TryGetValue(dataKey, out dataValue))
             {
                 try
                 {

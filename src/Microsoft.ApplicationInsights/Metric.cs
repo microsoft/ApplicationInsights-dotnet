@@ -33,19 +33,19 @@
             Util.ValidateNotNull(metricIdentifier, nameof(metricIdentifier));
             EnsureConfigurationValid(metricIdentifier.DimensionsCount > 0, configuration);
 
-            _metricManager = metricManager;
-            Identifier = metricIdentifier;
-            _configuration = configuration;
+            this._metricManager = metricManager;
+            this.Identifier = metricIdentifier;
+            this._configuration = configuration;
 
-            _zeroDimSeries = _metricManager.CreateNewSeries(
-                                                        new MetricIdentifier(Identifier.MetricNamespace, Identifier.MetricId),
+            this._zeroDimSeries = this._metricManager.CreateNewSeries(
+                                                        new MetricIdentifier(this.Identifier.MetricNamespace, this.Identifier.MetricId),
                                                         dimensionNamesAndValues: null,
-                                                        config: _configuration.SeriesConfig);
+                                                        config: this._configuration.SeriesConfig);
 
             if (metricIdentifier.DimensionsCount == 0)
             {
-                _metricSeries = null;
-                _zeroDimSeriesList = new KeyValuePair<string[], MetricSeries>[1] { new KeyValuePair<string[], MetricSeries>(new string[0], _zeroDimSeries) };
+                this._metricSeries = null;
+                this._zeroDimSeriesList = new KeyValuePair<string[], MetricSeries>[1] { new KeyValuePair<string[], MetricSeries>(new string[0], this._zeroDimSeries) };
             }
             else
             {
@@ -55,12 +55,12 @@
                     dimensionValuesCountLimits[d] = configuration.ValuesPerDimensionLimit;
                 }
 
-                _metricSeries = new MultidimensionalCube2<MetricSeries>(
+                this._metricSeries = new MultidimensionalCube2<MetricSeries>(
                             totalPointsCountLimit: configuration.SeriesCountLimit - 1,
-                            pointsFactory: CreateNewMetricSeries,
+                            pointsFactory: this.CreateNewMetricSeries,
                             dimensionValuesCountLimits: dimensionValuesCountLimits);
 
-                _zeroDimSeriesList = null;
+                this._zeroDimSeriesList = null;
             }
         }
 
@@ -75,7 +75,7 @@
         /// </summary>
         public int SeriesCount
         {
-            get { return 1 + (_metricSeries?.TotalPointsCount ?? 0); }
+            get { return 1 + (this._metricSeries?.TotalPointsCount ?? 0); }
         }
 
         /// <summary>
@@ -86,10 +86,10 @@
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2233", Justification = "dimensionNumber is validated.")]
         public IReadOnlyCollection<string> GetDimensionValues(int dimensionNumber)
         {
-            Identifier.ValidateDimensionNumberForGetter(dimensionNumber);
+            this.Identifier.ValidateDimensionNumberForGetter(dimensionNumber);
 
             int dimensionIndex = dimensionNumber - 1;
-            return _metricSeries.GetDimensionValues(dimensionIndex);
+            return this._metricSeries.GetDimensionValues(dimensionIndex);
         }
 
         /// <summary>
@@ -104,14 +104,14 @@
                                                 Justification = "Completes with non-trivial effort. Method is approproiate.")]
         public IReadOnlyList<KeyValuePair<string[], MetricSeries>> GetAllSeries()
         {
-            if (Identifier.DimensionsCount == 0)
+            if (this.Identifier.DimensionsCount == 0)
             {
-                return _zeroDimSeriesList;
+                return this._zeroDimSeriesList;
             }
 
-            var series = new List<KeyValuePair<string[], MetricSeries>>(SeriesCount);
-            series.Add(new KeyValuePair<string[], MetricSeries>(new string[0], _zeroDimSeries));
-            _metricSeries.GetAllPoints(series);
+            var series = new List<KeyValuePair<string[], MetricSeries>>(this.SeriesCount);
+            series.Add(new KeyValuePair<string[], MetricSeries>(new string[0], this._zeroDimSeries));
+            this._metricSeries.GetAllPoints(series);
             return series;
         }
 
@@ -124,7 +124,7 @@
         /// <returns><c>True</c>.</returns>
         public bool TryGetDataSeries(out MetricSeries series)
         {
-            series = _zeroDimSeries;
+            series = this._zeroDimSeries;
             return true;
         }
 
@@ -140,7 +140,7 @@
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TryGetDataSeries(out MetricSeries series, string dimension1Value)
         {
-            return TryGetDataSeries(out series, true, dimension1Value);
+            return this.TryGetDataSeries(out series, true, dimension1Value);
         }
 
         /// <summary>
@@ -156,7 +156,7 @@
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TryGetDataSeries(out MetricSeries series, string dimension1Value, string dimension2Value)
         {
-            return TryGetDataSeries(out series, true, dimension1Value, dimension2Value);
+            return this.TryGetDataSeries(out series, true, dimension1Value, dimension2Value);
         }
 
         /// <summary>
@@ -173,7 +173,7 @@
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TryGetDataSeries(out MetricSeries series, string dimension1Value, string dimension2Value, string dimension3Value)
         {
-            return TryGetDataSeries(out series, true, dimension1Value, dimension2Value, dimension3Value);
+            return this.TryGetDataSeries(out series, true, dimension1Value, dimension2Value, dimension3Value);
         }
 
         /// <summary>
@@ -191,7 +191,7 @@
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TryGetDataSeries(out MetricSeries series, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value)
         {
-            return TryGetDataSeries(out series, true, dimension1Value, dimension2Value, dimension3Value, dimension4Value);
+            return this.TryGetDataSeries(out series, true, dimension1Value, dimension2Value, dimension3Value, dimension4Value);
         }
 
         /// <summary>
@@ -216,7 +216,7 @@
                                 string dimension4Value,
                                 string dimension5Value)
         {
-            return TryGetDataSeries(out series, true, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value);
+            return this.TryGetDataSeries(out series, true, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value);
         }
 
         /// <summary>
@@ -243,7 +243,7 @@
                                 string dimension5Value,
                                 string dimension6Value)
         {
-            return TryGetDataSeries(out series, true, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value, dimension6Value);
+            return this.TryGetDataSeries(out series, true, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value, dimension6Value);
         }
 
         /// <summary>
@@ -272,7 +272,7 @@
                                 string dimension6Value,
                                 string dimension7Value)
         {
-            return TryGetDataSeries(
+            return this.TryGetDataSeries(
                             out series,
                             true,
                             dimension1Value, 
@@ -312,7 +312,7 @@
                                 string dimension7Value,
                                 string dimension8Value)
         {
-            return TryGetDataSeries(
+            return this.TryGetDataSeries(
                             out series,
                             true,
                             dimension1Value,
@@ -355,7 +355,7 @@
                                 string dimension8Value,
                                 string dimension9Value)
         {
-            return TryGetDataSeries(
+            return this.TryGetDataSeries(
                             out series,
                             true,
                             dimension1Value,
@@ -401,7 +401,7 @@
                                 string dimension9Value,
                                 string dimension10Value)
         {
-            return TryGetDataSeries(
+            return this.TryGetDataSeries(
                             out series,
                             true,
                             dimension1Value,
@@ -434,14 +434,14 @@
         {
             if (dimensionValues == null || dimensionValues.Length == 0)
             {
-                series = _zeroDimSeries;
+                series = this._zeroDimSeries;
                 return true;
             }
 
-            if (Identifier.DimensionsCount != dimensionValues.Length)
+            if (this.Identifier.DimensionsCount != dimensionValues.Length)
             {
                 throw new ArgumentException($"Attempted to get a metric series by specifying {dimensionValues.Length} dimension(s),"
-                                          + $" but this metric has {Identifier.DimensionsCount} dimensions.");
+                                          + $" but this metric has {this.Identifier.DimensionsCount} dimensions.");
             }
 
             for (int d = 0; d < dimensionValues.Length; d++)
@@ -450,8 +450,8 @@
             }
 
             MultidimensionalPointResult<MetricSeries> result = createIfNotExists
-                                                                    ? _metricSeries.TryGetOrCreatePoint(dimensionValues)
-                                                                    : _metricSeries.TryGetPoint(dimensionValues);
+                                                                    ? this._metricSeries.TryGetOrCreatePoint(dimensionValues)
+                                                                    : this._metricSeries.TryGetPoint(dimensionValues);
 
             if (result.IsSuccess)
             {
@@ -474,7 +474,7 @@
         /// <param name="metricValue">The value to be aggregated.</param>
         public void TrackValue(double metricValue)
         {
-            _zeroDimSeries.TrackValue(metricValue);
+            this._zeroDimSeries.TrackValue(metricValue);
         }
 
         /// <summary>
@@ -486,7 +486,7 @@
         /// <param name="metricValue">The value to be aggregated.</param>
         public void TrackValue(object metricValue)
         {
-            _zeroDimSeries.TrackValue(metricValue);
+            this._zeroDimSeries.TrackValue(metricValue);
         }
 
         /// <summary>
@@ -502,7 +502,7 @@
         public bool TryTrackValue(double metricValue, string dimension1Value)
         {
             MetricSeries series;
-            bool canTrack = TryGetDataSeries(out series, dimension1Value);
+            bool canTrack = this.TryGetDataSeries(out series, dimension1Value);
             if (canTrack)
             {
                 series.TrackValue(metricValue);
@@ -524,7 +524,7 @@
         public bool TryTrackValue(object metricValue, string dimension1Value)
         {
             MetricSeries series;
-            if (TryGetDataSeries(out series, dimension1Value))
+            if (this.TryGetDataSeries(out series, dimension1Value))
             {
                 series.TrackValue(metricValue);
                 return true;
@@ -547,7 +547,7 @@
         public bool TryTrackValue(double metricValue, string dimension1Value, string dimension2Value)
         {
             MetricSeries series;
-            bool canTrack = TryGetDataSeries(out series, dimension1Value, dimension2Value);
+            bool canTrack = this.TryGetDataSeries(out series, dimension1Value, dimension2Value);
             if (canTrack)
             {
                 series.TrackValue(metricValue);
@@ -570,7 +570,7 @@
         public bool TryTrackValue(object metricValue, string dimension1Value, string dimension2Value)
         {
             MetricSeries series;
-            if (TryGetDataSeries(out series, dimension1Value, dimension2Value))
+            if (this.TryGetDataSeries(out series, dimension1Value, dimension2Value))
             {
                 series.TrackValue(metricValue);
                 return true;
@@ -594,7 +594,7 @@
         public bool TryTrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value)
         {
             MetricSeries series;
-            bool canTrack = TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value);
+            bool canTrack = this.TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value);
             if (canTrack)
             {
                 series.TrackValue(metricValue);
@@ -618,7 +618,7 @@
         public bool TryTrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value)
         {
             MetricSeries series;
-            if (TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value))
+            if (this.TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value))
             {
                 series.TrackValue(metricValue);
                 return true;
@@ -643,7 +643,7 @@
         public bool TryTrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value)
         {
             MetricSeries series;
-            bool canTrack = TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value, dimension4Value);
+            bool canTrack = this.TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value, dimension4Value);
             if (canTrack)
             {
                 series.TrackValue(metricValue);
@@ -668,7 +668,7 @@
         public bool TryTrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value)
         {
             MetricSeries series;
-            if (TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value, dimension4Value))
+            if (this.TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value, dimension4Value))
             {
                 series.TrackValue(metricValue);
                 return true;
@@ -700,7 +700,7 @@
                                 string dimension5Value)
         {
             MetricSeries series;
-            bool canTrack = TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value);
+            bool canTrack = this.TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value);
             if (canTrack)
             {
                 series.TrackValue(metricValue);
@@ -732,7 +732,7 @@
                                 string dimension5Value)
         {
             MetricSeries series;
-            if (TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value))
+            if (this.TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value))
             {
                 series.TrackValue(metricValue);
                 return true;
@@ -766,7 +766,7 @@
                                 string dimension6Value)
         {
             MetricSeries series;
-            bool canTrack = TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value, dimension6Value);
+            bool canTrack = this.TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value, dimension6Value);
             if (canTrack)
             {
                 series.TrackValue(metricValue);
@@ -800,7 +800,7 @@
                                 string dimension6Value)
         {
             MetricSeries series;
-            if (TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value, dimension6Value))
+            if (this.TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value, dimension4Value, dimension5Value, dimension6Value))
             {
                 series.TrackValue(metricValue);
                 return true;
@@ -836,7 +836,7 @@
                                 string dimension7Value)
         {
             MetricSeries series;
-            bool canTrack = TryGetDataSeries(
+            bool canTrack = this.TryGetDataSeries(
                                         out series, 
                                         dimension1Value, 
                                         dimension2Value, 
@@ -880,7 +880,7 @@
                                 string dimension7Value)
         {
             MetricSeries series;
-            if (TryGetDataSeries(
+            if (this.TryGetDataSeries(
                             out series,
                             dimension1Value,
                             dimension2Value,
@@ -926,7 +926,7 @@
                                 string dimension8Value)
         {
             MetricSeries series;
-            bool canTrack = TryGetDataSeries(
+            bool canTrack = this.TryGetDataSeries(
                                         out series,
                                         dimension1Value,
                                         dimension2Value,
@@ -973,7 +973,7 @@
                                 string dimension8Value)
         {
             MetricSeries series;
-            if (TryGetDataSeries(
+            if (this.TryGetDataSeries(
                             out series,
                             dimension1Value,
                             dimension2Value,
@@ -1022,7 +1022,7 @@
                                 string dimension9Value)
         {
             MetricSeries series;
-            bool canTrack = TryGetDataSeries(
+            bool canTrack = this.TryGetDataSeries(
                                         out series,
                                         dimension1Value,
                                         dimension2Value,
@@ -1072,7 +1072,7 @@
                                 string dimension9Value)
         {
             MetricSeries series;
-            if (TryGetDataSeries(
+            if (this.TryGetDataSeries(
                             out series,
                             dimension1Value,
                             dimension2Value,
@@ -1124,7 +1124,7 @@
                                 string dimension10Value)
         {
             MetricSeries series;
-            bool canTrack = TryGetDataSeries(
+            bool canTrack = this.TryGetDataSeries(
                                         out series,
                                         dimension1Value,
                                         dimension2Value,
@@ -1177,7 +1177,7 @@
                                 string dimension10Value)
         {
             MetricSeries series;
-            if (TryGetDataSeries(
+            if (this.TryGetDataSeries(
                             out series,
                             dimension1Value,
                             dimension2Value,
@@ -1237,7 +1237,7 @@
 
                 for (int d = 0; d < dimensionValues.Length; d++)
                 {
-                    string dimensionName = Identifier.GetDimensionName(d + 1);
+                    string dimensionName = this.Identifier.GetDimensionName(d + 1);
                     string dimensionValue = dimensionValues[d];
 
                     if (dimensionValue == null)
@@ -1254,10 +1254,10 @@
                 }
             }
 
-            MetricSeries series = _metricManager.CreateNewSeries(
-                                                        Identifier,
+            MetricSeries series = this._metricManager.CreateNewSeries(
+                                                        this.Identifier,
                                                         dimensionNamesAndValues,
-                                                        _configuration.SeriesConfig);
+                                                        this._configuration.SeriesConfig);
             return series;
         }
     }
