@@ -1,25 +1,18 @@
-﻿using System;
-
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
-
-namespace Microsoft.ApplicationInsights.Metrics
+﻿namespace Microsoft.ApplicationInsights.Metrics
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    using System;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public interface IMetricSeriesConfiguration : IEquatable<IMetricSeriesConfiguration>
     {
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         bool RequiresPersistentAggregation { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dataSeries"></param>
-        /// <param name="aggregationCycleKind"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="dataSeries">ToDo: Complete documentation before stable release.</param>
+        /// <param name="aggregationCycleKind">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind);
     }
 }

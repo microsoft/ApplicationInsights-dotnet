@@ -1,18 +1,17 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    /// <summary>
-    /// </summary>
+    using System;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public class ApplicationInsightsTelemetryPipeline : IMetricTelemetryPipeline
     {
         private readonly ApplicationInsights.TelemetryClient _trackingClient;
         private readonly Task _completedTask = Task.FromResult(true);
 
-        /// <summary />
-        /// <param name="telemetryPipeline"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="telemetryPipeline">ToDo: Complete documentation before stable release.</param>
         public ApplicationInsightsTelemetryPipeline(ApplicationInsights.Extensibility.TelemetryConfiguration telemetryPipeline)
         {
             Util.ValidateNotNull(telemetryPipeline, nameof(telemetryPipeline));
@@ -20,8 +19,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             _trackingClient = new ApplicationInsights.TelemetryClient(telemetryPipeline);
         }
 
-        /// <summary />
-        /// <param name="telemetryClient"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="telemetryClient">ToDo: Complete documentation before stable release.</param>
         public ApplicationInsightsTelemetryPipeline(ApplicationInsights.TelemetryClient telemetryClient)
         {
             Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));
@@ -29,10 +28,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             _trackingClient = telemetryClient;
         }
 
-        /// <summary />
-        /// <param name="metricAggregate"></param>
-        /// <param name="cancelToken"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricAggregate">ToDo: Complete documentation before stable release.</param>
+        /// <param name="cancelToken">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public Task TrackAsync(MetricAggregate metricAggregate, CancellationToken cancelToken)
         {
             Util.ValidateNotNull(metricAggregate, nameof(metricAggregate));
@@ -45,7 +44,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                                                                                             typeof(ApplicationInsightsTelemetryPipeline),
                                                                                             metricAggregate.AggregationKindMoniker,
                                                                                             out converter);
-            if (! hasConverter)
+            if (false == hasConverter)
             {
                 throw new ArgumentException($"Cannot track the specified {metricAggregate}, because there is no {nameof(IMetricAggregateToTelemetryPipelineConverter)}"
                                           + $" registered for it. A converter must be added to {nameof(MetricAggregateToTelemetryPipelineConverters)}"
@@ -55,15 +54,15 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             }
 
             object telemetryItem = converter.Convert(metricAggregate);
-            var metricTelemetryItem = (ApplicationInsights.DataContracts.MetricTelemetry) telemetryItem;
+            var metricTelemetryItem = (ApplicationInsights.DataContracts.MetricTelemetry)telemetryItem;
             _trackingClient.Track(metricTelemetryItem);
 
             return _completedTask;
         }
 
-        /// <summary />
-        /// <param name="cancelToken"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="cancelToken">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public Task FlushAsync(CancellationToken cancelToken)
         {
             cancelToken.ThrowIfCancellationRequested();

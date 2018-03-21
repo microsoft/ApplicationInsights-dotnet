@@ -1,9 +1,9 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
+    using System;
+    using System.Threading;
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Represents an eventual destination for metric telemetry.
     /// For example, an Application Insights telemetry pipeline, a file or some other ingestion point.
@@ -19,13 +19,12 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <exception cref="ArgumentException">The runtime class of the specified <c>metricAggregate</c> does not match the
         ///     telemetry destination type represented by this instance of <c>IMetricTelemetryPipeline</c>.</exception>
         /// <exception cref="OperationCanceledException">The specified <c>cancelToken</c> has had cancellation requested.</exception>
-        /// <returns></returns>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         Task TrackAsync(MetricAggregate metricAggregate, CancellationToken cancelToken);
 
-        /// <summary>
-        /// </summary>
-        /// <param name="cancelToken"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="cancelToken">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         Task FlushAsync(CancellationToken cancelToken);
     }
 }

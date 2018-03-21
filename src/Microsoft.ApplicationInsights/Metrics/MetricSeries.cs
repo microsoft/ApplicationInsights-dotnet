@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
-using System.Threading;
-
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
-
-using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
-
-namespace Microsoft.ApplicationInsights.Metrics
+﻿namespace Microsoft.ApplicationInsights.Metrics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
+    using System.Runtime.ExceptionServices;
+    using System.Threading;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
+    using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
+
     /// <summary>
     /// Represents a data time series of metric values.
     /// One or more <c>MetricSeries</c> are grouped into a single <c>Metric</c>.
@@ -104,14 +102,13 @@ namespace Microsoft.ApplicationInsights.Metrics
             _aggregatorCustom = null;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public IReadOnlyDictionary<string, string> DimensionNamesAndValues { get { return _dimensionNamesAndValues; } }
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        public IReadOnlyDictionary<string, string> DimensionNamesAndValues
+        {
+            get { return _dimensionNamesAndValues; }
+        }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier MetricIdentifier { get; }
 
         /// <summary>
@@ -198,18 +195,14 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public void ResetAggregation()
         {
             ResetAggregation(periodStart: DateTimeOffset.Now);
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="periodStart"></param>
+
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodStart">ToDo: Complete documentation before stable release.</param>
         public void ResetAggregation(DateTimeOffset periodStart)
         {
             periodStart = Util.RoundDownToSecond(periodStart);
@@ -225,10 +218,12 @@ namespace Microsoft.ApplicationInsights.Metrics
                     IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorDefault);
                     aggregator?.Reset(periodStart);
                 }
+
                 {
                     IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorQuickPulse);
                     aggregator?.Reset(periodStart);
                 }
+
                 {
                     IMetricSeriesAggregator aggregator = UnwrapAggregator(_aggregatorCustom);
                     aggregator?.Reset(periodStart);
@@ -236,21 +231,17 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MetricAggregate GetCurrentAggregateUnsafe()
         {
             return GetCurrentAggregateUnsafe(CycleKind.Default, DateTimeOffset.Now);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="aggregationCycleKind"></param>
-        /// <param name="dateTime"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="aggregationCycleKind">ToDo: Complete documentation before stable release.</param>
+        /// <param name="dateTime">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MetricAggregate GetCurrentAggregateUnsafe(MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset dateTime)
         {
             IMetricSeriesAggregator aggregator = null;
@@ -409,7 +400,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 if (aggregationCycleKind != CycleKind.Default)
                 { 
                     IMetricSeriesFilter dataSeriesFilter;
-                    if (! _aggregationManager.IsCycleActive(aggregationCycleKind, out dataSeriesFilter))
+                    if (false == _aggregationManager.IsCycleActive(aggregationCycleKind, out dataSeriesFilter))
                     {
                         return null;
                     }
@@ -474,8 +465,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// Aggregator implementations which believe that they are too expensive to recycle for this, can opt out of this strategy by returning FALSE from
         /// their CanRecycle property.
         /// </summary>
-        /// <param name="aggregationCycleKind"></param>
-        /// <returns></returns>
+        /// <param name="aggregationCycleKind">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         private IMetricSeriesAggregator GetRecycledAggregatorInstance(MetricAggregationCycleKind aggregationCycleKind)
         {
             if (_requiresPersistentAggregator)

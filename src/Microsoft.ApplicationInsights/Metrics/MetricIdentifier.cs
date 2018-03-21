@@ -1,22 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
-
-namespace Microsoft.ApplicationInsights.Metrics
+﻿namespace Microsoft.ApplicationInsights.Metrics
 {
-    /// <summary />
+    using System;
+    using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
+    using System.Text;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public sealed class MetricIdentifier : IEquatable<MetricIdentifier>
     {
-        private static readonly char[] InvalidMetricChars = new char[] { '\0', '"', '\'', '(', ')', '[', ']', '{', '}', '<', '>', '=', ',',
-                                                                         '`',  '~', '!',  '@', '#', '$', '%', '^', '&', '*', '+', '?' };
-
-        
-        private static string s_defaultMetricNamespace = "Custom Metrics";
-
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public const int MaxDimensionsCount = 10;
+
+        private static readonly char[] InvalidMetricChars = new char[]
+            {
+                        '\0', '"', '\'', '(', ')', '[', ']', '{', '}', '<', '>', '=', ',',
+                        '`',  '~', '!',  '@', '#', '$', '%', '^', '&', '*', '+', '?'
+            };
+
+        private static string s_defaultMetricNamespace = "Custom Metrics";
 
         /// <summary>
         /// This is what metric namespace will be set to if it is not specified.
@@ -27,6 +28,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 return s_defaultMetricNamespace;
             }
+
             set
             {
                 ValidateLiteral(value, nameof(value));
@@ -34,7 +36,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public static void ValidateLiteral(string partValue, string partName)
         {
             if (partValue == null)
@@ -57,6 +59,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         // These objectes may be created frequently.
         // We want to avoid the allocation of an erray every tim ewe use an ID, so we unwind all loops and list all 10 names explicitly.
         // There is no plan to support more dimension names any time soon.
+#pragma warning disable SA1201 // Elements must appear in the correct order: We want these fields after the above statics.
         private readonly string _dimension1Name;
         private readonly string _dimension2Name;
         private readonly string _dimension3Name;
@@ -70,8 +73,9 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         private readonly string _identifierString;
         private readonly int _hashCode;
+#pragma warning restore SA1201 // Elements must appear in the correct order
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier(string metricId)
             : this(metricNamespace: null,
                    metricId: metricId,
@@ -88,7 +92,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
         }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier(string metricNamespace, string metricId)
             : this(metricNamespace,
                    metricId,
@@ -105,7 +109,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
         }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -125,7 +129,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
         }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -146,7 +150,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
         }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -168,7 +172,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
         }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -191,7 +195,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
         }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -215,7 +219,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
         }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -240,7 +244,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
         }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -266,7 +270,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
         }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -293,7 +297,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
         }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -321,9 +325,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
         }
 
-
-
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier(
                         string metricNamespace,
                         string metricId,
@@ -384,7 +386,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             _hashCode = _identifierString.GetHashCode();
         }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier(
                         string metricNamespace,
                         string metricId,
@@ -428,7 +430,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// Get an enumeration of the dimension names contained in this identity. The enumeration will have <c>DimensionsCount</c> elements.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public IEnumerable<string> GetDimensionNames()
         {
             for (int d = 1; d <= DimensionsCount; d++)
@@ -448,7 +450,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             ValidateDimensionNumberForGetter(dimensionNumber);
 
-            switch(dimensionNumber)
+            switch (dimensionNumber)
             {
                 case 1:  return _dimension1Name;
                 case 2:  return _dimension2Name;
@@ -464,8 +466,8 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        /// <summary />
-        /// <returns />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public override string ToString()
         {
             return _identifierString;
@@ -545,39 +547,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private string GetIdentifierString()
-        {
-            StringBuilder idStr = new StringBuilder();
-
-            idStr.Append(MetricNamespace);
-            idStr.Append("+");
-            idStr.Append(MetricId);
-
-            idStr.Append("[");
-            idStr.Append(DimensionsCount);
-            idStr.Append("]");
-
-            idStr.Append("(");
-
-            for (int d = 1; d <= DimensionsCount; d++)
-            {
-                if (d > 1)
-                {
-                    idStr.Append(", ");
-                }
-
-                idStr.Append('"');
-                idStr.Append(GetDimensionName(d));
-                idStr.Append('"');
-
-            }
-
-            idStr.Append(")");
-
-            return idStr.ToString();
-        }
-
-
         private static void EnsureDimensionNamesValid(
                                                 out int dimensionCount,
                                                 ref string dimension1Name,
@@ -635,6 +604,37 @@ namespace Microsoft.ApplicationInsights.Metrics
                 throw new ArgumentException($"Name for dimension number {thisDimensionNumber} (\"{dimensionName}\")"
                                           + $" contains a disallowed character at position {pos}.");
             }
+        }
+
+        private string GetIdentifierString()
+        {
+            StringBuilder idStr = new StringBuilder();
+
+            idStr.Append(MetricNamespace);
+            idStr.Append("+");
+            idStr.Append(MetricId);
+
+            idStr.Append("[");
+            idStr.Append(DimensionsCount);
+            idStr.Append("]");
+
+            idStr.Append("(");
+
+            for (int d = 1; d <= DimensionsCount; d++)
+            {
+                if (d > 1)
+                {
+                    idStr.Append(", ");
+                }
+
+                idStr.Append('"');
+                idStr.Append(GetDimensionName(d));
+                idStr.Append('"');
+            }
+
+            idStr.Append(")");
+
+            return idStr.ToString();
         }
     }
 }

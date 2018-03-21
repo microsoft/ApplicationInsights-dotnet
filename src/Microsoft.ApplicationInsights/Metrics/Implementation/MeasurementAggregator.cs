@@ -1,10 +1,9 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
-
-namespace Microsoft.ApplicationInsights.Metrics
+﻿namespace Microsoft.ApplicationInsights.Metrics
 {
+    using System;
+    using System.Runtime.CompilerServices;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
+
     internal sealed class MeasurementAggregator : MetricSeriesAggregatorBase<double>
     {
         private static readonly Func<MetricValuesBufferBase<double>> MetricValuesBufferFactory = () => new MetricValuesBuffer_Double(capacity: 500);
@@ -14,7 +13,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly bool _restrictToUInt32Values;
 
         private readonly Data _data = new Data();
-
 
         public MeasurementAggregator(MetricSeriesConfigurationForMeasurement configuration, MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
             : base(MetricValuesBufferFactory, configuration, dataSeries, aggregationCycleKind)
@@ -155,7 +153,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         protected override void UpdateAggregate_Stage2(object stage1Result)
         {
-            Data bufferData = (Data) stage1Result;
+            Data bufferData = (Data)stage1Result;
 
             if (bufferData.Count == 0)
             {

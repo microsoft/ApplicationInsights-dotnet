@@ -1,29 +1,26 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading;
-
-namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
+﻿namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 {
-    /// <summary>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
+    using System.Threading;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
+    /// <typeparam name="T">Type of collection elemets.</typeparam>
     internal class GrowingCollection<T> : IEnumerable<T>
     {
         private const int SegmentSize = 32;
 
         private Segment _dataHead;
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public GrowingCollection()
         {
             _dataHead = new Segment(null);
         }
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -34,15 +31,14 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="item"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="item">ToDo: Complete documentation before stable release.</param>
         public void Add(T item)
         {
             Segment currHead = Volatile.Read(ref _dataHead);
 
             bool added = currHead.TryAdd(item);
-            while (! added)
+            while (false == added)
             {
                 Segment newHead = new Segment(currHead);
                 Segment prevHead = Interlocked.CompareExchange(ref _dataHead, newHead, currHead);
@@ -52,9 +48,8 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public GrowingCollection<T>.Enumerator GetEnumerator()
         {
@@ -62,9 +57,8 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             return enumerator;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -77,11 +71,9 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             return this.GetEnumerator();
         }
 
-        
         #region class Enumerator 
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public class Enumerator : IEnumerator<T>
         {
             private readonly Segment _head;
@@ -99,8 +91,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
                 _count = _headOffset + (_head.NextSegment == null ? 0 : _head.NextSegment.GlobalCount);
             }
 
-            /// <summary>
-            /// </summary>
+            /// <summary>ToDo: Complete documentation before stable release.</summary>
             public int Count
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -110,8 +101,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
                 }
             }
 
-            /// <summary>
-            /// </summary>
+            /// <summary>ToDo: Complete documentation before stable release.</summary>
             public T Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -130,16 +120,14 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
                 }
             }
 
-            /// <summary>
-            /// </summary>
+            /// <summary>ToDo: Complete documentation before stable release.</summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Dispose()
             {
             }
 
-            /// <summary>
-            /// </summary>
-            /// <returns></returns>
+            /// <summary>ToDo: Complete documentation before stable release.</summary>
+            /// <returns>ToDo: Complete documentation before stable release.</returns>
             public bool MoveNext()
             {
                 if (_currentSegmentOffset == 0)
@@ -162,8 +150,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
                 }
             }
 
-            /// <summary>
-            /// </summary>
+            /// <summary>ToDo: Complete documentation before stable release.</summary>
             public void Reset()
             {
                 _currentSegment = _head;
@@ -171,7 +158,6 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             }
         }
         #endregion class Enumerator 
-
 
         #region class Segment
         internal class Segment

@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.ExceptionServices;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
+﻿namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Runtime.ExceptionServices;
+    using System.Threading;
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Represents a multi-dimensional, discrete data cube.
     /// An N-dimensional discrete cube is a data structure containing elements of type TPoint.
@@ -146,8 +146,8 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
     /// ResponseTimeMetricSeries responseSeries02 = result.Point;
     /// </code>
     /// </remarks>
-    /// <typeparam name="TDimensionValue"></typeparam>
-    /// <typeparam name="TPoint"></typeparam>
+    /// <typeparam name="TDimensionValue">Type of dimension values. For common metrics, it's <c>string</c>.</typeparam>
+    /// <typeparam name="TPoint">Type of the item addreses by the dimension-values. For metrics it's a metric series.</typeparam>
     internal class MultidimensionalCube<TDimensionValue, TPoint>
     {
         /// <summary>
@@ -166,43 +166,35 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 
         private int _totalPointsCount;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="pointsFactory"></param>
-        /// <param name="subdimensionsCountLimits"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="pointsFactory">ToDo: Complete documentation before stable release.</param>
+        /// <param name="subdimensionsCountLimits">ToDo: Complete documentation before stable release.</param>
         public MultidimensionalCube(Func<TDimensionValue[], TPoint> pointsFactory, IEnumerable<int> subdimensionsCountLimits)
             : this(Int32.MaxValue, pointsFactory, subdimensionsCountLimits)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="totalPointsCountLimit"></param>
-        /// <param name="pointsFactory"></param>
-        /// <param name="subdimensionsCountLimits"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="totalPointsCountLimit">ToDo: Complete documentation before stable release.</param>
+        /// <param name="pointsFactory">ToDo: Complete documentation before stable release.</param>
+        /// <param name="subdimensionsCountLimits">ToDo: Complete documentation before stable release.</param>
         public MultidimensionalCube(int totalPointsCountLimit, Func<TDimensionValue[], TPoint> pointsFactory, IEnumerable<int> subdimensionsCountLimits)
             : this(totalPointsCountLimit, pointsFactory, subdimensionsCountLimits?.ToArray())
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="pointsFactory"></param>
-        /// <param name="subdimensionsCountLimits"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="pointsFactory">ToDo: Complete documentation before stable release.</param>
+        /// <param name="subdimensionsCountLimits">ToDo: Complete documentation before stable release.</param>
         public MultidimensionalCube(Func<TDimensionValue[], TPoint> pointsFactory, params int[] subdimensionsCountLimits)
             : this(Int32.MaxValue, pointsFactory, subdimensionsCountLimits)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="totalPointsCountLimit"></param>
-        /// <param name="pointsFactory"></param>
-        /// <param name="subdimensionsCountLimits"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="totalPointsCountLimit">ToDo: Complete documentation before stable release.</param>
+        /// <param name="pointsFactory">ToDo: Complete documentation before stable release.</param>
+        /// <param name="subdimensionsCountLimits">ToDo: Complete documentation before stable release.</param>
         public MultidimensionalCube(int totalPointsCountLimit, Func<TDimensionValue[], TPoint> pointsFactory, params int[] subdimensionsCountLimits)
         {
             if (totalPointsCountLimit < 1)
@@ -240,35 +232,34 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             _pointsFactory = pointsFactory;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public int DimensionsCount { get { return _subdimensionsCountLimits.Length; } }
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        public int DimensionsCount
+        {
+            get { return _subdimensionsCountLimits.Length; }
+        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public int TotalPointsCountLimit { get { return _totalPointsCountLimit; } }
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        public int TotalPointsCountLimit
+        {
+            get { return _totalPointsCountLimit; }
+        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public int TotalPointsCount { get { return Volatile.Read(ref _totalPointsCount); } }
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        public int TotalPointsCount
+        {
+            get { return Volatile.Read(ref _totalPointsCount); }
+        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dimension"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="dimension">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public int GetSubdimensionsCountLimit(int dimension)
         {
             return _subdimensionsCountLimits[dimension];
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public IReadOnlyCollection<KeyValuePair<TDimensionValue[], TPoint>> GetAllPoints()
         {
             var vectors = new List<KeyValuePair<TDimensionValue[], TPoint>>();
@@ -276,10 +267,8 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             return vectors;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="pointContainer"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="pointContainer">ToDo: Complete documentation before stable release.</param>
         public void GetAllPoints(ICollection<KeyValuePair<TDimensionValue[], TPoint>> pointContainer)
         {
             var vectors = new List<KeyValuePair<TDimensionValue[], TPoint>>();
@@ -298,33 +287,27 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="coordinates"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="coordinates">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MultidimensionalPointResult<TPoint> TryGetOrCreatePoint(params TDimensionValue[] coordinates)
         {
             MultidimensionalPointResult<TPoint> result = _points.TryGetOrAddVector(coordinates);
             return result;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="coordinates"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="coordinates">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MultidimensionalPointResult<TPoint> TryGetPoint(params TDimensionValue[] coordinates)
         {
             MultidimensionalPointResult<TPoint> result = _points.TryGetVector(coordinates);
             return result;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="coordinates"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="coordinates">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(params TDimensionValue[] coordinates)
         {
             return TryGetOrCreatePointAsync(
@@ -334,14 +317,12 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
                         coordinates:    coordinates);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sleepDuration"></param>
-        /// <param name="timeout"></param>
-        /// <param name="cancelToken"></param>
-        /// <param name="coordinates"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="sleepDuration">ToDo: Complete documentation before stable release.</param>
+        /// <param name="timeout">ToDo: Complete documentation before stable release.</param>
+        /// <param name="cancelToken">ToDo: Complete documentation before stable release.</param>
+        /// <param name="coordinates">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public async Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(
                                 TimeSpan sleepDuration,
                                 TimeSpan timeout,
@@ -366,7 +347,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             }
             catch (Exception ex)
             {
-                if ((! IsThrownByPointsFactoryKey(ex)) || (timeout == TimeSpan.Zero))
+                if ((false == IsThrownByPointsFactoryKey(ex)) || (timeout == TimeSpan.Zero))
                 {
                     ExceptionDispatchInfo.Capture(ex).Throw();
                 }
@@ -374,9 +355,9 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 
             bool infiniteTimeout = (timeout == Timeout.InfiniteTimeSpan);
 
-            if (! infiniteTimeout)
+            if (false == infiniteTimeout)
             { 
-                if (Math.Round(timeout.TotalMilliseconds) >= (double) Int32.MaxValue)
+                if (Math.Round(timeout.TotalMilliseconds) >= (double)Int32.MaxValue)
                 {
                     throw new ArgumentOutOfRangeException(nameof(timeout), $"{nameof(timeout)} must be smaller than {Int32.MaxValue} msec, but it is {timeout}.");
                 }
@@ -387,7 +368,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
                 }
             }
 
-            if (Math.Round(sleepDuration.TotalMilliseconds) > (double) Int32.MaxValue)
+            if (Math.Round(sleepDuration.TotalMilliseconds) > (double)Int32.MaxValue)
             {
                 throw new ArgumentOutOfRangeException(nameof(sleepDuration), $"{nameof(sleepDuration)} must be smaller than {Int32.MaxValue} msec, but it is {sleepDuration}.");
             }
@@ -397,8 +378,8 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
                 throw new ArgumentOutOfRangeException(nameof(sleepDuration), $"{nameof(sleepDuration)} must be non-negative, but it is {sleepDuration}.");
             }
 
-            int timeoutMillis = (int) Math.Round(timeout.TotalMilliseconds);
-            int sleepMillis = (int) Math.Round(sleepDuration.TotalMilliseconds);
+            int timeoutMillis = (int)Math.Round(timeout.TotalMilliseconds);
+            int sleepMillis = (int)Math.Round(sleepDuration.TotalMilliseconds);
 
             int startMillis = Environment.TickCount;
             int stopMillis = startMillis + timeoutMillis;
@@ -428,7 +409,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
                 }
                 catch (Exception ex)
                 {
-                    if (! IsThrownByPointsFactoryKey(ex))
+                    if (false == IsThrownByPointsFactoryKey(ex))
                     {
                         ExceptionDispatchInfo.Capture(ex).Throw();
                     }
@@ -461,10 +442,8 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         internal bool TryIncTotalPointsCount()
         {
             int newTotalPointsCount = Interlocked.Increment(ref _totalPointsCount);

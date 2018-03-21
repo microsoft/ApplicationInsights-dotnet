@@ -1,13 +1,13 @@
-﻿using System;
-
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    /// <summary />
+    using System;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public interface IMetricAggregateToTelemetryPipelineConverter
     {
-        /// <summary />
-        /// <param name="aggregate"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="aggregate">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         object Convert(MetricAggregate aggregate);
     }
 }

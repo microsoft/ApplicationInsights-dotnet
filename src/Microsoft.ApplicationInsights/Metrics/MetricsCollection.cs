@@ -1,45 +1,40 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-
-namespace Microsoft.ApplicationInsights.Metrics
+﻿namespace Microsoft.ApplicationInsights.Metrics
 {
-    /// <summary>
-    /// </summary>
+    using System;
+    using System.Collections;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public class MetricsCollection : ICollection<Metric>
     {
         private readonly MetricManager _metricManager;
         private readonly ConcurrentDictionary<MetricIdentifier, Metric> _metrics = new ConcurrentDictionary<MetricIdentifier, Metric>();
 
-        /// <summary>
-        /// </summary>
-        public int Count
-        {
-            get { return _metrics.Count; }
-        }
-
-        /// <summary>
-        /// </summary>
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="metricManager"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricManager">ToDo: Complete documentation before stable release.</param>
         internal MetricsCollection(MetricManager metricManager)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
             _metricManager = metricManager;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="metricIdentifier"></param>
-        /// <param name="metricConfiguration"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        public int Count
+        {
+            get { return _metrics.Count; }
+        }
+
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        public bool IsReadOnly
+        {
+            get { return false; }
+        }
+
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricIdentifier">ToDo: Complete documentation before stable release.</param>
+        /// <param name="metricConfiguration">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public Metric GetOrCreate(
                                 MetricIdentifier metricIdentifier,
                                 MetricConfiguration metricConfiguration)
@@ -51,8 +46,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                             (key) => new Metric(
                                                                 _metricManager,
                                                                 metricIdentifier,
-                                                                metricConfiguration ?? MetricConfigurations.Common.Default())
-                                             );
+                                                                metricConfiguration ?? MetricConfigurations.Common.Default()));
 
             if (metricConfiguration != null && false == metric._configuration.Equals(metricConfiguration))
             {
@@ -61,23 +55,21 @@ namespace Microsoft.ApplicationInsights.Metrics
                                           + " metric was created for the first time. Either specify the same configuration every time, or"
                                           + " specify 'null' during every invocation except the first one. 'Null' will match against any"
                                           + " previously specified configuration when retrieving existing metrics, or fall back to"
-                                          +$" the default when creating new metrics. ({nameof(metricIdentifier)} = \"{metricIdentifier.ToString()}\".)");
+                                         + $" the default when creating new metrics. ({nameof(metricIdentifier)} = \"{metricIdentifier.ToString()}\".)");
             }
 
             return metric;
         }
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public void Clear()
         {
             _metrics.Clear();
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="metric"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metric">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public bool Contains(Metric metric)
         {
             if (metric == null)
@@ -88,10 +80,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             return _metrics.ContainsKey(metric.Identifier);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="array"></param>
-        /// <param name="arrayIndex"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="array">ToDo: Complete documentation before stable release.</param>
+        /// <param name="arrayIndex">ToDo: Complete documentation before stable release.</param>
         public void CopyTo(Metric[] array, int arrayIndex)
         {
             Util.ValidateNotNull(array, nameof(array));
@@ -104,10 +95,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             _metrics.Values.CopyTo(array, arrayIndex);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="metric"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metric">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public bool Remove(Metric metric)
         {
             if (metric == null)
@@ -119,17 +109,15 @@ namespace Microsoft.ApplicationInsights.Metrics
             return _metrics.TryRemove(metric.Identifier, out removedMetric);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public IEnumerator<Metric> GetEnumerator()
         {
             return _metrics.Values.GetEnumerator();
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
@@ -138,7 +126,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// The Add(..) method is not supported. To add a new metric, use the GetOrCreate(..) method.
         /// </summary>
-        /// <param name="unsupported"></param>
+        /// <param name="unsupported">ToDo: Complete documentation before stable release.</param>
         void ICollection<Metric>.Add(Metric unsupported)
         {
             throw new NotSupportedException($"The Add(..) method is not supported by this {nameof(MetricsCollection)}."

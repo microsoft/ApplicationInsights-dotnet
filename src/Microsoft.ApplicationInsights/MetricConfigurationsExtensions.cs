@@ -1,10 +1,10 @@
-﻿using System;
-using System.ComponentModel;
-
-using Microsoft.ApplicationInsights.Metrics;
-
-namespace Microsoft.ApplicationInsights
+﻿namespace Microsoft.ApplicationInsights
 {
+    using System;
+    using System.ComponentModel;
+
+    using Microsoft.ApplicationInsights.Metrics;
+
     /// <summary>
     /// Provides the default Metric Configuration for Measurements.
     /// Do not use directly. Instead, use: <c>MetricConfigurations.Common.Xxxx()</c>.
@@ -29,8 +29,8 @@ namespace Microsoft.ApplicationInsights
         /// Size and number of server requests per time period; Duration and rate of database calls per time period;
         /// Number of sale events and number of items sold per sale event over a time period, etc.</para>
         /// </summary>
-        /// <param name="metricConfigPresets"></param>
-        /// <returns></returns>
+        /// <param name="metricConfigPresets">A static attachment point for this extension method.</param>
+        /// <returns>The default <see cref="MetricConfiguration"/> for measurement metrics.</returns>
         public static MetricConfigurationForMeasurement Measurement(this MetricConfigurations metricConfigPresets)
         {
             return s_defaultConfigForMeasurement;

@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Microsoft.ApplicationInsights
+﻿namespace Microsoft.ApplicationInsights
 {
+    using System;
+
     /// <summary>
     /// Static container for the most commonly used metric configurations.
     /// </summary>

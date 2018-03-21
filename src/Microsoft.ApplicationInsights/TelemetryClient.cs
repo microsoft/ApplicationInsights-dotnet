@@ -668,7 +668,7 @@
         /// configuration used earlier.</exception>
         /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
         /// See <see cref="MetricAggregationScope" /> for more info.</param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
         public Metric GetMetric(
                             string metricId,
                             MetricConfiguration metricConfiguration,
@@ -697,7 +697,7 @@
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
-        /// <returns></returns>
+        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
         public Metric GetMetric(
                             string metricId,
                             string dimension1Name)
@@ -790,7 +790,7 @@
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
-        /// <returns></returns>
+        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
         public Metric GetMetric(
                             string metricId,
                             string dimension1Name,
@@ -889,7 +889,7 @@
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
-        /// <returns></returns>
+        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
         public Metric GetMetric(
                             string metricId,
                             string dimension1Name,
@@ -994,7 +994,7 @@
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
-        /// <returns></returns>
+        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
         public Metric GetMetric(
                             string metricId,
                             string dimension1Name,
@@ -1098,7 +1098,7 @@
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
-        /// <returns></returns>
+        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
         public Metric GetMetric(
                             MetricIdentifier metricIdentifier)
         {

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
-
-namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
+﻿  namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
 {
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Threading;
+
     internal class MultidimensionalCubeDimension<TDimensionValue, TPoint>
     {
         private readonly MultidimensionalCube<TDimensionValue, TPoint> _ownerCube;
@@ -61,7 +61,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             {
                 foreach (KeyValuePair<TDimensionValue, object> element in _elements)
                 {
-                    var pointDesc = new KeyValuePair<IList<TDimensionValue>, TPoint>(new List<TDimensionValue>(), (TPoint) element.Value);
+                    var pointDesc = new KeyValuePair<IList<TDimensionValue>, TPoint>(new List<TDimensionValue>(), (TPoint)element.Value);
                     pointDesc.Key.Add(element.Key);
                     pointDescriptions.Add(pointDesc);
                 }
@@ -70,7 +70,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             {
                 foreach (KeyValuePair<TDimensionValue, object> element in _elements)
                 {
-                    var elementValue = (MultidimensionalCubeDimension<TDimensionValue, TPoint>) element.Value;
+                    var elementValue = (MultidimensionalCubeDimension<TDimensionValue, TPoint>)element.Value;
                     IReadOnlyCollection<KeyValuePair<IList<TDimensionValue>, TPoint>> subCube = elementValue.GetAllPointsReversed();
                     foreach (KeyValuePair<IList<TDimensionValue>, TPoint> subVector in subCube)
                     {
@@ -96,20 +96,21 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             {
                 if (_isLastDimensionLevel)
                 {
-                    var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, (TPoint) subElement);
+                    var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, (TPoint)subElement);
                     return result;
                 }
                 else
                 {
-                    MultidimensionalCubeDimension<TDimensionValue, TPoint> subDim = (MultidimensionalCubeDimension<TDimensionValue, TPoint>) subElement;
+                    MultidimensionalCubeDimension<TDimensionValue, TPoint> subDim = (MultidimensionalCubeDimension<TDimensionValue, TPoint>)subElement;
                     MultidimensionalPointResult<TPoint> result = subDim.TryGetOrAddVectorInternal(coordinates, currentDim + 1, createIfNotExists);
                     return result;
                 }
             }
-            else // so - subElement does NOT exist: 
+            else
             {
+            // so - subElement does NOT exist:
                 // If we are not to create new elements, we are done:
-                if (! createIfNotExists)
+                if (false == createIfNotExists)
                 {
                     var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_PointDoesNotExistCreationNotRequested, currentDim);
                     return result;
@@ -135,7 +136,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             // This can occur no more than (approx.) Cm = Md1 * Md2 * ... * Mdn times, where Mdi is the max dimension limit for dimension i. 
 
             // Check if we reached the dimensions count limit. If we did, we give up. Otherwise we start tracking whether we need to undo the increment later:
-            if (! this.TryIncSubdimensionsCount())
+            if (false == this.TryIncSubdimensionsCount())
             {
                 return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_SubdimensionsCountLimitReached, currentDim);
             }
@@ -145,7 +146,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             {
                 // We are on the last level and we need to create the actual point. However, before doing that we need to check and pre-book the total
                 // count limit using the same pattern as the dimension values limit:
-                if (! _ownerCube.TryIncTotalPointsCount())
+                if (false == _ownerCube.TryIncTotalPointsCount())
                 {
                     return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, failureCoordinateIndex: -1);
                 }
@@ -168,7 +169,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
                     else
                     {
                         // If the point was already in the list, then that other point created by the race winner is the one we want.
-                        TPoint existingPoint = (TPoint) _elements[subElementKey];
+                        TPoint existingPoint = (TPoint)_elements[subElementKey];
                         return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, existingPoint);
                     }
                 }
@@ -194,7 +195,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
             // Note the comment near the top if TryAddPoint(..) about the applied minimal locking strategy.
 
             // Check if we reached the dimensions count limit. If we did, we give up. Otherwise we start tracking whether we need to undo the increment later:
-            if (! this.TryIncSubdimensionsCount())
+            if (false == this.TryIncSubdimensionsCount())
             {
                 return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_SubdimensionsCountLimitReached, currentDim);
             }
@@ -223,7 +224,7 @@ namespace Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures
                 // Becasue we have not yet inserted newSubDim into _elements, any operations on newSubDim are not under concurrency.
                 // There are no point-vectors yet pointing to the sub-space of newSubDim, so no DimensionValuesCountLimit can be reached.
                 // So, hasNewPoint can be false only if TotalPointsCountLimit was reached. We just bail out:
-                if (! newSubDimResult.IsSuccess)
+                if (false == newSubDimResult.IsSuccess)
                 {
                     return newSubDimResult;
                 }

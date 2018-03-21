@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-
-using Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures;
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
-
-using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
-
-namespace Microsoft.ApplicationInsights.Metrics
+﻿namespace Microsoft.ApplicationInsights.Metrics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
+    using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
+
     internal class MetricAggregationManager
     {
         // We support 4 aggregation cycles. 2 of them can be accessed from the outside:
@@ -124,7 +122,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             IMetricSeriesFilter seriesFilter = aggregatorCollection.Filter;
             IMetricValueFilter valueFilter;
-            if (! Util.FilterWillConsume(seriesFilter, aggregator.DataSeries, out valueFilter))
+            if (false == Util.FilterWillConsume(seriesFilter, aggregator.DataSeries, out valueFilter))
             {
                 return false;
             }

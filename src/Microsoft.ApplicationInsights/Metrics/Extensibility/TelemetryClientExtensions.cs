@@ -1,24 +1,20 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Microsoft.ApplicationInsights.Extensibility;
-
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    using System;
+    using System.Runtime.CompilerServices;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Extensibility;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public static class TelemetryClientExtensions
     {
         private static ConditionalWeakTable<TelemetryClient, MetricManager> s_metricManagersForTelemetryClients;
 
-        /// <summary>
-        /// </summary>
-        /// <param name="telemetryClient"></param>
-        /// <param name="aggregationScope"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="telemetryClient">ToDo: Complete documentation before stable release.</param>
+        /// <param name="aggregationScope">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public static MetricManager GetMetricManager(this TelemetryClient telemetryClient, MetricAggregationScope aggregationScope)
         {
             Util.ValidateNotNull(telemetryClient, nameof(telemetryClient));

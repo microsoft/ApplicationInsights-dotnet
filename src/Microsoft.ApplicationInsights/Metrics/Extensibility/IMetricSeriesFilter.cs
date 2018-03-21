@@ -1,18 +1,14 @@
-﻿using System;
-
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    using System;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public interface IMetricSeriesFilter
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dataSeries"></param>
-        /// <param name="valueFilter"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="dataSeries">ToDo: Complete documentation before stable release.</param>
+        /// <param name="valueFilter">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         bool WillConsume(MetricSeries dataSeries, out IMetricValueFilter valueFilter);
     }
 }

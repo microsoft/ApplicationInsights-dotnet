@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    /// <summary />
-    /// <typeparam name="TBufferedValue"></typeparam>
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
+    /// <typeparam name="TBufferedValue">The actual type of the metric values. For most common metrics it's <c>double</c>.
+    /// However, for example a metric collecting strings to dount the number of distinct entities might have <c>string</c>.</typeparam>
     public abstract class MetricSeriesAggregatorBase<TBufferedValue> : IMetricSeriesAggregator
     {
         private readonly MetricSeries _dataSeries;
@@ -20,11 +21,11 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         private volatile MetricValuesBufferBase<TBufferedValue> _metricValuesBuffer;
         private volatile MetricValuesBufferBase<TBufferedValue> _metricValuesBufferRecycle = null;
 
-        /// <summary />
-        /// <param name="metricValuesBufferFactory"></param>
-        /// <param name="configuration"></param>
-        /// <param name="dataSeries"></param>
-        /// <param name="aggregationCycleKind"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricValuesBufferFactory">ToDo: Complete documentation before stable release.</param>
+        /// <param name="configuration">ToDo: Complete documentation before stable release.</param>
+        /// <param name="dataSeries">ToDo: Complete documentation before stable release.</param>
+        /// <param name="aggregationCycleKind">ToDo: Complete documentation before stable release.</param>
         protected MetricSeriesAggregatorBase(
                                         Func<MetricValuesBufferBase<TBufferedValue>> metricValuesBufferFactory,
                                         IMetricSeriesConfiguration configuration,
@@ -44,13 +45,15 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             Reset(default(DateTimeOffset), default(IMetricValueFilter));
         }
 
-        /// <summary />
-        public MetricSeries DataSeries { get { return _dataSeries; } }
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        public MetricSeries DataSeries
+        {
+            get { return _dataSeries; }
+        }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="periodEnd"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodEnd">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MetricAggregate CompleteAggregation(DateTimeOffset periodEnd)
         {
             if (!_isPersistent)
@@ -62,9 +65,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             return aggregate;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="periodStart"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodStart">ToDo: Complete documentation before stable release.</param>
         public void Reset(DateTimeOffset periodStart)
         {
             _periodStart = periodStart;
@@ -74,19 +76,17 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             ResetAggregate();
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="periodStart"></param>
-        /// <param name="valueFilter"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodStart">ToDo: Complete documentation before stable release.</param>
+        /// <param name="valueFilter">ToDo: Complete documentation before stable release.</param>
         public void Reset(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
         {
             _valueFilter = valueFilter;
             Reset(periodStart);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="metricValue"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricValue">ToDo: Complete documentation before stable release.</param>
         public void TrackValue(double metricValue)
         {
             if (Double.IsNaN(metricValue))
@@ -106,9 +106,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             TrackFilteredConvertedValue(value);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="metricValue"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricValue">ToDo: Complete documentation before stable release.</param>
         public void TrackValue(object metricValue)
         {
             if (metricValue == null)
@@ -127,9 +126,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             TrackFilteredConvertedValue(value);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public bool TryRecycle()
         {
             if (_isPersistent)
@@ -141,10 +139,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             return true;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="periodEnd"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodEnd">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MetricAggregate CreateAggregateUnsafe(DateTimeOffset periodEnd)
         {
             UpdateAggregate(_metricValuesBuffer);
@@ -154,26 +151,22 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
         #region Abstract Methods
 
-        /// <summary>
-        /// </summary>
-        /// <param name="periodEnd"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodEnd">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         protected abstract MetricAggregate CreateAggregate(DateTimeOffset periodEnd);
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         protected abstract void ResetAggregate();
 
-        /// <summary>
-        /// </summary>
-        /// <param name="metricValue"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricValue">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         protected abstract TBufferedValue ConvertMetricValue(double metricValue);
 
-        /// <summary>
-        /// </summary>
-        /// <param name="metricValue"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricValue">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         protected abstract TBufferedValue ConvertMetricValue(object metricValue);
 
         /// <summary>
@@ -182,10 +175,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// a lock on the <c>metric values buffer</c> (e.g. extracting a summary from the buffer). Stage 2 is the part of the update
         /// that does not need such a lock.
         /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="minFlushIndex"></param>
-        /// <param name="maxFlushIndex"></param>
-        /// <returns></returns>
+        /// <param name="buffer">ToDo: Complete documentation before stable release.</param>
+        /// <param name="minFlushIndex">ToDo: Complete documentation before stable release.</param>
+        /// <param name="maxFlushIndex">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         protected abstract object UpdateAggregate_Stage1(MetricValuesBufferBase<TBufferedValue> buffer, int minFlushIndex, int maxFlushIndex);
 
         /// <summary>
@@ -194,15 +187,14 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// a lock on the <c>metric values buffer</c> (e.g. extracting a summary from the buffer). Stage 2 is the part of the update
         /// that does not need such a lock.
         /// </summary>
-        /// <param name="stage1Result"></param>
+        /// <param name="stage1Result">ToDo: Complete documentation before stable release.</param>
         protected abstract void UpdateAggregate_Stage2(object stage1Result);
 
         #endregion Abstract Methods
 
-        /// <summary>
-        /// </summary>
-        /// <param name="aggregate"></param>
-        /// <param name="periodEnd"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="aggregate">ToDo: Complete documentation before stable release.</param>
+        /// <param name="periodEnd">ToDo: Complete documentation before stable release.</param>
         protected void AddInfo_Timing_Dimensions_Context(MetricAggregate aggregate, DateTimeOffset periodEnd)
         {
             if (aggregate == null)
@@ -230,7 +222,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         }
 
 #if DEBUG
-        /// <summary>For debug purposes. Not compiled into release build.</summary>
+#pragma warning disable SA1307 // Accessible fields must begin with upper-case letter
+#pragma warning disable SA1201 // Elements must appear in the correct order
+                              /// <summary>For debug purposes. Not compiled into release build.</summary>
         public static volatile int s_countBufferWaitSpinEvents = 0;
 
         /// <summary>For debug purposes. Not compiled into release build.</summary>
@@ -244,6 +238,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
         /// <summary>For debug purposes. Not compiled into release build.</summary>
         public static volatile int s_countNewBufferObjectsCreated = 0;
+#pragma warning restore SA1201 // Elements must appear in the correct order
+#pragma warning restore SA1307 // Accessible fields must begin with upper-case letter
 #endif
 
         /// <summary>
@@ -369,7 +365,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// <summary>
         /// Flushes the values buffer to update the aggregate state held by subclasses.
         /// </summary>
-        /// <param name="buffer"></param>
+        /// <param name="buffer">ToDo: Complete documentation before stable release.</param>
         private void UpdateAggregate(MetricValuesBufferBase<TBufferedValue> buffer)
         {
             if (buffer == null)

@@ -1,26 +1,21 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
-
-namespace Microsoft.ApplicationInsights.Metrics
+﻿namespace Microsoft.ApplicationInsights.Metrics
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    using System;
+    using System.Runtime.CompilerServices;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public static class TelemetryConfigurationExtensions
     {
         private static MetricManager s_defaultMetricManager = null;
         private static ConditionalWeakTable<TelemetryConfiguration, MetricManager> s_metricManagers = null;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="telemetryPipeline"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="telemetryPipeline">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public static MetricManager GetMetricManager(this TelemetryConfiguration telemetryPipeline)
         {
             if (telemetryPipeline == null)

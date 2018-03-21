@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading;
-
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Extensibility.Implementation;
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
-
-namespace Microsoft.ApplicationInsights.Metrics
+﻿namespace Microsoft.ApplicationInsights.Metrics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using System.Reflection;
+    using System.Runtime.CompilerServices;
+    using System.Threading;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
+
     internal static class Util
     {
         public const string NullString = "null";
@@ -76,7 +75,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double EnsureConcreteValue(double x)
         {
@@ -102,7 +100,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 throw new ArgumentException("Cannot process the specified value."
                                           + " A non-negavite whole number was expected, but the specified value is"
-                                          +$" a negative double value ({value})."
+                                         + $" a negative double value ({value})."
                                           + " Have you specified the correct metric configuration?");
             }
 
@@ -112,7 +110,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 throw new ArgumentException("Cannot process the specified value."
                                          + " A non-negavite whole number was expected, but the specified value is"
-                                         +$" larger than the maximum accepted value ({value})."
+                                        + $" larger than the maximum accepted value ({value})."
                                          + " Have you specified the correct metric configuration?");
             }
 
@@ -121,7 +119,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 throw new ArgumentException("Cannot process the specified value."
                                           + " A non-negavite whole number was expected, but the specified value is"
-                                          +$" a double value that does not equal to a whole number ({value})."
+                                         + $" a double value that does not equal to a whole number ({value})."
                                           + " Have you specified the correct metric configuration?");
             }
 
@@ -137,43 +135,43 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             if (metricValue is SByte)
             {
-                return (double) (SByte) metricValue;
+                return (double)(SByte)metricValue;
             }
             else if (metricValue is Byte)
             {
-                return (double) (Byte) metricValue;
+                return (double)(Byte)metricValue;
             }
             else if (metricValue is Int16)
             {
-                return (double) (Int16) metricValue;
+                return (double)(Int16)metricValue;
             }
             else if (metricValue is UInt16)
             {
-                return (double) (UInt16) metricValue;
+                return (double)(UInt16)metricValue;
             }
             else if (metricValue is Int32)
             {
-                return (double) (Int32) metricValue;
+                return (double)(Int32)metricValue;
             }
             else if (metricValue is UInt32)
             {
-                return (double) (UInt32) metricValue;
+                return (double)(UInt32)metricValue;
             }
             else if (metricValue is Int64)
             {
-                return (double) (Int64) metricValue;
+                return (double)(Int64)metricValue;
             }
             else if (metricValue is UInt64)
             {
-                return (double) (UInt64) metricValue;
+                return (double)(UInt64)metricValue;
             }
             else if (metricValue is Single)
             {
-                return (double) (Single) metricValue;
+                return (double)(Single)metricValue;
             }
             else if (metricValue is Double)
             {
-                return (double) (Double) metricValue;
+                return (double)(Double)metricValue;
             }
             else
             {
@@ -188,17 +186,17 @@ namespace Microsoft.ApplicationInsights.Metrics
                     else
                     {
                         throw new ArgumentException("Cannot process the specified value."
-                                                  +$" A numeric value was expected, but the specified {nameof(metricValue)} is"
-                                                  +$" a String that cannot be parsed into a number (\"{metricValue}\")."
+                                                 + $" A numeric value was expected, but the specified {nameof(metricValue)} is"
+                                                 + $" a String that cannot be parsed into a number (\"{metricValue}\")."
                                                   + " Have you specified the correct metric configuration?");
                     }
                 }
                 else
                 {
                     throw new ArgumentException("Cannot process the specified value."
-                                             +$" A numeric value was expected, but the specified {nameof(metricValue)} is"
-                                             +$" of type {metricValue.GetType().FullName}."
-                                             + " Have you specified the correct metric configuration?");
+                                             + $" A numeric value was expected, but the specified {nameof(metricValue)} is"
+                                             + $" of type {metricValue.GetType().FullName}."
+                                              + " Have you specified the correct metric configuration?");
                 }
             }
         }
@@ -259,8 +257,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             int hash = 17;
             unchecked
             {
-                hash = hash * 23 + hash1;
+                hash = (hash * 23) + hash1;
             }
+
             return hash;
         }
 
@@ -269,9 +268,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             int hash = 17;
             unchecked
             {
-                hash = hash * 23 + hash1;
-                hash = hash * 23 + hash2;
+                hash = (hash * 23) + hash1;
+                hash = (hash * 23) + hash2;
             }
+
             return hash;
         }
 
@@ -280,18 +280,18 @@ namespace Microsoft.ApplicationInsights.Metrics
             int hash = 17;
             unchecked
             {
-                hash = hash * 23 + hash1;
-                hash = hash * 23 + hash2;
-                hash = hash * 23 + hash3;
-                hash = hash * 23 + hash4;
+                hash = (hash * 23) + hash1;
+                hash = (hash * 23) + hash2;
+                hash = (hash * 23) + hash3;
+                hash = (hash * 23) + hash4;
             }
+
             return hash;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="target"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="source">ToDo: Complete documentation before stable release.</param>
+        /// <param name="target">ToDo: Complete documentation before stable release.</param>
         public static void CopyTelemetryContext(TelemetryContext source, TelemetryContext target)
         {
             Util.ValidateNotNull(source, nameof(source));
@@ -307,7 +307,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 foreach (KeyValuePair<string, string> property in sourceProperties)
                 {
-                    if (! String.IsNullOrEmpty(property.Key) && ! targetProperties.ContainsKey(property.Key))
+                    if (false == String.IsNullOrEmpty(property.Key) && false == targetProperties.ContainsKey(property.Key))
                     {
                         targetProperties[property.Key] = property.Value;
                     }

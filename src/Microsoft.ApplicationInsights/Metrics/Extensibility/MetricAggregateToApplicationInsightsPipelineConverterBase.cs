@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-
-using Microsoft.ApplicationInsights.DataContracts;
-
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    /// <summary />
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using Microsoft.ApplicationInsights.DataContracts;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public abstract class MetricAggregateToApplicationInsightsPipelineConverterBase : IMetricAggregateToTelemetryPipelineConverter
     {
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public const string AggregationIntervalMonikerPropertyKey = "_MS.AggregationIntervalMs";
 
-        /// <summary />s
+        /// <summary>ToDo: Complete documentation before stable release.</summary>s
         public abstract string AggregationKindMoniker { get; }
 
-        /// <summary />
-        /// <param name="aggregate"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="aggregate">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public object Convert(MetricAggregate aggregate)
         {
             ValidateAggregate(aggregate);
@@ -26,12 +25,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             return telemetryItem;
         }
 
-        /// <summary />
-        /// <param name="telemetryItem"></param>
-        /// <param name="aggregate"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="telemetryItem">ToDo: Complete documentation before stable release.</param>
+        /// <param name="aggregate">ToDo: Complete documentation before stable release.</param>
         protected abstract void PopulateDataValues(MetricTelemetry telemetryItem, MetricAggregate aggregate);
-
-        
 
         private static void PopulateTelemetryContext(
                                                 IDictionary<string, string> dimensions,
@@ -160,6 +157,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                             {
                             }
                         }
+
                         break;
 
                     case MetricDimensionNames.TelemetryContext.User.AccountId:
@@ -193,6 +191,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
                             nonContextDimensionList.Add(dimension);
                         }
+
                         break;
                 }
             }
@@ -230,7 +229,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             IDictionary<string, string> props = telemetryItem.Properties;
             if (props != null)
             {
-                long periodMillis = (long) aggregate.AggregationPeriodDuration.TotalMilliseconds;
+                long periodMillis = (long)aggregate.AggregationPeriodDuration.TotalMilliseconds;
                 props.Add(AggregationIntervalMonikerPropertyKey, periodMillis.ToString(CultureInfo.InvariantCulture));
             }
 

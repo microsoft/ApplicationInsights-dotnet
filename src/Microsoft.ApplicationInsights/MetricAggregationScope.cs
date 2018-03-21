@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Microsoft.ApplicationInsights
+﻿namespace Microsoft.ApplicationInsights
 {
+    using System;
+
     /// <summary>
     /// Used when getting or creating a <see cref="Metric" /> to optionally specify the scope across which the values for the metric are to be aggregated in memory.<br />
     /// Intended for advanced scenarios.

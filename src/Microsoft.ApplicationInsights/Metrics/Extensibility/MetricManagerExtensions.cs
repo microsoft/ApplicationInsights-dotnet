@@ -1,21 +1,19 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
+    using System;
+    using System.Threading.Tasks;
+
     /// <summary>
     /// There are some methods on that MetricManager needs to forward to its encapsulated MetricAggregationManager that need to be public.
     /// However, in order not to pulute the API surface shown by Intellisense, we redirect them through this class, which is located in a more specialized namespace.
     /// </summary>
     public static class MetricManagerExtensions
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="metricManager"></param>
-        /// <param name="aggregationCycleKind"></param>
-        /// <param name="tactTimestamp"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricManager">ToDo: Complete documentation before stable release.</param>
+        /// <param name="aggregationCycleKind">ToDo: Complete documentation before stable release.</param>
+        /// <param name="tactTimestamp">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public static AggregationPeriodSummary StopAggregators(
                                                         this MetricManager metricManager,
                                                         MetricAggregationCycleKind aggregationCycleKind,
@@ -25,14 +23,12 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             return metricManager.AggregationManager.StopAggregators(aggregationCycleKind, tactTimestamp);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="metricManager"></param>
-        /// <param name="aggregationCycleKind"></param>
-        /// <param name="tactTimestamp"></param>
-        /// <param name="futureFilter"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricManager">ToDo: Complete documentation before stable release.</param>
+        /// <param name="aggregationCycleKind">ToDo: Complete documentation before stable release.</param>
+        /// <param name="tactTimestamp">ToDo: Complete documentation before stable release.</param>
+        /// <param name="futureFilter">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public static AggregationPeriodSummary StartOrCycleAggregators(
                                                         this MetricManager metricManager,
                                                         MetricAggregationCycleKind aggregationCycleKind,

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
-
-namespace Microsoft.ApplicationInsights.Metrics
+﻿namespace Microsoft.ApplicationInsights.Metrics
 {
+    using System;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
+
     internal class DefaultAggregationPeriodCycle
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming Rules", "SA1310: C# Field must not contain an underscore", Justification = "By design: Structured name.")]
@@ -94,7 +93,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                                             tactTimestamp: now);
             if (aggregates != null)
             {
-                Task fireAndForget = Task.Run( () => _metricManager.TrackMetricAggregates(aggregates, flush: false) );
+                Task fireAndForget = Task.Run(() => _metricManager.TrackMetricAggregates(aggregates, flush: false));
             }
         }
 

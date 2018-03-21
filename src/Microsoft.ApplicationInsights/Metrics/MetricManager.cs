@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
-
-namespace Microsoft.ApplicationInsights.Metrics
+﻿namespace Microsoft.ApplicationInsights.Metrics
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public sealed class MetricManager
     {
         private readonly MetricAggregationManager _aggregationManager;
@@ -17,10 +14,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly IMetricTelemetryPipeline _telemetryPipeline;
         private readonly MetricsCollection _metrics;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="telemetryPipeline"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="telemetryPipeline">ToDo: Complete documentation before stable release.</param>
         public MetricManager(IMetricTelemetryPipeline telemetryPipeline)
         {
             Util.ValidateNotNull(telemetryPipeline, nameof(telemetryPipeline));
@@ -34,9 +29,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             _aggregationCycle.Start();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         ~MetricManager()
         {
             DefaultAggregationPeriodCycle aggregationCycle = _aggregationCycle;
@@ -46,20 +39,27 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        /// <summary>
-        /// </summary>
-        public MetricsCollection Metrics { get { return _metrics; } }
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        public MetricsCollection Metrics
+        {
+            get { return _metrics; }
+        }
 
-        internal MetricAggregationManager AggregationManager { get { return _aggregationManager; } }
+        internal MetricAggregationManager AggregationManager
+        {
+            get { return _aggregationManager; }
+        }
 
-        internal DefaultAggregationPeriodCycle AggregationCycle { get { return _aggregationCycle; } }
+        internal DefaultAggregationPeriodCycle AggregationCycle
+        {
+            get { return _aggregationCycle; }
+        }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="metricNamespace"></param>
-        /// <param name="metricId"></param>
-        /// <param name="config"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricNamespace">ToDo: Complete documentation before stable release.</param>
+        /// <param name="metricId">ToDo: Complete documentation before stable release.</param>
+        /// <param name="config">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MetricSeries CreateNewSeries(string metricNamespace, string metricId, IMetricSeriesConfiguration config)
         {
             return CreateNewSeries(
@@ -69,14 +69,12 @@ namespace Microsoft.ApplicationInsights.Metrics
                             config: config);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="metricNamespace"></param>
-        /// <param name="metricId"></param>
-        /// <param name="dimensionNamesAndValues"></param>
-        /// <param name="config"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricNamespace">ToDo: Complete documentation before stable release.</param>
+        /// <param name="metricId">ToDo: Complete documentation before stable release.</param>
+        /// <param name="dimensionNamesAndValues">ToDo: Complete documentation before stable release.</param>
+        /// <param name="config">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MetricSeries CreateNewSeries(
                                     string metricNamespace, 
                                     string metricId, 
@@ -100,13 +98,11 @@ namespace Microsoft.ApplicationInsights.Metrics
             return CreateNewSeries(metricIdentifier, dimensionNamesAndValues, config);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="metricIdentifier"></param>
-        /// <param name="dimensionNamesAndValues"></param>
-        /// <param name="config"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricIdentifier">ToDo: Complete documentation before stable release.</param>
+        /// <param name="dimensionNamesAndValues">ToDo: Complete documentation before stable release.</param>
+        /// <param name="config">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MetricSeries CreateNewSeries(MetricIdentifier metricIdentifier, IEnumerable<KeyValuePair<string, string>> dimensionNamesAndValues, IMetricSeriesConfiguration config)
         {
             Util.ValidateNotNull(metricIdentifier, nameof(metricIdentifier));
@@ -116,16 +112,13 @@ namespace Microsoft.ApplicationInsights.Metrics
             return dataSeries;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public void Flush()
         {
             DateTimeOffset now = DateTimeOffset.Now;
             AggregationPeriodSummary aggregates = _aggregationManager.StartOrCycleAggregators(MetricAggregationCycleKind.Default, futureFilter: null, tactTimestamp: now);
             TrackMetricAggregates(aggregates, flush: true);
         }
-
 
         internal void TrackMetricAggregates(AggregationPeriodSummary aggregates, bool flush)
         {

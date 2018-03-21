@@ -1,21 +1,21 @@
-﻿using System;
-using System.Collections.Concurrent;
-
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    /// <summary />
+    using System;
+    using System.Collections.Concurrent;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public sealed class MetricAggregateToTelemetryPipelineConverters 
     {
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public static readonly MetricAggregateToTelemetryPipelineConverters Registry = new MetricAggregateToTelemetryPipelineConverters();
 
         private ConcurrentDictionary<Type, ConcurrentDictionary<string, IMetricAggregateToTelemetryPipelineConverter>> _pipelineTable
                                                         = new ConcurrentDictionary<Type, ConcurrentDictionary<string, IMetricAggregateToTelemetryPipelineConverter>>();
 
-        /// <summary />
-        /// <param name="pipelineType"></param>
-        /// <param name="aggregationKindMoniker"></param>
-        /// <param name="converter"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="pipelineType">ToDo: Complete documentation before stable release.</param>
+        /// <param name="aggregationKindMoniker">ToDo: Complete documentation before stable release.</param>
+        /// <param name="converter">ToDo: Complete documentation before stable release.</param>
         public void Add(Type pipelineType, string aggregationKindMoniker, IMetricAggregateToTelemetryPipelineConverter converter)
         {
             ValidateKeys(pipelineType, aggregationKindMoniker);
@@ -28,11 +28,11 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             converters[aggregationKindMoniker] = converter;
         }
 
-        /// <summary />
-        /// <param name="pipelineType"></param>
-        /// <param name="aggregationKindMoniker"></param>
-        /// <param name="converter"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="pipelineType">ToDo: Complete documentation before stable release.</param>
+        /// <param name="aggregationKindMoniker">ToDo: Complete documentation before stable release.</param>
+        /// <param name="converter">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public bool TryGet(Type pipelineType, string aggregationKindMoniker, out IMetricAggregateToTelemetryPipelineConverter converter)
         {
             ValidateKeys(pipelineType, aggregationKindMoniker);

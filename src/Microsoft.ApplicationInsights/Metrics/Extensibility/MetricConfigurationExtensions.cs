@@ -1,8 +1,8 @@
-﻿using System;
-using System.ComponentModel;
-
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
+    using System;
+    using System.ComponentModel;
+
     /// <summary>
     /// Provides discoverable access to constants used by metric aggregates.
     /// Do not use directly. Instead, use: <c>MetricConfigurations.Common.Xxxx().Constants()</c>.
@@ -14,8 +14,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// Groups constants used my metric aggregates produced by aggregators that are configured by metric configurations represented
         /// through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>. See also <c>MetricConfigurations.Common.Measurement()</c>./>
         /// </summary>
-        /// <param name="measurementConfig"></param>
-        /// <returns></returns>
+        /// <param name="measurementConfig">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public static MetricSeriesConfigurationForMeasurement.AggregateKindConstants Constants(this MetricSeriesConfigurationForMeasurement measurementConfig)
         {
             return MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Instance;
@@ -25,8 +25,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         /// Groups constants used my metric aggregates produced by aggregators that are configured by metric configurations represented
         /// through instances of <see cref="MetricConfigurationForMeasurement"/>. See also <c>MetricConfigurations.Common.Measurement()</c>./>
         /// </summary>
-        /// <param name="measurementConfig"></param>
-        /// <returns></returns>
+        /// <param name="measurementConfig">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public static MetricSeriesConfigurationForMeasurement.AggregateKindConstants Constants(this MetricConfigurationForMeasurement measurementConfig)
         {
             return MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Instance;

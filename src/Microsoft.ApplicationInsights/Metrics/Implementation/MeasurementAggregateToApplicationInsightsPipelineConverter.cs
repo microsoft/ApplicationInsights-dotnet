@@ -1,14 +1,16 @@
-﻿using System;
-
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
-
-namespace Microsoft.ApplicationInsights.Metrics
+﻿namespace Microsoft.ApplicationInsights.Metrics
 {
-    /// <summary />
+    using System;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     internal class MeasurementAggregateToApplicationInsightsPipelineConverter : MetricAggregateToApplicationInsightsPipelineConverterBase
     {
-        public override string AggregationKindMoniker { get { return MetricSeriesConfigurationForMeasurement.Constants.AggregateKindMoniker; } }
+        public override string AggregationKindMoniker
+        {
+            get { return MetricSeriesConfigurationForMeasurement.Constants.AggregateKindMoniker; }
+        }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062", Justification = "telemetryItem and aggregate are validated by base")]
         protected override void PopulateDataValues(MetricTelemetry telemetryItem, MetricAggregate aggregate)

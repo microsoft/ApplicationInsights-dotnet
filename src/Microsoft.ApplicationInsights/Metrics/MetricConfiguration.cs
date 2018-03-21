@@ -1,18 +1,16 @@
-﻿using System;
-
-namespace Microsoft.ApplicationInsights.Metrics
+﻿namespace Microsoft.ApplicationInsights.Metrics
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    using System;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public class MetricConfiguration : IEquatable<MetricConfiguration>
     {
         private readonly int _hashCode;
 
-        /// <summary />
-        /// <param name="seriesCountLimit"></param>
-        /// <param name="valuesPerDimensionLimit"></param>
-        /// <param name="seriesConfig"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="seriesCountLimit">ToDo: Complete documentation before stable release.</param>
+        /// <param name="valuesPerDimensionLimit">ToDo: Complete documentation before stable release.</param>
+        /// <param name="seriesConfig">ToDo: Complete documentation before stable release.</param>
         public MetricConfiguration(
                                 int seriesCountLimit,
                                 int valuesPerDimensionLimit,
@@ -44,18 +42,18 @@ namespace Microsoft.ApplicationInsights.Metrics
                                         SeriesConfig.GetHashCode());
         }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int SeriesCountLimit { get; }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int ValuesPerDimensionLimit { get; }
 
-        /// <summary />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public IMetricSeriesConfiguration SeriesConfig { get; }
 
-        /// <summary />
-        /// <param name="obj"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="obj">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public override bool Equals(object obj)
         {
             if (obj != null)
@@ -70,9 +68,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             return false;
         }
 
-        /// <summary />
-        /// <param name="other"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="other">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public virtual bool Equals(MetricConfiguration other)
         {
             if (other == null)
@@ -91,8 +89,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 && (this.SeriesConfig.Equals(other.SeriesConfig));
         }
 
-        /// <summary />
-        /// <returns />
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public override int GetHashCode()
         {
             return _hashCode;

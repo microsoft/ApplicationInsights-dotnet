@@ -1,61 +1,42 @@
-﻿using System;
-using Microsoft.ApplicationInsights.Channel;
-
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    using System;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public interface IMetricSeriesAggregator
     {
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         MetricSeries DataSeries { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         bool TryRecycle();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="periodStart"></param>
-        /// <param name="valueFilter"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodStart">ToDo: Complete documentation before stable release.</param>
+        /// <param name="valueFilter">ToDo: Complete documentation before stable release.</param>
         void Reset(DateTimeOffset periodStart, IMetricValueFilter valueFilter);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="periodStart"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodStart">ToDo: Complete documentation before stable release.</param>
         void Reset(DateTimeOffset periodStart);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="periodEnd"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodEnd">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         MetricAggregate CompleteAggregation(DateTimeOffset periodEnd);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="periodEnd"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodEnd">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         MetricAggregate CreateAggregateUnsafe(DateTimeOffset periodEnd);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="metricValue"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricValue">ToDo: Complete documentation before stable release.</param>
         void TrackValue(double metricValue);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="metricValue"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricValue">ToDo: Complete documentation before stable release.</param>
         void TrackValue(object metricValue);
     }
 }

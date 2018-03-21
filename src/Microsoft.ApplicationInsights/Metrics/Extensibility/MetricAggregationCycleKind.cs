@@ -1,24 +1,22 @@
-﻿using System;
-
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    using System;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public enum MetricAggregationCycleKind : Int32
     {
         /// <summary>
-        /// 
+        /// The default aggregation cycle.
         /// </summary>
         Default,
 
         /// <summary>
-        /// 
+        /// The aggregation cycle used by QuickPulse
         /// </summary>
         QuickPulse,
 
         /// <summary>
-        /// 
+        /// The custom aggregation cycle.
         /// </summary>
         Custom
     }

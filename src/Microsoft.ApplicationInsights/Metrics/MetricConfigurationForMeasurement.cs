@@ -1,16 +1,14 @@
-﻿using System;
-
-namespace Microsoft.ApplicationInsights.Metrics
+﻿namespace Microsoft.ApplicationInsights.Metrics
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    using System;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public sealed class MetricConfigurationForMeasurement : MetricConfiguration
     {
-        /// <summary />
-        /// <param name="seriesCountLimit"></param>
-        /// <param name="valuesPerDimensionLimit"></param>
-        /// <param name="seriesConfig"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="seriesCountLimit">ToDo: Complete documentation before stable release.</param>
+        /// <param name="valuesPerDimensionLimit">ToDo: Complete documentation before stable release.</param>
+        /// <param name="seriesConfig">ToDo: Complete documentation before stable release.</param>
         public MetricConfigurationForMeasurement(int seriesCountLimit, int valuesPerDimensionLimit, MetricSeriesConfigurationForMeasurement seriesConfig)
             : base(seriesCountLimit, valuesPerDimensionLimit, seriesConfig)
         {

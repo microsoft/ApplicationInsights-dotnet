@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-
-namespace Microsoft.ApplicationInsights.Metrics
+﻿namespace Microsoft.ApplicationInsights.Metrics
 {
-    /// <summary>
-    /// </summary>
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public class MetricAggregate
     {
         // We want to make the aggregate thread safe, but we expect no signiicant contention, so a simple lock will suffice.
@@ -14,11 +13,10 @@ namespace Microsoft.ApplicationInsights.Metrics
         private DateTimeOffset _aggregationPeriodStart;
         private TimeSpan _aggregationPeriodDuration;
 
-        /// <summary>
-        /// </summary>
-        /// <param name="metricNamespace"></param>
-        /// <param name="metricId"></param>
-        /// <param name="aggregationKindMoniker"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricNamespace">ToDo: Complete documentation before stable release.</param>
+        /// <param name="metricId">ToDo: Complete documentation before stable release.</param>
+        /// <param name="aggregationKindMoniker">ToDo: Complete documentation before stable release.</param>
         public MetricAggregate(string metricNamespace, string metricId, string aggregationKindMoniker)
         {
             Util.ValidateNotNull(metricNamespace, nameof(metricNamespace));
@@ -36,20 +34,16 @@ namespace Microsoft.ApplicationInsights.Metrics
             Data = new ConcurrentDictionary<string, object>();
         }
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public string MetricNamespace { get; }
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public string MetricId { get; }
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public string AggregationKindMoniker { get; }
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public DateTimeOffset AggregationPeriodStart
         {
             get
@@ -69,8 +63,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public TimeSpan AggregationPeriodDuration
         {
             get
@@ -90,13 +83,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public IDictionary<string, string> Dimensions { get; }
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public IDictionary<string, object> Data { get; }
 
         /// <summary>
@@ -106,7 +96,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <typeparam name="T">Type to which to convert the object at <c>Data[dataKey]</c>.</typeparam>
         /// <param name="dataKey">Key for the data item.</param>
         /// <param name="defaultValue">The value to return if conversion fails.</param>
-        /// <returns></returns>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public T GetDataValue<T>(string dataKey, T defaultValue)
         {
             object dataValue;
@@ -114,7 +104,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 try
                 {
-                    T value = (T) Convert.ChangeType(dataValue, typeof(T));
+                    T value = (T)Convert.ChangeType(dataValue, typeof(T));
                     return value;
                 }
                 catch

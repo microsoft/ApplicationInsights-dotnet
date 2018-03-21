@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-
-using Microsoft.ApplicationInsights.Metrics;
-using Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures;
-
-namespace Microsoft.ApplicationInsights
+﻿namespace Microsoft.ApplicationInsights
 {
+    using System;
+    using System.Collections.Generic;
+
+    using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures;
+
     /// <summary>
     /// Represents a zero- or multi-dimensional metric.<br />
     /// Contains convenience methods to track, aggregate and send values.<br />
@@ -74,7 +73,10 @@ namespace Microsoft.ApplicationInsights
         /// The current number of metric series contained in this metric. 
         /// Each metric contains a special zero-dimension series, plus one series per unique dimension-values combination.
         /// </summary>
-        public int SeriesCount { get { return 1 + (_metricSeries?.TotalPointsCount ?? 0); } }
+        public int SeriesCount
+        {
+            get { return 1 + (_metricSeries?.TotalPointsCount ?? 0); }
+        }
 
         /// <summary>
         /// Gets the values known for dimension identified by the specified 1-based dimension index.
@@ -89,12 +91,13 @@ namespace Microsoft.ApplicationInsights
             int dimensionIndex = dimensionNumber - 1;
             return _metricSeries.GetDimensionValues(dimensionIndex);
         }
-        
+
         /// <summary>
         /// Gets all metric series contained in this metric.
         /// Each metric contains a special zero-dimension series, plus one series per unique dimension-values combination.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>All metric series contained in this metric.
+        /// Each metric contains a special zero-dimension series, plus one series per unique dimension-values combination.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage(
                                                 "Microsoft.Design",
                                                 "CA1024: Use properties where appropriate",
@@ -381,7 +384,7 @@ namespace Microsoft.ApplicationInsights
         /// <param name="dimension7Value">The value of the 7th dimension.</param>
         /// <param name="dimension8Value">The value of the 8th dimension.</param>
         /// <param name="dimension9Value">The value of the 9th dimension.</param>
-        /// <param name="dimension10Value">The value of the 9th dimension.</param>
+        /// <param name="dimension10Value">The value of the 10th dimension.</param>
         /// <returns><c>True</c> if the <c>MetricSeries</c> indicated by the specified dimension name could be retrieved (or created);
         /// <c>False</c> if the indicated series could not be retrieved or created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
@@ -427,7 +430,6 @@ namespace Microsoft.ApplicationInsights
         /// <c>False</c> if the indicated series could not be retrieved or created because <c>createIfNotExists</c> is <c>false</c>
         /// or because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-
         public bool TryGetDataSeries(out MetricSeries series, bool createIfNotExists, params string[] dimensionValues)
         {
             if (dimensionValues == null || dimensionValues.Length == 0)
@@ -486,7 +488,6 @@ namespace Microsoft.ApplicationInsights
         {
             _zeroDimSeries.TrackValue(metricValue);
         }
-
 
         /// <summary>
         /// Tracks the specified value using the <c>MetricSeries</c> associated with the specified dimension value.<br />
@@ -1225,7 +1226,6 @@ namespace Microsoft.ApplicationInsights
                                          + $" in {nameof(configuration)}.{nameof(configuration.SeriesCountLimit)}).");
             }
         }
-
 
         private MetricSeries CreateNewMetricSeries(string[] dimensionValues)
         {

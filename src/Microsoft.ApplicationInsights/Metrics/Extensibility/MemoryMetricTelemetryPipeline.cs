@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Microsoft.ApplicationInsights.Metrics.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    /// <summary>
-    /// </summary>
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    /// <summary>ToDo: Complete documentation before stable release.</summary>
     public class MemoryMetricTelemetryPipeline : IMetricTelemetryPipeline, IReadOnlyList<MetricAggregate>
     {
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public const int CountLimitDefault = 1000;
 
         private readonly Task _completedTask = Task.FromResult(true);
@@ -19,16 +17,14 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
         private readonly IList<MetricAggregate> _metricAgregates = new List<MetricAggregate>();
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public MemoryMetricTelemetryPipeline()
             : this(CountLimitDefault)
         {
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="countLimit"></param>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="countLimit">ToDo: Complete documentation before stable release.</param>
         public MemoryMetricTelemetryPipeline(int countLimit)
         {
             if (countLimit <= 0)
@@ -39,12 +35,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             CountLimit = countLimit;
         }
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int CountLimit { get; }
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public int Count
         {
             get
@@ -64,10 +58,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="index">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public MetricAggregate this[int index]
         {
             get
@@ -87,8 +80,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             }
         }
 
-        /// <summary>
-        /// </summary>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
         public void Clear()
         {
             _lock.WaitAsync().GetAwaiter().GetResult();
@@ -102,11 +94,10 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="metricAggregate"></param>
-        /// <param name="cancelToken"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricAggregate">ToDo: Complete documentation before stable release.</param>
+        /// <param name="cancelToken">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public async Task TrackAsync(MetricAggregate metricAggregate, CancellationToken cancelToken)
         {
             Util.ValidateNotNull(metricAggregate, nameof(metricAggregate));
@@ -127,10 +118,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="cancelToken"></param>
-        /// <returns></returns>
+        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <param name="cancelToken">ToDo: Complete documentation before stable release.</param>
+        /// <returns>ToDo: Complete documentation before stable release.</returns>
         public Task FlushAsync(CancellationToken cancelToken)
         {
             return Task.FromResult(true);
@@ -154,7 +144,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable<MetricAggregate>) this).GetEnumerator();
+            return ((IEnumerable<MetricAggregate>)this).GetEnumerator();
         }
     }
 }
