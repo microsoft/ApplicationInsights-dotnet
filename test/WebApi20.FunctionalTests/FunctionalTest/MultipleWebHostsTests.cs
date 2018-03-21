@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Net;
+﻿using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading;
 using AI;
 using FunctionalTestUtils;
 using Microsoft.ApplicationInsights;
@@ -91,10 +88,8 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
             using (var server1 = new InProcessServer(assemblyName, this.output))
             {
                 var config1 = (TelemetryConfiguration) server1.ApplicationServices.GetService(typeof(TelemetryConfiguration));
-                this.ExecuteRequest(server1.BaseHost + requestPath);
+                this.ExecuteRequest(server1.BaseHost);
 
-                // receive everything and clean up
-                server1.Listener.ReceiveItemsOfType<TelemetryItem<RequestData>>(1, TestListenerTimeoutInMs);
                 using (var server2 = new InProcessServer(assemblyName, this.output))
                 {
                     var config2 = (TelemetryConfiguration) server2.ApplicationServices.GetService(typeof(TelemetryConfiguration));
@@ -102,17 +97,10 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
                     Assert.NotEqual(config1, config2);
                     Assert.NotEqual(config1.TelemetryChannel, config2.TelemetryChannel);
 
-                    this.ExecuteRequest(server2.BaseHost + requestPath);
+                    this.ExecuteRequest(server2.BaseHost);
                 }
 
                 Assert.NotNull(config1.TelemetryChannel);
-
-                //receive everything and clean up, server1 also received all telemetry from host 2, issue #621
-                server1.Listener.ReceiveItemsOfType<TelemetryItem<RequestData>>(1, TestListenerTimeoutInMs);
-
-                // because of some async(?) issue in Listener, we need to wait here, otherwise it won't receive items later
-                // while in reality telemetry is being tracked correctly
-                Thread.Sleep(1000);
 
                 this.ExecuteRequest(server1.BaseHost + requestPath);
                 
@@ -120,11 +108,11 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
                 this.DebugTelemetryItems(telemetry);
 
                 Assert.NotEmpty(telemetry.Where(t => t is TelemetryItem<RequestData>));
-                var request = telemetry.First(t => t is TelemetryItem<RequestData>);
+                var request = telemetry.Single(IsValueControllerRequest);
                 Assert.Equal("200", ((TelemetryItem<RequestData>) request).data.baseData.responseCode);
 
                 Assert.DoesNotContain(telemetry, t => t is TelemetryItem<ExceptionData>);
-                Assert.NotEmpty(telemetry.Where(IsServiceDependencyCall));
+                Assert.Single(telemetry.Where(IsServiceDependencyCall));
             }
         }
 
@@ -173,7 +161,20 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
             var url = dependency.data.baseData.data;
 
             // check if it's not tracked call from service to the test and a not call to get appid
-            return !(url.Contains(requestPath)  || url.Contains("api/profile"));
+            return url.Contains("microsoft.com");
+        }
+
+        private bool IsValueControllerRequest(Envelope item)
+        {
+            if (!(item is TelemetryItem<RequestData> dependency))
+            {
+                return false;
+            }
+
+            var url = dependency.data.baseData.url;
+
+            // check if it's not tracked call from service to the test and a not call to get appid
+            return url.Contains(requestPath);
         }
     }
 }
