@@ -1,3 +1,5 @@
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationInsightsEndpointBaseAddress.set -> void
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.GetApplicationInsightsEndpointBaseUri() -> System.Uri
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.AddHeartbeatProperty(string propertyName, string propertyValue, bool isHealthy) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.ExcludedHeartbeatProperties.get -> System.Collections.Generic.IList<string>
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.ExcludedHeartbeatPropertyProviders.get -> System.Collections.Generic.IList<string>

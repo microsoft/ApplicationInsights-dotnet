@@ -31,6 +31,8 @@
         private TelemetryProcessorChainBuilder builder;
         private SnapshottingList<IMetricProcessor> metricProcessors = new SnapshottingList<IMetricProcessor>();
 
+        private Uri endpointProxyBaseUri = null;
+
         /// <summary>
         /// Indicates if this instance has been disposed of.
         /// </summary>
@@ -127,6 +129,23 @@
                 }
 
                 this.instrumentationKey = value;
+            }
+        }
+
+        /// <summary>
+        /// Sets an override to "https://dc.services.visualstudio.com".
+        /// All of our internal services will construct the full endpoint address starting with this base address.
+        /// </summary>
+        public string ApplicationInsightsEndpointBaseAddress
+        {
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+
+                this.endpointProxyBaseUri = new Uri(value);
             }
         }
 
@@ -296,6 +315,14 @@
             var configuration = new TelemetryConfiguration();
             TelemetryConfigurationFactory.Instance.Initialize(configuration, null, config);
             return configuration;
+        }
+
+        /// <summary>
+        /// Gets the endpoint that is to be used to get the application insights resource's profile (appId etc.).
+        /// </summary>
+        public Uri GetApplicationInsightsEndpointBaseUri()
+        {
+            return this.endpointProxyBaseUri;
         }
 
         /// <summary>

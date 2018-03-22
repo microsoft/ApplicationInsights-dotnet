@@ -32,14 +32,14 @@
             public void DefaultValuePointsToModernEndpointInProductionEnvironment()
             {
                 var serializer = new TelemetrySerializer(new StubTransmitter());
-                Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", serializer.EndpointAddress.ToString());
+                Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", serializer.ServerTelemetryChannelEndpointAddress.ToString());
             }
 
             [TestMethod]
             public void SetterThrowsArgumentNullExceptionToPreventUsageErrors()
             {
                 var serializer = new TelemetrySerializer(new StubTransmitter());
-                AssertEx.Throws<ArgumentNullException>(() => serializer.EndpointAddress = null);
+                AssertEx.Throws<ArgumentNullException>(() => serializer.ServerTelemetryChannelEndpointAddress = null);
             }
 
             [TestMethod]
@@ -47,8 +47,8 @@
             {
                 var serializer = new TelemetrySerializer(new StubTransmitter());
                 var expectedValue = new Uri("int://environment");
-                serializer.EndpointAddress = expectedValue;
-                Assert.AreEqual(expectedValue, serializer.EndpointAddress);
+                serializer.ServerTelemetryChannelEndpointAddress = expectedValue;
+                Assert.AreEqual(expectedValue, serializer.ServerTelemetryChannelEndpointAddress);
             }
         }
 
@@ -95,10 +95,10 @@
                     transmission = t;
                 };
         
-                var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
+                var serializer = new TelemetrySerializer(transmitter) { ServerTelemetryChannelEndpointAddress = new Uri("http://expected.uri") };
                 serializer.Serialize(new[] { new StubTelemetry() });
         
-                Assert.AreEqual(serializer.EndpointAddress, transmission.EndpointAddress);
+                Assert.AreEqual(serializer.ServerTelemetryChannelEndpointAddress, transmission.EndpointAddress);
                 Assert.AreEqual("application/x-json-stream", transmission.ContentType);
                 Assert.AreEqual("gzip", transmission.ContentEncoding);
                 Assert.AreEqual(string.Empty, Unzip(transmission.Content));
