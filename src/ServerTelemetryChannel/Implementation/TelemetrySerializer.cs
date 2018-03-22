@@ -4,14 +4,16 @@
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     internal class TelemetrySerializer
     {
         internal readonly Transmitter Transmitter;
 
-        private const string DefaultEndpointAddress = "https://dc.services.visualstudio.com/v2/track";
-        private Uri endpointAddress = new Uri(DefaultEndpointAddress);
+        private const string TelemetryEndpointRelativeUri = "v2/track";
+        private const string TelemetryEndpointFullUri = "https://dc.services.visualstudio.com/v2/track";
+        private readonly Uri defaultTelemetryEndpoint = new Uri(TelemetryEndpointFullUri);
 
         public TelemetrySerializer(Transmitter transmitter)
         {
@@ -34,21 +36,24 @@
         /// <remarks>
         /// If endpoint address is set to null, the default endpoint address will be used. 
         /// </remarks>
-        public Uri EndpointAddress 
+        public Uri ServerTelemetryChannelEndpointAddress { get; set; }
+
+        internal Uri EffectiveEndpointAddress
         {
-            get 
-            { 
-                return this.endpointAddress; 
-            }
-
-            set
+            get
             {
-                if (value == null)
+                if (this.ServerTelemetryChannelEndpointAddress != null)
                 {
-                    throw new ArgumentNullException("EndpointAddress");
+                    return this.ServerTelemetryChannelEndpointAddress;
                 }
-
-                this.endpointAddress = value;
+                else if (TelemetryConfiguration.Active.GetApplicationInsightsEndpointBaseUri() != null)
+                {
+                    return new Uri(TelemetryConfiguration.Active.GetApplicationInsightsEndpointBaseUri(), TelemetryEndpointRelativeUri);
+                }
+                else
+                {
+                    return this.defaultTelemetryEndpoint;
+                }
             }
         }
 
@@ -56,15 +61,15 @@
         {
             if (items == null)
             {
-                throw new ArgumentNullException("items");
+                throw new ArgumentNullException(nameof(items));
             }
 
             if (!items.Any())
             {
-                throw new ArgumentException("One or more telemetry item is expected", "items");
+                throw new ArgumentException("One or more telemetry item is expected", nameof(items));
             }
 
-            var transmission = new Transmission(this.endpointAddress, items);
+            var transmission = new Transmission(this.EffectiveEndpointAddress, items);
             this.Transmitter.Enqueue(transmission);
         }
     }

@@ -143,7 +143,7 @@
                 Uri expectedEndpoint = new Uri("http://abc.com");
                 channel.EndpointAddress = expectedEndpoint.AbsoluteUri;
                 
-                Assert.AreEqual(expectedEndpoint, channel.TelemetrySerializer.EndpointAddress);
+                Assert.AreEqual(expectedEndpoint, channel.TelemetrySerializer.ServerTelemetryChannelEndpointAddress);
             }
         }
 

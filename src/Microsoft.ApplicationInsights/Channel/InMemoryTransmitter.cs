@@ -19,6 +19,10 @@ namespace Microsoft.ApplicationInsights.Channel
     /// </summary>
     internal class InMemoryTransmitter : IDisposable
     {
+        private const string TelemetryServiceRelativeEndpoint = "v2/track";
+        private const string TelemetryServiceEndpoint = "https://dc.services.visualstudio.com/v2/track";
+        private readonly Uri defaultTelemetryServiceUri = new Uri(TelemetryServiceEndpoint);
+
         private readonly TelemetryBuffer buffer;
 
         /// <summary>
@@ -34,8 +38,7 @@ namespace Microsoft.ApplicationInsights.Channel
         private int disposeCount = 0;
 
         private TimeSpan sendingInterval = TimeSpan.FromSeconds(30);
-        private Uri endpointAddress = new Uri(Constants.TelemetryServiceEndpoint);
-                
+
         internal InMemoryTransmitter(TelemetryBuffer buffer)
         {
             this.buffer = buffer;
@@ -52,10 +55,25 @@ namespace Microsoft.ApplicationInsights.Channel
                     TaskContinuationOptions.OnlyOnFaulted);
         }
 
-        internal Uri EndpointAddress
+        internal Uri InMemoryChannelEndpointAddress { get; set; }
+
+        internal Uri EffectiveEndpointAddress
         {
-            get { return this.endpointAddress; }
-            set { Property.Set(ref this.endpointAddress, value); }
+            get
+            {
+                if (this.InMemoryChannelEndpointAddress != null)
+                {
+                    return this.InMemoryChannelEndpointAddress;
+                }
+                else if (TelemetryConfiguration.Active.GetApplicationInsightsEndpointBaseUri() != null)
+                {
+                    return new Uri(TelemetryConfiguration.Active.GetApplicationInsightsEndpointBaseUri(), TelemetryServiceRelativeEndpoint);
+                }
+                else
+                {
+                    return this.defaultTelemetryServiceUri;
+                }
+            }
         }
 
         internal TimeSpan SendingInterval
@@ -163,7 +181,7 @@ namespace Microsoft.ApplicationInsights.Channel
                 return Task.FromResult<object>(null);
             }
 
-            var transmission = new Transmission(this.endpointAddress, data, JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout);
+            var transmission = new Transmission(this.EffectiveEndpointAddress, data, JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout);
 
             return transmission.SendAsync();
         }

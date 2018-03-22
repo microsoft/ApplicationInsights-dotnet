@@ -90,8 +90,8 @@
         /// </summary>
         public string EndpointAddress
         {
-            get { return this.transmitter.EndpointAddress.ToString(); }
-            set { this.transmitter.EndpointAddress = new Uri(value); }
+            get { return this.transmitter.InMemoryChannelEndpointAddress.ToString(); }
+            set { this.transmitter.InMemoryChannelEndpointAddress = new Uri(value); }
         }
 
         /// <summary>

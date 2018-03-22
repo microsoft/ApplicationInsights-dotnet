@@ -113,8 +113,8 @@
         /// </summary>
         public string EndpointAddress
         {
-            get { return this.TelemetrySerializer.EndpointAddress.ToString(); }
-            set { this.TelemetrySerializer.EndpointAddress = new Uri(value); }
+            get { return this.TelemetrySerializer.ServerTelemetryChannelEndpointAddress.ToString(); }
+            set { this.TelemetrySerializer.ServerTelemetryChannelEndpointAddress = new Uri(value); }
         }
 
         /// <summary>
