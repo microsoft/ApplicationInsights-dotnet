@@ -82,9 +82,9 @@
                 throw new ArgumentNullException("operationTelemetry cannot be null.");
             }
 
-            // We intialize telemetry here AND in Track method because of RichPayloadEventSource.
-            // It sends Start and Stop events for  OperationTelemetry. During Start event telemetry
-            // has to contain essential telemetry properties such as correlations Ids and ikey.
+            // We initialize telemetry here AND in Track method because of RichPayloadEventSource.
+            // It sends Start and Stop events for OperationTelemetry. During Start event telemetry
+            // has to contain essential telemetry properties such as correlations ids and ikey.
             // Also, examples in our documentation rely on the fact that correlation Ids are set
             // after StartOperation call and before operation is stopped.
             // Before removing this call (for optimization), make sure:
@@ -233,9 +233,9 @@
             activity.Start();
             T operationTelemetry = ActivityToTelemetry<T>(activity);
 
-            // We intialize telemetry here AND in Track method because of RichPayloadEventSource.
-            // It sends Start and Stop events for  OperationTelemetry. During Start event telemetry
-            // has to contain essential telemetry properties such as correlations Ids and ikey.
+            // We initialize telemetry here AND in Track method because of RichPayloadEventSource.
+            // It sends Start and Stop events for OperationTelemetry. During Start event telemetry
+            // has to contain essential telemetry properties such as correlations ids and ikey.
             // Also, examples in our documentation rely on the fact that correlation Ids are set
             // after StartOperation call and before operation is stopped.
             // Before removing this call (for optimization), make sure:
