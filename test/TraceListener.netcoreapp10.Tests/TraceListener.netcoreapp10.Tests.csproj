@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\TraceListener.Net45.Tests\ApplicationInsightsTraceFilterTests.cs" Link="ApplicationInsightsTraceFilterTests.cs" />
+    <Compile Include="..\TraceListener.Net45.Tests\ApplicationInsightsTraceListenerTests.cs" Link="ApplicationInsightsTraceListenerTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />

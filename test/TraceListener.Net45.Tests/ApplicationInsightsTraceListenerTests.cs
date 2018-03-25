@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Linq;
+    using System.Reflection;
     using Microsoft.ApplicationInsights.CommonTestShared;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -202,6 +203,7 @@
             Assert.AreEqual(expectedEventId.ToString(), telemetry.Properties["EventId"]);
         }
 
+#if NET45
         [TestMethod]
         [TestCategory("TraceListener")]
         public void TraceListenerSendsResumeAsVerbose()
@@ -266,6 +268,7 @@
             TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
             Assert.AreEqual(SeverityLevel.Verbose, telemetry.SeverityLevel);
         }
+#endif
 
         [TestMethod]
         [TestCategory("TraceListener")]
@@ -340,6 +343,7 @@
             source.TraceInformation("TestMessage");
         }
 
+#if NET45
         [TestMethod]
         public void TraceEventDoesNotStoreLogicalOperationStackInTelemetryPropertiesBecauseLongValuesAreRejected()
         {
@@ -366,6 +370,7 @@
             var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.Single();
             Assert.IsFalse(telemetry.Properties.ContainsKey("CallStack"));
         }
+#endif
 
         [TestMethod]
         public void TraceListenerFlushesChannel()
@@ -397,10 +402,14 @@
             {
                 listener.TraceOutputOptions = options;
                 TraceEventCache traceEventCache = new TraceEventCache();
+#if NET45
                 PrivateObject privateObject = new PrivateObject(traceEventCache);
                 privateObject.SetField("timeStamp", DateTime.Now.Ticks);
                 privateObject.SetField("stackTrace", "Environment.StackTrace");
-
+#else
+                TypeInfo traceEventCacheType = traceEventCache.GetType().GetTypeInfo();
+                traceEventCacheType.GetDeclaredField("_timeStamp").SetValue(traceEventCache, DateTime.Now.Ticks);
+#endif
                 callTraceAction(listener, traceEventCache);
 
                 TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
