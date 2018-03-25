@@ -102,12 +102,5 @@ namespace Microsoft.ApplicationInsights.TraceListener.Tests
                 Assert.AreEqual(shouldTrace, this.adapterHelper.Channel.SentItems.Length == 1);
             }
         }
-
-        private Tuple<TraceEventType, bool> LookupTraceFiterExpections(bool? expectationOverride = null)
-        {
-            TraceEventType eventType = (TraceEventType)Enum.Parse(typeof(TraceEventType), (string)this.TestContext.DataRow["TraceEventType"]);
-            bool expect = bool.Parse((string)this.TestContext.DataRow["Expect"]);
-            return new Tuple<TraceEventType, bool>(eventType, expectationOverride.HasValue == true ? expectationOverride.Value : expect);
-        }
     }
 }

@@ -9,7 +9,7 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
 
-    <TargetFrameworks>net45</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard1.3</TargetFrameworks>
 
     <RootNamespace>Microsoft.ApplicationInsights.TraceListener</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.TraceListener</AssemblyName>
@@ -39,6 +39,10 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta2" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <PackageReference Include="System.Diagnostics.TraceSource" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>

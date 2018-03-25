@@ -1,10 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.TraceListener.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.TraceListener.Net45.Tests</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
+    <AssemblyName>Microsoft.ApplicationInsights.TraceListener.NetCoreApp10.Tests</AssemblyName>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,10 +21,11 @@
     <PackageReference Include="Microbuild.Core" Version="0.2.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="log4net" Version="2.0.5" />
-    <ProjectReference Include="..\..\src\TraceListener\TraceListener.csproj" />
-    <Reference Include="System.Net.Http" />
+    <PackageReference Include="System.Diagnostics.TraceSource" Version="4.3.0" />
+  </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TraceListener\TraceListener.csproj" />
   </ItemGroup>
 
   <ItemGroup>
