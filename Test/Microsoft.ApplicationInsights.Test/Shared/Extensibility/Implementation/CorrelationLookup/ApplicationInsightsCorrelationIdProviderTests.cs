@@ -35,7 +35,32 @@
         {
             var mockProfileServiceWrapper = GenerateMockServiceWrapper(HttpStatusCode.OK, testAppId);
             var aiCorrelationIdProvider = new ApplicationInsightsCorrelationIdProvider(mockProfileServiceWrapper);
-            
+
+            // first request expected to fail
+            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore));
+            Thread.Sleep(10); // wait for Async Tasks to resolve.
+            Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string actual));
+            Assert.AreEqual(testCorrelationId, actual);
+        }
+
+        /// <summary>
+        /// Protect against injection attacks. Test that if an malicious value is returned, that value will be truncated.
+        /// </summary>
+        [TestMethod]
+        public void VerifyMaliciousAppIdIsTruncated() 
+        {
+            // 50 character string.
+            var testAppId = "a123456789b123546789c123456789d123456798e123456789";
+
+            // An arbitrary string that is expected to be truncated.
+            var malicious = "00000000000000000000000000000000000000000000000000000000000";
+
+            var testCorrelationId = CorrelationIdHelper.FormatAppId(testAppId);
+
+            var mockProfileServiceWrapper = GenerateMockServiceWrapper(HttpStatusCode.OK, testAppId + malicious);
+            var aiCorrelationIdProvider = new ApplicationInsightsCorrelationIdProvider(mockProfileServiceWrapper);
+
+            // first request expected to fail
             Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore));
             Thread.Sleep(10); // wait for Async Tasks to resolve.
             Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string actual));
