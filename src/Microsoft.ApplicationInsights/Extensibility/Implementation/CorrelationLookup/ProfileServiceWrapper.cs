@@ -11,15 +11,15 @@
     {
         public ConcurrentDictionary<string, bool> FetchTasks = new ConcurrentDictionary<string, bool>();
 
-        private FailedRequestsManager failedRequestsManager = new FailedRequestsManager();
+        internal FailedRequestsManager FailedRequestsManager = new FailedRequestsManager();
 
-        private HttpClient httpClient;
+        private HttpClient httpClient = new HttpClient();
 
         public string ProfileQueryEndpoint { get; set; }
 
         public async Task<string> FetchAppIdAsync(string instrumentationKey)
         {
-            if (this.failedRequestsManager.CanRetry(instrumentationKey)
+            if (this.FailedRequestsManager.CanRetry(instrumentationKey)
                 && this.FetchTasks.TryAdd(instrumentationKey, true))
             {
                 try
@@ -28,7 +28,7 @@
                 }
                 catch (Exception ex)
                 {
-                    this.failedRequestsManager.RegisterFetchFailure(instrumentationKey, ex);
+                    this.FailedRequestsManager.RegisterFetchFailure(instrumentationKey, ex);
                     return null;
                 }
                 finally
@@ -73,7 +73,7 @@
                 }
                 else
                 {
-                    this.failedRequestsManager.RegisterFetchFailure(instrumentationKey, resultMessage.StatusCode);
+                    this.FailedRequestsManager.RegisterFetchFailure(instrumentationKey, resultMessage.StatusCode);
                     return null;
                 }
             }

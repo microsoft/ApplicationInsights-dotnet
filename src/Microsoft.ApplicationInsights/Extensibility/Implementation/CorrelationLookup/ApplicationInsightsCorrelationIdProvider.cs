@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup
 {
+    using System;
     using System.Collections.Concurrent;
     using Extensibility;
 
@@ -9,7 +10,7 @@
     /// <remarks>
     /// This was formerly the CorrelationIdhLookupHelper defined in the WebSdk
     /// </remarks>
-    public class ApplicationInsightsCorrelationIdProvider : ICorrelationIdProvider
+    public sealed class ApplicationInsightsCorrelationIdProvider : ICorrelationIdProvider, IDisposable
     {
         /// <summary>
         /// Max number of app ids to cache.
@@ -43,6 +44,14 @@
         {
             get { return this.appIdProvider.ProfileQueryEndpoint; }
             set { this.appIdProvider.ProfileQueryEndpoint = value; }
+        }
+
+        /// <summary>
+        /// Disposes resources
+        /// </summary>
+        public void Dispose()
+        {
+            this.appIdProvider.Dispose();
         }
 
         /// <summary>
