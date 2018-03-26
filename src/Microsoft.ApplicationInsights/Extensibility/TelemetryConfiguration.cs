@@ -224,6 +224,14 @@
         }
 
         /// <summary>
+        /// Gets or sets the Correlation Id Provider.
+        /// </summary>
+        /// <remarks>
+        /// This feature is opt-in and must be configured to be enabled.
+        /// </remarks>
+        public ICorrelationIdProvider CorrelationIdProvider { get; set; }
+
+        /// <summary>
         /// Gets a list of telemetry sinks associated with the configuration.
         /// </summary>
         public IList<TelemetrySink> TelemetrySinks => this.telemetrySinks;

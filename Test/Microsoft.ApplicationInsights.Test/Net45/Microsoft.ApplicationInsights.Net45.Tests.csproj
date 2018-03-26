@@ -49,6 +49,10 @@
     </Compile>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.8.2" />
+  </ItemGroup>
+
   <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" Condition="$(OS) == 'Windows_NT'" />
   <Import Project="..\Shared\Microsoft.ApplicationInsights.Shared.Tests.projitems" Label="Shared" Condition="$(OS) == 'Windows_NT'" />
 
