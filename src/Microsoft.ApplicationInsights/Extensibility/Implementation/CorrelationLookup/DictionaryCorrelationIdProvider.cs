@@ -5,7 +5,7 @@
     /// <summary>
     /// Correlation Provider that holds a dictionary of ikeys to correlationIds.
     /// </summary>
-    public class ConfigurationCorrelationIdProvider : ICorrelationIdProvider
+    public class DictionaryCorrelationIdProvider : ICorrelationIdProvider
     {
         /// <summary>
         /// Gets or sets a dictionary of Ikeys to CorrelationIds
