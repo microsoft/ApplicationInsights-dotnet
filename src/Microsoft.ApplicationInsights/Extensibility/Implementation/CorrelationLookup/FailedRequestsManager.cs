@@ -7,7 +7,16 @@
 
     internal class FailedRequestsManager
     {
+        // Delay between trying to get app Id once we get a failure while trying to get it. 
+        // This is to throttle tries between failures to safeguard against performance hits. The impact would be that telemetry generated during this interval would not have x-component correlation id.
+        private readonly TimeSpan retryWaitTimeSeconds;
+
         private ConcurrentDictionary<string, FailedResult> failingInstrumentationKeys = new ConcurrentDictionary<string, FailedResult>();
+
+        internal FailedRequestsManager(int retryWaitTimeSeconds = 30)
+        {
+            this.retryWaitTimeSeconds = TimeSpan.FromSeconds(retryWaitTimeSeconds);
+        }
 
         /// <summary>
         /// FetchAppIdFromService failed.
@@ -17,7 +26,7 @@
         /// <param name="httpStatusCode">Response code from AppId Endpoint.</param>
         public void RegisterFetchFailure(string instrumentationKey, HttpStatusCode httpStatusCode)
         {
-            this.failingInstrumentationKeys[instrumentationKey] = new FailedResult(httpStatusCode);
+            this.failingInstrumentationKeys[instrumentationKey] = new FailedResult(this.retryWaitTimeSeconds, httpStatusCode);
 
             CorrelationLookupEventSource.Log.FetchAppIdFailedWithResponseCode(httpStatusCode.ToString());
         }
@@ -40,11 +49,11 @@
             }
             else if (ex is WebException webException && webException.Response != null && webException.Response is HttpWebResponse httpWebResponse)
             {
-                this.failingInstrumentationKeys[instrumentationKey] = new FailedResult(httpWebResponse.StatusCode);
+                this.failingInstrumentationKeys[instrumentationKey] = new FailedResult(this.retryWaitTimeSeconds, httpWebResponse.StatusCode);
             }
             else
             {
-                this.failingInstrumentationKeys[instrumentationKey] = new FailedResult();
+                this.failingInstrumentationKeys[instrumentationKey] = new FailedResult(this.retryWaitTimeSeconds);
             }
 
             CorrelationLookupEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
@@ -83,17 +92,14 @@
         /// </summary>
         private class FailedResult
         {
-            // We have arbitrarily chosen 5 second delay between trying to get app Id once we get a failure while trying to get it. 
-            // This is to throttle tries between failures to safeguard against performance hits. The impact would be that telemetry generated during this interval would not have x-component correlation id.
-            private readonly TimeSpan intervalBetweenRetries = TimeSpan.FromSeconds(30);
-
             /// <summary>
             /// Initializes a new instance of the <see cref="FailedResult" /> class.
             /// </summary>
+            /// <param name="retryAfter">time to wait before a retry</param>
             /// <param name="httpStatusCode">Failure response code. Used to determine if we should retry requests.</param>
-            public FailedResult(HttpStatusCode httpStatusCode = HttpStatusCode.OK)
+            public FailedResult(TimeSpan retryAfter, HttpStatusCode httpStatusCode = HttpStatusCode.OK)
             {
-                this.RetryAfterTime = DateTime.UtcNow + this.intervalBetweenRetries;
+                this.RetryAfterTime = DateTime.UtcNow + retryAfter;
 
                 // Do not retry 4XX failures.
                 var failureCode = (int)httpStatusCode;

@@ -11,9 +11,18 @@
     {
         public ConcurrentDictionary<string, bool> FetchTasks = new ConcurrentDictionary<string, bool>();
 
-        internal FailedRequestsManager FailedRequestsManager = new FailedRequestsManager();
+        internal readonly FailedRequestsManager FailedRequestsManager = new FailedRequestsManager();
 
         private HttpClient httpClient = new HttpClient();
+
+        internal ProfileServiceWrapper()
+        {
+        }
+
+        internal ProfileServiceWrapper(int failedRequestRetryWaitTimeSeconds)
+        {
+            this.FailedRequestsManager = new FailedRequestsManager(failedRequestRetryWaitTimeSeconds);
+        }
 
         public string ProfileQueryEndpoint { get; set; }
 
