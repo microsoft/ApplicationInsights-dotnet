@@ -13,6 +13,8 @@
     /// </remarks>
     public sealed class ApplicationInsightsCorrelationIdProvider : ICorrelationIdProvider, IDisposable
     {
+        internal ConcurrentDictionary<string, bool> FetchTasks = new ConcurrentDictionary<string, bool>();
+
         /// <summary>
         /// Max number of app ids to cache.
         /// </summary>
@@ -86,22 +88,30 @@
         /// <returns>True if fetch task is still in progress, false otherwise.</returns>
         internal bool IsFetchAppInProgress(string ikey)
         {
-            return this.appIdProvider.FetchTasks.ContainsKey(ikey);
+            return this.FetchTasks.ContainsKey(ikey);
         }
 
         private void FetchCorrelationId(string instrumentationKey)
         {
-            // Simplistic cleanup to guard against this becoming a memory hog.
-            if (this.knownCorrelationIds.Keys.Count >= MAXSIZE)
+            if (this.FetchTasks.TryAdd(instrumentationKey, true))
             {
-                this.knownCorrelationIds.Clear();
-            }
+                // Simplistic cleanup to guard against this becoming a memory hog.
+                if (this.knownCorrelationIds.Keys.Count >= MAXSIZE)
+                {
+                    this.knownCorrelationIds.Clear();
+                }
 
-            // add this task to the thread pool. 
-            // We don't care when it finishes, but we don't want to block the thread.
-            Task.Run(() => this.appIdProvider.FetchAppIdAsync(instrumentationKey))
-                .ContinueWith((appIdTask) => this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appIdTask.Result))
-                .ConfigureAwait(false);
+                // add this task to the thread pool. 
+                // We don't care when it finishes, but we don't want to block the thread.
+                Task.Run(() => this.appIdProvider.FetchAppIdAsync(instrumentationKey))
+                    .ContinueWith((appIdTask) =>
+                        {
+                            this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appIdTask.Result);
+
+                            this.FetchTasks.TryRemove(instrumentationKey, out bool ignoreValue);
+                        })
+                    .ConfigureAwait(false);
+            }
         }
 
         /// <summary>

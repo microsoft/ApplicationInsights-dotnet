@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Globalization;
     using System.Net.Http;
     using System.Threading.Tasks;
@@ -9,8 +8,6 @@
 
     internal class ProfileServiceWrapper : IDisposable
     {
-        public ConcurrentDictionary<string, bool> FetchTasks = new ConcurrentDictionary<string, bool>();
-
         internal readonly FailedRequestsManager FailedRequestsManager = new FailedRequestsManager();
 
         private HttpClient httpClient = new HttpClient();
@@ -28,8 +25,7 @@
 
         public async Task<string> FetchAppIdAsync(string instrumentationKey)
         {
-            if (this.FailedRequestsManager.CanRetry(instrumentationKey)
-                && this.FetchTasks.TryAdd(instrumentationKey, true))
+            if (this.FailedRequestsManager.CanRetry(instrumentationKey))
             {
                 try
                 {
@@ -39,10 +35,6 @@
                 {
                     this.FailedRequestsManager.RegisterFetchFailure(instrumentationKey, ex);
                     return null;
-                }
-                finally
-                {
-                    this.FetchTasks.TryRemove(instrumentationKey, out bool value);
                 }
             }
             else
