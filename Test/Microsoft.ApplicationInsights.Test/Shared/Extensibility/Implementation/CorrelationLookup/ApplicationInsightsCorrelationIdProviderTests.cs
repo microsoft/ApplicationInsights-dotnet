@@ -38,7 +38,7 @@
 
             // first request expected to fail
             Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore));
-            Thread.Sleep(10); // wait for Async Tasks to resolve.
+            Thread.Sleep(1000); // wait for Async Tasks to resolve.
             Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string actual));
             Assert.AreEqual(testCorrelationId, actual);
         }
@@ -62,7 +62,7 @@
 
             // first request expected to fail
             Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore));
-            Thread.Sleep(10); // wait for Async Tasks to resolve.
+            Thread.Sleep(1000); // wait for Async Tasks to resolve.
             Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string actual));
             Assert.AreEqual(testCorrelationId, actual);
         }
@@ -72,7 +72,9 @@
         {
             var mockProfileServiceWrapper = GenerateMockServiceWrapper(() =>
             {
-                Thread.Sleep(2000); //long pause
+                Console.WriteLine($"sleep start: {DateTime.UtcNow}");
+                Thread.Sleep(5000); // intentional long pause inspect tasks
+                Console.WriteLine($"sleep stop: {DateTime.UtcNow}");
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(testAppId)
@@ -81,7 +83,10 @@
             var aiCorrelationIdProvider = new ApplicationInsightsCorrelationIdProvider(mockProfileServiceWrapper);
 
             // first request expected to fail
+            Console.WriteLine($"first request: {DateTime.UtcNow}");
             Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore1));
+            Thread.Sleep(1000); // wait 1 sec for task to be created.
+            Console.WriteLine($"second request: {DateTime.UtcNow}");
             Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore2));
 
             Assert.AreEqual(1, mockProfileServiceWrapper.FetchTasks.Count);

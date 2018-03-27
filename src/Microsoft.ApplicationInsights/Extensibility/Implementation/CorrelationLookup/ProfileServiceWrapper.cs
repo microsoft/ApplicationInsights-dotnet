@@ -33,7 +33,7 @@
             {
                 try
                 {
-                    return await this.SendRequestAsync(instrumentationKey.ToLowerInvariant());
+                    return await this.SendRequestAsync(instrumentationKey.ToLowerInvariant()).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -75,7 +75,7 @@
             {
                 SdkInternalOperationsMonitor.Enter();
 
-                var resultMessage = await this.GetAsync(instrumentationKey);
+                var resultMessage = await this.GetAsync(instrumentationKey).ConfigureAwait(false);
                 if (resultMessage.IsSuccessStatusCode)
                 {
                     return await resultMessage.Content.ReadAsStringAsync().ConfigureAwait(false);

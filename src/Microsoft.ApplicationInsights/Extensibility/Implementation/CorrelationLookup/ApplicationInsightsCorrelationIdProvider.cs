@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Threading.Tasks;
     using Extensibility;
 
     /// <summary>
@@ -96,8 +97,11 @@
                 this.knownCorrelationIds.Clear();
             }
 
-            this.appIdProvider.FetchAppIdAsync(instrumentationKey)
-                .ContinueWith((appIdTask) => this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appIdTask.Result));
+            // add this task to the thread pool. 
+            // We don't care when it finishes, but we don't want to block the thread.
+            Task.Run(() => this.appIdProvider.FetchAppIdAsync(instrumentationKey))
+                .ContinueWith((appIdTask) => this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appIdTask.Result))
+                .ConfigureAwait(false);
         }
 
         /// <summary>
