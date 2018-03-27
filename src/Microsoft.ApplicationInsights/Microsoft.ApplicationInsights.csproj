@@ -59,6 +59,7 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
@@ -73,10 +74,6 @@
     <AdditionalFiles Include="..\..\PublicAPI\Microsoft.ApplicationInsights.dll\$(TargetFramework)\PublicAPI.Unshipped.txt">
       <Link>PublicAPI.Unshipped.txt</Link>
     </AdditionalFiles>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
