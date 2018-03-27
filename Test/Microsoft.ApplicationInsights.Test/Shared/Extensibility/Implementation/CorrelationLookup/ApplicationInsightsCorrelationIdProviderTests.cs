@@ -20,7 +20,7 @@
         /// <summary>
         /// Lookup is expected to fail on first call, this is how it invokes the Http request.
         /// </summary>
-        [TestMethod]
+        [TestMethod, Timeout(testTimeoutMilliseconds)]
         public void VerifyFailsOnFirstRequest()
         {
             var mockProfileServiceWrapper = GenerateMockServiceWrapper(HttpStatusCode.OK, testAppId);
@@ -55,7 +55,7 @@
         /// <summary>
         /// Protect against injection attacks. Test that if an malicious value is returned, that value will be truncated.
         /// </summary>
-        [TestMethod]
+        [TestMethod, Timeout(testTimeoutMilliseconds)]
         public void VerifyMaliciousAppIdIsTruncated() 
         {
             // 50 character string.
@@ -83,13 +83,13 @@
             Assert.AreEqual(testCorrelationId, actual);
         }
 
-        [TestMethod]
-        public void VerifyWhenTaskInProgressNoNewTaskCreated() //TODO: THIS TEST IS BROKEN
+        [TestMethod, Timeout(testTimeoutMilliseconds)]
+        public void VerifyWhenTaskInProgressNoNewTaskCreated()
         {
             var mockProfileServiceWrapper = GenerateMockServiceWrapper(() =>
             {
                 Console.WriteLine($"sleep start: {DateTime.UtcNow}");
-                Thread.Sleep(5000); // intentional long pause inspect tasks
+                Thread.Sleep(60000); // intentional long pause,  inspect tasks
                 Console.WriteLine($"sleep stop: {DateTime.UtcNow}");
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                 {
@@ -106,46 +106,52 @@
             Assert.AreEqual(1, aiCorrelationIdProvider.FetchTasks.Count);
         }
 
-        [TestMethod]
-        public void VerifyWhenRequestFailsWillWaitBeforeRetry()
+        [TestMethod, Timeout(testTimeoutMilliseconds)]
+        public void VerifyWhenRequestFailsWillWaitBeforeRetry() 
         {
             mockMethodFailOnceStateBool = false;
             var mockProfileServiceWrapper = GenerateMockServiceWrapper(this.MockMethodFailOnce);
             var aiCorrelationIdProvider = new ApplicationInsightsCorrelationIdProvider(mockProfileServiceWrapper);
 
-            Console.WriteLine("first request");
+            Console.WriteLine($"first request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
             Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore1)); // first request will fail
 
             // wait for async tasks to complete
             while (aiCorrelationIdProvider.IsFetchAppInProgress(testIKey))
             {
-                Console.WriteLine("wait");
+                Console.WriteLine("wait for task");
                 Thread.Sleep(taskWaitMilliseconds);
             }
 
-            Console.WriteLine("second request");
+            Console.WriteLine($"second request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
             Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore2)); // first retry should fail, too soon
 
-            Thread.Sleep(15000); // wait for timeout to expire (15 seconds). //TODO: REPLACE THIS WAIT WITH A LOOP TO WATCH FAILED CANRETRY()
+            //Thread.Sleep(15000); // wait for timeout to expire (15 seconds). //TODO: REPLACE THIS WAIT WITH A LOOP TO WATCH FAILED CANRETRY()
+            while(!mockProfileServiceWrapper.FailedRequestsManager.CanRetry(testIKey))
+            {
+                Console.WriteLine("wait for retry");
+                Thread.Sleep(taskWaitMilliseconds);
+            }
 
-            Console.WriteLine("third request");
+            Console.WriteLine($"third request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
             Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore3)); // second retry should succeed, will create new request task
 
             // wait for async tasks to complete
             while (aiCorrelationIdProvider.IsFetchAppInProgress(testIKey))
             {
-                Console.WriteLine("wait");
+                Console.WriteLine("wait for task");
                 Thread.Sleep(taskWaitMilliseconds);
             }
 
-            Console.WriteLine("fourth request");
+            Console.WriteLine($"fourth request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
             Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string actual)); // third retry resolve
 
             Assert.AreEqual(testCorrelationId, actual);
+            Assert.Inconclusive(); //TODO: THIS TEST IS PASSING, BUT IT'S NOT WAITING THE FULL TIMEOUT - failed requests aren't being added to the dictionary
         }
 
-        [TestMethod]
-        public void VerifyWhenRequestHardFailsWillNotRetry() //TODO: TAKE ARRPOACH OF TASK TEST, VERIFY THAT NEW TASK NOT CREATED
+        [TestMethod, Timeout(testTimeoutMilliseconds)]
+        public void VerifyWhenRequestHardFailsWillNotRetry() 
         {
             var mockProfileServiceWrapper = GenerateMockServiceWrapper(HttpStatusCode.NotFound);
             var aiCorrelationIdProvider = new ApplicationInsightsCorrelationIdProvider(mockProfileServiceWrapper);
@@ -170,7 +176,7 @@
 
         private ProfileServiceWrapper GenerateMockServiceWrapper(HttpStatusCode httpStatus, string testAppId = null)
         {
-            var mock = new Mock<ProfileServiceWrapper>((int)10); //10 seconds default request retry
+            var mock = new Mock<ProfileServiceWrapper>((int)5); //5 seconds default request retry
             mock.Setup(x => x.GetAsync(It.IsAny<string>()))
                 .Returns(() =>
                 {
@@ -184,7 +190,7 @@
 
         private ProfileServiceWrapper GenerateMockServiceWrapper(Func<Task<HttpResponseMessage>> overrideGetAsync)
         {
-            var mock = new Mock<ProfileServiceWrapper>((int)10); //10 seconds default request retry
+            var mock = new Mock<ProfileServiceWrapper>((int)20); //5 seconds before request retry
             mock.Setup(x => x.GetAsync(It.IsAny<string>()))
                 .Returns(overrideGetAsync);
             return mock.Object;
