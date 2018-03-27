@@ -189,6 +189,22 @@
         }
 
         [TestMethod]
+        public void DisposeOperationAppliesChangesOnActivityDoneAfterStart()
+        {
+            this.telemetryClient.TelemetryConfiguration.TelemetryInitializers.Add(new ActivityTagsTelemetryIntitializer());
+
+            DependencyTelemetry telemetry = null;
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName"))
+            {
+                Activity.Current.AddTag("my custom tag", "value");
+                telemetry = operation.Telemetry;
+            }
+
+            Assert.IsTrue(telemetry.Properties.ContainsKey("my custom tag"));
+            Assert.AreEqual("value", telemetry.Properties["my custom tag"]);
+        }
+
+        [TestMethod]
         public void ContextPropagatesThroughNestedOperations()
         {
             using (this.telemetryClient.StartOperation<RequestTelemetry>("OuterRequest"))
@@ -269,6 +285,22 @@
         private string GetOperationName(Activity activity)
         {
             return activity.Tags.FirstOrDefault(tag => tag.Key == "OperationName").Value;
+        }
+
+        private class ActivityTagsTelemetryIntitializer : ITelemetryInitializer
+        {
+            public void Initialize(ITelemetry telemetry)
+            {
+                if (Activity.Current == null)
+                {
+                    return;
+                }
+
+                foreach (var tag in Activity.Current.Tags)
+                {
+                    telemetry.Context.Properties[tag.Key] = tag.Value;
+                }
+            }
         }
     }
 }

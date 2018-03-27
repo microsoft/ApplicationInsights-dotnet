@@ -40,12 +40,13 @@
       <Project>{3273d899-d9b3-44fe-b3ab-578e18b2ef90}</Project>
       <Name>TelemetryChannel</Name>
     </ProjectReference>
+    <PackageReference Include="Moq" Version="4.8.2" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.8.2" />
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
   <Import Project="..\..\..\Test\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" Condition="$(OS) == 'Windows_NT'" />
   <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" Condition="$(OS) == 'Windows_NT'" />

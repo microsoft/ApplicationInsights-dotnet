@@ -30,10 +30,10 @@
         /// <summary>
         /// Logs the information when there operation to stop does not match the current operation.
         /// </summary>
-        [Event(2, Message = "Operation to stop does not match the current operation.", Level = EventLevel.Error)]
-        public void InvalidOperationToStopError(string appDomainName = "Incorrect")
+        [Event(2, Message = "Operation to stop does not match the current operation. Details: {0}", Level = EventLevel.Error)]
+        public void InvalidOperationToStopError(string details, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(2, this.nameProvider.Name);
+            this.WriteEvent(2, details, this.nameProvider.Name);
         }
 
         [Event(
