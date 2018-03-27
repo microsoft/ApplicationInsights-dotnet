@@ -214,7 +214,7 @@
 
                 // We are not at the last level. Create the subdimension. Note, we are not under lock, so someone might be creating the same dimention concurrently:
                 int nextDim = currentDim + 1;
-                bool isLastDimensionLevel = (nextDim == coordinates.Length - 1);
+                bool isLastDimensionLevel = nextDim == (coordinates.Length - 1);
                 var newSubDim = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(
                                                                                            this.ownerCube, 
                                                                                            this.ownerCube.GetSubdimensionsCountLimit(nextDim),

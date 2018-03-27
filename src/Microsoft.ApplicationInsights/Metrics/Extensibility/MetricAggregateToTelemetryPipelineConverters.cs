@@ -52,11 +52,11 @@
         {
             Util.ValidateNotNull(pipelineType, nameof(pipelineType));
 
-            //if (false == typeof(IMetricTelemetryPipeline).IsAssignableFrom(pipelineType))
-            //{
-            //    throw new ArgumentException($"{nameof(pipelineType)} must specify a type that implements the interface '{typeof(IMetricTelemetryPipeline).Name}'"
-            //                              + $", but it specifies the type '{pipelineType.Name}' that does not implement that interface.");
-            //}
+            ////if (false == typeof(IMetricTelemetryPipeline).IsAssignableFrom(pipelineType))
+            ////{
+            ////    throw new ArgumentException($"{nameof(pipelineType)} must specify a type that implements the interface '{typeof(IMetricTelemetryPipeline).Name}'"
+            ////                              + $", but it specifies the type '{pipelineType.Name}' that does not implement that interface.");
+            ////}
 
             Util.ValidateNotNullOrWhitespace(aggregationKindMoniker, nameof(aggregationKindMoniker));
         }

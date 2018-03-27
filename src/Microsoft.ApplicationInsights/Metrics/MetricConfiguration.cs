@@ -85,8 +85,8 @@
 
             return (this.SeriesCountLimit == other.SeriesCountLimit)
                 && (this.ValuesPerDimensionLimit == other.ValuesPerDimensionLimit)
-                && (this.GetType().Equals(other.GetType()))
-                && (this.SeriesConfig.Equals(other.SeriesConfig));
+                && this.GetType().Equals(other.GetType())
+                && this.SeriesConfig.Equals(other.SeriesConfig);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>

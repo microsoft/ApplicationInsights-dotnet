@@ -206,7 +206,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override bool IsInvalidValue(object value)
         {
-            return (value == null);
+            return value == null;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>

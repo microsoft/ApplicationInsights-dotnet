@@ -23,9 +23,9 @@
         ///// </summary>
         ///// <param name="metric">ToDo: Complete documentation before stable release.</param>
         ///// <returns>ToDo: Complete documentation before stable release.</returns>
-        //public static MetricManager GetMetricManager(this Metric metric)
-        //{
-        //    return metric._metricManager;
-        //}
+        ////public static MetricManager GetMetricManager(this Metric metric)
+        ////{
+        ////    return metric._metricManager;
+        ////}
     }
 }

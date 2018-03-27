@@ -455,7 +455,7 @@
         private IMetricSeriesAggregator GetNewOrRecycledAggregatorInstance(MetricAggregationCycleKind aggregationCycleKind)
         {
             IMetricSeriesAggregator aggregator = this.GetRecycledAggregatorInstance(aggregationCycleKind);
-            return (aggregator ?? this.configuration.CreateNewAggregator(this, aggregationCycleKind));
+            return aggregator ?? this.configuration.CreateNewAggregator(this, aggregationCycleKind);
         }
 
         /// <summary>

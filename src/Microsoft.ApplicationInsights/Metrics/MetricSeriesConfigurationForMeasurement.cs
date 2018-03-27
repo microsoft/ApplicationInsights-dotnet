@@ -92,7 +92,7 @@
                 return true;
             }
 
-            return (this.RestrictToUInt32Values == other.RestrictToUInt32Values);
+            return this.RestrictToUInt32Values == other.RestrictToUInt32Values;
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -222,7 +222,7 @@
                     /// </summary>
                     public const string StdDev = "StdDev";
                 }
-            }   // static class Constants
+            }
 
             /// <summary>
             /// Groups constants used to refer to data fields contained within aggregates produced by aggregators that are configured

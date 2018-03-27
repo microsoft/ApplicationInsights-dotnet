@@ -77,11 +77,11 @@
                 case CycleKind.QuickPulse:
                     AggregatorCollection qpAggs = this.aggregatorsForQuickPulse;
                     filter = qpAggs?.Filter;
-                    return (qpAggs != null);
+                    return qpAggs != null;
                 case CycleKind.Custom:
                     AggregatorCollection cAggs = this.aggregatorsForCustom;
                     filter = cAggs?.Filter;
-                    return (cAggs != null);
+                    return cAggs != null;
 
                 default:
                     throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");

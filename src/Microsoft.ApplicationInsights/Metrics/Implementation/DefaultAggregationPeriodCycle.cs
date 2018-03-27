@@ -111,7 +111,7 @@
             // In such cases we err on the side of keeping the same offset.
             // This will tend to straighten out the inmterval and to yield consistent timestamps.
 
-            const int targetOffsetFromRebasedCurrentTimeInSecs = (60) + 1;
+            const int targetOffsetFromRebasedCurrentTimeInSecs = 60 + 1;
             const double minPeriodInSecs = 20.0 + 1.0;
 
             DateTimeOffset target = Util.RoundDownToMinute(periodStart).AddSeconds(targetOffsetFromRebasedCurrentTimeInSecs);
@@ -139,7 +139,6 @@
                 DateTimeOffset now = DateTimeOffset.Now;
                 TimeSpan waitPeriod = GetNextCycleTargetTime(now) - now;
 
-                //Thread.Sleep(waitPeriod);
                 Task.Delay(waitPeriod).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
 
                 int shouldBeRunning = Volatile.Read(ref this.runningState);

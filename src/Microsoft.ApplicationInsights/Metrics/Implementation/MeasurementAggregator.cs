@@ -139,7 +139,7 @@
                 bufferData.Max = (metricValue > bufferData.Max) ? metricValue : bufferData.Max;
                 bufferData.Min = (metricValue < bufferData.Min) ? metricValue : bufferData.Min;
                 bufferData.Sum += metricValue;
-                bufferData.SumOfSquares += (metricValue * metricValue);
+                bufferData.SumOfSquares += metricValue * metricValue;
             }
 
             if (this.restrictToUInt32Values)

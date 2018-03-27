@@ -29,7 +29,9 @@
             this.aggregationCycle.Start();
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>
+        /// Finalizes an instance of the <see cref="MetricManager" /> class.
+        /// </summary>
         ~MetricManager()
         {
             DefaultAggregationPeriodCycle aggregationCycle = this.aggregationCycle;

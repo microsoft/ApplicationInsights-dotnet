@@ -452,15 +452,15 @@
 
             switch (dimensionNumber)
             {
-                case 1:  return this.dimension1Name;
-                case 2:  return this.dimension2Name;
-                case 3:  return this.dimension3Name;
-                case 4:  return this.dimension4Name;
-                case 5:  return this.dimension5Name;
-                case 6:  return this.dimension6Name;
-                case 7:  return this.dimension7Name;
-                case 8:  return this.dimension8Name;
-                case 9:  return this.dimension9Name;
+                case 1: return this.dimension1Name;
+                case 2: return this.dimension2Name;
+                case 3: return this.dimension3Name;
+                case 4: return this.dimension4Name;
+                case 5: return this.dimension5Name;
+                case 6: return this.dimension6Name;
+                case 7: return this.dimension7Name;
+                case 8: return this.dimension8Name;
+                case 9: return this.dimension9Name;
                 case 10: return this.dimension10Name;
                 default: throw new ArgumentOutOfRangeException(nameof(dimensionNumber));
             }
@@ -515,7 +515,7 @@
                 return false;
             }
 
-            return (this.hashCode == otherMetricIdentifier.hashCode) && (this.identifierString.Equals(otherMetricIdentifier.identifierString));
+            return (this.hashCode == otherMetricIdentifier.hashCode) && this.identifierString.Equals(otherMetricIdentifier.identifierString);
         }
 
         internal void ValidateDimensionNumberForGetter(int dimensionNumber)

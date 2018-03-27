@@ -312,9 +312,9 @@
         {
             return this.TryGetOrCreatePointAsync(
                         sleepDuration: TimeSpan.FromMilliseconds(2),
-                        timeout:        TimeSpan.FromMilliseconds(11),
-                        cancelToken:    CancellationToken.None,
-                        coordinates:    coordinates);
+                        timeout: TimeSpan.FromMilliseconds(11),
+                        cancelToken: CancellationToken.None,
+                        coordinates: coordinates);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
@@ -353,7 +353,7 @@
                 }
             }
 
-            bool infiniteTimeout = (timeout == Timeout.InfiniteTimeSpan);
+            bool infiniteTimeout = timeout == Timeout.InfiniteTimeSpan;
 
             if (false == infiniteTimeout)
             { 

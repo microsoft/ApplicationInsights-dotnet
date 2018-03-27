@@ -81,7 +81,7 @@
                         ? -Double.MaxValue
                         : (x > Double.MaxValue)
                                 ? Double.MaxValue
-                                : (Double.IsNaN(x))
+                                : Double.IsNaN(x)
                                         ? 0.0
                                         : x;
         }
@@ -215,7 +215,7 @@
             valueFilter = null;
             try
             {
-                return (seriesFilter == null) || (seriesFilter.WillConsume(series, out valueFilter));
+                return (seriesFilter == null) || seriesFilter.WillConsume(series, out valueFilter);
             }
             catch
             {
@@ -229,7 +229,7 @@
         {
             try
             {
-                return (valueFilter == null) || (valueFilter.WillConsume(series, metricValue));
+                return (valueFilter == null) || valueFilter.WillConsume(series, metricValue);
             }
             catch
             {
@@ -242,7 +242,7 @@
         {
             try
             {
-                return (valueFilter == null) || (valueFilter.WillConsume(series, metricValue));
+                return (valueFilter == null) || valueFilter.WillConsume(series, metricValue);
             }
             catch
             {
