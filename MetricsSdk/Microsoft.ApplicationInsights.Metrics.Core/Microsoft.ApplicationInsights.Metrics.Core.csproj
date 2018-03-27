@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <PropertyGroup>
+    <!-- -->
+    <TargetFrameworks>net45;netstandard1.5</TargetFrameworks>
+    <!-- -->
+    <!-- 
+    <TargetFramework>net45</TargetFramework>
+    -->
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.3.0" />
+    <!-- 
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
+    -->
+  </ItemGroup>
+  
+  <PropertyGroup>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\Microsoft.ApplicationInsights.Metrics.Core.xml</DocumentationFile>
+    <ProjectGuid>{B9938C09-9CB3-45CF-BA3C-847FF85EC750}</ProjectGuid>
+  </PropertyGroup>
+  
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Microsoft.ApplicationInsights.Metrics.props'))\Microsoft.ApplicationInsights.Metrics.props" />
+
+  <PropertyGroup>
+    <AssemblyAttributesPath>$(IntermediateOutputPath)\$(TargetFramework)\Microsoft.ApplicationInsights.Metrics.Core.AssemblyInfo.cs</AssemblyAttributesPath>
+  </PropertyGroup>
+
+</Project>

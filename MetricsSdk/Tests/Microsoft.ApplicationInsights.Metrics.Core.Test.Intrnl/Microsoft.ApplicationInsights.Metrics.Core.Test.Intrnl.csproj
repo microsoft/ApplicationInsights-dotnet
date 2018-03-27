@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\..\..\NuGet.Packages\MSTest.TestAdapter.1.1.11\build\net45\MSTest.TestAdapter.props" Condition="Exists('..\..\..\..\NuGet.Packages\MSTest.TestAdapter.1.1.11\build\net45\MSTest.TestAdapter.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0272FE8B-9B25-43B0-A26B-3C71154DEBBA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
+    <IsCodedUITest>False</IsCodedUITest>
+    <TestProjectType>UnitTest</TestProjectType>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\..\..\bin\Debug\Metrics\Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl\Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\..\..\bin\Release\Metrics\Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl\Microsoft.ApplicationInsights.Metrics.Core.Test.Intrnl.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.ApplicationInsights, Version=2.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\NuGet.Packages\Microsoft.ApplicationInsights.2.3.0\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\NuGet.Packages\MSTest.TestFramework.1.1.11\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\NuGet.Packages\MSTest.TestFramework.1.1.11\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Microsoft.ApplicationInsights.ConcurrentDatastructures\GrowingCollectionTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.ConcurrentDatastructures\MultidimensionalCube2Tests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.ConcurrentDatastructures\MultidimensionalCubeTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\CommonSimpleDataSeriesAggregatorTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\DefaultAggregationPeriodCycle.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\ExtensionsUtilTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\UtilTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\MetricAggregationManagerTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\NaiveDistinctCountMetricSeriesAggregatorTests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\MeasurementAggregator_restrictToUInt32ValuesFalse_Tests.cs" />
+    <Compile Include="Microsoft.ApplicationInsights.Metrics\MeasurementAggregator_restrictToUInt32ValuesTrue_Tests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Microsoft.ApplicationInsights.Metrics.Extensions\Microsoft.ApplicationInsights.Metrics.Extensions.csproj">
+      <Project>{4b504b6c-e730-4f98-b38f-433899796771}</Project>
+      <Name>Microsoft.ApplicationInsights.Metrics.Extensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.ApplicationInsights.Metrics.Core.Test\Microsoft.ApplicationInsights.Metrics.Core.Test.csproj">
+      <Project>{8fbc7612-4536-45db-86c3-c2ed95219231}</Project>
+      <Name>Microsoft.ApplicationInsights.Metrics.Core.Test</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Microsoft.ApplicationInsights.Metrics.Core\Microsoft.ApplicationInsights.Metrics.Core.csproj">
+      <Project>{b9938c09-9cb3-45cf-ba3c-847ff85ec750}</Project>
+      <Name>Microsoft.ApplicationInsights.Metrics.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <!--
+    <Analyzer Include="..\..\..\..\NuGet.Packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\..\..\..\NuGet.Packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+    -->
+  </ItemGroup>
+  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
+  <!-- Repo settings -->
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Microsoft.ApplicationInsights.Metrics.props'))\Microsoft.ApplicationInsights.Metrics.props" />
+  <PropertyGroup>
+    <!-- Turn OFF dynamic assembly attribute generation -->
+    <GenerateAdditionalSources>false</GenerateAdditionalSources>
+  </PropertyGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\NuGet.Packages\MSTest.TestAdapter.1.1.11\build\net45\MSTest.TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\NuGet.Packages\MSTest.TestAdapter.1.1.11\build\net45\MSTest.TestAdapter.props'))" />
+    <Error Condition="!Exists('..\..\..\..\NuGet.Packages\MSTest.TestAdapter.1.1.11\build\net45\MSTest.TestAdapter.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\NuGet.Packages\MSTest.TestAdapter.1.1.11\build\net45\MSTest.TestAdapter.targets'))" />
+  </Target>
+  <Import Project="..\..\..\..\NuGet.Packages\MSTest.TestAdapter.1.1.11\build\net45\MSTest.TestAdapter.targets" Condition="Exists('..\..\..\..\NuGet.Packages\MSTest.TestAdapter.1.1.11\build\net45\MSTest.TestAdapter.targets')" />
+</Project>
