@@ -18,9 +18,9 @@ namespace Microsoft.ApplicationInsights.Metrics
         static MetricSeriesConfigurationForAccumulator()
         {
             MetricAggregateToTelemetryPipelineConverters.Registry.Add(
-                                                                    typeof(ApplicationInsightsTelemetryPipeline),
-                                                                    MetricSeriesConfigurationForAccumulator.Constants.AggregateKindMoniker,
-                                                                    new AccumulatorAggregateToApplicationInsightsPipelineConverter());
+                        typeof(ApplicationInsightsTelemetryPipeline),
+                        MetricSeriesConfigurationForAccumulator.Constants.AggregateKindMoniker,
+                        new AccumulatorAggregateToApplicationInsightsPipelineConverter());
         }
 
         /// <summary />

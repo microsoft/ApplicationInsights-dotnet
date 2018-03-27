@@ -36,9 +36,9 @@ namespace Microsoft.ApplicationInsights.Metrics
         static MetricSeriesConfigurationForNaiveDistinctCount()
         {
             MetricAggregateToTelemetryPipelineConverters.Registry.Add(
-                                                                    typeof(ApplicationInsightsTelemetryPipeline),
-                                                                    MetricSeriesConfigurationForNaiveDistinctCount.Constants.AggregateKindMoniker,
-                                                                    new NaiveDistinctCountAggregateToApplicationInsightsPipelineConverter());
+                        typeof(ApplicationInsightsTelemetryPipeline),
+                        MetricSeriesConfigurationForNaiveDistinctCount.Constants.AggregateKindMoniker,
+                        new NaiveDistinctCountAggregateToApplicationInsightsPipelineConverter());
         }
 
         /// <summary>

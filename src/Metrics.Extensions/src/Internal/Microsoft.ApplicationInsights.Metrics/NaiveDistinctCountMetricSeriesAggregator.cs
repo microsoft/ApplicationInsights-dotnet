@@ -123,7 +123,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                     }
 
                     _uniqueValues.Add(stringValue);
-                    Interlocked.Increment(ref _totalValuesCount);
+                    _totalValuesCount++;
                 }
             }
 

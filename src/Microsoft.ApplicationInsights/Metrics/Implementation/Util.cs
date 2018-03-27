@@ -24,7 +24,7 @@
         private static string sdkVersionMoniker = null;
 
         /// <summary>
-        /// Paramater check for Null with a little more informative exception.
+        /// Paramater check for Null.
         /// </summary>
         /// <param name="value">Value to be checked.</param>
         /// <param name="name">Name of the parameter being checked.</param>
@@ -38,7 +38,8 @@
         }
 
         /// <summary>
-        /// String paramater check with a little more informative exception.
+        /// String paramater check with a more informative exception that specifies whether
+        /// the problem was that the string was null or empty.
         /// </summary>
         /// <param name="value">Value to be checked.</param>
         /// <param name="name">Name of the parameter being checked.</param>
@@ -57,7 +58,8 @@
         }
 
         /// <summary>
-        /// String paramater check with a little more informative exception.
+        /// String paramater check with a more informative exception that specifies whether
+        /// the problem was that the string was null, empty or whitespace only.
         /// </summary>
         /// <param name="value">Value to be checked.</param>
         /// <param name="name">Name of the parameter being checked.</param>

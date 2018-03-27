@@ -19,9 +19,9 @@ namespace Microsoft.ApplicationInsights.Metrics
         static MetricSeriesConfigurationForGauge()
         {
             MetricAggregateToTelemetryPipelineConverters.Registry.Add(
-                                                                    typeof(ApplicationInsightsTelemetryPipeline),
-                                                                    MetricSeriesConfigurationForGauge.Constants.AggregateKindMoniker,
-                                                                    new GaugeAggregateToApplicationInsightsPipelineConverter());
+                        typeof(ApplicationInsightsTelemetryPipeline),
+                        MetricSeriesConfigurationForGauge.Constants.AggregateKindMoniker,
+                        new GaugeAggregateToApplicationInsightsPipelineConverter());
         }
 
         /// <summary>
