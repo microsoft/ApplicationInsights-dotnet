@@ -108,6 +108,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\StubApplicationInsightsTelemetryChannel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\TestCategoryNames.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\TestUtil.cs" />
+    <None Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\Materials\StdDev Test Tool.xlsx" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
   </ItemGroup>
 </Project>
