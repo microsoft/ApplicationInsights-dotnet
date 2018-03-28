@@ -3,6 +3,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using System;
+    using System.Diagnostics;
     using System.Net;
     using System.Net.Http;
     using System.Threading;
@@ -28,14 +29,20 @@
         [TestMethod, Timeout(testTimeoutMilliseconds)]
         public async Task VerifyCanRetryHttp500ErrorAfterTimeout()
         {
+            var stopWatch = new Stopwatch();
             var profileServiceWrapper = GenerateMockServiceWrapper(HttpStatusCode.InternalServerError, testApplicationId);
 
+            stopWatch.Start();
             var fetch1 = await profileServiceWrapper.FetchApplicationIdAsync(testInstrumentationKey);
             Assert.IsNull(fetch1);
 
-            Assert.IsFalse(profileServiceWrapper.FailedRequestsManager.CanRetry(testInstrumentationKey)); //TODO: SHOULD CHECK WITH A LOOP
+            while (!profileServiceWrapper.FailedRequestsManager.CanRetry(testInstrumentationKey))
+            {
+                Thread.Sleep(100);
+            }
 
-            Thread.Sleep(TimeSpan.FromSeconds(failedRequestRetryWaitTimeSeconds + 1));
+            stopWatch.Stop();
+            Assert.IsTrue(stopWatch.Elapsed >= TimeSpan.FromSeconds(failedRequestRetryWaitTimeSeconds));
 
             Assert.IsTrue(profileServiceWrapper.FailedRequestsManager.CanRetry(testInstrumentationKey));
         }

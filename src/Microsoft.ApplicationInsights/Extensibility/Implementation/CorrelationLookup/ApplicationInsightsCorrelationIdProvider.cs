@@ -41,8 +41,8 @@
 
         /// <summary>
         /// Gets or sets the endpoint that is to be used to get the Application Insights resource's profile (Application Id etc.). 
+        /// Default value is "https://dc.services.visualstudio.com/api/profiles/{0}/appId". If this is overwritten, MUST include the '{0}' for string replacement!
         /// </summary>
-        /// <remarks>TODO!! URL NEEDS TO BE BASE</remarks>
         public string ProfileQueryEndpoint
         {
             get { return this.applicationIdProvider.ProfileQueryEndpoint; }

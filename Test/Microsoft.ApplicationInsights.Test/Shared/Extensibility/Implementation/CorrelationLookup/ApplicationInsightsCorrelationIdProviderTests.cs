@@ -149,7 +149,7 @@
             }
 
             Console.WriteLine($"\nfourth request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
-            Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string actual)); // third retry resolve
+            Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string actual)); // third retry should resolve
 
             Assert.AreEqual(testCorrelationId, actual);
             

@@ -37,6 +37,7 @@
             Assert.AreEqual(testCorrelationId2, actual2);
 
             Assert.IsFalse(correlationIdProvider.TryGetCorrelationId("abc", out string actual3));
+            Assert.IsNull(actual3);
         }
     }
 }

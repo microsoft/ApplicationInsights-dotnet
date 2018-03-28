@@ -34,13 +34,19 @@
         [TestMethod, Timeout(testTimeoutMilliseconds)]
         public void VerifyCanRetryHttp500ErrorAfterTimeout()
         {
+            var stopWatch = new Stopwatch();
             var failedRequestsManager = new FailedRequestsManager(failedRequestRetryWaitTimeSeconds);
 
+            stopWatch.Start();
             failedRequestsManager.RegisterFetchFailure(testInstrumentationKey, HttpStatusCode.InternalServerError);
 
-            Assert.IsFalse(failedRequestsManager.CanRetry(testInstrumentationKey)); //TODO: SHOULD CHECK WITH A LOOP
+            while (!failedRequestsManager.CanRetry(testInstrumentationKey))
+            {
+                Thread.Sleep(100);
+            }
 
-            Thread.Sleep(TimeSpan.FromSeconds(failedRequestRetryWaitTimeSeconds + 1));
+            stopWatch.Stop();
+            Assert.IsTrue(stopWatch.Elapsed >= TimeSpan.FromSeconds(failedRequestRetryWaitTimeSeconds));
 
             Assert.IsTrue(failedRequestsManager.CanRetry(testInstrumentationKey));
         }
