@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Diagnostics;
     using System.Threading.Tasks;
     using Extensibility;
 
@@ -101,6 +102,7 @@
                     this.knownCorrelationIds.Clear();
                 }
 
+                Debug.WriteLine("create fetch task");
                 // add this task to the thread pool. 
                 // We don't care when it finishes, but we don't want to block the thread.
                 Task.Run(() => this.appIdProvider.FetchAppIdAsync(instrumentationKey))
@@ -109,6 +111,7 @@
                             this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appIdTask.Result);
 
                             this.FetchTasks.TryRemove(instrumentationKey, out bool ignoreValue);
+                            Debug.WriteLine("cleanup fetch task");
                         })
                     .ConfigureAwait(false);
             }

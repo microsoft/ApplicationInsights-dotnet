@@ -108,7 +108,7 @@
             Assert.AreEqual(1, aiCorrelationIdProvider.FetchTasks.Count);
         }
 
-        [TestMethod, Timeout(testTimeoutMilliseconds)]
+        [TestMethod]//, Timeout(testTimeoutMilliseconds)]
         public void VerifyWhenRequestFailsWillWaitBeforeRetry() 
         {
             mockMethodFailOnceStateBool = false;
@@ -127,8 +127,8 @@
                 Thread.Sleep(taskWaitMilliseconds);
             }
 
-            Console.WriteLine($"\nsecond request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
-            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore2)); // first retry should fail, too soon
+            //Console.WriteLine($"\nsecond request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
+            //Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore2)); // first retry should fail, too soon
 
             while(!mockProfileServiceWrapper.FailedRequestsManager.CanRetry(testIKey))
             {
@@ -136,6 +136,7 @@
                 Thread.Sleep(taskWaitMilliseconds);
             }
             stopWatch.Stop();
+            Assert.IsTrue(stopWatch.Elapsed >= TimeSpan.FromSeconds(failedRequestRetryWaitTimeSeconds), "too fast, did not wait timeout");
 
             Console.WriteLine($"\nthird request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
             Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore3)); // second retry should fail (because no matching value), but will create new request task
@@ -151,7 +152,7 @@
             Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string actual)); // third retry resolve
 
             Assert.AreEqual(testCorrelationId, actual);
-            Assert.IsTrue(stopWatch.Elapsed >= TimeSpan.FromSeconds(failedRequestRetryWaitTimeSeconds));
+            
         }
 
         [TestMethod, Timeout(testTimeoutMilliseconds)]

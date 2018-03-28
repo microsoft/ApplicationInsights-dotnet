@@ -16,6 +16,7 @@
 
         internal FailedRequestsManager(int retryWaitTimeSeconds = 30)
         {
+            Debug.WriteLine($"FailedRequestsManager initialized: waitTime: {retryWaitTimeSeconds} seconds");
             this.retryWaitTimeSeconds = TimeSpan.FromSeconds(retryWaitTimeSeconds);
         }
 

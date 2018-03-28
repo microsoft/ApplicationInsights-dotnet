@@ -8,12 +8,13 @@
 
     internal class ProfileServiceWrapper : IDisposable
     {
-        internal readonly FailedRequestsManager FailedRequestsManager = new FailedRequestsManager();
+        internal readonly FailedRequestsManager FailedRequestsManager;
 
         private HttpClient httpClient = new HttpClient();
 
         internal ProfileServiceWrapper()
         {
+            this.FailedRequestsManager = new FailedRequestsManager();
         }
 
         internal ProfileServiceWrapper(int failedRequestRetryWaitTimeSeconds)
@@ -29,7 +30,7 @@
             {
                 try
                 {
-                    return await this.SendRequestAsync(instrumentationKey.ToLowerInvariant()).ConfigureAwait(false);
+                    return await this.SendRequestAsync(instrumentationKey).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -52,7 +53,7 @@
         /// <remarks>This method is internal so it can be moq-ed in a unit test.</remarks>
         internal virtual async Task<HttpResponseMessage> GetAsync(string instrumentationKey)
         {
-            Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey);
+            Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey.ToLowerInvariant());
             return await this.httpClient.GetAsync(appIdEndpoint).ConfigureAwait(false);
         }
 
