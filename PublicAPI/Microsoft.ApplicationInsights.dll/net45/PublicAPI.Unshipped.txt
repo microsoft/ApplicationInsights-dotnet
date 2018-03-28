@@ -12,10 +12,6 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup.Dic
 Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup.DictionaryCorrelationIdProvider.TryGetCorrelationId(string instrumentationKey, out string correlationId) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup.DictionaryCorrelationIdProvider.DefinedIds.get -> System.Collections.Generic.Dictionary<string, string>
 Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup.DictionaryCorrelationIdProvider.DefinedIds.set -> void
-Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup.StaticCorrelationIdProvider
-Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup.StaticCorrelationIdProvider.TryGetCorrelationId(string instrumentationKey, out string correlationId) -> bool
-Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup.StaticCorrelationIdProvider.CorrelationId.get -> string
-Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup.StaticCorrelationIdProvider.CorrelationId.set -> void
 
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.AddHeartbeatProperty(string propertyName, string propertyValue, bool isHealthy) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.ExcludedHeartbeatProperties.get -> System.Collections.Generic.IList<string>
