@@ -36,9 +36,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ExtensionsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\HeartbeatTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\HeartbeatProviderMock.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricManagerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricManagerV1Test.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricSample.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricV1Test.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\AutocollectedMetricsExtractorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\OperationCorrelationTelemetryInitializerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializerTest.cs" />
@@ -75,7 +75,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ThreadResourceLockTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\UserContextTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\WeakConcurrentRandomTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\StubMetricProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\StubMetricProcessorV1.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfigurationFactoryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfigurationTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetrySinkTests.cs" />
