@@ -9,7 +9,6 @@
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
@@ -19,9 +18,8 @@
         private const double MicroOne = 0.000001;
 
         private const string FallbackParemeterName = "specified parameter";
-        private const string MetricsSdkVersionMonikerPrefix = "msdk-";
 
-        private static string sdkVersionMoniker = null;
+        private static string sdkVersionMoniker = SdkVersionUtils.GetSdkVersion("m-agg2:");
 
         /// <summary>
         /// Paramater check for Null.
@@ -330,61 +328,7 @@
                 return;
             }
 
-            string sdkVersionMoniker = GetSdkVersionMoniker();
             context.SdkVersion = sdkVersionMoniker;
-        }
-
-        /// <summary>
-        /// ToDo: Modeled on a copy from Base AI SDK. Keep in sync until the Base SDK version can be exposed.
-        /// { SdkVersionUtils.GetSdkVersion(string versionPrefix); }
-        /// Format msdk-MAJOR.MINOR-REVISION:major.minor-revision.
-        ///   where CAPs indicate metrics SDK version and lower indicares base SDK version.
-        /// </summary>
-        /// <returns>String representation of the version with prefix added.</returns>
-        public static string GetSdkVersionMoniker()
-        {
-            string sdkVersionMoniker = Util.sdkVersionMoniker;
-            if (sdkVersionMoniker != null)
-            {
-                return sdkVersionMoniker;
-            }
-
-            string baseSdkVersionStr = typeof(Microsoft.ApplicationInsights.TelemetryClient)
-                                        .GetTypeInfo()
-                                        .Assembly
-                                        .GetCustomAttributes<AssemblyFileVersionAttribute>()
-                                        .FirstOrDefault()?
-                                        .Version;
-
-            string metricsSdkVersionStr = typeof(Microsoft.ApplicationInsights.Metrics.MetricManager)
-                                        .GetTypeInfo()
-                                        .Assembly
-                                        .GetCustomAttributes<AssemblyFileVersionAttribute>()
-                                        .FirstOrDefault()?
-                                        .Version;
-
-            Version baseSdkVersion = null;
-            Version metricsSdkVersion = null;
-
-            if (false == Version.TryParse(baseSdkVersionStr ?? String.Empty, out baseSdkVersion))
-            {
-                baseSdkVersion = null;
-            }
-
-            if (false == Version.TryParse(metricsSdkVersionStr ?? String.Empty, out metricsSdkVersion))
-            {
-                metricsSdkVersion = null;
-            }
-
-            string baseSdkPostfix = baseSdkVersion.Revision.ToString(CultureInfo.InvariantCulture);
-            string metricsSdkPostfix = metricsSdkVersion.Revision.ToString(CultureInfo.InvariantCulture);
-
-            string metricsSdkVersionMoniker = $"{MetricsSdkVersionMonikerPrefix}{metricsSdkVersion?.ToString(3) ?? "0"}-{metricsSdkPostfix}";
-            string baseSdkVersionMoniker = $"{baseSdkVersion?.ToString(3) ?? "0"}-{baseSdkPostfix}";
-            sdkVersionMoniker = $"{metricsSdkVersionMoniker}:{baseSdkVersionMoniker}";
-
-            Util.sdkVersionMoniker = sdkVersionMoniker;
-            return sdkVersionMoniker;
         }
     }
 }

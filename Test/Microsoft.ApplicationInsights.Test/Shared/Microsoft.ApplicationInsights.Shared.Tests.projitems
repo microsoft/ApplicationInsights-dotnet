@@ -10,6 +10,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ActivityExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MetricTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OperationTelemetryExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StartOperationActivityTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionAsyncTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TransmissionProcessorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Channel\InMemoryChannelTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Channel\InMemoryTransmitterTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Channel\ITelemetryTest.cs" />
@@ -36,9 +43,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ExtensionsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\HeartbeatTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\HeartbeatProviderMock.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricManagerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricManagerV1Test.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricSample.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricV1Test.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\AutocollectedMetricsExtractorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\OperationCorrelationTelemetryInitializerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializerTest.cs" />
@@ -79,12 +86,28 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfigurationFactoryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfigurationTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetrySinkTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)OperationTelemetryExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\MetricConfigurationTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\MetricEmissionTestsVirtualTime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\MetricSeriesTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\TelemetryConfigurationExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\CommonSimpleDataSeriesAggregatorTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\DefaultAggregationPeriodCycle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\MeasurementAggregator_restrictToUInt32ValuesFalse_Tests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\MeasurementAggregator_restrictToUInt32ValuesTrue_Tests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\MetricAggregationManagerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\UtilTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\ConcurrentDatastructures\GrowingCollectionTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\ConcurrentDatastructures\MultidimensionalCube2Tests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\ConcurrentDatastructures\MultidimensionalCubeTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AggregationPeriodSummaryTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\ApplicationInsightsTelemetryPipelineTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\MetricExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\TelemetryClientExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\ArrayEqualityComparer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\MetricSeriesConfigurationForTestingAccumulatorBehavior.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\StubApplicationInsightsTelemetryChannel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\TestCategoryNames.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\TestUtil.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionAsyncTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)StartOperationActivityTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TransmissionProcessorTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientTest.cs" />
   </ItemGroup>
 </Project>
