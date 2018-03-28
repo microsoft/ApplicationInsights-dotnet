@@ -1,22 +1,14 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Moq;
-    using System;
     using System.Diagnostics;
     using System.Net;
-    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
 
     [TestClass]
-    public class ProfileServiceWrapperTests
+    public class ProfileServiceWrapperTests : CorrelationLookupTestBase
     {
-        const int testTimeoutMilliseconds = 20000; // 20 seconds
-        const int failedRequestRetryWaitTimeSeconds = 1;
-        const string testInstrumentationKey = nameof(testInstrumentationKey);
-        const string testApplicationId = nameof(testApplicationId);
-
         [TestMethod, Timeout(testTimeoutMilliseconds)]
         public async Task VerifyHappyPath()
         {
@@ -35,14 +27,15 @@
             stopWatch.Start();
             var fetch1 = await profileServiceWrapper.FetchApplicationIdAsync(testInstrumentationKey);
             Assert.IsNull(fetch1);
+            Assert.IsFalse(profileServiceWrapper.FailedRequestsManager.CanRetry(testInstrumentationKey));
 
             while (!profileServiceWrapper.FailedRequestsManager.CanRetry(testInstrumentationKey))
             {
-                Thread.Sleep(100);
+                Thread.Sleep(failedRequestRetryWaitTime);
             }
 
             stopWatch.Stop();
-            Assert.IsTrue(stopWatch.Elapsed >= TimeSpan.FromSeconds(failedRequestRetryWaitTimeSeconds));
+            Assert.IsTrue(stopWatch.Elapsed >= failedRequestRetryWaitTime);
 
             Assert.IsTrue(profileServiceWrapper.FailedRequestsManager.CanRetry(testInstrumentationKey));
         }
@@ -57,23 +50,9 @@
 
             Assert.IsFalse(profileServiceWrapper.FailedRequestsManager.CanRetry(testInstrumentationKey));
 
-            Thread.Sleep(TimeSpan.FromSeconds(failedRequestRetryWaitTimeSeconds + 1));
+            Thread.Sleep(failedRequestRetryWaitTime + failedRequestRetryWaitTime); // wait for timeout to expire (2x timeout).
 
             Assert.IsFalse(profileServiceWrapper.FailedRequestsManager.CanRetry(testInstrumentationKey));
-        }
-
-        private ProfileServiceWrapper GenerateMockServiceWrapper(HttpStatusCode httpStatus, string testApplicationId = null)
-        {
-            var mock = new Mock<ProfileServiceWrapper>(failedRequestRetryWaitTimeSeconds);
-            mock.Setup(x => x.GetAsync(It.IsAny<string>()))
-                .Returns(() =>
-                {
-                    return Task.FromResult(new HttpResponseMessage(httpStatus)
-                    {
-                        Content = new StringContent(testApplicationId)
-                    });
-                });
-            return mock.Object;
         }
     }
 }

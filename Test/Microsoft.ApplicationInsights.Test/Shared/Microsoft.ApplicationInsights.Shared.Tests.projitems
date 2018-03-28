@@ -30,6 +30,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EnumerableExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CorrelationLookup\ApplicationInsightsCorrelationIdProviderTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CorrelationLookup\CorrelationLookupTestBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CorrelationLookup\DictionaryCorrelationIdProviderTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CorrelationLookup\FailedRequestsManagerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CorrelationLookup\ProfileServiceWrapperTests.cs" />

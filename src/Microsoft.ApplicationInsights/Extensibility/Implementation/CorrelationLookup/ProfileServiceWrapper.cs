@@ -17,9 +17,9 @@
             this.FailedRequestsManager = new FailedRequestsManager();
         }
 
-        internal ProfileServiceWrapper(int failedRequestRetryWaitTimeSeconds)
+        internal ProfileServiceWrapper(TimeSpan failedRequestRetryWaitTime)
         {
-            this.FailedRequestsManager = new FailedRequestsManager(failedRequestRetryWaitTimeSeconds);
+            this.FailedRequestsManager = new FailedRequestsManager(failedRequestRetryWaitTime);
         }
 
         public string ProfileQueryEndpoint { get; set; }

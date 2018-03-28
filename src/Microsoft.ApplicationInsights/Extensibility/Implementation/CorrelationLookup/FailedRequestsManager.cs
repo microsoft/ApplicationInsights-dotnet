@@ -7,15 +7,22 @@
 
     internal class FailedRequestsManager
     {
+        private const int DefaultRetryWaitTimeSeconds = 30;
+
         // Delay between trying to get Application Id once we get a failure while trying to get it. 
         // This is to throttle tries between failures to safeguard against performance hits. The impact would be that telemetry generated during this interval would not have x-component Correlation Id.
-        private readonly TimeSpan retryWaitTimeSeconds;
+        private readonly TimeSpan retryWaitTime;
 
         private ConcurrentDictionary<string, FailedResult> failingInstrumentationKeys = new ConcurrentDictionary<string, FailedResult>();
 
-        internal FailedRequestsManager(int retryWaitTimeSeconds = 30)
+        internal FailedRequestsManager()
         {
-            this.retryWaitTimeSeconds = TimeSpan.FromSeconds(retryWaitTimeSeconds);
+            this.retryWaitTime = TimeSpan.FromSeconds(DefaultRetryWaitTimeSeconds);
+        }
+
+        internal FailedRequestsManager(TimeSpan retryWaitTime)
+        {
+            this.retryWaitTime = retryWaitTime;
         }
 
         /// <summary>
@@ -25,7 +32,7 @@
         /// <param name="httpStatusCode">Response code from Application Id Endpoint.</param>
         public void RegisterFetchFailure(string instrumentationKey, HttpStatusCode httpStatusCode)
         {
-            this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTimeSeconds, httpStatusCode));
+            this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTime, httpStatusCode));
 
             CoreEventSource.Log.CorrelationIdProviderFetchApplicationIdFailedWithResponseCode(httpStatusCode.ToString());
         }
@@ -48,11 +55,11 @@
             }
             else if (ex is WebException webException && webException.Response != null && webException.Response is HttpWebResponse httpWebResponse)
             {
-                this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTimeSeconds, httpWebResponse.StatusCode));
+                this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTime, httpWebResponse.StatusCode));
             }
             else
             {
-                this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTimeSeconds));
+                this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTime));
             }
 
             CoreEventSource.Log.CorrelationIdProviderFetchApplicationIdFailed(this.GetExceptionDetailString(ex));
