@@ -5,6 +5,9 @@
 
     internal static class CorrelationIdHelper
     {
+        /// <summary>
+        /// special string which describes that ID was taken from Breeze
+        /// </summary>
         private const string CorrelationIdFormat = "cid-v1:{0}";
 
         /// <summary>
