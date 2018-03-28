@@ -3,6 +3,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using System;
+    using System.Diagnostics;
     using System.Net;
     using System.Net.Http;
     using System.Threading;
@@ -11,8 +12,9 @@
     [TestClass]
     public class ApplicationInsightsCorrelationIdProviderTests
     {
-        const int testTimeoutMilliseconds = 20000;
+        const int testTimeoutMilliseconds = 20000; // 20 seconds
         const int taskWaitMilliseconds = 200;
+        const int failedRequestRetryWaitTimeSeconds = 2;
         const string testIKey = nameof(testIKey);
         const string testAppId = nameof(testAppId);
         readonly string testCorrelationId = CorrelationIdHelper.FormatAppId(testAppId);
@@ -112,8 +114,10 @@
             mockMethodFailOnceStateBool = false;
             var mockProfileServiceWrapper = GenerateMockServiceWrapper(this.MockMethodFailOnce);
             var aiCorrelationIdProvider = new ApplicationInsightsCorrelationIdProvider(mockProfileServiceWrapper);
+            var stopWatch = new Stopwatch();
 
             Console.WriteLine($"first request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
+            stopWatch.Start();
             Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore1)); // first request will fail
 
             // wait for async tasks to complete
@@ -123,18 +127,18 @@
                 Thread.Sleep(taskWaitMilliseconds);
             }
 
-            Console.WriteLine($"second request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
+            Console.WriteLine($"\nsecond request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
             Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore2)); // first retry should fail, too soon
 
-            //Thread.Sleep(15000); // wait for timeout to expire (15 seconds). //TODO: REPLACE THIS WAIT WITH A LOOP TO WATCH FAILED CANRETRY()
             while(!mockProfileServiceWrapper.FailedRequestsManager.CanRetry(testIKey))
             {
                 Console.WriteLine("wait for retry");
                 Thread.Sleep(taskWaitMilliseconds);
             }
+            stopWatch.Stop();
 
-            Console.WriteLine($"third request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
-            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore3)); // second retry should succeed, will create new request task
+            Console.WriteLine($"\nthird request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
+            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore3)); // second retry should fail (because no matching value), but will create new request task
 
             // wait for async tasks to complete
             while (aiCorrelationIdProvider.IsFetchAppInProgress(testIKey))
@@ -143,11 +147,11 @@
                 Thread.Sleep(taskWaitMilliseconds);
             }
 
-            Console.WriteLine($"fourth request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
+            Console.WriteLine($"\nfourth request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
             Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string actual)); // third retry resolve
 
             Assert.AreEqual(testCorrelationId, actual);
-            Assert.Inconclusive(); //TODO: THIS TEST IS PASSING, BUT IT'S NOT WAITING THE FULL TIMEOUT - failed requests aren't being added to the dictionary
+            Assert.IsTrue(stopWatch.Elapsed >= TimeSpan.FromSeconds(failedRequestRetryWaitTimeSeconds));
         }
 
         [TestMethod, Timeout(testTimeoutMilliseconds)]
@@ -176,7 +180,7 @@
 
         private ProfileServiceWrapper GenerateMockServiceWrapper(HttpStatusCode httpStatus, string testAppId = null)
         {
-            var mock = new Mock<ProfileServiceWrapper>((int)5); //5 seconds default request retry
+            var mock = new Mock<ProfileServiceWrapper>(failedRequestRetryWaitTimeSeconds); 
             mock.Setup(x => x.GetAsync(It.IsAny<string>()))
                 .Returns(() =>
                 {
@@ -190,7 +194,7 @@
 
         private ProfileServiceWrapper GenerateMockServiceWrapper(Func<Task<HttpResponseMessage>> overrideGetAsync)
         {
-            var mock = new Mock<ProfileServiceWrapper>((int)20); //5 seconds before request retry
+            var mock = new Mock<ProfileServiceWrapper>(failedRequestRetryWaitTimeSeconds); 
             mock.Setup(x => x.GetAsync(It.IsAny<string>()))
                 .Returns(overrideGetAsync);
             return mock.Object;

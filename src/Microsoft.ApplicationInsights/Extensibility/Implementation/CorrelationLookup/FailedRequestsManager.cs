@@ -27,7 +27,7 @@
         /// <param name="httpStatusCode">Response code from AppId Endpoint.</param>
         public void RegisterFetchFailure(string instrumentationKey, HttpStatusCode httpStatusCode)
         {
-            this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTimeSeconds, httpStatusCode));
+            Debug.WriteLine("TryAdd failed request: " + this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTimeSeconds, httpStatusCode)));
 
             CorrelationLookupEventSource.Log.FetchAppIdFailedWithResponseCode(httpStatusCode.ToString());
         }
@@ -50,11 +50,11 @@
             }
             else if (ex is WebException webException && webException.Response != null && webException.Response is HttpWebResponse httpWebResponse)
             {
-                this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTimeSeconds, httpWebResponse.StatusCode));
+                Debug.WriteLine("TryAdd failed request: " + this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTimeSeconds, httpWebResponse.StatusCode)));
             }
             else
             {
-                this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTimeSeconds));
+                Debug.WriteLine("TryAdd failed request: " + this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTimeSeconds)));
             }
 
             CorrelationLookupEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
@@ -75,7 +75,7 @@
                 }
             }
 
-            Debug.WriteLine("no failed result found");
+            Debug.WriteLine("no failed result found, is safe to retry.");
             return true;
         }
 
@@ -94,6 +94,9 @@
         /// </summary>
         private class FailedResult
         {
+            private readonly DateTime retryAfterTime;
+            private readonly bool shouldRetry;
+
             /// <summary>
             /// Initializes a new instance of the <see cref="FailedResult" /> class.
             /// </summary>
@@ -101,21 +104,19 @@
             /// <param name="httpStatusCode">Failure response code. Used to determine if we should retry requests.</param>
             public FailedResult(TimeSpan retryAfter, HttpStatusCode httpStatusCode = HttpStatusCode.OK)
             {
-                this.RetryAfterTime = DateTime.UtcNow + retryAfter;
-                Debug.WriteLine($"request failed, wait until: {this.RetryAfterTime.ToString("HH:mm:ss:fffff")}");
+                this.retryAfterTime = DateTime.UtcNow + retryAfter;
+                Debug.WriteLine($"request failed, wait until: {this.retryAfterTime.ToString("HH:mm:ss:fffff")}");
 
                 // Do not retry 4XX failures.
                 var failureCode = (int)httpStatusCode;
-                this.ShouldRetry = !(failureCode >= 400 && failureCode < 500);
+                var is4XX = failureCode >= 400 && failureCode < 500;
+                this.shouldRetry = !is4XX;
+                Debug.WriteLine($"failureCode: {failureCode} is4XX: {is4XX} shouldRetry: {this.shouldRetry}");
             }
-
-            private DateTime RetryAfterTime { get; set; }
-
-            private bool ShouldRetry { get; set; }
 
             public bool CanRetry()
             {
-                var value = this.ShouldRetry && DateTime.UtcNow > this.RetryAfterTime;
+                var value = this.shouldRetry && DateTime.UtcNow > this.retryAfterTime;
                 Debug.WriteLine($"CanRetry: {value}");
                 return value;
             }

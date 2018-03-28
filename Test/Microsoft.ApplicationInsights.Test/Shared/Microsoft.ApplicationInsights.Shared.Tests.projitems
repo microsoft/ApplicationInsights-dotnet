@@ -31,6 +31,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)EnumerableExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CorrelationLookup\ApplicationInsightsCorrelationIdProviderTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CorrelationLookup\DictionaryCorrelationIdProviderTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CorrelationLookup\FailedRequestsManagerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CorrelationLookup\StaticCorrelationIdProviderTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationHolderTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonSerializerTest.cs" />
