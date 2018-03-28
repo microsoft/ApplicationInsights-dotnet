@@ -27,7 +27,7 @@
         {
             this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTimeSeconds, httpStatusCode));
 
-            CorrelationLookupEventSource.Log.FetchApplicationIdFailedWithResponseCode(httpStatusCode.ToString());
+            CoreEventSource.Log.CorrelationIdProviderFetchApplicationIdFailedWithResponseCode(httpStatusCode.ToString());
         }
 
         /// <summary>
@@ -55,7 +55,7 @@
                 this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTimeSeconds));
             }
 
-            CorrelationLookupEventSource.Log.FetchApplicationIdFailed(this.GetExceptionDetailString(ex));
+            CoreEventSource.Log.CorrelationIdProviderFetchApplicationIdFailed(this.GetExceptionDetailString(ex));
         }
 
         public bool CanRetry(string instrumentationKey)
