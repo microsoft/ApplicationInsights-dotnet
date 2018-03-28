@@ -14,10 +14,10 @@
     {
         const int testTimeoutMilliseconds = 20000; // 20 seconds
         const int taskWaitMilliseconds = 200;
-        const int failedRequestRetryWaitTimeSeconds = 2;
-        const string testIKey = nameof(testIKey);
-        const string testAppId = nameof(testAppId);
-        readonly string testCorrelationId = CorrelationIdHelper.FormatAppId(testAppId);
+        const int failedRequestRetryWaitTimeSeconds = 1;
+        const string testInstrumentationKey = nameof(testInstrumentationKey);
+        const string testApplicationId = nameof(testApplicationId);
+        readonly string testCorrelationId = CorrelationIdHelper.FormatApplicationId(testApplicationId);
 
         /// <summary>
         /// Lookup is expected to fail on first call, this is how it invokes the Http request.
@@ -25,10 +25,10 @@
         [TestMethod, Timeout(testTimeoutMilliseconds)]
         public void VerifyFailsOnFirstRequest()
         {
-            var mockProfileServiceWrapper = GenerateMockServiceWrapper(HttpStatusCode.OK, testAppId);
+            var mockProfileServiceWrapper = GenerateMockServiceWrapper(HttpStatusCode.OK, testApplicationId);
             var aiCorrelationIdProvider = new ApplicationInsightsCorrelationIdProvider(mockProfileServiceWrapper);
 
-            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore));
+            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string ignore));
         }
 
         /// <summary>
@@ -37,20 +37,20 @@
         [TestMethod, Timeout(testTimeoutMilliseconds)]
         public void VerifySucceedsOnSecondRequest()
         {
-            var mockProfileServiceWrapper = GenerateMockServiceWrapper(HttpStatusCode.OK, testAppId);
+            var mockProfileServiceWrapper = GenerateMockServiceWrapper(HttpStatusCode.OK, testApplicationId);
             var aiCorrelationIdProvider = new ApplicationInsightsCorrelationIdProvider(mockProfileServiceWrapper);
 
             // first request expected to fail
-            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore));
+            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string ignore));
 
             // wait for async tasks to complete
-            while (aiCorrelationIdProvider.IsFetchAppInProgress(testIKey))
+            while (aiCorrelationIdProvider.IsFetchAppInProgress(testInstrumentationKey))
             {
                 Console.WriteLine("wait");
                 Thread.Sleep(taskWaitMilliseconds);
             }
 
-            Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string actual));
+            Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string actual));
             Assert.AreEqual(testCorrelationId, actual);
         }
 
@@ -58,30 +58,30 @@
         /// Protect against injection attacks. Test that if an malicious value is returned, that value will be truncated.
         /// </summary>
         [TestMethod, Timeout(testTimeoutMilliseconds)]
-        public void VerifyMaliciousAppIdIsTruncated() 
+        public void VerifyMaliciousApplicationIdIsTruncated() 
         {
             // 50 character string.
-            var testAppId = "a123456789b123546789c123456789d123456798e123456789";
+            var testApplicationId = "a123456789b123546789c123456789d123456798e123456789";
 
             // An arbitrary string that is expected to be truncated.
             var malicious = "00000000000000000000000000000000000000000000000000000000000";
 
-            var testCorrelationId = CorrelationIdHelper.FormatAppId(testAppId);
+            var testCorrelationId = CorrelationIdHelper.FormatApplicationId(testApplicationId);
 
-            var mockProfileServiceWrapper = GenerateMockServiceWrapper(HttpStatusCode.OK, testAppId + malicious);
+            var mockProfileServiceWrapper = GenerateMockServiceWrapper(HttpStatusCode.OK, testApplicationId + malicious);
             var aiCorrelationIdProvider = new ApplicationInsightsCorrelationIdProvider(mockProfileServiceWrapper);
 
             // first request expected to fail
-            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore));
+            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string ignore));
 
             // wait for async tasks to complete
-            while (aiCorrelationIdProvider.IsFetchAppInProgress(testIKey)) 
+            while (aiCorrelationIdProvider.IsFetchAppInProgress(testInstrumentationKey)) 
             {
                 Console.WriteLine("wait");
                 Thread.Sleep(taskWaitMilliseconds);
             }
 
-            Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string actual));
+            Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string actual));
             Assert.AreEqual(testCorrelationId, actual);
         }
 
@@ -95,20 +95,20 @@
                 Console.WriteLine($"sleep stop: {DateTime.UtcNow}");
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(testAppId)
+                    Content = new StringContent(testApplicationId)
                 });
             });
             var aiCorrelationIdProvider = new ApplicationInsightsCorrelationIdProvider(mockProfileServiceWrapper);
 
             Console.WriteLine($"first request: {DateTime.UtcNow}");
-            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore1));
+            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string ignore1));
             Console.WriteLine($"second request: {DateTime.UtcNow}");
-            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore2));
+            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string ignore2));
 
             Assert.AreEqual(1, aiCorrelationIdProvider.FetchTasks.Count);
         }
 
-        [TestMethod]//, Timeout(testTimeoutMilliseconds)]
+        [TestMethod, Timeout(testTimeoutMilliseconds)]
         public void VerifyWhenRequestFailsWillWaitBeforeRetry() 
         {
             mockMethodFailOnceStateBool = false;
@@ -118,19 +118,19 @@
 
             Console.WriteLine($"first request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
             stopWatch.Start();
-            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore1)); // first request will fail
+            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string ignore1)); // first request will fail
 
             // wait for async tasks to complete
-            while (aiCorrelationIdProvider.IsFetchAppInProgress(testIKey))
+            while (aiCorrelationIdProvider.IsFetchAppInProgress(testInstrumentationKey))
             {
                 Console.WriteLine("wait for task");
                 Thread.Sleep(taskWaitMilliseconds);
             }
 
-            //Console.WriteLine($"\nsecond request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
-            //Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore2)); // first retry should fail, too soon
+            Console.WriteLine($"\nsecond request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
+            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string ignore2)); // first retry should fail, too soon
 
-            while(!mockProfileServiceWrapper.FailedRequestsManager.CanRetry(testIKey))
+            while(!mockProfileServiceWrapper.FailedRequestsManager.CanRetry(testInstrumentationKey))
             {
                 Console.WriteLine("wait for retry");
                 Thread.Sleep(taskWaitMilliseconds);
@@ -139,17 +139,17 @@
             Assert.IsTrue(stopWatch.Elapsed >= TimeSpan.FromSeconds(failedRequestRetryWaitTimeSeconds), "too fast, did not wait timeout");
 
             Console.WriteLine($"\nthird request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
-            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore3)); // second retry should fail (because no matching value), but will create new request task
+            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string ignore3)); // second retry should fail (because no matching value), but will create new request task
 
             // wait for async tasks to complete
-            while (aiCorrelationIdProvider.IsFetchAppInProgress(testIKey))
+            while (aiCorrelationIdProvider.IsFetchAppInProgress(testInstrumentationKey))
             {
                 Console.WriteLine("wait for task");
                 Thread.Sleep(taskWaitMilliseconds);
             }
 
             Console.WriteLine($"\nfourth request: {DateTime.UtcNow.ToString("HH:mm:ss:fffff")}");
-            Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string actual)); // third retry resolve
+            Assert.IsTrue(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string actual)); // third retry resolve
 
             Assert.AreEqual(testCorrelationId, actual);
             
@@ -162,24 +162,24 @@
             var aiCorrelationIdProvider = new ApplicationInsightsCorrelationIdProvider(mockProfileServiceWrapper);
 
             Console.WriteLine("first request");
-            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore1));
+            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string ignore1));
 
             // wait for async tasks to complete
-            while (aiCorrelationIdProvider.IsFetchAppInProgress(testIKey))
+            while (aiCorrelationIdProvider.IsFetchAppInProgress(testInstrumentationKey))
             {
                 Console.WriteLine("wait");
                 Thread.Sleep(taskWaitMilliseconds);
             }
 
             Console.WriteLine("second request");
-            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore2)); // retry should fail, fatal error
+            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string ignore2)); // retry should fail, fatal error
             Thread.Sleep(15000); // wait for timeout to expire (15 seconds).
 
             Console.WriteLine("third request");
-            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testIKey, out string ignore3)); // retry should still fail, fatal error
+            Assert.IsFalse(aiCorrelationIdProvider.TryGetCorrelationId(testInstrumentationKey, out string ignore3)); // retry should still fail, fatal error
         }
 
-        private ProfileServiceWrapper GenerateMockServiceWrapper(HttpStatusCode httpStatus, string testAppId = null)
+        private ProfileServiceWrapper GenerateMockServiceWrapper(HttpStatusCode httpStatus, string testApplicationId = null)
         {
             var mock = new Mock<ProfileServiceWrapper>(failedRequestRetryWaitTimeSeconds); 
             mock.Setup(x => x.GetAsync(It.IsAny<string>()))
@@ -187,7 +187,7 @@
                 {
                     return Task.FromResult(new HttpResponseMessage(httpStatus)
                     {
-                        Content = new StringContent(testAppId)
+                        Content = new StringContent(testApplicationId)
                     });
                 });
             return mock.Object;
@@ -213,7 +213,7 @@
             {
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(testAppId)
+                    Content = new StringContent(testApplicationId)
                 });
             }
             else

@@ -1,11 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics.Tracing;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// ETW EventSource tracing class.
@@ -27,7 +23,7 @@
             Keywords = Keywords.UserActionable,
             Message = "Failed to retrieve App Id for the current application insights resource. Make sure the configured instrumentation key is valid. Error: {0}",
             Level = EventLevel.Warning)]
-        public void FetchAppIdFailed(string exception)
+        public void FetchApplicationIdFailed(string exception)
         {
             this.WriteEvent(1, exception, this.ApplicationName);
         }
@@ -37,7 +33,7 @@
             Keywords = Keywords.UserActionable,
             Message = "Failed to retrieve App Id for the current application insights resource. Endpoint returned HttpStatusCode: {0}",
             Level = EventLevel.Warning)]
-        public void FetchAppIdFailedWithResponseCode(string httpStatusCode)
+        public void FetchApplicationIdFailedWithResponseCode(string httpStatusCode)
         {
             this.WriteEvent(6, httpStatusCode, this.ApplicationName);
         }

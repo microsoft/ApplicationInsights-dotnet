@@ -10,8 +10,8 @@
         const string testIkey2 = nameof(testIkey2);
         const string testAppId1 = nameof(testAppId1);
         const string testAppId2 = nameof(testAppId2);
-        readonly string testCorrelationId1 = CorrelationIdHelper.FormatAppId(testAppId1);
-        readonly string testCorrelationId2 = CorrelationIdHelper.FormatAppId(testAppId2);
+        readonly string testCorrelationId1 = CorrelationIdHelper.FormatApplicationId(testAppId1);
+        readonly string testCorrelationId2 = CorrelationIdHelper.FormatApplicationId(testAppId2);
         ICorrelationIdProvider correlationIdProvider;
 
         [TestInitialize]

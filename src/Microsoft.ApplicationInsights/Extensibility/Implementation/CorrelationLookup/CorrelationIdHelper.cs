@@ -8,32 +8,32 @@
         private const string CorrelationIdFormat = "cid-v1:{0}";
 
         /// <summary>
-        /// Max length of AppId allowed in response from Breeze.
+        /// Max length of Application Id allowed in response from Breeze.
         /// </summary>
-        private const int AppIdMaxLengeth = 50;
+        private const int ApplicationIdMaxLengeth = 50;
 
         /// <summary>
-        /// Format an AppId string (ex: 00000000-0000-0000-0000-000000000000) 
-        /// to a CorrelationId string (ex: ex: cid-v1:00000000-0000-0000-0000-000000000000).
+        /// Format an Application Id string (ex: 00000000-0000-0000-0000-000000000000) 
+        /// to a Correlation Id string (ex: ex: cid-v1:00000000-0000-0000-0000-000000000000).
         /// </summary>
-        /// <param name="appId">Application Id is expected to be a Guid string.</param>
+        /// <param name="applicationId">Application Id is expected to be a Guid string.</param>
         /// <remarks>
-        /// To protect against injection attacks, AppId will be truncated to a maximum length.
-        /// CorrelationIds are expected to Http Header safe, and all non-ASCII characters will be removed.
+        /// To protect against injection attacks, Application Id will be truncated to a maximum length.
+        /// Correlation Ids are expected to Http Header safe, and all non-ASCII characters will be removed.
         /// </remarks>
-        internal static string FormatAppId(string appId)
+        internal static string FormatApplicationId(string applicationId)
         {
             // Arbitrary maximum length to guard against injections.
-            appId = EnforceMaxLength(appId, AppIdMaxLengeth);
-            if (string.IsNullOrWhiteSpace(appId))
+            applicationId = EnforceMaxLength(applicationId, ApplicationIdMaxLengeth);
+            if (string.IsNullOrWhiteSpace(applicationId))
             {
                 return null;
             }
 
             // String must be sanitized to include only characters safe for http header.
-            appId = SanitizeString(appId);
+            applicationId = SanitizeString(applicationId);
 
-            return string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, appId);
+            return string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, applicationId);
         }
 
         /// <summary>

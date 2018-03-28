@@ -24,7 +24,7 @@
 
         public string ProfileQueryEndpoint { get; set; }
 
-        public async Task<string> FetchAppIdAsync(string instrumentationKey)
+        public async Task<string> FetchApplicationIdAsync(string instrumentationKey)
         {
             if (this.FailedRequestsManager.CanRetry(instrumentationKey))
             {
@@ -53,15 +53,15 @@
         /// <remarks>This method is internal so it can be moq-ed in a unit test.</remarks>
         internal virtual async Task<HttpResponseMessage> GetAsync(string instrumentationKey)
         {
-            Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey.ToLowerInvariant());
-            return await this.httpClient.GetAsync(appIdEndpoint).ConfigureAwait(false);
+            Uri applicationIdEndpoint = this.GetApplicationIdEndPointUri(instrumentationKey.ToLowerInvariant());
+            return await this.httpClient.GetAsync(applicationIdEndpoint).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Retrieves the AppId given the instrumentation key.
+        /// Retrieves the Application Id given the Instrumentation Key.
         /// </summary>
-        /// <param name="instrumentationKey">Instrumentation key for which AppId is to be retrieved.</param>
-        /// <returns>Task to resolve AppId.</returns>
+        /// <param name="instrumentationKey">Instrumentation key for which Application Id is to be retrieved.</param>
+        /// <returns>Task to resolve Application Id.</returns>
         private async Task<string> SendRequestAsync(string instrumentationKey)
         {
             try
@@ -86,11 +86,11 @@
         }
 
         /// <summary>
-        /// Strips off any relative path at the end of the base URI and then appends the known relative path to get the app id uri.
+        /// Strips off any relative path at the end of the base URI and then appends the known relative path to get the Application Id uri.
         /// </summary>
-        /// <param name="instrumentationKey">AI resource's instrumentation key.</param>
+        /// <param name="instrumentationKey">AI resource's Instrumentation Key.</param>
         /// <returns>Computed Uri.</returns>
-        private Uri GetAppIdEndPointUri(string instrumentationKey)
+        private Uri GetApplicationIdEndPointUri(string instrumentationKey)
         {
             if (this.ProfileQueryEndpoint != null)
             {

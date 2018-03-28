@@ -11,7 +11,7 @@
             string testIkey1 = nameof(testIkey1);
             string testIkey2 = nameof(testIkey2);
             string testAppId = nameof(testAppId);
-            string testCorrelationId = CorrelationIdHelper.FormatAppId(testAppId);
+            string testCorrelationId = CorrelationIdHelper.FormatApplicationId(testAppId);
 
             var correlationIdProvider = new StaticCorrelationIdProvider()
             {

@@ -1,12 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup
 {
     /// <summary>
-    /// Correlation Id Provider that holds a single CorrelationId value that will be returned for every request.
+    /// Correlation Id Provider that holds a single Correlation Id value that will be returned for every request.
     /// </summary>
     public class StaticCorrelationIdProvider : ICorrelationIdProvider
     {
         /// <summary>
-        /// Gets or sets a CorrelationId.
+        /// Gets or sets a Correlation Id.
         /// </summary>
         public string CorrelationId { get; set; }
 

@@ -10,20 +10,19 @@
     public class FailedRequestsManagerTests
     {
         const int testTimeoutMilliseconds = 20000; // 20 seconds
-        const int failedRequestRetryWaitTimeSeconds = 2;
-        const string testIkey = nameof(testIkey);
+        const int failedRequestRetryWaitTimeSeconds = 1;
+        const string testInstrumentationKey = nameof(testInstrumentationKey);
 
         [TestMethod, Timeout(testTimeoutMilliseconds)]
         public void VerifyRetryTimeout()
         {
             var stopWatch = new Stopwatch();
-
             var failedRequestsManager = new FailedRequestsManager(failedRequestRetryWaitTimeSeconds);
             
             stopWatch.Start();
-            failedRequestsManager.RegisterFetchFailure(testIkey, new Exception());
+            failedRequestsManager.RegisterFetchFailure(testInstrumentationKey, new Exception());
 
-            while(!failedRequestsManager.CanRetry(testIkey))
+            while(!failedRequestsManager.CanRetry(testInstrumentationKey))
             {
                 Thread.Sleep(100);
             }
@@ -37,13 +36,13 @@
         {
             var failedRequestsManager = new FailedRequestsManager(failedRequestRetryWaitTimeSeconds);
 
-            failedRequestsManager.RegisterFetchFailure(testIkey, HttpStatusCode.InternalServerError);
+            failedRequestsManager.RegisterFetchFailure(testInstrumentationKey, HttpStatusCode.InternalServerError);
 
-            Assert.IsFalse(failedRequestsManager.CanRetry(testIkey)); //TODO: SHOULD CHECK WITH A LOOP
+            Assert.IsFalse(failedRequestsManager.CanRetry(testInstrumentationKey)); //TODO: SHOULD CHECK WITH A LOOP
 
             Thread.Sleep(TimeSpan.FromSeconds(failedRequestRetryWaitTimeSeconds + 1));
 
-            Assert.IsTrue(failedRequestsManager.CanRetry(testIkey));
+            Assert.IsTrue(failedRequestsManager.CanRetry(testInstrumentationKey));
         }
 
         [TestMethod, Timeout(testTimeoutMilliseconds)]
@@ -51,13 +50,13 @@
         {
             var failedRequestsManager = new FailedRequestsManager(failedRequestRetryWaitTimeSeconds);
 
-            failedRequestsManager.RegisterFetchFailure(testIkey, HttpStatusCode.NotFound);
+            failedRequestsManager.RegisterFetchFailure(testInstrumentationKey, HttpStatusCode.NotFound);
 
-            Assert.IsFalse(failedRequestsManager.CanRetry(testIkey));
+            Assert.IsFalse(failedRequestsManager.CanRetry(testInstrumentationKey));
 
             Thread.Sleep(TimeSpan.FromSeconds(failedRequestRetryWaitTimeSeconds + 1));
 
-            Assert.IsFalse(failedRequestsManager.CanRetry(testIkey));
+            Assert.IsFalse(failedRequestsManager.CanRetry(testInstrumentationKey));
         }
     }
 }
