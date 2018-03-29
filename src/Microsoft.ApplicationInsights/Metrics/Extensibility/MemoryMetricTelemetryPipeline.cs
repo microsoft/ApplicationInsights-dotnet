@@ -6,11 +6,11 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    /// <summary>@ToDo: Complete documentation before stable release.</summary>
+    /// <summary>@ToDo: Complete documentation before stable release. {079}</summary>
     /// @PublicExposureCandidate
     internal class MemoryMetricTelemetryPipeline : IMetricTelemetryPipeline, IReadOnlyList<MetricAggregate>
     {
-        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {529}</summary>
         public const int CountLimitDefault = 1000;
 
         private readonly Task completedTask = Task.FromResult(true);
@@ -18,14 +18,14 @@
 
         private readonly IList<MetricAggregate> metricAgregates = new List<MetricAggregate>();
 
-        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {846}</summary>
         public MemoryMetricTelemetryPipeline()
             : this(CountLimitDefault)
         {
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release.</summary>
-        /// <param name="countLimit">@ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release. {195}</summary>
+        /// <param name="countLimit">@ToDo: Complete documentation before stable release. {153}</param>
         public MemoryMetricTelemetryPipeline(int countLimit)
         {
             if (countLimit <= 0)
@@ -36,10 +36,10 @@
             this.CountLimit = countLimit;
         }
 
-        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release. {953}</summary>
         public int CountLimit { get; }
 
-        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release. {917}</summary>
         public int Count
         {
             get
@@ -59,9 +59,9 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release.</summary>
-        /// <param name="index">@ToDo: Complete documentation before stable release.</param>
-        /// <returns>@ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release. {823}</summary>
+        /// <param name="index">@ToDo: Complete documentation before stable release. {470}</param>
+        /// <returns>@ToDo: Complete documentation before stable release. {699}</returns>
         public MetricAggregate this[int index]
         {
             get
@@ -81,7 +81,7 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {169}</summary>
         public void Clear()
         {
             this.updateLock.WaitAsync().GetAwaiter().GetResult();
@@ -95,10 +95,10 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metricAggregate">@ToDo: Complete documentation before stable release.</param>
-        /// <param name="cancelToken">@ToDo: Complete documentation before stable release.</param>
-        /// <returns>@ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release. {319}</summary>
+        /// <param name="metricAggregate">@ToDo: Complete documentation before stable release. {915}</param>
+        /// <param name="cancelToken">@ToDo: Complete documentation before stable release. {929}</param>
+        /// <returns>@ToDo: Complete documentation before stable release. {190}</returns>
         public async Task TrackAsync(MetricAggregate metricAggregate, CancellationToken cancelToken)
         {
             Util.ValidateNotNull(metricAggregate, nameof(metricAggregate));
@@ -119,9 +119,9 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release.</summary>
-        /// <param name="cancelToken">@ToDo: Complete documentation before stable release.</param>
-        /// <returns>@ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release. {094}</summary>
+        /// <param name="cancelToken">@ToDo: Complete documentation before stable release. {776}</param>
+        /// <returns>@ToDo: Complete documentation before stable release. {084}</returns>
         public Task FlushAsync(CancellationToken cancelToken)
         {
             return Task.FromResult(true);

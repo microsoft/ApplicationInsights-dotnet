@@ -5,19 +5,19 @@
     using System.Globalization;
     using Microsoft.ApplicationInsights.DataContracts;
 
-    /// <summary>@ToDo: Complete documentation before stable release.</summary>
+    /// <summary>@ToDo: Complete documentation before stable release. {533}</summary>
     /// @PublicExposureCandidate
     internal abstract class MetricAggregateToApplicationInsightsPipelineConverterBase : IMetricAggregateToTelemetryPipelineConverter
     {
-        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {918}</summary>
         public const string AggregationIntervalMonikerPropertyKey = "_MS.AggregationIntervalMs";
 
-        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>s
+        /// <summary>Gets @ToDo: Complete documentation before stable release. {692}</summary>s
         public abstract string AggregationKindMoniker { get; }
 
-        /// <summary>@ToDo: Complete documentation before stable release.</summary>
-        /// <param name="aggregate">@ToDo: Complete documentation before stable release.</param>
-        /// <returns>@ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release. {200}</summary>
+        /// <param name="aggregate">@ToDo: Complete documentation before stable release. {793}</param>
+        /// <returns>@ToDo: Complete documentation before stable release. {084}</returns>
         public object Convert(MetricAggregate aggregate)
         {
             this.ValidateAggregate(aggregate);
@@ -26,9 +26,9 @@
             return telemetryItem;
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release.</summary>
-        /// <param name="telemetryItem">@ToDo: Complete documentation before stable release.</param>
-        /// <param name="aggregate">@ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release. {632}</summary>
+        /// <param name="telemetryItem">@ToDo: Complete documentation before stable release. {469}</param>
+        /// <param name="aggregate">@ToDo: Complete documentation before stable release. {380}</param>
         protected abstract void PopulateDataValues(MetricTelemetry telemetryItem, MetricAggregate aggregate);
 
         private static void PopulateTelemetryContext(
