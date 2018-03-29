@@ -1,14 +1,14 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId
 {
     using System.Globalization;
     using System.Text.RegularExpressions;
 
-    internal static class CorrelationIdHelper
+    internal static class ApplicationIdHelper
     {
         /// <summary>
         /// special string which describes that ID was taken from Breeze
         /// </summary>
-        private const string CorrelationIdFormat = "cid-v1:{0}";
+        private const string Format = "cid-v1:{0}";
 
         /// <summary>
         /// Max length of Application Id allowed in response from Breeze.
@@ -17,14 +17,14 @@
 
         /// <summary>
         /// Format an Application Id string (ex: 00000000-0000-0000-0000-000000000000) 
-        /// to a Correlation Id string (ex: ex: cid-v1:00000000-0000-0000-0000-000000000000).
+        /// as (ex: cid-v1:00000000-0000-0000-0000-000000000000).
         /// </summary>
         /// <param name="applicationId">Application Id is expected to be a Guid string.</param>
         /// <remarks>
         /// To protect against injection attacks, Application Id will be truncated to a maximum length.
-        /// Correlation Ids are expected to Http Header safe, and all non-ASCII characters will be removed.
+        /// Application Ids are expected to Http Header safe, and all non-ASCII characters will be removed.
         /// </remarks>
-        internal static string FormatApplicationId(string applicationId)
+        internal static string ApplyFormatting(string applicationId)
         {
             // Arbitrary maximum length to guard against injections.
             applicationId = EnforceMaxLength(applicationId, ApplicationIdMaxLengeth);
@@ -36,7 +36,7 @@
             // String must be sanitized to include only characters safe for http header.
             applicationId = SanitizeString(applicationId);
 
-            return string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, applicationId);
+            return string.Format(CultureInfo.InvariantCulture, Format, applicationId);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@
         }
 
         /// <summary>
-        /// Http Headers only allow Printable US-ASCII characters.
+        /// Application Id will eventually end up in Http Headers, which only allow Printable US-ASCII characters.
         /// Remove all other characters.
         /// </summary>
         private static string SanitizeString(string input)

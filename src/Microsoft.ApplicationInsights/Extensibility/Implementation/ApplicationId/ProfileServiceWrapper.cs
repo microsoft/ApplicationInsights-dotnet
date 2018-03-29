@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId
 {
     using System;
     using System.Globalization;

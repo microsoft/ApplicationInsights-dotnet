@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Diagnostics;
@@ -7,7 +7,7 @@
     using System.Threading.Tasks;
 
     [TestClass]
-    public class ProfileServiceWrapperTests : CorrelationLookupTestBase
+    public class ProfileServiceWrapperTests : ApplicationIdTestBase
     {
         [TestMethod, Timeout(testTimeoutMilliseconds)]
         public async Task VerifyHappyPath()

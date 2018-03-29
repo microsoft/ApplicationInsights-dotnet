@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId
 {
     using Moq;
     using System;
@@ -6,17 +6,19 @@
     using System.Net.Http;
     using System.Threading.Tasks;
 
-    public class CorrelationLookupTestBase
+    public class ApplicationIdTestBase
     {
         public const int testTimeoutMilliseconds = 20000; // 20 seconds
         public const int taskWaitMilliseconds = 50;
         private const int failedRequestRetryWaitTimeMilliseconds = 100;
+
         public const string testInstrumentationKey = nameof(testInstrumentationKey);
         public const string testApplicationId = nameof(testApplicationId);
-        public readonly string testCorrelationId = CorrelationIdHelper.FormatApplicationId(testApplicationId);
+        public readonly string testFormattedApplicationId = ApplicationIdHelper.ApplyFormatting(testApplicationId);
+
         public readonly TimeSpan failedRequestRetryWaitTime;
 
-        public CorrelationLookupTestBase()
+        public ApplicationIdTestBase()
         {
             this.failedRequestRetryWaitTime = TimeSpan.FromMilliseconds(failedRequestRetryWaitTimeMilliseconds);
         }

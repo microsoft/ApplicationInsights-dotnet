@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
@@ -7,7 +7,7 @@
     using System.Threading;
 
     [TestClass]
-    public class FailedRequestsManagerTests : CorrelationLookupTestBase
+    public class FailedRequestsManagerTests : ApplicationIdTestBase
     {
         [TestMethod, Timeout(testTimeoutMilliseconds)]
         public void VerifyRetryTimeout()

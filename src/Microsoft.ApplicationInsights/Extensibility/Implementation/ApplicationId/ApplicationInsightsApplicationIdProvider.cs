@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId
 {
     using System;
     using System.Collections.Concurrent;
@@ -6,11 +6,11 @@
     using Extensibility;
 
     /// <summary>
-    /// This <see cref="ApplicationInsightsCorrelationIdProvider"/> will query the Application Insights' Breeze endpoint to lookup an application id based on Instrumentation Key.
+    /// This <see cref="ApplicationInsightsApplicationIdProvider"/> will query the Application Insights' Breeze endpoint to lookup an Application Id based on Instrumentation Key.
     /// This will cache lookup results to prevent repeat queries.
     /// This will rely on the <see cref="ProfileServiceWrapper" /> and <see cref="FailedRequestsManager" /> to record failed requests and block additional failing requests.
     /// </summary>
-    public sealed class ApplicationInsightsCorrelationIdProvider : ICorrelationIdProvider, IDisposable
+    public sealed class ApplicationInsightsApplicationIdProvider : IApplicationIdProvider, IDisposable
     {
         internal ConcurrentDictionary<string, bool> FetchTasks = new ConcurrentDictionary<string, bool>();
 
@@ -21,20 +21,20 @@
 
         private readonly ProfileServiceWrapper applicationIdProvider;
 
-        private ConcurrentDictionary<string, string> knownCorrelationIds = new ConcurrentDictionary<string, string>();
+        private ConcurrentDictionary<string, string> knownApplicationIds = new ConcurrentDictionary<string, string>();
 
         /// <summary>
-        /// Initialize a new instance of the <see cref="ApplicationInsightsCorrelationIdProvider"/> class.
+        /// Initialize a new instance of the <see cref="ApplicationInsightsApplicationIdProvider"/> class.
         /// </summary>
-        public ApplicationInsightsCorrelationIdProvider()
+        public ApplicationInsightsApplicationIdProvider()
         {
             this.applicationIdProvider = new ProfileServiceWrapper();
         }
 
         /// <summary>
-        /// Unit Test Only! Initializes a new instance of the <see cref="ApplicationInsightsCorrelationIdProvider" /> class and accepts mocks for fetching Application Id.
+        /// Unit Test Only! Initializes a new instance of the <see cref="ApplicationInsightsApplicationIdProvider" /> class and accepts mocks for fetching Application Id.
         /// </summary>
-        internal ApplicationInsightsCorrelationIdProvider(ProfileServiceWrapper profileServiceWrapper)
+        internal ApplicationInsightsApplicationIdProvider(ProfileServiceWrapper profileServiceWrapper)
         {
             this.applicationIdProvider = profileServiceWrapper;
         }
@@ -58,26 +58,26 @@
         }
 
         /// <summary>
-        /// Retrieves the Correlation Id corresponding to a given Instrumentation Key.
+        /// Retrieves the Application Id corresponding to a given Instrumentation Key.
         /// </summary>
         /// <param name="instrumentationKey">Instrumentation Key string.</param>
-        /// <param name="correlationId">Application Id corresponding to the provided Instrumentation Key.</param>
-        /// <returns>TRUE if Correlation Id was successfully retrieved, FALSE otherwise.</returns>
-        public bool TryGetCorrelationId(string instrumentationKey, out string correlationId)
+        /// <param name="applicationId">Application Id corresponding to the provided Instrumentation Key.</param>
+        /// <returns>TRUE if Application Id was successfully retrieved, FALSE otherwise.</returns>
+        public bool TryGetApplicationId(string instrumentationKey, out string applicationId)
         {
-            correlationId = null;
+            applicationId = null;
 
             if (string.IsNullOrEmpty(instrumentationKey))
             {
                 return false;
             }
-            else if (this.knownCorrelationIds.TryGetValue(instrumentationKey, out correlationId))
+            else if (this.knownApplicationIds.TryGetValue(instrumentationKey, out applicationId))
             {
                 return true;
             }
             else
             {
-                this.FetchCorrelationId(instrumentationKey);
+                this.FetchApplicationId(instrumentationKey);
                 return false;
             }
         }
@@ -91,14 +91,14 @@
             return this.FetchTasks.ContainsKey(instrumentationKey);
         }
 
-        private void FetchCorrelationId(string instrumentationKey)
+        private void FetchApplicationId(string instrumentationKey)
         {
             if (this.FetchTasks.TryAdd(instrumentationKey, true))
             {
                 // Simplistic cleanup to guard against this becoming a memory hog.
-                if (this.knownCorrelationIds.Keys.Count >= MAXSIZE)
+                if (this.knownApplicationIds.Keys.Count >= MAXSIZE)
                 {
-                    this.knownCorrelationIds.Clear();
+                    this.knownApplicationIds.Clear();
                 }
 
                 // add this task to the thread pool. 
@@ -106,7 +106,7 @@
                 Task.Run(() => this.applicationIdProvider.FetchApplicationIdAsync(instrumentationKey))
                     .ContinueWith((applicationIdTask) =>
                         {
-                            this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, applicationIdTask.Result);
+                            this.FormatAndAddToDictionary(instrumentationKey, applicationIdTask.Result);
 
                             this.FetchTasks.TryRemove(instrumentationKey, out bool ignoreValue);
                         })
@@ -115,15 +115,15 @@
         }
 
         /// <summary>
-        /// Format and store an Instrumentation Key and Application Id pair into the dictionary of known Correlation Ids.
+        /// Format and store an Instrumentation Key and Application Id pair into the dictionary of known Application Ids.
         /// </summary>
         /// <param name="instrumentationKey">Instrumentation Key is expected to be a Guid string.</param>
         /// <param name="applicationId">Application Id is expected to be a Guid string. </param>
-        private void GenerateCorrelationIdAndAddToDictionary(string instrumentationKey, string applicationId)
+        private void FormatAndAddToDictionary(string instrumentationKey, string applicationId)
         {
             if (!string.IsNullOrEmpty(instrumentationKey) && !string.IsNullOrEmpty(applicationId))
             {
-                this.knownCorrelationIds.TryAdd(instrumentationKey, CorrelationIdHelper.FormatApplicationId(applicationId));
+                this.knownApplicationIds.TryAdd(instrumentationKey, ApplicationIdHelper.ApplyFormatting(applicationId));
             }
         }
     }

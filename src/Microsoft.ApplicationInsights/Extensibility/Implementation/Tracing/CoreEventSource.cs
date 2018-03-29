@@ -497,7 +497,7 @@
             Keywords = Keywords.UserActionable,
             Message = "Failed to retrieve Application Id for the current application insights resource. Make sure the configured instrumentation key is valid. Error: {0}",
             Level = EventLevel.Warning)]
-        public void CorrelationIdProviderFetchApplicationIdFailed(string exception)
+        public void ApplicationIdProviderFetchApplicationIdFailed(string exception, string appDomainName = "Incorrect")
         {
             this.WriteEvent(41, exception, this.nameProvider.Name);
         }
@@ -507,7 +507,7 @@
             Keywords = Keywords.UserActionable,
             Message = "Failed to retrieve Application Id for the current application insights resource. Endpoint returned HttpStatusCode: {0}",
             Level = EventLevel.Warning)]
-        public void CorrelationIdProviderFetchApplicationIdFailedWithResponseCode(string httpStatusCode)
+        public void ApplicationIdProviderFetchApplicationIdFailedWithResponseCode(string httpStatusCode, string appDomainName = "Incorrect")
         {
             this.WriteEvent(42, httpStatusCode, this.nameProvider.Name);
         }

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.CorrelationLookup
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId
 {
     using System;
     using System.Collections.Concurrent;
@@ -10,7 +10,7 @@
         private const int DefaultRetryWaitTimeSeconds = 30;
 
         // Delay between trying to get Application Id once we get a failure while trying to get it. 
-        // This is to throttle tries between failures to safeguard against performance hits. The impact would be that telemetry generated during this interval would not have x-component Correlation Id.
+        // This is to throttle tries between failures to safeguard against performance hits. The impact would be that telemetry generated during this interval would not have x-component Application Id.
         private readonly TimeSpan retryWaitTime;
 
         private ConcurrentDictionary<string, FailedResult> failingInstrumentationKeys = new ConcurrentDictionary<string, FailedResult>();
@@ -34,7 +34,7 @@
         {
             this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTime, httpStatusCode));
 
-            CoreEventSource.Log.CorrelationIdProviderFetchApplicationIdFailedWithResponseCode(httpStatusCode.ToString());
+            CoreEventSource.Log.ApplicationIdProviderFetchApplicationIdFailedWithResponseCode(httpStatusCode.ToString());
         }
 
         /// <summary>
@@ -62,7 +62,7 @@
                 this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTime));
             }
 
-            CoreEventSource.Log.CorrelationIdProviderFetchApplicationIdFailed(this.GetExceptionDetailString(ex));
+            CoreEventSource.Log.ApplicationIdProviderFetchApplicationIdFailed(this.GetExceptionDetailString(ex));
         }
 
         public bool CanRetry(string instrumentationKey)
