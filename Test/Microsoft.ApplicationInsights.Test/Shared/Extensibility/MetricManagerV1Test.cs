@@ -11,7 +11,7 @@
     
 
     [TestClass]
-    public class MetricManagerTest
+    public class MetricManagerV1Test
     {
         [TestMethod]
         public void CanCreateMetricHavingNoDimensions()
@@ -20,10 +20,10 @@
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 // Act
-                Metric metric = manager.CreateMetric("Test Metric");
+                MetricV1 metric = manager.CreateMetric("Test Metric");
                 metric.Track(42);
             }
 
@@ -47,10 +47,10 @@
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
 
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 // Act
-                Metric metric = manager.CreateMetric("Test Metric", null);
+                MetricV1 metric = manager.CreateMetric("Test Metric", null);
                 metric.Track(42);
             }
 
@@ -79,10 +79,10 @@
                 { "Dim2", "Value2"}
             };
 
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 // Act
-                Metric metric = manager.CreateMetric("Test Metric", dimensions);
+                MetricV1 metric = manager.CreateMetric("Test Metric", dimensions);
                 metric.Track(42);
             }
 
@@ -108,9 +108,9 @@
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
-                Metric metric = manager.CreateMetric("Test Metric");
+                MetricV1 metric = manager.CreateMetric("Test Metric");
 
                 // Act
                 metric.Track(42);
@@ -134,9 +134,9 @@
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
-                Metric metric = manager.CreateMetric("Test Metric");
+                MetricV1 metric = manager.CreateMetric("Test Metric");
 
                 // Act
                 metric.Track(42);
@@ -162,10 +162,10 @@
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
 
-            Metric metric1 = null;
-            Metric metric2 = null;
+            MetricV1 metric1 = null;
+            MetricV1 metric2 = null;
 
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
                 // note: on first go aggregators may be different because manager may
                 // snapshot after first got created but before the second
@@ -203,9 +203,9 @@
         [TestMethod]
         public void CanDisposeMetricManagerMultipleTimes()
         {
-            MetricManager manager = null;
+            MetricManagerV1 manager = null;
 
-            using (manager = new MetricManager()) { }
+            using (manager = new MetricManagerV1()) { }
 
             //Assert.DoesNotThrow
             manager.Dispose();
@@ -218,9 +218,9 @@
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
-                Metric metric = manager.CreateMetric("Test Metric");
+                MetricV1 metric = manager.CreateMetric("Test Metric");
 
                 metric.Track(42);
 
@@ -242,9 +242,9 @@
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
-            using (MetricManager manager = new MetricManager(client))
+            using (MetricManagerV1 manager = new MetricManagerV1(client))
             {
-                Metric metric = manager.CreateMetric("Test Metric");
+                MetricV1 metric = manager.CreateMetric("Test Metric");
 
                 metric.Track(42);
 

@@ -29,7 +29,7 @@
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
         private TelemetryProcessorChainBuilder builder;
-        private SnapshottingList<IMetricProcessor> metricProcessors = new SnapshottingList<IMetricProcessor>();
+        private SnapshottingList<IMetricProcessorV1> metricProcessors = new SnapshottingList<IMetricProcessorV1>();
 
         /// <summary>
         /// Indicates if this instance has been disposed of.
@@ -234,10 +234,10 @@
         public TelemetrySink DefaultTelemetrySink => this.telemetrySinks.DefaultSink;
 
         /// <summary>
-        /// Gets the list of <see cref="IMetricProcessor"/> objects used for custom metric data processing        
+        /// Gets the list of <see cref="IMetricProcessorV1"/> objects used for custom metric data processing        
         /// before client-side metric aggregation process.
         /// </summary>
-        internal IList<IMetricProcessor> MetricProcessors
+        internal IList<IMetricProcessorV1> MetricProcessors
         {
             get { return this.metricProcessors; }
         }
