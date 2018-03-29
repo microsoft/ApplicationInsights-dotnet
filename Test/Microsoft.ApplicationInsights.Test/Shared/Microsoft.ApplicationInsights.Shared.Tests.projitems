@@ -88,7 +88,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetrySinkTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\MetricConfigurationTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\MetricEmissionTestsVirtualTime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\MetricManagerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\MetricSeriesTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\MetricsExamples.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\TelemetryConfigurationExtensionsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\CommonSimpleDataSeriesAggregatorTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\DefaultAggregationPeriodCycle.cs" />
@@ -108,7 +110,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\StubApplicationInsightsTelemetryChannel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\TestCategoryNames.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\TestUtil.cs" />
-    <None Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\Materials\StdDev Test Tool.xlsx" />
+    <None    Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\Materials\StdDev Test Tool.xlsx" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
   </ItemGroup>
 </Project>
