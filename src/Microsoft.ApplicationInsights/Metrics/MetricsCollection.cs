@@ -5,36 +5,36 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
 
-    /// <summary>ToDo: Complete documentation before stable release.</summary>
+    /// <summary>@ToDo: Complete documentation before stable release.</summary>
     public class MetricsCollection : ICollection<Metric>
     {
         private readonly MetricManager metricManager;
         private readonly ConcurrentDictionary<MetricIdentifier, Metric> metrics = new ConcurrentDictionary<MetricIdentifier, Metric>();
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metricManager">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricManager">@ToDo: Complete documentation before stable release.</param>
         internal MetricsCollection(MetricManager metricManager)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
             this.metricManager = metricManager;
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public int Count
         {
             get { return this.metrics.Count; }
         }
 
-        /// <summary>Gets a value indicating whether toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets a value indicating whether @ToDo: Complete documentation before stable release.</summary>
         public bool IsReadOnly
         {
             get { return false; }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metricIdentifier">ToDo: Complete documentation before stable release.</param>
-        /// <param name="metricConfiguration">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricIdentifier">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="metricConfiguration">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public Metric GetOrCreate(
                                 MetricIdentifier metricIdentifier,
                                 MetricConfiguration metricConfiguration)
@@ -61,15 +61,15 @@
             return metric;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
         public void Clear()
         {
             this.metrics.Clear();
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metric">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metric">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public bool Contains(Metric metric)
         {
             if (metric == null)
@@ -80,9 +80,9 @@
             return this.metrics.ContainsKey(metric.Identifier);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="array">ToDo: Complete documentation before stable release.</param>
-        /// <param name="arrayIndex">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="array">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="arrayIndex">@ToDo: Complete documentation before stable release.</param>
         public void CopyTo(Metric[] array, int arrayIndex)
         {
             Util.ValidateNotNull(array, nameof(array));
@@ -95,9 +95,9 @@
             this.metrics.Values.CopyTo(array, arrayIndex);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metric">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metric">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public bool Remove(Metric metric)
         {
             if (metric == null)
@@ -109,15 +109,15 @@
             return this.metrics.TryRemove(metric.Identifier, out removedMetric);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public IEnumerator<Metric> GetEnumerator()
         {
             return this.metrics.Values.GetEnumerator();
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
@@ -126,7 +126,7 @@
         /// <summary>
         /// The Add(..) method is not supported. To add a new metric, use the GetOrCreate(..) method.
         /// </summary>
-        /// <param name="unsupported">ToDo: Complete documentation before stable release.</param>
+        /// <param name="unsupported">@ToDo: Complete documentation before stable release.</param>
         void ICollection<Metric>.Add(Metric unsupported)
         {
             throw new NotSupportedException($"The Add(..) method is not supported by this {nameof(MetricsCollection)}."

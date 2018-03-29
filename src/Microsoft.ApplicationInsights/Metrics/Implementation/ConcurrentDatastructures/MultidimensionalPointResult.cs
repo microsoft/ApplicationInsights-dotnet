@@ -2,7 +2,7 @@
 {
     using System;
 
-    /// <summary>ToDo: Complete documentation before stable release.</summary>
+    /// <summary>@ToDo: Complete documentation before stable release.</summary>
     /// <typeparam name="TPoint">Type of the set over which the cube is build. For metics, it is a metric series.</typeparam>
     internal struct MultidimensionalPointResult<TPoint>
     {
@@ -24,31 +24,31 @@
             this.point = point;
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public TPoint Point
         {
             get { return this.point; }
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public int FailureCoordinateIndex
         {
             get { return this.failureCoordinateIndex; }
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public MultidimensionalPointResultCodes ResultCode
         {
             get { return this.resultCode; }
         }
 
-        /// <summary>Gets a value indicating whether toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets a value indicating whether @ToDo: Complete documentation before stable release.</summary>
         public bool IsPointCreatedNew
         {
             get { return (this.ResultCode & MultidimensionalPointResultCodes.Success_NewPointCreated) != 0; }
         }
 
-        /// <summary>Gets a value indicating whether toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets a value indicating whether @ToDo: Complete documentation before stable release.</summary>
         public bool IsSuccess
         {
             get

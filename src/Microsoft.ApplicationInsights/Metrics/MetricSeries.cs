@@ -102,13 +102,13 @@
             this.aggregatorCustom = null;
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public IReadOnlyDictionary<string, string> DimensionNamesAndValues
         {
             get { return this.dimensionNamesAndValues; }
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public MetricIdentifier MetricIdentifier { get; }
 
         /// <summary>
@@ -195,15 +195,15 @@
             }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
         /// @PublicExposureCandidate
         internal void ResetAggregation()
         {
             this.ResetAggregation(periodStart: DateTimeOffset.Now);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="periodStart">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodStart">@ToDo: Complete documentation before stable release.</param>
         /// @PublicExposureCandidate
         internal void ResetAggregation(DateTimeOffset periodStart)
         {
@@ -233,18 +233,18 @@
             }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         /// @PublicExposureCandidate
         internal MetricAggregate GetCurrentAggregateUnsafe()
         {
             return this.GetCurrentAggregateUnsafe(CycleKind.Default, DateTimeOffset.Now);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="aggregationCycleKind">ToDo: Complete documentation before stable release.</param>
-        /// <param name="dateTime">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="dateTime">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         /// @PublicExposureCandidate
         internal MetricAggregate GetCurrentAggregateUnsafe(MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset dateTime)
         {
@@ -469,8 +469,8 @@
         /// Aggregator implementations which believe that they are too expensive to recycle for this, can opt out of this strategy by returning FALSE from
         /// their CanRecycle property.
         /// </summary>
-        /// <param name="aggregationCycleKind">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         private IMetricSeriesAggregator GetRecycledAggregatorInstance(MetricAggregationCycleKind aggregationCycleKind)
         {
             if (this.requiresPersistentAggregator)

@@ -2,15 +2,15 @@
 {
     using System;
 
-    /// <summary>ToDo: Complete documentation before stable release.</summary>
+    /// <summary>@ToDo: Complete documentation before stable release.</summary>
     public class MetricConfiguration : IEquatable<MetricConfiguration>
     {
         private readonly int hashCode;
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="seriesCountLimit">ToDo: Complete documentation before stable release.</param>
-        /// <param name="valuesPerDimensionLimit">ToDo: Complete documentation before stable release.</param>
-        /// <param name="seriesConfig">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="seriesCountLimit">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="valuesPerDimensionLimit">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="seriesConfig">@ToDo: Complete documentation before stable release.</param>
         public MetricConfiguration(
                                 int seriesCountLimit,
                                 int valuesPerDimensionLimit,
@@ -42,18 +42,18 @@
                                         this.SeriesConfig.GetHashCode());
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public int SeriesCountLimit { get; }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public int ValuesPerDimensionLimit { get; }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public IMetricSeriesConfiguration SeriesConfig { get; }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="obj">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="obj">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public override bool Equals(object obj)
         {
             if (obj != null)
@@ -68,9 +68,9 @@
             return false;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="other">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="other">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public virtual bool Equals(MetricConfiguration other)
         {
             if (other == null)
@@ -89,8 +89,8 @@
                 && this.SeriesConfig.Equals(other.SeriesConfig);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public override int GetHashCode()
         {
             return this.hashCode;

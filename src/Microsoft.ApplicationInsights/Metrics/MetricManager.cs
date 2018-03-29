@@ -6,7 +6,7 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
-    /// <summary>ToDo: Complete documentation before stable release.</summary>
+    /// <summary>@ToDo: Complete documentation before stable release.</summary>
     public sealed class MetricManager
     {
         private readonly MetricAggregationManager aggregationManager;
@@ -14,8 +14,8 @@
         private readonly IMetricTelemetryPipeline telemetryPipeline;
         private readonly MetricsCollection metrics;
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="telemetryPipeline">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="telemetryPipeline">@ToDo: Complete documentation before stable release.</param>
         public MetricManager(IMetricTelemetryPipeline telemetryPipeline)
         {
             Util.ValidateNotNull(telemetryPipeline, nameof(telemetryPipeline));
@@ -41,7 +41,7 @@
             }
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public MetricsCollection Metrics
         {
             get { return this.metrics; }
@@ -57,11 +57,11 @@
             get { return this.aggregationCycle; }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metricNamespace">ToDo: Complete documentation before stable release.</param>
-        /// <param name="metricId">ToDo: Complete documentation before stable release.</param>
-        /// <param name="config">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricNamespace">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="metricId">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="config">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public MetricSeries CreateNewSeries(string metricNamespace, string metricId, IMetricSeriesConfiguration config)
         {
             return this.CreateNewSeries(
@@ -71,12 +71,12 @@
                             config: config);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metricNamespace">ToDo: Complete documentation before stable release.</param>
-        /// <param name="metricId">ToDo: Complete documentation before stable release.</param>
-        /// <param name="dimensionNamesAndValues">ToDo: Complete documentation before stable release.</param>
-        /// <param name="config">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricNamespace">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="metricId">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="dimensionNamesAndValues">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="config">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public MetricSeries CreateNewSeries(
                                     string metricNamespace, 
                                     string metricId, 
@@ -100,11 +100,11 @@
             return this.CreateNewSeries(metricIdentifier, dimensionNamesAndValues, config);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metricIdentifier">ToDo: Complete documentation before stable release.</param>
-        /// <param name="dimensionNamesAndValues">ToDo: Complete documentation before stable release.</param>
-        /// <param name="config">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricIdentifier">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="dimensionNamesAndValues">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="config">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public MetricSeries CreateNewSeries(MetricIdentifier metricIdentifier, IEnumerable<KeyValuePair<string, string>> dimensionNamesAndValues, IMetricSeriesConfiguration config)
         {
             Util.ValidateNotNull(metricIdentifier, nameof(metricIdentifier));
@@ -114,7 +114,7 @@
             return dataSeries;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
         public void Flush()
         {
             DateTimeOffset now = DateTimeOffset.Now;

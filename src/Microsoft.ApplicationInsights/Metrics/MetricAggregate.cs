@@ -4,7 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
 
-    /// <summary>ToDo: Complete documentation before stable release.</summary>
+    /// <summary>@ToDo: Complete documentation before stable release.</summary>
     public class MetricAggregate
     {
         // We want to make the aggregate thread safe, but we expect no signiicant contention, so a simple lock will suffice.
@@ -13,10 +13,10 @@
         private DateTimeOffset aggregationPeriodStart;
         private TimeSpan aggregationPeriodDuration;
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metricNamespace">ToDo: Complete documentation before stable release.</param>
-        /// <param name="metricId">ToDo: Complete documentation before stable release.</param>
-        /// <param name="aggregationKindMoniker">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricNamespace">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="metricId">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="aggregationKindMoniker">@ToDo: Complete documentation before stable release.</param>
         public MetricAggregate(string metricNamespace, string metricId, string aggregationKindMoniker)
         {
             Util.ValidateNotNull(metricNamespace, nameof(metricNamespace));
@@ -34,16 +34,16 @@
             this.Data = new ConcurrentDictionary<string, object>();
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public string MetricNamespace { get; }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public string MetricId { get; }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public string AggregationKindMoniker { get; }
 
-        /// <summary>Gets or sets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets or sets @ToDo: Complete documentation before stable release.</summary>
         public DateTimeOffset AggregationPeriodStart
         {
             get
@@ -63,7 +63,7 @@
             }
         }
 
-        /// <summary>Gets or sets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets or sets @ToDo: Complete documentation before stable release.</summary>
         public TimeSpan AggregationPeriodDuration
         {
             get
@@ -83,10 +83,10 @@
             }
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public IDictionary<string, string> Dimensions { get; }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public IDictionary<string, object> Data { get; }
 
         /// <summary>
@@ -96,7 +96,7 @@
         /// <typeparam name="T">Type to which to convert the object at <c>Data[dataKey]</c>.</typeparam>
         /// <param name="dataKey">Key for the data item.</param>
         /// <param name="defaultValue">The value to return if conversion fails.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public T GetDataValue<T>(string dataKey, T defaultValue)
         {
             object dataValue;

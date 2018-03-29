@@ -9,7 +9,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    /// <summary>ToDo: Complete documentation before stable release.</summary>
+    /// <summary>@ToDo: Complete documentation before stable release.</summary>
     /// <typeparam name="TPoint">Type of the set over which the cube is build. For metics, it is a metric series.</typeparam>
     internal class MultidimensionalCube2<TPoint>
     {
@@ -33,18 +33,18 @@
 
         private int totalPointsCount;
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="pointsFactory">ToDo: Complete documentation before stable release.</param>
-        /// <param name="dimensionValuesCountLimits">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="pointsFactory">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="dimensionValuesCountLimits">@ToDo: Complete documentation before stable release.</param>
         public MultidimensionalCube2(Func<string[], TPoint> pointsFactory, params int[] dimensionValuesCountLimits)
             : this(Int32.MaxValue, pointsFactory, dimensionValuesCountLimits)
         {
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="totalPointsCountLimit">ToDo: Complete documentation before stable release.</param>
-        /// <param name="pointsFactory">ToDo: Complete documentation before stable release.</param>
-        /// <param name="dimensionValuesCountLimits">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="totalPointsCountLimit">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="pointsFactory">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="dimensionValuesCountLimits">@ToDo: Complete documentation before stable release.</param>
         public MultidimensionalCube2(int totalPointsCountLimit, Func<string[], TPoint> pointsFactory, params int[] dimensionValuesCountLimits)
         {
             if (totalPointsCountLimit < 1)
@@ -89,44 +89,44 @@
             }
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public int DimensionsCount
         {
             get { return this.dimensionValuesCountLimits.Length; }
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public int TotalPointsCountLimit
         {
             get { return this.totalPointsCountLimit; }
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public int TotalPointsCount
         {
             get { return Volatile.Read(ref this.totalPointsCount); }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="dimension">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="dimension">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public int GetDimensionValuesCountLimit(int dimension)
         {
             this.ValidateDimensionIndex(dimension);
             return this.dimensionValuesCountLimits[dimension];
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="dimension">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="dimension">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public IReadOnlyCollection<string> GetDimensionValues(int dimension)
         {
             this.ValidateDimensionIndex(dimension);
             return (IReadOnlyCollection<string>)this.dimensionValues[dimension];
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public IReadOnlyList<KeyValuePair<string[], TPoint>> GetAllPoints()
         {
             List<KeyValuePair<string[], TPoint>> currentPoints = new List<KeyValuePair<string[], TPoint>>(this.TotalPointsCount);
@@ -134,9 +134,9 @@
             return currentPoints;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="pointContainer">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="pointContainer">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public int GetAllPoints(ICollection<KeyValuePair<string[], TPoint>> pointContainer)
         {
             int count = 0;
@@ -151,9 +151,9 @@
             return count;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="coordinates">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="coordinates">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public MultidimensionalPointResult<TPoint> TryGetOrCreatePoint(params string[] coordinates)
         {
             string pointMoniker = this.GetPointMoniker(coordinates);
@@ -185,18 +185,18 @@
             }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="coordinates">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="coordinates">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(params string[] coordinates)
         {
             return this.TryGetOrCreatePointAsync(CancellationToken.None, coordinates);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="cancelToken">ToDo: Complete documentation before stable release.</param>
-        /// <param name="coordinates">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="cancelToken">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="coordinates">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public async Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(CancellationToken cancelToken, params string[] coordinates)
         {
             string pointMoniker = this.GetPointMoniker(coordinates);
@@ -228,9 +228,9 @@
             }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="coordinates">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="coordinates">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public MultidimensionalPointResult<TPoint> TryGetPoint(params string[] coordinates)
         {
             string pointMoniker = this.GetPointMoniker(coordinates);

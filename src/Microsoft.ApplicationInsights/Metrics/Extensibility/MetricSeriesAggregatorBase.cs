@@ -5,7 +5,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    /// <summary>ToDo: Complete documentation before stable release.</summary>
+    /// <summary>@ToDo: Complete documentation before stable release.</summary>
     /// <typeparam name="TBufferedValue">The actual type of the metric values. For most common metrics it's <c>double</c>.
     /// However, for example a metric collecting strings to dount the number of distinct entities might have <c>string</c>.</typeparam>
     /// @PublicExposureCandidate
@@ -22,11 +22,11 @@
         private volatile MetricValuesBufferBase<TBufferedValue> metricValuesBuffer;
         private volatile MetricValuesBufferBase<TBufferedValue> metricValuesBufferRecycle = null;
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metricValuesBufferFactory">ToDo: Complete documentation before stable release.</param>
-        /// <param name="configuration">ToDo: Complete documentation before stable release.</param>
-        /// <param name="dataSeries">ToDo: Complete documentation before stable release.</param>
-        /// <param name="aggregationCycleKind">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricValuesBufferFactory">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="configuration">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="dataSeries">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release.</param>
         protected MetricSeriesAggregatorBase(
                                         Func<MetricValuesBufferBase<TBufferedValue>> metricValuesBufferFactory,
                                         IMetricSeriesConfiguration configuration,
@@ -46,15 +46,15 @@
             this.Reset(default(DateTimeOffset), default(IMetricValueFilter));
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public MetricSeries DataSeries
         {
             get { return this.dataSeries; }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="periodEnd">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodEnd">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public MetricAggregate CompleteAggregation(DateTimeOffset periodEnd)
         {
             if (!this.isPersistent)
@@ -66,8 +66,8 @@
             return aggregate;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="periodStart">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodStart">@ToDo: Complete documentation before stable release.</param>
         public void Reset(DateTimeOffset periodStart)
         {
             this.periodStart = periodStart;
@@ -77,17 +77,17 @@
             this.ResetAggregate();
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="periodStart">ToDo: Complete documentation before stable release.</param>
-        /// <param name="valueFilter">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodStart">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="valueFilter">@ToDo: Complete documentation before stable release.</param>
         public void Reset(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
         {
             this.valueFilter = valueFilter;
             this.Reset(periodStart);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metricValue">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricValue">@ToDo: Complete documentation before stable release.</param>
         public void TrackValue(double metricValue)
         {
             if (Double.IsNaN(metricValue))
@@ -107,8 +107,8 @@
             this.TrackFilteredConvertedValue(value);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metricValue">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricValue">@ToDo: Complete documentation before stable release.</param>
         public void TrackValue(object metricValue)
         {
             if (metricValue == null)
@@ -127,8 +127,8 @@
             this.TrackFilteredConvertedValue(value);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public bool TryRecycle()
         {
             if (this.isPersistent)
@@ -140,9 +140,9 @@
             return true;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="periodEnd">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodEnd">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public MetricAggregate CreateAggregateUnsafe(DateTimeOffset periodEnd)
         {
             this.UpdateAggregate(this.metricValuesBuffer);
@@ -152,22 +152,22 @@
 
         #region Abstract Methods
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="periodEnd">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="periodEnd">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         protected abstract MetricAggregate CreateAggregate(DateTimeOffset periodEnd);
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
         protected abstract void ResetAggregate();
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metricValue">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricValue">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         protected abstract TBufferedValue ConvertMetricValue(double metricValue);
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metricValue">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricValue">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         protected abstract TBufferedValue ConvertMetricValue(object metricValue);
 
         /// <summary>
@@ -176,10 +176,10 @@
         /// a lock on the <c>metric values buffer</c> (e.g. extracting a summary from the buffer). Stage 2 is the part of the update
         /// that does not need such a lock.
         /// </summary>
-        /// <param name="buffer">ToDo: Complete documentation before stable release.</param>
-        /// <param name="minFlushIndex">ToDo: Complete documentation before stable release.</param>
-        /// <param name="maxFlushIndex">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <param name="buffer">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="minFlushIndex">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="maxFlushIndex">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         protected abstract object UpdateAggregate_Stage1(MetricValuesBufferBase<TBufferedValue> buffer, int minFlushIndex, int maxFlushIndex);
 
         /// <summary>
@@ -188,14 +188,14 @@
         /// a lock on the <c>metric values buffer</c> (e.g. extracting a summary from the buffer). Stage 2 is the part of the update
         /// that does not need such a lock.
         /// </summary>
-        /// <param name="stage1Result">ToDo: Complete documentation before stable release.</param>
+        /// <param name="stage1Result">@ToDo: Complete documentation before stable release.</param>
         protected abstract void UpdateAggregate_Stage2(object stage1Result);
 
         #endregion Abstract Methods
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="aggregate">ToDo: Complete documentation before stable release.</param>
-        /// <param name="periodEnd">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="aggregate">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="periodEnd">@ToDo: Complete documentation before stable release.</param>
         protected void AddInfo_Timing_Dimensions_Context(MetricAggregate aggregate, DateTimeOffset periodEnd)
         {
             if (aggregate == null)
@@ -370,7 +370,7 @@
         /// <summary>
         /// Flushes the values buffer to update the aggregate state held by subclasses.
         /// </summary>
-        /// <param name="buffer">ToDo: Complete documentation before stable release.</param>
+        /// <param name="buffer">@ToDo: Complete documentation before stable release.</param>
         private void UpdateAggregate(MetricValuesBufferBase<TBufferedValue> buffer)
         {
             if (buffer == null)

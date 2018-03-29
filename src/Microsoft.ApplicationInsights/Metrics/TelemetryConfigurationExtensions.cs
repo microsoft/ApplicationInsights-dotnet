@@ -7,15 +7,15 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
-    /// <summary>ToDo: Complete documentation before stable release.</summary>
+    /// <summary>@ToDo: Complete documentation before stable release.</summary>
     public static class TelemetryConfigurationExtensions
     {
         private static MetricManager defaultMetricManager = null;
         private static ConditionalWeakTable<TelemetryConfiguration, MetricManager> metricManagers = null;
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="telemetryPipeline">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="telemetryPipeline">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public static MetricManager GetMetricManager(this TelemetryConfiguration telemetryPipeline)
         {
             if (telemetryPipeline == null)

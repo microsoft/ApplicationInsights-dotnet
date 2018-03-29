@@ -14,8 +14,8 @@
         /// Groups constants used my metric aggregates produced by aggregators that are configured by metric configurations represented
         /// through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>. See also <c>MetricConfigurations.Common.Measurement()</c>./>
         /// </summary>
-        /// <param name="measurementConfig">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <param name="measurementConfig">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public static MetricSeriesConfigurationForMeasurement.AggregateKindConstants Constants(this MetricSeriesConfigurationForMeasurement measurementConfig)
         {
             return MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Instance;
@@ -25,8 +25,8 @@
         /// Groups constants used my metric aggregates produced by aggregators that are configured by metric configurations represented
         /// through instances of <see cref="MetricConfigurationForMeasurement"/>. See also <c>MetricConfigurations.Common.Measurement()</c>./>
         /// </summary>
-        /// <param name="measurementConfig">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <param name="measurementConfig">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public static MetricSeriesConfigurationForMeasurement.AggregateKindConstants Constants(this MetricConfigurationForMeasurement measurementConfig)
         {
             return MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Instance;

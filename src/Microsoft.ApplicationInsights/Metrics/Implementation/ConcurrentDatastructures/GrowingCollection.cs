@@ -6,7 +6,7 @@
     using System.Runtime.CompilerServices;
     using System.Threading;
 
-    /// <summary>ToDo: Complete documentation before stable release.</summary>
+    /// <summary>@ToDo: Complete documentation before stable release.</summary>
     /// <typeparam name="T">Type of collection elemets.</typeparam>
     internal class GrowingCollection<T> : IEnumerable<T>
     {
@@ -14,13 +14,13 @@
 
         private Segment dataHead;
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
         public GrowingCollection()
         {
             this.dataHead = new Segment(null);
         }
 
-        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -31,8 +31,8 @@
             }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="item">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="item">@ToDo: Complete documentation before stable release.</param>
         public void Add(T item)
         {
             Segment currHead = Volatile.Read(ref this.dataHead);
@@ -48,8 +48,8 @@
             }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public GrowingCollection<T>.Enumerator GetEnumerator()
         {
@@ -57,8 +57,8 @@
             return enumerator;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -73,7 +73,7 @@
 
         #region class Enumerator 
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
         public class Enumerator : IEnumerator<T>
         {
             private readonly Segment head;
@@ -91,7 +91,7 @@
                 this.count = this.headOffset + (this.head.NextSegment == null ? 0 : this.head.NextSegment.GlobalCount);
             }
 
-            /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+            /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
             public int Count
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -101,7 +101,7 @@
                 }
             }
 
-            /// <summary>Gets toDo: Complete documentation before stable release.</summary>
+            /// <summary>Gets @ToDo: Complete documentation before stable release.</summary>
             public T Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -120,14 +120,14 @@
                 }
             }
 
-            /// <summary>ToDo: Complete documentation before stable release.</summary>
+            /// <summary>@ToDo: Complete documentation before stable release.</summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Dispose()
             {
             }
 
-            /// <summary>ToDo: Complete documentation before stable release.</summary>
-            /// <returns>ToDo: Complete documentation before stable release.</returns>
+            /// <summary>@ToDo: Complete documentation before stable release.</summary>
+            /// <returns>@ToDo: Complete documentation before stable release.</returns>
             public bool MoveNext()
             {
                 if (this.currentSegmentOffset == 0)
@@ -150,7 +150,7 @@
                 }
             }
 
-            /// <summary>ToDo: Complete documentation before stable release.</summary>
+            /// <summary>@ToDo: Complete documentation before stable release.</summary>
             public void Reset()
             {
                 this.currentSegment = this.head;

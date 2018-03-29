@@ -5,7 +5,7 @@
     using System.Runtime.CompilerServices;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
-    /// <summary>ToDo: Complete documentation before stable release.</summary>
+    /// <summary>@ToDo: Complete documentation before stable release.</summary>
     public class MetricSeriesConfigurationForMeasurement : IMetricSeriesConfiguration
     {
         private readonly bool restrictToUInt32Values;
@@ -19,8 +19,8 @@
                                                                     new MeasurementAggregateToApplicationInsightsPipelineConverter());
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="restrictToUInt32Values">ToDo: Complete documentation before stable release.</param>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="restrictToUInt32Values">@ToDo: Complete documentation before stable release.</param>
         public MetricSeriesConfigurationForMeasurement(bool restrictToUInt32Values)
         {
             this.restrictToUInt32Values = restrictToUInt32Values;
@@ -28,33 +28,33 @@
             this.hashCode = Util.CombineHashCodes(this.restrictToUInt32Values.GetHashCode());
         }
 
-        /// <summary>Gets a value indicating whether toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets a value indicating whether @ToDo: Complete documentation before stable release.</summary>
         public bool RequiresPersistentAggregation
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return false; }
         }
 
-        /// <summary>Gets a value indicating whether toDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets a value indicating whether @ToDo: Complete documentation before stable release.</summary>
         public bool RestrictToUInt32Values
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return this.restrictToUInt32Values; }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="dataSeries">ToDo: Complete documentation before stable release.</param>
-        /// <param name="aggregationCycleKind">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="dataSeries">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricAggregationCycleKind aggregationCycleKind)
         {
             IMetricSeriesAggregator aggregator = new MeasurementAggregator(this, dataSeries, aggregationCycleKind);
             return aggregator;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="obj">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="obj">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public override bool Equals(object obj)
         {
             if (obj != null)
@@ -69,17 +69,17 @@
             return false;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="other">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="other">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public bool Equals(IMetricSeriesConfiguration other)
         {
             return this.Equals((object)other);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="other">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="other">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public bool Equals(MetricSeriesConfigurationForMeasurement other)
         {
             if (other == null)
@@ -95,8 +95,8 @@
             return this.RestrictToUInt32Values == other.RestrictToUInt32Values;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public override int GetHashCode()
         {
             return this.hashCode;

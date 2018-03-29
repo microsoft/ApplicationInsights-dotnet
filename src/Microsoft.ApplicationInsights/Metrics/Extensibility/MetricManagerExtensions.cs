@@ -10,11 +10,11 @@
     /// @PublicExposureCandidate
     internal static class MetricManagerExtensions
     {
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metricManager">ToDo: Complete documentation before stable release.</param>
-        /// <param name="aggregationCycleKind">ToDo: Complete documentation before stable release.</param>
-        /// <param name="tactTimestamp">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricManager">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="tactTimestamp">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public static AggregationPeriodSummary StopAggregators(
                                                         this MetricManager metricManager,
                                                         MetricAggregationCycleKind aggregationCycleKind,
@@ -24,12 +24,12 @@
             return metricManager.AggregationManager.StopAggregators(aggregationCycleKind, tactTimestamp);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
-        /// <param name="metricManager">ToDo: Complete documentation before stable release.</param>
-        /// <param name="aggregationCycleKind">ToDo: Complete documentation before stable release.</param>
-        /// <param name="tactTimestamp">ToDo: Complete documentation before stable release.</param>
-        /// <param name="futureFilter">ToDo: Complete documentation before stable release.</param>
-        /// <returns>ToDo: Complete documentation before stable release.</returns>
+        /// <summary>@ToDo: Complete documentation before stable release.</summary>
+        /// <param name="metricManager">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="tactTimestamp">@ToDo: Complete documentation before stable release.</param>
+        /// <param name="futureFilter">@ToDo: Complete documentation before stable release.</param>
+        /// <returns>@ToDo: Complete documentation before stable release.</returns>
         public static AggregationPeriodSummary StartOrCycleAggregators(
                                                         this MetricManager metricManager,
                                                         MetricAggregationCycleKind aggregationCycleKind,
