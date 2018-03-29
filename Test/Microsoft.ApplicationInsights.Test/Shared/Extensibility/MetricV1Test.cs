@@ -409,7 +409,7 @@
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
 
             var telemetryConfiguration = new TelemetryConfiguration(Guid.NewGuid().ToString(), channel);
-            telemetryConfiguration.MetricProcessors.Add(new StubMetricProcessor(sentSamples));
+            telemetryConfiguration.MetricProcessors.Add(new StubMetricProcessorV1(sentSamples));
 
             var client = new TelemetryClient(telemetryConfiguration);
 

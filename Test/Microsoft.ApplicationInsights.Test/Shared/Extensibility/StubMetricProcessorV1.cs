@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
 
-    internal class StubMetricProcessor : IMetricProcessorV1
+    internal class StubMetricProcessorV1 : IMetricProcessorV1
     {
         private IList<MetricSample> sampleList;
 
-        public StubMetricProcessor(IList<MetricSample> sampleList)
+        public StubMetricProcessorV1(IList<MetricSample> sampleList)
         {
             if (sampleList == null)
             {
