@@ -65,12 +65,12 @@
         }
 
         /// <summary>
-        /// The identifier of a metric groups together the MetricNamespace, the MetricId, and the dimensions of the metric, if any.
+        /// Gets the identifier of a metric groups together the MetricNamespace, the MetricId, and the dimensions of the metric, if any.
         /// </summary>
         public MetricIdentifier Identifier { get; }
 
         /// <summary>
-        /// The current number of metric series contained in this metric. 
+        /// Gets the current number of metric series contained in this metric. 
         /// Each metric contains a special zero-dimension series, plus one series per unique dimension-values combination.
         /// </summary>
         public int SeriesCount

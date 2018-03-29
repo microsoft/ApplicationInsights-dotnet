@@ -20,7 +20,7 @@
         private static string defaultMetricNamespace = "Custom Metrics";
 
         /// <summary>
-        /// This is what metric namespace will be set to if it is not specified.
+        /// Gets or sets this is what metric namespace will be set to if it is not specified.
         /// </summary>
         public static string DefaultMetricNamespace
         {
@@ -414,17 +414,17 @@
         }
 
         /// <summary>
-        /// The namespace of this metric.
+        /// Gets the namespace of this metric.
         /// </summary>
         public string MetricNamespace { get; }
 
         /// <summary>
-        /// The ID (name) of this metric.
+        /// Gets the ID (name) of this metric.
         /// </summary>
         public string MetricId { get; }
 
         /// <summary>
-        /// The dimensionality of this metric.
+        /// Gets the dimensionality of this metric.
         /// </summary>
         public int DimensionsCount { get; }
 

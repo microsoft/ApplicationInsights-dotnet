@@ -34,16 +34,16 @@
             this.Data = new ConcurrentDictionary<string, object>();
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public string MetricNamespace { get; }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public string MetricId { get; }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public string AggregationKindMoniker { get; }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets or sets toDo: Complete documentation before stable release.</summary>
         public DateTimeOffset AggregationPeriodStart
         {
             get
@@ -63,7 +63,7 @@
             }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets or sets toDo: Complete documentation before stable release.</summary>
         public TimeSpan AggregationPeriodDuration
         {
             get
@@ -83,10 +83,10 @@
             }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public IDictionary<string, string> Dimensions { get; }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public IDictionary<string, object> Data { get; }
 
         /// <summary>

@@ -5,7 +5,7 @@
     /// <summary>ToDo: Complete documentation before stable release.</summary>
     public interface IMetricSeriesAggregator
     {
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         MetricSeries DataSeries { get; }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>

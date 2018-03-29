@@ -19,13 +19,13 @@
             this.metricManager = metricManager;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public int Count
         {
             get { return this.metrics.Count; }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets a value indicating whether toDo: Complete documentation before stable release.</summary>
         public bool IsReadOnly
         {
             get { return false; }

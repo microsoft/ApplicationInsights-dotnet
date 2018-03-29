@@ -24,31 +24,31 @@
             this.point = point;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public TPoint Point
         {
             get { return this.point; }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public int FailureCoordinateIndex
         {
             get { return this.failureCoordinateIndex; }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public MultidimensionalPointResultCodes ResultCode
         {
             get { return this.resultCode; }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets a value indicating whether toDo: Complete documentation before stable release.</summary>
         public bool IsPointCreatedNew
         {
             get { return (this.ResultCode & MultidimensionalPointResultCodes.Success_NewPointCreated) != 0; }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets a value indicating whether toDo: Complete documentation before stable release.</summary>
         public bool IsSuccess
         {
             get

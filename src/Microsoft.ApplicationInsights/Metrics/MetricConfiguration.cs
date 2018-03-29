@@ -42,13 +42,13 @@
                                         this.SeriesConfig.GetHashCode());
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public int SeriesCountLimit { get; }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public int ValuesPerDimensionLimit { get; }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public IMetricSeriesConfiguration SeriesConfig { get; }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>

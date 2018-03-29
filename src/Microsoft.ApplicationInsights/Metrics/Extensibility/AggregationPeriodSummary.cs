@@ -16,10 +16,10 @@
             this.NonpersistentAggregates = nonpersistentAggregates;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public IReadOnlyList<MetricAggregate> PersistentAggregates { get; }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public IReadOnlyList<MetricAggregate> NonpersistentAggregates { get; }
     }
 }

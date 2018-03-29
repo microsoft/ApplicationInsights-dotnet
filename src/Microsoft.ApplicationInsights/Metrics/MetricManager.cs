@@ -41,7 +41,7 @@
             }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public MetricsCollection Metrics
         {
             get { return this.metrics; }

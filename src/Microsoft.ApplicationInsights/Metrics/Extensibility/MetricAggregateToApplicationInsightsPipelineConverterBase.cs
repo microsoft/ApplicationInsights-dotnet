@@ -12,7 +12,7 @@
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public const string AggregationIntervalMonikerPropertyKey = "_MS.AggregationIntervalMs";
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>s
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>s
         public abstract string AggregationKindMoniker { get; }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>

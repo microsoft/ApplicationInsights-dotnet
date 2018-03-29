@@ -28,14 +28,14 @@
             this.hashCode = Util.CombineHashCodes(this.restrictToUInt32Values.GetHashCode());
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets a value indicating whether toDo: Complete documentation before stable release.</summary>
         public bool RequiresPersistentAggregation
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return false; }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets a value indicating whether toDo: Complete documentation before stable release.</summary>
         public bool RestrictToUInt32Values
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -162,7 +162,7 @@
             }
 
             /// <summary>
-            /// The kind moniker for aggregates produced by aggregators that are configured by metric configurations represented
+            /// Gets the kind moniker for aggregates produced by aggregators that are configured by metric configurations represented
             /// through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>.
             /// </summary>
             public string AggregateKindMoniker
@@ -171,7 +171,7 @@
             }
 
             /// <summary>
-            /// Constants used to refer to data fields contained within aggregates produced by aggregators that are configured
+            /// Gets constants used to refer to data fields contained within aggregates produced by aggregators that are configured
             /// by metric configurations represented through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>.
             /// </summary>
             public DataKeysConstants AggregateKindDataKeys
@@ -238,7 +238,7 @@
                 }
 
                 /// <summary>
-                /// The name of the Count field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
+                /// Gets the name of the Count field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
                 /// </summary>
                 public string Count
                 {
@@ -246,7 +246,7 @@
                 }
 
                 /// <summary>
-                /// The name of the Sum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
+                /// Gets the name of the Sum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
                 /// </summary>
                 public string Sum
                 {
@@ -254,7 +254,7 @@
                 }
 
                 /// <summary>
-                /// The name of the Minimum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
+                /// Gets the name of the Minimum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
                 /// </summary>
                 public string Min
                 {
@@ -262,7 +262,7 @@
                 }
 
                 /// <summary>
-                /// The name of the Maximum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
+                /// Gets the name of the Maximum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
                 /// </summary>
                 public string Max
                 {
@@ -270,7 +270,7 @@
                 }
 
                 /// <summary>
-                /// The name of the Standard Deviation field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
+                /// Gets the name of the Standard Deviation field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
                 /// </summary>
                 public string StdDev
                 {

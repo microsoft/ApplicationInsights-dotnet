@@ -20,7 +20,7 @@
             this.dataHead = new Segment(null);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -91,7 +91,7 @@
                 this.count = this.headOffset + (this.head.NextSegment == null ? 0 : this.head.NextSegment.GlobalCount);
             }
 
-            /// <summary>ToDo: Complete documentation before stable release.</summary>
+            /// <summary>Gets toDo: Complete documentation before stable release.</summary>
             public int Count
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -101,7 +101,7 @@
                 }
             }
 
-            /// <summary>ToDo: Complete documentation before stable release.</summary>
+            /// <summary>Gets toDo: Complete documentation before stable release.</summary>
             public T Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]

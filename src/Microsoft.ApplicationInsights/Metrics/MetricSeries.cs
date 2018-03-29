@@ -102,13 +102,13 @@
             this.aggregatorCustom = null;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public IReadOnlyDictionary<string, string> DimensionNamesAndValues
         {
             get { return this.dimensionNamesAndValues; }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public MetricIdentifier MetricIdentifier { get; }
 
         /// <summary>

@@ -232,19 +232,19 @@
             this.pointsFactory = pointsFactory;
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public int DimensionsCount
         {
             get { return this.subdimensionsCountLimits.Length; }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public int TotalPointsCountLimit
         {
             get { return this.totalPointsCountLimit; }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public int TotalPointsCount
         {
             get { return Volatile.Read(ref this.totalPointsCount); }

@@ -31,14 +31,14 @@
             this.ResetValues(this.values);
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets toDo: Complete documentation before stable release.</summary>
         public int Capacity
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return this.values.Length; }
         }
 
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets or sets toDo: Complete documentation before stable release.</summary>
         public int NextFlushIndex
         {
             get { return this.nextFlushIndex; }

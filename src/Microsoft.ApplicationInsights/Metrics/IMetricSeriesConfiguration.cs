@@ -6,7 +6,7 @@
     /// <summary>ToDo: Complete documentation before stable release.</summary>
     public interface IMetricSeriesConfiguration : IEquatable<IMetricSeriesConfiguration>
     {
-        /// <summary>ToDo: Complete documentation before stable release.</summary>
+        /// <summary>Gets a value indicating whether toDo: Complete documentation before stable release.</summary>
         bool RequiresPersistentAggregation { get; }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
