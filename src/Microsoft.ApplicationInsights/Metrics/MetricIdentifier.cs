@@ -37,7 +37,8 @@
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
-        public static void ValidateLiteral(string partValue, string partName)
+        /// @PublicExposureCandidate
+        internal static void ValidateLiteral(string partValue, string partName)
         {
             if (partValue == null)
             {

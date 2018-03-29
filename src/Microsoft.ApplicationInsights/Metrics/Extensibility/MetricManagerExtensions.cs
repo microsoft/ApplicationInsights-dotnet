@@ -7,7 +7,8 @@
     /// There are some methods on that MetricManager needs to forward to its encapsulated MetricAggregationManager that need to be public.
     /// However, in order not to pulute the API surface shown by Intellisense, we redirect them through this class, which is located in a more specialized namespace.
     /// </summary>
-    public static class MetricManagerExtensions
+    /// @PublicExposureCandidate
+    internal static class MetricManagerExtensions
     {
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="metricManager">ToDo: Complete documentation before stable release.</param>

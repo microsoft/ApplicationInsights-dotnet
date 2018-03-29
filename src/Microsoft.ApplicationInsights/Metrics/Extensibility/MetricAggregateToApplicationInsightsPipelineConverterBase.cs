@@ -6,7 +6,8 @@
     using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>ToDo: Complete documentation before stable release.</summary>
-    public abstract class MetricAggregateToApplicationInsightsPipelineConverterBase : IMetricAggregateToTelemetryPipelineConverter
+    /// @PublicExposureCandidate
+    internal abstract class MetricAggregateToApplicationInsightsPipelineConverterBase : IMetricAggregateToTelemetryPipelineConverter
     {
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public const string AggregationIntervalMonikerPropertyKey = "_MS.AggregationIntervalMs";

@@ -3,7 +3,8 @@
     using System;
 
     /// <summary>ToDo: Complete documentation before stable release.</summary>
-    public interface IMetricAggregateToTelemetryPipelineConverter
+    /// @PublicExposureCandidate
+    internal interface IMetricAggregateToTelemetryPipelineConverter
     {
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="aggregate">ToDo: Complete documentation before stable release.</param>

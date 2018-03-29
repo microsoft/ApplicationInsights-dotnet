@@ -127,7 +127,11 @@
                 return false;
             }
 
-            aggregator.Reset(aggregatorCollection.PeriodStart, valueFilter);
+            // @ToDo
+            // @PublicExposureCandidate 
+            // aggregator.Reset(aggregatorCollection.PeriodStart, valueFilter);
+            aggregator.Reset(aggregatorCollection.PeriodStart);
+
             aggregatorCollection.Aggregators.Add(aggregator);
 
             return true;

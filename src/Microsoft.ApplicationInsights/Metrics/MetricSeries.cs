@@ -196,14 +196,16 @@
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
-        public void ResetAggregation()
+        /// @PublicExposureCandidate
+        internal void ResetAggregation()
         {
             this.ResetAggregation(periodStart: DateTimeOffset.Now);
         }
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="periodStart">ToDo: Complete documentation before stable release.</param>
-        public void ResetAggregation(DateTimeOffset periodStart)
+        /// @PublicExposureCandidate
+        internal void ResetAggregation(DateTimeOffset periodStart)
         {
             periodStart = Util.RoundDownToSecond(periodStart);
 
@@ -233,7 +235,8 @@
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <returns>ToDo: Complete documentation before stable release.</returns>
-        public MetricAggregate GetCurrentAggregateUnsafe()
+        /// @PublicExposureCandidate
+        internal MetricAggregate GetCurrentAggregateUnsafe()
         {
             return this.GetCurrentAggregateUnsafe(CycleKind.Default, DateTimeOffset.Now);
         }
@@ -242,7 +245,8 @@
         /// <param name="aggregationCycleKind">ToDo: Complete documentation before stable release.</param>
         /// <param name="dateTime">ToDo: Complete documentation before stable release.</param>
         /// <returns>ToDo: Complete documentation before stable release.</returns>
-        public MetricAggregate GetCurrentAggregateUnsafe(MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset dateTime)
+        /// @PublicExposureCandidate
+        internal MetricAggregate GetCurrentAggregateUnsafe(MetricAggregationCycleKind aggregationCycleKind, DateTimeOffset dateTime)
         {
             IMetricSeriesAggregator aggregator = null;
 

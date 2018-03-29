@@ -137,7 +137,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             Assert.IsNull(aggregatorForNullSeries.DataSeries);
         }
 
-        public static void Reset_NonersistentAggregator(IMetricSeriesAggregator aggregator, string aggregateKindMoniker)
+        public static void Reset_NonpersistentAggregator(IMetricSeriesAggregator aggregator, string aggregateKindMoniker)
         {
             Assert.AreEqual(MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker, aggregateKindMoniker);
 

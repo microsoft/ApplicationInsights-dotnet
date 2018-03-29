@@ -7,7 +7,8 @@
     using System.Threading.Tasks;
 
     /// <summary>ToDo: Complete documentation before stable release.</summary>
-    public class MemoryMetricTelemetryPipeline : IMetricTelemetryPipeline, IReadOnlyList<MetricAggregate>
+    /// @PublicExposureCandidate
+    internal class MemoryMetricTelemetryPipeline : IMetricTelemetryPipeline, IReadOnlyList<MetricAggregate>
     {
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public const int CountLimitDefault = 1000;

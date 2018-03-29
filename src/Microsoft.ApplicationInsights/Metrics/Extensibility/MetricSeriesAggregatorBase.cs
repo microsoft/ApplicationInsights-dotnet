@@ -8,7 +8,8 @@
     /// <summary>ToDo: Complete documentation before stable release.</summary>
     /// <typeparam name="TBufferedValue">The actual type of the metric values. For most common metrics it's <c>double</c>.
     /// However, for example a metric collecting strings to dount the number of distinct entities might have <c>string</c>.</typeparam>
-    public abstract class MetricSeriesAggregatorBase<TBufferedValue> : IMetricSeriesAggregator
+    /// @PublicExposureCandidate
+    internal abstract class MetricSeriesAggregatorBase<TBufferedValue> : IMetricSeriesAggregator
     {
         private readonly MetricSeries dataSeries;
         private readonly MetricAggregationCycleKind aggregationCycleKind;

@@ -4,7 +4,8 @@
     using System.Collections.Concurrent;
 
     /// <summary>ToDo: Complete documentation before stable release.</summary>
-    public sealed class MetricAggregateToTelemetryPipelineConverters 
+    /// @PublicExposureCandidate
+    internal sealed class MetricAggregateToTelemetryPipelineConverters 
     {
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         public static readonly MetricAggregateToTelemetryPipelineConverters Registry = new MetricAggregateToTelemetryPipelineConverters();

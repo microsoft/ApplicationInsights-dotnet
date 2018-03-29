@@ -3,7 +3,8 @@
     using System;
 
     /// <summary>ToDo: Complete documentation before stable release.</summary>
-    public interface IMetricSeriesFilter
+    /// @PublicExposureCandidate
+    internal interface IMetricSeriesFilter
     {
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="dataSeries">ToDo: Complete documentation before stable release.</param>

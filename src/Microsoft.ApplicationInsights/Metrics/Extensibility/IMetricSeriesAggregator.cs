@@ -15,6 +15,7 @@
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="periodStart">ToDo: Complete documentation before stable release.</param>
         /// <param name="valueFilter">ToDo: Complete documentation before stable release.</param>
+        /// @PublicExposureCandidate
         void Reset(DateTimeOffset periodStart, IMetricValueFilter valueFilter);
 
         /// <summary>ToDo: Complete documentation before stable release.</summary>

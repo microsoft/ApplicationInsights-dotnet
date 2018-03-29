@@ -70,17 +70,6 @@ Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.Location
 Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.Operation
 Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.Session
 Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.User
-Microsoft.ApplicationInsights.Metrics.Extensibility.AggregationPeriodSummary
-Microsoft.ApplicationInsights.Metrics.Extensibility.AggregationPeriodSummary.AggregationPeriodSummary(System.Collections.Generic.IReadOnlyList<Microsoft.ApplicationInsights.Metrics.MetricAggregate> persistentAggregates, System.Collections.Generic.IReadOnlyList<Microsoft.ApplicationInsights.Metrics.MetricAggregate> nonpersistentAggregates) -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.AggregationPeriodSummary.NonpersistentAggregates.get -> System.Collections.Generic.IReadOnlyList<Microsoft.ApplicationInsights.Metrics.MetricAggregate>
-Microsoft.ApplicationInsights.Metrics.Extensibility.AggregationPeriodSummary.PersistentAggregates.get -> System.Collections.Generic.IReadOnlyList<Microsoft.ApplicationInsights.Metrics.MetricAggregate>
-Microsoft.ApplicationInsights.Metrics.Extensibility.ApplicationInsightsTelemetryPipeline
-Microsoft.ApplicationInsights.Metrics.Extensibility.ApplicationInsightsTelemetryPipeline.ApplicationInsightsTelemetryPipeline(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration telemetryPipeline) -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.ApplicationInsightsTelemetryPipeline.ApplicationInsightsTelemetryPipeline(Microsoft.ApplicationInsights.TelemetryClient telemetryClient) -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.ApplicationInsightsTelemetryPipeline.FlushAsync(System.Threading.CancellationToken cancelToken) -> System.Threading.Tasks.Task
-Microsoft.ApplicationInsights.Metrics.Extensibility.ApplicationInsightsTelemetryPipeline.TrackAsync(Microsoft.ApplicationInsights.Metrics.MetricAggregate metricAggregate, System.Threading.CancellationToken cancelToken) -> System.Threading.Tasks.Task
-Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricAggregateToTelemetryPipelineConverter
-Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricAggregateToTelemetryPipelineConverter.Convert(Microsoft.ApplicationInsights.Metrics.MetricAggregate aggregate) -> object
 Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricSeriesAggregator
 Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricSeriesAggregator.CompleteAggregation(System.DateTimeOffset periodEnd) -> Microsoft.ApplicationInsights.Metrics.MetricAggregate
 Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricSeriesAggregator.CreateAggregateUnsafe(System.DateTimeOffset periodEnd) -> Microsoft.ApplicationInsights.Metrics.MetricAggregate
@@ -90,62 +79,19 @@ Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricSeriesAggregator.Rese
 Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricSeriesAggregator.TrackValue(double metricValue) -> void
 Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricSeriesAggregator.TrackValue(object metricValue) -> void
 Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricSeriesAggregator.TryRecycle() -> bool
-Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricSeriesFilter
-Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricSeriesFilter.WillConsume(Microsoft.ApplicationInsights.Metrics.MetricSeries dataSeries, out Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricValueFilter valueFilter) -> bool
 Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricTelemetryPipeline
 Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricTelemetryPipeline.FlushAsync(System.Threading.CancellationToken cancelToken) -> System.Threading.Tasks.Task
 Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricTelemetryPipeline.TrackAsync(Microsoft.ApplicationInsights.Metrics.MetricAggregate metricAggregate, System.Threading.CancellationToken cancelToken) -> System.Threading.Tasks.Task
 Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricValueFilter
 Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricValueFilter.WillConsume(Microsoft.ApplicationInsights.Metrics.MetricSeries dataSeries, double metricValue) -> bool
 Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricValueFilter.WillConsume(Microsoft.ApplicationInsights.Metrics.MetricSeries dataSeries, object metricValue) -> bool
-Microsoft.ApplicationInsights.Metrics.Extensibility.MemoryMetricTelemetryPipeline
-Microsoft.ApplicationInsights.Metrics.Extensibility.MemoryMetricTelemetryPipeline.Clear() -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MemoryMetricTelemetryPipeline.Count.get -> int
-Microsoft.ApplicationInsights.Metrics.Extensibility.MemoryMetricTelemetryPipeline.CountLimit.get -> int
-Microsoft.ApplicationInsights.Metrics.Extensibility.MemoryMetricTelemetryPipeline.FlushAsync(System.Threading.CancellationToken cancelToken) -> System.Threading.Tasks.Task
-Microsoft.ApplicationInsights.Metrics.Extensibility.MemoryMetricTelemetryPipeline.MemoryMetricTelemetryPipeline() -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MemoryMetricTelemetryPipeline.MemoryMetricTelemetryPipeline(int countLimit) -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MemoryMetricTelemetryPipeline.TrackAsync(Microsoft.ApplicationInsights.Metrics.MetricAggregate metricAggregate, System.Threading.CancellationToken cancelToken) -> System.Threading.Tasks.Task
-Microsoft.ApplicationInsights.Metrics.Extensibility.MemoryMetricTelemetryPipeline.this[int index].get -> Microsoft.ApplicationInsights.Metrics.MetricAggregate
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregateToApplicationInsightsPipelineConverterBase
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregateToApplicationInsightsPipelineConverterBase.Convert(Microsoft.ApplicationInsights.Metrics.MetricAggregate aggregate) -> object
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregateToTelemetryPipelineConverters
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregateToTelemetryPipelineConverters.Add(System.Type pipelineType, string aggregationKindMoniker, Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricAggregateToTelemetryPipelineConverter converter) -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregateToTelemetryPipelineConverters.TryGet(System.Type pipelineType, string aggregationKindMoniker, out Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricAggregateToTelemetryPipelineConverter converter) -> bool
 Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind
 Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind.Custom = 2 -> Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind
 Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind.Default = 0 -> Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind
 Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind.QuickPulse = 1 -> Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind
 Microsoft.ApplicationInsights.Metrics.Extensibility.MetricConfigurationExtensions
 Microsoft.ApplicationInsights.Metrics.Extensibility.MetricExtensions
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricManagerExtensions
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.AddInfo_Timing_Dimensions_Context(Microsoft.ApplicationInsights.Metrics.MetricAggregate aggregate, System.DateTimeOffset periodEnd) -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.CompleteAggregation(System.DateTimeOffset periodEnd) -> Microsoft.ApplicationInsights.Metrics.MetricAggregate
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.CreateAggregateUnsafe(System.DateTimeOffset periodEnd) -> Microsoft.ApplicationInsights.Metrics.MetricAggregate
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.DataSeries.get -> Microsoft.ApplicationInsights.Metrics.MetricSeries
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.MetricSeriesAggregatorBase(System.Func<Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TBufferedValue>> metricValuesBufferFactory, Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration configuration, Microsoft.ApplicationInsights.Metrics.MetricSeries dataSeries, Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind aggregationCycleKind) -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.Reset(System.DateTimeOffset periodStart) -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.Reset(System.DateTimeOffset periodStart, Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricValueFilter valueFilter) -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.TrackValue(double metricValue) -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.TrackValue(object metricValue) -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.TryRecycle() -> bool
 Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesExtensions
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>.Capacity.get -> int
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>.GetAndResetValue(int index) -> TValue
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>.IncWriteIndex() -> int
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>.MetricValuesBufferBase(int capacity) -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>.NextFlushIndex.get -> int
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>.NextFlushIndex.set -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>.PeekLastWriteIndex() -> int
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>.ResetIndices() -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>.ResetIndicesAndData() -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>.WriteValue(int index, TValue value) -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBuffer_Double
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBuffer_Double.MetricValuesBuffer_Double(int capacity) -> void
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBuffer_Object
-Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBuffer_Object.MetricValuesBuffer_Object(int capacity) -> void
 Microsoft.ApplicationInsights.Metrics.Extensibility.TelemetryClientExtensions
 Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration
 Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration.CreateNewAggregator(Microsoft.ApplicationInsights.Metrics.MetricSeries dataSeries, Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind aggregationCycleKind) -> Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricSeriesAggregator
@@ -198,11 +144,7 @@ Microsoft.ApplicationInsights.Metrics.MetricManager.MetricManager(Microsoft.Appl
 Microsoft.ApplicationInsights.Metrics.MetricManager.Metrics.get -> Microsoft.ApplicationInsights.Metrics.MetricsCollection
 Microsoft.ApplicationInsights.Metrics.MetricSeries
 Microsoft.ApplicationInsights.Metrics.MetricSeries.DimensionNamesAndValues.get -> System.Collections.Generic.IReadOnlyDictionary<string, string>
-Microsoft.ApplicationInsights.Metrics.MetricSeries.GetCurrentAggregateUnsafe() -> Microsoft.ApplicationInsights.Metrics.MetricAggregate
-Microsoft.ApplicationInsights.Metrics.MetricSeries.GetCurrentAggregateUnsafe(Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind aggregationCycleKind, System.DateTimeOffset dateTime) -> Microsoft.ApplicationInsights.Metrics.MetricAggregate
 Microsoft.ApplicationInsights.Metrics.MetricSeries.MetricIdentifier.get -> Microsoft.ApplicationInsights.Metrics.MetricIdentifier
-Microsoft.ApplicationInsights.Metrics.MetricSeries.ResetAggregation() -> void
-Microsoft.ApplicationInsights.Metrics.MetricSeries.ResetAggregation(System.DateTimeOffset periodStart) -> void
 Microsoft.ApplicationInsights.Metrics.MetricSeries.TrackValue(double metricValue) -> void
 Microsoft.ApplicationInsights.Metrics.MetricSeries.TrackValue(object metricValue) -> void
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement
@@ -253,18 +195,6 @@ Microsoft.ApplicationInsights.TelemetryClient.GetMetric(string metricId, string 
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(string metricId, string dimension1Name, string dimension2Name, string dimension3Name, string dimension4Name) -> Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(string metricId, string dimension1Name, string dimension2Name, string dimension3Name, string dimension4Name, Microsoft.ApplicationInsights.Metrics.MetricConfiguration metricConfiguration) -> Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(string metricId, string dimension1Name, string dimension2Name, string dimension3Name, string dimension4Name, Microsoft.ApplicationInsights.Metrics.MetricConfiguration metricConfiguration, Microsoft.ApplicationInsights.MetricAggregationScope aggregationScope) -> Microsoft.ApplicationInsights.Metric
-abstract Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregateToApplicationInsightsPipelineConverterBase.AggregationKindMoniker.get -> string
-abstract Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregateToApplicationInsightsPipelineConverterBase.PopulateDataValues(Microsoft.ApplicationInsights.DataContracts.MetricTelemetry telemetryItem, Microsoft.ApplicationInsights.Metrics.MetricAggregate aggregate) -> void
-abstract Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.ConvertMetricValue(double metricValue) -> TBufferedValue
-abstract Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.ConvertMetricValue(object metricValue) -> TBufferedValue
-abstract Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.CreateAggregate(System.DateTimeOffset periodEnd) -> Microsoft.ApplicationInsights.Metrics.MetricAggregate
-abstract Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.ResetAggregate() -> void
-abstract Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.UpdateAggregate_Stage1(Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TBufferedValue> buffer, int minFlushIndex, int maxFlushIndex) -> object
-abstract Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.UpdateAggregate_Stage2(object stage1Result) -> void
-abstract Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>.GetAndResetValueOnce(TValue[] values, int index) -> TValue
-abstract Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>.IsInvalidValue(TValue value) -> bool
-abstract Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>.ResetValues(TValue[] values) -> void
-abstract Microsoft.ApplicationInsights.Metrics.Extensibility.MetricValuesBufferBase<TValue>.WriteValueOnce(TValue[] values, int index, TValue value) -> void
 const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.Cloud.RoleInstance = "TelemetryContext.Cloud.RoleInstance" -> string
 const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.Cloud.RoleName = "TelemetryContext.Cloud.RoleName" -> string
 const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.Component.Version = "TelemetryContext.Component.Version" -> string
@@ -289,8 +219,6 @@ const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.User.A
 const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.User.AuthenticatedUserId = "TelemetryContext.User.AuthenticatedUserId" -> string
 const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.User.Id = "TelemetryContext.User.Id" -> string
 const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.User.UserAgent = "TelemetryContext.User.UserAgent" -> string
-const Microsoft.ApplicationInsights.Metrics.Extensibility.MemoryMetricTelemetryPipeline.CountLimitDefault = 1000 -> int
-const Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregateToApplicationInsightsPipelineConverterBase.AggregationIntervalMonikerPropertyKey = "_MS.AggregationIntervalMs" -> string
 const Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MaxDimensionsCount = 10 -> int
 const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindDataKeys.Count = "Count" -> string
 const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindDataKeys.Max = "Max" -> string
@@ -316,20 +244,10 @@ static Microsoft.ApplicationInsights.MetricConfigurationsExtensions.SetDefaultFo
 static Microsoft.ApplicationInsights.Metrics.Extensibility.MetricConfigurationExtensions.Constants(this Microsoft.ApplicationInsights.Metrics.MetricConfigurationForMeasurement measurementConfig) -> Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants
 static Microsoft.ApplicationInsights.Metrics.Extensibility.MetricConfigurationExtensions.Constants(this Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement measurementConfig) -> Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants
 static Microsoft.ApplicationInsights.Metrics.Extensibility.MetricExtensions.GetConfiguration(this Microsoft.ApplicationInsights.Metric metric) -> Microsoft.ApplicationInsights.Metrics.MetricConfiguration
-static Microsoft.ApplicationInsights.Metrics.Extensibility.MetricManagerExtensions.StartOrCycleAggregators(this Microsoft.ApplicationInsights.Metrics.MetricManager metricManager, Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind aggregationCycleKind, System.DateTimeOffset tactTimestamp, Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricSeriesFilter futureFilter) -> Microsoft.ApplicationInsights.Metrics.Extensibility.AggregationPeriodSummary
-static Microsoft.ApplicationInsights.Metrics.Extensibility.MetricManagerExtensions.StopAggregators(this Microsoft.ApplicationInsights.Metrics.MetricManager metricManager, Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind aggregationCycleKind, System.DateTimeOffset tactTimestamp) -> Microsoft.ApplicationInsights.Metrics.Extensibility.AggregationPeriodSummary
-static Microsoft.ApplicationInsights.Metrics.Extensibility.MetricManagerExtensions.StopDefaultAggregationCycleAsync(this Microsoft.ApplicationInsights.Metrics.MetricManager metricManager) -> System.Threading.Tasks.Task
 static Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesExtensions.GetConfiguration(this Microsoft.ApplicationInsights.Metrics.MetricSeries metricSeries) -> Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration
 static Microsoft.ApplicationInsights.Metrics.Extensibility.TelemetryClientExtensions.GetMetricManager(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, Microsoft.ApplicationInsights.MetricAggregationScope aggregationScope) -> Microsoft.ApplicationInsights.Metrics.MetricManager
 static Microsoft.ApplicationInsights.Metrics.MetricIdentifier.DefaultMetricNamespace.get -> string
 static Microsoft.ApplicationInsights.Metrics.MetricIdentifier.DefaultMetricNamespace.set -> void
-static Microsoft.ApplicationInsights.Metrics.MetricIdentifier.ValidateLiteral(string partValue, string partName) -> void
 static Microsoft.ApplicationInsights.Metrics.TelemetryConfigurationExtensions.GetMetricManager(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration telemetryPipeline) -> Microsoft.ApplicationInsights.Metrics.MetricManager
 static readonly Microsoft.ApplicationInsights.MetricConfigurations.Common -> Microsoft.ApplicationInsights.MetricConfigurations
-static readonly Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregateToTelemetryPipelineConverters.Registry -> Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregateToTelemetryPipelineConverters
-static volatile Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.countBufferFlushes -> int
-static volatile Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.countBufferWaitSpinCycles -> int
-static volatile Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.countBufferWaitSpinEvents -> int
-static volatile Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.countNewBufferObjectsCreated -> int
-static volatile Microsoft.ApplicationInsights.Metrics.Extensibility.MetricSeriesAggregatorBase<TBufferedValue>.timeBufferWaitSpinMillis -> int
 virtual Microsoft.ApplicationInsights.Metrics.MetricConfiguration.Equals(Microsoft.ApplicationInsights.Metrics.MetricConfiguration other) -> bool

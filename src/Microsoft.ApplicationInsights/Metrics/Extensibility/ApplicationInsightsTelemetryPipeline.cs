@@ -5,7 +5,8 @@
     using System.Threading.Tasks;
 
     /// <summary>ToDo: Complete documentation before stable release.</summary>
-    public class ApplicationInsightsTelemetryPipeline : IMetricTelemetryPipeline
+    /// @PublicExposureCandidate
+    internal class ApplicationInsightsTelemetryPipeline : IMetricTelemetryPipeline
     {
         private readonly ApplicationInsights.TelemetryClient trackingClient;
         private readonly Task completedTask = Task.FromResult(true);

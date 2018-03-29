@@ -467,7 +467,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                     dataSeries: null,
                                                     aggregationCycleKind: CycleKind.Custom);
 
-                CommonSimpleDataSeriesAggregatorTests.Reset_NonersistentAggregator(aggregator, aggregateKindMoniker: "Microsoft.Azure.Measurement");
+                CommonSimpleDataSeriesAggregatorTests.Reset_NonpersistentAggregator(aggregator, aggregateKindMoniker: "Microsoft.Azure.Measurement");
             }
         }
 

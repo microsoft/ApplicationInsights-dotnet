@@ -4,7 +4,8 @@
     using System.Collections.Generic;
 
     /// <summary>ToDo: Complete documentation before stable release.</summary>
-    public class AggregationPeriodSummary
+    /// @PublicExposureCandidate
+    internal class AggregationPeriodSummary
     {
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="persistentAggregates">ToDo: Complete documentation before stable release.</param>

@@ -10,7 +10,8 @@
 
     /// <summary>ToDo: Complete documentation before stable release.</summary>
     /// <typeparam name="TValue">The tyoe of values held in the buffer.</typeparam>
-    public abstract class MetricValuesBufferBase<TValue>
+    /// @PublicExposureCandidate
+    internal abstract class MetricValuesBufferBase<TValue>
     {
         private readonly TValue[] values;
 
@@ -142,7 +143,8 @@
     }
 
     /// <summary>ToDo: Complete documentation before stable release.</summary>
-    public sealed class MetricValuesBuffer_Double : MetricValuesBufferBase<double>
+    /// @PublicExposureCandidate
+    internal sealed class MetricValuesBuffer_Double : MetricValuesBufferBase<double>
     {
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="capacity">ToDo: Complete documentation before stable release.</param>
@@ -191,7 +193,8 @@
     }
 
     /// <summary>ToDo: Complete documentation before stable release.</summary>
-    public sealed class MetricValuesBuffer_Object : MetricValuesBufferBase<object>
+    /// @PublicExposureCandidate
+    internal sealed class MetricValuesBuffer_Object : MetricValuesBufferBase<object>
     {
         /// <summary>ToDo: Complete documentation before stable release.</summary>
         /// <param name="capacity">ToDo: Complete documentation before stable release.</param>
