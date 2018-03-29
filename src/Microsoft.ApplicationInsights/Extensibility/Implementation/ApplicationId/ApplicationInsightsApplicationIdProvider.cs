@@ -61,7 +61,7 @@
         /// Retrieves the Application Id corresponding to a given Instrumentation Key.
         /// </summary>
         /// <param name="instrumentationKey">Instrumentation Key string.</param>
-        /// <param name="applicationId">Application Id corresponding to the provided Instrumentation Key.</param>
+        /// <param name="applicationId">Application Id corresponding to the provided Instrumentation Key. Returns NULL if a match was not found.</param>
         /// <returns>TRUE if Application Id was successfully retrieved, FALSE otherwise.</returns>
         public bool TryGetApplicationId(string instrumentationKey, out string applicationId)
         {

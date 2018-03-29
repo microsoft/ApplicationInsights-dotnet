@@ -10,13 +10,13 @@
         /// <summary>
         /// Gets or sets a dictionary of Instrumentation Keys to Application Ids
         /// </summary>
-        public Dictionary<string, string> Defined { get; set; }
+        public IReadOnlyDictionary<string, string> Defined { get; set; }
 
         /// <summary>
         /// Provides an Application Id based on an Instrumentation Key.
         /// </summary>
         /// <param name="instrumentationKey">Instrumentation Key string used to lookup associated Application Id.</param>
-        /// <param name="applicationId">Application Id corresponding to the Instrumentation Key</param>
+        /// <param name="applicationId">Application Id corresponding to the Instrumentation Key. Returns NULL if a match was not found.</param>
         /// <returns>TRUE if Application Id was successfully retrieved, FALSE otherwise.</returns>
         public bool TryGetApplicationId(string instrumentationKey, out string applicationId)
         {

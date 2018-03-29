@@ -10,7 +10,7 @@
     {
         internal readonly FailedRequestsManager FailedRequestsManager;
 
-        private HttpClient httpClient = new HttpClient();
+        private readonly HttpClient httpClient = new HttpClient();
 
         internal ProfileServiceWrapper()
         {

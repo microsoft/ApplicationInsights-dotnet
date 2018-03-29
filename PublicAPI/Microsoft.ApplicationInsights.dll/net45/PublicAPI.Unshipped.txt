@@ -10,7 +10,7 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.Applica
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.ApplicationInsightsApplicationIdProvider.TryGetApplicationId(string instrumentationKey, out string applicationId) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.TryGetApplicationId(string instrumentationKey, out string applicationId) -> bool
-Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.Defined.get -> System.Collections.Generic.Dictionary<string, string>
+Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.Defined.get -> System.Collections.Generic.IReadOnlyDictionary<string, string>
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.Defined.set -> void
 
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.AddHeartbeatProperty(string propertyName, string propertyValue, bool isHealthy) -> bool
