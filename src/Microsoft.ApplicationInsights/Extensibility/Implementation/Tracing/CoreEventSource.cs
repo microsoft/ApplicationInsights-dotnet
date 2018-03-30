@@ -492,6 +492,26 @@
                 this.nameProvider.Name);
         }
 
+        [Event(
+            41,
+            Keywords = Keywords.UserActionable,
+            Message = "Failed to retrieve Application Id for the current application insights resource. Make sure the configured instrumentation key is valid. Error: {0}",
+            Level = EventLevel.Warning)]
+        public void ApplicationIdProviderFetchApplicationIdFailed(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(41, exception, this.nameProvider.Name);
+        }
+
+        [Event(
+            42,
+            Keywords = Keywords.UserActionable,
+            Message = "Failed to retrieve Application Id for the current application insights resource. Endpoint returned HttpStatusCode: {0}",
+            Level = EventLevel.Warning)]
+        public void ApplicationIdProviderFetchApplicationIdFailedWithResponseCode(string httpStatusCode, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(42, httpStatusCode, this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
