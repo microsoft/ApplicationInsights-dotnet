@@ -8,6 +8,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using static System.FormattableString;
+
     /// <summary>
     /// Represents a multi-dimensional, discrete data cube.
     /// An N-dimensional discrete cube is a data structure containing elements of type TPoint.
@@ -199,7 +201,7 @@
         {
             if (totalPointsCountLimit < 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(totalPointsCountLimit), $"{nameof(totalPointsCountLimit)} must be 1 or larger. Typically much larger.");
+                throw new ArgumentOutOfRangeException(nameof(totalPointsCountLimit), Invariant($"{nameof(totalPointsCountLimit)} must be 1 or larger. Typically much larger."));
             }
 
             Util.ValidateNotNull(pointsFactory, nameof(pointsFactory));
@@ -213,15 +215,15 @@
 
             if (subdimensionsCountLimits.Length > DimensionsCountLimit)
             {
-                throw new ArgumentException($"Cube may not have more than ${MultidimensionalCube<TDimensionValue, TPoint>.DimensionsCountLimit} dimensions,"
-                                          + $" but {subdimensionsCountLimits.Length} dimensions were specified.");
+                throw new ArgumentException(Invariant($"Cube may not have more than ${MultidimensionalCube<TDimensionValue, TPoint>.DimensionsCountLimit} dimensions,")
+                                          + Invariant($" but {subdimensionsCountLimits.Length} dimensions were specified."));
             }
 
             for (int d = 0; d < subdimensionsCountLimits.Length; d++)
             {
                 if (subdimensionsCountLimits[d] < 1)
                 {
-                    throw new ArgumentException($"The limit of distinct dimension values must be 1 or larger, but the limit specified for dimension {d} is {subdimensionsCountLimits[d]}.");
+                    throw new ArgumentException(Invariant($"The limit of distinct dimension values must be 1 or larger, but the limit specified for dimension {d} is {subdimensionsCountLimits[d]}."));
                 }
             }
 

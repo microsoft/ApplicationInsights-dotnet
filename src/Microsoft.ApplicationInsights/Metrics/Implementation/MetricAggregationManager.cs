@@ -5,6 +5,7 @@
     using System.Threading;
     using Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
+    using static System.FormattableString;
     using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
 
     internal class MetricAggregationManager
@@ -32,7 +33,7 @@
                 case CycleKind.Default:
                     if (futureFilter != null)
                     {
-                        throw new ArgumentException($"Cannot specify non-null {nameof(futureFilter)} when {nameof(aggregationCycleKind)} is {aggregationCycleKind}.");
+                        throw new ArgumentException(Invariant($"Cannot specify non-null {nameof(futureFilter)} when {nameof(aggregationCycleKind)} is {aggregationCycleKind}."));
                     }
 
                     return this.CycleAggregators(ref this.aggregatorsForDefault, tactTimestamp, futureFilter, stopAggregators: false);
@@ -44,7 +45,7 @@
                     return this.CycleAggregators(ref this.aggregatorsForCustom, tactTimestamp, futureFilter, stopAggregators: false);
 
                 default:
-                    throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
+                    throw new ArgumentException(Invariant($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}."));
             }
         }
 
@@ -59,10 +60,10 @@
                     return this.CycleAggregators(ref this.aggregatorsForCustom, tactTimestamp, futureFilter: null, stopAggregators: true);
 
                 case CycleKind.Default:
-                    throw new ArgumentException($"Cannot invoke {nameof(this.StopAggregators)} for Default {nameof(MetricAggregationCycleKind)}: Default aggregators are always active.");
+                    throw new ArgumentException(Invariant($"Cannot invoke {nameof(this.StopAggregators)} for Default {nameof(MetricAggregationCycleKind)}: Default aggregators are always active."));
 
                 default:
-                    throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
+                    throw new ArgumentException(Invariant($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}."));
             }
         }
 
@@ -84,7 +85,7 @@
                     return cAggs != null;
 
                 default:
-                    throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
+                    throw new ArgumentException(Invariant($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}."));
             }
         }
 
@@ -109,7 +110,7 @@
                     return AddAggregator(aggregator, this.aggregatorsForCustom);
 
                 default:
-                    throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
+                    throw new ArgumentException(Invariant($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}."));
             }
         }
 

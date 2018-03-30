@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Globalization;
 
     /// <summary>@ToDo: Complete documentation before stable release. {406}</summary>
     public class MetricAggregate
@@ -104,7 +105,7 @@
             {
                 try
                 {
-                    T value = (T)Convert.ChangeType(dataValue, typeof(T));
+                    T value = (T)Convert.ChangeType(dataValue, typeof(T), CultureInfo.InvariantCulture);
                     return value;
                 }
                 catch

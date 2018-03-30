@@ -3,10 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using System.Linq;
-    using System.Reflection;
     using System.Runtime.CompilerServices;
-    using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -51,7 +48,7 @@
 
             if (value.Length == 0)
             {
-                throw new ArgumentException($"{name ?? Util.FallbackParemeterName} may not be empty.");
+                throw new ArgumentException((name ?? Util.FallbackParemeterName) + " may not be empty.");
             }
         }
 
@@ -68,7 +65,7 @@
 
             if (String.IsNullOrWhiteSpace(value))
             {
-                throw new ArgumentException($"{name ?? Util.FallbackParemeterName} may not be whitespace only.");
+                throw new ArgumentException((name ?? Util.FallbackParemeterName) + " may not be whitespace only.");
             }
         }
 
@@ -97,7 +94,7 @@
             {
                 throw new ArgumentException("Cannot process the specified value."
                                           + " A non-negavite whole number was expected, but the specified value is"
-                                         + $" a negative double value ({value})."
+                                          + " a negative double value (" + value + ")."
                                           + " Have you specified the correct metric configuration?");
             }
 
@@ -107,7 +104,7 @@
             {
                 throw new ArgumentException("Cannot process the specified value."
                                          + " A non-negavite whole number was expected, but the specified value is"
-                                        + $" larger than the maximum accepted value ({value})."
+                                         + " larger than the maximum accepted value (" + value + ")."
                                          + " Have you specified the correct metric configuration?");
             }
 
@@ -116,7 +113,7 @@
             {
                 throw new ArgumentException("Cannot process the specified value."
                                           + " A non-negavite whole number was expected, but the specified value is"
-                                         + $" a double value that does not equal to a whole number ({value})."
+                                          + " a double value that does not equal to a whole number (" + value + ")."
                                           + " Have you specified the correct metric configuration?");
             }
 
@@ -183,16 +180,16 @@
                     else
                     {
                         throw new ArgumentException("Cannot process the specified value."
-                                                 + $" A numeric value was expected, but the specified {nameof(metricValue)} is"
-                                                 + $" a String that cannot be parsed into a number (\"{metricValue}\")."
+                                                  + " A numeric value was expected, but the specified " + nameof(metricValue) + " is"
+                                                  + " a String that cannot be parsed into a number (\"" + metricValue + "\")."
                                                   + " Have you specified the correct metric configuration?");
                     }
                 }
                 else
                 {
                     throw new ArgumentException("Cannot process the specified value."
-                                             + $" A numeric value was expected, but the specified {nameof(metricValue)} is"
-                                             + $" of type {metricValue.GetType().FullName}."
+                                              + " A numeric value was expected, but the specified " + nameof(metricValue) + " is"
+                                              + " of type " + metricValue.GetType().FullName + "."
                                               + " Have you specified the correct metric configuration?");
                 }
             }

@@ -5,6 +5,8 @@
     using System.Runtime.CompilerServices;
     using System.Text;
 
+    using static System.FormattableString;
+
     /// <summary>@ToDo: Complete documentation before stable release. {085}</summary>
     public sealed class MetricIdentifier : IEquatable<MetricIdentifier>
     {
@@ -47,13 +49,13 @@
 
             if (String.IsNullOrWhiteSpace(partValue))
             {
-                throw new ArgumentException($"{partName} may not be empty.");
+                throw new ArgumentException(Invariant($"{partName} may not be empty."));
             }
 
             int pos = partName.IndexOfAny(InvalidMetricChars);
             if (pos >= 0)
             {
-                throw new ArgumentException($"{partName} (\"{partValue}\") contains a disallowed character at position {pos}.");
+                throw new ArgumentException(Invariant($"{partName} (\"{partValue}\") contains a disallowed character at position {pos}."));
             }
         }
 
@@ -408,8 +410,8 @@
         {
             if (dimensionNames?.Count > MaxDimensionsCount)
             {
-                throw new ArgumentException($"May not have more than {MaxDimensionsCount} dimensions,"
-                                          + $" but {nameof(dimensionNames)} has {dimensionNames.Count} elemets.");
+                throw new ArgumentException(Invariant($"May not have more than {MaxDimensionsCount} dimensions,")
+                                          + Invariant($" but {nameof(dimensionNames)} has {dimensionNames.Count} elemets."));
             }
         }
 
@@ -525,14 +527,14 @@
             {
                 throw new ArgumentOutOfRangeException(
                                 nameof(dimensionNumber),
-                                $"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Note that {nameof(dimensionNumber)} is a 1-based index.");
+                                Invariant($"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Note that {nameof(dimensionNumber)} is a 1-based index."));
             }
 
             if (dimensionNumber > 10)
             {
                 throw new ArgumentOutOfRangeException(
                                 nameof(dimensionNumber),
-                                $"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Only {nameof(dimensionNumber)} = 1, 2, ..., 10 are supported.");
+                                Invariant($"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Only {nameof(dimensionNumber)} = 1, 2, ..., 10 are supported."));
             }
 
             if (this.DimensionsCount < 1)
@@ -542,8 +544,8 @@
 
             if (dimensionNumber > this.DimensionsCount)
             {
-                throw new ArgumentOutOfRangeException($"Cannot access dimension for {nameof(dimensionNumber)}={dimensionNumber}"
-                                                    + $" becasue this metric only has {this.DimensionsCount} dimensions."
+                throw new ArgumentOutOfRangeException(Invariant($"Cannot access dimension for {nameof(dimensionNumber)}={dimensionNumber}")
+                                                    + Invariant($" becasue this metric only has {this.DimensionsCount} dimensions.")
                                                     + " Note that {nameof(dimensionNumber)} is a 1-based index.");
             }
         }
@@ -581,7 +583,7 @@
             {
                 if (dimensionCount != 0)
                 {
-                    throw new ArgumentException($"Name for dimension number {thisDimensionNumber} may not be omitted,"
+                    throw new ArgumentException(Invariant($"Name for dimension number {thisDimensionNumber} may not be omitted,")
                                                + " or may not be null if higher dimensions are present.");
                 }
 
@@ -594,7 +596,7 @@
 
             if (dimensionName.Length == 0)
             {
-                throw new ArgumentException($"Name for dimension number {thisDimensionNumber} may not be empty (or whitespace only)."
+                throw new ArgumentException(Invariant($"Name for dimension number {thisDimensionNumber} may not be empty (or whitespace only).")
                                            + " Dimension names may be 'null' to indicate the absence of a dimension, but if present,"
                                            + " they must contain at least 1 printable character.");
             }
@@ -602,8 +604,8 @@
             int pos = dimensionName.IndexOfAny(InvalidMetricChars);
             if (pos >= 0)
             {
-                throw new ArgumentException($"Name for dimension number {thisDimensionNumber} (\"{dimensionName}\")"
-                                          + $" contains a disallowed character at position {pos}.");
+                throw new ArgumentException(Invariant($"Name for dimension number {thisDimensionNumber} (\"{dimensionName}\")")
+                                          + Invariant($" contains a disallowed character at position {pos}."));
             }
         }
 

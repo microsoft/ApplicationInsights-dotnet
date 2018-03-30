@@ -5,6 +5,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using static System.FormattableString;
+
     /// <summary>@ToDo: Complete documentation before stable release. {562}</summary>
     /// <typeparam name="TBufferedValue">The actual type of the metric values. For most common metrics it's <c>double</c>.
     /// However, for example a metric collecting strings to dount the number of distinct entities might have <c>string</c>.</typeparam>
@@ -419,7 +421,7 @@
 
             if (buffer == null)
             {
-                throw new InvalidOperationException($"{nameof(this.metricValuesBufferFactory)}-delegate returned null. This is not allowed. Bad aggregator?");
+                throw new InvalidOperationException(Invariant($"{nameof(this.metricValuesBufferFactory)}-delegate returned null. This is not allowed. Bad aggregator?"));
             }
 
             return buffer;

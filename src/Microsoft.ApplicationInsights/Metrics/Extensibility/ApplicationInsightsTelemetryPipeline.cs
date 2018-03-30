@@ -4,6 +4,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using static System.FormattableString;
+
     /// <summary>@ToDo: Complete documentation before stable release. {628}</summary>
     /// @PublicExposureCandidate
     internal class ApplicationInsightsTelemetryPipeline : IMetricTelemetryPipeline
@@ -47,11 +49,11 @@
                                                                                             out converter);
             if (false == hasConverter)
             {
-                throw new ArgumentException($"Cannot track the specified {metricAggregate}, because there is no {nameof(IMetricAggregateToTelemetryPipelineConverter)}"
-                                          + $" registered for it. A converter must be added to {nameof(MetricAggregateToTelemetryPipelineConverters)}"
-                                          + $".{nameof(MetricAggregateToTelemetryPipelineConverters.Registry)} for the pipeline type"
-                                          + $" '{typeof(ApplicationInsightsTelemetryPipeline).Name}' and {nameof(metricAggregate.AggregationKindMoniker)}"
-                                          + $" '{metricAggregate.AggregationKindMoniker}'.");
+                throw new ArgumentException(Invariant($"Cannot track the specified {metricAggregate}, because there is no {nameof(IMetricAggregateToTelemetryPipelineConverter)}")
+                                          + Invariant($" registered for it. A converter must be added to {nameof(MetricAggregateToTelemetryPipelineConverters)}")
+                                          + Invariant($".{nameof(MetricAggregateToTelemetryPipelineConverters.Registry)} for the pipeline type")
+                                          + Invariant($" '{typeof(ApplicationInsightsTelemetryPipeline).Name}' and {nameof(metricAggregate.AggregationKindMoniker)}")
+                                          + Invariant($" '{metricAggregate.AggregationKindMoniker}'."));
             }
 
             object telemetryItem = converter.Convert(metricAggregate);

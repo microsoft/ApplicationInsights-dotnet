@@ -5,6 +5,8 @@
     using System.Collections.Generic;
     using System.Threading;
 
+    using static System.FormattableString;
+
     internal class MultidimensionalCubeDimension<TDimensionValue, TPoint>
     {
         private readonly MultidimensionalCube<TDimensionValue, TPoint> ownerCube;
@@ -28,8 +30,8 @@
             if (coordinates.Length != this.ownerCube.DimensionsCount)
             {
                 throw new ArgumentException(
-                            $"The specified {nameof(coordinates)}-vector has {coordinates.Length} dimensions."
-                          + $" However {nameof(this.ownerCube)} has {this.ownerCube.DimensionsCount} dimensions.",
+                            Invariant($"The specified {nameof(coordinates)}-vector has {coordinates.Length} dimensions.")
+                          + Invariant($" However {nameof(this.ownerCube)} has {this.ownerCube.DimensionsCount} dimensions."),
                             nameof(coordinates));
             }
 
@@ -44,8 +46,8 @@
             if (coordinates.Length != this.ownerCube.DimensionsCount)
             {
                 throw new ArgumentException(
-                            $"The specified {nameof(coordinates)}-vector has {coordinates.Length} dimensions."
-                          + $" However {nameof(this.ownerCube)} has {this.ownerCube.DimensionsCount} dimensions.",
+                            Invariant($"The specified {nameof(coordinates)}-vector has {coordinates.Length} dimensions.")
+                          + Invariant($" However {nameof(this.ownerCube)} has {this.ownerCube.DimensionsCount} dimensions."),
                             nameof(coordinates));
             }
 

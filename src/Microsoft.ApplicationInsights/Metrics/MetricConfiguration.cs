@@ -2,6 +2,8 @@
 {
     using System;
 
+    using static System.FormattableString;
+
     /// <summary>@ToDo: Complete documentation before stable release. {654}</summary>
     public class MetricConfiguration : IEquatable<MetricConfiguration>
     {
@@ -20,7 +22,7 @@
             {
                 throw new ArgumentOutOfRangeException(
                                                     nameof(seriesCountLimit),
-                                                    $"Metrics must allow at least one data series (but {seriesCountLimit} was specified).");
+                                                    Invariant($"Metrics must allow at least one data series (but {seriesCountLimit} was specified)."));
             }
 
             if (valuesPerDimensionLimit < 0)

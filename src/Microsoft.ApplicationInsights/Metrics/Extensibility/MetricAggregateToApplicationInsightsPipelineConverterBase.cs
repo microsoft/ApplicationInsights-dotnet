@@ -5,6 +5,8 @@
     using System.Globalization;
     using Microsoft.ApplicationInsights.DataContracts;
 
+    using static System.FormattableString;
+
     /// <summary>@ToDo: Complete documentation before stable release. {533}</summary>
     /// @PublicExposureCandidate
     internal abstract class MetricAggregateToApplicationInsightsPipelineConverterBase : IMetricAggregateToTelemetryPipelineConverter
@@ -138,13 +140,13 @@
                     case MetricDimensionNames.TelemetryContext.Session.IsFirst:
                         try
                         {
-                            telemetryContext.Session.IsFirst = System.Convert.ToBoolean(dimension.Value);
+                            telemetryContext.Session.IsFirst = System.Convert.ToBoolean(dimension.Value, CultureInfo.InvariantCulture);
                         }
                         catch
                         {
                             try
                             {
-                                int val = System.Convert.ToInt32(dimension.Value);
+                                int val = System.Convert.ToInt32(dimension.Value, CultureInfo.InvariantCulture);
                                 if (val == 1)
                                 {
                                     telemetryContext.Session.IsFirst = true;
@@ -209,9 +211,9 @@
 
             if (!metricAggregate.AggregationKindMoniker.Equals(expectedMoniker, StringComparison.OrdinalIgnoreCase))
             {
-                throw new ArgumentException($"Cannot convert the specified {metricAggregate}, because is has"
-                                          + $" {nameof(metricAggregate.AggregationKindMoniker)}=\"{metricAggregate.AggregationKindMoniker}\"."
-                                          + $" This converter handles \"{expectedMoniker}\".");
+                throw new ArgumentException(Invariant($"Cannot convert the specified {metricAggregate}, because is has")
+                                          + Invariant($" {nameof(metricAggregate.AggregationKindMoniker)}=\"{metricAggregate.AggregationKindMoniker}\".")
+                                          + Invariant($" This converter handles \"{expectedMoniker}\"."));
             }
         }
 

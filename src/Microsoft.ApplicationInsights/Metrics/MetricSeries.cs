@@ -6,6 +6,7 @@
     using System.Runtime.ExceptionServices;
     using System.Threading;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
+    using static System.FormattableString;
     using CycleKind = Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind;
 
     /// <summary>
@@ -58,12 +59,12 @@
                 {
                     if (dimNameVal.Value == null)
                     {
-                        throw new ArgumentNullException($"The value for dimension '{dimNameVal.Key}' number is null.");
+                        throw new ArgumentNullException(Invariant($"The value for dimension '{dimNameVal.Key}' number is null."));
                     }
 
                     if (String.IsNullOrWhiteSpace(dimNameVal.Value))
                     {
-                        throw new ArgumentNullException($"The value for dimension '{dimNameVal.Key}' is empty or white-space.");
+                        throw new ArgumentNullException(Invariant($"The value for dimension '{dimNameVal.Key}' is empty or white-space."));
                     }
 
                     dimNameVals[dimNameVal.Key] = dimNameVal.Value;
@@ -74,16 +75,16 @@
             // Validate that metricIdentifier and dimensionNamesAndValues contain consistent dimension names:
             if (metricIdentifier.DimensionsCount != dimNameVals.Count)
             {
-                throw new ArgumentException($"The specified {nameof(metricIdentifier)} contains {metricIdentifier.DimensionsCount} dimensions,"
-                                          + $" however the specified {nameof(dimensionNamesAndValues)} contains {dimNameVals.Count} name-value pairs with unique names.");
+                throw new ArgumentException(Invariant($"The specified {nameof(metricIdentifier)} contains {metricIdentifier.DimensionsCount} dimensions,")
+                                          + Invariant($" however the specified {nameof(dimensionNamesAndValues)} contains {dimNameVals.Count} name-value pairs with unique names."));
             }
 
             foreach (string dimName in metricIdentifier.GetDimensionNames())
             {
                 if (false == dimNameVals.ContainsKey(dimName))
                 {
-                    throw new ArgumentException($"The specified {nameof(metricIdentifier)} contains a dimension named \"{dimName}\","
-                                              + $" however the specified {nameof(dimensionNamesAndValues)} does not contain an entry for that name.");
+                    throw new ArgumentException(Invariant($"The specified {nameof(metricIdentifier)} contains a dimension named \"{dimName}\",")
+                                              + Invariant($" however the specified {nameof(dimensionNamesAndValues)} does not contain an entry for that name."));
                 }
             }
 
@@ -271,7 +272,7 @@
                         break;
 
                     default:
-                        throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
+                        throw new ArgumentException(Invariant($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}."));
                 }
             }
 
@@ -306,7 +307,7 @@
                     break;
 
                 default:
-                    throw new ArgumentException($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}.");
+                    throw new ArgumentException(Invariant($"Unexpected value of {nameof(aggregationCycleKind)}: {aggregationCycleKind}."));
             }
         }
 

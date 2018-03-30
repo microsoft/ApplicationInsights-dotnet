@@ -5,6 +5,8 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
 
+    using static System.FormattableString;
+
     /// <summary>@ToDo: Complete documentation before stable release. {092}</summary>
     public sealed class MetricsCollection : ICollection<Metric>
     {
@@ -55,7 +57,7 @@
                                           + " metric was created for the first time. Either specify the same configuration every time, or"
                                           + " specify 'null' during every invocation except the first one. 'Null' will match against any"
                                           + " previously specified configuration when retrieving existing metrics, or fall back to"
-                                         + $" the default when creating new metrics. ({nameof(metricIdentifier)} = \"{metricIdentifier.ToString()}\".)");
+                               + Invariant($" the default when creating new metrics. ({nameof(metricIdentifier)} = \"{metricIdentifier.ToString()}\".)"));
             }
 
             return metric;
@@ -129,8 +131,8 @@
         /// <param name="unsupported">@ToDo: Complete documentation before stable release. {021}</param>
         void ICollection<Metric>.Add(Metric unsupported)
         {
-            throw new NotSupportedException($"The Add(..) method is not supported by this {nameof(MetricsCollection)}."
-                                           + " To add a new metric, use the GetOrCreate(..) method.");
+            throw new NotSupportedException(Invariant($"The Add(..) method is not supported by this {nameof(MetricsCollection)}.")
+                                                     + " To add a new metric, use the GetOrCreate(..) method.");
         }
     }
 }

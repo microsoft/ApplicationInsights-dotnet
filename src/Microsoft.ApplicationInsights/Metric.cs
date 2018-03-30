@@ -6,6 +6,8 @@
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures;
 
+    using static System.FormattableString;
+
     /// <summary>
     /// Represents a zero- or multi-dimensional metric.<br />
     /// Contains convenience methods to track, aggregate and send values.<br />
@@ -440,13 +442,13 @@
 
             if (this.Identifier.DimensionsCount != dimensionValues.Length)
             {
-                throw new ArgumentException($"Attempted to get a metric series by specifying {dimensionValues.Length} dimension(s),"
-                                          + $" but this metric has {this.Identifier.DimensionsCount} dimensions.");
+                throw new ArgumentException(Invariant($"Attempted to get a metric series by specifying {dimensionValues.Length} dimension(s),")
+                                          + Invariant($" but this metric has {this.Identifier.DimensionsCount} dimensions."));
             }
 
             for (int d = 0; d < dimensionValues.Length; d++)
             {
-                Util.ValidateNotNullOrWhitespace(dimensionValues[d], $"{nameof(dimensionValues)}[{d}]");
+                Util.ValidateNotNullOrWhitespace(dimensionValues[d], Invariant($"{nameof(dimensionValues)}[{d}]"));
             }
 
             MultidimensionalPointResult<MetricSeries> result = createIfNotExists
@@ -1207,23 +1209,23 @@
             if (isMultidimensional && configuration.ValuesPerDimensionLimit < 1)
             {
                 throw new ArgumentException("Multidimensional metrics must allow at least one dimension-value per dimesion"
-                                         + $" (but {configuration.ValuesPerDimensionLimit} was specified"
-                                         + $" in {nameof(configuration)}.{nameof(configuration.ValuesPerDimensionLimit)}).");
+                                          + Invariant($" (but {configuration.ValuesPerDimensionLimit} was specified")
+                                          + Invariant($" in {nameof(configuration)}.{nameof(configuration.ValuesPerDimensionLimit)})."));
             }
 
             if (configuration.SeriesCountLimit < 1)
             {
                 throw new ArgumentException("Metrics must allow at least one data series"
-                                         + $" (but {configuration.SeriesCountLimit} was specified)"
-                                         + $" in {nameof(configuration)}.{nameof(configuration.SeriesCountLimit)}).");
+                                         + Invariant($" (but {configuration.SeriesCountLimit} was specified)")
+                                         + Invariant($" in {nameof(configuration)}.{nameof(configuration.SeriesCountLimit)})."));
             }
 
             if (isMultidimensional && configuration.SeriesCountLimit < 2)
             {
                 throw new ArgumentException("Multidimensional metrics must allow at least two data series:"
                                          + " 1 for the basic (zero-dimensional) series and 1 additional series"
-                                         + $" (but {configuration.SeriesCountLimit} was specified)"
-                                         + $" in {nameof(configuration)}.{nameof(configuration.SeriesCountLimit)}).");
+                                         + Invariant($" (but {configuration.SeriesCountLimit} was specified)")
+                                         + Invariant($" in {nameof(configuration)}.{nameof(configuration.SeriesCountLimit)})."));
             }
         }
 
@@ -1242,12 +1244,12 @@
 
                     if (dimensionValue == null)
                     {
-                        throw new ArgumentNullException($"{nameof(dimensionValues)}[{d}]");
+                        throw new ArgumentNullException(Invariant($"{nameof(dimensionValues)}[{d}]"));
                     }
 
                     if (String.IsNullOrWhiteSpace(dimensionValue))
                     {
-                        throw new ArgumentException($"The value for dimension number {d} is empty or white-space.");
+                        throw new ArgumentException(Invariant($"The value for dimension number {d} is empty or white-space."));
                     }
 
                     dimensionNamesAndValues[d] = new KeyValuePair<string, string>(dimensionName, dimensionValue);

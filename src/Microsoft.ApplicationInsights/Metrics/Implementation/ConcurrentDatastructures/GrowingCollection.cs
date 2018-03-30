@@ -6,6 +6,8 @@
     using System.Runtime.CompilerServices;
     using System.Threading;
 
+    using static System.FormattableString;
+
     /// <summary>@ToDo: Complete documentation before stable release. {574}</summary>
     /// <typeparam name="T">Type of collection elemets.</typeparam>
     internal class GrowingCollection<T> : IEnumerable<T>
@@ -213,7 +215,7 @@
                 {
                     if (index < 0 || this.localCount <= index || SegmentSize <= index)
                     {
-                        throw new ArgumentOutOfRangeException(nameof(index), $"Invalid index ({index})");
+                        throw new ArgumentOutOfRangeException(nameof(index), Invariant($"Invalid index ({index})"));
                     }
 
                     return this.data[index];

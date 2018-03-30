@@ -9,6 +9,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using static System.FormattableString;
+
     /// <summary>@ToDo: Complete documentation before stable release. {099}</summary>
     /// <typeparam name="TPoint">Type of the set over which the cube is build. For metics, it is a metric series.</typeparam>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001: Types that own disposable fields should be disposable", Justification = "OK not to explicitly dispose a released SemaphoreSlim.")]
@@ -50,7 +52,7 @@
         {
             if (totalPointsCountLimit < 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(totalPointsCountLimit), $"{nameof(totalPointsCountLimit)} must be 1 or larger. Typically much larger.");
+                throw new ArgumentOutOfRangeException(nameof(totalPointsCountLimit), Invariant($"{nameof(totalPointsCountLimit)} must be 1 or larger. Typically much larger."));
             }
 
             Util.ValidateNotNull(pointsFactory, nameof(pointsFactory));
@@ -64,15 +66,15 @@
 
             if (dimensionValuesCountLimits.Length > DimensionsCountLimit)
             {
-                throw new ArgumentException($"Cube may not have more than ${MultidimensionalCube2<TPoint>.DimensionsCountLimit} dimensions,"
-                                          + $" but {dimensionValuesCountLimits.Length} dimensions were specified.");
+                throw new ArgumentException(Invariant($"Cube may not have more than ${MultidimensionalCube2<TPoint>.DimensionsCountLimit} dimensions,")
+                                          + Invariant($" but {dimensionValuesCountLimits.Length} dimensions were specified."));
             }
 
             for (int d = 0; d < dimensionValuesCountLimits.Length; d++)
             {
                 if (dimensionValuesCountLimits[d] < 1)
                 {
-                    throw new ArgumentException($"The limit of distinct dimension values must be 1 or larger, but the limit specified for dimension {d} is {dimensionValuesCountLimits[d]}.");
+                    throw new ArgumentException(Invariant($"The limit of distinct dimension values must be 1 or larger, but the limit specified for dimension {d} is {dimensionValuesCountLimits[d]}."));
                 }
             }
 
@@ -269,14 +271,16 @@
             {
                 if (coordinates[i] == null)
                 {
-                    throw new ArgumentNullException($"{nameof(coordinates)}[{i}]", $"The specified {nameof(coordinates)}-vector contains null at index {i}.");
+                    throw new ArgumentNullException(
+                                        Invariant($"{nameof(coordinates)}[{i}]"), 
+                                        Invariant($"The specified {nameof(coordinates)}-vector contains null at index {i}."));
                 }
 
                 if (coordinates[i].Contains(PointMonikerSeparator))
                 {
-                    throw new ArgumentException($"The value at index {i} of the specified {nameof(coordinates)}-vector contains"
-                                              + $" an invalid character sub-sequence. Complete coordinate value: \"{coordinates[i]}\"."
-                                              + $" Invalid sub-sequence: \"{PointMonikerSeparator}\".");
+                    throw new ArgumentException(Invariant($"The value at index {i} of the specified {nameof(coordinates)}-vector contains")
+                                              + Invariant($" an invalid character sub-sequence. Complete coordinate value: \"{coordinates[i]}\".")
+                                              + Invariant($" Invalid sub-sequence: \"{PointMonikerSeparator}\"."));
                 }
 
                 if (i > 0)
@@ -377,9 +381,9 @@
                 bool added = this.points.TryAdd(pointMoniker, point);
                 if (false == added)
                 {
-                    throw new InvalidOperationException($"Internal SDK bug. Please report this! (pointMoniker: {pointMoniker})"
-                                                      + $" Info: Failed to add a point to the {nameof(this.points)}-collection in"
-                                                      + $" class {nameof(MultidimensionalCube2<TPoint>)} despite passing all the cerfification checks.");
+                    throw new InvalidOperationException(Invariant($"Internal SDK bug. Please report this! (pointMoniker: {pointMoniker})")
+                                                      + Invariant($" Info: Failed to add a point to the {nameof(this.points)}-collection in")
+                                                      + Invariant($" class {nameof(MultidimensionalCube2<TPoint>)} despite passing all the cerfification checks."));
                 }
             }
 
@@ -402,7 +406,7 @@
 
             if (dimension >= this.DimensionsCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(dimension), $"Dimension index (zero-based) exceeds the number of dimensions of this cube ({this.DimensionsCount}).");
+                throw new ArgumentOutOfRangeException(nameof(dimension), Invariant($"Dimension index (zero-based) exceeds the number of dimensions of this cube ({this.DimensionsCount})."));
             }
         }
 
@@ -413,8 +417,8 @@
             if (coordinates.Length != this.DimensionsCount)
             {
                 throw new ArgumentException(
-                            $"The specified {nameof(coordinates)}-vector has {coordinates.Length} dimensions."
-                          + $" However this has {this.DimensionsCount} dimensions.",
+                            Invariant($"The specified {nameof(coordinates)}-vector has {coordinates.Length} dimensions.")
+                          + Invariant($" However this has {this.DimensionsCount} dimensions."),
                             nameof(coordinates));
             }
 

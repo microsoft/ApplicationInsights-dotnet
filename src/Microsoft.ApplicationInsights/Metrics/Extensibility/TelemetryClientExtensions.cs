@@ -6,6 +6,8 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Extensibility;
 
+    using static System.FormattableString;
+
     /// <summary>@ToDo: Complete documentation before stable release. {526}</summary>
     public static class TelemetryClientExtensions
     {
@@ -30,9 +32,9 @@
                     return manager;
 
                 default:
-                    throw new ArgumentException($"Invalid value of {nameof(aggregationScope)} ({aggregationScope}). Only the following values are supported:"
-                                              + $" ['{nameof(MetricAggregationScope)}.{MetricAggregationScope.TelemetryClient.ToString()}',"
-                                              + $" '{nameof(MetricAggregationScope)}.{MetricAggregationScope.TelemetryConfiguration.ToString()}'].");
+                    throw new ArgumentException(Invariant($"Invalid value of {nameof(aggregationScope)} ({aggregationScope}). Only the following values are supported:")
+                                              + Invariant($" ['{nameof(MetricAggregationScope)}.{MetricAggregationScope.TelemetryClient.ToString()}',")
+                                              + Invariant($" '{nameof(MetricAggregationScope)}.{MetricAggregationScope.TelemetryConfiguration.ToString()}']."));
             }
         }
 
