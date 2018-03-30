@@ -13,7 +13,7 @@
         /// <summary>
         /// Max length of Application Id allowed in response from Breeze.
         /// </summary>
-        private const int ApplicationIdMaxLengeth = 50;
+        private const int ApplicationIdMaxLength = 50;
 
         /// <summary>
         /// Format an Application Id string (ex: 00000000-0000-0000-0000-000000000000) 
@@ -27,7 +27,7 @@
         internal static string ApplyFormatting(string applicationId)
         {
             // Arbitrary maximum length to guard against injections.
-            applicationId = EnforceMaxLength(applicationId, ApplicationIdMaxLengeth);
+            applicationId = EnforceMaxLength(applicationId, ApplicationIdMaxLength);
             if (string.IsNullOrWhiteSpace(applicationId))
             {
                 return null;

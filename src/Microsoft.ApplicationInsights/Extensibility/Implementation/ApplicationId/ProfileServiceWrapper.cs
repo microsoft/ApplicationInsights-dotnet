@@ -50,11 +50,11 @@
         }
 
         /// <summary>Send HttpRequest to get config id.</summary>
-        /// <remarks>This method is internal so it can be moq-ed in a unit test.</remarks>
-        internal virtual async Task<HttpResponseMessage> GetAsync(string instrumentationKey)
+        /// <remarks>This method is internal virtual so it can be moq-ed in a unit test.</remarks>
+        internal virtual Task<HttpResponseMessage> GetAsync(string instrumentationKey)
         {
             Uri applicationIdEndpoint = this.GetApplicationIdEndPointUri(instrumentationKey.ToLowerInvariant());
-            return await this.httpClient.GetAsync(applicationIdEndpoint).ConfigureAwait(false);
+            return this.httpClient.GetAsync(applicationIdEndpoint);
         }
 
         /// <summary>
@@ -92,14 +92,7 @@
         /// <returns>Computed Uri.</returns>
         private Uri GetApplicationIdEndPointUri(string instrumentationKey)
         {
-            if (this.ProfileQueryEndpoint != null)
-            {
-                return new Uri(string.Format(CultureInfo.InvariantCulture, this.ProfileQueryEndpoint, instrumentationKey));
-            }
-            else
-            {
-                return new Uri(string.Format(CultureInfo.InvariantCulture, Constants.ProfileQueryEndpoint, instrumentationKey));
-            }
+            return new Uri(string.Format(CultureInfo.InvariantCulture, this.ProfileQueryEndpoint ?? Constants.ProfileQueryEndpoint, instrumentationKey));
         }
     }
 }
