@@ -47,6 +47,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         }
 
         // Disabled pending resolution of https://github.com/Microsoft/ApplicationInsights-dotnet/issues/746
+        // @ToDo: Re-enble when issue resolved.
         /// <summary />
         // [TestMethod]
         public async Task TrackAsync_SendsCorrectly()
@@ -186,6 +187,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         }
 
         // Disabled pending resolution of https://github.com/Microsoft/ApplicationInsights-dotnet/issues/746
+        // @ToDo: Re-enble when issue resolved.
         /// <summary />
         // [TestMethod]
         public async Task TrackAsync_HandlesDifferentAggregates()
@@ -610,6 +612,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         }
 
         // Disabled pending resolution of https://github.com/Microsoft/ApplicationInsights-dotnet/issues/746
+        // @ToDo: Re-enble when issue resolved.
         /// <summary />
         // [TestMethod]
         public async Task TrackAsync_CorrectlyCopiesTelemetryContextDimensions()
