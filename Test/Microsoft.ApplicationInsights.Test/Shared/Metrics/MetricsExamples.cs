@@ -423,10 +423,10 @@ namespace User.Namespace.Example03
             // (In fact, they are all references to the same object.)
 
             // Using the Microsoft.ApplicationInsights.Metrics.Extensions package:
-            //Metric AccumulatorMetric2 = client.GetMetric("Items in a Data Structure 2", MetricConfigurations.Common.Accumulator());
+            //Metric accumulatorMetric2 = client.GetMetric("Items in a Data Structure 2", MetricConfigurations.Common.Accumulator());
 
             // Using a private implementation:
-            Metric AccumulatorMetric2 = client.GetMetric(
+            Metric accumulatorMetric2 = client.GetMetric(
                     "Items in a Data Structure",
                     new MetricConfiguration(
                             1000,
