@@ -36,6 +36,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryItemTestHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EnumerableExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ApplicationId\ApplicationIdHelperTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ApplicationId\ApplicationInsightsApplicationIdProviderTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ApplicationId\ApplicationIdTestBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ApplicationId\DictionaryApplicationIdProviderTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ApplicationId\FailedRequestsManagerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ApplicationId\ProfileServiceWrapperTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationHolderTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonSerializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryProcessorChainBuilderTest.cs" />
