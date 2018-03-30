@@ -6,7 +6,7 @@
     using System.Collections.Generic;
 
     /// <summary>@ToDo: Complete documentation before stable release. {092}</summary>
-    public class MetricsCollection : ICollection<Metric>
+    public sealed class MetricsCollection : ICollection<Metric>
     {
         private readonly MetricManager metricManager;
         private readonly ConcurrentDictionary<MetricIdentifier, Metric> metrics = new ConcurrentDictionary<MetricIdentifier, Metric>();

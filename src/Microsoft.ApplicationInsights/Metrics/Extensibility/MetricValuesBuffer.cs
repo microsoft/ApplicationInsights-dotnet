@@ -20,6 +20,7 @@
 
         /// <summary>@ToDo: Complete documentation before stable release. {327}</summary>
         /// <param name="capacity">@ToDo: Complete documentation before stable release. {055}</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214: Do not call overridable methods in constructors", Justification = "Call chain has been reviewed.")]
         public MetricValuesBufferBase(int capacity)
         {
             if (capacity < 1)

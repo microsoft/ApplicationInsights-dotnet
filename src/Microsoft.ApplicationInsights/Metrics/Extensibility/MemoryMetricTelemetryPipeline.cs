@@ -8,6 +8,7 @@
 
     /// <summary>@ToDo: Complete documentation before stable release. {079}</summary>
     /// @PublicExposureCandidate
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001: Types that own disposable fields should be disposable", Justification = "OK not to explicitly dispose a released SemaphoreSlim.")]
     internal class MemoryMetricTelemetryPipeline : IMetricTelemetryPipeline, IReadOnlyList<MetricAggregate>
     {
         /// <summary>@ToDo: Complete documentation before stable release. {529}</summary>

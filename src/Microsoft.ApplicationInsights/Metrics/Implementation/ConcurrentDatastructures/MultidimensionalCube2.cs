@@ -11,6 +11,7 @@
 
     /// <summary>@ToDo: Complete documentation before stable release. {099}</summary>
     /// <typeparam name="TPoint">Type of the set over which the cube is build. For metics, it is a metric series.</typeparam>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001: Types that own disposable fields should be disposable", Justification = "OK not to explicitly dispose a released SemaphoreSlim.")]
     internal class MultidimensionalCube2<TPoint>
     {
         /// <summary>
