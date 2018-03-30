@@ -14,7 +14,6 @@
         List<char> asciiPrintableCharacters = new List<char>(); // Printable ASCII characters are (hex: 0x20 - 0xFF) (decimal: 32-255) (PARTIALLY ALLOWED)
         List<char> headerSafeCharacters = new List<char>(); // Printable ASCII characters are (hex: 0x20 - 0xFF) (decimal: 32-255) (PARTIALLY ALLOWED)
 
-
         public ApplicationIdHelperTests()
         {
             asciiCharacters.AddRange(Enumerable.Range(0, 128).Select(x => Convert.ToChar(x)));
@@ -29,8 +28,7 @@
         {
             string testSet = new String(headerSafeCharacters.ToArray());
 
-            var actual = ApplicationIdHelper.SanitizeString(testSet);
-            Assert.AreEqual(testSet, actual);
+            Verify(testSet, testSet);
         }
 
         [TestMethod]
@@ -38,8 +36,7 @@
         {
             string testSet = new string(nonPrintableCharacters.ToArray());
 
-            var actual = ApplicationIdHelper.SanitizeString(testSet);
-            Assert.AreEqual(string.Empty, actual);
+            Verify(testSet, string.Empty);
         }
 
         [TestMethod]
@@ -47,8 +44,21 @@
         {
             string testSet = new string(asciiExtendedCharacters.ToArray());
 
-            var actual = ApplicationIdHelper.SanitizeString(testSet);
-            Assert.AreEqual(string.Empty, actual);
+            Verify(testSet, string.Empty);
         }
+
+        [TestMethod]
+        public void VerifyVarious()
+        {
+            Verify(null, null);
+            Guid guid = Guid.NewGuid();
+            Verify(guid.ToString(), guid.ToString());
+            Verify("Hello, World!", "Hello, World!");
+            Verify("Test\r\n\tTest", "TestTest"); // Non-printable ASCII
+            Verify("Test\u20acTest", "TestTest"); // Euro sign (non-ASCII above 256)
+            Verify("Test\u00a0Test", "TestTest"); // No-break space (non-ASCII below 256)
+        }
+
+        private void Verify(string input, string expectedSanitizedOutput) => Assert.AreEqual(expectedSanitizedOutput, ApplicationIdHelper.SanitizeString(input));
     }
 }
