@@ -13,6 +13,14 @@
         public IReadOnlyDictionary<string, string> Defined { get; set; }
 
         /// <summary>
+        /// Gets or sets an <see cref="IApplicationIdProvider" /> to use to lookup an Instrumentation Key not found in the dictionary.
+        /// </summary>
+        /// <remarks>
+        /// This property is optional. If this is NULL, additional lookups will not be performed.
+        /// </remarks>
+        public IApplicationIdProvider Next { get; set; }
+
+        /// <summary>
         /// Provides an Application Id based on an Instrumentation Key.
         /// </summary>
         /// <param name="instrumentationKey">Instrumentation Key string used to lookup associated Application Id.</param>
@@ -20,13 +28,16 @@
         /// <returns>TRUE if Application Id was successfully retrieved, FALSE otherwise.</returns>
         public bool TryGetApplicationId(string instrumentationKey, out string applicationId)
         {
-            if (this.Defined == null)
+            applicationId = null;
+
+            var found = this.Defined?.TryGetValue(instrumentationKey, out applicationId) ?? false;
+
+            if (!found)
             {
-                applicationId = null;
-                return false;
+                found = this.Next?.TryGetApplicationId(instrumentationKey, out applicationId) ?? false;
             }
 
-            return this.Defined.TryGetValue(instrumentationKey, out applicationId);
+            return found;
         }
     }
 }

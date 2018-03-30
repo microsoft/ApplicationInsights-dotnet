@@ -37,5 +37,35 @@
             Assert.IsFalse(applicationIdProvider.TryGetApplicationId("abc", out string actual3));
             Assert.IsNull(actual3);
         }
+
+        [TestMethod]
+        public void VerifyEvaluatesNext()
+        {
+            var applicationIdProvider = new DictionaryApplicationIdProvider()
+            {
+                Next = new MockApplicationIdProvider()
+            };
+
+            Assert.IsTrue(applicationIdProvider.TryGetApplicationId(testInstrumentationKey1, out string actual));
+            Assert.AreEqual(testApplicationId1, actual);
+        }
+
+        [TestMethod]
+        public void VerifyReturnsNullIfNotInitialized()
+        {
+            var applicationIdProvider = new DictionaryApplicationIdProvider();
+
+            Assert.IsFalse(applicationIdProvider.TryGetApplicationId(testInstrumentationKey1, out string actual));
+            Assert.IsNull(actual);
+        }
+
+        private class MockApplicationIdProvider : IApplicationIdProvider
+        {
+            public bool TryGetApplicationId(string instrumentationKey, out string applicationId)
+            {
+                applicationId = testApplicationId1;
+                return true;
+            }
+        }
     }
 }
