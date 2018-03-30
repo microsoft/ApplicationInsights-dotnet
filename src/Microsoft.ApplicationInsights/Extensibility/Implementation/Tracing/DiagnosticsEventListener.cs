@@ -42,7 +42,8 @@
 
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
-            if (eventSource.Name.StartsWith("Microsoft-ApplicationInsights-", StringComparison.Ordinal))
+            if (eventSource.Name.StartsWith("Microsoft-ApplicationInsights-", StringComparison.Ordinal) ||
+                eventSource.Name.Equals("Microsoft-AspNet-Telemetry-Correlation", StringComparison.Ordinal))
             {
                 this.EnableEvents(eventSource, this.logLevel, (EventKeywords)AllKeyword);
             }
