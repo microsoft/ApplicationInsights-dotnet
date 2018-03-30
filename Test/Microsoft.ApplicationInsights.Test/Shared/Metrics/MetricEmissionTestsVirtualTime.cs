@@ -27,7 +27,7 @@ namespace SomeCustomerNamespace
         public void RecordNormalMetric()
         {
             TelemetryConfiguration telemetryPipeline = TelemetryConfiguration.Active;
-            using (telemetryPipeline)
+            //using (telemetryPipeline)
             {
                 RecordNormalMetric(telemetryPipeline);
                 TestUtil.CompleteDefaultAggregationCycle(telemetryPipeline.GetMetricManager());

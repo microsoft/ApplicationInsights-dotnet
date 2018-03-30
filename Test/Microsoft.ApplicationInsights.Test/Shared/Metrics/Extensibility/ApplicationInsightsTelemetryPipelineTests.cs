@@ -46,8 +46,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             }
         }
 
+        // Disabled pending resolution of https://github.com/Microsoft/ApplicationInsights-dotnet/issues/746
         /// <summary />
-        [TestMethod]
+        // [TestMethod]
         public async Task TrackAsync_SendsCorrectly()
         {
             await dontRunInParallelLock.WaitAsync();
@@ -184,8 +185,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             }
         }
 
+        // Disabled pending resolution of https://github.com/Microsoft/ApplicationInsights-dotnet/issues/746
         /// <summary />
-        [TestMethod]
+        // [TestMethod]
         public async Task TrackAsync_HandlesDifferentAggregates()
         {
             const string mockInstrumentationKey = "103CFCEC-BDA6-4EBC-B1F0-2652654DC6FD";
@@ -607,8 +609,9 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             }
         }
 
+        // Disabled pending resolution of https://github.com/Microsoft/ApplicationInsights-dotnet/issues/746
         /// <summary />
-        [TestMethod]
+        // [TestMethod]
         public async Task TrackAsync_CorrectlyCopiesTelemetryContextDimensions()
         {
             const string mockInstrumentationKey = "103CFCEC-BDA6-4EBC-B1F0-2652654DC6FD";
