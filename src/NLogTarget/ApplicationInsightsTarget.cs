@@ -10,15 +10,16 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
 
     using NLog;
+    using NLog.Common;
     using NLog.Targets;
-      
+
     /// <summary>
     /// NLog Target that routes all logging output to the Application Insights logging framework.
     /// The messages will be uploaded to the Application Insights cloud service.
@@ -83,6 +84,23 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             else
             {
                 this.SendTrace(logEvent);
+            }
+        }
+
+        /// <summary>
+        /// Flush any pending log messages
+        /// </summary>
+        /// <param name="asyncContinuation">The asynchronous continuation</param>
+        protected override void FlushAsync(AsyncContinuation asyncContinuation)
+        {
+            try
+            {
+                this.TelemetryClient.Flush();
+                asyncContinuation(null);
+            }
+            catch (Exception ex)
+            {
+                asyncContinuation(ex);
             }
         }
 

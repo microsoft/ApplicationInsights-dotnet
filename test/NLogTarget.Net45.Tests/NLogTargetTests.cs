@@ -420,6 +420,22 @@
             Assert.AreEqual(loggerNameVal2, traceTelemetry.Properties["LoggerName_1"]);
         }
 
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void NLogTargetFlushesTelemetryClient()
+        {
+            var aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+
+            var flushEvent = new System.Threading.ManualResetEvent(false);
+            Exception flushException = null;
+            NLog.Common.AsyncContinuation asyncContinuation = (ex) => { flushException = ex; flushEvent.Set(); };
+            aiLogger.Factory.Flush(asyncContinuation, 5000);
+            Assert.IsTrue(flushEvent.WaitOne(5000));
+            Assert.IsNotNull(flushException);
+            Assert.AreEqual("Flush called", flushException.Message);
+        }
+
         private void VerifyMessagesInMockChannel(Logger aiLogger, string instrumentationKey)
         {
             aiLogger.Trace("Sample trace message");

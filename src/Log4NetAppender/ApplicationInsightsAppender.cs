@@ -66,6 +66,17 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
         }
 
         /// <summary>
+        /// Flushes any buffered log data
+        /// </summary>
+        /// <param name="millisecondsTimeout">The maximum time to wait for logging events to be flushed</param>
+        /// <returns>True if all logging events were flushed successfully, else false</returns>
+        public override bool Flush(int millisecondsTimeout)
+        {
+            this.telemetryClient.Flush();
+            return true;
+        }
+
+        /// <summary>
         /// Append LoggingEvent Application Insights logging framework.
         /// </summary>
         /// <param name="loggingEvent">Events to be logged.</param>

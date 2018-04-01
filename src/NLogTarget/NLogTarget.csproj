@@ -10,7 +10,7 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
 
-    <TargetFrameworks>net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
 
     <RootNamespace>Microsoft.ApplicationInsights.NLogTarget</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.NLogTarget</AssemblyName>
@@ -41,7 +41,7 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta2" />
-    <PackageReference Include="NLog" Version="4.4.12" />
+    <PackageReference Include="NLog" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
