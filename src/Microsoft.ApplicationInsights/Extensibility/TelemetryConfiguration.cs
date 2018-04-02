@@ -6,10 +6,13 @@
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
     /// <summary>
     /// Encapsulates the global telemetry configuration typically loaded from the ApplicationInsights.config file.
@@ -30,6 +33,7 @@
         private bool disableTelemetry = false;
         private TelemetryProcessorChainBuilder builder;
         private SnapshottingList<IMetricProcessorV1> metricProcessors = new SnapshottingList<IMetricProcessorV1>();
+        private MetricManager metricManager = null;
 
         /// <summary>
         /// Indicates if this instance has been disposed of.
@@ -248,6 +252,33 @@
         internal IList<IMetricProcessorV1> MetricProcessors
         {
             get { return this.metricProcessors; }
+        }
+
+        internal MetricManager MetricManager
+        {
+            get
+            {
+                MetricManager manager = this.metricManager;
+                if (manager == null)
+                {
+                    var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(this);
+                    MetricManager newManager = new MetricManager(pipelineAdapter);
+                    MetricManager prevManager = Interlocked.CompareExchange(ref this.metricManager, newManager, null);
+
+                    if (prevManager == null)
+                    {
+                        manager = newManager;
+                    }
+                    else
+                    {
+                        // We just created a new manager that we are not using. Stop is before discarding.
+                        Task fireAndForget = newManager.StopDefaultAggregationCycleAsync();
+                        manager = prevManager;
+                    }
+                }
+
+                return manager;
+            }
         }
 
         /// <summary>
