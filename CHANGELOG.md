@@ -1,6 +1,7 @@
 # Changelog 
 
 ### Version 2.6.0-beta3
+- [NetStandard Support for TraceListener](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/166)
 - [NetStandard Support for NLog and log4net](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/167)
 - [NLog and log4net can Flush](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/167)
 - Update log4net reference to [2.0.6](https://www.nuget.org/packages/log4net/2.0.6)
