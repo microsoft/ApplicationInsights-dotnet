@@ -50,6 +50,37 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             get { return this.telemetryClient; }
         }
 
+        internal void BuildPropertyBag(LogEventInfo logEvent, ITelemetry trace)
+        {
+            trace.Timestamp = logEvent.TimeStamp;
+            trace.Sequence = logEvent.SequenceID.ToString(CultureInfo.InvariantCulture);
+
+            IDictionary<string, string> propertyBag;
+
+            if (trace is ExceptionTelemetry)
+            {
+                propertyBag = ((ExceptionTelemetry)trace).Properties;
+            }
+            else
+            {
+                propertyBag = ((TraceTelemetry)trace).Properties;
+            }
+
+            if (!string.IsNullOrEmpty(logEvent.LoggerName))
+            {
+                propertyBag.Add("LoggerName", logEvent.LoggerName);
+            }
+
+            if (logEvent.UserStackFrame != null)
+            {
+                propertyBag.Add("UserStackFrame", logEvent.UserStackFrame.ToString());
+                propertyBag.Add("UserStackFrameNumber", logEvent.UserStackFrameNumber.ToString(CultureInfo.InvariantCulture));
+            }
+
+            this.LoadGlobalDiagnosticsContextProperties(propertyBag);
+            this.LoadLogEventProperties(logEvent, propertyBag);
+        }
+
         /// <summary>
         /// Initializes the Target and perform instrumentationKey validation.
         /// </summary>
@@ -129,37 +160,6 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
             this.BuildPropertyBag(logEvent, trace);
             this.telemetryClient.Track(trace);
-        }
-
-        private void BuildPropertyBag(LogEventInfo logEvent, ITelemetry trace)
-        {
-            trace.Timestamp = logEvent.TimeStamp;
-            trace.Sequence = logEvent.SequenceID.ToString(CultureInfo.InvariantCulture);
-
-            IDictionary<string, string> propertyBag;
-
-            if (trace is ExceptionTelemetry)
-            {
-                propertyBag = ((ExceptionTelemetry)trace).Properties;
-            }
-            else
-            {
-                propertyBag = ((TraceTelemetry)trace).Properties;
-            }
-
-            if (!string.IsNullOrEmpty(logEvent.LoggerName))
-            {
-                propertyBag.Add("LoggerName", logEvent.LoggerName);
-            }
-
-            if (logEvent.UserStackFrame != null)
-            {
-                propertyBag.Add("UserStackFrame", logEvent.UserStackFrame.ToString());
-                propertyBag.Add("UserStackFrameNumber", logEvent.UserStackFrameNumber.ToString(CultureInfo.InvariantCulture));
-            }
-
-            this.LoadGlobalDiagnosticsContextProperties(propertyBag);
-            this.LoadLogEventProperties(logEvent, propertyBag);
         }
 
         private void LoadGlobalDiagnosticsContextProperties(IDictionary<string, string> propertyBag)

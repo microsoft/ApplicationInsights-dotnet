@@ -382,7 +382,7 @@
         [TestCategory("NLogTarget")]
         public void NLogPropertyDuplicateKeyDuplicateValue()
         {
-            var aiTarget = new PrivateObject(typeof(ApplicationInsightsTarget));
+            var aiTarget = new ApplicationInsightsTarget();
             var logEventInfo = new LogEventInfo();
             var loggerNameVal = "thisisaloggername";
 
@@ -391,7 +391,7 @@
 
             var traceTelemetry = new TraceTelemetry();
 
-            aiTarget.Invoke("BuildPropertyBag", logEventInfo, traceTelemetry);
+            aiTarget.BuildPropertyBag(logEventInfo, traceTelemetry);
 
             Assert.IsTrue(traceTelemetry.Properties.ContainsKey("LoggerName"));
             Assert.AreEqual(loggerNameVal, traceTelemetry.Properties["LoggerName"]);
@@ -401,7 +401,7 @@
         [TestCategory("NLogTarget")]
         public void NLogPropertyDuplicateKeyDifferentValue()
         {
-            var aiTarget = new PrivateObject(typeof(ApplicationInsightsTarget));
+            var aiTarget = new ApplicationInsightsTarget();
             var logEventInfo = new LogEventInfo();
             var loggerNameVal = "thisisaloggername";
             var loggerNameVal2 = "thisisadifferentloggername";
@@ -411,7 +411,7 @@
 
             var traceTelemetry = new TraceTelemetry();
 
-            aiTarget.Invoke("BuildPropertyBag", logEventInfo, traceTelemetry);
+            aiTarget.BuildPropertyBag(logEventInfo, traceTelemetry);
 
             Assert.IsTrue(traceTelemetry.Properties.ContainsKey("LoggerName"));
             Assert.AreEqual(loggerNameVal, traceTelemetry.Properties["LoggerName"]);

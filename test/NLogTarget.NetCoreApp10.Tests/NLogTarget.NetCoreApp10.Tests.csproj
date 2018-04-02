@@ -1,11 +1,16 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.NLogTarget.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.NLogTarget.Net45.Tests</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
+    <AssemblyName>Microsoft.ApplicationInsights.NLogTarget.NetCoreApp10.Tests</AssemblyName>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\NLogTarget.Net45.Tests\NLogTargetTests.cs" Link="NLogTargetTests.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
@@ -15,9 +20,8 @@
     <PackageReference Include="Microbuild.Core" Version="0.2.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="NLog" Version="4.4.12" />
+    <PackageReference Include="NLog" Version="4.5.0" />
     <ProjectReference Include="..\..\src\NLogTarget\NLogTarget.csproj" />
-    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup>
