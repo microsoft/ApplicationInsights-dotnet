@@ -30,6 +30,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public DependencyTelemetry()
         {
             this.InternalData = new RemoteDependencyData();
+            this.successFieldSet = true;
             this.context = new TelemetryContext(this.InternalData.properties);
             this.GenerateId();
         }
