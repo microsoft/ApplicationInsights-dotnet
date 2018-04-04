@@ -1,11 +1,16 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>Microsoft.ApplicationInsights.Log4NetAppender.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.Log4NetAppender.Net45.Tests</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
+    <RootNamespace>Microsoft.ApplicationInsights.NLogTarget.Tests</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.NLogTarget.NetCoreApp10.Tests</AssemblyName>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\NLogTarget.Net45.Tests\NLogTargetTests.cs" Link="NLogTargetTests.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
@@ -15,10 +20,8 @@
     <PackageReference Include="Microbuild.Core" Version="0.2.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="log4net" Version="2.0.6" />
-    <ProjectReference Include="..\..\src\Log4NetAppender\Log4NetAppender.csproj" />
-    <Reference Include="System.Net.Http" />
-
+    <PackageReference Include="NLog" Version="4.5.0" />
+    <ProjectReference Include="..\..\src\NLogTarget\NLogTarget.csproj" />
   </ItemGroup>
 
   <ItemGroup>

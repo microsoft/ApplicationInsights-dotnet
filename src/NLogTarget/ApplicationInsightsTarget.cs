@@ -10,15 +10,16 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
 
     using NLog;
+    using NLog.Common;
     using NLog.Targets;
-      
+
     /// <summary>
     /// NLog Target that routes all logging output to the Application Insights logging framework.
     /// The messages will be uploaded to the Application Insights cloud service.
@@ -47,6 +48,37 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         internal TelemetryClient TelemetryClient
         {
             get { return this.telemetryClient; }
+        }
+
+        internal void BuildPropertyBag(LogEventInfo logEvent, ITelemetry trace)
+        {
+            trace.Timestamp = logEvent.TimeStamp;
+            trace.Sequence = logEvent.SequenceID.ToString(CultureInfo.InvariantCulture);
+
+            IDictionary<string, string> propertyBag;
+
+            if (trace is ExceptionTelemetry)
+            {
+                propertyBag = ((ExceptionTelemetry)trace).Properties;
+            }
+            else
+            {
+                propertyBag = ((TraceTelemetry)trace).Properties;
+            }
+
+            if (!string.IsNullOrEmpty(logEvent.LoggerName))
+            {
+                propertyBag.Add("LoggerName", logEvent.LoggerName);
+            }
+
+            if (logEvent.UserStackFrame != null)
+            {
+                propertyBag.Add("UserStackFrame", logEvent.UserStackFrame.ToString());
+                propertyBag.Add("UserStackFrameNumber", logEvent.UserStackFrameNumber.ToString(CultureInfo.InvariantCulture));
+            }
+
+            this.LoadGlobalDiagnosticsContextProperties(propertyBag);
+            this.LoadLogEventProperties(logEvent, propertyBag);
         }
 
         /// <summary>
@@ -86,6 +118,23 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             }
         }
 
+        /// <summary>
+        /// Flush any pending log messages
+        /// </summary>
+        /// <param name="asyncContinuation">The asynchronous continuation</param>
+        protected override void FlushAsync(AsyncContinuation asyncContinuation)
+        {
+            try
+            {
+                this.TelemetryClient.Flush();
+                asyncContinuation(null);
+            }
+            catch (Exception ex)
+            {
+                asyncContinuation(ex);
+            }
+        }
+
         private void SendException(LogEventInfo logEvent)
         {
             var exceptionTelemetry = new ExceptionTelemetry(logEvent.Exception)
@@ -111,37 +160,6 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
             this.BuildPropertyBag(logEvent, trace);
             this.telemetryClient.Track(trace);
-        }
-
-        private void BuildPropertyBag(LogEventInfo logEvent, ITelemetry trace)
-        {
-            trace.Timestamp = logEvent.TimeStamp;
-            trace.Sequence = logEvent.SequenceID.ToString(CultureInfo.InvariantCulture);
-
-            IDictionary<string, string> propertyBag;
-
-            if (trace is ExceptionTelemetry)
-            {
-                propertyBag = ((ExceptionTelemetry)trace).Properties;
-            }
-            else
-            {
-                propertyBag = ((TraceTelemetry)trace).Properties;
-            }
-
-            if (!string.IsNullOrEmpty(logEvent.LoggerName))
-            {
-                propertyBag.Add("LoggerName", logEvent.LoggerName);
-            }
-
-            if (logEvent.UserStackFrame != null)
-            {
-                propertyBag.Add("UserStackFrame", logEvent.UserStackFrame.ToString());
-                propertyBag.Add("UserStackFrameNumber", logEvent.UserStackFrameNumber.ToString(CultureInfo.InvariantCulture));
-            }
-
-            this.LoadGlobalDiagnosticsContextProperties(propertyBag);
-            this.LoadLogEventProperties(logEvent, propertyBag);
         }
 
         private void LoadGlobalDiagnosticsContextProperties(IDictionary<string, string> propertyBag)

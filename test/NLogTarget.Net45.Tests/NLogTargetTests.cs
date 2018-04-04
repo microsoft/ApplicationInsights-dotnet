@@ -382,7 +382,7 @@
         [TestCategory("NLogTarget")]
         public void NLogPropertyDuplicateKeyDuplicateValue()
         {
-            var aiTarget = new PrivateObject(typeof(ApplicationInsightsTarget));
+            var aiTarget = new ApplicationInsightsTarget();
             var logEventInfo = new LogEventInfo();
             var loggerNameVal = "thisisaloggername";
 
@@ -391,7 +391,7 @@
 
             var traceTelemetry = new TraceTelemetry();
 
-            aiTarget.Invoke("BuildPropertyBag", logEventInfo, traceTelemetry);
+            aiTarget.BuildPropertyBag(logEventInfo, traceTelemetry);
 
             Assert.IsTrue(traceTelemetry.Properties.ContainsKey("LoggerName"));
             Assert.AreEqual(loggerNameVal, traceTelemetry.Properties["LoggerName"]);
@@ -401,7 +401,7 @@
         [TestCategory("NLogTarget")]
         public void NLogPropertyDuplicateKeyDifferentValue()
         {
-            var aiTarget = new PrivateObject(typeof(ApplicationInsightsTarget));
+            var aiTarget = new ApplicationInsightsTarget();
             var logEventInfo = new LogEventInfo();
             var loggerNameVal = "thisisaloggername";
             var loggerNameVal2 = "thisisadifferentloggername";
@@ -411,13 +411,29 @@
 
             var traceTelemetry = new TraceTelemetry();
 
-            aiTarget.Invoke("BuildPropertyBag", logEventInfo, traceTelemetry);
+            aiTarget.BuildPropertyBag(logEventInfo, traceTelemetry);
 
             Assert.IsTrue(traceTelemetry.Properties.ContainsKey("LoggerName"));
             Assert.AreEqual(loggerNameVal, traceTelemetry.Properties["LoggerName"]);
 
             Assert.IsTrue(traceTelemetry.Properties.ContainsKey("LoggerName_1"));
             Assert.AreEqual(loggerNameVal2, traceTelemetry.Properties["LoggerName_1"]);
+        }
+
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void NLogTargetFlushesTelemetryClient()
+        {
+            var aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+
+            var flushEvent = new System.Threading.ManualResetEvent(false);
+            Exception flushException = null;
+            NLog.Common.AsyncContinuation asyncContinuation = (ex) => { flushException = ex; flushEvent.Set(); };
+            aiLogger.Factory.Flush(asyncContinuation, 5000);
+            Assert.IsTrue(flushEvent.WaitOne(5000));
+            Assert.IsNotNull(flushException);
+            Assert.AreEqual("Flush called", flushException.Message);
         }
 
         private void VerifyMessagesInMockChannel(Logger aiLogger, string instrumentationKey)
