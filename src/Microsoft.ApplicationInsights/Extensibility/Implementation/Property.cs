@@ -46,7 +46,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             { ContextTagKeys.Keys.SessionId, 64 },
             { ContextTagKeys.Keys.UserId, 128 },
             { ContextTagKeys.Keys.UserAccountId, 1024 },
-            { ContextTagKeys.Keys.UserAgent, 2048 },
             { ContextTagKeys.Keys.UserAuthUserId, 1024 },
             { ContextTagKeys.Keys.CloudRole, 256 },
             { ContextTagKeys.Keys.CloudRoleInstance, 256 },

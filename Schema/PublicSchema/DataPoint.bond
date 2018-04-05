@@ -9,10 +9,10 @@ struct DataPoint
     [MaxStringLength("1024")]
     10: required string 	 name;
     
-    [Description("Metric type.")]
+    [Description("Metric type. Single measurement or the aggregated value.")]
     20: AI.DataPointType 	 kind = Measurement;
     
-    [Description("Metric calculated value.")]
+    [Description("Single value for measurement. Sum of individual measurements for the aggregation.")]
     30: required double 	 value;
     
     [Description("Metric weight of the aggregated metric. Should not be set for a measurement.")]

@@ -12,12 +12,12 @@
     /// <summary>
     /// Represents aggregator for a single time series of a given metric.
     /// </summary>
-    internal class Metric : IEquatable<Metric>
+    internal class MetricV1 : IEquatable<MetricV1>
     {
         /// <summary>
         /// Aggregator manager for the aggregator.
         /// </summary>
-        private readonly MetricManager manager;
+        private readonly MetricManagerV1 manager;
 
         /// <summary>
         /// Metric aggregator id to look for in the aggregator dictionary.
@@ -30,13 +30,13 @@
         private readonly int hashCode;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Metric"/> class.
+        /// Initializes a new instance of the <see cref="MetricV1"/> class.
         /// </summary>
         /// <param name="manager">Aggregator manager handling this instance.</param>
         /// <param name="name">Metric name.</param>
         /// <param name="dimensions">Metric dimensions.</param>
-        internal Metric(
-            MetricManager manager,
+        internal MetricV1(
+            MetricManagerV1 manager,
             string name, 
             IDictionary<string, string> dimensions = null)
         {
@@ -49,7 +49,7 @@
             this.Name = name;
             this.Dimensions = dimensions;
 
-            this.aggregatorId = Metric.GetAggregatorId(name, dimensions);
+            this.aggregatorId = MetricV1.GetAggregatorId(name, dimensions);
             this.hashCode = this.aggregatorId.GetHashCode();
         }
 
@@ -89,7 +89,7 @@
         /// </summary>
         /// <param name="other">The object to compare with the current object. </param>
         /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
-        public bool Equals(Metric other)
+        public bool Equals(MetricV1 other)
         {
             if (other == null)
             {
@@ -116,7 +116,7 @@
                 return true;
             }
 
-            return this.Equals(obj as Metric);
+            return this.Equals(obj as MetricV1);
         }
 
         /// <summary>
@@ -150,7 +150,7 @@
         {
             // create a local reference to metric processor collection
             // if collection changes after that - it will be copied not affecting local reference
-            IList<IMetricProcessor> metricProcessors = this.manager.MetricProcessors;
+            IList<IMetricProcessorV1> metricProcessors = this.manager.MetricProcessors;
 
             if (metricProcessors != null)
             {
@@ -158,7 +158,7 @@
 
                 for (int i = 0; i < processorCount; i++)
                 {
-                    IMetricProcessor processor = metricProcessors[i];
+                    IMetricProcessorV1 processor = metricProcessors[i];
 
                     try
                     {
