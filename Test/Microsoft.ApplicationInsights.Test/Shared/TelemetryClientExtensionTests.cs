@@ -189,6 +189,22 @@
         }
 
         [TestMethod]
+        public void DisposeOperationAppliesChangesOnActivityDoneAfterStart()
+        {
+            this.telemetryClient.TelemetryConfiguration.TelemetryInitializers.Add(new ActivityTagsTelemetryIntitializer());
+
+            DependencyTelemetry telemetry = null;
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName"))
+            {
+                Activity.Current.AddTag("my custom tag", "value");
+                telemetry = operation.Telemetry;
+            }
+
+            Assert.IsTrue(telemetry.Properties.ContainsKey("my custom tag"));
+            Assert.AreEqual("value", telemetry.Properties["my custom tag"]);
+        }
+
+        [TestMethod]
         public void ContextPropagatesThroughNestedOperations()
         {
             using (this.telemetryClient.StartOperation<RequestTelemetry>("OuterRequest"))
@@ -227,13 +243,18 @@
         {
             using (this.telemetryClient.StartOperation<RequestTelemetry>("Request", operationId: "ROOT", parentOperationId: "PARENT"))
             {
+                this.telemetryClient.TrackTrace("child trace");
             }
 
-            Assert.AreEqual(1, this.sendItems.Count);
+            Assert.AreEqual(2, this.sendItems.Count);
 
-            var requestTelmetry = (RequestTelemetry)this.sendItems[0];
+            var requestTelmetry = (RequestTelemetry)this.sendItems.Single(t => t is RequestTelemetry);
             Assert.AreEqual("PARENT", requestTelmetry.Context.Operation.ParentId);
             Assert.AreEqual("ROOT", requestTelmetry.Context.Operation.Id);
+
+            var traceTelemetry = (TraceTelemetry)this.sendItems.Single(t => t is TraceTelemetry);
+            Assert.AreEqual(requestTelmetry.Id, traceTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual("ROOT", traceTelemetry.Context.Operation.Id);
         }
 
         [TestMethod]
@@ -264,6 +285,22 @@
         private string GetOperationName(Activity activity)
         {
             return activity.Tags.FirstOrDefault(tag => tag.Key == "OperationName").Value;
+        }
+
+        private class ActivityTagsTelemetryIntitializer : ITelemetryInitializer
+        {
+            public void Initialize(ITelemetry telemetry)
+            {
+                if (Activity.Current == null)
+                {
+                    return;
+                }
+
+                foreach (var tag in Activity.Current.Tags)
+                {
+                    telemetry.Context.Properties[tag.Key] = tag.Value;
+                }
+            }
         }
     }
 }

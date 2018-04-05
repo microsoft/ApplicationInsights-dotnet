@@ -10,7 +10,7 @@ struct MetricData
     [Description("Schema version")]
     10: required int32 	 ver = 2;
     
-    [Description("List of metrics.")]
+    [Description("List of metrics. Only one metric in the list is currently supported by Application Insights storage. If multiple data points were sent only the first one will be used.")]
     20: required vector<DataPoint> 	 metrics;
     
     [Description("Collection of custom properties.")]

@@ -78,6 +78,21 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
+        public string LocationCountry { get; set; }
+
+        
+        
+        
+        public string LocationProvince { get; set; }
+
+        
+        
+        
+        public string LocationCity { get; set; }
+
+        
+        
+        
         public string OperationId { get; set; }
 
         
@@ -115,11 +130,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         public string UserAccountId { get; set; }
-
-        
-        
-        
-        public string UserAgent { get; set; }
 
         
         
@@ -170,6 +180,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             DeviceOSVersion = "ai.device.osVersion";
             DeviceType = "ai.device.type";
             LocationIp = "ai.location.ip";
+            LocationCountry = "ai.location.country";
+            LocationProvince = "ai.location.province";
+            LocationCity = "ai.location.city";
             OperationId = "ai.operation.id";
             OperationName = "ai.operation.name";
             OperationParentId = "ai.operation.parentId";
@@ -178,7 +191,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             SessionId = "ai.session.id";
             SessionIsFirst = "ai.session.isFirst";
             UserAccountId = "ai.user.accountId";
-            UserAgent = "ai.user.userAgent";
             UserId = "ai.user.id";
             UserAuthUserId = "ai.user.authUserId";
             CloudRole = "ai.cloud.role";
