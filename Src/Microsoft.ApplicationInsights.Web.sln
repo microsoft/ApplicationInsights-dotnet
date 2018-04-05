@@ -157,6 +157,7 @@ Global
 		Common\Common.projitems*{ea2d14aa-ae1e-4982-9326-11d4dcbb9529}*SharedItemsImports = 4
 		DependencyCollector\Shared\DependencyCollector.Shared.projitems*{ea2d14aa-ae1e-4982-9326-11d4dcbb9529}*SharedItemsImports = 4
 		TestFramework\Shared\TestFramework.Shared.projitems*{f05eb480-b209-47dd-90e3-1ddc47efc579}*SharedItemsImports = 4
+		WindowsServer\WindowsServer.Shared.Tests\WindowsServer.Shared.Tests.projitems*{f05eb480-b209-47dd-90e3-1ddc47efc579}*SharedItemsImports = 4
 		PerformanceCollector\Perf.Shared.Tests\Perf.Shared.Tests.projitems*{f254d4fb-428d-408e-8251-39bca7b4b5ce}*SharedItemsImports = 4
 		TestFramework\Shared\TestFramework.Shared.projitems*{f254d4fb-428d-408e-8251-39bca7b4b5ce}*SharedItemsImports = 4
 		TestFramework\Shared\TestFramework.Shared.projitems*{f71138bb-b3f8-4767-b394-857b0776038e}*SharedItemsImports = 4

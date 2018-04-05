@@ -80,10 +80,10 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                     var testStuff = new char[AzureMetadataRequestor.AzureImsMaxResponseBufferSize + 1];
                     for (int i = 0; i < (AzureMetadataRequestor.AzureImsMaxResponseBufferSize + 1); ++i)
                     {
-                        testStuff[i] = (char)( (int)'a' + (i % 26) );
+                        testStuff[i] = (char)((int)'a' + (i % 26));
                     }
-                    tester.Publisher = new string(testStuff);
 
+                    tester.Publisher = new string(testStuff);
                     var jsonStream = this.GetTestMetadataStream(tester);
                     response.SetContentLength(3 * jsonStream.Length);
                     response.ContentType = "application/json";

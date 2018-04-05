@@ -9,7 +9,7 @@
   - `BuildInfoConfigComponentVersionTelemetryInitializer`
   - `DeveloperModeWithDebuggerAttachedTelemetryModule`
   - `UnobservedExceptionTelemetryModule`
-
+- [Add default heartbeat properties for Azure App Services (web apps).](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/868)
 
 ## Version 2.6.0-beta2
 - [Added a max length restriction to values passed in through requests.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/810)

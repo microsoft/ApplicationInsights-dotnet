@@ -15,9 +15,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)BuildInfoConfigComponentVersionTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeveloperModeWithDebuggerAttachedTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DomainNameRoleInstanceTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AppServicesHeartbeatTelemetryModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\AppServiceEnvironmentVariableMonitor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureComputeMetadataHeartbeatPropertyProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureMetadataRequestor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DataContracts\AzureInstanceComputeMetadata.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EnvironmentVariableMonitor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\IAzureMetadataRequestor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WindowsServerEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnobservedExceptionTelemetryModule.cs" />
