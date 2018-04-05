@@ -12,6 +12,17 @@
     [TestClass]
     public class DependencyTelemetryTest
     {
+        /// <summary>
+        /// The SDKs (and our customers) expect specific default values.
+        /// This test is to verify that changes to the schema don't unexpectedly change our public api.
+        /// </summary>
+        [TestMethod]
+        public void VerifyExpectedDefaultValue()
+        {
+            var defaultDependencyTelemetry = new DependencyTelemetry();
+            Assert.AreEqual(true, defaultDependencyTelemetry.Success, "Success is expected to be true");
+        }
+
         [TestMethod]
         public void RemoteDependencyTelemetrySerializesToJson()
         {

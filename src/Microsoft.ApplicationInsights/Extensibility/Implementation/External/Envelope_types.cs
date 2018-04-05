@@ -53,6 +53,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
+        
         public string time { get; set; }
 
         

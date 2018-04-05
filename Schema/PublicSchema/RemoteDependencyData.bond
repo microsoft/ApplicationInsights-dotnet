@@ -22,11 +22,11 @@ struct RemoteDependencyData
     40: string 	 resultCode;
     
     [CSType("TimeSpan")]
-    [Description("Request duration in TimeSpan 'G' (general long) format: d:hh:mm:ss.fffffff.")]
+    [Description("Request duration in format: DD.HH:MM:SS.MMMMMM. Must be less than 1000 days.")]
     [ActAsRequired("Renaming value to duration.")]
     61: required string 	 duration;
     
-    [Description("Indication of successful or unsuccessful call.")]
+    [Description("Indication of successfull or unsuccessfull call.")]
     120: bool 	 success = true;
     
     [MaxStringLength("8192")]
