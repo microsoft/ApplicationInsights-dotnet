@@ -152,7 +152,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Equal(true, telemetryConfiguration.TelemetryChannel.DeveloperMode);
+                Assert.True(telemetryConfiguration.TelemetryChannel.DeveloperMode);
             }
 
             [Fact]
@@ -200,7 +200,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                     IServiceProvider serviceProvider = services.BuildServiceProvider();
                     var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                    Assert.Equal(true, telemetryConfiguration.TelemetryChannel.DeveloperMode);
+                    Assert.True(telemetryConfiguration.TelemetryChannel.DeveloperMode);
                 }
                 finally
                 {
@@ -416,13 +416,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void DoesNotAddSamplingToConfigurationIfExplicitlyControlledThroughParameter()
             {
-                var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(TelemetryConfiguration.Active);
+                var existingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(TelemetryConfiguration.Active);
                 Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableAdaptiveSampling = false;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var updatedCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
-                Assert.Equal(updatedCount, exisitingProcessorCount);
+                Assert.Equal(updatedCount, existingProcessorCount);
             }
 
             [Fact]
@@ -443,7 +443,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Equal(telemetryConfiguration.TelemetryChannel.GetType(), typeof(ServerTelemetryChannel));
+                Assert.Equal(typeof(ServerTelemetryChannel), telemetryConfiguration.TelemetryChannel.GetType());
             }
 
             [Fact]
@@ -456,7 +456,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Equal(telemetryConfiguration.TelemetryChannel.GetType(), typeof(InMemoryChannel));
+                Assert.Equal(typeof(InMemoryChannel), telemetryConfiguration.TelemetryChannel.GetType());
             }
 
             [Fact]
@@ -568,7 +568,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Equal(true, telemetryConfiguration.TelemetryChannel.DeveloperMode);
+                Assert.True(telemetryConfiguration.TelemetryChannel.DeveloperMode);
             }
 
             [Fact]
@@ -604,7 +604,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 {
                     config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile(jsonFullPath).Build();
                 }
-                catch(Exception ex)
+                catch(Exception)
                 {
                     throw new Exception("Unable to build with json:" + jsonFullPath);
                 }
