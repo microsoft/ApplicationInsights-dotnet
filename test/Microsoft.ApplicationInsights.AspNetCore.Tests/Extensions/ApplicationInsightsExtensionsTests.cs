@@ -26,7 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
-    using System.IO;    
+    using System.IO;
 
     public static class ApplicationInsightsExtensionsTests
     {
@@ -453,7 +453,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 services.AddSingleton<ITelemetryChannel, InMemoryChannel>();
                 var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
                 services.AddApplicationInsightsTelemetry(config);
-                
+
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 Assert.Equal(typeof(InMemoryChannel), telemetryConfiguration.TelemetryChannel.GetType());
