@@ -344,12 +344,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
-#if NET451 || NET46
+#if NET46
                 Assert.Equal(2, modules.Count());
                 var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
                 Assert.NotNull(perfCounterModule);
 #else
-                Assert.Equal(1, modules.Count());
+                Assert.Single(modules);
 #endif
 
                 var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationFactory?.GetMethodInfo().ReturnType == typeof(DependencyTrackingTelemetryModule));

@@ -19,7 +19,7 @@
             this.IsInitialized = false;
         }
 
-        public bool IsInitialized { get; private set; }        
+        public bool IsInitialized { get; private set; }
 
         public void Initialize(TelemetryConfiguration configuration)
         {
