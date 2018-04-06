@@ -134,6 +134,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(10, exception, this.ApplicationName);
         }
 
+        [Event(11, Message = "Warning Message: {0}", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void LogWarningMessage(string message, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(11, message, this.ApplicationName);
+        }
+
         /// <summary>
         /// Keywords for the AspNetEventSource.
         /// </summary>

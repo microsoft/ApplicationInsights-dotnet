@@ -223,6 +223,19 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
+        /// Extension method to provide configuration logic for application insights telemetry module.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
+        /// <param name="configModule">Action used to configure the module.</param>
+        /// <returns>
+        /// The <see cref="IServiceCollection"/>.
+        /// </returns>        
+        public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services, Action<T> configModule) where T : ITelemetryModule
+        {
+            return services.AddSingleton(typeof(ITelemetryModuleConfigurator), (new TelemetryModuleConfigurator(config => configModule((T)config), typeof(T))));
+        }
+
+        /// <summary>
         /// Adds Application Insight specific configuration properties to <see cref="IConfigurationBuilder"/>.
         /// </summary>
         /// <param name="configurationSourceRoot">The <see cref="IConfigurationBuilder"/> instance.</param>

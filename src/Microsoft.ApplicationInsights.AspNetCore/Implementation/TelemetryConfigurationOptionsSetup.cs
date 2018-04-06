@@ -5,11 +5,12 @@ namespace Microsoft.Extensions.DependencyInjection
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
-    using Microsoft.Extensions.Options;
+    using Microsoft.Extensions.Options;    
 
     /// <summary>
     /// Initializes TelemetryConfiguration based on values in <see cref="ApplicationInsightsServiceOptions"/>
@@ -22,6 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
         private readonly IEnumerable<ITelemetryModule> modules;
         private readonly ITelemetryChannel telemetryChannel;
         private readonly IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories;
+        private readonly IEnumerable<ITelemetryModuleConfigurator> telemetryModuleConfigurators;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:TelemetryConfigurationOptionsSetup"/> class.
@@ -31,12 +33,14 @@ namespace Microsoft.Extensions.DependencyInjection
             IOptions<ApplicationInsightsServiceOptions> applicationInsightsServiceOptions,
             IEnumerable<ITelemetryInitializer> initializers,
             IEnumerable<ITelemetryModule> modules,
-            IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories)
+            IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories,
+            IEnumerable<ITelemetryModuleConfigurator> telemetryModuleConfigurators)
         {
             this.applicationInsightsServiceOptions = applicationInsightsServiceOptions.Value;
             this.initializers = initializers;
             this.modules = modules;
             this.telemetryProcessorFactories = telemetryProcessorFactories;
+            this.telemetryModuleConfigurators = telemetryModuleConfigurators;
             this.telemetryChannel = serviceProvider.GetService<ITelemetryChannel>();
         }
 
@@ -46,6 +50,22 @@ namespace Microsoft.Extensions.DependencyInjection
             if (this.applicationInsightsServiceOptions.InstrumentationKey != null)
             {
                 configuration.InstrumentationKey = this.applicationInsightsServiceOptions.InstrumentationKey;
+            }
+
+            if (this.telemetryModuleConfigurators.Any())
+            {
+                foreach (ITelemetryModuleConfigurator telemetryModuleConfigurator in this.telemetryModuleConfigurators)
+                {                    
+                    ITelemetryModule telemetryModule = this.modules.FirstOrDefault(((module) => module.GetType() == telemetryModuleConfigurator.GetTelemetryModuleType()));
+                    if (telemetryModule != null)
+                    {
+                        telemetryModuleConfigurator.Configure(telemetryModule);
+                    }
+                    else
+                    {
+                        AspNetCoreEventSource.Instance.LogWarningMessage("Module not found in service collection. Hence will not be configured.");
+                    }
+                }
             }
 
             if (this.telemetryProcessorFactories.Any())
