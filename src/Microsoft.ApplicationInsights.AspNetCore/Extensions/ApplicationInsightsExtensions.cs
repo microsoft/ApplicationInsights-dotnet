@@ -119,7 +119,6 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds Application Insights services into service collection.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
-        /// <param name="options">The action used to configure the options.</param>
         /// <returns>
         /// The <see cref="IServiceCollection"/>.
         /// </returns>
