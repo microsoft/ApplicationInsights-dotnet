@@ -224,7 +224,6 @@
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
         /// <param name="properties">Named string values you can use to classify and filter metrics.</param>
-        [Obsolete("Use GetMetric(..) to use SDK pre-aggregation capabilities or Track(ITelemetry metricTelemetry) if you performed your own local aggregation.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
         {
