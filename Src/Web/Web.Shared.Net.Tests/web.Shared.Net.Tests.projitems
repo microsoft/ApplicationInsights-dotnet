@@ -21,7 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)HttpContextExtensionTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HeadersUtilitiesTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpRequestExtensionsTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SdkVersionUtilsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ClientIpHeaderTelemetryModuleTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExceptionTrackingTelemetryModuleTests.cs" />

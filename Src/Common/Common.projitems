@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ICorrelationIdLookupHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InjectionGuardConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RequestResponseHeaders.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SdkVersionUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StringUtilities.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.6' ">

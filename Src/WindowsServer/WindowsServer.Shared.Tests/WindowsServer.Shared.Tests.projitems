@@ -9,30 +9,18 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.WindowsServer</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Azure\Emulation\Microsoft.WindowsAzure.ServiceRuntime.dll" />
-  </ItemGroup>
-  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AppServicesHeartbeatTelemetryModuleTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EnvironmentVariableMonitorTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AzureInstanceMetadataEndToEndTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AzureWebAppRoleEnvironmentTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AzureInstanceMetadataTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)AzureRoleEnvironmentTelemetryInitializerTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Azure\Emulation\TestAzureServiceRuntimeAssemblyLoader.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Azure\Emulation\TestRole.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Azure\Emulation\TestRoleInstance.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Azure\ServiceRuntimeHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BuildInfoConfigComponentVersionTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeveloperModeWithDebuggerAttachedTelemetryModuleTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DeviceTelemetryInitializerTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ServiceRuntimeTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WindowsServerEventSourceTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FirstChanceExceptionStatisticsTelemetryModuleTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mock\AzureInstanceMetadataRequestMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mock\AzureInstanceMetadataServiceMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mock\HeartbeatProviderMock.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)UnhandledExceptionTelemetryModuleTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mock\MockEnvironmentVariableMonitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mock\NetPlatformHttpResponseTypesExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnobservedExceptionTelemetryModuleTest.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)Microsoft.ApplicationInsights.Log4NetAppender.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 </Project>

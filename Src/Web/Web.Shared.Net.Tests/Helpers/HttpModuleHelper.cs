@@ -8,10 +8,13 @@
     using System.Threading;
     using System.Web;
     using System.Web.Hosting;
+    using System.Web.Mvc;
+
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.Implementation;
+    using Moq;
     using VisualStudio.TestTools.UnitTesting;
 
     internal static class HttpModuleHelper
@@ -69,7 +72,31 @@
             
             var context = new HttpContext(workerRequest);
             HttpContext.Current = context;
+
             return context;
+        }
+
+        public static ControllerContext GetFakeControllerContext(bool isCustomErrorEnabled = false)
+        {
+            var mock = new Mock<HttpContextWrapper>(GetFakeHttpContext());
+
+            using (var writerResponse = new StringWriter(CultureInfo.InvariantCulture))
+            {
+                var response = new HttpResponseWrapper(new HttpResponse(writerResponse));
+                mock.SetupGet(ctx => ctx.IsCustomErrorEnabled).Returns(isCustomErrorEnabled);
+                mock.SetupGet(ctx => ctx.Response).Returns(response);
+            }
+
+            var controllerCtx = new ControllerContext
+            {
+                HttpContext = mock.Object
+            };
+
+            controllerCtx.RouteData.Values["controller"] = "controller";
+            controllerCtx.RouteData.Values["action"] = "action";
+            controllerCtx.Controller = new DefaultController();
+
+            return controllerCtx;
         }
 
         public static HttpContextBase GetFakeHttpContextBase(IDictionary<string, string> headers = null)
@@ -181,6 +208,10 @@
 
                 return base.GetRemoteAddress();
             }
+        }
+
+        private class DefaultController : Controller
+        {
         }
     }
 }

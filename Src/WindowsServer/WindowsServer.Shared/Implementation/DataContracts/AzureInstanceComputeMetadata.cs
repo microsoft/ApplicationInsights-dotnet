@@ -69,7 +69,7 @@
         internal string GetValueForField(string fieldName)
         {
             string aimsValue = null;
-            switch (fieldName.ToLower(CultureInfo.InvariantCulture))
+            switch (fieldName.ToLowerInvariant())
             {
                 case "ostype":
                     aimsValue = this.OsType;

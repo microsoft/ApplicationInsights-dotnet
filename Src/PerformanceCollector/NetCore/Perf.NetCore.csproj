@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props')" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), NetCore.props))\NetCore.props" />  
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" Condition="'$(DoNotSign)' == ''" />
 
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -14,6 +15,8 @@
 
   <Import Project="..\Filtering.Shared\Filtering.Shared.projitems" Label="Shared" />
 
+  <Import Project="..\..\Common\Common.projitems" Label="Shared" />
+
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" />
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -22,11 +25,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Copyright>Copyright ? Microsoft. All Rights Reserved.</Copyright>
-    <VersionPrefix>2.6.0-beta2</VersionPrefix>
-    <Authors>Microsoft</Authors>
+    <VersionPrefix>2.6.0-beta3</VersionPrefix>
     <TargetFramework>netstandard1.6</TargetFramework>
-    <DefineConstants>$(DefineConstants);NETCORE</DefineConstants>
     <DelaySign>true</DelaySign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Microsoft.AI.PerfCounterCollector</AssemblyName>
@@ -35,17 +35,10 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>Microsoft.AI.PerformanceCollector</PackageId>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\Web\Web.Net45\Implementation\SdkVersionUtils.cs" Link="SdkVersionUtils.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta2" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta3" />
     <PackageReference Include="MicroBuild.Core" Version="0.2.0" developmentDependency="true" />
     <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />

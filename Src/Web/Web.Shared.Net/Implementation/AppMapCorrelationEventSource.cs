@@ -2,7 +2,7 @@
 {
     using System;
     using System.Diagnostics.Tracing;
-#if NETCORE
+#if NETSTANDARD1_6
     using System.Reflection;
 #endif
     using Extensibility.Implementation.Tracing;

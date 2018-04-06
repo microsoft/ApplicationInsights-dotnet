@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 2.6.0-beta3
+- [Ignore Deprecated events if running under netcore20](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/848)
+- [Implement unhandled exception auto-tracking (500 requests) for MVC 5 and WebAPI 2 applications.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/847)
+- [Enable .NET Core platform in WindowsServer SDK. This enables the following modules in .NET Standard applications:](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/854)
+  - `AzureInstanceMetadataTelemetryModule` *(used in heartbeats)*
+  - `AzureWebAppRoleEnvironmentTelemetryInitializer`
+  - `BuildInfoConfigComponentVersionTelemetryInitializer`
+  - `DeveloperModeWithDebuggerAttachedTelemetryModule`
+  - `UnobservedExceptionTelemetryModule`
+- [Add default heartbeat properties for Azure App Services (web apps).](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/868)
 
 ## Version 2.6.0-beta2
 - [Added a max length restriction to values passed in through requests.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/810)

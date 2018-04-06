@@ -19,6 +19,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)HttpContextExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ActivityHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\AppMapCorrelationEventSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ExceptionHandlersInjector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpContextExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpRequestExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RequestTrackingConstants.cs" />

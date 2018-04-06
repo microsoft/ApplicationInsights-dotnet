@@ -22,6 +22,12 @@
         <dependency id="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" version="[$coresdkversion$]" />
         <dependency id="Microsoft.ApplicationInsights.PerfCounterCollector" version="$version$" />
       </group>
+      <group targetFramework="netstandard1.6">
+        <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
+        <dependency id="NETStandard.Library" version="1.6.1" />
+        <dependency id="System.Runtime.Serialization.Json" version="4.3.0" />
+        <dependency id="System.Runtime.Serialization.Primitives" version="4.3.0" />
+      </group>
     </dependencies>
   </metadata>
   <files>
@@ -35,5 +41,10 @@
     <file src="$configuration$\Src\WindowsServer\WindowsServer.Net45\Microsoft.AI.WindowsServer.dll" target="lib\net45" />
     <file src="$configuration$\Src\WindowsServer\WindowsServer.Net45\Microsoft.AI.WindowsServer.pdb" target="lib\net45" />
     <file src="$configuration$\Src\WindowsServer\WindowsServer.Net45\Microsoft.AI.WindowsServer.xml" target="lib\net45" />    
+
+    <!-- For .NET Standard 1.6 projects -->
+    <file src="$configuration$\Src\WindowsServer\WindowsServer.NetCore\netstandard1.6\Microsoft.AI.WindowsServer.dll" target="lib\netstandard1.6" />
+    <file src="$configuration$\Src\WindowsServer\WindowsServer.NetCore\netstandard1.6\Microsoft.AI.WindowsServer.pdb" target="lib\netstandard1.6" />
+    <file src="$configuration$\Src\WindowsServer\WindowsServer.NetCore\netstandard1.6\Microsoft.AI.WindowsServer.xml" target="lib\netstandard1.6" />
   </files>
 </package>

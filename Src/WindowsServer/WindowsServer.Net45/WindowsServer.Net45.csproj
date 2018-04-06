@@ -21,8 +21,8 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
-    <Reference Include="Microsoft.ApplicationInsights, Version=2.6.0-beta2, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.6.0-beta2\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
+    <Reference Include="Microsoft.ApplicationInsights, Version=2.6.0-beta3, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.6.0-beta3\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -47,15 +47,25 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Web\Web.Net45\Implementation\SdkVersionUtils.cs">
-      <Link>SdkVersionUtils.cs</Link>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
+    <Compile Include="AzureRoleEnvironmentTelemetryInitializer.cs" />
+    <Compile Include="DeviceTelemetryInitializer.cs" />
+    <Compile Include="FirstChanceExceptionStatisticsTelemetryModule.cs" />
+    <Compile Include="Implementation\AzureRoleEnvironmentContextReader.cs" />
+    <Compile Include="Implementation\AzureServiceRuntimeAssemblyLoader.cs" />
+    <Compile Include="Implementation\DeviceContextReader.cs" />
+    <Compile Include="Implementation\IAzureRoleEnvironmentContextReader.cs" />
+    <Compile Include="Implementation\MetricManager.cs" />
+    <Compile Include="Implementation\Role.cs" />
+    <Compile Include="Implementation\RoleEnvironment.cs" />
+    <Compile Include="Implementation\RoleInstance.cs" />
+    <Compile Include="Implementation\RuntimeBindingObject.cs" />
+    <Compile Include="Implementation\ServiceRuntime.cs" />
+    <Compile Include="UnhandledExceptionTelemetryModule.cs" />
     <Analyzer Include="..\..\..\..\packages\Desktop.Analyzers.1.1.0\analyzers\dotnet\cs\Desktop.Analyzers.dll" />
     <Analyzer Include="..\..\..\..\packages\Desktop.Analyzers.1.1.0\analyzers\dotnet\cs\Desktop.CSharp.Analyzers.dll" />
   </ItemGroup>
   <Import Project="..\WindowsServer.Shared\WindowsServer.Shared.projitems" Label="Shared" Condition="Exists('..\WindowsServer.Shared\WindowsServer.Shared.projitems')" />
+  <Import Project="..\..\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

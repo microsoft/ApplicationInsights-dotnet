@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Web.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation;
 
     /// <summary>

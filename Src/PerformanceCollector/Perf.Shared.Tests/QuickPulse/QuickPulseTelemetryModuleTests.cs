@@ -778,10 +778,8 @@
             Assert.AreEqual("ETag1", errors[0].Data["ETag"]);
 
             Assert.AreEqual(CollectionConfigurationErrorType.PerformanceCounterParsing, errors[1].ErrorType);
-            Assert.AreEqual(
-                @"Error parsing performance counter: '(PerformanceCounter3, NonParseable)'. Invalid performance counter name format: NonParseable. Expected formats are \category(instance)\counter or \category\counter
-Parameter name: performanceCounter",
-                errors[1].Message);
+            string expected = string.Format(CultureInfo.InvariantCulture, "Error parsing performance counter: '(PerformanceCounter3, NonParseable)'. Invalid performance counter name format: NonParseable. Expected formats are \\category(instance)\\counter or \\category\\counter{0}Parameter name: performanceCounter", Environment.NewLine);
+            Assert.AreEqual(expected, errors[1].Message);
             Assert.AreEqual(string.Empty, errors[1].FullException);
             Assert.AreEqual(1, errors[1].Data.Count);
             Assert.AreEqual("PerformanceCounter3", errors[1].Data["MetricId"]);

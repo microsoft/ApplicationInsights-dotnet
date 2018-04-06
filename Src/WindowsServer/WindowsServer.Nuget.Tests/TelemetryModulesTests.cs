@@ -65,7 +65,7 @@
 
             Type typeToFind = typeof(FirstChanceExceptionStatisticsTelemetryModule);
 
-            Assert.AreEqual(4, ConfigurationHelpers.GetTelemetryModules(configAfterTransform).Descendants().Count());
+            Assert.AreEqual(5, ConfigurationHelpers.GetTelemetryModules(configAfterTransform).Descendants().Count());
         }
 
         [TestMethod]

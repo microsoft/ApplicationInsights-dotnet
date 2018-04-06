@@ -55,6 +55,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private readonly ConcurrentDictionary<string, Exception> pendingExceptions =
             new ConcurrentDictionary<string, Exception>();
 
+        private bool isNetCore20HttpClient;
+
         public HttpCoreDiagnosticSourceListener(
             TelemetryConfiguration configuration,
             string effectiveProfileQueryEndpoint,
@@ -65,13 +67,16 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.client = new TelemetryClient(configuration);
             this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceCore + ":");
 
+            var httpClientVersion = typeof(HttpClient).GetTypeInfo().Assembly.GetName().Version;
+            this.isNetCore20HttpClient = httpClientVersion.CompareTo(new Version(4, 2)) >= 0;
+
             this.configuration = configuration;
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
             this.setComponentCorrelationHttpHeaders = setComponentCorrelationHttpHeaders;
             this.correlationIdLookupHelper = correlationIdLookupHelper ?? new CorrelationIdLookupHelper(effectiveProfileQueryEndpoint);
             this.correlationDomainExclusionList = correlationDomainExclusionList ?? Enumerable.Empty<string>();
 
-            this.subscriber = new HttpCoreDiagnosticSourceSubscriber(this, this.applicationInsightsUrlFilter);
+            this.subscriber = new HttpCoreDiagnosticSourceSubscriber(this, this.applicationInsightsUrlFilter, this.isNetCore20HttpClient);
         }
 
         /// <summary>
@@ -182,6 +187,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                     case DeprecatedRequestEventName:
                         {
+                            if (this.isNetCore20HttpClient)
+                            {
+                                // 2.0 publishes new events, and this should be just ignored to prevent duplicates.
+                                break;
+                            }
+
                             var request = this.deprecatedRequestFetcher.Fetch(evnt.Value) as HttpRequestMessage;
                             var loggingRequestIdString = this.deprecatedRequestGuidFetcher.Fetch(evnt.Value).ToString();
                             Guid loggingRequestId;
@@ -206,6 +217,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                     case DeprecatedResponseEventName:
                         {
+                            if (this.isNetCore20HttpClient)
+                            {
+                                // 2.0 publishes new events, and this should be just ignored to prevent duplicates.
+                                break;
+                            }
+
                             var response = this.deprecatedResponseFetcher.Fetch(evnt.Value) as HttpResponseMessage;
                             var loggingRequestIdString = this.deprecatedResponseGuidFetcher.Fetch(evnt.Value).ToString();
                             Guid loggingRequestId;
@@ -521,13 +538,15 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             private IDisposable eventSubscription;
 
-            internal HttpCoreDiagnosticSourceSubscriber(HttpCoreDiagnosticSourceListener listener, ApplicationInsightsUrlFilter applicationInsightsUrlFilter)
+            internal HttpCoreDiagnosticSourceSubscriber(
+                HttpCoreDiagnosticSourceListener listener,
+                ApplicationInsightsUrlFilter applicationInsightsUrlFilter,
+                bool isNetCore20HttpClient)
             {
                 this.httpDiagnosticListener = listener;
                 this.applicationInsightsUrlFilter = applicationInsightsUrlFilter;
 
-                var httpClientVersion = typeof(HttpClient).GetTypeInfo().Assembly.GetName().Version;
-                this.isNetCore20HttpClient = httpClientVersion.CompareTo(new Version(4, 2)) >= 0;
+                this.isNetCore20HttpClient = isNetCore20HttpClient;
 
                 try
                 {

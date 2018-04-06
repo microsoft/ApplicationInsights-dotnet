@@ -6,7 +6,7 @@
     using System.Globalization;
     using System.IO;
     using System.Net;
-#if NETCORE
+#if NETSTANDARD1_6
     using System.Net.Http;
 #endif
     using System.Threading.Tasks;
@@ -215,7 +215,7 @@
         /// <returns>App id.</returns>
         private async Task<string> FetchAppIdFromService(string instrumentationKey)
         {
-#if NETCORE
+#if NETSTANDARD1_6
             string result = null;
             Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey);
 
@@ -284,7 +284,7 @@
         /// <param name="ex">Exception indicating failure.</param>
         private void RegisterFailure(string instrumentationKey, Exception ex)
         {
-#if !NETCORE
+#if !NETSTANDARD1_6
             var ae = ex as AggregateException;
 
             if (ae != null)
@@ -308,7 +308,7 @@
             {
 #endif
             this.failingInstrumentationKeys[instrumentationKey] = new FailedResult(DateTime.UtcNow);
-#if !NETCORE
+#if !NETSTANDARD1_6
             }
 #endif
 
