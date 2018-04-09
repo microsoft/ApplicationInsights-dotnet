@@ -50,7 +50,7 @@
             }
             catch (Exception ex)
             {
-                Assert.IsNull(ex, ex.ToString());
+                Assert.Fail(ex.ToString());
             }
         }
 
