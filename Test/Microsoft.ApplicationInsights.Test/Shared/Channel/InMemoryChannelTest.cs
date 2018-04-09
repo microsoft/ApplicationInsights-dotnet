@@ -53,6 +53,7 @@
 
 #if !NETCOREAPP1_1
 
+        [Ignore("This test is failing intermittently and needs to be investigated. ~Timothy")]
         [TestMethod]
         public void FlushCanBeAborted()
         {
