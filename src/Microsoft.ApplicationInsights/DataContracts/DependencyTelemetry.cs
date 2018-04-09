@@ -19,6 +19,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         internal readonly RemoteDependencyData InternalData;
         private readonly TelemetryContext context;
+        private readonly IDictionary<string, object> operationDetails;
 
         private double? samplingPercentage;
 
@@ -32,6 +33,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.InternalData = new RemoteDependencyData();
             this.successFieldSet = true;
             this.context = new TelemetryContext(this.InternalData.properties);
+            this.operationDetails = new Dictionary<string, object>();
             this.GenerateId();
         }
 
@@ -120,6 +122,14 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             get { return this.InternalData.id; }
             set { this.InternalData.id = value; }
+        }
+
+        /// <summary>
+        /// Gets the dependency operation details, if any.
+        /// </summary>
+        public IDictionary<string, object> OperationDetails
+        {
+            get { return this.operationDetails; }
         }
 
         /// <summary>
