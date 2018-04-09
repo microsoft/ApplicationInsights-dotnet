@@ -185,14 +185,14 @@
         }
 
         [TestMethod]
-        [Timeout(5000)]
+        [Timeout(10000)]
         public async Task TestDependencyCollectionDnsIssueRequestDiagnosticSource()
         {
             await this.TestCollectionDnsIssue(true);
         }
 
         [TestMethod]
-        [Timeout(5000)]
+        [Timeout(10000)]
         public async Task TestDependencyCollectionDnsIssueRequestEventSource()
         {
             await this.TestCollectionDnsIssue(false);
