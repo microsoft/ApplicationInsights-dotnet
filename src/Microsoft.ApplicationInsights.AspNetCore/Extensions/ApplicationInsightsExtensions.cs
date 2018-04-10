@@ -14,6 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.WindowsServer;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
@@ -111,6 +112,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 o.EnableQuickPulseMetricStream = options.EnableQuickPulseMetricStream;
                 o.EndpointAddress = options.EndpointAddress;
                 o.InstrumentationKey = options.InstrumentationKey;
+                o.EnableHeartbeat = options.EnableHeartbeat;
             });
             return services;
         }
@@ -128,8 +130,8 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-                services.AddSingleton<ITelemetryInitializer, AzureWebAppRoleEnvironmentTelemetryInitializer>();
-                services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
+                services.AddSingleton<ITelemetryInitializer, ApplicationInsights.AspNetCore.TelemetryInitializers.AzureWebAppRoleEnvironmentTelemetryInitializer>();
+                services.AddSingleton<ITelemetryInitializer, ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
@@ -159,6 +161,8 @@ namespace Microsoft.Extensions.DependencyInjection
 #if NET451 || NET46
                 services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
 #endif
+                services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
+                services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();
                 services.AddSingleton<TelemetryConfiguration>(provider => provider.GetService<IOptions<TelemetryConfiguration>>().Value);
 
                 services.AddSingleton<ICorrelationIdLookupHelper>(provider => new CorrelationIdLookupHelper(() => provider.GetService<IOptions<TelemetryConfiguration>>().Value));

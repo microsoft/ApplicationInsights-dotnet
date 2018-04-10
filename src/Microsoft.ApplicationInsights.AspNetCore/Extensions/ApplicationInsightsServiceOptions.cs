@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 {
+    using System;
     using System.Reflection;
 
     /// <summary>
@@ -17,6 +18,7 @@
             this.EnableAdaptiveSampling = true;
             this.EnableDebugLogger = true;
             this.EnableAuthenticationTrackingJavaScript = false;
+            this.EnableHeartbeat = true;
             this.ApplicationVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
         }
 
@@ -62,5 +64,10 @@
         /// be printed along with the main ApplicationInsights tracking script.
         /// </summary>
         public bool EnableAuthenticationTrackingJavaScript { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether heartbeats are enabled.
+        /// </summary>
+        public bool EnableHeartbeat { get; set; }
     }
 }

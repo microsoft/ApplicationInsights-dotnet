@@ -11,6 +11,8 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.Extensions.Options;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Initializes TelemetryConfiguration based on values in <see cref="ApplicationInsightsServiceOptions"/>
@@ -138,6 +140,18 @@ namespace Microsoft.Extensions.DependencyInjection
                 if (this.applicationInsightsServiceOptions.EnableAdaptiveSampling)
                 {
                     configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
+                }
+
+                // Disable heartbeat if user sets it (by default it is on)
+                if (!this.applicationInsightsServiceOptions.EnableHeartbeat)
+                {
+                    foreach (var module in TelemetryModules.Instance.Modules)
+                    {
+                        if (module is IHeartbeatPropertyManager hbeatMan)
+                        {
+                            hbeatMan.IsHeartbeatEnabled = false;
+                        }
+                    }
                 }
             }
         }
