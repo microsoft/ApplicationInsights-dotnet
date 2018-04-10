@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 2.6.0-beta4
+- [Update Microsoft.AspNet.TelemetryCorrelation package to 1.0.1: Fix endless loop when activity stack is broken](https://github.com/aspnet/Microsoft.AspNet.TelemetryCorrelation/issues/22)
 - [Fix: Failed HTTP outgoing requests are not tracked on .NET Core](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/780)
 
 ## Version 2.6.0-beta3
