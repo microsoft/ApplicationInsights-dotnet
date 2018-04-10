@@ -65,7 +65,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                     else
                     {
-                        AspNetCoreEventSource.Instance.UnableToFindModuleToConfigure(telemetryModuleConfigurator.TelemetryModuleType);
+                        AspNetCoreEventSource.Instance.UnableToFindModuleToConfigure(telemetryModuleConfigurator.TelemetryModuleType.ToString());
                     }
                 }
             }

@@ -355,11 +355,27 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal(3, modules.Count());
 #endif
 
-                var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationFactory?.GetMethodInfo().ReturnType == typeof(DependencyTrackingTelemetryModule));
-                Assert.NotNull(dependencyModuleDescriptor);
+                var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
+                Assert.NotNull(dependencyModuleDescriptor);                
+            }
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithDefaultValues()
+            {
+                //ARRANGE
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null, null, false);
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
 
+                //ACT
+
+                // Requesting TelemetryConfiguration from services trigger constructing the TelemetryConfiguration
+                // which in turn trigger configuration of all modules.
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var dependencyModule = modules.OfType<DependencyTrackingTelemetryModule>().Single();
+
+                //VALIDATE
                 Assert.True(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count > 0);
+
             }
 
             [Fact]
@@ -439,15 +455,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
 
-                //ACT
-                try
-                {
-                    services.ConfigureTelemetryModule<TestTelemetryModule>(null);
-                }
-                catch(ArgumentNullException exThrown)
-                {
-                    Assert.Contains("configModule", exThrown.Message);
-                }
+                //ACT and VALIDATE
+                Assert.Throws<ArgumentNullException>(() => services.ConfigureTelemetryModule<TestTelemetryModule>(null));
             }
 
             [Fact]
