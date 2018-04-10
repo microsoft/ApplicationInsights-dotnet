@@ -5,28 +5,30 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 {
     using System;
     using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
     using Logging;
     using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.AspNetCore;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.Logging;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNetCore.Tests;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-    using ApplicationInsights.Extensibility.PerfCounterCollector;
-    using ApplicationInsights.WindowsServer.TelemetryChannel;
-    using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+    using Microsoft.ApplicationInsights.WindowsServer;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Hosting.Internal;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
-    using System.IO;
 
     public static class ApplicationInsightsExtensionsTests
     {
@@ -47,8 +49,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         public static class AddApplicationInsightsTelemetry
         {
             [Theory]
-            [InlineData(typeof(ITelemetryInitializer), typeof(AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]
-            [InlineData(typeof(ITelemetryInitializer), typeof(DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ComponentVersionTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), ServiceLifetime.Singleton)]
@@ -65,8 +67,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Theory]
-            [InlineData(typeof(ITelemetryInitializer), typeof(AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]
-            [InlineData(typeof(ITelemetryInitializer), typeof(DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ComponentVersionTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), ServiceLifetime.Singleton)]
@@ -314,6 +316,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     EnableDebugLogger = true,
                     EnableQuickPulseMetricStream = false,
                     EndpointAddress = "http://test",
+                    EnableHeartbeat = false,
                     InstrumentationKey = "test"
                 };
                 services.AddApplicationInsightsTelemetry(options);
@@ -345,11 +348,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.NotNull(modules);
 
 #if NET451 || NET46
-                Assert.Equal(2, modules.Count());
+                Assert.Equal(4, modules.Count());
                 var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
                 Assert.NotNull(perfCounterModule);
 #else
-                Assert.Equal(1, modules.Count());
+                Assert.Equal(3, modules.Count());
 #endif
 
                 var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationFactory?.GetMethodInfo().ReturnType == typeof(DependencyTrackingTelemetryModule));
@@ -497,6 +500,33 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 TelemetryConfiguration telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 int qpProcessorCount =  GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
                 Assert.Equal(0, qpProcessorCount);
+            }
+
+
+            [Fact]
+            public static void AddsHeartbeatModulesToTheConfigurationByDefault()
+            {
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                Assert.NotNull(modules.OfType<AppServicesHeartbeatTelemetryModule>().Single());
+                Assert.NotNull(modules.OfType<AzureInstanceMetadataTelemetryModule>().Single());
+            }
+
+            [Fact]
+            public static void HeartbeatIsDisabledWithServiceOptions()
+            {
+                var heartbeatModulePRE = TelemetryModules.Instance.Modules.OfType<IHeartbeatPropertyManager>().First();
+                Assert.True(heartbeatModulePRE.IsHeartbeatEnabled);
+
+                Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableHeartbeat = false;
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                var heartbeatModule = TelemetryModules.Instance.Modules.OfType<IHeartbeatPropertyManager>().First();
+                Assert.NotNull(heartbeatModule);
+                Assert.False(heartbeatModule.IsHeartbeatEnabled);
             }
 
             private static int GetTelemetryProcessorsCountInConfiguration<T>(TelemetryConfiguration telemetryConfiguration)
