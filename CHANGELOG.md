@@ -8,6 +8,8 @@
 - [ApplicationInsightsLogger adds EventId into telemetry properties. It is off by default for compatibility. It can be switched on by configuring ApplicationInsightsLoggerOptions.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/569)
 - [ApplicationInsightsLogger logs exceptions as ExceptionTelemetry by default. This can now be configured with ApplicationInsightsLoggerOptions.TrackExceptionsAsExceptionTelemetry] (https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/574)
 - [Add App Services and Azure Instance Metedata heartbeat provider modules by default, allow user to disable via configuration object.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/627)
+- [Added extension method to allow configuration of any Telemetry Module.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/634)
+- [Added ability to remove any default Telemetry Module.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/633)
 
 ## Version 2.2.1
 - Updated Web/Base SDK version dependency to 2.5.1 which addresses a bug.
