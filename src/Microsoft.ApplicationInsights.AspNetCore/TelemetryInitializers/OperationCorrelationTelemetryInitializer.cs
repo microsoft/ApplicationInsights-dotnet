@@ -1,35 +1,28 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
     using System;
-    using System.Net.Http.Headers;
     using Microsoft.ApplicationInsights.AspNetCore.Common;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.Extensions.Primitives;
 
     /// <summary>
     /// A telemetry initializer that will set the correlation context for all telemetry items in web application.
     /// </summary>
     internal class OperationCorrelationTelemetryInitializer : TelemetryInitializerBase
     {
-        private ICorrelationIdLookupHelper correlationIdLookupHelper = null;
+        private readonly IApplicationIdProvider applicationIdProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationCorrelationTelemetryInitializer"/> class.
         /// </summary>
         /// <param name="httpContextAccessor">Accessor for retrieving the current HTTP context.</param>
-        /// <param name="correlationIdLookupHelper">A store for correlation ids that we don't have to query it everytime.</param>
-        public OperationCorrelationTelemetryInitializer(
-            IHttpContextAccessor httpContextAccessor, ICorrelationIdLookupHelper correlationIdLookupHelper) : base(httpContextAccessor)
+        /// <param name="applicationIdProvider">Provider for resolving application Id to be used by Correlation.</param>
+        public OperationCorrelationTelemetryInitializer(IHttpContextAccessor httpContextAccessor, IApplicationIdProvider applicationIdProvider) : base(httpContextAccessor)
         {
-            if (correlationIdLookupHelper == null)
-            {
-                throw new ArgumentNullException(nameof(correlationIdLookupHelper));
-            }
-            this.correlationIdLookupHelper = correlationIdLookupHelper;
+            this.applicationIdProvider = applicationIdProvider ?? throw new ArgumentNullException(nameof(applicationIdProvider));
         }
 
         /// <summary>
@@ -38,17 +31,13 @@
         /// <param name="platformContext">Http context</param>
         /// <param name="requestTelemetry">Request telemetry object associated with the current request.</param>
         /// <param name="telemetry">Telemetry item to initialize.</param>
-        protected override void OnInitializeTelemetry(
-            HttpContext platformContext,
-            RequestTelemetry requestTelemetry,
-            ITelemetry telemetry)
+        protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
             HttpRequest currentRequest = platformContext.Request;
             if (currentRequest?.Headers != null && string.IsNullOrEmpty(requestTelemetry.Source))
             {
-                string headerCorrelationId = HttpHeadersUtilities.GetRequestContextKeyValue(currentRequest.Headers, RequestResponseHeaders.RequestContextSourceKey);                
+                string headerCorrelationId = HttpHeadersUtilities.GetRequestContextKeyValue(currentRequest.Headers, RequestResponseHeaders.RequestContextSourceKey);
 
-                string appCorrelationId = null;
                 // If the source header is present on the incoming request, and it is an external component (not the same ikey as the one used by the current component), populate the source field.
                 if (!string.IsNullOrEmpty(headerCorrelationId))
                 {
@@ -57,8 +46,7 @@
                     {
                         requestTelemetry.Source = headerCorrelationId;
                     }
-                    else if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out appCorrelationId) &&
-                        appCorrelationId != headerCorrelationId)
+                    else if (this.applicationIdProvider.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out string applicationId) && applicationId != headerCorrelationId)
                     {
                         requestTelemetry.Source = headerCorrelationId;
                     }

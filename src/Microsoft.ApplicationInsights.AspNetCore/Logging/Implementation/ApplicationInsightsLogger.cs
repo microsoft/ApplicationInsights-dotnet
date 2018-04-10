@@ -18,7 +18,7 @@
         private readonly TelemetryClient telemetryClient;
         private readonly Func<string, LogLevel, bool> filter;
         private readonly ApplicationInsightsLoggerOptions options;
-        private readonly string sdkVersion;
+        private readonly string sdkVersion = SdkVersionUtils.GetVersion();
 
         /// <summary>
         /// Creates a new instance of <see cref="ApplicationInsightsLogger"/>
@@ -29,7 +29,6 @@
             this.telemetryClient = telemetryClient;
             this.filter = filter;
             this.options = options;
-            this.sdkVersion = SdkVersionUtils.VersionPrefix + SdkVersionUtils.GetAssemblyVersion();
         }
 
         /// <inheritdoc />
