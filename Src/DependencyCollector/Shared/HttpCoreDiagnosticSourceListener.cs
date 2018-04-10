@@ -139,12 +139,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             var requestTaskStatusString = this.stopRequestStatusFetcher.Fetch(evnt.Value).ToString();
                             TaskStatus requestTaskStatus;
 
-                            if (response == null)
-                            {
-                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "response", "HttpResponseMessage");
-                                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
-                            }
-                            else if (request == null)
+                            if (request == null)
                             {
                                 var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "request", "HttpRequestMessage");
                                 DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);

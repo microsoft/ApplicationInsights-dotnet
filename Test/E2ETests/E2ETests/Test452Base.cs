@@ -238,15 +238,14 @@ namespace E2ETests
         }
 
         public void TestHttpDependency(string expectedPrefix, string appname, string path,
-            string resultCodeExpected = "200",
-            bool successExpected = true)
+            string data, string target, string resultCodeExpected, bool successExpected)
         {
             var expectedDependencyTelemetry = new DependencyTelemetry();
             expectedDependencyTelemetry.Type = "Http";
             expectedDependencyTelemetry.Success = successExpected;
             expectedDependencyTelemetry.ResultCode = resultCodeExpected;
-            expectedDependencyTelemetry.Target = TestConstants.WebAppTargetNameToWebApi;
-            expectedDependencyTelemetry.Data = (successExpected) ? TestConstants.WebAppUrlToWebApiSuccess : TestConstants.WebAppUrlToWebApiException;
+            expectedDependencyTelemetry.Target = target;
+            expectedDependencyTelemetry.Data = data;
 
             ValidateBasicDependency(Apps[appname].ipAddress, path, expectedDependencyTelemetry,
                 Apps[appname].ikey, 1, expectedPrefix);
@@ -254,7 +253,13 @@ namespace E2ETests
 
         public void TestSyncHttpDependency(string expectedPrefix)
         {
-            TestHttpDependency(expectedPrefix, AppNameBeingTested, "/Dependencies.aspx?type=httpsync");            
+            TestHttpDependency(expectedPrefix,
+                AppNameBeingTested,
+                "/Dependencies.aspx?type=httpsync",
+                TestConstants.WebAppUrlToWebApiSuccess,
+                TestConstants.WebAppTargetNameToWebApi,
+                "200",
+                true);
         }
 
         public void TestAsyncWithHttpClientHttpDependency(string expectedPrefix)

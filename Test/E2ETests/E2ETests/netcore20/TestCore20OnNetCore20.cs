@@ -60,23 +60,29 @@ namespace E2ETests.netcore20
         [TestCategory("Core20")]
         public void TestCore20OnNetCore20_HttpDependency()
         {
-            base.TestHttpDependency(VersionPrefix, AppNameBeingTested, "/external/calls?type=http", "200", true);
+            base.TestHttpDependency(VersionPrefix, AppNameBeingTested, "/external/calls?type=http", TestConstants.WebAppUrlToWebApiSuccess, TestConstants.WebAppTargetNameToWebApi, "200", true);
         }
 
         [TestMethod]
         [TestCategory("Core20")]
         public void TestCore20OnNetCore20_HttpPostDependency()
         {
-            base.TestHttpDependency(VersionPrefix, AppNameBeingTested, "/external/calls?type=httppost", "204", true);
+            base.TestHttpDependency(VersionPrefix, AppNameBeingTested, "/external/calls?type=httppost", TestConstants.WebAppUrlToWebApiSuccess, TestConstants.WebAppTargetNameToWebApi, "204", true);
         }
 
         [TestMethod]
         [TestCategory("Core20")]
-        public void TestCore20OnNetCore20_FailedHttpDependency()
+        public void TestCore20OnNetCore20_500HttpDependency()
         {
-            base.TestHttpDependency(VersionPrefix, AppNameBeingTested, "/external/calls?type=failedhttp", "500", false);
+            base.TestHttpDependency(VersionPrefix, AppNameBeingTested, "/external/calls?type=http500", TestConstants.WebAppUrlToWebApiException, TestConstants.WebAppTargetNameToWebApi, "500", false);
         }
 
+        [TestMethod]
+        [TestCategory("Core20")]
+        public void TestCore20OnNetCore20_ExceptionHttpDependency()
+        {
+            base.TestHttpDependency(VersionPrefix, AppNameBeingTested, "/external/calls?type=httpexception", TestConstants.WebAppUrlToInvalidHost, TestConstants.WebAppTargetNameToInvalidHost, null, false);
+        }
 
         [TestMethod]
         [TestCategory("Core20")]
