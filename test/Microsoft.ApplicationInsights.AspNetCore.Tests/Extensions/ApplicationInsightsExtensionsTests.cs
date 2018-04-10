@@ -430,6 +430,24 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Fact]
+            public static void ConfigureApplicationInsightsTelemetryModuleThrowsIfConfigureIsNull()
+            {
+                //ARRANGE
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
+
+                //ACT
+                try
+                {
+                    services.ConfigureTelemetryModule<TestTelemetryModule>(null);
+                }
+                catch(ArgumentNullException exThrown)
+                {
+                    Assert.Contains("configModule", exThrown.Message);
+                }
+            }
+
+            [Fact]
             public static void ConfigureApplicationInsightsTelemetryModuleDoesNotThrowIfModuleNotFound()
             {
                 //ARRANGE

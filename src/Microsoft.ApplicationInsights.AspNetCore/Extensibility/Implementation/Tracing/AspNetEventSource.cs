@@ -134,10 +134,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(10, exception, this.ApplicationName);
         }
 
-        [Event(11, Message = "Warning Message: {0}", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
-        public void LogWarningMessage(string message, string appDomainName = "Incorrect")
+        [Event(11, Message = "Unable to configure module {0} as it is not found in service collection.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void UnableToFindModuleToConfigure(Type moduleType, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(11, message, this.ApplicationName);
+            this.WriteEvent(11, moduleType.ToString(), this.ApplicationName);
         }
 
         /// <summary>

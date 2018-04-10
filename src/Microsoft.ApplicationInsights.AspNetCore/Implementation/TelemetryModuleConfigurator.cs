@@ -8,7 +8,7 @@
     /// </summary>
     internal class TelemetryModuleConfigurator : ITelemetryModuleConfigurator
     {
-        private Action<ITelemetryModule> configure;
+        private readonly Action<ITelemetryModule> configure;
         internal readonly Type telemetryModuleType;
 
         /// <summary>
@@ -19,7 +19,7 @@
         public TelemetryModuleConfigurator(Action<ITelemetryModule> configure, Type telemetryModuleType)
         {
             this.configure = configure;
-            this.telemetryModuleType = telemetryModuleType;
+            this.TelemetryModuleType = telemetryModuleType;
         }
 
         /// <summary>
@@ -35,9 +35,6 @@
         /// <summary>
         /// Gets the type of <see cref="ITelemetryModule"/> to be configured.     
         /// </summary>
-        public Type GetTelemetryModuleType()
-        {
-            return this.telemetryModuleType;
-        }
+        public Type TelemetryModuleType { get; }
     }
 }

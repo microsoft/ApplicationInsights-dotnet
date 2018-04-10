@@ -56,14 +56,14 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 foreach (ITelemetryModuleConfigurator telemetryModuleConfigurator in this.telemetryModuleConfigurators)
                 {                    
-                    ITelemetryModule telemetryModule = this.modules.FirstOrDefault(((module) => module.GetType() == telemetryModuleConfigurator.GetTelemetryModuleType()));
+                    ITelemetryModule telemetryModule = this.modules.FirstOrDefault(((module) => module.GetType() == telemetryModuleConfigurator.TelemetryModuleType));
                     if (telemetryModule != null)
                     {
                         telemetryModuleConfigurator.Configure(telemetryModule);
                     }
                     else
                     {
-                        AspNetCoreEventSource.Instance.LogWarningMessage("Module not found in service collection. Hence will not be configured.");
+                        AspNetCoreEventSource.Instance.UnableToFindModuleToConfigure(telemetryModuleConfigurator.TelemetryModuleType);
                     }
                 }
             }

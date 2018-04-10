@@ -232,7 +232,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </returns>        
         public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services, Action<T> configModule) where T : ITelemetryModule
         {
-            return services.AddSingleton(typeof(ITelemetryModuleConfigurator), (new TelemetryModuleConfigurator(config => configModule((T)config), typeof(T))));
+            if (configModule == null)
+            {
+                throw new ArgumentNullException(nameof(configModule));
+            }
+
+            return services.AddSingleton(typeof(ITelemetryModuleConfigurator), new TelemetryModuleConfigurator(config => configModule((T)config), typeof(T)));
         }
 
         /// <summary>

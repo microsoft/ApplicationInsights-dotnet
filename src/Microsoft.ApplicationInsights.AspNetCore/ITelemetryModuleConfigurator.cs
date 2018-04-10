@@ -16,6 +16,6 @@
         /// <summary>
         /// Gets the type of <see cref="ITelemetryModule"/> to be configured.     
         /// </summary>
-        Type GetTelemetryModuleType();
+        Type TelemetryModuleType { get; }
     }
 }
