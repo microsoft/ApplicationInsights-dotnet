@@ -141,8 +141,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, AspNetCoreEnvironmentTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, HttpDependenciesParsingTelemetryInitializer>();
-                services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>(provider => {
-                    var module = new DependencyTrackingTelemetryModule();
+                services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
+                services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module) => {                    
                     var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
                     excludedDomains.Add("core.windows.net");
                     excludedDomains.Add("core.chinacloudapi.cn");
@@ -154,8 +154,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     var includedActivities = module.IncludeDiagnosticSourceActivities;
                     includedActivities.Add("Microsoft.Azure.EventHubs");
                     includedActivities.Add("Microsoft.Azure.ServiceBus");
-
-                    return module;
                 });
 
 #if NET451 || NET46
