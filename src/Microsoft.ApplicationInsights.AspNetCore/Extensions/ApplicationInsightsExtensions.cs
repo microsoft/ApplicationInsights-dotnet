@@ -25,7 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.Extensions.Options;
 
 #if NET451 || NET46
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;    
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 #endif
 
     /// <summary>
@@ -143,9 +143,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, AspNetCoreEnvironmentTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, HttpDependenciesParsingTelemetryInitializer>();
-
                 services.TryAddSingleton<ITelemetryChannel, ServerTelemetryChannel>();
-
                 services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
                 services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module) => {                    
                     var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;

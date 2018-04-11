@@ -28,8 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Options;
-    using Microsoft.Extensions.DependencyInjection.Extensions;
+    using Microsoft.Extensions.Options;    
 
     public static class ApplicationInsightsExtensionsTests
     {
@@ -549,7 +548,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
                 services.AddApplicationInsightsTelemetry(config);
 
-                // Remove all ITelemetryChannel to simulate scenario.
+                // Remove all ITelemetryChannel to simulate scenario where customer remove all channel from DI but forgot to add new one.
+                // This should not crash application startup, and should fall back to default channel supplied by base sdk.
                 for (var i = services.Count - 1; i >= 0; i--)
                 {
                     var descriptor = services[i];
