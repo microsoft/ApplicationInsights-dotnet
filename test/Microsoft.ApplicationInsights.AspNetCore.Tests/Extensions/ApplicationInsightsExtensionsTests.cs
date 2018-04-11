@@ -29,6 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
 
     public static class ApplicationInsightsExtensionsTests
     {
@@ -509,14 +510,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             [Fact]
             public static void AddsAddaptiveSamplingServiceToTheConfigurationWithServiceOptions()
-            {
-                var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(TelemetryConfiguration.Active);
+            {                
                 Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableAdaptiveSampling = true;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var updatedCount =  GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
-                Assert.Equal(updatedCount, exisitingProcessorCount + 1);
+                var adaptiveSamplingProcessorCount =  GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
+                Assert.Equal(1, adaptiveSamplingProcessorCount);
             }
 
             [Fact]
@@ -542,9 +542,34 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Fact]
+            public static void FallbacktoDefaultChannelWhenNoChannelFoundInDI()
+            {
+                // ARRANGE
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();                                
+                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
+                services.AddApplicationInsightsTelemetry(config);
+
+                // Remove all ITelemetryChannel to simulate scenario.
+                for (var i = services.Count - 1; i >= 0; i--)
+                {
+                    var descriptor = services[i];
+                    if (descriptor.ServiceType == typeof(ITelemetryChannel))
+                    {
+                        services.RemoveAt(i);
+                    }
+                }
+
+                // VERIFY that default channel is configured when nothing is present in DI
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                Assert.Equal(typeof(InMemoryChannel), telemetryConfiguration.TelemetryChannel.GetType());
+            }
+
+            [Fact]
             public static void AddsQuickPulseProcessorToTheConfigurationByDefault()
             {                
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
+                services.AddSingleton<ITelemetryChannel, InMemoryChannel>();
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var qpProcessorCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
@@ -572,17 +597,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var qpProcessorCount =  GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
                 Assert.Equal(1, qpProcessorCount);
             }
-
-            [Fact]
-            public static void ProcessorsAreNotAddedToTheConfigurationWithExistingNonServerChannel()
-            {                
-                ServiceCollection services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, true);
-                IServiceProvider serviceProvider = services.BuildServiceProvider();
-                TelemetryConfiguration telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                int qpProcessorCount =  GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
-                Assert.Equal(0, qpProcessorCount);
-            }
-
 
             [Fact]
             public static void AddsHeartbeatModulesToTheConfigurationByDefault()

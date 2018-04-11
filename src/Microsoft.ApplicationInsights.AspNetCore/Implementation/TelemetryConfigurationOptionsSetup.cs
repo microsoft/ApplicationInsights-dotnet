@@ -36,7 +36,7 @@ namespace Microsoft.Extensions.DependencyInjection
             IEnumerable<ITelemetryInitializer> initializers,
             IEnumerable<ITelemetryModule> modules,
             IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories,
-            IEnumerable<ITelemetryModuleConfigurator> telemetryModuleConfigurators)
+            IEnumerable<ITelemetryModuleConfigurator> telemetryModuleConfigurators)                      
         {
             this.applicationInsightsServiceOptions = applicationInsightsServiceOptions.Value;
             this.initializers = initializers;
@@ -79,12 +79,15 @@ namespace Microsoft.Extensions.DependencyInjection
                 configuration.TelemetryProcessorChainBuilder.Build();
             }
 
-            this.AddTelemetryChannelAndProcessors(configuration);
+            this.AddQuickPulse(configuration);
+            this.AddSampling(configuration);
+            this.DisableHeartBeatIfConfigured();
+
             (configuration.TelemetryChannel as ITelemetryModule)?.Initialize(configuration);
 
             configuration.TelemetryProcessorChainBuilder.Build();
 
-
+            // Fallback to default channel (InMemoryChannel) created by base sdk if no channel is found in DI
             configuration.TelemetryChannel = this.telemetryChannel ?? configuration.TelemetryChannel;
 
             if (this.applicationInsightsServiceOptions.DeveloperMode != null)
@@ -117,40 +120,41 @@ namespace Microsoft.Extensions.DependencyInjection
             }
         }
 
-        private void AddTelemetryChannelAndProcessors(TelemetryConfiguration configuration)
-        {
-            configuration.TelemetryChannel = this.telemetryChannel ?? new ServerTelemetryChannel();
-
-            if (configuration.TelemetryChannel is ServerTelemetryChannel)
+        private void AddQuickPulse(TelemetryConfiguration configuration)
+        {            
+            if (this.applicationInsightsServiceOptions.EnableQuickPulseMetricStream)
             {
-                if (this.applicationInsightsServiceOptions.EnableQuickPulseMetricStream)
-                {
-                    var quickPulseModule = new QuickPulseTelemetryModule();
-                    quickPulseModule.Initialize(configuration);
+                var quickPulseModule = new QuickPulseTelemetryModule();
+                quickPulseModule.Initialize(configuration);
 
-                    QuickPulseTelemetryProcessor processor = null;
-                    configuration.TelemetryProcessorChainBuilder.Use((next) =>
+                QuickPulseTelemetryProcessor processor = null;
+                configuration.TelemetryProcessorChainBuilder.Use((next) =>
+                {
+                    processor = new QuickPulseTelemetryProcessor(next);
+                    quickPulseModule.RegisterTelemetryProcessor(processor);
+                    return processor;
+                });
+            }            
+        }
+
+        private void AddSampling(TelemetryConfiguration configuration)
+        {
+            if (this.applicationInsightsServiceOptions.EnableAdaptiveSampling)
+            {
+                configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
+            }
+        }
+
+        private void DisableHeartBeatIfConfigured()
+        {
+            // Disable heartbeat if user sets it (by default it is on)
+            if (!this.applicationInsightsServiceOptions.EnableHeartbeat)
+            {
+                foreach (var module in TelemetryModules.Instance.Modules)
+                {
+                    if (module is IHeartbeatPropertyManager hbeatMan)
                     {
-                        processor = new QuickPulseTelemetryProcessor(next);
-                        quickPulseModule.RegisterTelemetryProcessor(processor);
-                        return processor;
-                    });
-                }
-
-                if (this.applicationInsightsServiceOptions.EnableAdaptiveSampling)
-                {
-                    configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
-                }
-
-                // Disable heartbeat if user sets it (by default it is on)
-                if (!this.applicationInsightsServiceOptions.EnableHeartbeat)
-                {
-                    foreach (var module in TelemetryModules.Instance.Modules)
-                    {
-                        if (module is IHeartbeatPropertyManager hbeatMan)
-                        {
-                            hbeatMan.IsHeartbeatEnabled = false;
-                        }
+                        hbeatMan.IsHeartbeatEnabled = false;
                     }
                 }
             }
