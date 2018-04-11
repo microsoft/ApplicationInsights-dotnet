@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
 
@@ -105,11 +106,11 @@
                 // We don't care when it finishes, but we don't want to block the thread.
                 Task.Run(() => this.applicationIdProvider.FetchApplicationIdAsync(instrumentationKey))
                     .ContinueWith((applicationIdTask) =>
-                        {
-                            this.FormatAndAddToDictionary(instrumentationKey, applicationIdTask.Result);
+                    {
+                        this.FormatAndAddToDictionary(instrumentationKey, applicationIdTask.Result);
 
-                            this.FetchTasks.TryRemove(instrumentationKey, out bool ignoreValue);
-                        })
+                        this.FetchTasks.TryRemove(instrumentationKey, out bool ignoreValue);
+                    })
                     .ConfigureAwait(false);
             }
         }
