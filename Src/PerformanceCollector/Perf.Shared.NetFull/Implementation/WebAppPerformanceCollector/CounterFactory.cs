@@ -62,6 +62,8 @@
                                 "otherIoBytes",
                                 "otherIoBytes",
                                 AzureWebApEnvironmentVariables.App)));
+                case @"\Memory\Available Bytes":
+                    return new RawCounterGauge(reportAs, "availMemoryBytes", AzureWebApEnvironmentVariables.App);
 
                 ////$set = Get-Counter -ListSet "ASP.NET Applications"
                 ////$set.Paths
