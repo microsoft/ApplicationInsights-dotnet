@@ -14,6 +14,7 @@
         public DataPoint DeepClone()
         {
             var other = new DataPoint();
+            other.metricNamespace = this.metricNamespace;
             other.name = this.name;
             other.kind = this.kind;
             other.value = this.value;
