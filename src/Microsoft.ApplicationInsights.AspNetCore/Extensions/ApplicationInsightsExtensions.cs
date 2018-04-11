@@ -141,8 +141,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, AspNetCoreEnvironmentTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, HttpDependenciesParsingTelemetryInitializer>();
-                services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>(provider => {
-                    var module = new DependencyTrackingTelemetryModule();
+                services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
+                services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module) => {                    
                     var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
                     excludedDomains.Add("core.windows.net");
                     excludedDomains.Add("core.chinacloudapi.cn");
@@ -154,8 +154,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     var includedActivities = module.IncludeDiagnosticSourceActivities;
                     includedActivities.Add("Microsoft.Azure.EventHubs");
                     includedActivities.Add("Microsoft.Azure.ServiceBus");
-
-                    return module;
                 });
 
 #if NET451 || NET46
@@ -224,6 +222,24 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             return services.AddSingleton<ITelemetryProcessorFactory>(serviceProvider => new TelemetryProcessorFactory(serviceProvider, telemetryProcessorType));
+        }
+
+        /// <summary>
+        /// Extension method to provide configuration logic for application insights telemetry module.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
+        /// <param name="configModule">Action used to configure the module.</param>
+        /// <returns>
+        /// The <see cref="IServiceCollection"/>.
+        /// </returns>        
+        public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services, Action<T> configModule) where T : ITelemetryModule
+        {
+            if (configModule == null)
+            {
+                throw new ArgumentNullException(nameof(configModule));
+            }
+
+            return services.AddSingleton(typeof(ITelemetryModuleConfigurator), new TelemetryModuleConfigurator(config => configModule((T)config), typeof(T)));
         }
 
         /// <summary>

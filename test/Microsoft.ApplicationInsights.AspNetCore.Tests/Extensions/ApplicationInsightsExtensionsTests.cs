@@ -347,7 +347,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
-#if NET451 || NET46
+#if NET46
                 Assert.Equal(4, modules.Count());
                 var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
                 Assert.NotNull(perfCounterModule);
@@ -355,11 +355,27 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal(3, modules.Count());
 #endif
 
-                var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationFactory?.GetMethodInfo().ReturnType == typeof(DependencyTrackingTelemetryModule));
-                Assert.NotNull(dependencyModuleDescriptor);
+                var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
+                Assert.NotNull(dependencyModuleDescriptor);                
+            }
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithDefaultValues()
+            {
+                //ARRANGE
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null, null, false);
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
 
+                //ACT
+
+                // Requesting TelemetryConfiguration from services trigger constructing the TelemetryConfiguration
+                // which in turn trigger configuration of all modules.
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var dependencyModule = modules.OfType<DependencyTrackingTelemetryModule>().Single();
+
+                //VALIDATE
                 Assert.True(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count > 0);
+
             }
 
             [Fact]
@@ -404,6 +420,71 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.NotNull(telemetryProcessor);
                 Assert.Same(serviceProvider.GetService<IHostingEnvironment>(), telemetryProcessor.HostingEnvironment);
             }
+
+            [Fact]
+            public static void ConfigureApplicationInsightsTelemetryModuleWorks()
+            {
+                //ARRANGE
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
+
+                //ACT
+                services.ConfigureTelemetryModule<TestTelemetryModule>
+                (module => module.CustomProperty = "mycustomvalue");
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                
+                // Requesting TelemetryConfiguration from services trigger constructing the TelemetryConfiguration
+                // which in turn trigger configuration of all modules.
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+                //VALIDATE
+                var modules = serviceProvider.GetServices<ITelemetryModule>();                
+                var testTelemetryModule = modules.OfType<TestTelemetryModule>().Single();
+
+                //The module should be initialized and configured as instructed.
+                Assert.NotNull(testTelemetryModule);
+                Assert.Equal("mycustomvalue", testTelemetryModule.CustomProperty);
+                Assert.True(testTelemetryModule.IsInitialized);
+            }
+
+            [Fact]
+            public static void ConfigureApplicationInsightsTelemetryModuleThrowsIfConfigureIsNull()
+            {
+                //ARRANGE
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
+
+                //ACT and VALIDATE
+                Assert.Throws<ArgumentNullException>(() => services.ConfigureTelemetryModule<TestTelemetryModule>(null));
+            }
+
+            [Fact]
+            public static void ConfigureApplicationInsightsTelemetryModuleDoesNotThrowIfModuleNotFound()
+            {
+                //ARRANGE
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                // Intentionally NOT adding the module
+                // services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
+
+                //ACT
+                services.ConfigureTelemetryModule<TestTelemetryModule>
+                (module => module.CustomProperty = "mycustomvalue");
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+
+                // Requesting TelemetryConfiguration from services trigger constructing the TelemetryConfiguration
+                // which in turn trigger configuration of all modules.
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+                //VALIDATE
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                var testTelemetryModule = modules.OfType<TestTelemetryModule>().FirstOrDefault();
+
+                // No exceptions thrown here.
+                Assert.Null(testTelemetryModule);                
+            }
+
 
             [Fact]
             public static void AddsAddaptiveSamplingServiceToTheConfigurationByDefault()
