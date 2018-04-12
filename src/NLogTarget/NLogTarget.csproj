@@ -10,7 +10,7 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
 
-    <TargetFrameworks>net45</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard1.3</TargetFrameworks>
 
     <RootNamespace>Microsoft.ApplicationInsights.NLogTarget</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.NLogTarget</AssemblyName>
@@ -40,7 +40,14 @@
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta2" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta3" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+    <PackageReference Include="NLog" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.3' ">
     <PackageReference Include="NLog" Version="4.4.12" />
   </ItemGroup>
 

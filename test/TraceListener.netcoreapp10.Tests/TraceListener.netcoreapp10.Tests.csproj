@@ -1,29 +1,31 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.ApplicationInsights.EventSourceListener.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.EventSourceListener.Tests</AssemblyName>
+    <RootNamespace>Microsoft.ApplicationInsights.TraceListener.Tests</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.TraceListener.NetCoreApp10.Tests</AssemblyName>
     <TargetFramework>netcoreapp1.0</TargetFramework>
-    <FileAlignment>512</FileAlignment>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <DebugType>pdbonly</DebugType>
-    <DebugSymbols>true</DebugSymbols>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup>    
+  <ItemGroup>
+    <Compile Include="..\Shared\ApplicationInsightsTraceFilterTests.cs" Link="ApplicationInsightsTraceFilterTests.cs" />
+    <Compile Include="..\Shared\ApplicationInsightsTraceListenerTests.cs" Link="ApplicationInsightsTraceListenerTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta3" />
-    <PackageReference Include="Microbuild.Core" Version="0.2.0" />
+    <PackageReference Include="Microbuild.Core" Version="0.2.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.Diagnostics.TraceSource" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EventSourceListener\EventSourceListener.csproj" />
+    <ProjectReference Include="..\..\src\TraceListener\TraceListener.csproj" />
   </ItemGroup>
 
   <ItemGroup>

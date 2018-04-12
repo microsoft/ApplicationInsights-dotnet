@@ -11,6 +11,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using System.Text;
 
     using log4net;
@@ -31,6 +32,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
     [TestClass]
     public class ApplicationInsightsAppenderTests
     {
+        private static readonly Assembly callingAssembly = typeof(ApplicationInsightsAppenderTests).GetTypeInfo().Assembly;
         private AdapterHelper adapterHelper;
         private AppendableLogger appendableLogger;
 
@@ -92,12 +94,12 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
             ApplicationInsightsAppenderTests.InitializeLog4NetAIAdapter(string.Format(@"<InstrumentationKey value=""{0}"" />", instrumentationKey));
 
             // Set up error handler to intercept exception
-            ApplicationInsightsAppender aiAppender = (ApplicationInsightsAppender)log4net.LogManager.GetRepository().GetAppenders()[0];
+            ApplicationInsightsAppender aiAppender = (ApplicationInsightsAppender)log4net.LogManager.GetRepository(callingAssembly).GetAppenders()[0];
             log4net.Util.OnlyOnceErrorHandler errorHandler = new log4net.Util.OnlyOnceErrorHandler();
             aiAppender.ErrorHandler = errorHandler;
             
             // Log something
-            ILog logger = log4net.LogManager.GetLogger("TestAIAppender");
+            ILog logger = log4net.LogManager.GetLogger(callingAssembly, "TestAIAppender");
             for (int i = 0; i < 1500; i++)
             {
                 logger.Debug("Trace Debug" + i + DateTime.Now);
@@ -339,7 +341,7 @@ adapterComponentIdSnippet +
 
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(xmlRawText)))
             {
-                XmlConfigurator.Configure(stream);
+                XmlConfigurator.Configure(log4net.LogManager.GetRepository(callingAssembly), stream);
             }
         }
 
@@ -347,7 +349,7 @@ adapterComponentIdSnippet +
         {
             this.VerifyInitializationError(testAction, 0, null);
             
-            ApplicationInsightsAppender aiAppender = (ApplicationInsightsAppender)log4net.LogManager.GetRepository().GetAppenders()[0];
+            ApplicationInsightsAppender aiAppender = (ApplicationInsightsAppender)log4net.LogManager.GetRepository(callingAssembly).GetAppenders()[0];
             Assert.AreEqual(expectedInstrumentationKey, aiAppender.InstrumentationKey);
         }
 
@@ -401,12 +403,12 @@ adapterComponentIdSnippet +
         private void SendMessagesToMockChannel(string instrumentationKey)
         {
             // Set up error handler to intercept exception
-            ApplicationInsightsAppender aiAppender = (ApplicationInsightsAppender)log4net.LogManager.GetRepository().GetAppenders()[0];
+            ApplicationInsightsAppender aiAppender = (ApplicationInsightsAppender)log4net.LogManager.GetRepository(callingAssembly).GetAppenders()[0];
             log4net.Util.OnlyOnceErrorHandler errorHandler = new log4net.Util.OnlyOnceErrorHandler();
             aiAppender.ErrorHandler = errorHandler;
 
             // Log something
-            ILog logger = log4net.LogManager.GetLogger("TestAIAppender");
+            ILog logger = log4net.LogManager.GetLogger(callingAssembly, "TestAIAppender");
             logger.Debug("Trace Debug");
             logger.Error("Trace Error");
             logger.Fatal("Trace Fatal");
@@ -422,12 +424,12 @@ adapterComponentIdSnippet +
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
 
             // Set up error handler to intercept exception
-            ApplicationInsightsAppender aiAppender = (ApplicationInsightsAppender)LogManager.GetRepository().GetAppenders()[0];
+            ApplicationInsightsAppender aiAppender = (ApplicationInsightsAppender)LogManager.GetRepository(callingAssembly).GetAppenders()[0];
             OnlyOnceErrorHandler errorHandler = new OnlyOnceErrorHandler();
             aiAppender.ErrorHandler = errorHandler;            
 
             // Log something
-            ILog logger = LogManager.GetLogger("TestAIAppender");
+            ILog logger = LogManager.GetLogger(callingAssembly, "TestAIAppender");
             logger.Debug("Trace Debug");
 
             ITelemetry[] sentItems = this.adapterHelper.Channel.SentItems;
@@ -463,11 +465,11 @@ adapterComponentIdSnippet +
                 ApplicationInsightsAppenderTests.InitializeLog4NetAIAdapter(string.Empty);
 
                 // Set up error handler to intercept exception
-                var aiAppender = (ApplicationInsightsAppender)LogManager.GetRepository().GetAppenders()[0];
+                var aiAppender = (ApplicationInsightsAppender)LogManager.GetRepository(callingAssembly).GetAppenders()[0];
                 var errorHandler = new OnlyOnceErrorHandler();
                 aiAppender.ErrorHandler = errorHandler;               
 
-                this.Logger = LogManager.GetLogger("TestAIAppender");
+                this.Logger = LogManager.GetLogger(callingAssembly, "TestAIAppender");
             }
 
             public ILog Logger { get; set; }
