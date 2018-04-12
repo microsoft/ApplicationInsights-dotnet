@@ -252,7 +252,7 @@
         /// <returns>A MetricTelemtry item that contains the currently defined payload for a heartbeat 'pulse'.</returns>
         internal ITelemetry GatherData()
         {
-            var hbeat = new MetricTelemetry(heartbeatSyntheticMetricName, 0.0);
+            var hbeat = new MetricTelemetry(heartbeatSyntheticMetricName, 1, 0.0, 0.0, 0.0, 0.0);
 
             foreach (var payloadItem in this.heartbeatProperties)
             {

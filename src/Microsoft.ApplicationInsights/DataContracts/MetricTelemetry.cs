@@ -8,9 +8,17 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
-    /// Telemetry type used to track metrics. Represents a sample set of values with a specified count, sum, max, min, and standard deviation.
-    /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackmetric">Learn more</a>
+    /// Telemetry type used to track metric aggregates.
+    /// Represents a result of aggregating a set of values with a specified count, sum, max, min, and standard deviation.
     /// </summary>
+    /// <remarks>
+    /// <c>MetricTelemetry</c> instances are automatically created by the SDK to represent metric aggregates
+    /// across time periods. Most applications do not need to create any <c>MetricTelemetry</c> instances
+    /// directly. Instead, use any of the <c>TelemetryClient.GetMetric(..)</c> overloads or the
+    /// <see cref="Microsoft.ApplicationInsights.Metrics.MetricManager" /> class to take advantage of the SDK's 
+    /// metric aggregation capabilities.
+    /// You can explicitly create instances of <c>MetricTelemetry</c> if you have implemented your own metric aggregation subsystem.
+    /// </remarks>
     public sealed class MetricTelemetry : ITelemetry, ISupportProperties
     {
         internal const string TelemetryName = "Metric";
@@ -37,10 +45,13 @@
         }
 
         /// <summary>
-        /// Obsolete - use MetricTelemetry(name,count,sum,min,max,standardDeviation). Initializes a new instance of the <see cref="MetricTelemetry"/> class with the
+        /// Obsolete: <c>MetricTelemetry</c> objects should always represent aggregates across a time period;
+        /// for that, use <see cref="MetricTelemetry(String, Int32, Double, Double, Double, Double)" />.<br />
+        /// Initializes a new instance of the <see cref="MetricTelemetry" /> class with the
         /// specified <paramref name="metricName"/> and <paramref name="metricValue"/>.
         /// </summary>
-        /// <exception cref="ArgumentException">The <paramref name="metricName"/> is null or empty string.</exception>
+        [Obsolete("Use MetricTelemetry(string name, int count, double sum, double min, double max, double standardDeviation) to create meaningful metric aggregates.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public MetricTelemetry(string metricName, double metricValue) : this()
         {
             this.Name = metricName;
@@ -51,17 +62,22 @@
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with properties provided.
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
         /// </summary>
         /// <remarks>
-        /// To send metrics, collect your metric events over an aggregation interval of 1 minute.
+        /// <c>MetricTelemetry</c> instances are automatically created by the SDK to represent metric aggregates
+        /// across time periods. Most applications do not need to create any <c>MetricTelemetry</c> instances
+        /// directly. Instead, use any of the <c>TelemetryClient.GetMetric(..)</c> overloads or the
+        /// <see cref="Microsoft.ApplicationInsights.Metrics.MetricManager" /> class to take advantage of the SDK's 
+        /// metric aggregation capabilities.
+        /// You can explicitly create instances of <c>MetricTelemetry</c> by calling this ctor if you have implemented
+        /// your own metric aggregation subsystem.
         /// </remarks>
         /// <param name="name">Metric name.</param>
-        /// <param name="count">Count of values taken during aggregation interval.</param>
-        /// <param name="sum">Sum of values taken during aggregation interval.</param>
-        /// <param name="min">Minimum value taken during aggregation interval.</param>
-        /// <param name="max">Maximum of values taken during aggregation interval.</param>
-        /// <param name="standardDeviation">Standard deviation of values taken during aggregation interval.</param>
+        /// <param name="count">Count of values observed during aggregation interval.</param>
+        /// <param name="sum">Sum of values observed during aggregation interval.</param>
+        /// <param name="min">Minimum value observed during aggregation interval.</param>
+        /// <param name="max">Maximum of values observed during aggregation interval.</param>
+        /// <param name="standardDeviation">Standard deviation of values observed during aggregation interval.</param>
         public MetricTelemetry(
             string name,
             int count,
@@ -93,7 +109,7 @@
         }
 
         /// <summary>
-        /// Gets or sets date and time when event was recorded.
+        /// Gets or sets date and time when event was recorded. It represents the start of the aggregation interval for this aggregate.
         /// </summary>
         public DateTimeOffset Timestamp { get; set; }
 
@@ -118,8 +134,10 @@
 
         /// <summary>
         /// Gets or sets the value of this metric.
+        /// Obsolete: Use the <see cref="Sum" /> property instead.
         /// </summary>
         [Obsolete("This property is obsolete. Use Sum property instead.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public double Value
         {
             get { return this.Metric.value; }
@@ -127,7 +145,7 @@
         }
 
         /// <summary>
-        /// Gets or sets sum of the values of the metric samples.
+        /// Gets or sets sum of the values represented in this aggregate.
         /// </summary>
         public double Sum
         {
@@ -136,7 +154,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the number of values in the sample set.
+        /// Gets or sets the number of values represented in this aggregate.
         /// </summary>
         public int? Count
         {
@@ -145,7 +163,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the min value of this metric across the sample set.
+        /// Gets or sets the min value represented in this aggregate.
         /// </summary>
         public double? Min
         {
@@ -154,7 +172,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the max value of this metric across the sample set.
+        /// Gets or sets the max value represented in this aggregate.
         /// </summary>
         public double? Max
         {
@@ -163,7 +181,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the standard deviation of this metric across the sample set.
+        /// Gets or sets the standard deviation represented in this aggregate.
         /// </summary>
         public double? StandardDeviation
         {
@@ -173,6 +191,8 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this metric.
+        /// These properties describe the dimensions and the respective values of the metric time series that contains the data
+        /// point represented by this aggregate.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public IDictionary<string, string> Properties
