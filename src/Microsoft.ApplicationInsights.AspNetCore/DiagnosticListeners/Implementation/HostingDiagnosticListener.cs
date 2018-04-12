@@ -37,11 +37,11 @@
         /// Initializes a new instance of the <see cref="T:HostingDiagnosticListener"/> class.
         /// </summary>
         /// <param name="client"><see cref="TelemetryClient"/> to post traces to.</param>
-        /// <param name="applicationIdProvider">Provider for resolving application Id to be used by Correlation.</param>
+        /// <param name="applicationIdProvider">Nullable Provider for resolving application Id to be used by Correlation.</param>
         public HostingDiagnosticListener(TelemetryClient client, IApplicationIdProvider applicationIdProvider)
         {
             this.client = client ?? throw new ArgumentNullException(nameof(client));
-            this.applicationIdProvider = applicationIdProvider ?? throw new ArgumentNullException(nameof(applicationIdProvider));
+            this.applicationIdProvider = applicationIdProvider;
         }
 
         /// <inheritdoc/>
@@ -236,7 +236,8 @@
                 !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) &&
                 (!responseHeaders.ContainsKey(RequestResponseHeaders.RequestContextHeader) || HttpHeadersUtilities.ContainsRequestContextKeyValue(responseHeaders, RequestResponseHeaders.RequestContextTargetKey)))
             {
-                if (this.applicationIdProvider.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out string applicationId))
+                string applicationId = null;
+                if (this.applicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out applicationId) ?? false)
                 {
                     HttpHeadersUtilities.SetRequestContextKeyValue(responseHeaders, RequestResponseHeaders.RequestContextTargetKey, applicationId);
                 }

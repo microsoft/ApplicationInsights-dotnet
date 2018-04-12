@@ -19,10 +19,10 @@
         /// Initializes a new instance of the <see cref="OperationCorrelationTelemetryInitializer"/> class.
         /// </summary>
         /// <param name="httpContextAccessor">Accessor for retrieving the current HTTP context.</param>
-        /// <param name="applicationIdProvider">Provider for resolving application Id to be used by Correlation.</param>
+        /// <param name="applicationIdProvider">Nullable Provider for resolving application Id to be used by Correlation.</param>
         public OperationCorrelationTelemetryInitializer(IHttpContextAccessor httpContextAccessor, IApplicationIdProvider applicationIdProvider) : base(httpContextAccessor)
         {
-            this.applicationIdProvider = applicationIdProvider ?? throw new ArgumentNullException(nameof(applicationIdProvider));
+            this.applicationIdProvider = applicationIdProvider;
         }
 
         /// <summary>
@@ -38,6 +38,7 @@
             {
                 string headerCorrelationId = HttpHeadersUtilities.GetRequestContextKeyValue(currentRequest.Headers, RequestResponseHeaders.RequestContextSourceKey);
 
+                string applicationId = null;
                 // If the source header is present on the incoming request, and it is an external component (not the same ikey as the one used by the current component), populate the source field.
                 if (!string.IsNullOrEmpty(headerCorrelationId))
                 {
@@ -46,7 +47,8 @@
                     {
                         requestTelemetry.Source = headerCorrelationId;
                     }
-                    else if (this.applicationIdProvider.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out string applicationId) && applicationId != headerCorrelationId)
+                    else if ((this.applicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out applicationId) ?? false)
+                        && applicationId != headerCorrelationId)
                     {
                         requestTelemetry.Source = headerCorrelationId;
                     }
