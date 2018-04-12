@@ -134,6 +134,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(10, exception, this.ApplicationName);
         }
 
+        [Event(11, Message = "Unable to configure module {0} as it is not found in service collection.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void UnableToFindModuleToConfigure(string moduleType, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(11, moduleType, this.ApplicationName);
+        }
+
         /// <summary>
         /// Keywords for the AspNetEventSource.
         /// </summary>

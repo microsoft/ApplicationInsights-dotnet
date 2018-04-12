@@ -5,6 +5,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
@@ -24,6 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection
         private readonly IEnumerable<ITelemetryModule> modules;
         private readonly ITelemetryChannel telemetryChannel;
         private readonly IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories;
+        private readonly IEnumerable<ITelemetryModuleConfigurator> telemetryModuleConfigurators;
         private readonly IApplicationIdProvider applicationIdProvider;
 
         /// <summary>
@@ -35,12 +37,14 @@ namespace Microsoft.Extensions.DependencyInjection
             IEnumerable<ITelemetryInitializer> initializers,
             IEnumerable<ITelemetryModule> modules,
             IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories,
+            IEnumerable<ITelemetryModuleConfigurator> telemetryModuleConfigurators,
             IApplicationIdProvider applicationIdProvider)
         {
             this.applicationInsightsServiceOptions = applicationInsightsServiceOptions.Value;
             this.initializers = initializers;
             this.modules = modules;
             this.telemetryProcessorFactories = telemetryProcessorFactories;
+            this.telemetryModuleConfigurators = telemetryModuleConfigurators;
             this.telemetryChannel = serviceProvider.GetService<ITelemetryChannel>();
             this.applicationIdProvider = applicationIdProvider;
         }
@@ -51,6 +55,22 @@ namespace Microsoft.Extensions.DependencyInjection
             if (this.applicationInsightsServiceOptions.InstrumentationKey != null)
             {
                 configuration.InstrumentationKey = this.applicationInsightsServiceOptions.InstrumentationKey;
+            }
+
+            if (this.telemetryModuleConfigurators.Any())
+            {
+                foreach (ITelemetryModuleConfigurator telemetryModuleConfigurator in this.telemetryModuleConfigurators)
+                {                    
+                    ITelemetryModule telemetryModule = this.modules.FirstOrDefault(((module) => module.GetType() == telemetryModuleConfigurator.TelemetryModuleType));
+                    if (telemetryModule != null)
+                    {
+                        telemetryModuleConfigurator.Configure(telemetryModule);
+                    }
+                    else
+                    {
+                        AspNetCoreEventSource.Instance.UnableToFindModuleToConfigure(telemetryModuleConfigurator.TelemetryModuleType.ToString());
+                    }
+                }
             }
 
             if (this.telemetryProcessorFactories.Any())
