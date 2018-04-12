@@ -34,7 +34,26 @@
 
             Assert.IsTrue(client.IsEnabled());
         }
-        
+
+        [TestMethod]
+        public void FlushDoesNotThrowIfConfigurationIsDisposed()
+        {
+            var channel = new InMemoryChannel();
+            var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
+            var client = new TelemetryClient(configuration);
+
+            configuration.Dispose();
+
+            try
+            {
+                client.Flush();
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.ToString());
+            }
+        }
+
         #region TrackEvent
 
         [TestMethod]
