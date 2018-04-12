@@ -140,10 +140,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(11, moduleType, this.ApplicationName);
         }
 
-        [Event(12, Message = "Unable to find expected module {0} in service collection.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
-        public void UnableToFindExpectedModule(string moduleType, string appDomainName = "Incorrect")
+        [Event(12, Message = "Unable to find QuickPulseTelemetryModule in service collection. QuickPulse/LiveMetrics feature will not be available.", Level = EventLevel.Error, Keywords = Keywords.Diagnostics)]
+        public void UnableToFindQuickPulseModuleInDI(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(12, moduleType, this.ApplicationName);
+            this.WriteEvent(12, this.ApplicationName);
         }
 
         /// <summary>

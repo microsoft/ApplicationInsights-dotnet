@@ -135,7 +135,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
                 else
                 {
-                    AspNetCoreEventSource.Instance.UnableToFindExpectedModule(nameof(QuickPulseTelemetryModule));
+                    AspNetCoreEventSource.Instance.UnableToFindQuickPulseModuleInDI();
                 }                
             }        
         }
