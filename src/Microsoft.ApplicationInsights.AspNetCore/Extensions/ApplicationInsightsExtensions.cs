@@ -167,7 +167,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();
                 services.AddSingleton<TelemetryConfiguration>(provider => provider.GetService<IOptions<TelemetryConfiguration>>().Value);
 
-                services.AddSingleton<IApplicationIdProvider, ApplicationInsightsApplicationIdProvider>();
+                services.TryAddSingleton<IApplicationIdProvider, ApplicationInsightsApplicationIdProvider>();
 
                 services.AddSingleton<TelemetryClient>();
 

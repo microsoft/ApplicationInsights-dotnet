@@ -13,16 +13,16 @@
     /// </summary>
     internal class OperationCorrelationTelemetryInitializer : TelemetryInitializerBase
     {
-        private readonly TelemetryConfiguration telemetryConfiguration;
+        private readonly IApplicationIdProvider applicationIdProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationCorrelationTelemetryInitializer"/> class.
         /// </summary>
         /// <param name="httpContextAccessor">Accessor for retrieving the current HTTP context.</param>
         /// <param name="applicationIdProvider">Nullable Provider for resolving application Id to be used by Correlation.</param>
-        public OperationCorrelationTelemetryInitializer(IHttpContextAccessor httpContextAccessor, TelemetryConfiguration telemetryConfiguration) : base(httpContextAccessor)
+        public OperationCorrelationTelemetryInitializer(IHttpContextAccessor httpContextAccessor, IApplicationIdProvider applicationIdProvider = null) : base(httpContextAccessor)
         {
-            this.telemetryConfiguration = telemetryConfiguration ?? throw new ArgumentNullException(nameof(telemetryConfiguration));
+            this.applicationIdProvider = applicationIdProvider;
         }
 
         /// <summary>
@@ -47,7 +47,7 @@
                     {
                         requestTelemetry.Source = headerCorrelationId;
                     }
-                    else if ((this.telemetryConfiguration.ApplicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out applicationId) ?? false)
+                    else if ((this.applicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out applicationId) ?? false)
                         && applicationId != headerCorrelationId)
                     {
                         requestTelemetry.Source = headerCorrelationId;

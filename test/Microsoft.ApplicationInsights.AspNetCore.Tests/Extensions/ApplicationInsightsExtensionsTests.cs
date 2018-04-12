@@ -15,6 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.ApplicationInsights.AspNetCore.Logging;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNetCore.Tests;
+    using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -602,6 +603,52 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                 // SHOULD CALL SetAppIdInResponseHeader
                 Assert.Equal(typeof(HostingDiagnosticListener), hostingDiagnosticListener.GetType());
+            }
+
+            [Fact]
+            public static void VerifyNoExceptionWhenAppIdProviderNotFoundFoundInDI()
+            {
+                // ARRANGE
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
+                services.AddApplicationInsightsTelemetry(config);
+
+                for (var i = services.Count - 1; i >= 0; i--)
+                {
+                    var descriptor = services[i];
+                    if (descriptor.ServiceType == typeof(IApplicationIdProvider))
+                    {
+                        services.RemoveAt(i);
+                    }
+                }
+
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+
+                var operationCorrelationTelemetryInitializer = serviceProvider.GetServices<ITelemetryInitializer>().FirstOrDefault(x => x.GetType() 
+                    == typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.OperationCorrelationTelemetryInitializer));
+
+                Assert.NotNull(operationCorrelationTelemetryInitializer); // this verifies the instance was created without exception
+
+
+                var hostingDiagnosticListener = serviceProvider.GetServices<IApplicationInsightDiagnosticListener>().FirstOrDefault(x => x.GetType()
+                    == typeof(HostingDiagnosticListener));
+
+                Assert.NotNull(hostingDiagnosticListener); // this verifies the instance was created without exception
+            }
+
+            [Fact]
+            public static void VerifyUserCanOverrideAppIdProvider()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddSingleton<IApplicationIdProvider, MockApplicationIdProvider>(); // assume user tries to define own implementation
+                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
+                services.AddApplicationInsightsTelemetry(config);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var applicationIdProvider = serviceProvider.GetRequiredService<IApplicationIdProvider>();
+
+                Assert.Equal(typeof(MockApplicationIdProvider), applicationIdProvider.GetType());
             }
 
             [Fact]
