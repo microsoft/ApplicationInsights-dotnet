@@ -7,6 +7,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers
         private readonly string expectedInstrumentationKey;
         private readonly string applicationId;
 
+        public MockApplicationIdProvider()
+        {
+        }
+
         public MockApplicationIdProvider(string expectedInstrumentationKey, string applicationId)
         {
             this.expectedInstrumentationKey = expectedInstrumentationKey;

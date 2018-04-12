@@ -20,7 +20,7 @@
         /// </summary>
         /// <param name="httpContextAccessor">Accessor for retrieving the current HTTP context.</param>
         /// <param name="applicationIdProvider">Nullable Provider for resolving application Id to be used by Correlation.</param>
-        public OperationCorrelationTelemetryInitializer(IHttpContextAccessor httpContextAccessor, IApplicationIdProvider applicationIdProvider) : base(httpContextAccessor)
+        public OperationCorrelationTelemetryInitializer(IHttpContextAccessor httpContextAccessor, IApplicationIdProvider applicationIdProvider = null) : base(httpContextAccessor)
         {
             this.applicationIdProvider = applicationIdProvider;
         }

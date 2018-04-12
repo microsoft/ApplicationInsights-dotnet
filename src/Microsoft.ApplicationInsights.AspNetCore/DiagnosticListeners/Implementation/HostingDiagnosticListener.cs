@@ -38,7 +38,7 @@
         /// </summary>
         /// <param name="client"><see cref="TelemetryClient"/> to post traces to.</param>
         /// <param name="applicationIdProvider">Nullable Provider for resolving application Id to be used by Correlation.</param>
-        public HostingDiagnosticListener(TelemetryClient client, IApplicationIdProvider applicationIdProvider)
+        public HostingDiagnosticListener(TelemetryClient client, IApplicationIdProvider applicationIdProvider = null)
         {
             this.client = client ?? throw new ArgumentNullException(nameof(client));
             this.applicationIdProvider = applicationIdProvider;
