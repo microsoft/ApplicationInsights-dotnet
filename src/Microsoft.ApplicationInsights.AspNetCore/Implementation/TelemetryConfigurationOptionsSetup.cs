@@ -37,8 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
             IEnumerable<ITelemetryInitializer> initializers,
             IEnumerable<ITelemetryModule> modules,
             IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories,
-            IEnumerable<ITelemetryModuleConfigurator> telemetryModuleConfigurators,
-            IApplicationIdProvider applicationIdProvider)
+            IEnumerable<ITelemetryModuleConfigurator> telemetryModuleConfigurators)
         {
             this.applicationInsightsServiceOptions = applicationInsightsServiceOptions.Value;
             this.initializers = initializers;
@@ -46,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
             this.telemetryProcessorFactories = telemetryProcessorFactories;
             this.telemetryModuleConfigurators = telemetryModuleConfigurators;
             this.telemetryChannel = serviceProvider.GetService<ITelemetryChannel>();
-            this.applicationIdProvider = applicationIdProvider;
+            this.applicationIdProvider = serviceProvider.GetService<IApplicationIdProvider>();
         }
 
         /// <inheritdoc />
