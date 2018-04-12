@@ -21,7 +21,7 @@
 
         private static OperationCorrelationTelemetryInitializer CreateInitializer(IHttpContextAccessor contextAccessor)
         {
-            return new OperationCorrelationTelemetryInitializer(contextAccessor, CommonMocks.GetMockTelemetryConfiguration());
+            return new OperationCorrelationTelemetryInitializer(contextAccessor, CommonMocks.GetMockApplicationIdProvider());
         }
 
         [Fact]

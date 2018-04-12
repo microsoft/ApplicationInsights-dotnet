@@ -67,7 +67,7 @@
 
         public RequestTrackingMiddlewareTest()
         {
-            this.middleware = new HostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry)), CommonMocks.GetMockTelemetryConfiguration());
+            this.middleware = new HostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry)), CommonMocks.GetMockApplicationIdProvider());
         }
 
         [Fact]
