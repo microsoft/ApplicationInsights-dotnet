@@ -140,6 +140,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(11, moduleType, this.ApplicationName);
         }
 
+        [Event(12, Message = "Unable to find expected module {0} in service collection.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void UnableToFindExpectedModule(string moduleType, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(12, moduleType, this.ApplicationName);
+        }
+
         /// <summary>
         /// Keywords for the AspNetEventSource.
         /// </summary>

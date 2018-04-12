@@ -43,7 +43,7 @@ namespace Microsoft.Extensions.DependencyInjection
             this.modules = modules;
             this.telemetryProcessorFactories = telemetryProcessorFactories;
             this.telemetryModuleConfigurators = telemetryModuleConfigurators;
-            this.telemetryChannel = serviceProvider.GetService<ITelemetryChannel>();
+            this.telemetryChannel = serviceProvider.GetService<ITelemetryChannel>();            
         }
 
         /// <inheritdoc />
@@ -75,8 +75,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 foreach (ITelemetryProcessorFactory processorFactory in this.telemetryProcessorFactories)
                 {
                     configuration.TelemetryProcessorChainBuilder.Use(processorFactory.Create);
-                }
-                configuration.TelemetryProcessorChainBuilder.Build();
+                }                
             }
 
             this.AddQuickPulse(configuration);
@@ -121,20 +120,28 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         private void AddQuickPulse(TelemetryConfiguration configuration)
-        {            
+        {
             if (this.applicationInsightsServiceOptions.EnableQuickPulseMetricStream)
             {
-                var quickPulseModule = new QuickPulseTelemetryModule();
-                quickPulseModule.Initialize(configuration);
+                //var quickPulseModule = new QuickPulseTelemetryModule();
+                //quickPulseModule.Initialize(configuration);                
 
-                QuickPulseTelemetryProcessor processor = null;
-                configuration.TelemetryProcessorChainBuilder.Use((next) =>
+                QuickPulseTelemetryModule quickPulseModule = this.modules.FirstOrDefault(((module) => module.GetType() == typeof(QuickPulseTelemetryModule))) as QuickPulseTelemetryModule;
+                if (quickPulseModule != null)
+                {                    
+                    QuickPulseTelemetryProcessor processor = null;
+                    configuration.TelemetryProcessorChainBuilder.Use((next) =>
+                    {
+                        processor = new QuickPulseTelemetryProcessor(next);
+                        quickPulseModule.RegisterTelemetryProcessor(processor);
+                        return processor;
+                    });
+                }
+                else
                 {
-                    processor = new QuickPulseTelemetryProcessor(next);
-                    quickPulseModule.RegisterTelemetryProcessor(processor);
-                    return processor;
-                });
-            }            
+                    AspNetCoreEventSource.Instance.UnableToFindExpectedModule(nameof(QuickPulseTelemetryModule));
+                }                
+            }        
         }
 
         private void AddSampling(TelemetryConfiguration configuration)
