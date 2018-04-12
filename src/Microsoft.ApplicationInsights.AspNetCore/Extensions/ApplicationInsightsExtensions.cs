@@ -16,7 +16,8 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
-    using Microsoft.ApplicationInsights.WindowsServer;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+    using Microsoft.ApplicationInsights.WindowsServer;    
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
@@ -165,6 +166,7 @@ namespace Microsoft.Extensions.DependencyInjection
 #endif
                 services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
                 services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();
+                services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
                 services.AddSingleton<TelemetryConfiguration>(provider => provider.GetService<IOptions<TelemetryConfiguration>>().Value);
 
                 services.AddSingleton<IApplicationIdProvider, ApplicationInsightsApplicationIdProvider>();
