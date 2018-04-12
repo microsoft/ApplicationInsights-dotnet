@@ -43,7 +43,7 @@ namespace Microsoft.Extensions.DependencyInjection
             this.modules = modules;
             this.telemetryProcessorFactories = telemetryProcessorFactories;
             this.telemetryModuleConfigurators = telemetryModuleConfigurators;
-            this.telemetryChannel = serviceProvider.GetService<ITelemetryChannel>();            
+            this.telemetryChannel = serviceProvider.GetService<ITelemetryChannel>();
         }
 
         /// <inheritdoc />

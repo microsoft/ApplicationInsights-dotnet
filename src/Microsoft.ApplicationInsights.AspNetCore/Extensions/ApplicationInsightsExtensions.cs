@@ -26,7 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.Extensions.Options;
 
 #if NET451 || NET46
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;    
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 #endif
 
     /// <summary>
