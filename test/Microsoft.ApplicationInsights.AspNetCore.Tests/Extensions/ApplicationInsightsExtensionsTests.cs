@@ -348,15 +348,24 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.NotNull(modules);
 
 #if NET46
-                Assert.Equal(4, modules.Count());
+                Assert.Equal(5, modules.Count());
                 var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
                 Assert.NotNull(perfCounterModule);
 #else
-                Assert.Equal(3, modules.Count());
+                Assert.Equal(4, modules.Count());
 #endif
 
                 var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
-                Assert.NotNull(dependencyModuleDescriptor);                
+                Assert.NotNull(dependencyModuleDescriptor);
+               
+                var appServiceHeartBeatModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(AppServicesHeartbeatTelemetryModule));
+                Assert.NotNull(appServiceHeartBeatModuleDescriptor);
+
+                var azureMetadataHeartBeatModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(AzureInstanceMetadataTelemetryModule));
+                Assert.NotNull(azureMetadataHeartBeatModuleDescriptor);
+
+                var quickPulseModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(QuickPulseTelemetryModule));
+                Assert.NotNull(quickPulseModuleDescriptor);
             }
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithDefaultValues()
