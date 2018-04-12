@@ -12,6 +12,7 @@
 - [Added ability to remove any default Telemetry Module.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/633)
 - [TelemetryChannel is configured via DI, making it easier to override channel](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/641)
 - [Fixed a bug which caused QuickPulse and Sampling to be enabled only if ServerTelemetryChannel was used](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/642)
+- [QuickPulseTelemetryModule is constructed via DI, make it possible for users to configure it.] (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/639)
 
 ## Version 2.2.1
 - Updated Web/Base SDK version dependency to 2.5.1 which addresses a bug.
