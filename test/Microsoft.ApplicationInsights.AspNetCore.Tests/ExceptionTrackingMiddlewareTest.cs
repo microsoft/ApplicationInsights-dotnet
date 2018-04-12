@@ -15,8 +15,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         [Fact]
         public void InvokeTracksExceptionThrownByNextMiddlewareAsHandledByPlatform()
         {
-            var middleware = new HostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry),
-                CommonMocks.MockCorrelationIdLookupHelper());
+            var middleware = new HostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry), CommonMocks.GetMockApplicationIdProvider());
 
             middleware.OnHostingException(null, null);
 
@@ -28,8 +27,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         [Fact]
         public void SdkVersionIsPopulatedByMiddleware()
         {
-            var middleware = new HostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry),
-                CommonMocks.MockCorrelationIdLookupHelper());
+            var middleware = new HostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry), CommonMocks.GetMockApplicationIdProvider());
 
             middleware.OnHostingException(null, null);
 

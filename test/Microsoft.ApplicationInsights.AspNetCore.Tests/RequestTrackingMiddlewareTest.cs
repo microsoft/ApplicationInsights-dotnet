@@ -67,8 +67,7 @@
 
         public RequestTrackingMiddlewareTest()
         {
-            this.middleware = new HostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry)),
-                CommonMocks.MockCorrelationIdLookupHelper());
+            this.middleware = new HostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry)), CommonMocks.GetMockApplicationIdProvider());
         }
 
         [Fact]
@@ -80,7 +79,7 @@
 
             Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
-            Assert.Equal(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey), CorrelationIdLookupHelperStub.AppId);
+            Assert.Equal(CommonMocks.TestApplicationId, HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey));
 
             HandleRequestEnd(context, 0);
 
@@ -105,7 +104,7 @@
             HandleRequestBegin(context, 0);
 
             Assert.NotNull(context.Features.Get<RequestTelemetry>());
-            Assert.Equal(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey), CorrelationIdLookupHelperStub.AppId);
+            Assert.Equal(CommonMocks.TestApplicationId, HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey));
 
             HandleRequestEnd(context, 0);
 
@@ -130,7 +129,7 @@
             HandleRequestBegin(context, 0);
 
             Assert.NotNull(context.Features.Get<RequestTelemetry>());
-            Assert.Equal(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey), CorrelationIdLookupHelperStub.AppId);
+            Assert.Equal(CommonMocks.TestApplicationId, HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey));
 
             middleware.OnDiagnosticsUnhandledException(context, null);
             HandleRequestEnd(context, 0);
@@ -306,7 +305,7 @@
             HandleRequestBegin(context, 0);
 
             Assert.NotNull(context.Features.Get<RequestTelemetry>());
-            Assert.Equal(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey), CorrelationIdLookupHelperStub.AppId);
+            Assert.Equal(CommonMocks.TestApplicationId, HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey));
 
             HandleRequestEnd(context, 0);
 
@@ -332,7 +331,7 @@
             HandleRequestBegin(context, 0);
 
             Assert.NotNull(context.Features.Get<RequestTelemetry>());
-            Assert.Equal(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey), CorrelationIdLookupHelperStub.AppId);
+            Assert.Equal(CommonMocks.TestApplicationId, HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey));
 
             HandleRequestEnd(context, 0);
 
@@ -354,13 +353,13 @@
         public void OnEndRequestFromSameInstrumentationKey()
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "GET");
-            HttpHeadersUtilities.SetRequestContextKeyValue(context.Request.Headers, RequestResponseHeaders.RequestContextSourceKey, CorrelationIdLookupHelperStub.AppId);
+            HttpHeadersUtilities.SetRequestContextKeyValue(context.Request.Headers, RequestResponseHeaders.RequestContextSourceKey, CommonMocks.TestApplicationId);
 
             HandleRequestBegin(context, 0);
 
             Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
-            Assert.Equal(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey), CorrelationIdLookupHelperStub.AppId);
+            Assert.Equal(CommonMocks.TestApplicationId, HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey));
 
             HandleRequestEnd(context, 0);
 
@@ -387,7 +386,7 @@
             HandleRequestBegin(context, 0);
 
             Assert.NotNull(context.Features.Get<RequestTelemetry>());
-            Assert.Equal(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey), CorrelationIdLookupHelperStub.AppId);
+            Assert.Equal(CommonMocks.TestApplicationId, HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey));
 
             HandleRequestEnd(context, 0);
 

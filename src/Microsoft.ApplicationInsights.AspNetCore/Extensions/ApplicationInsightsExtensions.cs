@@ -15,6 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.WindowsServer;    
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
@@ -169,7 +170,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
                 services.AddSingleton<TelemetryConfiguration>(provider => provider.GetService<IOptions<TelemetryConfiguration>>().Value);
 
-                services.AddSingleton<ICorrelationIdLookupHelper>(provider => new CorrelationIdLookupHelper(() => provider.GetService<IOptions<TelemetryConfiguration>>().Value));
+                services.TryAddSingleton<IApplicationIdProvider, ApplicationInsightsApplicationIdProvider>();
 
                 services.AddSingleton<TelemetryClient>();
 

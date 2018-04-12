@@ -26,6 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
         private readonly ITelemetryChannel telemetryChannel;
         private readonly IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories;
         private readonly IEnumerable<ITelemetryModuleConfigurator> telemetryModuleConfigurators;
+        private readonly IApplicationIdProvider applicationIdProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:TelemetryConfigurationOptionsSetup"/> class.
@@ -44,6 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
             this.telemetryProcessorFactories = telemetryProcessorFactories;
             this.telemetryModuleConfigurators = telemetryModuleConfigurators;
             this.telemetryChannel = serviceProvider.GetService<ITelemetryChannel>();
+            this.applicationIdProvider = serviceProvider.GetService<IApplicationIdProvider>();
         }
 
         /// <inheritdoc />
@@ -116,6 +118,9 @@ namespace Microsoft.Extensions.DependencyInjection
                     module.Initialize(configuration);
                 }
             }
+
+            // Microsoft.ApplicationInsights.DependencyCollector.DependencyTrackingTelemetryModule depends on this nullable configuration to support Correlation. 
+            configuration.ApplicationIdProvider = this.applicationIdProvider;
         }
 
         private void AddQuickPulse(TelemetryConfiguration configuration)

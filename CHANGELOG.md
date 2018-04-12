@@ -13,6 +13,7 @@
 - [TelemetryChannel is configured via DI, making it easier to override channel](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/641)
 - [Fixed a bug which caused QuickPulse and Sampling to be enabled only if ServerTelemetryChannel was used](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/642)
 - [QuickPulseTelemetryModule is constructed via DI, make it possible for users to configure it.] (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/639)
+- [Remove CorrelationIdLookupHelper. Use TelemetryConfiguration.ApplicationIdProvider instead.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/636) With this change you can update URL to query application ID from which enables environments with reverse proxy configuration to access Application Insights ednpoints.
 - [AutocollectedMetricsExtractor is added by default to the TelemetryConfiguration](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/604)
 
 ## Version 2.2.1
