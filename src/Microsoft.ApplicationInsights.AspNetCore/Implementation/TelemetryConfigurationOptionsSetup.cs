@@ -24,6 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
         private readonly IEnumerable<ITelemetryModule> modules;
         private readonly ITelemetryChannel telemetryChannel;
         private readonly IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories;
+        private readonly IApplicationIdProvider applicationIdProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:TelemetryConfigurationOptionsSetup"/> class.
@@ -33,13 +34,15 @@ namespace Microsoft.Extensions.DependencyInjection
             IOptions<ApplicationInsightsServiceOptions> applicationInsightsServiceOptions,
             IEnumerable<ITelemetryInitializer> initializers,
             IEnumerable<ITelemetryModule> modules,
-            IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories)
+            IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories,
+            IApplicationIdProvider applicationIdProvider)
         {
             this.applicationInsightsServiceOptions = applicationInsightsServiceOptions.Value;
             this.initializers = initializers;
             this.modules = modules;
             this.telemetryProcessorFactories = telemetryProcessorFactories;
             this.telemetryChannel = serviceProvider.GetService<ITelemetryChannel>();
+            this.applicationIdProvider = applicationIdProvider;
         }
 
         /// <inheritdoc />
@@ -95,6 +98,9 @@ namespace Microsoft.Extensions.DependencyInjection
                     module.Initialize(configuration);
                 }
             }
+
+            // Microsoft.ApplicationInsights.DependencyCollector.DependencyTrackingTelemetryModule depends on this nullable configuration to support Correlation. 
+            configuration.ApplicationIdProvider = this.applicationIdProvider;
         }
 
         private void AddTelemetryChannelAndProcessors(TelemetryConfiguration configuration)
