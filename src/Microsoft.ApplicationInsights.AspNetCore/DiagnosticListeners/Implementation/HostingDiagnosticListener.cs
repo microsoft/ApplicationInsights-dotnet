@@ -29,7 +29,7 @@
         public static bool IsAspNetCore20 = typeof(WebHostBuilder).GetTypeInfo().Assembly.GetName().Version.Major >= 2;
 
         private readonly TelemetryClient client;
-        private readonly IApplicationIdProvider applicationIdProvider;
+        private readonly TelemetryConfiguration telemetryConfiguration;
         private readonly string sdkVersion = SdkVersionUtils.GetVersion();
         private const string ActivityCreatedByHostingDiagnosticListener = "ActivityCreatedByHostingDiagnosticListener";
 
@@ -38,10 +38,10 @@
         /// </summary>
         /// <param name="client"><see cref="TelemetryClient"/> to post traces to.</param>
         /// <param name="applicationIdProvider">Nullable Provider for resolving application Id to be used by Correlation.</param>
-        public HostingDiagnosticListener(TelemetryClient client, IApplicationIdProvider applicationIdProvider)
+        public HostingDiagnosticListener(TelemetryClient client, TelemetryConfiguration telemetryConfiguration)
         {
             this.client = client ?? throw new ArgumentNullException(nameof(client));
-            this.applicationIdProvider = applicationIdProvider;
+            this.telemetryConfiguration = telemetryConfiguration ?? throw new ArgumentNullException(nameof(telemetryConfiguration));
         }
 
         /// <inheritdoc/>
@@ -237,7 +237,7 @@
                 (!responseHeaders.ContainsKey(RequestResponseHeaders.RequestContextHeader) || HttpHeadersUtilities.ContainsRequestContextKeyValue(responseHeaders, RequestResponseHeaders.RequestContextTargetKey)))
             {
                 string applicationId = null;
-                if (this.applicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out applicationId) ?? false)
+                if (this.telemetryConfiguration.ApplicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out applicationId) ?? false)
                 {
                     HttpHeadersUtilities.SetRequestContextKeyValue(responseHeaders, RequestResponseHeaders.RequestContextTargetKey, applicationId);
                 }

@@ -12,16 +12,26 @@
 
         public static TelemetryClient MockTelemetryClient(Action<ITelemetry> onSendCallback)
         {
-            return new TelemetryClient(new TelemetryConfiguration()
-            {
-                InstrumentationKey = InstrumentationKey,
-                TelemetryChannel = new FakeTelemetryChannel { OnSend = onSendCallback }
-            });
+            return new TelemetryClient(GetMockTelemetryConfiguration(onSendCallback));
         }
 
-        internal static IApplicationIdProvider GetMockApplicationIdProvider()
+        internal static TelemetryConfiguration GetMockTelemetryConfiguration()
         {
-            return new MockApplicationIdProvider(InstrumentationKey, TestApplicationId);
+            return new TelemetryConfiguration()
+            {
+                InstrumentationKey = InstrumentationKey,
+                ApplicationIdProvider = new MockApplicationIdProvider(InstrumentationKey, TestApplicationId)
+            };
+        }
+
+        internal static TelemetryConfiguration GetMockTelemetryConfiguration(Action<ITelemetry> onSendCallback)
+        {
+            return new TelemetryConfiguration()
+            {
+                InstrumentationKey = InstrumentationKey,
+                TelemetryChannel = new FakeTelemetryChannel { OnSend = onSendCallback },
+                ApplicationIdProvider = new MockApplicationIdProvider(InstrumentationKey, TestApplicationId)
+            };
         }
     }
 }
