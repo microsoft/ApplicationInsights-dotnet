@@ -10,7 +10,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using System.Reflection;
     using Logging;
     using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.Logging;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
@@ -565,44 +564,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 Assert.Equal(typeof(InMemoryChannel), telemetryConfiguration.TelemetryChannel.GetType());
-            }
-
-
-            [Fact]
-            public static void VerifyTelemetryInitializerNoExceptionWhenAppIdProviderNotFoundFoundInDI()
-            {
-                // ARRANGE
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
-                services.AddApplicationInsightsTelemetry(config);
-
-                services.AddSingleton<ITelemetryInitializer, ApplicationInsights.AspNetCore.TelemetryInitializers.OperationCorrelationTelemetryInitializer>();
-
-
-                IServiceProvider serviceProvider = services.BuildServiceProvider();
-                var operationCorrelationTelemetryInitializer = serviceProvider.GetService<ITelemetryInitializer>();
-
-                // SHOULD CALL ONINITIALIZE TELEMETRY
-                Assert.Equal(typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.OperationCorrelationTelemetryInitializer), operationCorrelationTelemetryInitializer.GetType());
-            }
-
-
-            [Fact]
-            public static void VerifyDiagnosticListenerNoExceptionWhenAppIdProviderNotFoundFoundInDI()
-            {
-                // ARRANGE
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
-                services.AddApplicationInsightsTelemetry(config);
-
-                services.AddSingleton<IApplicationInsightDiagnosticListener, HostingDiagnosticListener>();
-
-
-                IServiceProvider serviceProvider = services.BuildServiceProvider();
-                var hostingDiagnosticListener = serviceProvider.GetService<IApplicationInsightDiagnosticListener>();
-
-                // SHOULD CALL SetAppIdInResponseHeader
-                Assert.Equal(typeof(HostingDiagnosticListener), hostingDiagnosticListener.GetType());
             }
 
             [Fact]
