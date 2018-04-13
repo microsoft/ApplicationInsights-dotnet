@@ -69,14 +69,8 @@
         public Task FlushAsync(CancellationToken cancelToken)
         {
             cancelToken.ThrowIfCancellationRequested();
-            try
-            {
-                this.trackingClient.Flush();
-            }
-            catch (NullReferenceException)
-            {
-                // If the user has disposed the pipeline and we are subsequently completing the last aggregation cycle, the above can throw.
-            }
+
+            this.trackingClient.Flush();
 
             return this.completedTask;
         }

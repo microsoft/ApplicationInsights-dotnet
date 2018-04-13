@@ -3,11 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
 
     /// <summary>
     /// Telemetry type used to track exceptions.
@@ -213,7 +211,6 @@
             return new ExceptionTelemetry(this);
         }
 
-#if !NETSTANDARD1_3
         /// <summary>
         /// Set parsedStack from an array of StackFrame objects.
         /// </summary>
@@ -247,7 +244,6 @@
                 }
             }
         }
-#endif
 
         /// <summary>
         /// Sanitizes the properties based on constraints.
