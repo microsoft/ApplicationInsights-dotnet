@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.3.0-beta1
+- Changed behavior for `TelemetryConfiguration.Active` and `TelemetryConfiguration` dependency injection singleton: with this version every WebHost has its own `TelemetryConfiguration` instance. Changes done for `TelemetryConfiguration.Active` do not affect telemetry reported by the SDK; use `TelemetryConfiguration` instance obtained through the dependency injection. [Fix NullReferenceException when sending http requests in scenario with multiple web hosts sharing the same process](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/613)
+- Updated Javascript Snippet with latest from [Github/ApplicationInsights-JS](https://github.com/Microsoft/ApplicationInsights-JS)
+- [Make all built-in TelemetryInitializers public to allow easy removal from DI Container.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/351)
+- [Enforced limits of values read from incoming http requests to prevent security vulnerability](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/608)
+- [ApplicationInsightsLogger adds EventId into telemetry properties. It is off by default for compatibility. It can be switched on by configuring ApplicationInsightsLoggerOptions.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/569)
+- [ApplicationInsightsLogger logs exceptions as ExceptionTelemetry by default. This can now be configured with ApplicationInsightsLoggerOptions.TrackExceptionsAsExceptionTelemetry] (https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/574)
+- [Add App Services and Azure Instance Metedata heartbeat provider modules by default, allow user to disable via configuration object.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/627)
+- [Added extension method to allow configuration of any Telemetry Module.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/634)
+- [Added ability to remove any default Telemetry Module.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/633)
+- [TelemetryChannel is configured via DI, making it easier to override channel](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/641)
+- [Fixed a bug which caused QuickPulse and Sampling to be enabled only if ServerTelemetryChannel was used](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/642)
+- [QuickPulseTelemetryModule is constructed via DI, make it possible for users to configure it.] (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/639)
+- [Remove CorrelationIdLookupHelper. Use TelemetryConfiguration.ApplicationIdProvider instead.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/636) With this change you can update URL to query application ID from which enables environments with reverse proxy configuration to access Application Insights ednpoints.
+- [AutocollectedMetricsExtractor is added by default to the TelemetryConfiguration](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/604)
+
 ## Version 2.2.1
 - Updated Web/Base SDK version dependency to 2.5.1 which addresses a bug.
 

@@ -6,8 +6,10 @@
     using System.Net.Http.Headers;
     using System.Reflection;
     using Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.AspNetCore.Common;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
@@ -27,20 +29,19 @@
         public static bool IsAspNetCore20 = typeof(WebHostBuilder).GetTypeInfo().Assembly.GetName().Version.Major >= 2;
 
         private readonly TelemetryClient client;
-        private readonly ICorrelationIdLookupHelper correlationIdLookupHelper;
-        private readonly string sdkVersion;
+        private readonly IApplicationIdProvider applicationIdProvider;
+        private readonly string sdkVersion = SdkVersionUtils.GetVersion();
         private const string ActivityCreatedByHostingDiagnosticListener = "ActivityCreatedByHostingDiagnosticListener";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:HostingDiagnosticListener"/> class.
         /// </summary>
         /// <param name="client"><see cref="TelemetryClient"/> to post traces to.</param>
-        /// <param name="correlationIdLookupHelper">A store for correlation ids that we don't have to query it everytime.</param>
-        public HostingDiagnosticListener(TelemetryClient client, ICorrelationIdLookupHelper correlationIdLookupHelper)
+        /// <param name="applicationIdProvider">Nullable Provider for resolving application Id to be used by Correlation.</param>
+        public HostingDiagnosticListener(TelemetryClient client, IApplicationIdProvider applicationIdProvider = null)
         {
-            this.client = client;
-            this.correlationIdLookupHelper = correlationIdLookupHelper;
-            this.sdkVersion = SdkVersionUtils.VersionPrefix + SdkVersionUtils.GetAssemblyVersion();
+            this.client = client ?? throw new ArgumentNullException(nameof(client));
+            this.applicationIdProvider = applicationIdProvider;
         }
 
         /// <inheritdoc/>
@@ -79,6 +80,7 @@
                 }
                 else if (httpContext.Request.Headers.TryGetValue(RequestResponseHeaders.StandardRootIdHeader, out xmsRequestRootId))
                 {
+                    xmsRequestRootId = StringUtilities.EnforceMaxLength(xmsRequestRootId, InjectionGuardConstants.RequestHeaderMaxLength);
                     var activity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                     activity.SetParentId(xmsRequestRootId);
                     activity.Start();
@@ -115,6 +117,7 @@
                 IHeaderDictionary requestHeaders = httpContext.Request.Headers;
                 if (requestHeaders.TryGetValue(RequestResponseHeaders.RequestIdHeader, out requestId))
                 {
+                    requestId = StringUtilities.EnforceMaxLength(requestId, InjectionGuardConstants.RequestHeaderMaxLength);
                     isActivityCreatedFromRequestIdHeader = true;
                     activity.SetParentId(requestId);
 
@@ -126,6 +129,8 @@
                             NameValueHeaderValue baggageItem;
                             if (NameValueHeaderValue.TryParse(item, out baggageItem))
                             {
+                                var itemName = StringUtilities.EnforceMaxLength(baggageItem.Name, InjectionGuardConstants.ContextHeaderKeyMaxLength);
+                                var itemValue = StringUtilities.EnforceMaxLength(baggageItem.Value, InjectionGuardConstants.ContextHeaderValueMaxLength);
                                 activity.AddBaggage(baggageItem.Name, baggageItem.Value);
                             }
                         }
@@ -133,6 +138,7 @@
                 }
                 else if (requestHeaders.TryGetValue(RequestResponseHeaders.StandardRootIdHeader, out standardRootId))
                 {
+                    standardRootId = StringUtilities.EnforceMaxLength(standardRootId, InjectionGuardConstants.RequestHeaderMaxLength);
                     activity.SetParentId(standardRootId);
                 }
 
@@ -209,6 +215,7 @@
             }
             else if (httpContext.Request.Headers.TryGetValue(RequestResponseHeaders.StandardParentIdHeader, out standardParentId))
             {
+                standardParentId = StringUtilities.EnforceMaxLength(standardParentId, InjectionGuardConstants.RequestHeaderMaxLength);
                 requestTelemetry.Context.Operation.ParentId = standardParentId;
             }
 
@@ -229,10 +236,10 @@
                 !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) &&
                 (!responseHeaders.ContainsKey(RequestResponseHeaders.RequestContextHeader) || HttpHeadersUtilities.ContainsRequestContextKeyValue(responseHeaders, RequestResponseHeaders.RequestContextTargetKey)))
             {
-                string correlationId = null;
-                if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out correlationId))
+                string applicationId = null;
+                if (this.applicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out applicationId) ?? false)
                 {
-                    HttpHeadersUtilities.SetRequestContextKeyValue(responseHeaders, RequestResponseHeaders.RequestContextTargetKey, correlationId);
+                    HttpHeadersUtilities.SetRequestContextKeyValue(responseHeaders, RequestResponseHeaders.RequestContextTargetKey, applicationId);
                 }
             }
         }

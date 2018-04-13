@@ -13,7 +13,7 @@
     /// <summary>
     /// A telemetry initializer that populates cloud context role instance.
     /// </summary>
-    internal class DomainNameRoleInstanceTelemetryInitializer : TelemetryInitializerBase
+    public class DomainNameRoleInstanceTelemetryInitializer : TelemetryInitializerBase
     {
         private string roleInstanceName;
 

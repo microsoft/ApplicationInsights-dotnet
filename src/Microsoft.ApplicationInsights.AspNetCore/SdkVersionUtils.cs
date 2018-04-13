@@ -11,7 +11,15 @@
         public const string VersionPrefix = "aspnet5c:";
 #endif
 
-        internal static string GetAssemblyVersion()
+        /// <summary>
+        /// Get the Assembly Version with SDK prefix.
+        /// </summary>
+        internal static string GetVersion()
+        {
+            return VersionPrefix + GetAssemblyVersion();
+        }
+
+        private static string GetAssemblyVersion()
         {
             return typeof(SdkVersionUtils).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyInformationalVersionAttribute>()
                       .First()

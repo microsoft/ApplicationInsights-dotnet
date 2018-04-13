@@ -8,7 +8,7 @@
     /// <see cref="ITelemetryInitializer"/> implementation that stamps ASP.NET Core environment name
     /// on telemetries.
     /// </summary>
-    internal class AspNetCoreEnvironmentTelemetryInitializer: ITelemetryInitializer
+    public class AspNetCoreEnvironmentTelemetryInitializer: ITelemetryInitializer
     {
         private const string AspNetCoreEnvironmentPropertyName = "AspNetCoreEnvironment";
         private readonly IHostingEnvironment environment;

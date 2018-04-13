@@ -4,33 +4,33 @@
 namespace Microsoft.Extensions.DependencyInjection.Test
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
     using Logging;
     using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.AspNetCore;
+    using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.Logging;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNetCore.Tests;
+    using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+    using Microsoft.ApplicationInsights.WindowsServer;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Hosting.Internal;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Options;
-    using System.IO;
-
-#if NET451 || NET46
-    using ApplicationInsights.Extensibility.PerfCounterCollector;
-    using ApplicationInsights.WindowsServer.TelemetryChannel;
-    using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;    
-#endif
+    using Microsoft.Extensions.Options;    
 
     public static class ApplicationInsightsExtensionsTests
     {
@@ -51,8 +51,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         public static class AddApplicationInsightsTelemetry
         {
             [Theory]
-            [InlineData(typeof(ITelemetryInitializer), typeof(AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]
-            [InlineData(typeof(ITelemetryInitializer), typeof(DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ComponentVersionTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), ServiceLifetime.Singleton)]
@@ -69,8 +69,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Theory]
-            [InlineData(typeof(ITelemetryInitializer), typeof(AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]
-            [InlineData(typeof(ITelemetryInitializer), typeof(DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ComponentVersionTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), ServiceLifetime.Singleton)]
@@ -119,20 +119,33 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             /// <summary>
-            /// Tests that the Active configuration singleton is used as the telemetry configuration instance by the configuration factory.
-            /// This demonstrates that existing documentation for how to create a telemetry client and track custom events etc. works in ASP.NET 5
-            /// when no ApplicationInsights.config file exists but a project.json file does exist which contains the instrumentation key.
+            /// Tests that the Active configuration singleton is updated, but another instance of telemetry configuration is created for dependency injection.
+            /// ASP.NET Core developers should always use Dependency Injection instead of static singleton approach. 
+            /// See Microsoft/ApplicationInsights-dotnet#613
             /// </summary>
-            /// 
             [Fact]
-            
             public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
             {
+                var activeConfig = TelemetryConfiguration.Active;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content","config-instrumentation-key.json"), null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 TelemetryConfiguration telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Equal(TestInstrumentationKey, TelemetryConfiguration.Active.InstrumentationKey);
+                Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
+                Assert.Equal(TestInstrumentationKey, activeConfig.InstrumentationKey);
+                Assert.NotEqual(activeConfig, telemetryConfiguration);
+            }
+
+            /// <summary>
+            /// We determine if Active telemtery needs to be configured based on the assumptions that 'default' configuration
+            // created by base SDK has single preset ITelemetryIntitializer. If it ever changes, change TelemetryConfigurationOptions.IsActiveConfigured method as well.
+            /// </summary>
+            [Fact]
+            public static void DefaultTelemetryconfigurationHasOneTelemetryInitializer()
+            {
+                //
+                var defaultConfig = TelemetryConfiguration.CreateDefault();
+                Assert.Equal(1, defaultConfig.TelemetryInitializers.Count);
             }
 
             [Fact]
@@ -143,7 +156,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Equal(true, telemetryConfiguration.TelemetryChannel.DeveloperMode);
+                Assert.True(telemetryConfiguration.TelemetryChannel.DeveloperMode);
             }
 
             [Fact]
@@ -191,7 +204,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                     IServiceProvider serviceProvider = services.BuildServiceProvider();
                     var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                    Assert.Equal(true, telemetryConfiguration.TelemetryChannel.DeveloperMode);
+                    Assert.True(telemetryConfiguration.TelemetryChannel.DeveloperMode);
                 }
                 finally
                 {
@@ -305,6 +318,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     EnableDebugLogger = true,
                     EnableQuickPulseMetricStream = false,
                     EndpointAddress = "http://test",
+                    EnableHeartbeat = false,
                     InstrumentationKey = "test"
                 };
                 services.AddApplicationInsightsTelemetry(options);
@@ -335,19 +349,44 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
-#if NET451 || NET46
-                Assert.Equal(2, modules.Count());
+#if NET46
+                Assert.Equal(5, modules.Count());
                 var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
                 Assert.NotNull(perfCounterModule);
 #else
-                Assert.Equal(1, modules.Count());
+                Assert.Equal(4, modules.Count());
 #endif
 
-                var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationFactory?.GetMethodInfo().ReturnType == typeof(DependencyTrackingTelemetryModule));
+                var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
                 Assert.NotNull(dependencyModuleDescriptor);
+               
+                var appServiceHeartBeatModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(AppServicesHeartbeatTelemetryModule));
+                Assert.NotNull(appServiceHeartBeatModuleDescriptor);
 
+                var azureMetadataHeartBeatModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(AzureInstanceMetadataTelemetryModule));
+                Assert.NotNull(azureMetadataHeartBeatModuleDescriptor);
+
+                var quickPulseModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(QuickPulseTelemetryModule));
+                Assert.NotNull(quickPulseModuleDescriptor);
+            }
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithDefaultValues()
+            {
+                //ARRANGE
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null, null, false);
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+
+                //ACT
+
+                // Requesting TelemetryConfiguration from services trigger constructing the TelemetryConfiguration
+                // which in turn trigger configuration of all modules.
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var dependencyModule = modules.OfType<DependencyTrackingTelemetryModule>().Single();
+
+                //VALIDATE
                 Assert.True(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count > 0);
+
             }
 
             [Fact]
@@ -393,53 +432,114 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Same(serviceProvider.GetService<IHostingEnvironment>(), telemetryProcessor.HostingEnvironment);
             }
 
-#if NET451 || NET46
             [Fact]
-            public static void AddsAddaptiveSamplingServiceToTheConfigurationInFullFrameworkByDefault()
+            public static void ConfigureApplicationInsightsTelemetryModuleWorks()
             {
-                var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(TelemetryConfiguration.Active);
+                //ARRANGE
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
+
+                //ACT
+                services.ConfigureTelemetryModule<TestTelemetryModule>
+                (module => module.CustomProperty = "mycustomvalue");
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                
+                // Requesting TelemetryConfiguration from services trigger constructing the TelemetryConfiguration
+                // which in turn trigger configuration of all modules.
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+                //VALIDATE
+                var modules = serviceProvider.GetServices<ITelemetryModule>();                
+                var testTelemetryModule = modules.OfType<TestTelemetryModule>().Single();
+
+                //The module should be initialized and configured as instructed.
+                Assert.NotNull(testTelemetryModule);
+                Assert.Equal("mycustomvalue", testTelemetryModule.CustomProperty);
+                Assert.True(testTelemetryModule.IsInitialized);
+            }
+
+            [Fact]
+            public static void ConfigureApplicationInsightsTelemetryModuleThrowsIfConfigureIsNull()
+            {
+                //ARRANGE
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
+
+                //ACT and VALIDATE
+                Assert.Throws<ArgumentNullException>(() => services.ConfigureTelemetryModule<TestTelemetryModule>(null));
+            }
+
+            [Fact]
+            public static void ConfigureApplicationInsightsTelemetryModuleDoesNotThrowIfModuleNotFound()
+            {
+                //ARRANGE
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                // Intentionally NOT adding the module
+                // services.AddSingleton<ITelemetryModule, TestTelemetryModule>();
+
+                //ACT
+                services.ConfigureTelemetryModule<TestTelemetryModule>
+                (module => module.CustomProperty = "mycustomvalue");
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+
+                // Requesting TelemetryConfiguration from services trigger constructing the TelemetryConfiguration
+                // which in turn trigger configuration of all modules.
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+                //VALIDATE
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                var testTelemetryModule = modules.OfType<TestTelemetryModule>().FirstOrDefault();
+
+                // No exceptions thrown here.
+                Assert.Null(testTelemetryModule);                
+            }
+
+
+            [Fact]
+            public static void AddsAddaptiveSamplingServiceToTheConfigurationByDefault()
+            {                                
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var updatedCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
-                Assert.Equal(updatedCount, exisitingProcessorCount + 1);
+                var adaptiveSamplingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);                
+                Assert.Equal(1, adaptiveSamplingProcessorCount);
             }
 
             [Fact]
             public static void DoesNotAddSamplingToConfigurationIfExplicitlyControlledThroughParameter()
-            {
-                var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(TelemetryConfiguration.Active);
+            {                
                 Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableAdaptiveSampling = false;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var updatedCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
-                Assert.Equal(updatedCount, exisitingProcessorCount);
+                var qpProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
+                Assert.Equal(0, qpProcessorCount);
             }
 
             [Fact]
-            public static void AddsAddaptiveSamplingServiceToTheConfigurationInFullFrameworkWithServiceOptions()
-            {
-                var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(TelemetryConfiguration.Active);
+            public static void AddsAddaptiveSamplingServiceToTheConfigurationWithServiceOptions()
+            {                
                 Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableAdaptiveSampling = true;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var updatedCount =  GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
-                Assert.Equal(updatedCount, exisitingProcessorCount + 1);
+                var adaptiveSamplingProcessorCount =  GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
+                Assert.Equal(1, adaptiveSamplingProcessorCount);
             }
 
             [Fact]
-            public static void AddsServerTelemetryChannelInFullFramework()
+            public static void AddsServerTelemetryChannelByDefault()
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Equal(telemetryConfiguration.TelemetryChannel.GetType(), typeof(ServerTelemetryChannel));
+                Assert.Equal(typeof(ServerTelemetryChannel), telemetryConfiguration.TelemetryChannel.GetType());
             }
 
             [Fact]
-            public static void DoesNotOverWriteExistingChannelInFullFramework()
+            public static void DoesNotOverWriteExistingChannel()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryChannel, InMemoryChannel>();
@@ -448,55 +548,150 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Equal(telemetryConfiguration.TelemetryChannel.GetType(), typeof(InMemoryChannel));
+                Assert.Equal(typeof(InMemoryChannel), telemetryConfiguration.TelemetryChannel.GetType());
             }
 
             [Fact]
-            public static void AddsQuickPulseProcessorToTheConfigurationInFullFrameworkByDefault()
+            public static void FallbacktoDefaultChannelWhenNoChannelFoundInDI()
             {
-                var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(TelemetryConfiguration.Active);
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
+                // ARRANGE
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();                                
+                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
+                services.AddApplicationInsightsTelemetry(config);
+
+                // Remove all ITelemetryChannel to simulate scenario where customer remove all channel from DI but forgot to add new one.
+                // This should not crash application startup, and should fall back to default channel supplied by base sdk.
+                for (var i = services.Count - 1; i >= 0; i--)
+                {
+                    var descriptor = services[i];
+                    if (descriptor.ServiceType == typeof(ITelemetryChannel))
+                    {
+                        services.RemoveAt(i);
+                    }
+                }
+
+                // VERIFY that default channel is configured when nothing is present in DI
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var updatedCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
-                Assert.Equal(updatedCount, exisitingProcessorCount + 1);
+                Assert.Equal(typeof(InMemoryChannel), telemetryConfiguration.TelemetryChannel.GetType());
+            }
+
+            [Fact]
+            public static void VerifyNoExceptionWhenAppIdProviderNotFoundFoundInDI()
+            {
+                // ARRANGE
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
+                services.AddApplicationInsightsTelemetry(config);
+
+                for (var i = services.Count - 1; i >= 0; i--)
+                {
+                    var descriptor = services[i];
+                    if (descriptor.ServiceType == typeof(IApplicationIdProvider))
+                    {
+                        services.RemoveAt(i);
+                    }
+                }
+
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+
+                var operationCorrelationTelemetryInitializer = serviceProvider.GetServices<ITelemetryInitializer>().FirstOrDefault(x => x.GetType() 
+                    == typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.OperationCorrelationTelemetryInitializer));
+
+                Assert.NotNull(operationCorrelationTelemetryInitializer); // this verifies the instance was created without exception
+
+
+                var hostingDiagnosticListener = serviceProvider.GetServices<IApplicationInsightDiagnosticListener>().FirstOrDefault(x => x.GetType()
+                    == typeof(HostingDiagnosticListener));
+
+                Assert.NotNull(hostingDiagnosticListener); // this verifies the instance was created without exception
+            }
+
+            [Fact]
+            public static void VerifyUserCanOverrideAppIdProvider()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddSingleton<IApplicationIdProvider, MockApplicationIdProvider>(); // assume user tries to define own implementation
+                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
+                services.AddApplicationInsightsTelemetry(config);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var applicationIdProvider = serviceProvider.GetRequiredService<IApplicationIdProvider>();
+
+                Assert.Equal(typeof(MockApplicationIdProvider), applicationIdProvider.GetType());
+            }
+
+            [Fact]
+            public static void AddsQuickPulseProcessorToTheConfigurationByDefault()
+            {                
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
+                services.AddSingleton<ITelemetryChannel, InMemoryChannel>();
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                var qpProcessorCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
+                Assert.Equal(1, qpProcessorCount);
+            }
+
+            [Fact]
+            public static void AddsAutoCollectedMetricsExtractorProcessorToTheConfigurationByDefault()
+            {
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
+                services.AddSingleton<ITelemetryChannel, InMemoryChannel>();
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfiguration<AutocollectedMetricsExtractor>(telemetryConfiguration);
+                Assert.Equal(1, metricExtractorProcessorCount);
             }
 
             [Fact]
             public static void DoesNotAddQuickPulseProcessorToConfigurationIfExplicitlyControlledThroughParameter()
-            {
-                var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(TelemetryConfiguration.Active);
+            {                
                 Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableQuickPulseMetricStream = false;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var updatedCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
-                Assert.Equal(updatedCount, exisitingProcessorCount);
+                var qpProcessorCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
+                Assert.Equal(0, qpProcessorCount);
             }
 
             [Fact]
-            public static void AddsQuickPulseProcessorToTheConfigurationInFullFrameworkWithServiceOptions()
-            {
-                var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(TelemetryConfiguration.Active);
+            public static void AddsQuickPulseProcessorToTheConfigurationWithServiceOptions()
+            {                
                 Action< ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableQuickPulseMetricStream = true;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var updatedCount =  GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
-                Assert.Equal(updatedCount, exisitingProcessorCount + 1);
+                var qpProcessorCount =  GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
+                Assert.Equal(1, qpProcessorCount);
             }
 
             [Fact]
-            public static void ProcessorsAreNotAddedToTheConfigurationWithExistingNonServerChannel()
+            public static void AddsHeartbeatModulesToTheConfigurationByDefault()
             {
-                int exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(TelemetryConfiguration.Active);
-                ServiceCollection services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, true);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
-                TelemetryConfiguration telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                int updatedCount =  GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
-                Assert.Equal(updatedCount, exisitingProcessorCount);
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                Assert.NotNull(modules.OfType<AppServicesHeartbeatTelemetryModule>().Single());
+                Assert.NotNull(modules.OfType<AzureInstanceMetadataTelemetryModule>().Single());
             }
-#endif
+
+            [Fact]
+            public static void HeartbeatIsDisabledWithServiceOptions()
+            {
+                var heartbeatModulePRE = TelemetryModules.Instance.Modules.OfType<IHeartbeatPropertyManager>().First();
+                Assert.True(heartbeatModulePRE.IsHeartbeatEnabled);
+
+                Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableHeartbeat = false;
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                var heartbeatModule = TelemetryModules.Instance.Modules.OfType<IHeartbeatPropertyManager>().First();
+                Assert.NotNull(heartbeatModule);
+                Assert.False(heartbeatModule.IsHeartbeatEnabled);
+            }
+
             private static int GetTelemetryProcessorsCountInConfiguration<T>(TelemetryConfiguration telemetryConfiguration)
             {
                 return telemetryConfiguration.TelemetryProcessors.Where(processor => processor.GetType() == typeof(T)).Count();
@@ -560,7 +755,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Equal(true, telemetryConfiguration.TelemetryChannel.DeveloperMode);
+                Assert.True(telemetryConfiguration.TelemetryChannel.DeveloperMode);
             }
 
             [Fact]
@@ -571,7 +766,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
             }
-
         }
 
         public static TelemetryConfiguration GetTelemetryConfiguration(this IServiceProvider serviceProvider)
@@ -597,7 +791,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 {
                     config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile(jsonFullPath).Build();
                 }
-                catch(Exception ex)
+                catch(Exception)
                 {
                     throw new Exception("Unable to build with json:" + jsonFullPath);
                 }

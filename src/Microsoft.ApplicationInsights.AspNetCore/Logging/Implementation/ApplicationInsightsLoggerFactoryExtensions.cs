@@ -4,6 +4,7 @@
     using ApplicationInsights;
     using ApplicationInsights.AspNetCore.Logging;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Options;
 
     /// <summary>
     /// Extension methods for <see cref="ILoggerFactory"/> that allow adding Application Insights logger.
@@ -64,6 +65,12 @@
         {
             var client = serviceProvider.GetService<TelemetryClient>();
             var debugLoggerControl = serviceProvider.GetService<ApplicationInsightsLoggerEvents>();
+            var options = serviceProvider.GetService<IOptions<ApplicationInsightsLoggerOptions>>();
+
+            if (options == null)
+            {
+                options = Options.Create(new ApplicationInsightsLoggerOptions());
+            }
 
             if (debugLoggerControl != null)
             {
@@ -75,7 +82,7 @@
                 }
             }
 
-            factory.AddProvider(new ApplicationInsightsLoggerProvider(client, filter));
+            factory.AddProvider(new ApplicationInsightsLoggerProvider(client, filter, options));
             return factory;
         }
     }

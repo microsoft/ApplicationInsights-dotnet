@@ -13,7 +13,7 @@
     /// <summary>
     /// This will allow to mark synthetic traffic from availability tests
     /// </summary>
-    internal class SyntheticTelemetryInitializer : TelemetryInitializerBase
+    public class SyntheticTelemetryInitializer : TelemetryInitializerBase
     {
         private const string SyntheticTestRunId = "SyntheticTest-RunId";
         private const string SyntheticTestLocation = "SyntheticTest-Location";

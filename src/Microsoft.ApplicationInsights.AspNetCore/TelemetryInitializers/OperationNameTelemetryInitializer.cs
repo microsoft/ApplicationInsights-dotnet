@@ -6,7 +6,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Http;
 
-    internal class OperationNameTelemetryInitializer : TelemetryInitializerBase
+    public class OperationNameTelemetryInitializer : TelemetryInitializerBase
     {
         public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
         {

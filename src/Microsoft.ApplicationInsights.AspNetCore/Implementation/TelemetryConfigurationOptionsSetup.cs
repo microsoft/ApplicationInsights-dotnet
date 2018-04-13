@@ -5,11 +5,14 @@ namespace Microsoft.Extensions.DependencyInjection
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.Extensions.Options;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Initializes TelemetryConfiguration based on values in <see cref="ApplicationInsightsServiceOptions"/>
@@ -22,6 +25,8 @@ namespace Microsoft.Extensions.DependencyInjection
         private readonly IEnumerable<ITelemetryModule> modules;
         private readonly ITelemetryChannel telemetryChannel;
         private readonly IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories;
+        private readonly IEnumerable<ITelemetryModuleConfigurator> telemetryModuleConfigurators;
+        private readonly IApplicationIdProvider applicationIdProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:TelemetryConfigurationOptionsSetup"/> class.
@@ -31,13 +36,16 @@ namespace Microsoft.Extensions.DependencyInjection
             IOptions<ApplicationInsightsServiceOptions> applicationInsightsServiceOptions,
             IEnumerable<ITelemetryInitializer> initializers,
             IEnumerable<ITelemetryModule> modules,
-            IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories)
+            IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories,
+            IEnumerable<ITelemetryModuleConfigurator> telemetryModuleConfigurators)
         {
             this.applicationInsightsServiceOptions = applicationInsightsServiceOptions.Value;
             this.initializers = initializers;
             this.modules = modules;
             this.telemetryProcessorFactories = telemetryProcessorFactories;
+            this.telemetryModuleConfigurators = telemetryModuleConfigurators;
             this.telemetryChannel = serviceProvider.GetService<ITelemetryChannel>();
+            this.applicationIdProvider = serviceProvider.GetService<IApplicationIdProvider>();
         }
 
         /// <inheritdoc />
@@ -48,22 +56,39 @@ namespace Microsoft.Extensions.DependencyInjection
                 configuration.InstrumentationKey = this.applicationInsightsServiceOptions.InstrumentationKey;
             }
 
+            if (this.telemetryModuleConfigurators.Any())
+            {
+                foreach (ITelemetryModuleConfigurator telemetryModuleConfigurator in this.telemetryModuleConfigurators)
+                {                    
+                    ITelemetryModule telemetryModule = this.modules.FirstOrDefault(((module) => module.GetType() == telemetryModuleConfigurator.TelemetryModuleType));
+                    if (telemetryModule != null)
+                    {
+                        telemetryModuleConfigurator.Configure(telemetryModule);
+                    }
+                    else
+                    {
+                        AspNetCoreEventSource.Instance.UnableToFindModuleToConfigure(telemetryModuleConfigurator.TelemetryModuleType.ToString());
+                    }
+                }
+            }
+
             if (this.telemetryProcessorFactories.Any())
             {
                 foreach (ITelemetryProcessorFactory processorFactory in this.telemetryProcessorFactories)
                 {
                     configuration.TelemetryProcessorChainBuilder.Use(processorFactory.Create);
-                }
-                configuration.TelemetryProcessorChainBuilder.Build();
+                }                
             }
 
-            this.AddTelemetryChannelAndProcessors(configuration);
+            // Fallback to default channel (InMemoryChannel) created by base sdk if no channel is found in DI
+            configuration.TelemetryChannel = this.telemetryChannel ?? configuration.TelemetryChannel;
             (configuration.TelemetryChannel as ITelemetryModule)?.Initialize(configuration);
 
-            configuration.TelemetryProcessorChainBuilder.Build();
-
-
-            configuration.TelemetryChannel = this.telemetryChannel ?? configuration.TelemetryChannel;
+            this.AddQuickPulse(configuration);
+            this.AddSampling(configuration);
+            this.DisableHeartBeatIfConfigured();
+            
+            configuration.TelemetryProcessorChainBuilder.Build();            
 
             if (this.applicationInsightsServiceOptions.DeveloperMode != null)
             {
@@ -93,19 +118,18 @@ namespace Microsoft.Extensions.DependencyInjection
                     module.Initialize(configuration);
                 }
             }
+
+            // Microsoft.ApplicationInsights.DependencyCollector.DependencyTrackingTelemetryModule depends on this nullable configuration to support Correlation. 
+            configuration.ApplicationIdProvider = this.applicationIdProvider;
         }
 
-        private void AddTelemetryChannelAndProcessors(TelemetryConfiguration configuration)
+        private void AddQuickPulse(TelemetryConfiguration configuration)
         {
-            configuration.TelemetryChannel = this.telemetryChannel ?? new ServerTelemetryChannel();
-
-            if (configuration.TelemetryChannel is ServerTelemetryChannel)
-            {
-                if (this.applicationInsightsServiceOptions.EnableQuickPulseMetricStream)
-                {
-                    var quickPulseModule = new QuickPulseTelemetryModule();
-                    quickPulseModule.Initialize(configuration);
-
+            if (this.applicationInsightsServiceOptions.EnableQuickPulseMetricStream)
+            {              
+                QuickPulseTelemetryModule quickPulseModule = this.modules.FirstOrDefault(((module) => module.GetType() == typeof(QuickPulseTelemetryModule))) as QuickPulseTelemetryModule;
+                if (quickPulseModule != null)
+                {                    
                     QuickPulseTelemetryProcessor processor = null;
                     configuration.TelemetryProcessorChainBuilder.Use((next) =>
                     {
@@ -114,10 +138,32 @@ namespace Microsoft.Extensions.DependencyInjection
                         return processor;
                     });
                 }
-
-                if (this.applicationInsightsServiceOptions.EnableAdaptiveSampling)
+                else
                 {
-                    configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
+                    AspNetCoreEventSource.Instance.UnableToFindQuickPulseModuleInDI();
+                }                
+            }        
+        }
+
+        private void AddSampling(TelemetryConfiguration configuration)
+        {
+            if (this.applicationInsightsServiceOptions.EnableAdaptiveSampling)
+            {
+                configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
+            }
+        }
+
+        private void DisableHeartBeatIfConfigured()
+        {
+            // Disable heartbeat if user sets it (by default it is on)
+            if (!this.applicationInsightsServiceOptions.EnableHeartbeat)
+            {
+                foreach (var module in TelemetryModules.Instance.Modules)
+                {
+                    if (module is IHeartbeatPropertyManager hbeatMan)
+                    {
+                        hbeatMan.IsHeartbeatEnabled = false;
+                    }
                 }
             }
         }
