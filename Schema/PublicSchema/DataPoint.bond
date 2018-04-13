@@ -7,7 +7,7 @@ struct DataPoint
 {
     [Description("Namespace of the metric.")]
     [MaxStringLength("256")]
-    5:  string 	           metricNamespace;
+    5:  string 	           ns;
     
     [Description("Name of the metric.")]
     [MaxStringLength("1024")]

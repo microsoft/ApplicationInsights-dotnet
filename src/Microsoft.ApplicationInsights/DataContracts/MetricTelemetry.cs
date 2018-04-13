@@ -153,8 +153,8 @@
         /// </summary>
         public string MetricNamespace
         {
-            get { return this.Metric.metricNamespace; }
-            set { this.Metric.metricNamespace = value; }
+            get { return this.Metric.ns; }
+            set { this.Metric.ns = value; }
         }
 
         /// <summary>

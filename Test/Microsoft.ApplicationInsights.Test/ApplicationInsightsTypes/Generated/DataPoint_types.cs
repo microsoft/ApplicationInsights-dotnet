@@ -36,7 +36,7 @@ namespace AI
         [global::Bond.Attribute("Description", "Namespace of the metric.")]
         [global::Bond.Attribute("MaxStringLength", "256")]
         [global::Bond.Id(5)]
-        public string metricNamespace { get; set; }
+        public string ns { get; set; }
 
         [global::Bond.Attribute("Description", "Name of the metric.")]
         [global::Bond.Attribute("MaxStringLength", "1024")]
@@ -73,7 +73,7 @@ namespace AI
 
         protected DataPoint(string fullName, string name)
         {
-            metricNamespace = "";
+            ns = "";
             this.name = "";
             kind = DataPointType.Measurement;
         }

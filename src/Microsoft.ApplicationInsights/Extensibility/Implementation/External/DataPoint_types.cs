@@ -37,7 +37,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public string metricNamespace { get; set; }
+        public string ns { get; set; }
 
         
         
@@ -74,7 +74,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 
         protected DataPoint(string fullName, string name)
         {
-            metricNamespace = "";
+            ns = "";
             this.name = "";
             kind = DataPointType.Measurement;
         }
