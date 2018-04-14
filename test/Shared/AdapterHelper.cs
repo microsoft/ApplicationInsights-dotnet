@@ -11,7 +11,6 @@ namespace Microsoft.ApplicationInsights.Tracing.Tests
     using System.Reflection;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     public class AdapterHelper : IDisposable
@@ -21,13 +20,15 @@ namespace Microsoft.ApplicationInsights.Tracing.Tests
 #if NET45 || NET46
         private static readonly string ApplicationInsightsConfigFilePath =
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ApplicationInsights.config");
+#else
+        private static readonly string ApplicationInsightsConfigFilePath =
+            Path.Combine(Path.GetDirectoryName(typeof(AdapterHelper).GetTypeInfo().Assembly.Location), "ApplicationInsights.config");
 #endif
 
         public AdapterHelper(string instrumentationKey = "F8474271-D231-45B6-8DD4-D344C309AE69")
         {
             this.InstrumentationKey = instrumentationKey;
 
-#if NET45 || NET46
             string configuration = string.Format(
                                     @"<?xml version=""1.0"" encoding=""utf-8"" ?>
                                      <ApplicationInsights xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
@@ -36,10 +37,6 @@ namespace Microsoft.ApplicationInsights.Tracing.Tests
                                      instrumentationKey);
 
             File.WriteAllText(ApplicationInsightsConfigFilePath, configuration);
-#else
-            TelemetryConfiguration.Active.InstrumentationKey = instrumentationKey;
-#endif
-
             this.Channel = new CustomTelemetryChannel();
         }
 
@@ -85,12 +82,10 @@ namespace Microsoft.ApplicationInsights.Tracing.Tests
             {
                 this.Channel.Dispose();
 
-#if NET45 || NET46
                 if (File.Exists(ApplicationInsightsConfigFilePath))
                 {
                     File.Delete(ApplicationInsightsConfigFilePath);
                 }
-#endif
             }
         }
     }
