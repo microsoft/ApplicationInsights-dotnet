@@ -9,7 +9,6 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.DependencyCollector</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)CorrelationIdLookupHelperTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpDependenciesParsingTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpWebRequestUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationInsightsUrlFilterTests.cs" />
@@ -22,7 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureServiceBusHttpParserTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\DocumentDbHttpParserTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\HttpParsingHelperTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\MockCorrelationIdLookupHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\MockTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ObjectInstanceBasedOperationHolderTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ServiceBusDiagnosticListenerTests.cs" />

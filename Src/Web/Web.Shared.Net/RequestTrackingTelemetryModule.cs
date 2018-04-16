@@ -19,10 +19,9 @@
     {
         private readonly IList<string> handlersToFilter = new List<string>();
         private TelemetryClient telemetryClient;
+        private TelemetryConfiguration telemetryConfiguration;
         private bool initializationErrorReported;
         private bool correlationHeadersEnabled = true;
-        private string telemetryChannelEnpoint;
-        private CorrelationIdLookupHelper correlationIdLookupHelper;
         private ChildRequestTrackingSuppressionModule childRequestTrackingSuppressionModule = null;
 
         /// <summary>
@@ -83,16 +82,9 @@
         /// <summary>
         /// Gets or sets the endpoint that is to be used to get the application insights resource's profile (appId etc.).
         /// </summary>
+        [Obsolete("This field has been deprecated. Please set TelemetryConfiguration.Active.ApplicationIdProvider = new ApplicationInsightsApplicationIdProvider() and customize ApplicationInsightsApplicationIdProvider.ProfileQueryEndpoint.")]
         public string ProfileQueryEndpoint { get; set; }
 
-        internal string EffectiveProfileQueryEndpoint
-        {
-            get
-            {
-                return string.IsNullOrEmpty(this.ProfileQueryEndpoint) ? this.telemetryChannelEnpoint : this.ProfileQueryEndpoint;
-            }
-        }
-        
         /// <summary>
         /// Implements on begin callback of http module.
         /// </summary>
@@ -200,24 +192,18 @@
                 {
                     AppMapCorrelationEventSource.Log.GetCrossComponentCorrelationHeaderFailed(ex.ToInvariantString());
                 }
-                
-                bool correlationIdLookupHelperInitialized = this.TryInitializeCorrelationHelperIfNotInitialized();
 
-                string currentComponentAppId = string.Empty;
-                bool foundMyAppId = false;
-                if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) && correlationIdLookupHelperInitialized)
+                string currentComponentAppId = null;
+                if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)
+                    && (this.telemetryConfiguration?.ApplicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out currentComponentAppId) ?? false))
                 {
-                    foundMyAppId = this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out currentComponentAppId);
-                }
-
-                // If the source header is present on the incoming request,
-                // and it is an external component (not the same ikey as the one used by the current component),
-                // then populate the source field.
-                if (!string.IsNullOrEmpty(sourceAppId)
-                    && foundMyAppId
-                    && sourceAppId != currentComponentAppId)
-                {
-                    requestTelemetry.Source = sourceAppId;
+                    // If the source header is present on the incoming request,
+                    // and it is an external component (not the same ikey as the one used by the current component),
+                    // then populate the source field.
+                    if (!string.IsNullOrEmpty(sourceAppId) && sourceAppId != currentComponentAppId)
+                    {
+                        requestTelemetry.Source = sourceAppId;
+                    }
                 }
             }
 
@@ -250,24 +236,20 @@
                 this.telemetryClient.Initialize(requestTelemetry);
             }
 
-            bool correlationIdHelperInitialized = this.TryInitializeCorrelationHelperIfNotInitialized();
-
             try
             {
                 if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)
-                    && context.Response.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationTargetKey) == null
-                    && correlationIdHelperInitialized)
+                    && context.Response.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationTargetKey) == null)
                 {
-                    string correlationId;
-
-                    if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out correlationId))
+                    string applicationId = null;
+                    if (this.telemetryConfiguration.ApplicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out applicationId) ?? false)
                     {
-                        context.Response.Headers.SetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationTargetKey, correlationId);
+                        context.Response.Headers.SetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationTargetKey, applicationId);
 
                         if (this.EnableAccessControlExposeHeader)
                         {
                             // set additional header that allows to read this Request-Context from Javascript SDK
-                            // append this header with additional value to the potential ones defined by customer and they will be concatenated on cliend-side
+                            // append this header with additional value to the potential ones defined by customer and they will be concatenated on client-side
                             context.Response.AppendHeader(RequestResponseHeaders.AccessControlExposeHeadersHeader, RequestResponseHeaders.RequestContextHeader);
                         }
                     }
@@ -285,13 +267,9 @@
         /// <param name="configuration">Telemetry configuration to use for initialization.</param>
         public void Initialize(TelemetryConfiguration configuration)
         {
+            this.telemetryConfiguration = configuration;
             this.telemetryClient = new TelemetryClient(configuration);
             this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("web:");
-
-            if (configuration != null && configuration.TelemetryChannel != null)
-            {
-                this.telemetryChannelEnpoint = configuration.TelemetryChannel.EndpointAddress;
-            }
 
             // Headers will be read-only in a classic iis pipeline
             // Exception System.PlatformNotSupportedException: This operation requires IIS integrated pipeline mode.
@@ -326,15 +304,6 @@
         }
 
         /// <summary>
-        /// Simple test hook, that allows for using a stub rather than the implementation that calls the original service.
-        /// </summary>
-        /// <param name="correlationIdLookupHelper">Lookup header to use.</param>
-        internal void OverrideCorrelationIdLookupHelper(CorrelationIdLookupHelper correlationIdLookupHelper)
-        {
-            this.correlationIdLookupHelper = correlationIdLookupHelper;
-        }
-
-        /// <summary>
         /// Checks whether or not handler is a transfer handler.
         /// </summary>
         /// <param name="handler">An instance of handler to validate.</param>
@@ -356,24 +325,7 @@
 
             return false;
         }
-
-        private bool TryInitializeCorrelationHelperIfNotInitialized()
-        {
-            try
-            {
-                if (this.correlationIdLookupHelper == null)
-                {
-                    this.correlationIdLookupHelper = new CorrelationIdLookupHelper(this.EffectiveProfileQueryEndpoint);
-                }
-
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
+        
         /// <summary>
         /// <see cref="System.Web.Handlers.TransferRequestHandler"/> can create a Child request to route extension-less requests to a controller.
         /// (ex: site/home -> site/HomeController.cs)

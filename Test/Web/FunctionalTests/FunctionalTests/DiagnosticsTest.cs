@@ -49,7 +49,7 @@
         }
 
         [TestMethod]        
-        [Description("Validates that diagnostics module sends trace data to the Portal")]        
+        [Description("Validates that diagnostics module sends trace data to the Portal. Expects an exception about incorrect xml structure of 'BuildInfo.config'.")]        
         public void TestDiagnosticsFW45()
         {
             var responseTask = this.HttpClient.GetStringAsync("/");
@@ -59,12 +59,16 @@
             Assert.IsTrue(responseTask.Result.Contains("Home Page - My ASP.NET Application"), "Incorrect response returned: " + responseTask.Result);
 
             var items = Listener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<MessageData>>(TestListenerTimeoutInMs);
+            var itemCount = items.Count();
             
             // Check that instrumentation key is correct
             Assert.AreEqual(0, items.Count(i => !i.iKey.Equals(DiagnosticsInstrumentationKey)), "Some item does not have DiagnosticsInstrumentationKey");
 
             // There should be one custom actionable event about incorrect timeout of session expiration
-            Assert.IsTrue(items.Count(i => i.data.baseData.message.StartsWith("AI: ")) == 1, "AI actionable event was not recieved");
+            var actionableEventCount = items.Count(i => i.data.baseData.message.StartsWith("AI: "));
+            Assert.IsTrue(actionableEventCount >= 1, "AI actionable event was not received");
+
+            Assert.AreEqual(1, actionableEventCount, $"Test project possibly mis-configured. Expected 1 actionable event. Received '{actionableEventCount}'");
         }
     }
 }

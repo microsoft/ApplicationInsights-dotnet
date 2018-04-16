@@ -38,7 +38,7 @@ namespace Microsoft.ApplicationInsights.Tests
             // check only legacy headers here
             Assert.AreEqual(activity.RootId, request.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
             Assert.AreEqual(activity.Id, request.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
-            Assert.AreEqual(MockAppId, GetRequestContextKeyValue(request, RequestResponseHeaders.RequestContextCorrelationSourceKey));
+            Assert.AreEqual(this.testApplicationId1, GetRequestContextKeyValue(request, RequestResponseHeaders.RequestContextCorrelationSourceKey));
         }
 
         /// <summary>

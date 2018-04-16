@@ -20,8 +20,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilerHttpProcessing"/> class.
         /// </summary>
-        public ProfilerHttpProcessing(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, string appIdEndpoint)
-            : base(configuration, SdkVersionUtils.GetSdkVersion("rdd" + RddSource.Profiler + ":"), agentVersion, setCorrelationHeaders, correlationDomainExclusionList, appIdEndpoint)
+        public ProfilerHttpProcessing(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList)
+            : base(configuration, SdkVersionUtils.GetSdkVersion("rdd" + RddSource.Profiler + ":"), agentVersion, setCorrelationHeaders, correlationDomainExclusionList)
         {
             if (telemetryTupleHolder == null)
             {

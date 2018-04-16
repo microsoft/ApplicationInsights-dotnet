@@ -4,12 +4,9 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;        
-    using System.Linq;
     using System.Net;
     using System.Threading;
-    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
@@ -26,11 +23,13 @@
 #region Fields
         private const string RandomAppIdEndpoint = "http://app.id.endpoint"; // appIdEndpoint - this really won't be used for tests because of the app id provider override.
         private const int TimeAccuracyMilliseconds = 50;
+        private const string TestInstrumentationKey = nameof(TestInstrumentationKey);
+        private const string TestApplicationId = nameof(TestApplicationId);
         private Uri testUrl = new Uri("http://www.microsoft.com/");
         private Uri testUrlNonStandardPort = new Uri("http://www.microsoft.com:911/");
         private int sleepTimeMsecBetweenBeginAndEnd = 100;       
         private TelemetryConfiguration configuration;
-        private List<ITelemetry> sendItems;
+        private List<ITelemetry> sendItems = new List<ITelemetry>();
         private FrameworkHttpProcessing httpProcessingFramework;
         private CacheBasedOperationHolder cache = new CacheBasedOperationHolder("testCache", 100 * 1000);
         #endregion //Fields
@@ -40,12 +39,13 @@
         [TestInitialize]
         public void TestInitialize()
         {
-            this.configuration = new TelemetryConfiguration();
-            this.sendItems = new List<ITelemetry>(); 
-            this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
-            this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            this.httpProcessingFramework = new FrameworkHttpProcessing(this.configuration, this.cache, /*setCorrelationHeaders*/ true, new List<string>(), RandomAppIdEndpoint);
-            this.httpProcessingFramework.OverrideCorrelationIdLookupHelper(new CorrelationIdLookupHelper(new Dictionary<string, string> { { this.configuration.InstrumentationKey, "cid-v1:" + this.configuration.InstrumentationKey } }));
+            this.configuration = new TelemetryConfiguration()
+            {
+                TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) },
+                InstrumentationKey = TestInstrumentationKey,
+                ApplicationIdProvider = new MockApplicationIdProvider(TestInstrumentationKey, TestApplicationId)
+            };
+            this.httpProcessingFramework = new FrameworkHttpProcessing(this.configuration, this.cache, /*setCorrelationHeaders*/ true, new List<string>());
             DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 

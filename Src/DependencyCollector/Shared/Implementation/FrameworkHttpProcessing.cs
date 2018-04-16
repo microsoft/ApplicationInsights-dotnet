@@ -18,8 +18,8 @@
         internal CacheBasedOperationHolder TelemetryTable;
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
 
-        internal FrameworkHttpProcessing(TelemetryConfiguration configuration, CacheBasedOperationHolder telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, string appIdEndpoint)
-            : base(configuration, SdkVersionUtils.GetSdkVersion("rdd" + RddSource.Framework + ":"), null, setCorrelationHeaders, correlationDomainExclusionList, appIdEndpoint)
+        internal FrameworkHttpProcessing(TelemetryConfiguration configuration, CacheBasedOperationHolder telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList)
+            : base(configuration, SdkVersionUtils.GetSdkVersion("rdd" + RddSource.Framework + ":"), null, setCorrelationHeaders, correlationDomainExclusionList)
         {
             if (telemetryTupleHolder == null)
             {
