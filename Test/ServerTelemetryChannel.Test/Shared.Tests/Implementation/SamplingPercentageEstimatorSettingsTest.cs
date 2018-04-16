@@ -1,14 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation
 {
     using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-
-    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
-
-    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     [TestClass]
     public class SamplingPercentageEstimatorSettingsTest
