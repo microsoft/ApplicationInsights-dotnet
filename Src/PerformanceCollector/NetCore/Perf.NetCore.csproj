@@ -25,7 +25,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <VersionPrefix>2.6.0-beta3</VersionPrefix>
+    <VersionPrefix>2.6.0-beta4</VersionPrefix>
     <TargetFramework>netstandard1.6</TargetFramework>
     <DelaySign>true</DelaySign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -38,7 +38,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta3" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta4" />
     <PackageReference Include="MicroBuild.Core" Version="0.2.0" developmentDependency="true" />
     <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />

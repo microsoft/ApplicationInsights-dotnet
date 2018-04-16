@@ -145,7 +145,7 @@
         /// TODO: add tests for 2.0
         /// </summary>
         [TestMethod]
-        [Timeout(5000)]
+        [Timeout(10000)]
         public async Task TestDependencyCollectionDnsIssue()
         {
             using (var module = new DependencyTrackingTelemetryModule())

@@ -23,4 +23,5 @@
       </IncludeDiagnosticSourceActivities>
     </Add>
   </TelemetryModules>
+  <ApplicationIdProvider xdt:Transform="InsertIfMissing" Type="Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.ApplicationInsightsApplicationIdProvider, Microsoft.ApplicationInsights"/>
 </ApplicationInsights>

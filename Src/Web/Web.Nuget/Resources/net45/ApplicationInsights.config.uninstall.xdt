@@ -19,5 +19,7 @@
     <Add xdt:Transform="Remove" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.AspNetDiagnosticTelemetryModule, Microsoft.AI.Web" />
   </TelemetryModules>
   <TelemetryModules xdt:Transform="Remove" xdt:Locator="Condition(count(*)=0)"/>
+
+  <ApplicationIdProvider xdt:Transform="Remove" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.ApplicationInsightsApplicationIdProvider, Microsoft.ApplicationInsights"/>
   
 </ApplicationInsights>

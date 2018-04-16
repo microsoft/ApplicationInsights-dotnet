@@ -7,4 +7,7 @@
     <Add xdt:Transform="Remove" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.DependencyCollector.DependencyTrackingTelemetryModule, Microsoft.AI.DependencyCollector" />
   </TelemetryModules>
   <TelemetryModules xdt:Transform="Remove" xdt:Locator="Condition(count(*)=0)"/>
+
+  <ApplicationIdProvider xdt:Transform="Remove" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.ApplicationInsightsApplicationIdProvider, Microsoft.ApplicationInsights"/>
+  
 </ApplicationInsights>

@@ -37,4 +37,5 @@
     <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.ExceptionTrackingTelemetryModule, Microsoft.AI.Web" />
     <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.AspNetDiagnosticTelemetryModule, Microsoft.AI.Web" />
   </TelemetryModules>
+  <ApplicationIdProvider xdt:Transform="InsertIfMissing" Type="Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.ApplicationInsightsApplicationIdProvider, Microsoft.ApplicationInsights"/>
 </ApplicationInsights>

@@ -185,14 +185,14 @@
         }
 
         [TestMethod]
-        [Timeout(5000)]
+        [Timeout(10000)]
         public async Task TestDependencyCollectionDnsIssueRequestDiagnosticSource()
         {
             await this.TestCollectionDnsIssue(true);
         }
 
         [TestMethod]
-        [Timeout(5000)]
+        [Timeout(10000)]
         public async Task TestDependencyCollectionDnsIssueRequestEventSource()
         {
             await this.TestCollectionDnsIssue(false);
@@ -218,7 +218,6 @@
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
 
                 using (var listener = new TestEventListener())
@@ -561,7 +560,6 @@
                 module.DisableDiagnosticSourceInstrumentation = true;
             }
 
-            module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
             module.Initialize(this.config);
             Assert.AreEqual(enableDiagnosticSource, DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
 

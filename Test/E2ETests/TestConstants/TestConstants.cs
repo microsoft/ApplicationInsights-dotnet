@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TestUtils.TestConstants
+﻿namespace TestUtils.TestConstants
 {
     public class TestConstants
     {
@@ -50,6 +46,6 @@ namespace TestUtils.TestConstants
 
         public const string WebAppTargetToEmulatorBlob = "e2etests_azureemulator_1:10000";
         public const string WebAppTargetToEmulatorQueue = "e2etests_azureemulator_1:10001";
-        public const string WebAppTargetToEmulatorTable = "e2etests_azureemulator_1:10002";        
+        public const string WebAppTargetToEmulatorTable = "e2etests_azureemulator_1:10002";
     }
 }

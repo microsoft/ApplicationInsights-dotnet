@@ -42,15 +42,15 @@
   <ItemGroup>
     <Reference Include="Microsoft.AI.ServerTelemetryChannel">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.6.0-beta3\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.6.0-beta4\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.ApplicationInsights">
-      <HintPath>..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.2.6.0-beta3\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\packages\Microsoft.ApplicationInsights.2.6.0-beta4\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
     <Reference Include="Newtonsoft.Json">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(PackagesDir)\Newtonsoft.Json.6.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
