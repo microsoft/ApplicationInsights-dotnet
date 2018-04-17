@@ -36,3 +36,4 @@ Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChan
 Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.ServerTelemetryChannel() -> void
 Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.StorageFolder.get -> string
 Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel.StorageFolder.set -> void
+Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation.SamplingPercentageEstimatorSettings
