@@ -13,13 +13,15 @@
         /// <summary>@ToDo: Complete documentation before stable release. {369}</summary>
         public const int MaxDimensionsCount = 10;
 
+        private const string NoNamespaceIdentifierStringComponent = "<NoNamespace>";
+
         private static readonly char[] InvalidMetricChars = new char[]
             {
                         '\0', '"', '\'', '(', ')', '[', ']', '{', '}', '<', '>', '=', ',',
                         '`',  '~', '!',  '@', '#', '$', '%', '^', '&', '*', '+', '?'
             };
 
-        private static string defaultMetricNamespace = "Custom Metrics";
+        private static string defaultMetricNamespace = String.Empty;
 
         /// <summary>
         /// Gets or sets this is what metric namespace will be set to if it is not specified.
@@ -33,23 +35,33 @@
 
             set
             {
-                ValidateLiteral(value, nameof(value));
+                ValidateLiteral(value, nameof(value), allowEmpty: true);
                 defaultMetricNamespace = value.Trim();
             }
         }
 
         /// <summary>@ToDo: Complete documentation before stable release. {030}</summary>
         /// @PublicExposureCandidate
-        internal static void ValidateLiteral(string partValue, string partName)
+        private static void ValidateLiteral(string partValue, string partName, bool allowEmpty)
         {
             if (partValue == null)
             {
                 throw new ArgumentNullException(partName);
             }
 
-            if (String.IsNullOrWhiteSpace(partValue))
+            if (allowEmpty)
             {
-                throw new ArgumentException(Invariant($"{partName} may not be empty."));
+                if (partValue.Length > 0 && String.IsNullOrWhiteSpace(partValue))
+                {
+                    throw new ArgumentException(Invariant($"{partName} may not be non-empty, but whitespace-only."));
+                }
+            }
+            else
+            {
+                if (String.IsNullOrWhiteSpace(partValue))
+                {
+                    throw new ArgumentException(Invariant($"{partName} may not be empty or whitespace-only."));
+                }
             }
 
             int pos = partName.IndexOfAny(InvalidMetricChars);
@@ -343,17 +355,17 @@
                         string dimension9Name,
                         string dimension10Name)
         {
-            if (String.IsNullOrWhiteSpace(metricNamespace))
+            if (metricNamespace == null)
             {
                 metricNamespace = DefaultMetricNamespace;
             }
             else
             {
-                ValidateLiteral(metricNamespace, nameof(metricNamespace));
+                ValidateLiteral(metricNamespace, nameof(metricNamespace), allowEmpty: true);
                 metricNamespace = metricNamespace.Trim();
             }
 
-            ValidateLiteral(metricId, nameof(metricId));
+            ValidateLiteral(metricId, nameof(metricId), allowEmpty: false);
             metricId = metricId.Trim();
 
             int dimCount;
@@ -613,7 +625,15 @@
         {
             StringBuilder idStr = new StringBuilder();
 
-            idStr.Append(this.MetricNamespace);
+            if (this.MetricNamespace.Length > 0)
+            {
+                idStr.Append(this.MetricNamespace);
+            }
+            else
+            {
+                idStr.Append(MetricIdentifier.NoNamespaceIdentifierStringComponent);
+            }
+            
             idStr.Append("+");
             idStr.Append(this.MetricId);
 

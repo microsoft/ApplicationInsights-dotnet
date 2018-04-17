@@ -89,7 +89,7 @@
             }
 
             MetricAggregate aggregate = new MetricAggregate(
-                                                this.DataSeries?.MetricIdentifier.MetricNamespace ?? Util.NullString,
+                                                this.DataSeries?.MetricIdentifier.MetricNamespace ?? String.Empty,
                                                 this.DataSeries?.MetricIdentifier.MetricId ?? Util.NullString,
                                                 MetricSeriesConfigurationForMeasurement.Constants.AggregateKindMoniker);
 

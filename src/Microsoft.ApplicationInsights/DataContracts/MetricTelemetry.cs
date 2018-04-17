@@ -244,6 +244,7 @@
         /// </summary>
         void ITelemetry.Sanitize()
         {
+            this.MetricNamespace = Property.TrimAndTruncate(this.MetricNamespace, Property.MaxMetricNamespaceLength);
             this.Name = this.Name.SanitizeName();
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(MetricTelemetry).FullName);
             this.Properties.SanitizeProperties();
