@@ -1,5 +1,8 @@
 # Changelog 
 
+### Version 2.6.0
+- [NLog Flush should include async delay](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/176)
+
 ### Version 2.6.0-beta3
 - [NetStandard Support for TraceListener](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/166)
 - [NetStandard Support for NLog and log4net](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/167)
