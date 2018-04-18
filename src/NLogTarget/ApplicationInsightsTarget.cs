@@ -28,6 +28,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     public sealed class ApplicationInsightsTarget : TargetWithLayout
     {
         private TelemetryClient telemetryClient;
+        private DateTime lastLogEventTime;
 
         /// <summary>
         /// Initializers a new instance of ApplicationInsightsTarget type.
@@ -108,6 +109,8 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 throw new ArgumentNullException("logEvent");
             }
 
+            this.lastLogEventTime = DateTime.UtcNow;
+
             if (logEvent.Exception != null)
             {
                 this.SendException(logEvent);
@@ -127,7 +130,17 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             try
             {
                 this.TelemetryClient.Flush();
-                asyncContinuation(null);
+                if (DateTime.UtcNow.AddSeconds(-30) > this.lastLogEventTime)
+                {
+                    // Nothing has been written, so nothing to wait for
+                    asyncContinuation(null);
+                }
+                else
+                {
+                    // Documentation says it is important to wait after flush, else nothing will happen
+                    // https://docs.microsoft.com/en-us/azure/application-insights/app-insights-api-custom-events-metrics#flushing-data
+                    System.Threading.Tasks.Task.Delay(500).ContinueWith((task) => asyncContinuation(null));
+                }
             }
             catch (Exception ex)
             {
