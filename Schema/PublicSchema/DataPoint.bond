@@ -5,6 +5,10 @@ namespace AI
 [Description("Metric data single measurement.")]
 struct DataPoint
 {
+    [Description("Namespace of the metric.")]
+    [MaxStringLength("256")]
+    5:  string 	           ns;
+    
     [Description("Name of the metric.")]
     [MaxStringLength("1024")]
     10: required string 	 name;

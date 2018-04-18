@@ -62,7 +62,43 @@
         }
 
         [TestMethod]
-        public void AggregateMetricTelemetrySerializesToJsonCorrectly()
+        public void AggregateMetricTelemetrySerializesToJsonCorrectlyWithNamespace()
+        {
+            var expected = new MetricTelemetry();
+
+            expected.MetricNamespace = "My Namespace";
+            expected.Name = "My Page";
+#pragma warning disable CS0618
+            expected.Value = 42;
+#pragma warning restore CS0618
+            expected.Count = 5;
+            expected.Min = 1.2;
+            expected.Max = 6.4;
+            expected.StandardDeviation = 0.5;
+            expected.Properties.Add("Property1", "Value1");
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, AI.MetricData>(expected);
+
+            Assert.AreEqual(typeof(AI.MetricData).Name, item.data.baseType);
+
+            Assert.AreEqual(2, item.data.baseData.ver);
+            Assert.AreEqual(1, item.data.baseData.metrics.Count);
+            Assert.AreEqual(expected.MetricNamespace, item.data.baseData.metrics[0].ns);
+            Assert.AreEqual(expected.Name, item.data.baseData.metrics[0].name);
+            Assert.AreEqual(AI.DataPointType.Aggregation, item.data.baseData.metrics[0].kind);
+#pragma warning disable CS0618
+            Assert.AreEqual(expected.Value, item.data.baseData.metrics[0].value);
+#pragma warning restore CS0618
+            Assert.AreEqual(expected.Count.Value, item.data.baseData.metrics[0].count.Value);
+            Assert.AreEqual(expected.Min.Value, item.data.baseData.metrics[0].min.Value);
+            Assert.AreEqual(expected.Max.Value, item.data.baseData.metrics[0].max.Value);
+            Assert.AreEqual(expected.StandardDeviation.Value, item.data.baseData.metrics[0].stdDev.Value);
+
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+        }
+
+        [TestMethod]
+        public void AggregateMetricTelemetrySerializesToJsonCorrectlyWithoutNamespace()
         {
             var expected = new MetricTelemetry();
 
@@ -82,6 +118,7 @@
 
             Assert.AreEqual(2, item.data.baseData.ver);
             Assert.AreEqual(1, item.data.baseData.metrics.Count);
+            Assert.AreEqual(String.Empty, item.data.baseData.metrics[0].ns);
             Assert.AreEqual(expected.Name, item.data.baseData.metrics[0].name);
             Assert.AreEqual(AI.DataPointType.Aggregation, item.data.baseData.metrics[0].kind);
 #pragma warning disable CS0618
@@ -99,6 +136,7 @@
         public void MetricTelemetrySuppliesConstructorThatAllowsToFullyPopulateAggregationData()
         {
             var instance = new MetricTelemetry(
+                metricNamespace: "Test MetricNamespace",
                 name: "Test Metric", 
                 count: 4, 
                 sum: 40, 
@@ -106,6 +144,7 @@
                 max: 15, 
                 standardDeviation: 4.2);
 
+            Assert.AreEqual("Test MetricNamespace", instance.MetricNamespace);
             Assert.AreEqual("Test Metric", instance.Name);
             Assert.AreEqual(4, instance.Count);
             Assert.AreEqual(40, instance.Sum);
@@ -119,6 +158,7 @@
         {
             var instance = new MetricTelemetry();
 
+            instance.MetricNamespace = "Test MetricNamespace";
             instance.Name = "Test Metric";
             instance.Count = 4;
             instance.Sum = 40;
@@ -126,6 +166,7 @@
             instance.Max = 15.0;
             instance.StandardDeviation = 4.2;
 
+            Assert.AreEqual("Test MetricNamespace", instance.MetricNamespace);
             Assert.AreEqual("Test Metric", instance.Name);
             Assert.AreEqual(4, instance.Count);
             Assert.AreEqual(40, instance.Sum);
@@ -150,12 +191,14 @@
         public void SanitizeWillTrimAppropriateFields()
         {
             MetricTelemetry telemetry = new MetricTelemetry();
+            telemetry.MetricNamespace = new string('Q', Property.MaxNameLength + 1);
             telemetry.Name = new string('Z', Property.MaxNameLength + 1);
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'X', new string('X', Property.MaxValueLength + 1));
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'Y', new string('X', Property.MaxValueLength + 1));
 
             ((ITelemetry)telemetry).Sanitize();
 
+            Assert.AreEqual(new string('Q', 256), telemetry.MetricNamespace);
             Assert.AreEqual(new string('Z', Property.MaxNameLength), telemetry.Name);
 
             Assert.AreEqual(2, telemetry.Properties.Count);
@@ -278,6 +321,7 @@
         {
             var metric = new MetricTelemetry();
 
+            metric.MetricNamespace = "My Namespace";
             metric.Name = "My Page";
 #pragma warning disable CS0618
             metric.Value = 42;
