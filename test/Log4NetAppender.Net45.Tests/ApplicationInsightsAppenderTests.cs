@@ -113,6 +113,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
         [TestCategory("Log4NetAppender")]
         public void TracesAreEnqueuedInChannel()
         {
+            TelemetryConfiguration.Active.InstrumentationKey = this.adapterHelper.InstrumentationKey;
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
 
             ApplicationInsightsAppenderTests.InitializeLog4NetAIAdapter(string.Empty);

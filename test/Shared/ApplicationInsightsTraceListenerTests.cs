@@ -43,6 +43,8 @@
         [TestCategory("TraceListener")]
         public void TraceListenerWriteUsedApplicationInsightsConfigInstrumentationKeyWhenUnspecifiedInstrumentationKey()
         {
+            TelemetryConfiguration.Active.InstrumentationKey = this.adapterHelper.InstrumentationKey;
+
             // Changing the channel to Mock channel to verify 
             // the Telemetry event is assigned with the InstrumentationKey from configuration
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
