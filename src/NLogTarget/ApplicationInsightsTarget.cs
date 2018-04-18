@@ -138,8 +138,8 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 else
                 {
                     // Documentation says it is important to wait after flush, else nothing will happen
-                    // https://docs.microsoft.com/en-us/azure/application-insights/app-insights-api-custom-events-metrics#flushing-data
-                    System.Threading.Tasks.Task.Delay(500).ContinueWith((task) => asyncContinuation(null));
+                    // https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics#flushing-data
+                    System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(500)).ContinueWith((task) => asyncContinuation(null));
                 }
             }
             catch (Exception ex)
