@@ -1,3 +1,6 @@
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricNamespace.get -> string
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricNamespace.set -> void
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricTelemetry(string metricNamespace, string name, int count, double sum, double min, double max, double standardDeviation) -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationIdProvider.get -> Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationIdProvider.set -> void
 Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider

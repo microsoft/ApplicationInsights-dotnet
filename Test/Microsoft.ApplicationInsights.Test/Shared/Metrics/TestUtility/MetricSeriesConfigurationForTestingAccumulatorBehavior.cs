@@ -176,7 +176,7 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
                 max = Util.EnsureConcreteValue(max);
 
                 MetricAggregate aggregate = new MetricAggregate(
-                                                    DataSeries?.MetricIdentifier.MetricNamespace ?? Util.NullString,
+                                                    DataSeries?.MetricIdentifier.MetricNamespace ?? String.Empty,
                                                     DataSeries?.MetricIdentifier.MetricId ?? Util.NullString,
                                                     MetricSeriesConfigurationForTestingAccumulatorBehavior.Constants.AggregateKindMoniker);
 

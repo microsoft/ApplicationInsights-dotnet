@@ -221,9 +221,14 @@
         {
             MetricTelemetry telemetryItem = new MetricTelemetry();
 
-            // Set data values:
+            if (aggregate.MetricNamespace.Length > 0)
+            {
+                telemetryItem.MetricNamespace = aggregate.MetricNamespace;
+            }
 
             telemetryItem.Name = aggregate.MetricId;
+
+            // Set data values:
 
             this.PopulateDataValues(telemetryItem, aggregate);
 
