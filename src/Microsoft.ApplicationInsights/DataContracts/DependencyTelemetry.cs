@@ -51,7 +51,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="target"/>,
+        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyTypeName"/>, <paramref name="target"/>,
         /// <paramref name="dependencyName"/>, <paramref name="data"/> property values.
         /// </summary>
         public DependencyTelemetry(string dependencyTypeName, string target, string dependencyName, string data)
@@ -64,7 +64,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="target"/>,
+        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyTypeName"/>, <paramref name="target"/>,
         /// <paramref name="dependencyName"/>, <paramref name="data"/>, <paramref name="startTime"/>, <paramref name="duration"/>, <paramref name="resultCode"/>
         /// and <paramref name="success"/> and  property values.
         /// </summary>
