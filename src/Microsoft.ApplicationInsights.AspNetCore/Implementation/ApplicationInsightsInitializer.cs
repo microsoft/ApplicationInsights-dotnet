@@ -15,6 +15,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     {
         private readonly List<IDisposable> subscriptions;
         private readonly IEnumerable<IApplicationInsightDiagnosticListener> diagnosticListeners;
+        private bool shuttingDown = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationInsightsInitializer"/> class.
@@ -48,11 +49,20 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         /// <inheritdoc />
         void IObserver<DiagnosticListener>.OnNext(DiagnosticListener value)
         {
-            foreach (var applicationInsightDiagnosticListener in this.diagnosticListeners)
+            lock (this.subscriptions)
             {
-                if (applicationInsightDiagnosticListener.ListenerName == value.Name)
+                if (shuttingDown)
                 {
-                    this.subscriptions.Add(value.SubscribeWithAdapter(applicationInsightDiagnosticListener));
+                    value.Dispose();
+                    return;
+                }
+
+                foreach (var applicationInsightDiagnosticListener in this.diagnosticListeners)
+                {
+                    if (applicationInsightDiagnosticListener.ListenerName == value.Name)
+                    {
+                        this.subscriptions.Add(value.SubscribeWithAdapter(applicationInsightDiagnosticListener));
+                    }
                 }
             }
         }
@@ -77,9 +87,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         {
             if (disposing)
             {
-                foreach (var subscription in this.subscriptions)
+                lock (this.subscriptions)
                 {
-                    subscription.Dispose();
+                    shuttingDown = true;
+                    foreach (var subscription in this.subscriptions)
+                    {
+                        subscription.Dispose();
+                    }
                 }
             }
         }
