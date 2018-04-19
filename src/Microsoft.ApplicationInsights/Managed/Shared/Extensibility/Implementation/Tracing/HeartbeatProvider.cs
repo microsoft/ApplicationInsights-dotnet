@@ -29,7 +29,7 @@
         /// <summary>
         /// Value for property indicating 'app insights version' related specifically to heartbeats.
         /// </summary>
-        private static string sdkVersionPropertyValue = SdkVersionUtils.GetSdkVersion("hb:");
+        private static string sdkVersionPropertyValue = SdkVersionUtils.GetSdkVersion("hbnet:");
 
         /// <summary>
         /// The name of the heartbeat metric item and operation context. 
