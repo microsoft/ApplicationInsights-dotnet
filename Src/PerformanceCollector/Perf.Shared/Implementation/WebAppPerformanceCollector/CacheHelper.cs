@@ -1,7 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
 {
     using System;
+    using System.Collections.Generic;
+#if NETSTANDARD1_6
+    using Microsoft.Extensions.Caching.Memory;
+#else
     using System.Runtime.Caching;
+#endif
     using System.Text;
 
     /// <summary>
@@ -13,6 +18,10 @@
         /// Only instance of CacheHelper.
         /// </summary>
         private static readonly CacheHelper CacheHelperInstance = new CacheHelper();
+
+#if NETSTANDARD1_6
+        IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+#endif
 
         /// <summary>
         /// Prevents a default instance of the <see cref="CacheHelper"/> class from being created.
@@ -102,8 +111,12 @@
         /// /<param name="toCache">Object to be cached.</param>
         /// <param name="absoluteExpiration">DateTimeOffset until item expires from cache.</param>
         public void SaveToCache(string cacheKey, object toCache,  DateTimeOffset absoluteExpiration)
-        {  
-            MemoryCache.Default.Add(cacheKey, toCache, absoluteExpiration);
+        {
+#if NETSTANDARD1_6
+            cache.Set(cacheKey, toCache, absoluteExpiration);
+#else
+            MemoryCache.Default.Add(cacheKey, toCache, absoluteExpiration);                        
+#endif
         }
 
         /// <summary>
@@ -113,7 +126,11 @@
         /// <returns> The requested item, as object type T.</returns>
         public object GetFromCache(string cacheKey) 
         {
+#if NETSTANDARD1_6            
+            return cache.Get(cacheKey);            
+#else
             return MemoryCache.Default[cacheKey];
+#endif
         }
 
         /// <summary>
@@ -123,7 +140,12 @@
         /// <returns>Boolean value for whether or not a key is in the cache.</returns>
         public bool IsInCache(string cacheKey)
         {
+#if NETSTANDARD1_6            
+            object output;
+            return cache.TryGetValue(cacheKey, out output);
+#else
             return MemoryCache.Default[cacheKey] != null;
+#endif            
         }
     }
 }
