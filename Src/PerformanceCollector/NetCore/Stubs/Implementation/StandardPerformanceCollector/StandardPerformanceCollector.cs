@@ -13,10 +13,18 @@
         public IEnumerable<PerformanceCounterData> PerformanceCounters { get; } = new PerformanceCounterData[0];
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="StandardPerformanceCollector"/> class.
+        /// </summary>
+        public StandardPerformanceCollector()
+        {
+            PerformanceCollectorEventSource.Log.PerfCounterNetCoreOnlyOnAzureWebApp();
+        }
+
+        /// <summary>
         /// Performs collection for all registered counters.
         /// </summary>
         /// <param name="onReadingFailure">Invoked when an individual counter fails to be read.</param>
-        public IEnumerable<Tuple<PerformanceCounterData, double>> Collect(Action<string, Exception> onReadingFailure = null)
+            public IEnumerable<Tuple<PerformanceCounterData, double>> Collect(Action<string, Exception> onReadingFailure = null)
         {
             return StandardPerformanceCollector.emptyCollectResult;
         }
