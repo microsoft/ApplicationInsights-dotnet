@@ -5,7 +5,7 @@
     /// <summary>
     /// Static container for the most commonly used metric configurations.
     /// </summary>
-    internal sealed class MetricConfigurations
+    public sealed class MetricConfigurations
     {
         /// <summary>
         /// Groups extension methods that return pre-defined metric configurations and related constants.

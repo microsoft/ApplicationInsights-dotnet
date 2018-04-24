@@ -8,7 +8,7 @@
     using static System.FormattableString;
 
     /// <summary>@ToDo: Complete documentation before stable release. {085}</summary>
-    internal sealed class MetricIdentifier : IEquatable<MetricIdentifier>
+    public sealed class MetricIdentifier : IEquatable<MetricIdentifier>
     {
         /// <summary>@ToDo: Complete documentation before stable release. {369}</summary>
         public const int MaxDimensionsCount = 10;

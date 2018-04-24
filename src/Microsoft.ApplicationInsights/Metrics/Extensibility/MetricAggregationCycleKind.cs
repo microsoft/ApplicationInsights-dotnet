@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>@ToDo: Complete documentation before stable release. {447}</summary>
-    internal enum MetricAggregationCycleKind : Int32
+    public enum MetricAggregationCycleKind : Int32
     {
         /// <summary>
         /// The default aggregation cycle.

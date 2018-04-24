@@ -174,7 +174,7 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
             }
         }
 
-        internal static void ValidateNumericAggregateValues(MetricAggregate aggregate, string ns, string name, int count, double sum, double max, double min, double stdDev, DateTimeOffset timestamp, long periodMs, string aggKindMoniker)
+        public static void ValidateNumericAggregateValues(MetricAggregate aggregate, string ns, string name, int count, double sum, double max, double min, double stdDev, DateTimeOffset timestamp, long periodMs, string aggKindMoniker)
         {
             ValidateNumericAggregateValues(aggregate, ns, name, count, sum, max, min, stdDev, aggKindMoniker);
 
@@ -182,7 +182,7 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
             Assert.AreEqual(periodMs, (long) aggregate.AggregationPeriodDuration.TotalMilliseconds, "metricAggregate.Properties[AggregationIntervalMonikerPropertyKey] mismatch");
         }
 
-        internal static void ValidateNumericAggregateValues(MetricAggregate aggregate, string ns, string name, int count, double sum, double max, double min, double stdDev, string aggKindMoniker)
+        public static void ValidateNumericAggregateValues(MetricAggregate aggregate, string ns, string name, int count, double sum, double max, double min, double stdDev, string aggKindMoniker)
         {
             Assert.IsNotNull(aggregate);
 
@@ -262,7 +262,7 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
         /// a clean test run.
         /// </summary>
         /// <param name="metricManagers"></param>
-        internal static void CompleteDefaultAggregationCycle(params MetricManager[] metricManagers)
+        public static void CompleteDefaultAggregationCycle(params MetricManager[] metricManagers)
         {
             if (metricManagers == null)
             {

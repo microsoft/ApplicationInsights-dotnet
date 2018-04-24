@@ -8,7 +8,7 @@
     /// Do not use directly. Instead, use: <c>MetricConfigurations.Common.Xxxx().Constants()</c>.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    internal static class MetricConfigurationExtensions
+    public static class MetricConfigurationExtensions
     {
         /// <summary>
         /// Groups constants used my metric aggregates produced by aggregators that are configured by metric configurations represented

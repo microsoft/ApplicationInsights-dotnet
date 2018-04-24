@@ -6,7 +6,7 @@
     /// There are some APIs on <c>Metric</c> that we hide from Intellisense by making them internal until the ..Extensibility namespace is imported.
     /// This class exposes them.
     /// </summary>
-    internal static class MetricExtensions
+    public static class MetricExtensions
     {
         /// <summary>
         /// Exposes the <c>Configuration</c> property for users who imported the <c>Microsoft.ApplicationInsights.Metrics.Extensibility</c> namespace.

@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>@ToDo: Complete documentation before stable release. {558}</summary>
-    internal interface IMetricSeriesAggregator
+    public interface IMetricSeriesAggregator
     {
         /// <summary>Gets @ToDo: Complete documentation before stable release. {969}</summary>
         MetricSeries DataSeries { get; }
