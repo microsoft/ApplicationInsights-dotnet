@@ -37,7 +37,7 @@
                 throw new InvalidOperationException(
                     string.Format(
                         CultureInfo.CurrentCulture,
-                        Resources.PerformanceCounterReadFailed,
+                        "Failed to perform a read for performance counter {0}",
                         PerformanceCounterUtility.FormatPerformanceCounter(this.performanceCounter)),
                     e);
             }

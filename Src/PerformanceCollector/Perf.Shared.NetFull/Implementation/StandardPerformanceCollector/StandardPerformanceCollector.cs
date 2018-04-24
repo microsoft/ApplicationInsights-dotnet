@@ -257,7 +257,7 @@
                     throw new InvalidOperationException(
                         string.Format(
                             CultureInfo.CurrentCulture,
-                            Resources.PerformanceCounterRegistrationFailed,
+                            "Failed to register performance counter. Category: {0}, counter: {1}, instance: {2}.",
                             categoryName,
                             counterName,
                             instanceName),
@@ -279,7 +279,7 @@
                 throw new InvalidOperationException(
                     string.Format(
                         CultureInfo.CurrentCulture,
-                        Resources.PerformanceCounterFirstReadFailed,
+                        "Failed to perform the first read for performance counter. Please make sure it exists. Category: {0}, counter: {1}, instance {2}",
                         categoryName,
                         counterName,
                         instanceName),
