@@ -7,7 +7,7 @@
     /// WebAppPerformanceCollector tests.
     /// </summary>
     [TestClass]
-    public class WebAppPerformanceCollectorTests : PerformanceCollectorTestBase
+    public class WebAppPerformanceCollectorTests : PerformanceCollectorWebAppTestBase
     { 
         [TestMethod]
         [TestCategory("RequiresPerformanceCounters")]
