@@ -2,6 +2,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using System.Diagnostics;
     using Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
@@ -13,9 +14,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     /// </summary>
     internal class ApplicationInsightsInitializer : IObserver<DiagnosticListener>, IDisposable
     {
-        private readonly List<IDisposable> subscriptions;
+        private readonly ConcurrentBag<IDisposable> subscriptions;
         private readonly IEnumerable<IApplicationInsightDiagnosticListener> diagnosticListeners;
-        private bool shuttingDown = false;
+        private volatile bool shuttingDown = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationInsightsInitializer"/> class.
@@ -27,7 +28,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
             IServiceProvider serviceProvider)
         {
             this.diagnosticListeners = diagnosticListeners;
-            this.subscriptions = new List<IDisposable>();
+            this.subscriptions = new ConcurrentBag<IDisposable>();
 
             // Add default logger factory for debug mode only if enabled and instrumentation key not set
             if (options.Value.EnableDebugLogger && string.IsNullOrEmpty(options.Value.InstrumentationKey))
@@ -49,20 +50,16 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         /// <inheritdoc />
         void IObserver<DiagnosticListener>.OnNext(DiagnosticListener value)
         {
-            lock (this.subscriptions)
+            if (shuttingDown)
             {
-                if (shuttingDown)
-                {
-                    value.Dispose();
-                    return;
-                }
+                return;
+            }
 
-                foreach (var applicationInsightDiagnosticListener in this.diagnosticListeners)
+            foreach (var applicationInsightDiagnosticListener in this.diagnosticListeners)
+            {
+                if (applicationInsightDiagnosticListener.ListenerName == value.Name)
                 {
-                    if (applicationInsightDiagnosticListener.ListenerName == value.Name)
-                    {
-                        this.subscriptions.Add(value.SubscribeWithAdapter(applicationInsightDiagnosticListener));
-                    }
+                    this.subscriptions.Add(value.SubscribeWithAdapter(applicationInsightDiagnosticListener));
                 }
             }
         }
@@ -85,16 +82,15 @@ namespace Microsoft.ApplicationInsights.AspNetCore
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (!disposing)
             {
-                lock (this.subscriptions)
-                {
-                    shuttingDown = true;
-                    foreach (var subscription in this.subscriptions)
-                    {
-                        subscription.Dispose();
-                    }
-                }
+                return;
+            }
+
+            shuttingDown = true;
+            foreach (var subscription in this.subscriptions)
+            {
+                subscription.Dispose();
             }
         }
     }
