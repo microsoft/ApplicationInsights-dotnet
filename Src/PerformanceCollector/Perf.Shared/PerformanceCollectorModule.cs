@@ -162,7 +162,10 @@
                             this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Process(??APP_WIN32_PROC??)\Private Bytes", @"\Process(??APP_WIN32_PROC??)\Private Bytes"));
                             this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Process(??APP_WIN32_PROC??)\IO Data Bytes/sec", @"\Process(??APP_WIN32_PROC??)\IO Data Bytes/sec"));
                             this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests In Application Queue", @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests In Application Queue"));
-                            this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Processor(_Total)\% Processor Time", @"\Processor(_Total)\% Processor Time"));
+                            if (!PerformanceCounterUtility.IsWebAppRunningInAzure())
+                            {
+                                this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Processor(_Total)\% Processor Time", @"\Processor(_Total)\% Processor Time"));
+                            }
                         }
 
                         if (!this.EnableIISExpressPerformanceCounters && IsRunningUnderIisExpress())
@@ -198,6 +201,10 @@
 
         private static bool IsRunningUnderIisExpress()
         {
+#if NETSTANDARD1_6
+            // For netstandard target, only time perfcounter is active is if running as Azure WebApp
+            return false;
+#else
             var iisExpressProcessName = "iisexpress";
 
             try
@@ -212,6 +219,7 @@
 
                 return false;
             }
+#endif
         }
 
         /// <summary>
@@ -324,7 +332,7 @@
                         errors.Add(
                             string.Format(
                                 CultureInfo.InvariantCulture,
-                                Resources.PerformanceCounterCheckConfigurationEntry,
+                                "Counter {0}: {1}",
                                 req.PerformanceCounter,
                                 error));
                     }

@@ -153,7 +153,7 @@
                  throw new InvalidOperationException(
                     string.Format(
                         CultureInfo.CurrentCulture,
-                        Resources.WebAppPerformanceCounterReadFailed,
+                        "Failed to perform a read for web app performance counter {0}",
                         coutnerOriginalString),
                     e);
             }
@@ -190,7 +190,7 @@
                 throw new InvalidOperationException(
                     string.Format(
                         CultureInfo.CurrentCulture,
-                        Resources.WebAppPerformanceCounterFirstReadFailed,
+                        "Failed to perform the first read for web app performance counter. Please make sure it exists. Counter: {0}",
                         counterName),
                     e);
             }

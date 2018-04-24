@@ -227,7 +227,7 @@
                 MachineName = this.machineName,
                 Timestamp = timestamp.UtcDateTime,
                 IsWebApp = this.isWebApp,
-                PerformanceCollectionSupported = false,
+                PerformanceCollectionSupported = this.isWebApp,
                 ProcessorCount = this.processorCount
             };
 
@@ -265,7 +265,7 @@
                     MachineName = this.machineName,
                     Timestamp = sample.EndTimestamp.UtcDateTime,
                     IsWebApp = this.isWebApp,
-                    PerformanceCollectionSupported = false,
+                    PerformanceCollectionSupported = this.isWebApp,
                     ProcessorCount = this.processorCount,
                     Metrics = metricPoints.ToArray(),
                     Documents = documents,
