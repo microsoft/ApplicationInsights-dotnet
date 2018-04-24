@@ -6,7 +6,7 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics.TestUtility
 {
-    public class MetricSeriesConfigurationForTestingAccumulatorBehavior : IMetricSeriesConfiguration
+    internal class MetricSeriesConfigurationForTestingAccumulatorBehavior : IMetricSeriesConfiguration
     {
         private readonly int _hashCode;
 

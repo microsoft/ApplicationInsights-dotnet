@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>@ToDo: Complete documentation before stable release. {218}</summary>
-    public sealed class MetricConfigurationForMeasurement : MetricConfiguration
+    internal sealed class MetricConfigurationForMeasurement : MetricConfiguration
     {
         /// <summary>@ToDo: Complete documentation before stable release. {928}</summary>
         /// <param name="seriesCountLimit">@ToDo: Complete documentation before stable release. {466}</param>

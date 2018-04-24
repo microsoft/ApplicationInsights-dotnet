@@ -7,7 +7,7 @@
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
     /// <summary>@ToDo: Complete documentation before stable release. {529}</summary>
-    public sealed class MetricManager
+    internal sealed class MetricManager
     {
         private readonly MetricAggregationManager aggregationManager;
         private readonly DefaultAggregationPeriodCycle aggregationCycle;
