@@ -53,15 +53,11 @@
         internal void PerformanceCollectorAddRemoveCountersForWebAppTest(WebAppPerformanceCollector collector)
         {
             var counterRequests = new[]
-                               {
-                                   //new PerformanceCounter("ASP.NET Applications", "Request Execution Time", "??APP_W3SVC_PROC??"),
-                                   new PerformanceCounterCollectionRequest(@"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Execution Time", @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Execution Time"),
-                                   //new PerformanceCounter("ASP.NET Applications", "Requests In Application Queue", "??APP_W3SVC_PROC??")
+                               {                                   
+                                   new PerformanceCounterCollectionRequest(@"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Execution Time", @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Execution Time"),                                
                                    new PerformanceCounterCollectionRequest(@"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests In Application Queue", @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests In Application Queue")
                                };
             
-
-
             foreach (var counterRequest in counterRequests)
             {
                 string error;
