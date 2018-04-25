@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Company>Microsoft</Company>
-    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
+    <Copyright>© Microsoft Corporation. All Rights Reserved.</Copyright>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
@@ -28,8 +28,8 @@
     <!--Copyright defined above-->
     <!--Copyright></Copyright-->
     <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
-    <PackageLicenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</PackageLicenseUrl>
-    <PackageProjectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
+    <PackageLicenseUrl>https://go.microsoft.com/fwlink/?LinkID=510709</PackageLicenseUrl>
+    <PackageProjectUrl>https://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
     <PackageIconUrl>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageIconUrl>
     <PackageTags>Analytics ApplicationInsights Telemetry</PackageTags>
     <PackageReleaseNotes>
