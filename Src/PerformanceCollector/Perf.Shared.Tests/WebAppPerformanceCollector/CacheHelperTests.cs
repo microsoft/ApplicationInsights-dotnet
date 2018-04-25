@@ -15,6 +15,7 @@
         /// Retrieves raw counter data from Environment Variables.
         /// </summary>
         /// <param name="name"> Name of the counter to be selected from JSON.</param>
+        /// <param name="environmentVariable">Environment variables - unused.</param>
         /// <returns> Value of the counter.</returns>
         public long GetCounterValue(string name, AzureWebApEnvironmentVariables environmentVariable)
         {

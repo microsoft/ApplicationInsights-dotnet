@@ -41,6 +41,7 @@
   <ItemGroup>
     <PackageReference Include="MicroBuild.Core" Version="0.2.0" developmentDependency="true" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta4" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
   </ItemGroup>

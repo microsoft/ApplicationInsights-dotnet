@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
-    using System.Diagnostics;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Net.Http;
     using System.Threading;
@@ -19,7 +19,6 @@
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 
     /// <summary>
     /// .NET Core specific tests that verify Http Dependencies are collected for outgoing request
@@ -99,7 +98,7 @@
 
                 // DiagnosticSource Response event is fired after SendAsync returns on netcoreapp1.*
                 // let's wait until dependency is collected
-                Assert.IsTrue(SpinWait.SpinUntil(() => sentTelemetry != null, TimeSpan.FromSeconds(1)));
+                Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry != null, TimeSpan.FromSeconds(1)));
 
                 this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
             }
@@ -127,7 +126,7 @@
 
                 // DiagnosticSource Response event is fired after SendAsync returns on netcoreapp1.*
                 // let's wait until dependency is collected
-                Assert.IsTrue(SpinWait.SpinUntil(() => sentTelemetry != null, TimeSpan.FromSeconds(1)));
+                Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry != null, TimeSpan.FromSeconds(1)));
 
                 parent.Stop();
 
@@ -136,7 +135,6 @@
                 Assert.AreEqual("k=v", request.Headers.GetValues(RequestResponseHeaders.CorrelationContextHeader).Single());
             }
         }
-
 
         /// <summary>
         /// Tests dependency collection when request procession causes exception (DNS issue).
@@ -202,7 +200,7 @@
                     .UseUrls(url)
                     .Build();
 
-                Task.Run( () => this.host.Run(cts.Token));
+                Task.Run(() => this.host.Run(this.cts.Token));
             }
 
             public void Dispose()

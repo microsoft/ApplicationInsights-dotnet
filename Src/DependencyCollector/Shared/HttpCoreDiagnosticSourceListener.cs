@@ -73,7 +73,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         }
 
         /// <summary>
-        /// Get the DependencyTelemetry objects that are still waiting for a response from the dependency. This will most likely only be used for testing purposes.
+        /// Gets the DependencyTelemetry objects that are still waiting for a response from the dependency. This will most likely only be used for testing purposes.
         /// </summary>
         internal ConditionalWeakTable<HttpRequestMessage, IOperationHolder<DependencyTelemetry>> PendingDependencyTelemetry => this.pendingTelemetry;
 
@@ -563,7 +563,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             this.httpDiagnosticListener,
                             (evnt, r, _) =>
                             {
-                                if (isNetCore20HttpClient)
+                                if (this.isNetCore20HttpClient)
                                 {
                                     if (evnt == HttpExceptionEventName)
                                     {

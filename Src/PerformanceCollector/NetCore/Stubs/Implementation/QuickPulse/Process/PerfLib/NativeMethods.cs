@@ -155,8 +155,8 @@
             public long PerfTime = 0;
             public long PerfFreq = 0;
         }
-      
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "Legacy suppression")]
         [StructLayout(LayoutKind.Sequential)]
         internal class SYSTEMTIME
         {

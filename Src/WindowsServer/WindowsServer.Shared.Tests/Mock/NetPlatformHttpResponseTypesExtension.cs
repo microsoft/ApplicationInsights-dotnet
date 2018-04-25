@@ -24,7 +24,9 @@
             content.WriteTo(resp.Body);
         }
 
-        public static void SetContentEncoding(this HttpResponse resp, Encoding enc) { }
+        public static void SetContentEncoding(this HttpResponse resp, Encoding enc)
+        {
+        }
 
 #elif NET45
         

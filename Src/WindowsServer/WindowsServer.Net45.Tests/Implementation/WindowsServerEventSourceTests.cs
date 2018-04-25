@@ -4,7 +4,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class WebEventSourceTest
+    public class WindowsServerEventSourceTests
     {
         [TestMethod]
         public void MethodsAreImplementedConsistentlyWithTheirAttributes()

@@ -221,7 +221,7 @@
             {
                 Version = this.version,
                 InvariantVersion = MonitoringDataPoint.CurrentInvariantVersion,
-                //InstrumentationKey = instrumentationKey, // ikey is currently set in query string parameter
+                // InstrumentationKey = instrumentationKey, // ikey is currently set in query string parameter
                 Instance = this.instanceName,
                 StreamId = this.streamId,
                 MachineName = this.machineName,

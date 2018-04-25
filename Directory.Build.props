@@ -89,10 +89,8 @@
         <RequireRestoreConsent>false</RequireRestoreConsent>
         
         <!-- Set the root namespace for all assemblies in this project hierarchy --> 
-        <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>        
-      
-        <!-- Disable StyleCop by default to prevent StyleCop.MSBuild package from slowing down the debug build -->
-        <StyleCopEnabled>false</StyleCopEnabled>
+        <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>
+        
     </PropertyGroup>
     
   <!-- Generate AssemblyFileVersion and AssemblyVersion attributes. -->

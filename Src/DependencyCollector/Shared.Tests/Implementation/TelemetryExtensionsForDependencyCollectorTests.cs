@@ -15,7 +15,8 @@
     /// <summary>
     /// Tests for client server dependency tracker.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable", Justification = "Test application"), TestClass]
+    [TestClass]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable", Justification = "Test application")]
     public class TelemetryExtensionsForDependencyCollectorTests
     {
         private List<ITelemetry> sendItems;
