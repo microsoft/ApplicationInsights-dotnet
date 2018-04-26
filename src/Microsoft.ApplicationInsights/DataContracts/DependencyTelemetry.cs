@@ -95,6 +95,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
             this.successFieldSet = source.successFieldSet;
+            this.operationDetails = new Dictionary<string, object>(source.operationDetails);
         }
 
         /// <summary>
