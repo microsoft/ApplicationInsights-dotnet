@@ -27,6 +27,11 @@
         public static readonly TimeSpan MinimumHeartbeatInterval = TimeSpan.FromSeconds(30.0);
 
         /// <summary>
+        /// Value for property indicating 'app insights version' related specifically to heartbeats.
+        /// </summary>
+        private static string sdkVersionPropertyValue = SdkVersionUtils.GetSdkVersion("hbnet:");
+
+        /// <summary>
         /// The name of the heartbeat metric item and operation context. 
         /// </summary>
         private static string heartbeatSyntheticMetricName = "HeartbeatState";
@@ -300,6 +305,7 @@
             var eventData = (MetricTelemetry)this.GatherData();
 
             eventData.Context.Operation.SyntheticSource = heartbeatSyntheticMetricName;
+            eventData.Context.GetInternalContext().SdkVersion = sdkVersionPropertyValue;
 
             this.telemetryClient.Track(eventData);
         }

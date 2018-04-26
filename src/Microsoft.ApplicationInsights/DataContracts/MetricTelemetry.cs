@@ -51,10 +51,14 @@
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with properties provided.
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
         /// </summary>
         /// <remarks>
-        /// To send metrics, collect your metric events over an aggregation interval of 1 minute.
+        /// Metrics should always be pre-aggregated across a time period before being sent.
+        /// Most applications do not need to explicitly create <c>MetricTelemetry</c> objects. Instead, use one of
+        /// the <c>GetMetric(..)</c> overloads on the <see cref="TelemetryClient" /> class to get a metric object
+        /// for accessing SDK pre-aggregation capabilities. <br />
+        /// However, you can use this ctor to create metric telemetry items if you have implemented your own metric
+        /// aggregation. In that case, use <see cref="TelemetryClient.Track(ITelemetry)"/> method to send your aggregates.
         /// </remarks>
         /// <param name="name">Metric name.</param>
         /// <param name="count">Count of values taken during aggregation interval.</param>
@@ -71,6 +75,43 @@
             double standardDeviation)
             : this()
         {
+            this.Name = name;
+            this.Count = count;
+            this.Sum = sum;
+            this.Min = min;
+            this.Max = max;
+            this.StandardDeviation = standardDeviation;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with properties provided.
+        /// </summary>
+        /// <remarks>
+        /// Metrics should always be pre-aggregated across a time period before being sent.
+        /// Most applications do not need to explicitly create <c>MetricTelemetry</c> objects. Instead, use one of
+        /// the <c>GetMetric(..)</c> overloads on the <see cref="TelemetryClient" /> class to get a metric object
+        /// for accessing SDK pre-aggregation capabilities. <br />
+        /// However, you can use this ctor to create metric telemetry items if you have implemented your own metric
+        /// aggregation. In that case, use <see cref="TelemetryClient.Track(ITelemetry)"/> method to send your aggregates.
+        /// </remarks>
+        /// <param name="metricNamespace">Metric namespace.</param>
+        /// <param name="name">Metric name.</param>
+        /// <param name="count">Count of values taken during aggregation interval.</param>
+        /// <param name="sum">Sum of values taken during aggregation interval.</param>
+        /// <param name="min">Minimum value taken during aggregation interval.</param>
+        /// <param name="max">Maximum of values taken during aggregation interval.</param>
+        /// <param name="standardDeviation">Standard deviation of values taken during aggregation interval.</param>
+        public MetricTelemetry(
+            string metricNamespace,
+            string name,
+            int count,
+            double sum,
+            double min,
+            double max,
+            double standardDeviation)
+            : this()
+        {
+            this.MetricNamespace = metricNamespace;
             this.Name = name;
             this.Count = count;
             this.Sum = sum;
@@ -106,6 +147,15 @@
         /// Gets the context associated with the current telemetry item.
         /// </summary>
         public TelemetryContext Context { get; }
+
+        /// <summary>
+        /// Gets or sets the name of the metric.
+        /// </summary>
+        public string MetricNamespace
+        {
+            get { return this.Metric.ns; }
+            set { this.Metric.ns = value; }
+        }
 
         /// <summary>
         /// Gets or sets the name of the metric.
@@ -194,6 +244,7 @@
         /// </summary>
         void ITelemetry.Sanitize()
         {
+            this.MetricNamespace = Property.TrimAndTruncate(this.MetricNamespace, Property.MaxMetricNamespaceLength);
             this.Name = this.Name.SanitizeName();
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(MetricTelemetry).FullName);
             this.Properties.SanitizeProperties();

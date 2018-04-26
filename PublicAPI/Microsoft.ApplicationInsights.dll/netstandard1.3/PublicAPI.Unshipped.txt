@@ -1,4 +1,7 @@
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.OperationDetails.get -> System.Collections.Generic.IDictionary<string, object>
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricNamespace.get -> string
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricNamespace.set -> void
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricTelemetry(string metricNamespace, string name, int count, double sum, double min, double max, double standardDeviation) -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationIdProvider.get -> Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationIdProvider.set -> void
 Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider
@@ -268,3 +271,4 @@ static Microsoft.ApplicationInsights.Metrics.MetricIdentifier.DefaultMetricNames
 static Microsoft.ApplicationInsights.Metrics.TelemetryConfigurationExtensions.GetMetricManager(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration telemetryPipeline) -> Microsoft.ApplicationInsights.Metrics.MetricManager
 static readonly Microsoft.ApplicationInsights.MetricConfigurations.Common -> Microsoft.ApplicationInsights.MetricConfigurations
 virtual Microsoft.ApplicationInsights.Metrics.MetricConfiguration.Equals(Microsoft.ApplicationInsights.Metrics.MetricConfiguration other) -> bool
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SetParsedStack(System.Diagnostics.StackFrame[] frames) -> void

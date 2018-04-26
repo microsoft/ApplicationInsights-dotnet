@@ -586,7 +586,11 @@
         /// </remarks>
         public void Flush()
         {
-            this.configuration.TelemetryChannel.Flush();
+            var telemetryChannel = this.configuration?.TelemetryChannel;
+            if (telemetryChannel != null)
+            {
+                telemetryChannel.Flush();
+            }
         }
 
         /// <summary>
