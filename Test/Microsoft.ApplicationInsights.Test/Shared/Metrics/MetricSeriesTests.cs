@@ -55,7 +55,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             DateTimeOffset endTSRounded = DateTimeOffset.Now;
             endTSRounded = new DateTimeOffset(endTSRounded.Year, endTSRounded.Month, endTSRounded.Day, endTSRounded.Hour, endTSRounded.Minute, endTSRounded.Second, 0, endTSRounded.Offset);
 
-            TestUtil.ValidateNumericAggregateValues(aggregateCollector[0], name: "Foo Bar", count: 3, sum: 1.16, max: 0.8, min: -0.04, stdDev: 0.343058142140496, aggKindMoniker: "Microsoft.Azure.Measurement");
+            TestUtil.ValidateNumericAggregateValues(aggregateCollector[0], ns: "ns", name: "Foo Bar", count: 3, sum: 1.16, max: 0.8, min: -0.04, stdDev: 0.343058142140496, aggKindMoniker: "Microsoft.Azure.Measurement");
 
             // Timestamp checks have to be approximate, since we have no possibilityt to get exact timetamps snapped internally.
 
@@ -92,7 +92,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
             IMetricSeriesConfiguration config = new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false);
-            MetricSeries series = manager.CreateNewSeries("ns", "Foo Bar", config);
+            MetricSeries series = manager.CreateNewSeries("ns-ping", "Foo Bar", config);
 
             Assert.ThrowsException<ArgumentException>( () => series.TrackValue("xxx") );
             series.TrackValue((float) 0.8);
@@ -108,7 +108,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             DateTimeOffset endTSRounded = DateTimeOffset.Now;
             endTSRounded = new DateTimeOffset(endTSRounded.Year, endTSRounded.Month, endTSRounded.Day, endTSRounded.Hour, endTSRounded.Minute, endTSRounded.Second, 0, endTSRounded.Offset);
 
-            TestUtil.ValidateNumericAggregateValues(aggregateCollector[0], name: "Foo Bar", count: 3, sum: 1.16, max: 0.8, min: -0.04, stdDev: 0.343058142140496, aggKindMoniker: "Microsoft.Azure.Measurement");
+            TestUtil.ValidateNumericAggregateValues(aggregateCollector[0], ns: "ns-ping", name: "Foo Bar", count: 3, sum: 1.16, max: 0.8, min: -0.04, stdDev: 0.343058142140496, aggKindMoniker: "Microsoft.Azure.Measurement");
 
             // Timestamp checks have to be approximate, since we have no possibilityt to get exact timetamps snapped internally.
 
@@ -166,7 +166,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             DateTimeOffset endTS = DateTimeOffset.Now;
 
-            TestUtil.ValidateNumericAggregateValues(aggregateCollector[0], name: "Foo Bar", count: 4, sum: 1.41, max: 1.07, min: -0.15, stdDev: 0.447681527427702, aggKindMoniker: "Microsoft.Azure.Measurement");
+            TestUtil.ValidateNumericAggregateValues(aggregateCollector[0], ns: "ns", name: "Foo Bar", count: 4, sum: 1.41, max: 1.07, min: -0.15, stdDev: 0.447681527427702, aggKindMoniker: "Microsoft.Azure.Measurement");
 
             // The following might break sometimes!
             // There is a little chance that second boundary is crossed between startTS and the aggregation timestamps are snapped.
@@ -222,7 +222,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             DateTimeOffset endTS = DateTimeOffset.Now;
 
-            TestUtil.ValidateNumericAggregateValues(aggregateCollector[0], name: "Foo Bar", count: 4, sum: 1.41, max: 1.07, min: -0.15, stdDev: 0.447681527427702, aggKindMoniker: "Microsoft.Azure.Measurement");
+            TestUtil.ValidateNumericAggregateValues(aggregateCollector[0], ns: "ns", name: "Foo Bar", count: 4, sum: 1.41, max: 1.07, min: -0.15, stdDev: 0.447681527427702, aggKindMoniker: "Microsoft.Azure.Measurement");
 
             // The following might break sometimes!
             // There is a little chance that second boundary is crossed between startTS and the aggregation timestamps are snapped.
@@ -258,7 +258,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             var aggregateCollector = new MemoryMetricTelemetryPipeline();
             var manager = new MetricManager(aggregateCollector);
-            MetricSeries series = manager.CreateNewSeries("ns", "Foo Bar", seriesConfig);
+            MetricSeries series = manager.CreateNewSeries("NS", "Foo Bar", seriesConfig);
 
             {
                 MetricAggregate aggregate = series.GetCurrentAggregateUnsafe();
@@ -271,7 +271,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             {
                 MetricAggregate aggregate = series.GetCurrentAggregateUnsafe();
-                TestUtil.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 3, sum: 0.4, max: 2, min: -2, stdDev: 1.64384373412506, aggKindMoniker: aggregationKindMoniker);
+                TestUtil.ValidateNumericAggregateValues(aggregate, ns: "NS", name: "Foo Bar", count: 3, sum: 0.4, max: 2, min: -2, stdDev: 1.64384373412506, aggKindMoniker: aggregationKindMoniker);
 
                 // The following might break sometimes!
                 // There is a little chance that second boundary is crossed between test TS and the aggregation timestamps are snapped.
@@ -290,7 +290,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 MetricAggregate aggregate = series.GetCurrentAggregateUnsafe();
 
-                TestUtil.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 7, sum: 1.81, max: 2, min: -2, stdDev: 1.13330652229191, aggKindMoniker: aggregationKindMoniker);
+                TestUtil.ValidateNumericAggregateValues(aggregate, ns: "NS", name: "Foo Bar", count: 7, sum: 1.81, max: 2, min: -2, stdDev: 1.13330652229191, aggKindMoniker: aggregationKindMoniker);
 
                 // The following might break sometimes!
                 // There is a little chance that second boundary is crossed between test TS and the aggregation timestamps are snapped.
@@ -317,7 +317,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 MetricAggregate aggregate = series.GetCurrentAggregateUnsafe();
 
                 Assert.IsFalse(seriesConfig.RequiresPersistentAggregation);
-                TestUtil.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 1, sum: 0, max: 0, min: 0, stdDev: 0, aggKindMoniker: aggregationKindMoniker);
+                TestUtil.ValidateNumericAggregateValues(aggregate, ns: "NS", name: "Foo Bar", count: 1, sum: 0, max: 0, min: 0, stdDev: 0, aggKindMoniker: aggregationKindMoniker);
 
                 // The following might break sometimes!
                 // There is a little chance that second boundary is crossed between test TS and the aggregation timestamps are snapped.
@@ -377,7 +377,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 MetricAggregate aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.Default, stepTS);
 
-                TestUtil.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 3, sum: 0.4, max: 2, min: -2, stdDev: 1.64384373412506, aggKindMoniker: aggregationKindMoniker);
+                TestUtil.ValidateNumericAggregateValues(aggregate, ns: "ns", name: "Foo Bar", count: 3, sum: 0.4, max: 2, min: -2, stdDev: 1.64384373412506, aggKindMoniker: aggregationKindMoniker);
 
                 // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
                 Assert.AreEqual(
@@ -413,7 +413,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 MetricAggregate aggregate = series.GetCurrentAggregateUnsafe(MetricAggregationCycleKind.Default, stepTS);
 
-                TestUtil.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 7, sum: 1.81, max: 2, min: -2, stdDev: 1.13330652229191, aggKindMoniker: aggregationKindMoniker);
+                TestUtil.ValidateNumericAggregateValues(aggregate, ns: "ns", name: "Foo Bar", count: 7, sum: 1.81, max: 2, min: -2, stdDev: 1.13330652229191, aggKindMoniker: aggregationKindMoniker);
 
                 // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
 
@@ -431,7 +431,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 {
                     Assert.IsFalse(seriesConfig.RequiresPersistentAggregation);
 
-                    TestUtil.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 4, sum: 1.41, max: 1.07, min: -0.15, stdDev: 0.447681527427702, aggKindMoniker: aggregationKindMoniker);
+                    TestUtil.ValidateNumericAggregateValues(aggregate, ns: "ns", name: "Foo Bar", count: 4, sum: 1.41, max: 1.07, min: -0.15, stdDev: 0.447681527427702, aggKindMoniker: aggregationKindMoniker);
 
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
 
@@ -478,7 +478,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                     Assert.IsFalse(seriesConfig.RequiresPersistentAggregation);
 
                     // Custom was not cycled by Flush.
-                    TestUtil.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 4, sum: 1.41, max: 1.07, min: -0.15, stdDev: 0.447681527427702, aggKindMoniker: aggregationKindMoniker);
+                    TestUtil.ValidateNumericAggregateValues(aggregate, ns: "ns", name: "Foo Bar", count: 4, sum: 1.41, max: 1.07, min: -0.15, stdDev: 0.447681527427702, aggKindMoniker: aggregationKindMoniker);
 
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
                     Assert.AreEqual(
@@ -519,7 +519,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 {
                     Assert.IsFalse(seriesConfig.RequiresPersistentAggregation);
 
-                    TestUtil.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 1, sum: 0, max: 0, min: 0, stdDev: 0, aggKindMoniker: aggregationKindMoniker);
+                    TestUtil.ValidateNumericAggregateValues(aggregate, ns: "ns", name: "Foo Bar", count: 1, sum: 0, max: 0, min: 0, stdDev: 0, aggKindMoniker: aggregationKindMoniker);
 
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
                     Assert.AreEqual(
@@ -546,7 +546,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 {
                     Assert.IsFalse(seriesConfig.RequiresPersistentAggregation);
 
-                    TestUtil.ValidateNumericAggregateValues(aggregate, name: "Foo Bar", count: 1, sum: 0, max: 0, min: 0, stdDev: 0, aggKindMoniker: aggregationKindMoniker);
+                    TestUtil.ValidateNumericAggregateValues(aggregate, ns: "ns", name: "Foo Bar", count: 1, sum: 0, max: 0, min: 0, stdDev: 0, aggKindMoniker: aggregationKindMoniker);
 
                     // This might break: Second boundary might be crossed between snapping test and the aggregation timestamps. Try re-running.
                     Assert.AreEqual(

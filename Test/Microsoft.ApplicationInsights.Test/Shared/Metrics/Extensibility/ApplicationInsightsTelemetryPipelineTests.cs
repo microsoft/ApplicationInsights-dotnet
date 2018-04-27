@@ -127,24 +127,24 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                         var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(telemetryPipeline);
 
                         {
-                            var agregate = new MetricAggregate("NS", "M1", MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker);
+                            var agregate = new MetricAggregate("NSa", "M1", MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker);
                             agregate.Data["Count"] = 1;
                             agregate.Data["Sum"] = 10;
                             await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
                         }
                         {
-                            var agregate = new MetricAggregate("NS", "M2", MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker);
+                            var agregate = new MetricAggregate("NSb", "M2", MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker);
                             agregate.Data["Count"] = 0;
                             agregate.Data["Sum"] = 20;
                             await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
                         }
                         {
-                            var agregate = new MetricAggregate("NS", "M3", MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker);
+                            var agregate = new MetricAggregate("NSc", "M3", MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker);
                             agregate.Data["Sum"] = 30;
                             await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
                         }
                         {
-                            var agregate = new MetricAggregate("NS", "M4", MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker);
+                            var agregate = new MetricAggregate("NSd", "M4", MetricConfigurations.Common.Measurement().Constants().AggregateKindMoniker);
                             agregate.Data["Count"] = 2.9;
                             agregate.Data["Sum"] = -40;
                             await pipelineAdapter.TrackAsync(agregate, CancellationToken.None);
@@ -163,18 +163,22 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                         Assert.AreEqual(4, telemetrySentToChannel.Count);
 
                         Assert.AreEqual(1, telemetrySentToChannel.Where( (item) => (item as MetricTelemetry).Name.Equals("M1") ).Count());
+                        Assert.AreEqual("NSa", (telemetrySentToChannel.First( (item) => (item as MetricTelemetry).Name.Equals("M1") ) as MetricTelemetry).MetricNamespace);
                         Assert.AreEqual(1, (telemetrySentToChannel.First( (item) => (item as MetricTelemetry).Name.Equals("M1") ) as MetricTelemetry).Count);
                         Assert.AreEqual(10.0, (telemetrySentToChannel.First( (item) => (item as MetricTelemetry).Name.Equals("M1") ) as MetricTelemetry).Sum);
 
                         Assert.AreEqual(1, telemetrySentToChannel.Where( (item) => (item as MetricTelemetry).Name.Equals("M2") ).Count());
+                        Assert.AreEqual("NSb", (telemetrySentToChannel.First( (item) => (item as MetricTelemetry).Name.Equals("M2") ) as MetricTelemetry).MetricNamespace);
                         Assert.AreEqual(expectedCountWhenZero, (telemetrySentToChannel.First( (item) => (item as MetricTelemetry).Name.Equals("M2") ) as MetricTelemetry).Count);
                         Assert.AreEqual(20.0, (telemetrySentToChannel.First( (item) => (item as MetricTelemetry).Name.Equals("M2") ) as MetricTelemetry).Sum);
 
                         Assert.AreEqual(1, telemetrySentToChannel.Where( (item) => (item as MetricTelemetry).Name.Equals("M3") ).Count());
+                        Assert.AreEqual("NSc", (telemetrySentToChannel.First( (item) => (item as MetricTelemetry).Name.Equals("M3") ) as MetricTelemetry).MetricNamespace);
                         Assert.AreEqual(expectedCountWhenZero, (telemetrySentToChannel.First( (item) => (item as MetricTelemetry).Name.Equals("M3") ) as MetricTelemetry).Count);
                         Assert.AreEqual(30.0, (telemetrySentToChannel.First( (item) => (item as MetricTelemetry).Name.Equals("M3") ) as MetricTelemetry).Sum);
 
                         Assert.AreEqual(1, telemetrySentToChannel.Where( (item) => (item as MetricTelemetry).Name.Equals("M4") ).Count());
+                        Assert.AreEqual("NSd", (telemetrySentToChannel.First( (item) => (item as MetricTelemetry).Name.Equals("M4") ) as MetricTelemetry).MetricNamespace);
                         Assert.AreEqual(3, (telemetrySentToChannel.First( (item) => (item as MetricTelemetry).Name.Equals("M4") ) as MetricTelemetry).Count);
                         Assert.AreEqual(-40.0, (telemetrySentToChannel.First( (item) => (item as MetricTelemetry).Name.Equals("M4") ) as MetricTelemetry).Sum);
                     }
@@ -240,7 +244,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
                         // On SDK 2.6.X this sometimes fails when run in parallel with all the other tests and always succeeds when run by itself.
                         // There is some concurrency issue in the Pipiline that is unrelated to the stuff being tested here!
-                        TestUtil.ValidateNumericAggregateValues(metricTelemetry, "mid-foobar", expectedCount, sum: 0, max: 0, min: 0, stdDev: 0);
+                        TestUtil.ValidateNumericAggregateValues(metricTelemetry, "NS", "mid-foobar", expectedCount, sum: 0, max: 0, min: 0, stdDev: 0);
                     
                         Assert.AreEqual(1, metricTelemetry.Properties.Count);
                         Assert.IsTrue(metricTelemetry.Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
@@ -276,6 +280,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                         int expectedCount = Debugger.IsAttached ? 1 : 0;
                         TestUtil.ValidateNumericAggregateValues(
                                                         metricTelemetry,
+                                                        "NS",
                                                         "mid-foobar",
                                                         expectedCount,
                                                         sum:        0,
@@ -318,6 +323,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                         int expectedCount = Debugger.IsAttached ? 1 : 0;
                         TestUtil.ValidateNumericAggregateValues(
                                                         metricTelemetry,
+                                                        "NS", 
                                                         "mid-foobar",
                                                         expectedCount,
                                                         sum:        0,
@@ -361,6 +367,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 
                         TestUtil.ValidateNumericAggregateValues(
                                                         metricTelemetry,
+                                                        "NS",
                                                         "mid-foobar",
                                                         count:      1,
                                                         sum:        0,
@@ -416,6 +423,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                         int expectedCount = Debugger.IsAttached ? 1 : -4;
                         TestUtil.ValidateNumericAggregateValues(
                                                         metricTelemetry,
+                                                        "NS",
                                                         "mid-foobar",
                                                         expectedCount,
                                                         sum:        -100,
@@ -528,6 +536,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                         int expectedCount = Debugger.IsAttached ? 1 : -4;
                         TestUtil.ValidateNumericAggregateValues(
                                                         metricTelemetry,
+                                                        "NS",
                                                         "mid-foobar",
                                                         expectedCount,
                                                         sum:        0,
@@ -690,6 +699,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                     int expectedCount = Debugger.IsAttached ? 1 : 0;
                     TestUtil.ValidateNumericAggregateValues(
                                                     metricTelemetry,
+                                                    "NS",
                                                     "mid-foobar",
                                                     expectedCount,
                                                     sum:    0,
