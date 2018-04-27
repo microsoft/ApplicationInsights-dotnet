@@ -167,6 +167,29 @@
             Assert.AreEqual(10, item.sampleRate);
         }
 
+        [TestMethod]
+        public void DependencyTelemetrySetGetOperationDetail()
+        {
+            const string key = "foo";
+            const string detail = "bar";
+
+            var telemetry = this.CreateRemoteDependencyTelemetry("mycommand");
+            telemetry.SetOperationDetail(key, detail);
+            Assert.IsTrue(telemetry.TryGetOperationDetail(key, out object retrievedValue));
+            Assert.IsNotNull(retrievedValue);
+            Assert.AreEqual(detail, retrievedValue.ToString());
+        }
+
+        [TestMethod]
+        public void DependencyTelemetryGetUnsetOperationDetail()
+        {
+            const string key = "foo";
+
+            var telemetry = this.CreateRemoteDependencyTelemetry("mycommand");
+            Assert.IsFalse(telemetry.TryGetOperationDetail(key, out object retrievedValue));
+            Assert.IsNull(retrievedValue);
+        }
+
 #if !NETCOREAPP1_1
         [TestMethod]
         public void DependencyTelemetryDeepCloneCopiesAllProperties()

@@ -1,4 +1,5 @@
-Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.OperationDetails.get -> System.Collections.Generic.IDictionary<string, object>
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.TryGetOperationDetail(string key, out object detail) -> bool
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.SetOperationDetail(string key, object detail) -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricNamespace.get -> string
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricNamespace.set -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricTelemetry(string metricNamespace, string name, int count, double sum, double min, double max, double standardDeviation) -> void

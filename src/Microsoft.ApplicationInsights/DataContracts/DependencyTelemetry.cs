@@ -1,9 +1,12 @@
 namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
@@ -19,7 +22,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         internal readonly RemoteDependencyData InternalData;
         private readonly TelemetryContext context;
-        private readonly IDictionary<string, object> operationDetails;
+        private readonly Lazy<IDictionary<string, object>> operationDetails;
 
         private double? samplingPercentage;
 
@@ -33,7 +36,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.InternalData = new RemoteDependencyData();
             this.successFieldSet = true;
             this.context = new TelemetryContext(this.InternalData.properties);
-            this.operationDetails = new Dictionary<string, object>();
+            this.operationDetails = new Lazy<IDictionary<string, object>>(
+                () => new ConcurrentDictionary<string, object>(), LazyThreadSafetyMode.ExecutionAndPublication);
             this.GenerateId();
         }
 
@@ -95,7 +99,19 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
             this.successFieldSet = source.successFieldSet;
-            this.operationDetails = new Dictionary<string, object>(source.operationDetails);
+
+            // If the source has had details initialized clone the details immediately and initialize lazy with copy
+            if (source.operationDetails.IsValueCreated)
+            {
+                var details = new ConcurrentDictionary<string, object>(source.operationDetails.Value);
+                this.operationDetails = new Lazy<IDictionary<string, object>>(
+                    () => details, LazyThreadSafetyMode.None);
+            }
+            else
+            {
+                this.operationDetails = new Lazy<IDictionary<string, object>>(
+                    () => new ConcurrentDictionary<string, object>(), LazyThreadSafetyMode.ExecutionAndPublication);
+            }
         }
 
         /// <summary>
@@ -123,14 +139,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             get { return this.InternalData.id; }
             set { this.InternalData.id = value; }
-        }
-
-        /// <summary>
-        /// Gets the dependency operation details, if any.
-        /// </summary>
-        public IDictionary<string, object> OperationDetails
-        {
-            get { return this.operationDetails; }
         }
 
         /// <summary>
@@ -284,12 +292,40 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
+        /// Gets the dependency operation details, if any.
+        /// </summary>
+        private IDictionary<string, object> OperationDetails => this.operationDetails.Value;
+
+        /// <summary>
         /// Deeply clones a <see cref="DependencyTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
         public override ITelemetry DeepClone()
         {
             return new DependencyTelemetry(this);
+        }
+
+        /// <summary>
+        /// In specific collectors, objects are added to the dependency telemetry which may be useful
+        /// to enhance DependencyTelemetry telemetry by <see cref="ITelemetryInitializer" /> implementations.
+        /// </summary>
+        /// <param name="key">The key of the value to get.</param>
+        /// <param name="detail">When this method returns, contains the object that has the specified key, or the default value of the type if the operation failed.</param>
+        /// <returns>true if the key was found; otherwise, false.</returns>
+        public bool TryGetOperationDetail(string key, out object detail)
+        {
+            return this.OperationDetails.TryGetValue(key, out detail);
+        }
+
+        /// <summary>
+        /// Sets the operation detail specific against the key specified.
+        /// </summary>
+        /// <param name="key">The key to store the detail against.</param>
+        /// <param name="detail">Detailed information collected by the tracked operation.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void SetOperationDetail(string key, object detail)
+        {
+            this.OperationDetails[key] = detail;
         }
 
         /// <summary>
