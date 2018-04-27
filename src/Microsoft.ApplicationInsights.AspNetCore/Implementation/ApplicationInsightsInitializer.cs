@@ -8,15 +8,15 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
+    using System.Threading;
 
     /// <summary>
     /// Class used to initialize Application Insight diagnostic listeners.
     /// </summary>
     internal class ApplicationInsightsInitializer : IObserver<DiagnosticListener>, IDisposable
     {
-        private readonly ConcurrentBag<IDisposable> subscriptions;
+        private ConcurrentBag<IDisposable> subscriptions;
         private readonly IEnumerable<IApplicationInsightDiagnosticListener> diagnosticListeners;
-        private volatile bool shuttingDown = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationInsightsInitializer"/> class.
@@ -50,7 +50,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         /// <inheritdoc />
         void IObserver<DiagnosticListener>.OnNext(DiagnosticListener value)
         {
-            if (shuttingDown)
+            var subs = Volatile.Read(ref this.subscriptions);
+            if (subs is null)
             {
                 return;
             }
@@ -59,7 +60,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
             {
                 if (applicationInsightDiagnosticListener.ListenerName == value.Name)
                 {
-                    this.subscriptions.Add(value.SubscribeWithAdapter(applicationInsightDiagnosticListener));
+                    subs.Add(value.SubscribeWithAdapter(applicationInsightDiagnosticListener));
                 }
             }
         }
@@ -87,8 +88,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                 return;
             }
 
-            shuttingDown = true;
-            foreach (var subscription in this.subscriptions)
+            var subs = Interlocked.Exchange(ref this.subscriptions, null);
+            if (subs is null)
+            {
+                return;
+            }
+
+            foreach (var subscription in subs)
             {
                 subscription.Dispose();
             }
