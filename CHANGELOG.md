@@ -4,7 +4,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 2.6.0
 - [Fix: changed namespace SamplingPercentageEstimatorSettings](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/727)
-- [NEW: Added TryGetOperationDetail to DependencyTelemetry to facilitate advanced ITelemetryInitializer scenarios] (https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/587)
+- [NEW: Added TryGetOperationDetail to DependencyTelemetry to facilitate advanced ITelemetryInitializer scenarios.  Allows ITelemetryInitializer implementations to specify fields that would otherwise not be sent automatically to the backend.] (https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/587)
 
 ## Version 2.6.0-beta4
 - [New: Enable ExceptionTelemetry.SetParsedStack for .Net Standard](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/763)
