@@ -1,7 +1,7 @@
 # Changelog
 
 ## Version 2.3.0-beta2
--Removed DomainNameRoleInstanceTelemetryInitializer as its is deprecated.
+-Removed DomainNameRoleInstanceTelemetryInitializer as it is deprecated.
 -Reuse AzureWebAppRoleEnvironmentTelemetryInitializer from WindowsServer repo instead of outdated implementation in this repo.
 
 ## Version 2.3.0-beta1
