@@ -314,6 +314,12 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <returns>true if the key was found; otherwise, false.</returns>
         public bool TryGetOperationDetail(string key, out object detail)
         {
+            if (!this.operationDetails.IsValueCreated)
+            {
+                detail = null;
+                return false;
+            }
+
             return this.OperationDetails.TryGetValue(key, out detail);
         }
 
