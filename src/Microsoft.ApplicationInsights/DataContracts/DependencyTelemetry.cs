@@ -4,11 +4,12 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
+
+    using static System.Threading.LazyInitializer;
 
     /// <summary>
     /// The class that represents information about the collected dependency.
@@ -22,7 +23,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         internal readonly RemoteDependencyData InternalData;
         private readonly TelemetryContext context;
-        private readonly Lazy<IDictionary<string, object>> operationDetails;
+        private IDictionary<string, object> operationDetails;
 
         private double? samplingPercentage;
 
@@ -36,16 +37,14 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.InternalData = new RemoteDependencyData();
             this.successFieldSet = true;
             this.context = new TelemetryContext(this.InternalData.properties);
-            this.operationDetails = new Lazy<IDictionary<string, object>>(
-                () => new ConcurrentDictionary<string, object>(), LazyThreadSafetyMode.ExecutionAndPublication);
             this.GenerateId();
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="data"/>,
-        /// <paramref name="startTime"/>, <paramref name="duration"/> and <paramref name="success"/> property values.
-        /// </summary>
-        [Obsolete("Use other constructors which allows to define dependency call with all the properties.")]
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="data"/>,
+    /// <paramref name="startTime"/>, <paramref name="duration"/> and <paramref name="success"/> property values.
+    /// </summary>
+    [Obsolete("Use other constructors which allows to define dependency call with all the properties.")]
         public DependencyTelemetry(string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
             : this()
         {
@@ -100,17 +99,10 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.samplingPercentage = source.samplingPercentage;
             this.successFieldSet = source.successFieldSet;
 
-            // If the source has had details initialized clone the details immediately and initialize lazy with copy
-            if (source.operationDetails.IsValueCreated)
+            // Only clone the details if the source has had details initialized
+            if (source.operationDetails != null)
             {
-                var details = new ConcurrentDictionary<string, object>(source.operationDetails.Value);
-                this.operationDetails = new Lazy<IDictionary<string, object>>(
-                    () => details, LazyThreadSafetyMode.None);
-            }
-            else
-            {
-                this.operationDetails = new Lazy<IDictionary<string, object>>(
-                    () => new ConcurrentDictionary<string, object>(), LazyThreadSafetyMode.ExecutionAndPublication);
+                this.operationDetails = new ConcurrentDictionary<string, object>(source.operationDetails);
             }
         }
 
@@ -294,7 +286,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <summary>
         /// Gets the dependency operation details, if any.
         /// </summary>
-        private IDictionary<string, object> OperationDetails => this.operationDetails.Value;
+        private IDictionary<string, object> OperationDetails => EnsureInitialized(ref this.operationDetails, () => new ConcurrentDictionary<string, object>());
 
         /// <summary>
         /// Deeply clones a <see cref="DependencyTelemetry"/> object.
@@ -314,7 +306,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <returns>true if the key was found; otherwise, false.</returns>
         public bool TryGetOperationDetail(string key, out object detail)
         {
-            if (!this.operationDetails.IsValueCreated)
+            if (this.operationDetails == null)
             {
                 detail = null;
                 return false;
