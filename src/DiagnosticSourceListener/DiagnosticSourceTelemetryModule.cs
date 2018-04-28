@@ -38,9 +38,16 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            this.client = new TelemetryClient(configuration);
-            this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("dsl:");
-            this.allDiagnosticListenersSubscription = DiagnosticListener.AllListeners.Subscribe(this);
+            var telemetryClient = new TelemetryClient(configuration);
+            telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("dsl:");
+
+            this.client = telemetryClient;
+
+            // Protect against multiple subscriptions if Initialize is called twice
+            if (this.allDiagnosticListenersSubscription == null)
+            {
+                this.allDiagnosticListenersSubscription = DiagnosticListener.AllListeners.Subscribe(this);
+            }
         }
 
         /// <summary>
