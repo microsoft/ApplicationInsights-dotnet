@@ -9,6 +9,7 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Threading;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
@@ -46,7 +47,11 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
             // Protect against multiple subscriptions if Initialize is called twice
             if (this.allDiagnosticListenersSubscription == null)
             {
-                this.allDiagnosticListenersSubscription = DiagnosticListener.AllListeners.Subscribe(this);
+                var subscription = DiagnosticListener.AllListeners.Subscribe(this);
+                if (Interlocked.CompareExchange(ref this.allDiagnosticListenersSubscription, subscription, null) != null)
+                {
+                    subscription.Dispose();
+                }
             }
         }
 
