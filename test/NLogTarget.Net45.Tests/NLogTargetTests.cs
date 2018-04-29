@@ -124,7 +124,7 @@
 
             var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
 
-            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(ApplicationInsightsTarget), prefix: "nlog:");
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "nlog:");
             Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
         }
 
@@ -250,7 +250,9 @@
 
         [TestMethod]
         [TestCategory("NLogTarget")]
+#pragma warning disable CA1707 // Identifiers should not contain underscores
         public void EventPropertyKeyNameIsAppendedWith_1_IfSameAsGlobalDiagnosticContextKeyName()
+#pragma warning restore CA1707 // Identifiers should not contain underscores
         {
             Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
 
@@ -303,7 +305,7 @@
             }
 
             ExceptionTelemetry telemetry = (ExceptionTelemetry)this.adapterHelper.Channel.SentItems.First();
-            Assert.IsTrue(telemetry.Properties["Message"].StartsWith("custom message"));
+            Assert.IsTrue(telemetry.Properties["Message"].StartsWith("custom message", StringComparison.Ordinal));
         }
 
         [TestMethod]

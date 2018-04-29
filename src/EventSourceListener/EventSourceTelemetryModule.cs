@@ -221,7 +221,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                 this.EnableEvents(eventSource, EventLevel.LogAlways, (EventKeywords)TplActivities.TaskFlowActivityIdsKeyword);
                 this.enabledEventSources.Enqueue(eventSource);
             }
-            else if (eventSource.Name == EventSourceListenerEventSource.ProviderName)
+            else if (string.Equals(eventSource.Name, EventSourceListenerEventSource.ProviderName, StringComparison.Ordinal))
             {
                 // Tracking ourselves does not make much sense
                 return;
@@ -236,7 +236,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                     // tasks, which then itself also fires Threadpool events on FrameworkEventSource at unexpected locations, and trigger deadlocks.
                     // Hence, we like special case this and mask out Threadpool events.
                     EventKeywords keywords = listeningRequest.Keywords;
-                    if (listeningRequest.Name == "System.Diagnostics.Eventing.FrameworkEventSource")
+                    if (string.Equals(listeningRequest.Name, "System.Diagnostics.Eventing.FrameworkEventSource", StringComparison.Ordinal))
                     {
                         // Turn off the Threadpool | ThreadTransfer keyword. Definition is at http://referencesource.microsoft.com/#mscorlib/system/diagnostics/eventing/frameworkeventsource.cs
                         // However, if keywords was to begin with, then we need to set it to All first, which is 0xFFFFF....

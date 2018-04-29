@@ -27,6 +27,8 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
     using Microsoft.ApplicationInsights.Tracing.Tests;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using static System.Globalization.CultureInfo;
+
     [System.Diagnostics.CodeAnalysis.SuppressMessage(
         category: "Microsoft.Design", checkId: "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable", Justification = "Disposing the object in the Test Cleanup")]
     [TestClass]
@@ -66,7 +68,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
         {
             string instrumentationKey = Guid.NewGuid().ToString();
             this.VerifyInitializationSuccess(
-                    () => ApplicationInsightsAppenderTests.InitializeLog4NetAIAdapter(string.Format(@"<InstrumentationKey value=""{0}"" />", instrumentationKey)),
+                    () => ApplicationInsightsAppenderTests.InitializeLog4NetAIAdapter(string.Format(InvariantCulture, @"<InstrumentationKey value=""{0}"" />", instrumentationKey)),
                     instrumentationKey);
         }
 
@@ -82,7 +84,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
             var telemetry = (TraceTelemetry)sentItems[0];
             Assert.AreNotEqual(default(DateTimeOffset), telemetry.Context);
 
-            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(ApplicationInsightsAppender), prefix: "log4net:");
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "log4net:");
             Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
         }
         
@@ -91,7 +93,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
         public void ValidateLoggingIsWorking()
         {
             string instrumentationKey = "93d9c2b7-e633-4571-8520-d391511a1df5";
-            ApplicationInsightsAppenderTests.InitializeLog4NetAIAdapter(string.Format(@"<InstrumentationKey value=""{0}"" />", instrumentationKey));
+            ApplicationInsightsAppenderTests.InitializeLog4NetAIAdapter(string.Format(InvariantCulture, @"<InstrumentationKey value=""{0}"" />", instrumentationKey));
 
             // Set up error handler to intercept exception
             ApplicationInsightsAppender aiAppender = (ApplicationInsightsAppender)log4net.LogManager.GetRepository(callingAssembly).GetAppenders()[0];
@@ -128,7 +130,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
 
             // Set instrumentation key in Log4Net environment
             string instrumentationKey = "93d9c2b7-e633-4571-8520-d391511a1df5";
-            ApplicationInsightsAppenderTests.InitializeLog4NetAIAdapter(string.Format(@"<InstrumentationKey value=""{0}"" />", instrumentationKey));
+            ApplicationInsightsAppenderTests.InitializeLog4NetAIAdapter(string.Format(InvariantCulture, @"<InstrumentationKey value=""{0}"" />", instrumentationKey));
             Assert.AreNotEqual(instrumentationKey, this.adapterHelper.InstrumentationKey, "This test will not verify anything if the same instrumentation key is used by both");
             this.SendMessagesToMockChannel(instrumentationKey);
         }
@@ -317,7 +319,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
             }
 
             ExceptionTelemetry telemetry = (ExceptionTelemetry)this.appendableLogger.SentItems.First();
-            Assert.IsTrue(telemetry.Properties["Message"].StartsWith("custom message"));
+            Assert.IsTrue(telemetry.Properties["Message"].StartsWith("custom message", StringComparison.Ordinal));
         }
 
         internal static void InitializeLog4NetAIAdapter(string adapterComponentIdSnippet)

@@ -106,7 +106,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         {
             if (logEvent == null)
             {
-                throw new ArgumentNullException("logEvent");
+                throw new ArgumentNullException(nameof(logEvent));
             }
 
             this.lastLogEventTime = DateTime.UtcNow;
@@ -207,7 +207,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             string value = valueObj.ToString();
             if (propertyBag.ContainsKey(key))
             {
-                if (value == propertyBag[key])
+                if (string.Equals(value, propertyBag[key], StringComparison.Ordinal))
                 {
                     return;
                 }

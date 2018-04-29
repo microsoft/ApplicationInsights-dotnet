@@ -45,7 +45,7 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
                 return false;
             }
 
-            return this.Name == other.Name;
+            return string.Equals(this.Name, other.Name, System.StringComparison.Ordinal);
         }
 
         /// <summary>

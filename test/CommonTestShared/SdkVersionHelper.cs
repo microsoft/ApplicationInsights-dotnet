@@ -6,7 +6,7 @@
 
     public static class SdkVersionHelper
     {
-        public static string GetExpectedSdkVersion(Type assemblyType, string prefix)
+        public static string GetExpectedSdkVersion(string prefix)
         {
 #if NET45 || NET46
             string versionStr = typeof(SdkVersionHelper).Assembly.GetCustomAttributes(false).OfType<AssemblyFileVersionAttribute>().First().Version;

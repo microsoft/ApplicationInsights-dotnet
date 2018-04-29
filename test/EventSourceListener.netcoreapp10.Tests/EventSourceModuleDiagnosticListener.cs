@@ -26,7 +26,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
-            if (eventSource.Name == "Microsoft-ApplicationInsights-Extensibility-EventSourceListener")
+            if (string.Equals(eventSource.Name, "Microsoft-ApplicationInsights-Extensibility-EventSourceListener", StringComparison.Ordinal))
             {
                 EnableEvents(eventSource, EventLevel.LogAlways);
             }

@@ -24,6 +24,8 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using static System.Globalization.CultureInfo;
+
     [TestClass]
     public sealed class EventSourceTelemetryModuleTests : IDisposable
     {
@@ -78,7 +80,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 Assert.AreEqual("Hey!", telemetry.Message);
                 Assert.AreEqual("Hey!", telemetry.Properties["information"]);
                 Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
-                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(EventSourceTelemetryModule), prefix: "evl:");
+                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "evl:");
                 Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
             }
         }
@@ -105,7 +107,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 Assert.AreEqual("Hey!", telemetry.Properties["information"]);
                 Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
 
-                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(EventSourceTelemetryModule), prefix: "evl:");
+                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "evl:");
                 Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
             }
         }
@@ -157,7 +159,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                     Assert.AreEqual("Hey!", telemetry.Message);
                     Assert.AreEqual("Hey!", telemetry.Properties["message"]);
                     Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
-                    string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(EventSourceTelemetryModule), prefix: "evl:");
+                    string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "evl:");
                     Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
                 }
             }
@@ -190,13 +192,13 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 traceTelemetry.Properties["information"] = "Hey!";
                 expectedTelemetry.Add(traceTelemetry);
                 traceTelemetry = new TraceTelemetry("Warning!", SeverityLevel.Warning);
-                traceTelemetry.Properties["i1"] = 1.ToString();
-                traceTelemetry.Properties["i2"] = 2.ToString();
+                traceTelemetry.Properties["i1"] = 1.ToString(InvariantCulture);
+                traceTelemetry.Properties["i2"] = 2.ToString(InvariantCulture);
                 expectedTelemetry.Add(traceTelemetry);
                 // Note that second informational event is not expected
                 traceTelemetry = new TraceTelemetry("Warning!", SeverityLevel.Warning);
-                traceTelemetry.Properties["i1"] = 3.ToString();
-                traceTelemetry.Properties["i2"] = 4.ToString();
+                traceTelemetry.Properties["i1"] = 3.ToString(InvariantCulture);
+                traceTelemetry.Properties["i2"] = 4.ToString(InvariantCulture);
                 expectedTelemetry.Add(traceTelemetry);
 
                 CollectionAssert.AreEqual(expectedTelemetry, this.adapterHelper.Channel.SentItems, new TraceTelemetryComparer(), "Reported events are not what was expected");
@@ -289,7 +291,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 expected.Properties.Add("uniqueId", eventId.ToString());
                 expected.Properties.Add("ProviderName", TestEventSource.ProviderName);
                 expected.Properties.Add("ProviderGuid", providerGuid.ToString());
-                expected.Properties.Add("EventId", TestEventSource.ComplexEventId.ToString());
+                expected.Properties.Add("EventId", TestEventSource.ComplexEventId.ToString(InvariantCulture));
                 expected.Properties.Add("EventName", nameof(TestEventSource.ComplexEvent));
                 expected.Properties.Add("ActivityId", activityId.ToString());
                 expected.Properties.Add("Keywords", "0x8000F00000000001");
@@ -325,7 +327,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 TestEventSource.Default.Write("CustomPayloadProperties");
 
                 TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems[0];
-                Assert.IsTrue(telemetry.Properties.All(kvp => kvp.Key.Equals("CustomPayloadProperties") && kvp.Value.Equals("true")));
+                Assert.IsTrue(telemetry.Properties.All(kvp => kvp.Key.Equals("CustomPayloadProperties", StringComparison.Ordinal) && kvp.Value.Equals("true", StringComparison.Ordinal)));
             }
         }
 
@@ -356,8 +358,8 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 Assert.AreEqual("Actual message", telemetry.Properties["Message"]);
                 Assert.AreEqual("7", telemetry.Properties["EventId"]);
                 Assert.AreEqual("TrickyEvent", telemetry.Properties["EventName"]);
-                Assert.IsTrue(telemetry.Properties[telemetry.Properties.Keys.First(key => key.StartsWith("EventId") && key != "EventId")].Equals("7"));
-                Assert.IsTrue(telemetry.Properties[telemetry.Properties.Keys.First(key => key.StartsWith("EventName") && key != "EventName")].Equals("Tricky"));
+                Assert.IsTrue(telemetry.Properties[telemetry.Properties.Keys.First(key => key.StartsWith("EventId", StringComparison.Ordinal) && !string.Equals(key, "EventId", StringComparison.Ordinal))].Equals("7", StringComparison.Ordinal));
+                Assert.IsTrue(telemetry.Properties[telemetry.Properties.Keys.First(key => key.StartsWith("EventName", StringComparison.Ordinal) && !string.Equals(key, "EventName", StringComparison.Ordinal))].Equals("Tricky", StringComparison.Ordinal));
             }
         }
 
@@ -409,9 +411,9 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
             }
         }
 
-        private async Task PerformActivityAsync(int requestId)
+        private Task PerformActivityAsync(int requestId)
         {
-            await Task.Run(async () =>
+            return Task.Run(async () =>
             {
                 TestEventSource.Default.RequestStart(requestId);
                 await Task.Delay(50).ConfigureAwait(false);

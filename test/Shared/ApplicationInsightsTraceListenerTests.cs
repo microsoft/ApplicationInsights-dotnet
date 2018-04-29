@@ -11,6 +11,8 @@
     using Microsoft.ApplicationInsights.Tracing.Tests;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using static System.Globalization.CultureInfo;
+
     [TestClass]
     public sealed class ApplicationInsightsTraceListenerTests : IDisposable
     {
@@ -102,7 +104,7 @@
 
                 TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
 
-                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(ApplicationInsightsTraceListener), prefix: "sd:");
+                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "sd:");
                 Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
             }
         }
@@ -141,7 +143,7 @@
 
             TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
             Assert.AreEqual(expectedMessage, telemetry.Message);
-            Assert.AreEqual(expectedEventId.ToString(), telemetry.Properties["EventId"]);
+            Assert.AreEqual(expectedEventId.ToString(InvariantCulture), telemetry.Properties["EventId"]);
         }
 
         [TestMethod]
@@ -161,8 +163,8 @@
                 options);
 
             TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual(string.Format(formatString, arg0), telemetry.Message);
-            Assert.AreEqual(expectedEventId.ToString(), telemetry.Properties["EventId"]);
+            Assert.AreEqual(string.Format(InvariantCulture, formatString, arg0), telemetry.Message);
+            Assert.AreEqual(expectedEventId.ToString(InvariantCulture), telemetry.Properties["EventId"]);
         }
 
         [TestMethod]
@@ -182,7 +184,7 @@
             
             TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
             Assert.AreEqual("(123, 123.456)", telemetry.Message);
-            Assert.AreEqual(expectedEventId.ToString(), telemetry.Properties["EventId"]);
+            Assert.AreEqual(expectedEventId.ToString(InvariantCulture), telemetry.Properties["EventId"]);
         }
 
         [TestMethod]
@@ -202,7 +204,7 @@
 
             TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
             Assert.AreEqual("(123, 123.456), https://foobar/", telemetry.Message);
-            Assert.AreEqual(expectedEventId.ToString(), telemetry.Properties["EventId"]);
+            Assert.AreEqual(expectedEventId.ToString(InvariantCulture), telemetry.Properties["EventId"]);
         }
 
 #if NET45

@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.CommonTestShared
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Net;
@@ -25,7 +26,7 @@
 
             HttpClient client = new HttpClient();
             var result = client.PostAsync(
-                "https://dc.services.visualstudio.com/v2/validate",
+                new Uri("https://dc.services.visualstudio.com/v2/validate"),
                 new ByteArrayContent(Encoding.UTF8.GetBytes(json))).GetAwaiter().GetResult();
 
             if (result.StatusCode != HttpStatusCode.OK)

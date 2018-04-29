@@ -12,7 +12,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
     using Diagnostics.Tracing.Session;
     using Microsoft.ApplicationInsights.EtwCollector;
 
-    internal class TraceEventSessionMock : ITraceEventSession
+    internal sealed class TraceEventSessionMock : ITraceEventSession
     {
         private bool isFakeAccessDenied;
 
@@ -81,7 +81,9 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
             return true;
         }
 
+#pragma warning disable CA1801 // Review unused parameters
         public bool Stop(bool noThrow = false)
+#pragma warning restore CA1801 // Review unused parameters
         {
             throw new NotImplementedException();
         }
