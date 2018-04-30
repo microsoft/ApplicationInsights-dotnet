@@ -595,9 +595,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     }
                 }
 
-
+                // ACT
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
 
+
+                // VERIFY
                 var operationCorrelationTelemetryInitializer = serviceProvider.GetServices<ITelemetryInitializer>().FirstOrDefault(x => x.GetType() 
                     == typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.OperationCorrelationTelemetryInitializer));
 
