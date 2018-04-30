@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 2.3.0-beta2
+- [Fixed race condition on dispose to close #651](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/652)
 -Removed DomainNameRoleInstanceTelemetryInitializer as it is deprecated.
 -Reuse AzureWebAppRoleEnvironmentTelemetryInitializer from WindowsServer repo instead of outdated implementation in this repo.
 - Updated Web/Base SDK version dependency to 2.6.0-beta4
