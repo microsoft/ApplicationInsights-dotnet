@@ -18,13 +18,14 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
     using NLog;
     using NLog.Common;
+    using NLog.Config;
     using NLog.Targets;
 
     /// <summary>
     /// NLog Target that routes all logging output to the Application Insights logging framework.
     /// The messages will be uploaded to the Application Insights cloud service.
     /// </summary>
-    [Target("ApplicationInsightsTarget")]   
+    [Target("ApplicationInsightsTarget")]
     public sealed class ApplicationInsightsTarget : TargetWithLayout
     {
         private TelemetryClient telemetryClient;
@@ -42,6 +43,12 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         /// Gets or sets the Application Insights instrumentationKey for your application. 
         /// </summary>
         public string InstrumentationKey { get; set; }
+
+        /// <summary>
+        /// Gets the array of custom attributes to be passed into the logevent context
+        /// </summary>
+        [ArrayParameter(typeof(TargetPropertyWithContext), "contextproperty")]
+        public IList<TargetPropertyWithContext> ContextProperties { get; } = new List<TargetPropertyWithContext>();
 
         /// <summary>
         /// Gets the logging controller we will be using.
@@ -78,8 +85,20 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 propertyBag.Add("UserStackFrameNumber", logEvent.UserStackFrameNumber.ToString(CultureInfo.InvariantCulture));
             }
 
-            this.LoadGlobalDiagnosticsContextProperties(propertyBag);
-            this.LoadLogEventProperties(logEvent, propertyBag);
+            for (int i = 0; i < this.ContextProperties.Count; ++i)
+            {
+                var contextProperty = this.ContextProperties[i];
+                if (!string.IsNullOrEmpty(contextProperty.Name))
+                {
+                    string propertyValue = contextProperty.Layout?.Render(logEvent);
+                    this.PopulatePropertyBag(propertyBag, contextProperty.Name, propertyValue);
+                }
+            }
+
+            if (logEvent.HasProperties)
+            {
+                this.LoadLogEventProperties(logEvent, propertyBag);
+            }
         }
 
         /// <summary>
@@ -165,7 +184,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         private void SendTrace(LogEventInfo logEvent)
         {
             string logMessage = this.Layout.Render(logEvent);
-            
+
             var trace = new TraceTelemetry(logMessage)
             {
                 SeverityLevel = this.GetSeverityLevel(logEvent.Level)
@@ -175,20 +194,11 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             this.telemetryClient.Track(trace);
         }
 
-        private void LoadGlobalDiagnosticsContextProperties(IDictionary<string, string> propertyBag)
-        {
-            foreach (string key in GlobalDiagnosticsContext.GetNames())
-            {
-                this.PopulatePropertyBag(propertyBag, key, GlobalDiagnosticsContext.GetObject(key));
-            }
-        }
-
         private void LoadLogEventProperties(LogEventInfo logEvent, IDictionary<string, string> propertyBag)
         {
-            var properties = logEvent.Properties;
-            if (properties != null)
+            if (logEvent.Properties?.Count > 0)
             {
-                foreach (var keyValuePair in properties)
+                foreach (var keyValuePair in logEvent.Properties)
                 {
                     string key = keyValuePair.Key.ToString();
                     object valueObj = keyValuePair.Value;
@@ -204,7 +214,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 return;
             }
 
-            string value = valueObj.ToString();
+            string value = Convert.ToString(valueObj, CultureInfo.InvariantCulture);
             if (propertyBag.ContainsKey(key))
             {
                 if (string.Equals(value, propertyBag[key], StringComparison.Ordinal))
