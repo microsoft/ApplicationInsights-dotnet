@@ -1,8 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Threading;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -13,16 +15,21 @@
     {
         private TelemetryClient telemetryClient;
         private IApplicationIdProvider applicationIdProvider;
-        private readonly List<IDisposable> subscriptions;
+        private ConcurrentBag<IDisposable> subscriptions;
         private List<IApplicationInsightDiagnosticListener> diagnosticListeners;
         private bool isInitialized = false;
         private readonly object lockObject = new object();
         private TelemetryConfiguration configuration;
 
+
+        public RequestTrackingTelemetryModule() : this(null)
+        {            
+        }
+
         public RequestTrackingTelemetryModule(IApplicationIdProvider applicationIdProvider)
         {
             this.applicationIdProvider = applicationIdProvider;
-            this.subscriptions = new List<IDisposable>();
+            this.subscriptions = new ConcurrentBag<IDisposable>();
             this.diagnosticListeners = new List<IApplicationInsightDiagnosticListener>();
         }
 
@@ -57,11 +64,17 @@
         /// <inheritdoc />
         void IObserver<DiagnosticListener>.OnNext(DiagnosticListener value)
         {
+            var subs = Volatile.Read(ref this.subscriptions);
+            if (subs is null)
+            {
+                return;
+            }
+
             foreach (var applicationInsightDiagnosticListener in this.diagnosticListeners)
             {
                 if (applicationInsightDiagnosticListener.ListenerName == value.Name)
                 {
-                    this.subscriptions.Add(value.SubscribeWithAdapter(applicationInsightDiagnosticListener));
+                    subs.Add(value.SubscribeWithAdapter(applicationInsightDiagnosticListener));
                 }
             }
         }
@@ -84,12 +97,20 @@
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (!disposing)
             {
-                foreach (var subscription in this.subscriptions)
-                {
-                    subscription.Dispose();
-                }
+                return;
+            }
+
+            var subs = Interlocked.Exchange(ref this.subscriptions, null);
+            if (subs is null)
+            {
+                return;
+            }
+
+            foreach (var subscription in subs)
+            {
+                subscription.Dispose();
             }
         }
     }

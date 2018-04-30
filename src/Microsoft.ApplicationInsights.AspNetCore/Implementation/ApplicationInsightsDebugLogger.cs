@@ -7,7 +7,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     using Microsoft.Extensions.Options;
 
     /// <summary>
-    /// Class used to initialize Application Insight diagnostic listeners.
+    /// Class used to enable Application Insight loggers while debugging.
     /// </summary>
     internal class ApplicationInsightsDebugLogger
     {
