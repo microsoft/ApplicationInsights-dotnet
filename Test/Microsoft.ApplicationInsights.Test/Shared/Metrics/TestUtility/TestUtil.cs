@@ -260,7 +260,7 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
         /// a clean test run.
         /// </summary>
         /// <param name="metricManagers"></param>
-        public static void CompleteDefaultAggregationCycle(params MetricManager[] metricManagers)
+        internal static void CompleteDefaultAggregationCycle(params MetricManager[] metricManagers)
         {
             if (metricManagers == null)
             {

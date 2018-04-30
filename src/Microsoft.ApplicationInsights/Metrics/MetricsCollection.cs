@@ -8,7 +8,7 @@
     using static System.FormattableString;
 
     /// <summary>@ToDo: Complete documentation before stable release. {092}</summary>
-    public sealed class MetricsCollection : ICollection<Metric>
+    internal sealed class MetricsCollection : ICollection<Metric>
     {
         private readonly MetricManager metricManager;
         private readonly ConcurrentDictionary<MetricIdentifier, Metric> metrics = new ConcurrentDictionary<MetricIdentifier, Metric>();
