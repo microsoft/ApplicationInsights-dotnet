@@ -9,7 +9,7 @@
     using static System.FormattableString;
 
     /// <summary>@ToDo: Complete documentation before stable release. {526}</summary>
-    public static class TelemetryClientExtensions
+    internal static class TelemetryClientExtensions
     {
         private static ConditionalWeakTable<TelemetryClient, MetricManager> metricManagersForTelemetryClients;
 

@@ -4,7 +4,7 @@
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
     /// <summary>@ToDo: Complete documentation before stable release. {510}</summary>
-    public interface IMetricSeriesConfiguration : IEquatable<IMetricSeriesConfiguration>
+    internal interface IMetricSeriesConfiguration : IEquatable<IMetricSeriesConfiguration>
     {
         /// <summary>Gets a value indicating whether @ToDo: Complete documentation before stable release. {016}</summary>
         bool RequiresPersistentAggregation { get; }

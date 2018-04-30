@@ -6,7 +6,7 @@
     using System.Globalization;
 
     /// <summary>@ToDo: Complete documentation before stable release. {406}</summary>
-    public class MetricAggregate
+    internal class MetricAggregate
     {
         // We want to make the aggregate thread safe, but we expect no signiicant contention, so a simple lock will suffice.
         private readonly object updateLock = new object();
