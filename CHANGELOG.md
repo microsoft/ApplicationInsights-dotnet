@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 2.3.0-beta2
+- [RequestCollection is refactored to be implemted as an ITelemetryModule. This makes it possible to configure it like every other auto-collection modules. ](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/650)
 - [Fixed race condition on dispose to close #651](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/652)
 -Removed DomainNameRoleInstanceTelemetryInitializer as it is deprecated.
 -Reuse AzureWebAppRoleEnvironmentTelemetryInitializer from WindowsServer repo instead of outdated implementation in this repo.
