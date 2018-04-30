@@ -8,7 +8,7 @@
     /// Represents an eventual destination for metric telemetry.
     /// For example, an Application Insights telemetry pipeline, a file or some other ingestion point.
     /// </summary>
-    public interface IMetricTelemetryPipeline
+    internal interface IMetricTelemetryPipeline
     {
         /// <summary>
         /// Send a metric aggregate to the eventual destination.
