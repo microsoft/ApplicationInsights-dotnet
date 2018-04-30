@@ -60,6 +60,24 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests
         }
 
         [TestMethod]
+        public void ReportsSingleEventEvenIfInitializedMoreThanOnce()
+        {
+            using (var module = new DiagnosticSourceTelemetryModule())
+            {
+                var testDiagnosticSource = new TestDiagnosticSource();
+                var listeningRequest = new DiagnosticSourceListeningRequest(testDiagnosticSource.Name);
+                module.Sources.Add(listeningRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                testDiagnosticSource.Write("JustOnce", new { Index = 8888 });
+
+                Assert.AreEqual(1, this.adapterHelper.Channel.SentItems.Length);
+            }
+        }
+
+        [TestMethod]
         public void HandlesPropertiesWithNullValues()
         {
             using (var module = new DiagnosticSourceTelemetryModule())

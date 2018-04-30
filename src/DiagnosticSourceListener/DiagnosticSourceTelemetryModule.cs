@@ -9,6 +9,7 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Threading;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
@@ -38,9 +39,20 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            this.client = new TelemetryClient(configuration);
-            this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("dsl:");
-            this.allDiagnosticListenersSubscription = DiagnosticListener.AllListeners.Subscribe(this);
+            var telemetryClient = new TelemetryClient(configuration);
+            telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("dsl:");
+
+            this.client = telemetryClient;
+
+            // Protect against multiple subscriptions if Initialize is called twice
+            if (this.allDiagnosticListenersSubscription == null)
+            {
+                var subscription = DiagnosticListener.AllListeners.Subscribe(this);
+                if (Interlocked.CompareExchange(ref this.allDiagnosticListenersSubscription, subscription, null) != null)
+                {
+                    subscription.Dispose();
+                }
+            }
         }
 
         /// <summary>
