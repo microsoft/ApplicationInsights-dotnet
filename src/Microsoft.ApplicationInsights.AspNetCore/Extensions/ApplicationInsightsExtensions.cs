@@ -355,7 +355,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static bool IsApplicationInsightsAdded(IServiceCollection services)
         {
-            // We treat ApplicationInsightsInitializer as a marker that AI services were added to service collection
+            // We treat ApplicationInsightsDebugLogger as a marker that AI services were added to service collection
             return services.Any(service => service.ServiceType == typeof(ApplicationInsightsDebugLogger));
     }
 }
