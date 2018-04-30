@@ -104,7 +104,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
             }
 
             var trace = new TraceTelemetry(message);
-            this.CreateTraceData(eventCache, eventType, id, trace);
+            this.CreateTraceData(eventType, id, trace);
             this.TelemetryClient.Track(trace);
         }
 
@@ -145,7 +145,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
 
             string message = string.Join(", ", data.Select(d => d == null ? string.Empty : d.ToString()));
             var trace = new TraceTelemetry(message);
-            this.CreateTraceData(eventCache, eventType, id, trace);                       
+            this.CreateTraceData(eventType, id, trace);                       
             this.TelemetryClient.Track(trace);
         }
 
@@ -167,7 +167,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
             }
 
             var trace = new TraceTelemetry(message);
-            this.CreateTraceData(new TraceEventCache(), TraceEventType.Verbose, null, trace);
+            this.CreateTraceData(TraceEventType.Verbose, null, trace);
             this.TelemetryClient.Track(trace);
         }
 
@@ -188,7 +188,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
             this.TelemetryClient.Flush();
         }
 
-        private void CreateTraceData(TraceEventCache eventCache, TraceEventType eventType, int? id, TraceTelemetry trace)
+        private void CreateTraceData(TraceEventType eventType, int? id, TraceTelemetry trace)
         {
             trace.SeverityLevel = this.GetSeverityLevel(eventType);
             

@@ -13,7 +13,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
     /// <summary>
     /// A wrapper of <see cref="Microsoft.Diagnostics.Tracing.Session.TraceEventSession"/>.
     /// </summary>
-    internal class AITraceEventSession : ITraceEventSession, IDisposable
+    internal sealed class AITraceEventSession : ITraceEventSession, IDisposable
     {
         private TraceEventSession session;
 

@@ -25,7 +25,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
-            if (eventSource.Name == "Microsoft-ApplicationInsights-Extensibility-EventSourceListener")
+            if (string.Equals(eventSource.Name, "Microsoft-ApplicationInsights-Extensibility-EventSourceListener", System.StringComparison.Ordinal))
             {
                 EnableEvents(eventSource, EventLevel.LogAlways);
             }

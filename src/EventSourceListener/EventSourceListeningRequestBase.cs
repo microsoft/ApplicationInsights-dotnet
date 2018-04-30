@@ -34,7 +34,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                 return false;
             }
 
-            return this.Name == other.Name && this.PrefixMatch == other.PrefixMatch;
+            return string.Equals(this.Name, other.Name, System.StringComparison.Ordinal) && this.PrefixMatch == other.PrefixMatch;
         }
 
         /// <summary>

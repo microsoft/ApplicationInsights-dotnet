@@ -22,7 +22,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 return Comparer.DefaultInvariant.Compare(x, y);
             }
 
-            bool equal = template.Message == actual.Message
+            bool equal = string.Equals(template.Message, actual.Message, System.StringComparison.Ordinal)
                 && template.SeverityLevel == actual.SeverityLevel
                 && HaveProperties(template.Properties, actual.Properties);
             if (equal)
@@ -48,7 +48,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                     return false;
                 }
 
-                if (kvp.Value != actualValue)
+                if (!string.Equals(kvp.Value, actualValue, System.StringComparison.Ordinal))
                 {
                     return false;
                 }

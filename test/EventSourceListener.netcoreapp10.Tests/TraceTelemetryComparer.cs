@@ -23,7 +23,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 return Comparer.DefaultInvariant.Compare(x, y);
             }
 
-            bool equal = template.Message == actual.Message
+            bool equal = string.Equals(template.Message, actual.Message, StringComparison.Ordinal)
                 && template.SeverityLevel == actual.SeverityLevel
                 && HaveProperties(template.Properties, actual.Properties);
             if (equal)
@@ -49,7 +49,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                     return false;
                 }
 
-                if (kvp.Value != actualValue)
+                if (!string.Equals(kvp.Value, actualValue, StringComparison.Ordinal))
                 {
                     return false;
                 }
