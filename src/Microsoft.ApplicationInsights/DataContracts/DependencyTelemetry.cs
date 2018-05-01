@@ -40,11 +40,11 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.GenerateId();
         }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="data"/>,
-    /// <paramref name="startTime"/>, <paramref name="duration"/> and <paramref name="success"/> property values.
-    /// </summary>
-    [Obsolete("Use other constructors which allows to define dependency call with all the properties.")]
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="data"/>,
+        /// <paramref name="startTime"/>, <paramref name="duration"/> and <paramref name="success"/> property values.
+        /// </summary>
+        [Obsolete("Use other constructors which allows to define dependency call with all the properties.")]
         public DependencyTelemetry(string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
             : this()
         {
