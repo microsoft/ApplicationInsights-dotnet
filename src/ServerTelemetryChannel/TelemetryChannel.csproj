@@ -22,7 +22,7 @@
     <!--PackageVersion is defined in GlobalStaticVersion.props-->
     <!--PackageVersion></PackageVersion-->
     <Authors>Microsoft</Authors>
-    <Owners>Microsoft</Owners>
+    <Owners>Microsoft,AppInsightsSdk</Owners>
     <Title>Application Insights Telemetry Channel for Windows Server Applications</Title>
     <Description>This nuget provides a telemetry channel to Application Insights Windows Server SDK that will preserve telemetry in offline scenarios. This is a dependent package, for the best experience please install the platform specific package. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
     <!--Copyright defined above-->
