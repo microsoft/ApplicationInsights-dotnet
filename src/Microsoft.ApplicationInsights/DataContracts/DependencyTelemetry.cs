@@ -307,6 +307,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <returns>true if the key was found; otherwise, false.</returns>
         public bool TryGetOperationDetail(string key, out object detail)
         {
+            // Avoid initializing the dictionary if it has not been initialized
             if (this.operationDetails == null)
             {
                 detail = null;
@@ -340,6 +341,20 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Type = this.Type.SanitizeDependencyType();
             this.Data = this.Data.SanitizeData();
             this.Properties.SanitizeProperties();
+        }
+
+        /// <summary>
+        /// Clears any stored operational data for the dependency operation, if any.
+        /// </summary>
+        internal void ClearOperationDetails()
+        {
+            // Avoid initializing the dictionary if it has not been initialized
+            if (this.operationDetails == null)
+            {
+                return;
+            }
+
+            this.OperationDetails.Clear();
         }
     }
 }
