@@ -6,7 +6,7 @@
     /// <summary>
     /// Contains constants used to refer to metric dimensions with special significance.
     /// </summary>
-    public static class MetricDimensionNames
+    internal static class MetricDimensionNames
     {
         /// <summary>
         /// <p>Contains constants used to refer to metric dimensions that will be mapped to fields
