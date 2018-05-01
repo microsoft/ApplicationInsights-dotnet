@@ -3,6 +3,7 @@
 ### Version 2.6.0-vNext
 - [NLog Flush should include async delay](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/176)
 - [NLog can include additional ContextProperties](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/183)
+- [DiagnosticSourceTelemetryModule supports onEventWrittenHandler](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/184)
 
 ### Version 2.6.0-beta3
 - [NetStandard Support for TraceListener](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/166)
