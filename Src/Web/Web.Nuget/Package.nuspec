@@ -6,8 +6,8 @@
     <title>Application Insights for Web Applications</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <licenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</licenseUrl>
-    <projectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</projectUrl>
+    <licenseUrl>https://go.microsoft.com/fwlink/?LinkID=510709</licenseUrl>
+    <projectUrl>https://go.microsoft.com/fwlink/?LinkId=392727</projectUrl>
     <iconUrl>$image$</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <summary>Application Insights for .NET web applications.</summary>

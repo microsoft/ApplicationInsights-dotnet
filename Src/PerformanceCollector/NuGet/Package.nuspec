@@ -6,8 +6,8 @@
     <title>Application Insights Performance Counters Collector</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <licenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</licenseUrl>
-    <projectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</projectUrl>
+    <licenseUrl>https://go.microsoft.com/fwlink/?LinkID=510709</licenseUrl>
+    <projectUrl>https://go.microsoft.com/fwlink/?LinkId=392727</projectUrl>
     <iconUrl>$image$</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Application Insights Performance Counters Collector allows you to send data collected by Performance Counters to Application Insights. Application Insights Performance Counters Collector is supported for .NET FX 4.0 and later. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</description>
