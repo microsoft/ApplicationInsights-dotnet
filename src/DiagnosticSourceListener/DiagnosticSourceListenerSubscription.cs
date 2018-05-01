@@ -8,15 +8,14 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
-    using Microsoft.ApplicationInsights.DataContracts;
 
     internal class DiagnosticSourceListenerSubscription : IObserver<KeyValuePair<string, object>>
     {
         private readonly string listenerName;
         private readonly TelemetryClient telemetryClient;
+        private readonly OnEventWrittenHandler onEventWrittenHandler;
 
-        public DiagnosticSourceListenerSubscription(string listenerName, TelemetryClient telemetryClient)
+        public DiagnosticSourceListenerSubscription(string listenerName, TelemetryClient telemetryClient, OnEventWrittenHandler onEventWrittenHandler)
         {
             if (listenerName == null)
             {
@@ -28,8 +27,14 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
                 throw new ArgumentNullException(nameof(telemetryClient));
             }
 
+            if (onEventWrittenHandler == null)
+            {
+                throw new ArgumentNullException(nameof(onEventWrittenHandler));
+            }
+
             this.listenerName = listenerName;
             this.telemetryClient = telemetryClient;
+            this.onEventWrittenHandler = onEventWrittenHandler;
         }
 
         public void OnCompleted()
@@ -46,25 +51,14 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
         /// <param name="event">The event (message and payload) from the diagnostic source.</param>
         public void OnNext(KeyValuePair<string, object> @event)
         {
-            var message = @event.Key;
-            var payload = @event.Value;
-
-            var telemetry = new TraceTelemetry(message, SeverityLevel.Information);
-            telemetry.Properties.Add("DiagnosticSource", this.listenerName);
-
-            // Transfer properties from payload to telemetry
-            if (payload != null)
+            try
             {
-                foreach (var property in DeclaredPropertiesCache.GetDeclaredProperties(payload))
-                {
-                    if (!property.IsSpecialName)
-                    {
-                        telemetry.Properties.Add(property.Name, Convert.ToString(property.GetValue(payload), CultureInfo.InvariantCulture));
-                    }
-                }
+                this.onEventWrittenHandler(this.listenerName, @event.Key, @event.Value, this.telemetryClient);
             }
-
-            this.telemetryClient.TrackTrace(telemetry);
+            catch (Exception ex)
+            {
+                this.telemetryClient.TrackException(ex);
+            }
         }
     }
 }

@@ -9,19 +9,53 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Threading;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
+
+    /// <summary>
+    /// Delegate to apply custom formatting to Application Insights trace telemetry from the Diagnostics Source data.
+    /// </summary>
+    /// <param name="sourceName">Name of the DiagnosticsSource (as implemented by a DiagnosticsListener).</param>
+    /// <param name="message">Name of the event.</param>
+    /// <param name="payload">Data associated with the event.</param>
+    /// <param name="client">Telemetry client to report telemetry to.</param>
+    public delegate void OnEventWrittenHandler(string sourceName, string message, object payload, TelemetryClient client);
 
     /// <summary>
     /// A module to forward diagnostic source events to Application Insights.
     /// </summary>
     public sealed class DiagnosticSourceTelemetryModule : IObserver<DiagnosticListener>, ITelemetryModule, IDisposable
     {
+        private readonly OnEventWrittenHandler onEventWrittenHandler;
+
         private TelemetryClient client;
         private IDisposable allDiagnosticListenersSubscription;
         private List<IDisposable> diagnosticListenerSubscriptions;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DiagnosticSourceTelemetryModule"/> class.
+        /// </summary>
+        public DiagnosticSourceTelemetryModule() : this(Track)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DiagnosticSourceTelemetryModule"/> class.
+        /// </summary>
+        /// <param name="onEventWrittenHandler">Action to be executed each time an event is written to format and send via the configured <see cref="TelemetryClient"/></param>
+        public DiagnosticSourceTelemetryModule(OnEventWrittenHandler onEventWrittenHandler)
+        {
+            if (onEventWrittenHandler == null)
+            {
+                throw new ArgumentNullException(nameof(onEventWrittenHandler));
+            }
+
+            this.onEventWrittenHandler = onEventWrittenHandler;
+        }
 
         /// <summary>
         /// Gets the list of DiagnosticSource listening requests (information about which DiagnosticSources should be traced).
@@ -90,11 +124,31 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
                         this.diagnosticListenerSubscriptions = new List<IDisposable>();
                     }
 
-                    var subscription = new DiagnosticSourceListenerSubscription(listener.Name, this.client);
+                    var subscription = new DiagnosticSourceListenerSubscription(listener.Name, this.client, this.onEventWrittenHandler);
                     this.diagnosticListenerSubscriptions.Add(listener.Subscribe(subscription));
                     break;
                 }
             }
+        }
+
+        private static void Track(string sourceName, string message, object payload, TelemetryClient client)
+        {
+            var telemetry = new TraceTelemetry(message, SeverityLevel.Information);
+            telemetry.Properties.Add("DiagnosticSource", sourceName);
+
+            // Transfer properties from payload to telemetry
+            if (payload != null)
+            {
+                foreach (var property in DeclaredPropertiesCache.GetDeclaredProperties(payload))
+                {
+                    if (!property.IsSpecialName)
+                    {
+                        telemetry.Properties.Add(property.Name, Convert.ToString(property.GetValue(payload), CultureInfo.InvariantCulture));
+                    }
+                }
+            }
+
+            client.TrackTrace(telemetry);
         }
     }
 }

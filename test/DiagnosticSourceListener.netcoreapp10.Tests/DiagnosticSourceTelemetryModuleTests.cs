@@ -98,6 +98,31 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests
             }
         }
 
+        [TestMethod]
+        public void CallsOnEventWrittenHandler()
+        {
+            OnEventWrittenHandler onEventWrittenHandler = (sourceName, message, payload, client) =>
+            {
+                var traceTelemetry = new TraceTelemetry("CustomPayloadProperties", SeverityLevel.Verbose);
+                traceTelemetry.Properties.Add("CustomPayloadProperties", "true");
+                client.Track(traceTelemetry);
+            };
+
+            using (var module = new DiagnosticSourceTelemetryModule(onEventWrittenHandler))
+            {
+                var testDiagnosticSource = new TestDiagnosticSource();
+                var listeningRequest = new DiagnosticSourceListeningRequest(testDiagnosticSource.Name);
+                module.Sources.Add(listeningRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                testDiagnosticSource.Write("Hey!", new { Prop1 = 1234 });
+
+                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+                Assert.IsTrue(telemetry.Properties.All(kvp => kvp.Key.Equals("CustomPayloadProperties") && kvp.Value.Equals("true")));
+            }
+        }
+
         private TelemetryConfiguration GetTestTelemetryConfiguration(bool resetChannel = true)
         {
             var configuration = new TelemetryConfiguration();
