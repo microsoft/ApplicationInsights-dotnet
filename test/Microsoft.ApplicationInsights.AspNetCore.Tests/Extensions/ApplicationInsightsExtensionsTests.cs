@@ -10,6 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using System.Reflection;
     using Logging;
     using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.Logging;
@@ -348,16 +349,19 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.NotNull(modules);
 
 #if NET46
-                Assert.Equal(5, modules.Count());
+                Assert.Equal(6, modules.Count());
                 var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
                 Assert.NotNull(perfCounterModule);
 #else
-                Assert.Equal(4, modules.Count());
+                Assert.Equal(5, modules.Count());
 #endif
 
                 var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
                 Assert.NotNull(dependencyModuleDescriptor);
-               
+
+                var reqModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(RequestTrackingTelemetryModule));
+                Assert.NotNull(reqModuleDescriptor);
+
                 var appServiceHeartBeatModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(AppServicesHeartbeatTelemetryModule));
                 Assert.NotNull(appServiceHeartBeatModuleDescriptor);
 
@@ -578,7 +582,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Fact]
-            public static void VerifyNoExceptionWhenAppIdProviderNotFoundFoundInDI()
+            public static void VerifyNoExceptionWhenAppIdProviderNotFoundInDI()
             {
                 // ARRANGE
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
@@ -594,19 +598,21 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     }
                 }
 
-
+                // ACT
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
 
+
+                // VERIFY
                 var operationCorrelationTelemetryInitializer = serviceProvider.GetServices<ITelemetryInitializer>().FirstOrDefault(x => x.GetType() 
                     == typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.OperationCorrelationTelemetryInitializer));
 
                 Assert.NotNull(operationCorrelationTelemetryInitializer); // this verifies the instance was created without exception
 
 
-                var hostingDiagnosticListener = serviceProvider.GetServices<IApplicationInsightDiagnosticListener>().FirstOrDefault(x => x.GetType()
-                    == typeof(HostingDiagnosticListener));
+                var reqModule = serviceProvider.GetServices<ITelemetryModule>().FirstOrDefault(x => x.GetType()
+                    == typeof(RequestTrackingTelemetryModule));
 
-                Assert.NotNull(hostingDiagnosticListener); // this verifies the instance was created without exception
+                Assert.NotNull(reqModule); // this verifies the instance was created without exception
             }
 
             [Fact]
