@@ -53,7 +53,7 @@
                         this.diagnosticListeners.Add
                             (new MvcDiagnosticsListener());
 
-                        this.subscriptions.Add(DiagnosticListener.AllListeners.Subscribe(this));
+                        this.subscriptions?.Add(DiagnosticListener.AllListeners.Subscribe(this));
 
                         this.isInitialized = true;
                     }
