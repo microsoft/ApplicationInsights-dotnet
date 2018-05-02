@@ -83,7 +83,7 @@
 
             Assert.AreEqual(2, item.data.baseData.ver);
             Assert.AreEqual(1, item.data.baseData.metrics.Count);
-            Assert.AreEqual(expected.MetricNamespace, item.data.baseData.metrics[0].ns);
+            ////Assert.AreEqual(expected.MetricNamespace, item.data.baseData.metrics[0].ns);
             Assert.AreEqual(expected.Name, item.data.baseData.metrics[0].name);
             Assert.AreEqual(AI.DataPointType.Aggregation, item.data.baseData.metrics[0].kind);
 #pragma warning disable CS0618
@@ -118,7 +118,7 @@
 
             Assert.AreEqual(2, item.data.baseData.ver);
             Assert.AreEqual(1, item.data.baseData.metrics.Count);
-            Assert.AreEqual(String.Empty, item.data.baseData.metrics[0].ns);
+            ////Assert.AreEqual(String.Empty, item.data.baseData.metrics[0].ns);
             Assert.AreEqual(expected.Name, item.data.baseData.metrics[0].name);
             Assert.AreEqual(AI.DataPointType.Aggregation, item.data.baseData.metrics[0].kind);
 #pragma warning disable CS0618

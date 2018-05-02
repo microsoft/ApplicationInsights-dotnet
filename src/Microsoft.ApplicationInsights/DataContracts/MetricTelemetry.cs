@@ -20,6 +20,8 @@
         internal readonly MetricData Data;
         internal readonly DataPoint Metric;
 
+        private string metricNamespace;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with empty
         /// properties.
@@ -226,8 +228,8 @@
         /// </summary>
         internal string MetricNamespace
         {
-            get { return this.Metric.ns; }
-            set { this.Metric.ns = value; }
+            get { return this.metricNamespace; }
+            set { this.metricNamespace = value; }
         }
 
         /// <summary>
