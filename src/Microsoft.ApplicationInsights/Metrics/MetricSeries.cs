@@ -17,7 +17,7 @@
     /// Each <c>Metric</c> object contains a special zero-dimension series, plus, for multi-dimensional metrics, one
     /// series per unique dimension-values combination.
     /// </summary>
-    internal sealed class MetricSeries
+    public sealed class MetricSeries
     {
 #pragma warning disable SA1401, SA1304, SA1307 // intended to be an internal, lower-case field 
         internal readonly IMetricSeriesConfiguration configuration;
