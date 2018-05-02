@@ -144,8 +144,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, AspNetCoreEnvironmentTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, HttpDependenciesParsingTelemetryInitializer>();
-                services.TryAddSingleton<ITelemetryChannel, ServerTelemetryChannel>();
-                services.AddApplicationInsightsTelemetryProcessor<AutocollectedMetricsExtractor>();
+                services.TryAddSingleton<ITelemetryChannel, ServerTelemetryChannel>();                
+                
                 services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
                 services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module) => {                    
                     var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;

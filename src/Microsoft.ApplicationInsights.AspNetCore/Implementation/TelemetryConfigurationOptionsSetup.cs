@@ -78,12 +78,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     configuration.TelemetryProcessorChainBuilder.Use(processorFactory.Create);
                 }                
-            }
+            }            
 
             // Fallback to default channel (InMemoryChannel) created by base sdk if no channel is found in DI
             configuration.TelemetryChannel = this.telemetryChannel ?? configuration.TelemetryChannel;
             (configuration.TelemetryChannel as ITelemetryModule)?.Initialize(configuration);
 
+            this.AddAutoCollectedMetricExtractor(configuration);
             this.AddQuickPulse(configuration);
             this.AddSampling(configuration);
             this.DisableHeartBeatIfConfigured();
@@ -149,7 +150,16 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             if (this.applicationInsightsServiceOptions.EnableAdaptiveSampling)
             {
-                configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
+                configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling(5, excludedTypes: "Event");
+                configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling(5, includedTypes: "Event");
+            }
+        }
+
+        private void AddAutoCollectedMetricExtractor(TelemetryConfiguration configuration)
+        {
+            if (this.applicationInsightsServiceOptions.AddAutoCollectedMetricExtractor)
+            {
+                configuration.TelemetryProcessorChainBuilder.Use(next => new AutocollectedMetricsExtractor(next));
             }
         }
 
