@@ -13,9 +13,6 @@
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta3" />
     <PackageReference Include="Microsoft.Web.Xdt" Version="2.1.1" />
-    <PackageReference Include="Microbuild.Core" Version="0.2.0">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>

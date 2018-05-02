@@ -17,9 +17,6 @@
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta3" />
-    <PackageReference Include="Microbuild.Core" Version="0.2.0">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="log4net" Version="2.0.5" />
     <ProjectReference Include="..\..\src\TraceListener\TraceListener.csproj" />
     <Reference Include="System.Net.Http" />

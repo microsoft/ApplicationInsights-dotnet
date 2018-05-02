@@ -12,9 +12,6 @@
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta3" />
-    <PackageReference Include="Microbuild.Core" Version="0.2.0">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="1.0.41" />
     <ProjectReference Include="..\..\src\EtwCollector\EtwCollector.csproj" />
     <Reference Include="System.Net.Http" />
