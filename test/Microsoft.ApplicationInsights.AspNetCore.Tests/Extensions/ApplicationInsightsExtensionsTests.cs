@@ -505,8 +505,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var adaptiveSamplingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);                
-                Assert.Equal(1, adaptiveSamplingProcessorCount);
+                var adaptiveSamplingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
+
+                // There will be 2 separate SamplingTelemetryProcessors - one for Events, and other for everything else.
+                Assert.Equal(2, adaptiveSamplingProcessorCount);
             }
 
             [Fact]
@@ -528,7 +530,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var adaptiveSamplingProcessorCount =  GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
-                Assert.Equal(1, adaptiveSamplingProcessorCount);
+                // There will be 2 separate SamplingTelemetryProcessors - one for Events, and other for everything else.
+                Assert.Equal(2, adaptiveSamplingProcessorCount);
             }
 
             [Fact]
@@ -646,6 +649,17 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfiguration<AutocollectedMetricsExtractor>(telemetryConfiguration);
                 Assert.Equal(1, metricExtractorProcessorCount);
+            }
+
+            [Fact]
+            public static void DoesNotAddAutoCollectedMetricsExtractorToConfigurationIfExplicitlyControlledThroughParameter()
+            {
+                Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.AddAutoCollectedMetricExtractor = false;
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfiguration<AutocollectedMetricsExtractor>(telemetryConfiguration);
+                Assert.Equal(0, metricExtractorProcessorCount);
             }
 
             [Fact]

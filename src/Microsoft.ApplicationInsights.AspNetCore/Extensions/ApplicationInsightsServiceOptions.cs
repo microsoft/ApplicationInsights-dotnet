@@ -19,6 +19,7 @@
             this.EnableDebugLogger = true;
             this.EnableAuthenticationTrackingJavaScript = false;
             this.EnableHeartbeat = true;
+            this.AddAutoCollectedMetricExtractor = true;
             this.ApplicationVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
         }
 
@@ -69,5 +70,10 @@
         /// Gets or sets a value indicating whether heartbeats are enabled.
         /// </summary>
         public bool EnableHeartbeat { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether AutoCollectedMetricExtractor are added or not.
+        /// </summary>
+        public bool AddAutoCollectedMetricExtractor { get; set; }
     }
 }

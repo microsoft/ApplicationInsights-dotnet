@@ -43,16 +43,17 @@
             var machineName = "localhost";
             this.url = "http://" + machineName + ":" + random.Next(5000, 14000).ToString();
 
-            output.WriteLine(string.Format("{0}: Launching application at: {1}", DateTime.Now.ToString("G"), this.url));
+            output.WriteLine(string.Format("{0}: Launching application at: {1}", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt"), this.url));
 
             this.httpListenerConnectionString = this.Start(assemblyName);
 
-            output.WriteLine(string.Format("{0}: Starting listener at: {1}", DateTime.Now.ToString("G"), this.httpListenerConnectionString));
+            output.WriteLine(string.Format("{0}: Starting listener at: {1}", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt"), this.httpListenerConnectionString));
 
             this.listener = new TelemetryHttpListenerObservable(this.httpListenerConnectionString);
             try
             {
                 this.listener.Start();
+                output.WriteLine(string.Format("{0}: Started listener", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt")));
             }
             catch(HttpListenerException ex)
             {
