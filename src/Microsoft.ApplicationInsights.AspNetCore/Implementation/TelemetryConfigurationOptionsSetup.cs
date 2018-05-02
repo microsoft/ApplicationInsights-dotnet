@@ -78,7 +78,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     configuration.TelemetryProcessorChainBuilder.Use(processorFactory.Create);
                 }                
-            }            
+            }
 
             // Fallback to default channel (InMemoryChannel) created by base sdk if no channel is found in DI
             configuration.TelemetryChannel = this.telemetryChannel ?? configuration.TelemetryChannel;
