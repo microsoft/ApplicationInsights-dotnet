@@ -44,7 +44,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             var services = new ServiceCollection();
             IHttpContextAccessor contextAccessor = new HttpContextAccessor();
             services.AddSingleton<IHttpContextAccessor>(contextAccessor);
-            services.AddSingleton<IHostingEnvironment>(new HostingEnvironment());
+            services.AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory()});
             services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
             return services;
         }
@@ -187,6 +187,103 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 finally
                 {
                     Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+                }
+            }
+
+            [Fact]
+            public static void AddApplicationInsightsTelemetryReadsInstrumentationKeyFromEnvironment()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();                
+                Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", TestInstrumentationKey);                
+                try
+                {
+                    services.AddApplicationInsightsTelemetry();
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                    Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
+                }
+                finally
+                {
+                    Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+                }
+            }
+
+            /// <summary>
+            /// Validates that services.AddApplicationInsightsTelemetry(); reads ikey/other settings from
+            /// appsettings.json
+            /// </summary>
+            [Fact]
+            public static void AddApplicationInsightsTelemetryReadsInstrumentationKeyFromDefaultAppsettingsFile()
+            {
+                string ikeyExpected = Guid.NewGuid().ToString();
+                string hostExpected = "http://ainewhost/v2/track/";
+                string text = File.ReadAllText("appsettings.json");
+                string originalText = text;
+                try
+                {
+                    text = text.Replace("ikeyhere", ikeyExpected);
+                    text = text.Replace("http://hosthere/v2/track/", hostExpected);
+                    File.WriteAllText("appsettings.json", text);
+
+                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                    services.AddApplicationInsightsTelemetry();
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                    Assert.Equal(ikeyExpected, telemetryConfiguration.InstrumentationKey);
+                    Assert.Equal(hostExpected, telemetryConfiguration.TelemetryChannel.EndpointAddress);
+                }
+                finally
+                {                    
+                    File.WriteAllText("appsettings.json", originalText);
+                }
+            }
+
+            [Fact]
+            public static void AddApplicationInsightsTelemetryDoesNotReadInstrumentationKeyFromDefaultAppsettingsIfSupplied()
+            {
+                string suppliedIKey = "suppliedikey";
+                string ikey = Guid.NewGuid().ToString();
+                string text = File.ReadAllText("appsettings.json");
+                try
+                {
+                    text = text.Replace("ikeyhere", ikey);
+                    File.WriteAllText("appsettings.json", text);
+
+                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                    services.AddApplicationInsightsTelemetry(suppliedIKey);
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                    Assert.Equal(suppliedIKey, telemetryConfiguration.InstrumentationKey);
+                }
+                finally
+                {
+                    text = text.Replace(ikey, "ikeyhere");
+                    File.WriteAllText("appsettings.json", text);
+                }
+            }
+
+            [Fact]
+            public static void AddApplicationInsightsTelemetryDoesNotReadInstrumentationKeyFromDefaultAppsettingsIfSuppliedViaOptions()
+            {
+                string suppliedIKey = "suppliedikey";
+                var options = new ApplicationInsightsServiceOptions() { InstrumentationKey = suppliedIKey };
+                string ikey = Guid.NewGuid().ToString();
+                string text = File.ReadAllText("appsettings.json");
+                try
+                {
+                    text = text.Replace("ikeyhere", ikey);
+                    File.WriteAllText("appsettings.json", text);
+
+                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                    services.AddApplicationInsightsTelemetry(options);
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                    Assert.Equal(suppliedIKey, telemetryConfiguration.InstrumentationKey);
+                }
+                finally
+                {
+                    text = text.Replace(ikey, "ikeyhere");
+                    File.WriteAllText("appsettings.json", text);
                 }
             }
 
