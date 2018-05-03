@@ -176,6 +176,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 services.AddSingleton<ApplicationInsightsDebugLogger, ApplicationInsightsDebugLogger>();
 
+                services.TryAddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>, DefaultApplicationInsightsServiceConfigureOptions>();
+
                 // Using startup filter instead of starting DiagnosticListeners directly because
                 // AspNetCoreHostingDiagnosticListener injects TelemetryClient that injects TelemetryConfiguration
                 // that requires IOptions infrastructure to run and initialize
