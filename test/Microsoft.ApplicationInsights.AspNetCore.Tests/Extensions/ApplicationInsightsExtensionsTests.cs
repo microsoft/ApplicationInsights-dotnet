@@ -125,6 +125,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
             {
+                // Clear off Active before beginning test to avoid being affected by previous tests.
+                TelemetryConfiguration.Active.InstrumentationKey = "";
+                TelemetryConfiguration.Active.TelemetryInitializers.Clear();
+
                 var activeConfig = TelemetryConfiguration.Active;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content","config-instrumentation-key.json"), null);
 
@@ -190,6 +194,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 }
             }
 
+            /// <summary>
+            /// Validates that while using services.AddApplicationInsightsTelemetry(); ikey is read from
+            /// Environment
+            /// </summary>
             [Fact]
             public static void AddApplicationInsightsTelemetryReadsInstrumentationKeyFromEnvironment()
             {
@@ -209,7 +217,31 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             /// <summary>
-            /// Validates that services.AddApplicationInsightsTelemetry(); reads ikey/other settings from
+            /// Validates that while using services.AddApplicationInsightsTelemetry(ikey), supplied ikey is
+            /// used instead of one from Environment
+            /// </summary>
+            [Fact]
+            public static void AddApplicationInsightsTelemetryDoesNotReadInstrumentationKeyFromEnvironmentIfSupplied()
+            {
+                Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", TestInstrumentationKey);
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                string ikeyExpected = Guid.NewGuid().ToString();
+
+                try
+                {
+                    services.AddApplicationInsightsTelemetry(ikeyExpected);
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                    Assert.Equal(ikeyExpected, telemetryConfiguration.InstrumentationKey);
+                }
+                finally
+                {
+                    Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+                }
+            }
+
+            /// <summary>
+            /// Validates that while using services.AddApplicationInsightsTelemetry(); reads ikey/other settings from
             /// appsettings.json
             /// </summary>
             [Fact]
@@ -238,6 +270,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 }
             }
 
+            /// <summary>
+            /// Validates that while using services.AddApplicationInsightsTelemetry(ikey), supplied ikey is
+            /// used instead of one from appsettings.json
+            /// </summary>
             [Fact]
             public static void AddApplicationInsightsTelemetryDoesNotReadInstrumentationKeyFromDefaultAppsettingsIfSupplied()
             {
@@ -262,6 +298,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 }
             }
 
+            /// <summary>
+            /// Validates that while using services.AddApplicationInsightsTelemetry(ApplicationInsightsServiceOptions), supplied ikey is
+            /// used instead of one from appsettings.json
+            /// </summary>
             [Fact]
             public static void AddApplicationInsightsTelemetryDoesNotReadInstrumentationKeyFromDefaultAppsettingsIfSuppliedViaOptions()
             {
