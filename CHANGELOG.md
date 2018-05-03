@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 2.3.0-beta2
+- [Update System.Net.Http version referred to 4.3.2 as older version has known security vulnerability. ](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/666)
+- [Added ApplicationInsightsServiceOptions flag to turn off AutoCollectedMetricExtractor. ](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/664)
+- [Added two AdaptiveSamplingTelemetryProcessors one for Event and one for non Event types to be consistent with default Web SDK behaviour. ](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/663)
+- [RequestCollection is refactored to be implemented as an ITelemetryModule. This makes it possible to configure it like every other auto-collection modules. ](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/650)
+- [Fixed race condition on dispose to close #651](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/652)
+-Removed DomainNameRoleInstanceTelemetryInitializer as it is deprecated.
+-Reuse AzureWebAppRoleEnvironmentTelemetryInitializer from WindowsServer repo instead of outdated implementation in this repo.
+- Updated Web/Base SDK version dependency to 2.6.0-beta4
+
 ## Version 2.3.0-beta1
 - Changed behavior for `TelemetryConfiguration.Active` and `TelemetryConfiguration` dependency injection singleton: with this version every WebHost has its own `TelemetryConfiguration` instance. Changes done for `TelemetryConfiguration.Active` do not affect telemetry reported by the SDK; use `TelemetryConfiguration` instance obtained through the dependency injection. [Fix NullReferenceException when sending http requests in scenario with multiple web hosts sharing the same process](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/613)
 - Updated Javascript Snippet with latest from [Github/ApplicationInsights-JS](https://github.com/Microsoft/ApplicationInsights-JS)
@@ -15,6 +25,7 @@
 - [QuickPulseTelemetryModule is constructed via DI, make it possible for users to configure it.] (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/639)
 - [Remove CorrelationIdLookupHelper. Use TelemetryConfiguration.ApplicationIdProvider instead.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/636) With this change you can update URL to query application ID from which enables environments with reverse proxy configuration to access Application Insights ednpoints.
 - [AutocollectedMetricsExtractor is added by default to the TelemetryConfiguration](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/604)
+- Updated Web/Base SDK version dependency to 2.6.0-beta3
 
 ## Version 2.2.1
 - Updated Web/Base SDK version dependency to 2.5.1 which addresses a bug.

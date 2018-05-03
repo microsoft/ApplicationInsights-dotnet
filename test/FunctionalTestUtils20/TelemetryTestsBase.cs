@@ -122,10 +122,10 @@
 
             using (HttpClient httpClient = new HttpClient(httpClientHandler, true))
             {
-                this.output.WriteLine(string.Format("{0}: Executing request: {1}", DateTime.Now.ToString("G"), requestPath));
+                this.output.WriteLine(string.Format("{0}: Executing request: {1}", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt"), requestPath));
                 var task = httpClient.GetAsync(requestPath);
                 task.Wait(TestListenerTimeoutInMs);
-                this.output.WriteLine(string.Format("{0}: Ended request: {1}", DateTime.Now.ToString("G"), requestPath));
+                this.output.WriteLine(string.Format("{0}: Ended request: {1}", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt"), requestPath));
             }
         }
 

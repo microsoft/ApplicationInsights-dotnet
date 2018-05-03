@@ -10,6 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using System.Reflection;
     using Logging;
     using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.Logging;
@@ -51,8 +52,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         public static class AddApplicationInsightsTelemetry
         {
             [Theory]
-            [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]
-            [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]            
             [InlineData(typeof(ITelemetryInitializer), typeof(ComponentVersionTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), ServiceLifetime.Singleton)]
@@ -69,8 +69,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Theory]
-            [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]
-            [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]            
             [InlineData(typeof(ITelemetryInitializer), typeof(ComponentVersionTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), ServiceLifetime.Singleton)]
@@ -350,16 +349,19 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.NotNull(modules);
 
 #if NET46
-                Assert.Equal(5, modules.Count());
+                Assert.Equal(6, modules.Count());
                 var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
                 Assert.NotNull(perfCounterModule);
 #else
-                Assert.Equal(4, modules.Count());
+                Assert.Equal(5, modules.Count());
 #endif
 
                 var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
                 Assert.NotNull(dependencyModuleDescriptor);
-               
+
+                var reqModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(RequestTrackingTelemetryModule));
+                Assert.NotNull(reqModuleDescriptor);
+
                 var appServiceHeartBeatModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(AppServicesHeartbeatTelemetryModule));
                 Assert.NotNull(appServiceHeartBeatModuleDescriptor);
 
@@ -503,8 +505,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var adaptiveSamplingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);                
-                Assert.Equal(1, adaptiveSamplingProcessorCount);
+                var adaptiveSamplingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
+
+                // There will be 2 separate SamplingTelemetryProcessors - one for Events, and other for everything else.
+                Assert.Equal(2, adaptiveSamplingProcessorCount);
             }
 
             [Fact]
@@ -526,7 +530,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var adaptiveSamplingProcessorCount =  GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
-                Assert.Equal(1, adaptiveSamplingProcessorCount);
+                // There will be 2 separate SamplingTelemetryProcessors - one for Events, and other for everything else.
+                Assert.Equal(2, adaptiveSamplingProcessorCount);
             }
 
             [Fact]
@@ -577,7 +582,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Fact]
-            public static void VerifyNoExceptionWhenAppIdProviderNotFoundFoundInDI()
+            public static void VerifyNoExceptionWhenAppIdProviderNotFoundInDI()
             {
                 // ARRANGE
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
@@ -593,19 +598,21 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     }
                 }
 
-
+                // ACT
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
 
+
+                // VERIFY
                 var operationCorrelationTelemetryInitializer = serviceProvider.GetServices<ITelemetryInitializer>().FirstOrDefault(x => x.GetType() 
                     == typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.OperationCorrelationTelemetryInitializer));
 
                 Assert.NotNull(operationCorrelationTelemetryInitializer); // this verifies the instance was created without exception
 
 
-                var hostingDiagnosticListener = serviceProvider.GetServices<IApplicationInsightDiagnosticListener>().FirstOrDefault(x => x.GetType()
-                    == typeof(HostingDiagnosticListener));
+                var reqModule = serviceProvider.GetServices<ITelemetryModule>().FirstOrDefault(x => x.GetType()
+                    == typeof(RequestTrackingTelemetryModule));
 
-                Assert.NotNull(hostingDiagnosticListener); // this verifies the instance was created without exception
+                Assert.NotNull(reqModule); // this verifies the instance was created without exception
             }
 
             [Fact]
@@ -642,6 +649,17 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfiguration<AutocollectedMetricsExtractor>(telemetryConfiguration);
                 Assert.Equal(1, metricExtractorProcessorCount);
+            }
+
+            [Fact]
+            public static void DoesNotAddAutoCollectedMetricsExtractorToConfigurationIfExplicitlyControlledThroughParameter()
+            {
+                Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.AddAutoCollectedMetricExtractor = false;
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfiguration<AutocollectedMetricsExtractor>(telemetryConfiguration);
+                Assert.Equal(0, metricExtractorProcessorCount);
             }
 
             [Fact]

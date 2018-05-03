@@ -134,8 +134,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-                services.AddSingleton<ITelemetryInitializer, ApplicationInsights.AspNetCore.TelemetryInitializers.AzureWebAppRoleEnvironmentTelemetryInitializer>();
-                services.AddSingleton<ITelemetryInitializer, ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer>();
+                services.AddSingleton<ITelemetryInitializer, AzureWebAppRoleEnvironmentTelemetryInitializer>();                
                 services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
@@ -146,7 +145,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<ITelemetryInitializer, AspNetCoreEnvironmentTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, HttpDependenciesParsingTelemetryInitializer>();
                 services.TryAddSingleton<ITelemetryChannel, ServerTelemetryChannel>();
-                services.AddApplicationInsightsTelemetryProcessor<AutocollectedMetricsExtractor>();
+                
                 services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
                 services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module) => {                    
                     var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
@@ -168,15 +167,14 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
                 services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();
                 services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
+                services.AddSingleton<ITelemetryModule, RequestTrackingTelemetryModule>();
                 services.AddSingleton<TelemetryConfiguration>(provider => provider.GetService<IOptions<TelemetryConfiguration>>().Value);
 
                 services.TryAddSingleton<IApplicationIdProvider, ApplicationInsightsApplicationIdProvider>();
 
                 services.AddSingleton<TelemetryClient>();
 
-                services.AddSingleton<ApplicationInsightsInitializer, ApplicationInsightsInitializer>();
-                services.AddSingleton<IApplicationInsightDiagnosticListener, HostingDiagnosticListener>();
-                services.AddSingleton<IApplicationInsightDiagnosticListener, MvcDiagnosticsListener>();
+                services.AddSingleton<ApplicationInsightsDebugLogger, ApplicationInsightsDebugLogger>();
 
                 // Using startup filter instead of starting DiagnosticListeners directly because
                 // AspNetCoreHostingDiagnosticListener injects TelemetryClient that injects TelemetryConfiguration
@@ -357,8 +355,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static bool IsApplicationInsightsAdded(IServiceCollection services)
         {
-            // We treat ApplicationInsightsInitializer as a marker that AI services were added to service collection
-            return services.Any(service => service.ServiceType == typeof(ApplicationInsightsInitializer));
+            // We treat ApplicationInsightsDebugLogger as a marker that AI services were added to service collection
+            return services.Any(service => service.ServiceType == typeof(ApplicationInsightsDebugLogger));
     }
 }
 }
