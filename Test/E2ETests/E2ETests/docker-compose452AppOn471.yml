@@ -4,14 +4,14 @@ services:
     e2etestwebapi:
         build:
             context: ./../TestApps/Net452/E2ETestWebApi/Publish
-            dockerfile: DockerFile47
+            dockerfile: DockerFile471
         depends_on:
             - ingestionservice
             
     e2etestwebapp:
         build: 
             context: ./../TestApps/Net452/E2ETestApp/Publish
-            dockerfile: DockerFile47
+            dockerfile: DockerFile471
         depends_on:
             - e2etestwebapi
             - sql-server

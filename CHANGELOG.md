@@ -2,6 +2,7 @@
 
 ## Version 2.7.0-beta1
 - [Added support to collect Perf Counters for .NET Core Apps if running inside Azure WebApps] (https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/889)
+- [Fix: Correlation is not working for POST requests](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/898) when .NET 4.7.1 runtime is installed.
 
 ## Version 2.6.0-beta4
 - [Remove CorrelationIdLookupHelper. Use TelemetryConfiguration.ApplicationIdProvider instead.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/880) With this change you can update URL to query application ID from which enables environments with reverse proxy configuration to access Application Insights ednpoints.

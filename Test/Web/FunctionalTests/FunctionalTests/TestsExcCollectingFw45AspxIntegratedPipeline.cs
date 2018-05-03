@@ -116,7 +116,7 @@ namespace Functional
                 "Exception of type 'System.Web.HttpUnhandledException' was thrown.",
                 "System.Web.UI.Page.HandleError",
                 "System.Web, Version=",
-                10);
+                21);
             
             Trace.WriteLine("Validate details 1");
             this.ValidateExceptionDetails(

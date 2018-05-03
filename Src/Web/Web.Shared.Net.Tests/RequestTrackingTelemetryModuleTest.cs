@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
@@ -8,6 +9,7 @@
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
@@ -28,10 +30,15 @@
         private const string TestInstrumentationKey2 = nameof(TestInstrumentationKey2);
         private const string TestApplicationId1 = nameof(TestApplicationId1);
         private const string TestApplicationId2 = nameof(TestApplicationId2);
-        
+        private readonly ConcurrentQueue<RequestTelemetry> sentTelemetry = new ConcurrentQueue<RequestTelemetry>();
+
         [TestCleanup]
         public void Cleanup()
         {
+            while (this.sentTelemetry.TryDequeue(out _))
+            {
+            }
+
 #if NET45
             while (Activity.Current != null)
             {
@@ -404,9 +411,57 @@
             Assert.Equal(TestApplicationId2, context.GetRequestTelemetry().Source);
         }
 
+        [TestMethod]
+        public void TrackIntermediateRequestSetsProperties()
+        {
+            string requestId = "|standard-id.";
+            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
+            {
+                ["Request-Id"] = requestId
+            });
+
+            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
+            module.OnBeginRequest(context);
+
+            var originalRequest = context.GetRequestTelemetry();
+            originalRequest.Start(Stopwatch.GetTimestamp() - (1 * Stopwatch.Frequency));
+
+            var restoredActivity = new Activity("dummy").SetParentId(originalRequest.Id).Start();
+
+            module.TrackIntermediateRequest(context, restoredActivity);
+
+            Assert.Equal(1, this.sentTelemetry.Count);
+            Assert.True(this.sentTelemetry.TryDequeue(out RequestTelemetry intermediateRequest));
+
+            Assert.Equal(originalRequest.Id, intermediateRequest.Context.Operation.ParentId);
+            Assert.Equal(originalRequest.Context.Operation.Id, intermediateRequest.Context.Operation.Id);
+            Assert.Equal(restoredActivity.StartTimeUtc, intermediateRequest.Timestamp);
+            Assert.Equal(restoredActivity.Duration, intermediateRequest.Duration);
+            Assert.True(intermediateRequest.Properties.ContainsKey("AI internal"));
+        }
+
         private TelemetryConfiguration CreateDefaultConfig(HttpContext fakeContext, string rootIdHeaderName = null, string parentIdHeaderName = null, string instrumentationKey = null)
         {
-            var config = TelemetryConfiguration.CreateDefault();
+            var telemetryChannel = new StubTelemetryChannel()
+            {
+                EndpointAddress = "https://endpointaddress",
+                OnSend = item =>
+                {
+                    if (item is RequestTelemetry request)
+                    {
+                        this.sentTelemetry.Enqueue(request);
+                    }
+                }
+            };
+
+            var configuration = new TelemetryConfiguration
+            {
+                TelemetryChannel = telemetryChannel,
+                InstrumentationKey = TestInstrumentationKey1,
+                ApplicationIdProvider = new MockApplicationIdProvider(TestInstrumentationKey1, TestApplicationId1)
+            };
+            configuration.TelemetryInitializers.Add(new Extensibility.OperationCorrelationTelemetryInitializer());
+
             var telemetryInitializer = new TestableOperationCorrelationTelemetryInitializer(fakeContext);
 
             if (rootIdHeaderName != null)
@@ -419,9 +474,9 @@
                 telemetryInitializer.ParentOperationIdHeaderName = parentIdHeaderName;
             }
 
-            config.TelemetryInitializers.Add(telemetryInitializer);
-            config.InstrumentationKey = instrumentationKey ?? Guid.NewGuid().ToString();
-            return config;
+            configuration.TelemetryInitializers.Add(telemetryInitializer);
+
+            return configuration;
         }
 
         private string GetActivityRootId(string telemetryId)

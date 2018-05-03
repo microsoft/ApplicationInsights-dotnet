@@ -4,6 +4,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using System;
     using System.Collections.Generic;
     using System.Net;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>

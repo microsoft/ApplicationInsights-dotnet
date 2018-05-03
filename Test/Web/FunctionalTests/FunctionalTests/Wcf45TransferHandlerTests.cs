@@ -6,7 +6,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Diagnostics;
     using System.IO;
-    
+
     /// <summary>
     /// Test to evaluate if WCF 4.0 works when transferRequestHandler is associated with the first request and a null handler is associated with
     /// the inner second request.

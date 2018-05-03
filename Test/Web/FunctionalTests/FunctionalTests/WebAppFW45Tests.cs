@@ -274,7 +274,7 @@
             Assert.IsTrue(postTask.Result.IsSuccessStatusCode);
 
             var request = Listener.ReceiveItemsOfType<TelemetryItem<RequestData>>(1, TimeoutInMs)[0];
-            
+
             var testFinish = DateTimeOffset.UtcNow;
             Trace.WriteLine("Finish: " + testFinish);
 
@@ -427,22 +427,22 @@
 
             // Obtains items with web prefix only so as to eliminate firstchance exceptions.
             var items = Listener.ReceiveItemsOfTypesWithWebPrefix<TelemetryItem<RequestData>, TelemetryItem<ExceptionData>>(2, TimeoutInMs);
-            int requestItemIndex = (items[0] is TelemetryItem<RequestData>) ? 0 : 1;
-            int exceptionItemIndex = (requestItemIndex == 0) ? 1 : 0;
+            var requestItem = (TelemetryItem<RequestData>)items.Single(r => r is TelemetryItem<RequestData>);
+            var exceptionItem = (TelemetryItem<ExceptionData>)items.Single(r => r is TelemetryItem<ExceptionData>);
 
-            Assert.AreEqual(this.Config.IKey, items[requestItemIndex].iKey, "IKey is not the same as in config file");
-            Assert.AreEqual(this.Config.IKey, items[exceptionItemIndex].iKey, "IKey is not the same as in config file");
+            Assert.AreEqual(this.Config.IKey, requestItem.iKey, "IKey is not the same as in config file");
+            Assert.AreEqual(this.Config.IKey, exceptionItem.iKey, "IKey is not the same as in config file");
 
             // Check that request id is set in exception operation parentId for UnhandledException
             Assert.AreEqual(
-                ((TelemetryItem<RequestData>)items[requestItemIndex]).data.baseData.id,
-                items[exceptionItemIndex].tags[new ContextTagKeys().OperationParentId],
+                requestItem.data.baseData.id,
+                exceptionItem.tags[new ContextTagKeys().OperationParentId],
                 "Exception ParentId is not same as Request id");
 
             // Check that request and exception from UnhandledException have the same operation id
             Assert.AreEqual(
-                items[requestItemIndex].tags[new ContextTagKeys().OperationId],
-                items[exceptionItemIndex].tags[new ContextTagKeys().OperationId],
+                requestItem.tags[new ContextTagKeys().OperationId],
+                exceptionItem.tags[new ContextTagKeys().OperationId],
                 "Exception Operation Id for exception is not same as Request Operation Id");
         }
 

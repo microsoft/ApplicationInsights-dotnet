@@ -12,4 +12,6 @@ CALL "%VSTestPath%" "%BuildRoot%Test\E2ETests\E2ETests\DependencyCollectionTests
 
 CALL "%VSTestPath%" "%BuildRoot%Test\E2ETests\E2ETests\DependencyCollectionTests.dll" /TestCaseFilter:"TestCategory=Net452OnNet462SM" /logger:trx
 
+CALL "%VSTestPath%" "%BuildRoot%Test\E2ETests\E2ETests\DependencyCollectionTests.dll" /TestCaseFilter:"TestCategory=Net452OnNet471" /logger:trx
+
 PAUSE

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Threading.Tasks;
     using System.Web;
 
     using Microsoft.ApplicationInsights.DataContracts;
@@ -193,7 +194,7 @@
         }
 
         [TestMethod]
-        public void OnPreHandlerTelemetryCreatedWithinRequestScopeIsRequestChild()
+        public async Task OnPreHandlerTelemetryCreatedWithinRequestScopeIsRequestChild()
         {
             var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
             {
@@ -215,9 +216,16 @@
             // CallContext was lost after OnBegin, so Asp.NET Http Module will restore it in OnPreRequestHandlerExecute
             new Activity("restored").SetParentId(activity.Id).AddBaggage("k", "v").Start();
 
-            // if OnPreRequestHandlerExecute set a CallContext, child telemetry will be properly filled
             var trace = new TraceTelemetry();
-            telemetryClient.TrackTrace(trace);
+
+            // run track trace in the async task, so that HttpContext.Current is not available and we could be sure
+            // telemetry is not initialized from it.
+            await Task.Run(() =>
+            {
+                // if OnPreRequestHandlerExecute set a CallContext, child telemetry will be properly filled
+                telemetryClient.TrackTrace(trace);
+            });
+
             var requestTelemetry = context.GetRequestTelemetry();
 
             Assert.Equal(requestTelemetry.Context.Operation.Id, trace.Context.Operation.Id);

@@ -113,11 +113,20 @@
             var client = new TelemetryClient(this.configuration);
             client.TrackTrace(trace);
 
-            this.aspNetDiagnosticsSource.StopActivity();
+            this.aspNetDiagnosticsSource.ReportRestoredActivity(restoredActivity);
             Assert.AreEqual(2, this.sendItems.Count);
+            var requestRestoredTelemetry = (RequestTelemetry)this.sendItems.SingleOrDefault(i => i is RequestTelemetry);
+            Assert.IsNotNull(requestRestoredTelemetry);
 
-            var requestTelemetry = this.sendItems[0] as RequestTelemetry ?? this.sendItems[1] as RequestTelemetry;
+            this.aspNetDiagnosticsSource.StopActivity();
+            Assert.AreEqual(3, this.sendItems.Count);
+
+            var requestTelemetry = (RequestTelemetry)this.sendItems[2];
             Assert.IsNotNull(requestTelemetry);
+
+            Assert.AreEqual(requestTelemetry.Id, requestRestoredTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual(restoredActivity.Id, requestRestoredTelemetry.Id);
+            Assert.AreEqual(requestTelemetry.Context.Operation.Id, requestRestoredTelemetry.Context.Operation.Id);
 
             Assert.AreEqual(restoredActivity.ParentId, requestTelemetry.Id);
             Assert.AreEqual(restoredActivity.Id, trace.Context.Operation.ParentId);
@@ -345,6 +354,7 @@
             public const string IncomingRequestEventName = "Microsoft.AspNet.HttpReqIn";
             private const string AspNetListenerName = "Microsoft.AspNet.TelemetryCorrelation";
             private const string IncomingRequestStopLostActivity = "Microsoft.AspNet.HttpReqIn.ActivityLost.Stop";
+            private const string IncomingRequestStopRestoredActivity = "Microsoft.AspNet.HttpReqIn.ActivityRestored.Stop";
 
             private readonly DiagnosticListener listener;
 
@@ -431,6 +441,13 @@
                 Debug.Assert(Activity.Current == null, "Activity.Current is not null");
 
                 this.listener.Write(IncomingRequestStopLostActivity, new { activity });
+            }
+
+            public void ReportRestoredActivity(Activity activity)
+            {
+                Debug.Assert(activity != null, "Activity is null");
+
+                this.listener.Write(IncomingRequestStopRestoredActivity, new { Activity = activity });
             }
 
             public void Dispose()

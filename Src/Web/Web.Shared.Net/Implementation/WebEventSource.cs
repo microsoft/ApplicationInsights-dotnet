@@ -467,6 +467,15 @@
             this.WriteEvent(47, this.ApplicationName);
         }
 
+        [Event(48,
+            Keywords = Keywords.Diagnostics,
+            Message = "Activity is null for event = '{0}'",
+            Level = EventLevel.Error)]
+        public void ActivityIsNull(string diagnosticsSourceEventName, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(48, diagnosticsSourceEventName, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

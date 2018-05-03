@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics
 {
+    using Microsoft.ApplicationInsights.Common;
+
     internal static class SqlClientDiagnosticFetcherTypes
     {
         //// These types map to the anonymous types defined here: System.Data.SqlClient.SqlClientDiagnosticListenerExtensions. 
