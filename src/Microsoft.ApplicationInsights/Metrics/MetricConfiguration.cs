@@ -5,7 +5,7 @@
     using static System.FormattableString;
 
     /// <summary>@ToDo: Complete documentation before stable release. {654}</summary>
-    public class MetricConfiguration : IEquatable<MetricConfiguration>
+    internal class MetricConfiguration : IEquatable<MetricConfiguration>
     {
         private readonly int hashCode;
 
