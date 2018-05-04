@@ -5,33 +5,22 @@
     using System.Net;
     using System.Net.NetworkInformation;
     using System.Threading;
-    using Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.AspNetCore.Http;
+    using Channel;    
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;    
 
     /// <summary>
     /// A telemetry initializer that populates cloud context role instance.
     /// </summary>
-    public class DomainNameRoleInstanceTelemetryInitializer : TelemetryInitializerBase
+    public class DomainNameRoleInstanceTelemetryInitializer : ITelemetryInitializer
     {
         private string roleInstanceName;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DomainNameRoleInstanceTelemetryInitializer" /> class.
-        /// </summary>
-        /// <param name="httpContextAccessor">HTTP context accessor.</param>
-        public DomainNameRoleInstanceTelemetryInitializer(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
-        {
-        }
-
-        /// <summary>
         /// Initializes role instance name and node name with the host name.
-        /// </summary>
-        /// <param name="platformContext">Platform context.</param>
-        /// <param name="requestTelemetry">Request telemetry.</param>
+        /// </summary>        
         /// <param name="telemetry">Telemetry item.</param>
-        protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
+        public void Initialize(ITelemetry telemetry)
         {
             if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
             {

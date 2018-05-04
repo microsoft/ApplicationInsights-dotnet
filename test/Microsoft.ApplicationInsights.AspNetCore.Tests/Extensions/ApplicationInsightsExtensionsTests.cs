@@ -18,6 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.ApplicationInsights.AspNetCore.Tests;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -922,6 +923,33 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
+            }
+
+            /// <summary>
+            /// Sanity check to validate that node name and roleinstance are populated
+            /// </summary>
+            [Fact]
+            public static void SanityCheckNodeNameRoleInstance()
+            {
+                // ARRANGE
+                string expected = Environment.MachineName;
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();                
+                services.AddApplicationInsightsTelemetry();
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+
+                // Request TC from DI which would be made with the default TelemetryConfiguration which should 
+                // contain the telemetry initializer capable of populate node name and role instance name.
+                var tc = serviceProvider.GetRequiredService<TelemetryClient>();                
+                var mockItem = new EventTelemetry();
+
+                // ACT
+                // This is expected to run all TI and populate the node name and role instance.
+                tc.Initialize(mockItem);
+
+                // VERIFY                
+                Assert.Contains(expected,mockItem.Context.Cloud.RoleInstance, StringComparison.CurrentCultureIgnoreCase);
+                Assert.Contains(expected,mockItem.Context.GetInternalContext().NodeName, StringComparison.CurrentCultureIgnoreCase);
+                
             }
         }
 

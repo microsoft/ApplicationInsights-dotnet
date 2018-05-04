@@ -13,42 +13,12 @@
 
     public class DomainNameRoleInstanceTelemetryInitializerTests
     {
-        private const string TestListenerName = "TestListener";
-
-        [Fact]
-        public void InitializeThrowIfHttpContextAccessorIsNull()
-        {
-            Assert.ThrowsAny<ArgumentNullException>(() =>
-            {
-                var initializer = new DomainNameRoleInstanceTelemetryInitializer(null);
-            });
-        }
-
-        [Fact]
-        public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
-        {
-            var ac = new HttpContextAccessor() { HttpContext = null };
-
-            var initializer = new DomainNameRoleInstanceTelemetryInitializer(ac);
-
-            initializer.Initialize(new RequestTelemetry());
-        }
-
-        [Fact]
-        public void InitializeDoesNotThrowIfRequestTelemetryIsUnavailable()
-        {
-            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
-
-            var initializer = new DomainNameRoleInstanceTelemetryInitializer(ac);
-
-            initializer.Initialize(new RequestTelemetry());
-        }
-
+        private const string TestListenerName = "TestListener";              
+        
         [Fact]
         public void RoleInstanceNameIsSetToDomainAndHost()
-        {
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), null);
-            var source = new DomainNameRoleInstanceTelemetryInitializer(contextAccessor);
+        {            
+            var source = new DomainNameRoleInstanceTelemetryInitializer();
             var requestTelemetry = new RequestTelemetry();
             source.Initialize(requestTelemetry);
 
@@ -68,9 +38,8 @@
 
         [Fact]
         public void ContextInitializerDoesNotOverrideMachineName()
-        {
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), null);
-            var source = new DomainNameRoleInstanceTelemetryInitializer(contextAccessor);
+        {            
+            var source = new DomainNameRoleInstanceTelemetryInitializer();
             var requestTelemetry = new RequestTelemetry();
             requestTelemetry.Context.Cloud.RoleInstance = "Test";
             requestTelemetry.Context.GetInternalContext().NodeName = "Test1";
