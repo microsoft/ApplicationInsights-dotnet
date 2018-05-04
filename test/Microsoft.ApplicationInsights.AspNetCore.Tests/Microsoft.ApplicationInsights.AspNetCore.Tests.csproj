@@ -59,6 +59,9 @@
     <None Update="content\config-endpoint-address.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="content\config-instrumentation-key-new.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
