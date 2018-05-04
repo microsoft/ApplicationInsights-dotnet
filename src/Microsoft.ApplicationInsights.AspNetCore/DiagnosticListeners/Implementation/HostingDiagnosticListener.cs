@@ -272,8 +272,7 @@
                 {
                     telemetry.Name = httpContext.Request.Method + " " + httpContext.Request.Path.Value;
                 }
-
-                telemetry.HttpMethod = httpContext.Request.Method;
+                
                 telemetry.Url = httpContext.Request.GetUri();
                 telemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
                 this.client.TrackRequest(telemetry);
@@ -296,8 +295,7 @@
                     telemetry.Success = false;
                 }
 
-                var exceptionTelemetry = new ExceptionTelemetry(exception);
-                exceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
+                var exceptionTelemetry = new ExceptionTelemetry(exception);                
                 exceptionTelemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
                 this.client.Track(exceptionTelemetry);
             }
