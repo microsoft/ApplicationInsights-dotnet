@@ -295,7 +295,7 @@
                     telemetry.Success = false;
                 }
 
-                var exceptionTelemetry = new ExceptionTelemetry(exception);                
+                var exceptionTelemetry = new ExceptionTelemetry(exception);
                 exceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
                 exceptionTelemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
                 this.client.Track(exceptionTelemetry);
