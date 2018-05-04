@@ -27,13 +27,6 @@
                 var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetMachineName);
                 telemetry.Context.Cloud.RoleInstance = name;
             }
-
-            InternalContext internalContext = telemetry.Context.GetInternalContext();
-            if (string.IsNullOrEmpty(internalContext.NodeName))
-            {
-                var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetMachineName);
-                internalContext.NodeName = name;
-            }
         }
 
         private string GetMachineName()

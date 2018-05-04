@@ -32,8 +32,7 @@
             }
 #endif
 
-            Assert.Equal(hostName, requestTelemetry.Context.Cloud.RoleInstance);
-            Assert.Equal(hostName, requestTelemetry.Context.GetInternalContext().NodeName);
+            Assert.Equal(hostName, requestTelemetry.Context.Cloud.RoleInstance);            
         }
 
         [Fact]
@@ -41,13 +40,9 @@
         {            
             var source = new DomainNameRoleInstanceTelemetryInitializer();
             var requestTelemetry = new RequestTelemetry();
-            requestTelemetry.Context.Cloud.RoleInstance = "Test";
-            requestTelemetry.Context.GetInternalContext().NodeName = "Test1";
-
+            requestTelemetry.Context.Cloud.RoleInstance = "Test";            
             source.Initialize(requestTelemetry);
-
-            Assert.Equal("Test", requestTelemetry.Context.Cloud.RoleInstance);
-            Assert.Equal("Test1", requestTelemetry.Context.GetInternalContext().NodeName);
+            Assert.Equal("Test", requestTelemetry.Context.Cloud.RoleInstance);            
         }
     }
 }

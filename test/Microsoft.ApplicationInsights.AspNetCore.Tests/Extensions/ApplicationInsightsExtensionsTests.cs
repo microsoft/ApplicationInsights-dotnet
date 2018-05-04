@@ -929,7 +929,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             /// Sanity check to validate that node name and roleinstance are populated
             /// </summary>
             [Fact]
-            public static void SanityCheckNodeNameRoleInstance()
+            public static void SanityCheckRoleInstance()
             {
                 // ARRANGE
                 string expected = Environment.MachineName;
@@ -947,9 +947,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 tc.Initialize(mockItem);
 
                 // VERIFY                
-                Assert.Contains(expected,mockItem.Context.Cloud.RoleInstance, StringComparison.CurrentCultureIgnoreCase);
-                Assert.Contains(expected,mockItem.Context.GetInternalContext().NodeName, StringComparison.CurrentCultureIgnoreCase);
-                
+                Assert.Contains(expected,mockItem.Context.Cloud.RoleInstance, StringComparison.CurrentCultureIgnoreCase);                                
             }
         }
 
