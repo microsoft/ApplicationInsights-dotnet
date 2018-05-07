@@ -33,7 +33,7 @@
       <PackageAuthor>@(VersionInfo->'%(CompanyName)')</PackageAuthor>
       <PackageImage>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageImage>
       <PackageCopyright>@(VersionInfo->'%(LegalCopyright)')</PackageCopyright>
-      <PackageCommand>$(NuGetCommand) pack "$(PackageSpecFile)" -Properties "coresdkversion=$(CoreSdkVersion);version=$(PackageVersion);author=$(PackageAuthor);image=$(PackageImage);copyright=$(PackageCopyright);configuration=$(Configuration)" -BasePath "$(BinRoot)" -OutputDirectory "$(PackageOutputDir)" -Symbols</PackageCommand>
+      <PackageCommand>$(NuGetCommand) pack "$(PackageSpecFile)" -Properties "coresdkversion=$(CoreSdkVersion);version=$(PackageVersion);author=$(PackageAuthor);image=$(PackageImage);copyright=$(PackageCopyright);configuration=$(Configuration)" -BasePath "$(BinRoot)" -OutputDirectory "$(PackageOutputDir)" $(PackageAnalysisSettings) -Symbols</PackageCommand>
     </PropertyGroup>
 
     <!-- Make sure package output directory exists (expected by NuGet). -->

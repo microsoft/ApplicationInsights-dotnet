@@ -56,4 +56,18 @@
     <Error Condition="!Exists('..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets'))" />
   </Target>
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets')" />
+  <Target Name="Pack" AfterTargets="BuildNugetPackage">
+    <!-- Keep the target name as "Pack", since the SignNuGetPackage target AfterTargets it: https://devdiv.visualstudio.com/DefaultCollection/Engineering/_git/MicroBuild?path=%2Fsrc%2FPlugins%2FSigning%2FbuildCrossTargeting%2FMicroBuild.Plugins.Signing.targets&version=GBmaster&_a=contents&line=10&lineStyle=plain&lineEnd=10&lineStartColumn=17&lineEndColumn=33 -->
+    <!-- IsPackable & PackageOutputPath properties are required by SignNuGetPackage target: https://devdiv.visualstudio.com/DefaultCollection/Engineering/_git/MicroBuild?path=%2Fsrc%2FPlugins%2FSigning%2FbuildCrossTargeting%2FMicroBuild.Plugins.Signing.targets&version=GBmaster&_a=contents&line=10&lineStyle=plain&lineEnd=10&lineStartColumn=17&lineEndColumn=33 -->
+    <PropertyGroup>
+      <IsPackable>True</IsPackable>
+      <PackageOutputPath>$(PackageOutputDir)</PackageOutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <SignNuGetPackFiles Include="$(PackageOutputPath)\**\*.nupkg">
+      </SignNuGetPackFiles>
+    </ItemGroup>
+    <Message Text="Package Output Path: $(PackageOutputPath)" />
+    <Message Text="Files to sign for WindowsServer: @(SignNuGetPackFiles)" />
+  </Target>
 </Project>
