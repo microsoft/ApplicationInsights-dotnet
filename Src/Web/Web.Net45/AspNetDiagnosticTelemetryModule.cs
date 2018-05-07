@@ -142,7 +142,12 @@
                     {
                         var context = HttpContext.Current;
                         var request = context.Request;
-                        string rootId = request.UnvalidatedGetHeader(ActivityHelpers.RootOperationIdHeaderName);
+                        string rootId = null;
+                        if (ActivityHelpers.RootOperationIdHeaderName != null)
+                        {
+                            rootId = request.UnvalidatedGetHeader(ActivityHelpers.RootOperationIdHeaderName);
+                        }
+
                         if (!string.IsNullOrEmpty(rootId))
                         {
                             // Got legacy headers from older AppInsights version or some custom header.

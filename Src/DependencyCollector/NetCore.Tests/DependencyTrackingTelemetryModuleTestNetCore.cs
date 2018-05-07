@@ -82,6 +82,34 @@
         /// </summary>
         [TestMethod]
         [Timeout(5000)]
+        public async Task TestDependencyCollectionWithLegacyHeaders()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.EnableLegacyCorrelationHeadersInjection = true;
+                module.Initialize(this.config);
+
+                var url = new Uri(localhostUrl);
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+                using (new LocalServer(localhostUrl))
+                {
+                    await new HttpClient().SendAsync(request);
+                }
+
+                // DiagnosticSource Response event is fired after SendAsync returns on netcoreapp1.*
+                // let's wait until dependency is collected
+                Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry != null, TimeSpan.FromSeconds(1)));
+
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200", true);
+            }
+        }
+
+        /// <summary>
+        /// Tests that dependency is collected properly when there is no parent activity.
+        /// </summary>
+        [TestMethod]
+        [Timeout(5000)]
         public async Task TestDependencyCollectionNoParentActivity()
         {
             using (var module = new DependencyTrackingTelemetryModule())
@@ -100,7 +128,7 @@
                 // let's wait until dependency is collected
                 Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry != null, TimeSpan.FromSeconds(1)));
 
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200", false);
             }
         }
 
@@ -130,7 +158,7 @@
 
                 parent.Stop();
 
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200", false);
 
                 Assert.AreEqual("k=v", request.Headers.GetValues(RequestResponseHeaders.CorrelationContextHeader).Single());
             }
@@ -156,7 +184,7 @@
             }
         }
 
-        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, HttpRequestMessage request, bool success, string resultCode)
+        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, HttpRequestMessage request, bool success, string resultCode, bool expectLegacyHeaders)
         {
             Assert.AreEqual(url, item.Data);
             Assert.AreEqual(url.Host, item.Target);
@@ -181,8 +209,16 @@
             if (request != null)
             {
                 Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());
-                Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
-                Assert.AreEqual(item.Context.Operation.Id, request.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
+                if (expectLegacyHeaders)
+                {
+                    Assert.AreEqual(item.Context.Operation.Id, request.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
+                    Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
+                }
+                else
+                {
+                    Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.StandardRootIdHeader));
+                    Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.StandardParentIdHeader));   
+                }
             }
         }
 

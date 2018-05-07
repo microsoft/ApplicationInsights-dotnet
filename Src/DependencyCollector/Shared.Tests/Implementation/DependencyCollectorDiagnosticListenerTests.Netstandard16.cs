@@ -31,8 +31,8 @@ namespace Microsoft.ApplicationInsights.Tests
 
         private readonly List<ITelemetry> sentTelemetry = new List<ITelemetry>();
 
+        private TelemetryConfiguration configuration;
         private string testInstrumentationKey1 = nameof(testInstrumentationKey1);
-        private string testInstrumentationKey2 = nameof(testInstrumentationKey2);
         private string testApplicationId1 = nameof(testApplicationId1);
         private string testApplicationId2 = nameof(testApplicationId2);
         private StubTelemetryChannel telemetryChannel;
@@ -52,18 +52,19 @@ namespace Microsoft.ApplicationInsights.Tests
 
             this.testInstrumentationKey1 = Guid.NewGuid().ToString();
 
-            var configuration = new TelemetryConfiguration
+            this.configuration = new TelemetryConfiguration
             {
                 TelemetryChannel = this.telemetryChannel,
                 InstrumentationKey = this.testInstrumentationKey1,
                 ApplicationIdProvider = new MockApplicationIdProvider(this.testInstrumentationKey1, this.testApplicationId1)
             };
 
-            configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+            this.configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.listener = new HttpCoreDiagnosticSourceListener(
-                configuration,
+                this.configuration,
                 setComponentCorrelationHttpHeaders: true,
-                correlationDomainExclusionList: new string[] { "excluded.host.com" });
+                correlationDomainExclusionList: new string[] { "excluded.host.com" },
+                injectLegacyHeaders: false);
         }
 
         /// <summary>
@@ -186,6 +187,54 @@ namespace Microsoft.ApplicationInsights.Tests
         }
 
         /// <summary>
+        /// OnRequest() injects legacy headers when configured to do so.
+        /// </summary>
+        [TestMethod]
+        public void OnRequestInjectsLegacyHeaders()
+        {
+            var listenerWithLegacyHeaders = new HttpCoreDiagnosticSourceListener(
+                this.configuration,
+                setComponentCorrelationHttpHeaders: true,
+                correlationDomainExclusionList: new[] { "excluded.host.com" },
+                injectLegacyHeaders: true);
+
+            Guid loggingRequestId = Guid.NewGuid();
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
+            listenerWithLegacyHeaders.OnRequest(request, loggingRequestId);
+
+            IOperationHolder<DependencyTelemetry> dependency;
+            Assert.IsTrue(listenerWithLegacyHeaders.PendingDependencyTelemetry.TryGetValue(request, out dependency));
+            Assert.AreEqual(0, this.sentTelemetry.Count);
+
+            var legacyRootIdHeader = GetRequestHeaderValues(request, RequestResponseHeaders.StandardRootIdHeader).Single();
+            var legacyParentIdHeader = GetRequestHeaderValues(request, RequestResponseHeaders.StandardParentIdHeader).Single();
+            var requestIdHeader = GetRequestHeaderValues(request, RequestResponseHeaders.RequestIdHeader).Single();
+            Assert.AreEqual(dependency.Telemetry.Id, legacyParentIdHeader);
+            Assert.AreEqual(dependency.Telemetry.Context.Operation.Id, legacyRootIdHeader);
+            Assert.AreEqual(dependency.Telemetry.Id, requestIdHeader);
+        }
+
+        /// <summary>
+        /// OnRequest() does not inject legacy headers when configured to do so.
+        /// </summary>
+        [TestMethod]
+        public void OnRequestDoesNotInjectLegacyHeaders()
+        {
+            Guid loggingRequestId = Guid.NewGuid();
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
+            this.listener.OnRequest(request, loggingRequestId);
+
+            IOperationHolder<DependencyTelemetry> dependency;
+            Assert.IsTrue(this.listener.PendingDependencyTelemetry.TryGetValue(request, out dependency));
+            Assert.AreEqual(0, this.sentTelemetry.Count);
+
+            var requestIdHeader = GetRequestHeaderValues(request, RequestResponseHeaders.RequestIdHeader).Single();
+            Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.StandardRootIdHeader));
+            Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.StandardParentIdHeader));
+            Assert.AreEqual(dependency.Telemetry.Id, requestIdHeader);
+        }
+
+        /// <summary>
         /// Call OnRequest() with valid arguments.
         /// </summary>
         [TestMethod]
@@ -207,13 +256,9 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual(true, telemetry.Success);
 
             Assert.AreEqual(this.testApplicationId1, GetRequestContextKeyValue(request, RequestResponseHeaders.RequestContextCorrelationSourceKey));
-            Assert.AreEqual(null, GetRequestContextKeyValue(request, RequestResponseHeaders.StandardRootIdHeader));
 
-            var legacyParentIdHeader = GetRequestHeaderValues(request, RequestResponseHeaders.StandardParentIdHeader).Single();
             var requestIdHeader = GetRequestHeaderValues(request, RequestResponseHeaders.RequestIdHeader).Single();
-            Assert.IsFalse(string.IsNullOrEmpty(legacyParentIdHeader));
             Assert.IsFalse(string.IsNullOrEmpty(requestIdHeader));
-            Assert.AreEqual(requestIdHeader, legacyParentIdHeader);
             Assert.AreEqual(0, this.sentTelemetry.Count);
         }
 

@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 ApplicationIdProvider = new MockApplicationIdProvider(TestInstrumentationKey, TestApplicationId)
             };
 
-            this.httpDesktopProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(this.configuration, new CacheBasedOperationHolder("testCache", 100 * 1000), /*setCorrelationHeaders*/ true, new List<string>());
+            this.httpDesktopProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(this.configuration, new CacheBasedOperationHolder("testCache", 100 * 1000), /*setCorrelationHeaders*/ true, new List<string>(), false);
             DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 
@@ -88,8 +88,8 @@ namespace Microsoft.ApplicationInsights.Tests
              this.httpDesktopProcessingFramework.OnBegin(request, false);
              Assert.IsNull(request.Headers[RequestResponseHeaders.RequestIdHeader]);
              Assert.IsNull(request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
-             Assert.IsNotNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
-             Assert.IsNotNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+             Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+             Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
              activity.Stop();
          }
 
@@ -166,10 +166,40 @@ namespace Microsoft.ApplicationInsights.Tests
         }
 
         /// <summary>
-        /// Ensures that the parent id header is added when request is sent.
+        /// Ensures that the legacy correlation headers are NOT added when request is sent if HttpProcessing is configured to.
         /// </summary>
         [TestMethod]
-        public void RddTestHttpDesktopProcessingFrameworkOnBeginAddsParentIdHeader()
+        public void RddTestHttpDesktopProcessingFrameworkOnBeginAddsLegacyHeaders()
+        {
+            var httpProcessingLegacyHeaders = new DesktopDiagnosticSourceHttpProcessing(this.configuration, new CacheBasedOperationHolder("testCache", 100 * 1000), /*setCorrelationHeaders*/ true, new List<string>(), true);
+            var request = WebRequest.Create(this.testUrl);
+
+            Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+
+            var client = new TelemetryClient(this.configuration);
+            using (var op = client.StartOperation<RequestTelemetry>("request"))
+            {
+                httpProcessingLegacyHeaders.OnBegin(request);
+
+                var actualRootIdHeader = request.Headers[RequestResponseHeaders.StandardRootIdHeader];
+                var actualParentIdHeader = request.Headers[RequestResponseHeaders.StandardParentIdHeader];
+                var actualRequestIdHeader = request.Headers[RequestResponseHeaders.RequestIdHeader];
+                Assert.IsNotNull(actualRootIdHeader);
+                Assert.IsNotNull(actualParentIdHeader);
+                Assert.IsNotNull(actualRequestIdHeader);
+
+                Assert.AreNotEqual(actualParentIdHeader, op.Telemetry.Context.Operation.Id);
+
+                Assert.AreEqual(actualParentIdHeader, actualRequestIdHeader);
+                Assert.AreEqual(Activity.Current.RootId, actualRootIdHeader);
+            }
+        }
+
+        /// <summary>
+        /// Ensures that the legacy correlation headers are added when request is sent if HttpProcessing is configured to.
+        /// </summary>
+        [TestMethod]
+        public void RddTestHttpDesktopProcessingFrameworkOnBegin()
         {
             var request = WebRequest.Create(this.testUrl);
 
@@ -180,12 +210,10 @@ namespace Microsoft.ApplicationInsights.Tests
             {
                 this.httpDesktopProcessingFramework.OnBegin(request);
 
-                var actualParentIdHeader = request.Headers[RequestResponseHeaders.StandardParentIdHeader];
                 var actualRequestIdHeader = request.Headers[RequestResponseHeaders.RequestIdHeader];
-                Assert.IsNotNull(actualParentIdHeader);
-                Assert.AreNotEqual(actualParentIdHeader, op.Telemetry.Context.Operation.Id);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
 
-                Assert.AreEqual(actualParentIdHeader, actualRequestIdHeader);
                 Assert.IsTrue(actualRequestIdHeader.StartsWith(Activity.Current.Id, StringComparison.Ordinal));
                 Assert.AreNotEqual(Activity.Current.Id, actualRequestIdHeader);
 
@@ -227,7 +255,8 @@ namespace Microsoft.ApplicationInsights.Tests
                 this.configuration, 
                 new CacheBasedOperationHolder("testCache", 100 * 1000),  
                 false, 
-                new List<string>());
+                new List<string>(),
+                false);
 
             localHttpProcessingFramework.OnBegin(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
@@ -238,7 +267,8 @@ namespace Microsoft.ApplicationInsights.Tests
                 this.configuration,
                 new CacheBasedOperationHolder("testCache", 100 * 1000), 
                 true, 
-                exclusionList);
+                exclusionList,
+                false);
 
             localHttpProcessingFramework.OnBegin(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);

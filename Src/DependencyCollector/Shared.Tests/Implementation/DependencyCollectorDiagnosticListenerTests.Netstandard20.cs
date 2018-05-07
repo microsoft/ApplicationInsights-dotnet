@@ -36,6 +36,32 @@ namespace Microsoft.ApplicationInsights.Tests
 
             // Request-Id and Correlation-Context are injected by HttpClient
             // check only legacy headers here
+            Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.StandardRootIdHeader));
+            Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.StandardParentIdHeader));
+            Assert.AreEqual(this.testApplicationId1, GetRequestContextKeyValue(request, RequestResponseHeaders.RequestContextCorrelationSourceKey));
+        }
+
+        /// <summary>
+        /// Tests that OnStartActivity injects headers.
+        /// </summary>
+        [TestMethod]
+        public void OnActivityStartInjectsLegacyHeaders()
+        {
+            var listenerWithLegacyHeaders = new HttpCoreDiagnosticSourceListener(
+                this.configuration,
+                setComponentCorrelationHttpHeaders: true,
+                correlationDomainExclusionList: new[] { "excluded.host.com" },
+                injectLegacyHeaders: true);
+
+            var activity = new Activity("System.Net.Http.HttpRequestOut");
+            activity.AddBaggage("k", "v");
+            activity.Start();
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
+            listenerWithLegacyHeaders.OnActivityStart(request);
+
+            // Request-Id and Correlation-Context are injected by HttpClient
+            // check only legacy headers here
             Assert.AreEqual(activity.RootId, request.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
             Assert.AreEqual(activity.Id, request.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
             Assert.AreEqual(this.testApplicationId1, GetRequestContextKeyValue(request, RequestResponseHeaders.RequestContextCorrelationSourceKey));

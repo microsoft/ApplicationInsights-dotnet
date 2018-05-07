@@ -45,7 +45,7 @@
                 InstrumentationKey = TestInstrumentationKey,
                 ApplicationIdProvider = new MockApplicationIdProvider(TestInstrumentationKey, TestApplicationId)
             };
-            this.httpProcessingFramework = new FrameworkHttpProcessing(this.configuration, this.cache, /*setCorrelationHeaders*/ true, new List<string>());
+            this.httpProcessingFramework = new FrameworkHttpProcessing(this.configuration, this.cache, /*setCorrelationHeaders*/ true, new List<string>(), false);
             DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 

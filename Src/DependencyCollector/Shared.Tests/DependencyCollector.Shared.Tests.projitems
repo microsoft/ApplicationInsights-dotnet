@@ -42,8 +42,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerHttpProcessingTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlProcessingTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RetryPolicyTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryExtensionsForDependencyCollectorTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TestUtils.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpersTests.cs" />
   </ItemGroup>
 </Project>

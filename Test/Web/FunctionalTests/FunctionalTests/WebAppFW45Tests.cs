@@ -157,8 +157,7 @@
                 Method = HttpMethod.Get,
             };
 
-            requestMessage.Headers.Add("x-ms-request-id", "guid1");
-            requestMessage.Headers.Add("x-ms-request-root-id", "guid2");
+            requestMessage.Headers.Add("request-id", "|guid2.guid1.");
 
             var responseTask = client.SendAsync(requestMessage);
             responseTask.Wait(TimeoutInMs);
@@ -170,8 +169,8 @@
 
             // Check that request has operation Id, parentId and Id are set from headers
             Assert.AreEqual("guid2", request.tags[new ContextTagKeys().OperationId], "Request Operation Id is not parsed from header");
-            Assert.AreEqual("guid1", request.tags[new ContextTagKeys().OperationParentId], "Request Parent Id is not parsed from header");
-            Assert.IsTrue(request.data.baseData.id.StartsWith("|guid2."), "Request Id is not properly set");
+            Assert.AreEqual("|guid2.guid1.", request.tags[new ContextTagKeys().OperationParentId], "Request Parent Id is not parsed from header");
+            Assert.IsTrue(request.data.baseData.id.StartsWith("|guid2.guid1."), "Request Id is not properly set");
         }
 
         [TestMethod]        

@@ -125,7 +125,28 @@
         }
 
         [TestMethod]
-        public void OnBeginSetsOperationContextWithLegacyHeaders()
+        public void OnBeginSetsOperationContextWithEnabledLegacyHeaders()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
+            {
+                ["x-ms-request-id"] = "guid1",
+                ["x-ms-request-root-id"] = "guid2"
+            });
+
+            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context, "x-ms-request-root-id", "x-ms-request-id"));
+
+            module.OnBeginRequest(context);
+            var requestTelemetry = context.GetRequestTelemetry();
+            module.OnEndRequest(context);
+
+            Assert.Equal("guid2", requestTelemetry.Context.Operation.Id);
+            Assert.Equal("guid1", requestTelemetry.Context.Operation.ParentId);
+
+            Assert.True(requestTelemetry.Id.StartsWith("|guid2.", StringComparison.Ordinal));
+        }
+
+        [TestMethod]
+        public void OnBeginSetsOperationContextWithDisabledLegacyHeaders()
         {
             var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
             {
@@ -139,10 +160,8 @@
             var requestTelemetry = context.GetRequestTelemetry();
             module.OnEndRequest(context);
 
-            Assert.Equal("guid2", requestTelemetry.Context.Operation.Id);
-            Assert.Equal("guid1", requestTelemetry.Context.Operation.ParentId);
-
-            Assert.True(requestTelemetry.Id.StartsWith("|guid2.", StringComparison.Ordinal));
+            Assert.NotNull(requestTelemetry.Context.Operation.Id);
+            Assert.Null(requestTelemetry.Context.Operation.ParentId);
         }
 
         [TestMethod]

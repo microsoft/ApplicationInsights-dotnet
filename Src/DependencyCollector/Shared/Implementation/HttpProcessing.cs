@@ -21,13 +21,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         protected TelemetryClient telemetryClient;
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
         private readonly TelemetryConfiguration configuration;
-        private ICollection<string> correlationDomainExclusionList;
-        private bool setCorrelationHeaders;
+        private readonly ICollection<string> correlationDomainExclusionList;
+        private readonly bool setCorrelationHeaders;
+        private readonly bool injectLegacyHeaders;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpProcessing"/> class.
         /// </summary>
-        public HttpProcessing(TelemetryConfiguration configuration, string sdkVersion, string agentVersion, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList)
+        public HttpProcessing(TelemetryConfiguration configuration, string sdkVersion, string agentVersion, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, bool injectLegacyHeaders)
         {
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
@@ -41,6 +42,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 this.telemetryClient.Context.GetInternalContext().AgentVersion = agentVersion;
             }
+
+            this.injectLegacyHeaders = injectLegacyHeaders;
         }
 
         /// <summary>
@@ -160,20 +163,24 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         AppMapCorrelationEventSource.Log.SetCrossComponentCorrelationHeaderFailed(ex.ToInvariantString());
                     }
 
-                    // Add the root ID
-                    var rootId = telemetry.Context.Operation.Id;
-                    if (!string.IsNullOrEmpty(rootId) && webRequest.Headers[RequestResponseHeaders.StandardRootIdHeader] == null)
+                    if (this.injectLegacyHeaders)
                     {
-                        webRequest.Headers.Add(RequestResponseHeaders.StandardRootIdHeader, rootId);
-                    }
-
-                    // Add the parent ID
-                    var parentId = telemetry.Id;
-                    if (!string.IsNullOrEmpty(parentId))
-                    {
-                        if (webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader] == null)
+                        // Add the root ID
+                        var rootId = telemetry.Context.Operation.Id;
+                        if (!string.IsNullOrEmpty(rootId) &&
+                            webRequest.Headers[RequestResponseHeaders.StandardRootIdHeader] == null)
                         {
-                            webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
+                            webRequest.Headers.Add(RequestResponseHeaders.StandardRootIdHeader, rootId);
+                        }
+
+                        // Add the parent ID
+                        var parentId = telemetry.Id;
+                        if (!string.IsNullOrEmpty(parentId))
+                        {
+                            if (webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader] == null)
+                            {
+                                webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
+                            }
                         }
                     }
 

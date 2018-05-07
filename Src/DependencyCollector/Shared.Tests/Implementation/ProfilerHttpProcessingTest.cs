@@ -58,8 +58,9 @@
                 this.configuration,
                 null,
                 new ObjectInstanceBasedOperationHolder(),
-                true /*setCorrelationHeaders*/,
-                new List<string>());
+                setCorrelationHeaders: true,
+                correlationDomainExclusionList: new List<string>(),
+                injectLegacyHeaders: false);
         }
 
         [TestCleanup]
@@ -70,7 +71,7 @@
                 Activity.Current.Stop();
             }
         }
-        #endregion //TestgInitiliaze
+        #endregion //TestInitialize
 
         #region GetResponse
 
@@ -165,18 +166,34 @@
         /// Ensures that the source request header is added when request is sent.
         /// </summary>
         [TestMethod]
-        public void RddTestHttpProcessingProfilerOnBeginAddsRootIdHeader()
+        public void RddTestHttpProcessingProfilerOnBeginAddsLegacyHeadersAreEnabled()
         {
             var request = WebRequest.Create(this.testUrl);
-
             Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+
+            var httpProcessingLegacyHeaders = new ProfilerHttpProcessing(
+                this.configuration,
+                null,
+                new ObjectInstanceBasedOperationHolder(),
+                setCorrelationHeaders: true,
+                correlationDomainExclusionList: new List<string>(),
+                injectLegacyHeaders: true);
 
             var client = new TelemetryClient(this.configuration);
             using (var op = client.StartOperation<RequestTelemetry>("request"))
             {
-                this.httpProcessingProfiler.OnBeginForGetResponse(request);
-                Assert.IsNotNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
-                Assert.AreEqual(request.Headers[RequestResponseHeaders.StandardRootIdHeader], op.Telemetry.Context.Operation.Id);
+                httpProcessingLegacyHeaders.OnBeginForGetResponse(request);
+
+                var actualRootId = request.Headers[RequestResponseHeaders.StandardRootIdHeader];
+
+                Assert.IsNotNull(actualRootId);
+                Assert.AreEqual(op.Telemetry.Context.Operation.Id, actualRootId);
+
+                var actualParentIdHeader = request.Headers[RequestResponseHeaders.StandardParentIdHeader];
+                Assert.IsNotNull(actualParentIdHeader);
+                Assert.AreNotEqual(op.Telemetry.Id, actualParentIdHeader);
+
+                Assert.AreEqual(actualParentIdHeader, request.Headers[RequestResponseHeaders.RequestIdHeader]);
             }
         }
 
@@ -184,7 +201,7 @@
         /// Ensures that the parent id header is added when request is sent.
         /// </summary>
         [TestMethod]
-        public void RddTestHttpProcessingProfilerOnBeginAddsParentIdHeader()
+        public void RddTestHttpProcessingProfilerOnBeginAddsRequestIdHeader()
         {
             var request = WebRequest.Create(this.testUrl);
 
@@ -195,12 +212,9 @@
             {
                 this.httpProcessingProfiler.OnBeginForGetResponse(request);
 
-                var actualParentIdHeader = request.Headers[RequestResponseHeaders.StandardParentIdHeader];
+                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
                 var actualRequestIdHeader = request.Headers[RequestResponseHeaders.RequestIdHeader];
-                Assert.IsNotNull(actualParentIdHeader);
-                Assert.AreNotEqual(actualParentIdHeader, op.Telemetry.Context.Operation.Id);
-
-                Assert.AreEqual(actualParentIdHeader, actualRequestIdHeader);
                 Assert.IsTrue(actualRequestIdHeader.StartsWith(Activity.Current.Id, StringComparison.Ordinal));
                 Assert.AreNotEqual(Activity.Current.Id, actualRequestIdHeader);
 
@@ -255,13 +269,13 @@
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
             Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());
 
-            var httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ false, new List<string>());
+            var httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ false, new List<string>(), true);
             httpProcessingProfiler.OnBeginForGetResponse(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
             Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());
 
             ICollection<string> exclusionList = new SanitizedHostList() { "randomstringtoexclude", hostnamepart };
-            httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, exclusionList);
+            httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, exclusionList, true);
             httpProcessingProfiler.OnBeginForGetResponse(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
             Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());

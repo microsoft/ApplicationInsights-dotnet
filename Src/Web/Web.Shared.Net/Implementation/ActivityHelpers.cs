@@ -1,12 +1,10 @@
 namespace Microsoft.ApplicationInsights.Common
 {
-    using System.Collections.Generic;
     using System.Web;
     using Microsoft.ApplicationInsights.Web.Implementation;
 
     internal class ActivityHelpers
     {
-        internal const string CorrelationContextItemName = "Microsoft.ApplicationInsights.Web.CorrelationContext";
         internal const string RequestActivityItemName = "Microsoft.ApplicationInsights.Web.Activity";
 
         internal static string RootOperationIdHeaderName { get; set; }
@@ -25,39 +23,24 @@ namespace Microsoft.ApplicationInsights.Common
 
         internal static bool TryParseCustomHeaders(HttpRequest request, out string rootId, out string parentId)
         {
-            parentId = request.UnvalidatedGetHeader(ParentOperationIdHeaderName);
-            rootId = request.UnvalidatedGetHeader(RootOperationIdHeaderName);
-
-            if (rootId?.Length == 0)
+            rootId = parentId = null;
+            if (ParentOperationIdHeaderName != null && RootOperationIdHeaderName != null)
             {
-                rootId = null;
-            }
+                parentId = request.UnvalidatedGetHeader(ParentOperationIdHeaderName);
+                rootId = request.UnvalidatedGetHeader(RootOperationIdHeaderName);
 
-            if (parentId?.Length == 0)
-            {
-                parentId = null;
+                if (rootId?.Length == 0)
+                {
+                    rootId = null;
+                }
+
+                if (parentId?.Length == 0)
+                {
+                    parentId = null;
+                }
             }
 
             return rootId != null || parentId != null;
-        }
-
-        private static bool TryParseStandardHeaders(HttpRequest request, out string rootId, out string parentId, out IDictionary<string, string> correlationContext)
-        {
-            rootId = null;
-            correlationContext = null;
-            parentId = request.UnvalidatedGetHeader(RequestResponseHeaders.RequestIdHeader);
-
-            // don't bother parsing correlation-context if there was no RequestId
-            if (!string.IsNullOrEmpty(parentId))
-            {
-                correlationContext =
-                    request.UnvalidatedGetHeaders().GetNameValueCollectionFromHeader(RequestResponseHeaders.CorrelationContextHeader);
-
-                return true;
-            }
-
-            parentId = null;
-            return false;
         }
     }
 }

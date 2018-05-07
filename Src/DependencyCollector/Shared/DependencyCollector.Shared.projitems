@@ -61,7 +61,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlConnectionProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlProcessingBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RetryPolicy.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryExtensionsForDependencyCollector.cs" />
   </ItemGroup>
   <ItemGroup>
