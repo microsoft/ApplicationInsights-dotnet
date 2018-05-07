@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props')" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -15,24 +17,24 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <PackageSpecFile>$(MSBuildProjectDirectory)\Package.nuspec</PackageSpecFile>
     <PackageVersionFile>$(BinRoot)\$(Configuration)\Src\PerformanceCollector\Net45\Microsoft.AI.PerfCounterCollector.dll</PackageVersionFile>
-    <TargetFrameworkProfile />
     <NuGetPackageImportStamp>dd2813bf</NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="ApplicationInsights.config.transform">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Package.nuspec">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="ApplicationInsights.config.uninstall.xdt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ApplicationInsights.config.install.xdt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ApplicationInsights.config.transform">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Package.nuspec">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
@@ -42,4 +44,19 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Package.targets'))\Package.targets" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets')" />
+  <Target Name="Pack" AfterTargets="BuildNugetPackage">
+    <!-- Keep the target name as "Pack", since the SignNuGetPackage target AfterTargets it: https://devdiv.visualstudio.com/DefaultCollection/Engineering/_git/MicroBuild?path=%2Fsrc%2FPlugins%2FSigning%2FbuildCrossTargeting%2FMicroBuild.Plugins.Signing.targets&version=GBmaster&_a=contents&line=10&lineStyle=plain&lineEnd=10&lineStartColumn=17&lineEndColumn=33 -->
+    <!-- IsPackable & PackageOutputPath properties are required by SignNuGetPackage target: https://devdiv.visualstudio.com/DefaultCollection/Engineering/_git/MicroBuild?path=%2Fsrc%2FPlugins%2FSigning%2FbuildCrossTargeting%2FMicroBuild.Plugins.Signing.targets&version=GBmaster&_a=contents&line=10&lineStyle=plain&lineEnd=10&lineStartColumn=17&lineEndColumn=33 -->
+    <PropertyGroup>
+      <IsPackable>True</IsPackable>
+      <PackageOutputPath>$(PackageOutputDir)</PackageOutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <SignNuGetPackFiles Include="$(PackageOutputPath)\**\*.nupkg">
+      </SignNuGetPackFiles>
+    </ItemGroup>
+    <Message Text="Package Output Path: $(PackageOutputPath)" />
+    <Message Text="Files to sign for PerformanceCollector: @(SignNuGetPackFiles)" />
+  </Target>
 </Project>
