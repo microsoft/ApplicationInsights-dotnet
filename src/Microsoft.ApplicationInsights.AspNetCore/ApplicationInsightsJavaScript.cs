@@ -36,6 +36,7 @@
         /// <param name="telemetryConfiguration">The configuration instance to use.</param>
         /// <param name="serviceOptions">Service options instance to use.</param>
         /// <param name="httpContextAccessor">Http context accessor to use.</param>
+        /// <param name="encoder">Encoder used to encode user identity.</param>
         public JavaScriptSnippet(TelemetryConfiguration telemetryConfiguration,
             IOptions<ApplicationInsightsServiceOptions> serviceOptions,
             IHttpContextAccessor httpContextAccessor,
