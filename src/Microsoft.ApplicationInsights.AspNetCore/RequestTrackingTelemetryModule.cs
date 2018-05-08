@@ -19,9 +19,10 @@
         private List<IApplicationInsightDiagnosticListener> diagnosticListeners;
         private bool isInitialized = false;
         private readonly object lockObject = new object();
-        private TelemetryConfiguration configuration;
 
-
+        /// <summary>
+        /// RequestTrackingTelemetryModule
+        /// </summary>
         public RequestTrackingTelemetryModule() : this(null)
         {            
         }

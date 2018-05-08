@@ -83,7 +83,7 @@
 
             HandleRequestEnd(context, 0);
 
-            Assert.Equal(1, sentTelemetry.Count);
+            Assert.Single(sentTelemetry);
             Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
 
             RequestTelemetry requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
@@ -108,7 +108,7 @@
 
             HandleRequestEnd(context, 0);
 
-            Assert.Equal(1, sentTelemetry.Count);
+            Assert.Single(sentTelemetry);
             Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
             RequestTelemetry requestTelemetry = sentTelemetry.First() as RequestTelemetry;
             Assert.NotNull(requestTelemetry.Url);
@@ -309,14 +309,13 @@
 
             HandleRequestEnd(context, 0);
 
-            Assert.Equal(1, sentTelemetry.Count);
+            Assert.Single(sentTelemetry);
             Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
             RequestTelemetry requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
             Assert.True(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
-            Assert.Equal("", requestTelemetry.Source);
-            Assert.Equal("POST", requestTelemetry.HttpMethod);
+            Assert.Equal("", requestTelemetry.Source);            
             Assert.Equal(CreateUri(HttpRequestScheme, HttpRequestHost, "/Test"), requestTelemetry.Url);
             Assert.NotEmpty(requestTelemetry.Context.GetInternalContext().SdkVersion);
             Assert.Contains(SdkVersionTestUtils.VersionPrefix, requestTelemetry.Context.GetInternalContext().SdkVersion);
@@ -341,8 +340,7 @@
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
             Assert.True(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
-            Assert.Equal("", requestTelemetry.Source);
-            Assert.Equal("GET", requestTelemetry.HttpMethod);
+            Assert.Equal("", requestTelemetry.Source);            
             Assert.Equal(CreateUri(HttpRequestScheme, HttpRequestHost, "/Test"), requestTelemetry.Url);
             Assert.NotEmpty(requestTelemetry.Context.GetInternalContext().SdkVersion);
             Assert.Contains(SdkVersionTestUtils.VersionPrefix, requestTelemetry.Context.GetInternalContext().SdkVersion);
@@ -369,8 +367,7 @@
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
             Assert.True(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
-            Assert.Equal("", requestTelemetry.Source);
-            Assert.Equal("GET", requestTelemetry.HttpMethod);
+            Assert.Equal("", requestTelemetry.Source);            
             Assert.Equal(CreateUri(HttpRequestScheme, HttpRequestHost, "/Test"), requestTelemetry.Url);
             Assert.NotEmpty(requestTelemetry.Context.GetInternalContext().SdkVersion);
             Assert.Contains(SdkVersionTestUtils.VersionPrefix, requestTelemetry.Context.GetInternalContext().SdkVersion);
@@ -390,14 +387,13 @@
 
             HandleRequestEnd(context, 0);
 
-            Assert.Equal(1, sentTelemetry.Count);
+            Assert.Single(sentTelemetry);
             Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
             RequestTelemetry requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
             Assert.True(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
-            Assert.Equal("", requestTelemetry.Source);
-            Assert.Equal("GET", requestTelemetry.HttpMethod);
+            Assert.Equal("", requestTelemetry.Source);            
             Assert.Equal(CreateUri(HttpRequestScheme, HttpRequestHost, "/Test"), requestTelemetry.Url);
             Assert.NotEmpty(requestTelemetry.Context.GetInternalContext().SdkVersion);
             Assert.Contains(SdkVersionTestUtils.VersionPrefix, requestTelemetry.Context.GetInternalContext().SdkVersion);
