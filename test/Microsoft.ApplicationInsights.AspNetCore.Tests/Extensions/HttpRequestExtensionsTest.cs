@@ -41,7 +41,7 @@
 
         [Fact]
         public void TestGetUriUsesDefaultHostNameOnRequestObjectHostIsNotSpecified()
-        {            
+        {
             var request = new DefaultHttpContext().Request;
             request.Scheme = ExpectedSchema;
 
