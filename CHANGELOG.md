@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 2.3.0
+- [Fix a bug which caused Requests to fail when Hostname was empty.] (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/278)
 - [Fix reading of instrumentation key from appsettings.json file when using AddApplicationInsightsTelemetry() extension to add ApplicationInsights ](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/605)
 - [Bring back DomainNameRoleInstanceTelemetryInitializer without which NodeName and RoleInstance will be empty in Ubuntu](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/671)
 - [RequestTelemetry is no longer populated with HttpMethod which is obsolete.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/675)
