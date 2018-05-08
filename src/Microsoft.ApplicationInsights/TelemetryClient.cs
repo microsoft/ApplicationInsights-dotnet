@@ -245,7 +245,7 @@
         /// you likely have a use case for event telemetry; see <see cref="TrackEvent(EventTelemetry)"/>.
         /// </summary>
         /// <param name="telemetry">The metric telemetry item.</param>
-        // [EditorBrowsable(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void TrackMetric(MetricTelemetry telemetry)
         {
             if (telemetry == null)
@@ -612,7 +612,7 @@
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId)
         {
             return this.GetOrCreateMetric(
@@ -642,7 +642,7 @@
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId,
                             MetricConfiguration metricConfiguration)
         {
@@ -671,7 +671,7 @@
         /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
         /// See <see cref="MetricAggregationScope" /> for more info.</param>
         /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId,
                             MetricConfiguration metricConfiguration,
                             MetricAggregationScope aggregationScope)
@@ -700,7 +700,7 @@
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
         /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId,
                             string dimension1Name)
         {
@@ -732,7 +732,7 @@
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId,
                             string dimension1Name,
                             MetricConfiguration metricConfiguration)
@@ -762,7 +762,7 @@
         /// configuration used earlier.</exception>
         /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
         /// See <see cref="MetricAggregationScope" /> for more info.</param>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId,
                             string dimension1Name,
                             MetricConfiguration metricConfiguration,
@@ -793,7 +793,7 @@
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
         /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId,
                             string dimension1Name,
                             string dimension2Name)
@@ -827,7 +827,7 @@
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId,
                             string dimension1Name,
                             string dimension2Name,
@@ -859,7 +859,7 @@
         /// configuration used earlier.</exception>
         /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
         /// See <see cref="MetricAggregationScope" /> for more info.</param>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId,
                             string dimension1Name,
                             string dimension2Name,
@@ -892,7 +892,7 @@
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
         /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId,
                             string dimension1Name,
                             string dimension2Name,
@@ -928,7 +928,7 @@
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId,
                             string dimension1Name,
                             string dimension2Name,
@@ -962,7 +962,7 @@
         /// configuration used earlier.</exception>
         /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
         /// See <see cref="MetricAggregationScope" /> for more info.</param>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId,
                             string dimension1Name,
                             string dimension2Name,
@@ -997,7 +997,7 @@
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
         /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId,
                             string dimension1Name,
                             string dimension2Name,
@@ -1035,7 +1035,7 @@
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId,
                             string dimension1Name,
                             string dimension2Name,
@@ -1071,7 +1071,7 @@
         /// configuration used earlier.</exception>
         /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
         /// See <see cref="MetricAggregationScope" /> for more info.</param>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             string metricId,
                             string dimension1Name,
                             string dimension2Name,
@@ -1101,7 +1101,7 @@
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
         /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             MetricIdentifier metricIdentifier)
         {
             return this.GetOrCreateMetric(
@@ -1129,7 +1129,7 @@
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
         /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
         /// configuration used earlier.</exception>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             MetricIdentifier metricIdentifier,
                             MetricConfiguration metricConfiguration)
         {
@@ -1155,7 +1155,7 @@
         /// configuration used earlier.</exception>
         /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
         /// See <see cref="MetricAggregationScope" /> for more info.</param>
-        internal Metric GetMetric(
+        public Metric GetMetric(
                             MetricIdentifier metricIdentifier,
                             MetricConfiguration metricConfiguration,
                             MetricAggregationScope aggregationScope)
