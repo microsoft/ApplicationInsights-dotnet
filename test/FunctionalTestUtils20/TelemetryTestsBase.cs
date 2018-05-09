@@ -136,9 +136,9 @@
             {
                 TelemetryItem<RemoteDependencyData> dependency = telemetry as TelemetryItem<RemoteDependencyData>;
                 if (dependency != null)
-                {
+                {                    
                     var data = ((TelemetryItem<RemoteDependencyData>)dependency).data.baseData;
-                    builder.AppendLine($"{dependency.ToString()} - {data.data} - {data.duration} - {data.id} - {data.name} - {data.resultCode} - {data.success} - {data.target} - {data.type}");
+                    builder.AppendLine($"{dependency.ToString()} - {data.data} - {((TelemetryItem<RemoteDependencyData>)dependency).time} - {data.duration} - {data.id} - {data.name} - {data.resultCode} - {data.success} - {data.target} - {data.type}");
                 }
                 else
                 {
