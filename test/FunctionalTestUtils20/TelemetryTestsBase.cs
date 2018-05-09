@@ -166,7 +166,8 @@
                             }
                             else
                             {
-                                builder.AppendLine($"{telemetry.ToString()} - {telemetry.time}- {telemetry.name}");
+                                TelemetryItem<MetricData> metric = telemetry as TelemetryItem<MetricData>;
+                                builder.AppendLine($"{telemetry.ToString()} - {telemetry.time}- {metric.name} - {metric.data}");
                             }
                         }
                     }
