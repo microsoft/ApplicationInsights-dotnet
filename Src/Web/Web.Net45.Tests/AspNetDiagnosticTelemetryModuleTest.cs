@@ -114,11 +114,15 @@
             client.TrackTrace(trace);
 
             this.aspNetDiagnosticsSource.ReportRestoredActivity(restoredActivity);
-            Assert.AreEqual(2, this.sendItems.Count);
-            var requestRestoredTelemetry = (RequestTelemetry)this.sendItems.SingleOrDefault(i => i is RequestTelemetry);
+            Assert.AreEqual(1, this.sendItems.Count);
+
+            restoredActivity.Stop();
+            this.aspNetDiagnosticsSource.StopLostActivity(activity);
+
+            Assert.AreEqual(3, this.sendItems.Count);
+            var requestRestoredTelemetry = (RequestTelemetry)this.sendItems[1];
             Assert.IsNotNull(requestRestoredTelemetry);
 
-            this.aspNetDiagnosticsSource.StopActivity();
             Assert.AreEqual(3, this.sendItems.Count);
 
             var requestTelemetry = (RequestTelemetry)this.sendItems[2];

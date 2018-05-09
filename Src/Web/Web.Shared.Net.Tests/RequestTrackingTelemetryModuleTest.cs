@@ -429,8 +429,8 @@
             var restoredActivity = new Activity("dummy").SetParentId(originalRequest.Id).Start();
 
             module.TrackIntermediateRequest(context, restoredActivity);
-
-            Assert.Equal(1, this.sentTelemetry.Count);
+            module.OnEndRequest(context);
+            Assert.Equal(2, this.sentTelemetry.Count);
             Assert.True(this.sentTelemetry.TryDequeue(out RequestTelemetry intermediateRequest));
 
             Assert.Equal(originalRequest.Id, intermediateRequest.Context.Operation.ParentId);

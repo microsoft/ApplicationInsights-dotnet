@@ -19,13 +19,14 @@
     /// </summary>
     public class RequestTrackingTelemetryModule : ITelemetryModule
     {
+        private const string IntermediateRequestHttpContextKey = "IntermediateRequest";
         private readonly IList<string> handlersToFilter = new List<string>();
         private TelemetryClient telemetryClient;
         private TelemetryConfiguration telemetryConfiguration;
         private bool initializationErrorReported;
         private bool correlationHeadersEnabled = true;
         private ChildRequestTrackingSuppressionModule childRequestTrackingSuppressionModule = null;
-
+        
         /// <summary>
         /// Gets or sets a value indicating whether child request suppression is enabled or disabled. 
         /// True by default.
@@ -211,6 +212,12 @@
 
             if (this.childRequestTrackingSuppressionModule?.OnEndRequest_ShouldLog(context) ?? true)
             {
+                var intermediateRequest = (RequestTelemetry)context.Items[IntermediateRequestHttpContextKey];
+                if (intermediateRequest != null)
+                {
+                    this.telemetryClient.TrackRequest(intermediateRequest);
+                }
+
                 this.telemetryClient.TrackRequest(requestTelemetry);
             }
             else
@@ -338,8 +345,7 @@
             intermediateRequest.Context.Operation.ParentId = activity.ParentId;
             intermediateRequest.ResponseCode = null;
             intermediateRequest.Properties.Add("AI internal", "Execute request handler step");
-
-            this.telemetryClient.TrackRequest(intermediateRequest);
+            context.Items[IntermediateRequestHttpContextKey] = intermediateRequest;
         }
 
         /// <summary>
