@@ -146,7 +146,7 @@
                     if (request != null)
                     {
                         var data = ((TelemetryItem<RequestData>)request).data.baseData;
-                        builder.AppendLine($"{request.ToString()} - {data.url} - {data.duration} - {data.id} - {data.name} - {data.success} - {data.responseCode}");
+                        builder.AppendLine($"{request.ToString()} - {data.url} - {((TelemetryItem<RequestData>)request).time} - {data.duration} - {data.id} - {data.name} - {data.success} - {data.responseCode}");
                     }
                     else
                     {
@@ -166,7 +166,7 @@
                             }
                             else
                             {
-                                builder.AppendLine($"{telemetry.ToString()} - {telemetry.name}");
+                                builder.AppendLine($"{telemetry.ToString()} - {telemetry.time}- {telemetry.name}");
                             }
                         }
                     }

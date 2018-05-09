@@ -36,9 +36,9 @@
 
             if (!this.listener.IsListening)
             {
-                this.output.WriteLine(string.Format("{0}: HttpListenerObservableBase Start. Listenet not already listening. Starting to listen", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt")));
+                this.output.WriteLine(string.Format("{0}: HttpListenerObservableBase Start. Listener not already listening. Starting to listen", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt")));
                 this.listener.Start();
-                this.output.WriteLine(string.Format("{0}: HttpListenerObservableBase Start. Listenet not already listening. Started listening", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt")));
+                this.output.WriteLine(string.Format("{0}: HttpListenerObservableBase Start. Listener not already listening. Started listening", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt")));
             }
 
             this.stream = this.CreateStream();
