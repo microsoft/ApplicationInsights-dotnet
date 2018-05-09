@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ApplicationInsights.Channel;
 using FunctionalTestUtils;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 
 namespace MVCFramework20.FunctionalTests
 {
@@ -26,10 +27,13 @@ namespace MVCFramework20.FunctionalTests
             var endpointAddress = new EndpointAddress();
             services.AddSingleton<EndpointAddress>(endpointAddress);
 
-            var builder = new ConfigurationBuilder();
-            builder.AddApplicationInsightsSettings(instrumentationKey: "Foo", endpointAddress: endpointAddress.ConnectionString, developerMode: true);
-            services.AddApplicationInsightsTelemetry(builder.Build());
+            ApplicationInsightsServiceOptions applicationInsightsOptions = new ApplicationInsightsServiceOptions();
+            applicationInsightsOptions.AddAutoCollectedMetricExtractor = false;
+            applicationInsightsOptions.DeveloperMode = true;
+            applicationInsightsOptions.EndpointAddress = endpointAddress.ConnectionString;
+            applicationInsightsOptions.InstrumentationKey = "foo";
 
+            services.AddApplicationInsightsTelemetry(applicationInsightsOptions);
             services.AddMvc();
         }
 
