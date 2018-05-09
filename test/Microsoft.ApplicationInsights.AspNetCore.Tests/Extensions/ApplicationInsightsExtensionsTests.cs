@@ -794,8 +794,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void DoesNotAddAutoCollectedMetricsExtractorToConfigurationIfExplicitlyControlledThroughParameter()
             {
-                Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.AddAutoCollectedMetricExtractor = false;
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                ApplicationInsightsServiceOptions serviceOptions = new ApplicationInsightsServiceOptions();
+                serviceOptions.AddAutoCollectedMetricExtractor = false;
+
+                services.AddApplicationInsightsTelemetry(serviceOptions);
+
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfiguration<AutocollectedMetricsExtractor>(telemetryConfiguration);

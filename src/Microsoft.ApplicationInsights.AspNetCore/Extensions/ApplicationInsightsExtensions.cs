@@ -117,6 +117,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 o.EndpointAddress = options.EndpointAddress;
                 o.InstrumentationKey = options.InstrumentationKey;
                 o.EnableHeartbeat = options.EnableHeartbeat;
+                o.AddAutoCollectedMetricExtractor = options.AddAutoCollectedMetricExtractor;
             });
             return services;
         }
