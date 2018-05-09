@@ -412,9 +412,10 @@
                         writer.WriteStartArray();
                         writer.WriteStartObject();
 
-                        if (false == String.IsNullOrEmpty(metricTelemetry.Metric.ns))
+                        string metricNamespace = metricTelemetry.Metric.ns;
+                        if (false == String.IsNullOrEmpty(metricNamespace))
                         {
-                            writer.WriteProperty("ns", metricTelemetry.Metric.ns);
+                            writer.WriteProperty("ns", metricNamespace);
                         }
 
                         writer.WriteProperty("name", metricTelemetry.Metric.name);

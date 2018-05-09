@@ -430,6 +430,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         new
                         {
                             // The properties and layout should be the same as DataPoint_types.cs
+                            dummyDataPoint.ns,
                             dummyDataPoint.name,
                             dummyDataPoint.kind,
                             dummyDataPoint.value,
@@ -460,6 +461,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.ver,
                             metrics = data.metrics.Select(i => new
                             {
+                                i.ns,
                                 i.name,
                                 i.kind,
                                 i.value,
@@ -595,6 +597,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         new
                         {
                             // The properties and layout should be the same as DataPoint_types.cs
+                            dummyDataPoint.ns,
                             dummyDataPoint.name,
                             dummyDataPoint.kind,
                             dummyDataPoint.value,
@@ -627,6 +630,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.ver,
                             metrics = data.metrics.Select(i => new
                             {
+                                i.ns,
                                 i.name,
                                 i.kind,
                                 i.value,
