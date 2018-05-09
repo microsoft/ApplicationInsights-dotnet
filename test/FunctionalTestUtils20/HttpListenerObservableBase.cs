@@ -7,15 +7,20 @@
     using System.Reactive.Linq;
     using System.Reactive.Threading.Tasks;
     using System.Threading.Tasks;
+    using Xunit.Abstractions;
 
     public abstract class HttpListenerObservableBase<T> : IObservable<T>, IDisposable
     {
         private readonly HttpListener listener;
         private IObservable<T> stream;
+        private ITestOutputHelper output;
 
-        public HttpListenerObservableBase(string url)
+        public HttpListenerObservableBase(string url, ITestOutputHelper output)
         {
-            this.listener = new HttpListener();
+            this.output = output;
+
+            this.output.WriteLine(string.Format("{0}: HttpListenerObservableBase Constructor. Url is: {1}", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt"), url));
+            this.listener = new HttpListener();            
             this.listener.Prefixes.Add(url);
         }
 
@@ -24,12 +29,16 @@
             OnStart();
             if (this.stream != null)
             {
+                this.output.WriteLine(string.Format("{0}: HttpListenerObservableBase Start. Stream is not null. Stopping", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt")));
                 this.Stop();
+                this.output.WriteLine(string.Format("{0}: HttpListenerObservableBase Start. Stream is not null. Stop completed", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt")));
             }
 
             if (!this.listener.IsListening)
             {
+                this.output.WriteLine(string.Format("{0}: HttpListenerObservableBase Start. Listener not already listening. Starting to listen", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt")));
                 this.listener.Start();
+                this.output.WriteLine(string.Format("{0}: HttpListenerObservableBase Start. Listener not already listening. Started listening", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt")));
             }
 
             this.stream = this.CreateStream();

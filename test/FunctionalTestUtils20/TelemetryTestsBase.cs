@@ -136,9 +136,9 @@
             {
                 TelemetryItem<RemoteDependencyData> dependency = telemetry as TelemetryItem<RemoteDependencyData>;
                 if (dependency != null)
-                {
+                {                    
                     var data = ((TelemetryItem<RemoteDependencyData>)dependency).data.baseData;
-                    builder.AppendLine($"{dependency.ToString()} - {data.data} - {data.duration} - {data.id} - {data.name} - {data.resultCode} - {data.success} - {data.target} - {data.type}");
+                    builder.AppendLine($"{dependency.ToString()} - {data.data} - {((TelemetryItem<RemoteDependencyData>)dependency).time} - {data.duration} - {data.id} - {data.name} - {data.resultCode} - {data.success} - {data.target} - {data.type}");
                 }
                 else
                 {
@@ -146,7 +146,7 @@
                     if (request != null)
                     {
                         var data = ((TelemetryItem<RequestData>)request).data.baseData;
-                        builder.AppendLine($"{request.ToString()} - {data.url} - {data.duration} - {data.id} - {data.name} - {data.success} - {data.responseCode}");
+                        builder.AppendLine($"{request.ToString()} - {data.url} - {((TelemetryItem<RequestData>)request).time} - {data.duration} - {data.id} - {data.name} - {data.success} - {data.responseCode}");
                     }
                     else
                     {
@@ -166,7 +166,20 @@
                             }
                             else
                             {
-                                builder.AppendLine($"{telemetry.ToString()} - {telemetry.name}");
+                                TelemetryItem<MetricData> metric = telemetry as TelemetryItem<MetricData>;
+                                if (metric != null)
+                                {
+                                    var data = ((TelemetryItem<MetricData>)metric).data.baseData;
+                                    builder.AppendLine($"{metric.ToString()} - {metric.data}- {metric.name} - {data.metrics.Count}");
+                                    foreach (var metricVal in data.metrics)
+                                    {
+                                        builder.AppendLine($"{metricVal.name} {metricVal.value}");
+                                    }
+                                }     
+                                else
+                                {
+                                    builder.AppendLine($"{telemetry.ToString()} - {telemetry.time}");
+                                }
                             }
                         }
                     }

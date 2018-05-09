@@ -49,7 +49,7 @@
 
             output.WriteLine(string.Format("{0}: Starting listener at: {1}", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt"), this.httpListenerConnectionString));
 
-            this.listener = new TelemetryHttpListenerObservable(this.httpListenerConnectionString);
+            this.listener = new TelemetryHttpListenerObservable(this.httpListenerConnectionString, this.output);
             try
             {
                 this.listener.Start();
@@ -101,13 +101,19 @@
         {
             if (this.hostingEngine != null)
             {
-                this.hostingEngine.Dispose();
+                this.output.WriteLine(string.Format("{0}:Disposing WebHost starting.....", DateTime.Now.ToString("G")));
+                this.hostingEngine.Dispose();                
+                this.output.WriteLine(string.Format("{0}:Disposing WebHost completed.", DateTime.Now.ToString("G")));
+            }
+            else
+            {
+                this.output.WriteLine(string.Format("{0}: Hosting engine is null.", DateTime.Now.ToString("G")));
             }
 
             if (this.listener != null)
             {
                 output.WriteLine(string.Format("{0}: Stopping listener at: {1}", DateTime.Now.ToString("G"), this.httpListenerConnectionString));
-                this.listener.Stop();
+                this.listener.Stop();                
             }
         }
     }
