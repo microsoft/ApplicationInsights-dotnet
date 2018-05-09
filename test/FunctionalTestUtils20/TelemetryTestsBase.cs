@@ -167,7 +167,19 @@
                             else
                             {
                                 TelemetryItem<MetricData> metric = telemetry as TelemetryItem<MetricData>;
-                                builder.AppendLine($"{telemetry.ToString()} - {telemetry.time}- {metric.name} - {metric.data}");
+                                if (metric != null)
+                                {
+                                    var data = ((TelemetryItem<MetricData>)metric).data.baseData;
+                                    builder.AppendLine($"{metric.ToString()} - {metric.data}- {metric.name} - {data.metrics.Count}");
+                                    foreach (var metricVal in data.metrics)
+                                    {
+                                        builder.AppendLine($"{metricVal.name} {metricVal.value}");
+                                    }
+                                }     
+                                else
+                                {
+                                    builder.AppendLine($"{telemetry.ToString()} - {telemetry.time}");
+                                }
                             }
                         }
                     }
