@@ -14,7 +14,7 @@
     /// A <c>Metric</c> instance groups one or more <c>MetricSeries</c> that actually track and aggregate values along with
     /// naming and configuration attributes that identify the metric and define how it will be aggregated. 
     /// </summary>
-    internal sealed class Metric
+    public sealed class Metric
     {
 #pragma warning disable SA1401, SA1304, SA1307 // intended to be an internal, lower-case field 
         internal readonly MetricConfiguration configuration;

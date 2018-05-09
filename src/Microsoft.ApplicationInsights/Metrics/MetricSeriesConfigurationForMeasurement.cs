@@ -6,7 +6,7 @@
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
     /// <summary>@ToDo: Complete documentation before stable release. {023}</summary>
-    internal class MetricSeriesConfigurationForMeasurement : IMetricSeriesConfiguration
+    public class MetricSeriesConfigurationForMeasurement : IMetricSeriesConfiguration
     {
         private readonly bool restrictToUInt32Values;
         private readonly int hashCode;

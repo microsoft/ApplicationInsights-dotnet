@@ -101,7 +101,7 @@
         /// <param name="min">Minimum value taken during aggregation interval.</param>
         /// <param name="max">Maximum of values taken during aggregation interval.</param>
         /// <param name="standardDeviation">Standard deviation of values taken during aggregation interval.</param>
-        internal MetricTelemetry(
+        public MetricTelemetry(
             string metricNamespace,
             string name,
             int count,
@@ -147,6 +147,15 @@
         /// Gets the context associated with the current telemetry item.
         /// </summary>
         public TelemetryContext Context { get; }
+
+        /// <summary>
+        /// Gets or sets the name of the metric.
+        /// </summary>
+        public string MetricNamespace
+        {
+            get { return this.Metric.ns; }
+            set { this.Metric.ns = value; }
+        }
 
         /// <summary>
         /// Gets or sets the name of the metric.
@@ -219,15 +228,6 @@
         public IDictionary<string, string> Properties
         {
             get { return this.Data.properties; }
-        }
-
-        /// <summary>
-        /// Gets or sets the name of the metric.
-        /// </summary>
-        internal string MetricNamespace
-        {
-            get { return this.Metric.ns; }
-            set { this.Metric.ns = value; }
         }
 
         /// <summary>
