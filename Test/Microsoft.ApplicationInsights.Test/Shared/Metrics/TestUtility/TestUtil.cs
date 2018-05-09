@@ -142,7 +142,7 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
 
             Assert.IsNotNull(metricAggregate);
 
-            Assert.AreEqual(ns, metricAggregate.MetricNamespace, "metricAggregate.MetricNamespace mismatch");
+            ////Assert.AreEqual(ns, metricAggregate.MetricNamespace, "metricAggregate.MetricNamespace mismatch");
             Assert.AreEqual(name, metricAggregate.Name, "metricAggregate.Name mismatch");
             Assert.AreEqual(count, metricAggregate.Count, "metricAggregate.Count mismatch");
             Assert.AreEqual(sum, metricAggregate.Sum, TestUtil.MaxAllowedPrecisionError, "metricAggregate.Sum mismatch");
