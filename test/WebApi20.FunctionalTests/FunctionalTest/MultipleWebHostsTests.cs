@@ -138,7 +138,7 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
 
             Assert.NotNull(activeConfig.TelemetryChannel);
 
-            using (var listener = new TelemetryHttpListenerObservable(activeConfig.TelemetryChannel.EndpointAddress))
+            using (var listener = new TelemetryHttpListenerObservable(activeConfig.TelemetryChannel.EndpointAddress, this.output))
             {
                 listener.Start();
 
