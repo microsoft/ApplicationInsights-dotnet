@@ -1,3 +1,5 @@
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.TryGetOperationDetail(string key, out object detail) -> bool
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.SetOperationDetail(string key, object detail) -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationIdProvider.get -> Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationIdProvider.set -> void
 Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider

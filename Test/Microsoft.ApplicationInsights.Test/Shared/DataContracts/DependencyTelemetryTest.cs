@@ -167,6 +167,36 @@
             Assert.AreEqual(10, item.sampleRate);
         }
 
+        [TestMethod]
+        public void DependencyTelemetrySetGetOperationDetail()
+        {
+            const string key = "foo";
+            const string detail = "bar";
+
+            var telemetry = this.CreateRemoteDependencyTelemetry("mycommand");
+            telemetry.SetOperationDetail(key, detail);
+            Assert.IsTrue(telemetry.TryGetOperationDetail(key, out object retrievedValue));
+            Assert.IsNotNull(retrievedValue);
+            Assert.AreEqual(detail, retrievedValue.ToString());
+
+            // Clear and verify the detail is no longer present
+            telemetry.ClearOperationDetails();
+            Assert.IsFalse(telemetry.TryGetOperationDetail(key, out retrievedValue));
+        }
+
+        [TestMethod]
+        public void DependencyTelemetryGetUnsetOperationDetail()
+        {
+            const string key = "foo";
+
+            var telemetry = this.CreateRemoteDependencyTelemetry("mycommand");
+            Assert.IsFalse(telemetry.TryGetOperationDetail(key, out object retrievedValue));
+            Assert.IsNull(retrievedValue);
+
+            // should not throw
+            telemetry.ClearOperationDetails();
+        }
+
 #if !NETCOREAPP1_1
         [TestMethod]
         public void DependencyTelemetryDeepCloneCopiesAllProperties()
@@ -185,7 +215,7 @@
         private DependencyTelemetry CreateRemoteDependencyTelemetry()
         {
             DependencyTelemetry item = new DependencyTelemetry
-                                            {                                              
+                                            {
                                                 Timestamp = DateTimeOffset.Now,
                                                 Sequence = "4:2",
                                                 Name = "MyWebServer.cloudapp.net",
