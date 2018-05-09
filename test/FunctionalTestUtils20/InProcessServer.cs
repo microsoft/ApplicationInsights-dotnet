@@ -102,9 +102,12 @@
             if (this.hostingEngine != null)
             {
                 this.output.WriteLine(string.Format("{0}:Disposing WebHost starting.....", DateTime.Now.ToString("G")));
-                this.hostingEngine.Dispose();
-                this.hostingEngine.WaitForShutdown();
+                this.hostingEngine.Dispose();                
                 this.output.WriteLine(string.Format("{0}:Disposing WebHost completed.", DateTime.Now.ToString("G")));
+            }
+            else
+            {
+                this.output.WriteLine(string.Format("{0}: Hosting engine is null.", DateTime.Now.ToString("G")));
             }
 
             if (this.listener != null)
