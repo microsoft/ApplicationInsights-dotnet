@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 2.7.0-beta1
+- [Send UserActionable event about correlation issue with HTTP request with body when .NET 4.7.1 is not installed](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/903)
 - [Added support to collect Perf Counters for .NET Core Apps if running inside Azure WebApps](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/889)
 - [Opt-in legacy correlation headers (x-ms-request-id and x-ms-request-root-id) extraction and injection](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/887)
 - [Fix: Correlation is not working for POST requests](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/898) when .NET 4.7.1 runtime is installed.

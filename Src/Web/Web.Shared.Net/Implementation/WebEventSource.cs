@@ -476,6 +476,17 @@
             this.WriteEvent(48, diagnosticsSourceEventName, this.ApplicationName);
         }
 
+        [Event(49,
+            Keywords = Keywords.Diagnostics | Keywords.UserActionable,
+            Message = ".NET 4.7.1 is not installed, correlation for HTTP requests with body is not possible",
+            Level = EventLevel.Error)]
+        public void CorrelationIssueIsDetectedForRequestWithBody(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                49,
+                this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {
