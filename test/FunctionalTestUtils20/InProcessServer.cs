@@ -43,22 +43,69 @@
             var machineName = "localhost";
             this.url = "http://" + machineName + ":" + random.Next(5000, 14000).ToString();
 
-            output.WriteLine(string.Format("{0}: Launching application at: {1}", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt"), this.url));
+            this.httpListenerConnectionString = LauchApplicationAndStartListener(assemblyName);
+        }
 
-            this.httpListenerConnectionString = this.Start(assemblyName);
+        private string LauchApplicationAndStartListener(string assemblyName)
+        {
+            string listenerConnectionString = "";
+            bool listenerStarted = false;
+            int retryCount = 1;
+            while (retryCount <= 3)
+            {
+                output.WriteLine(string.Format("{0}: Attempt {1} to StartApplication", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt"), retryCount));
+                listenerConnectionString = StartApplication(assemblyName);
+                listenerStarted = StartListener(listenerConnectionString);
+                if(listenerStarted)
+                {
+                    break;
+                }
+                else
+                {
+                    StopApplication();
+                }
+                retryCount++;
+            }
 
+            if(!listenerStarted)
+            {
+                throw new Exception("Unable to start listener after 3 attempts. Failing. Read logs above for details about the exceptions.");
+            }
+            
+            return listenerConnectionString;
+        }
+
+        private bool StartListener(string listenerConnectionString)
+        {
             output.WriteLine(string.Format("{0}: Starting listener at: {1}", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt"), this.httpListenerConnectionString));
 
-            this.listener = new TelemetryHttpListenerObservable(this.httpListenerConnectionString);
+            this.listener = new TelemetryHttpListenerObservable(listenerConnectionString, this.output);
             try
             {
                 this.listener.Start();
                 output.WriteLine(string.Format("{0}: Started listener", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt")));
             }
-            catch(HttpListenerException ex)
+            catch (HttpListenerException ex)
             {
                 output.WriteLine(string.Format("{0}: Error starting listener.ErrorCode {1} Native Code {2}", DateTime.Now.ToString("G"), ex.ErrorCode, ex.NativeErrorCode));
-                throw ex;
+                return false;
+            }
+
+            return true;
+        }
+        private string StartApplication(string assemblyName)
+        {
+            output.WriteLine(string.Format("{0}: Launching application at: {1}", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt"), this.url));
+            return this.Start(assemblyName); ;
+        }
+
+        private void StopApplication()
+        {
+            if (this.hostingEngine != null)
+            {
+                this.output.WriteLine(string.Format("{0}:Disposing WebHost starting.....", DateTime.Now.ToString("G")));
+                this.hostingEngine.Dispose();
+                this.output.WriteLine(string.Format("{0}:Disposing WebHost completed.", DateTime.Now.ToString("G")));
             }
         }
 
@@ -101,13 +148,19 @@
         {
             if (this.hostingEngine != null)
             {
-                this.hostingEngine.Dispose();
+                this.output.WriteLine(string.Format("{0}:Disposing WebHost starting.....", DateTime.Now.ToString("G")));
+                this.hostingEngine.Dispose();                
+                this.output.WriteLine(string.Format("{0}:Disposing WebHost completed.", DateTime.Now.ToString("G")));
+            }
+            else
+            {
+                this.output.WriteLine(string.Format("{0}: Hosting engine is null.", DateTime.Now.ToString("G")));
             }
 
             if (this.listener != null)
             {
                 output.WriteLine(string.Format("{0}: Stopping listener at: {1}", DateTime.Now.ToString("G"), this.httpListenerConnectionString));
-                this.listener.Stop();
+                this.listener.Stop();                
             }
         }
     }

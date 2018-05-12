@@ -117,6 +117,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 o.EndpointAddress = options.EndpointAddress;
                 o.InstrumentationKey = options.InstrumentationKey;
                 o.EnableHeartbeat = options.EnableHeartbeat;
+                o.AddAutoCollectedMetricExtractor = options.AddAutoCollectedMetricExtractor;
             });
             return services;
         }
@@ -134,6 +135,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+                services.AddSingleton<ITelemetryInitializer, ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, AzureWebAppRoleEnvironmentTelemetryInitializer>();                
                 services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
@@ -175,6 +177,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<TelemetryClient>();
 
                 services.AddSingleton<ApplicationInsightsDebugLogger, ApplicationInsightsDebugLogger>();
+
+                services.TryAddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>, DefaultApplicationInsightsServiceConfigureOptions>();
 
                 // Using startup filter instead of starting DiagnosticListeners directly because
                 // AspNetCoreHostingDiagnosticListener injects TelemetryClient that injects TelemetryConfiguration

@@ -11,14 +11,14 @@
     {
         const string ExpectedSchema = "http";
         const string ExpectedHostName = "randomhost";
+        const string ExpectedDefaultHostName = "unknown-host";
         const string ExpectedPath = "/path/path/";
         const string ExpectedQueryString = "?queryType=1";
 
         [Fact]
         public void TestGetUriThrowsExceptionOnNullRequestObject()
         {
-            Assert.Throws(
-                typeof(ArgumentNullException), 
+            Assert.Throws<ArgumentNullException>(
                 () =>
                 {
                     HttpRequestExtensions.GetUri(null);
@@ -30,8 +30,7 @@
         {
             var request = new DefaultHttpContext().Request;
 
-            var exception = Assert.Throws(
-                typeof(ArgumentException),
+            var exception = Assert.Throws<ArgumentException>(
                 () =>
                 {
                     HttpRequestExtensions.GetUri(request);
@@ -41,19 +40,15 @@
         }
 
         [Fact]
-        public void TestGetUriThrowsExceptionOnRequestObjectHostIsNotSpecified()
+        public void TestGetUriUsesDefaultHostNameOnRequestObjectHostIsNotSpecified()
         {
             var request = new DefaultHttpContext().Request;
             request.Scheme = ExpectedSchema;
 
-            var exception = Assert.Throws(
-                typeof(ArgumentException),
-                () =>
-                {
-                    HttpRequestExtensions.GetUri(request);
-                });
-
-            Assert.True(exception.Message.Contains("Host"), "Host is not mentioned in the exception");
+            var uri = HttpRequestExtensions.GetUri(request);
+            Assert.Equal(
+                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}", ExpectedSchema, ExpectedDefaultHostName)),
+                uri);
         }
 
         [Fact]

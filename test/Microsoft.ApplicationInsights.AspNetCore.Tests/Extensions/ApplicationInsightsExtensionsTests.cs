@@ -18,6 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.ApplicationInsights.AspNetCore.Tests;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -44,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             var services = new ServiceCollection();
             IHttpContextAccessor contextAccessor = new HttpContextAccessor();
             services.AddSingleton<IHttpContextAccessor>(contextAccessor);
-            services.AddSingleton<IHostingEnvironment>(new HostingEnvironment());
+            services.AddSingleton<IHostingEnvironment>(new HostingEnvironment() { ContentRootPath = Directory.GetCurrentDirectory()});
             services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
             return services;
         }
@@ -52,6 +53,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
         public static class AddApplicationInsightsTelemetry
         {
             [Theory]
+            [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]            
             [InlineData(typeof(ITelemetryInitializer), typeof(ComponentVersionTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), ServiceLifetime.Singleton)]
@@ -69,6 +71,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             }
 
             [Theory]
+            [InlineData(typeof(ITelemetryInitializer), typeof(ApplicationInsights.AspNetCore.TelemetryInitializers.DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]            
             [InlineData(typeof(ITelemetryInitializer), typeof(ComponentVersionTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), ServiceLifetime.Singleton)]
@@ -125,6 +128,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
             {
+                // Clear off Active before beginning test to avoid being affected by previous tests.
+                TelemetryConfiguration.Active.InstrumentationKey = "";
+                TelemetryConfiguration.Active.TelemetryInitializers.Clear();
+
                 var activeConfig = TelemetryConfiguration.Active;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(Path.Combine("content","config-instrumentation-key.json"), null);
 
@@ -187,6 +194,139 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 finally
                 {
                     Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+                }
+            }
+
+            /// <summary>
+            /// Validates that while using services.AddApplicationInsightsTelemetry(); ikey is read from
+            /// Environment
+            /// </summary>
+            [Fact]
+            public static void AddApplicationInsightsTelemetryReadsInstrumentationKeyFromEnvironment()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();                
+                Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", TestInstrumentationKey);                
+                try
+                {
+                    services.AddApplicationInsightsTelemetry();
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                    Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
+                }
+                finally
+                {
+                    Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+                }
+            }
+
+            /// <summary>
+            /// Validates that while using services.AddApplicationInsightsTelemetry(ikey), supplied ikey is
+            /// used instead of one from Environment
+            /// </summary>
+            [Fact]
+            public static void AddApplicationInsightsTelemetryDoesNotReadInstrumentationKeyFromEnvironmentIfSupplied()
+            {
+                Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", TestInstrumentationKey);
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                string ikeyExpected = Guid.NewGuid().ToString();
+
+                try
+                {
+                    services.AddApplicationInsightsTelemetry(ikeyExpected);
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                    Assert.Equal(ikeyExpected, telemetryConfiguration.InstrumentationKey);
+                }
+                finally
+                {
+                    Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+                }
+            }
+
+            /// <summary>
+            /// Validates that while using services.AddApplicationInsightsTelemetry(); reads ikey/other settings from
+            /// appsettings.json
+            /// </summary>
+            [Fact]
+            public static void AddApplicationInsightsTelemetryReadsInstrumentationKeyFromDefaultAppsettingsFile()
+            {
+                string ikeyExpected = Guid.NewGuid().ToString();
+                string hostExpected = "http://ainewhost/v2/track/";
+                string text = File.ReadAllText("appsettings.json");
+                string originalText = text;
+                try
+                {
+                    text = text.Replace("ikeyhere", ikeyExpected);
+                    text = text.Replace("http://hosthere/v2/track/", hostExpected);
+                    File.WriteAllText("appsettings.json", text);
+
+                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                    services.AddApplicationInsightsTelemetry();
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                    Assert.Equal(ikeyExpected, telemetryConfiguration.InstrumentationKey);
+                    Assert.Equal(hostExpected, telemetryConfiguration.TelemetryChannel.EndpointAddress);
+                }
+                finally
+                {                    
+                    File.WriteAllText("appsettings.json", originalText);
+                }
+            }
+
+            /// <summary>
+            /// Validates that while using services.AddApplicationInsightsTelemetry(ikey), supplied ikey is
+            /// used instead of one from appsettings.json
+            /// </summary>
+            [Fact]
+            public static void AddApplicationInsightsTelemetryDoesNotReadInstrumentationKeyFromDefaultAppsettingsIfSupplied()
+            {
+                string suppliedIKey = "suppliedikey";
+                string ikey = Guid.NewGuid().ToString();
+                string text = File.ReadAllText("appsettings.json");
+                try
+                {
+                    text = text.Replace("ikeyhere", ikey);
+                    File.WriteAllText("appsettings.json", text);
+
+                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                    services.AddApplicationInsightsTelemetry(suppliedIKey);
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                    Assert.Equal(suppliedIKey, telemetryConfiguration.InstrumentationKey);
+                }
+                finally
+                {
+                    text = text.Replace(ikey, "ikeyhere");
+                    File.WriteAllText("appsettings.json", text);
+                }
+            }
+
+            /// <summary>
+            /// Validates that while using services.AddApplicationInsightsTelemetry(ApplicationInsightsServiceOptions), supplied ikey is
+            /// used instead of one from appsettings.json
+            /// </summary>
+            [Fact]
+            public static void AddApplicationInsightsTelemetryDoesNotReadInstrumentationKeyFromDefaultAppsettingsIfSuppliedViaOptions()
+            {
+                string suppliedIKey = "suppliedikey";
+                var options = new ApplicationInsightsServiceOptions() { InstrumentationKey = suppliedIKey };
+                string ikey = Guid.NewGuid().ToString();
+                string text = File.ReadAllText("appsettings.json");
+                try
+                {
+                    text = text.Replace("ikeyhere", ikey);
+                    File.WriteAllText("appsettings.json", text);
+
+                    var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                    services.AddApplicationInsightsTelemetry(options);
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                    Assert.Equal(suppliedIKey, telemetryConfiguration.InstrumentationKey);
+                }
+                finally
+                {
+                    text = text.Replace(ikey, "ikeyhere");
+                    File.WriteAllText("appsettings.json", text);
                 }
             }
 
@@ -654,8 +794,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void DoesNotAddAutoCollectedMetricsExtractorToConfigurationIfExplicitlyControlledThroughParameter()
             {
-                Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.AddAutoCollectedMetricExtractor = false;
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                ApplicationInsightsServiceOptions serviceOptions = new ApplicationInsightsServiceOptions();
+                serviceOptions.AddAutoCollectedMetricExtractor = false;
+
+                services.AddApplicationInsightsTelemetry(serviceOptions);
+
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfiguration<AutocollectedMetricsExtractor>(telemetryConfiguration);
@@ -783,6 +927,31 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
                 Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
+            }
+
+            /// <summary>
+            /// Sanity check to validate that node name and roleinstance are populated
+            /// </summary>
+            [Fact]
+            public static void SanityCheckRoleInstance()
+            {
+                // ARRANGE
+                string expected = Environment.MachineName;
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();                
+                services.AddApplicationInsightsTelemetry();
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+
+                // Request TC from DI which would be made with the default TelemetryConfiguration which should 
+                // contain the telemetry initializer capable of populate node name and role instance name.
+                var tc = serviceProvider.GetRequiredService<TelemetryClient>();                
+                var mockItem = new EventTelemetry();
+
+                // ACT
+                // This is expected to run all TI and populate the node name and role instance.
+                tc.Initialize(mockItem);
+
+                // VERIFY                
+                Assert.Contains(expected,mockItem.Context.Cloud.RoleInstance, StringComparison.CurrentCultureIgnoreCase);                                
             }
         }
 

@@ -10,12 +10,13 @@
     using System.Text;
     using System.Threading.Tasks;
     using AI;
+    using Xunit.Abstractions;
 
     public class TelemetryHttpListenerObservable : HttpListenerObservableBase<Envelope>
     {        
         public bool FailureDetected { get; set; }
 
-        public TelemetryHttpListenerObservable(string url) : base(url)
+        public TelemetryHttpListenerObservable(string url, ITestOutputHelper output) : base(url, output)
         {
         }        
 

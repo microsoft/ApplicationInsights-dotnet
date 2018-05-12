@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <VersionPrefix>1.0.2</VersionPrefix>
-    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
-	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.0</TargetFrameworks>    
+    <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+	<TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.0</TargetFrameworks>    
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>FunctionalTestUtils20</AssemblyName>    
     <PackageId>FunctionalTestUtils</PackageId>
@@ -21,9 +21,12 @@
    
   <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />		
 	<PackageReference Include="NETStandard.Library" Version="2.0.0" />		
-	<PackageReference Include="System.Reactive.Linq" Version="3.1.1" />			
-    <PackageReference Include="xunit" Version="2.2.0" />
-	<PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />			
+	<PackageReference Include="System.Reactive.Linq" Version="3.1.1" />			    
+	<PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+    <PackageReference Include="xunit" Version="2.3.1" />
+    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
