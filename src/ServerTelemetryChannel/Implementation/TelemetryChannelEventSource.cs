@@ -499,7 +499,7 @@
             string name;
             try
             {
-#if !NETSTANDARD1_3
+#if !NETSTANDARD
                 name = AppDomain.CurrentDomain.FriendlyName;
 #else
                 name = string.Empty;
