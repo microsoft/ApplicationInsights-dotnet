@@ -2,6 +2,7 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
 
   <PropertyGroup>
+    <ProjectGuid>{14FA551E-886A-4D1B-B716-567EB4954C8E}</ProjectGuid>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
@@ -10,10 +11,10 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
-    <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.NetCore.Tests</AssemblyName>
-    <DebugType>pdbonly</DebugType> 
-    <DebugSymbols>true</DebugSymbols> 
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.NetCore20.Tests</AssemblyName>
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
     <DefineConstants>$(DefineConstants);NETCOREAPP</DefineConstants>
   </PropertyGroup>
 
@@ -34,7 +35,6 @@
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
     <PackageReference Include="System.Security.AccessControl" Version="4.3.0" />
     <PackageReference Include="CompareNETObjects" Version="3.12.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
     <PackageReference Include="MicroBuild.Core" Version="0.3.0">
       <PrivateAssets>All</PrivateAssets>

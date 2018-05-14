@@ -12,6 +12,7 @@
     <TargetFrameworks>netcoreapp1.1</TargetFrameworks>
     <DebugType>pdbonly</DebugType> 
     <DebugSymbols>true</DebugSymbols> 
+    <DefineConstants>$(DefineConstants);NETCOREAPP</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
