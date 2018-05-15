@@ -61,7 +61,7 @@
     <PackageReference Include="System.Xml.XPath" Version="4.3.0" />
     <PackageReference Include="System.Xml.XPath.XDocument" Version="4.3.0" />
 
-    <PackageReference Include="MicroBuild.Core" Version="0.2.0">
+    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <Reference Include="System.Runtime.Serialization" />

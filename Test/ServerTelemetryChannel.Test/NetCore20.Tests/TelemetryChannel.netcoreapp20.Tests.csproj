@@ -2,7 +2,7 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
 
   <PropertyGroup>
-    <ProjectGuid>{DD9659BE-7C0F-4298-82B2-5E957F95977A}</ProjectGuid>
+    <ProjectGuid>{14FA551E-886A-4D1B-B716-567EB4954C8E}</ProjectGuid>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
@@ -11,45 +11,42 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <TargetFrameworks>net45</TargetFrameworks>
-    <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.Net45.Tests</AssemblyName>
-    <DebugType>pdbonly</DebugType> 
-    <DebugSymbols>true</DebugSymbols> 
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.NetCore20.Tests</AssemblyName>
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>$(DefineConstants);NETCOREAPP</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(OS) != 'Windows_NT'">
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <TargetFrameworks>netstandard1.3</TargetFrameworks>
-  </PropertyGroup>
-  
-  <ItemGroup Condition="$(OS) == 'Windows_NT'">
+  <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.0" />
-    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="15.6.0" />
+    <PackageReference Include="Moq" Version="4.8.2" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
+    <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
+    <PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />
+    <PackageReference Include="System.Diagnostics.TraceSource" Version="4.3.0" />
+    <PackageReference Include="System.Net.NetworkInformation" Version="4.3.0" />
+    <PackageReference Include="System.Net.Requests" Version="4.3.0" />
+    <PackageReference Include="System.Reflection" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Primitives" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
+    <PackageReference Include="System.Security.AccessControl" Version="4.3.0" />
     <PackageReference Include="CompareNETObjects" Version="3.12.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
     <PackageReference Include="MicroBuild.Core" Version="0.3.0">
-      <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\TelemetryChannel.csproj">
-      <Project>{3273d899-d9b3-44fe-b3ab-578e18b2ef90}</Project>
-      <Name>TelemetryChannel</Name>
-    </ProjectReference>
-    <PackageReference Include="Moq" Version="4.8.2" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Web.Extensions" />
+    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\TelemetryChannel.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
-  <Import Project="..\..\..\Test\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" Condition="$(OS) == 'Windows_NT'" />
-  <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" Condition="$(OS) == 'Windows_NT'" />
+  <Import Project="..\..\..\Test\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" />
+  <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 
 </Project>
