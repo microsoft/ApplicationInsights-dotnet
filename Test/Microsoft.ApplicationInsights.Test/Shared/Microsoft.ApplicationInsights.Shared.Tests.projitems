@@ -119,7 +119,11 @@
     <None    Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\Materials\StdDev Test Tool.xlsx" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp1.1'">
+  <PropertyGroup>
+    <IsNetCoreBuild Condition="'$(TargetFramework)' == 'netcoreapp1.1'">True</IsNetCoreBuild>
+    <IsNetCoreBuild Condition="'$(TargetFramework)' == 'netcoreapp2.0'">True</IsNetCoreBuild>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(IsNetCoreBuild)'!='True'">
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Platform\PlatformReferencesTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\RichPayloadEventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FailOnAssertSetup.cs" />

@@ -5,10 +5,10 @@
     [DataContract]
     internal class BackendResponse
     {
-        [DataMember(Name = "itemsReceived")]
+        [DataMember(Name = "itemsReceived", IsRequired=true)]
         public int ItemsReceived { get; set; }
 
-        [DataMember(Name = "itemsAccepted")]
+        [DataMember(Name = "itemsAccepted", IsRequired = true)]
         public int ItemsAccepted { get; set; }
 
         [DataMember(Name = "errors")]
