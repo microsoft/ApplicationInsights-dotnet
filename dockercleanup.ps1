@@ -28,8 +28,7 @@ Write-Host "Removing E2E Images"
 & docker rmi -f e2etests_ingestionservice
 & docker rmi -f e2etests_e2etestwebapi
 & docker rmi -f e2etests_e2etestwebappcore20
-& docker rmi -f e2etests_e2etestwebapp 
-& docker rmi -f e2etests_sql-server
+& docker rmi -f e2etests_e2etestwebapp
 
 Write-Host "Removing dangling images"
 docker images -f "dangling=true" -q | ForEach-Object {docker rmi $_ -f}
