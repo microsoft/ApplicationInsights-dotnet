@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using DependencyCollector.Shared;
 
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyCopyright("Copyright © Microsoft. All Rights Reserved.")]
+[assembly: AssemblyCopyright("© Microsoft Corporation. All rights reserved.")]
 
 [assembly: ComVisible(false)]
 

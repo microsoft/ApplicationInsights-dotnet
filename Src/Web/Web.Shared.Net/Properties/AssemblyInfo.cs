@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Application Insights for Web Applications")]
 [assembly: AssemblyCompany("Microsoft")]
 [assembly: AssemblyProduct("Application Insights .NET SDK")]
-[assembly: AssemblyCopyright("Copyright © Microsoft. All Rights Reserved.")]
+[assembly: AssemblyCopyright("© Microsoft Corporation. All rights reserved.")]
 
 [assembly: ComVisible(false)]
 
