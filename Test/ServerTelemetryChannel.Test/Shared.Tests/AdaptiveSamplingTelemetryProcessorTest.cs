@@ -15,6 +15,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
 
     [TestClass]
     public class AdaptiveSamplingTelemetryProcessorTest
