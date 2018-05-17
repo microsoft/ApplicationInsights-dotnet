@@ -2,14 +2,19 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.7.0-beta1 
+- [Extend the Beta period for Metrics Pre-Aggregation features shipped in 2.6.0-beta3.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/785)
+- [New: Added TryGetOperationDetail to DependencyTelemetry to facilitate advanced ITelemetryInitializer scenarios.  Allows ITelemetryInitializer implementations to specify fields that would otherwise not be sent automatically to the backend.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/900)
+
+## version 2.6.3
+- [Revert: changed namespace SamplingPercentageEstimatorSettings](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/727)
+
 ## Version 2.6.2
- - [Fix: changed namespace SamplingPercentageEstimatorSettings](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/727)
- - [Add netstandard2.0 target for TelemetryChannel which doesn't have a dependency on Newtonsoft.Json ](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/800)
+- [Add netstandard2.0 target for TelemetryChannel which doesn't have a dependency on Newtonsoft.Json ](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/800)
 
 ## Version 2.6.1 
 - [Extend the Beta period for Metrics Pre-Aggregation features shipped in 2.6.0-beta3.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/785)
 - [Fix: changed namespace SamplingPercentageEstimatorSettings](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/727)
-- [Extend the Beta period for Metrics Pre-Aggregation features shipped in 2.6.0-beta3.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/785)
 
 ## Version 2.6.0-beta4
 - [New: Enable ExceptionTelemetry.SetParsedStack for .Net Standard](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/763)
