@@ -4,6 +4,7 @@
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     /// <summary>
@@ -19,7 +20,7 @@
         /// <summary>
         /// Sampling percentage estimator settings.
         /// </summary>
-        private readonly SamplingPercentageEstimatorSettings estimatorSettings;
+        private readonly Channel.Implementation.SamplingPercentageEstimatorSettings estimatorSettings;
 
         /// <summary>
         /// Callback invoked every time sampling percentage is evaluated.
@@ -36,7 +37,7 @@
         /// <param name="next">Next TelemetryProcessor in call chain.</param>
         /// </summary>
         public AdaptiveSamplingTelemetryProcessor(ITelemetryProcessor next)
-            : this(new SamplingPercentageEstimatorSettings(), null, next)
+            : this(new Channel.Implementation.SamplingPercentageEstimatorSettings(), null, next)
         {
         }
 
@@ -47,7 +48,7 @@
         /// <param name="next">Next TelemetryProcessor in call chain.</param>
         /// </summary>
         public AdaptiveSamplingTelemetryProcessor(
-            SamplingPercentageEstimatorSettings settings,
+            Channel.Implementation.SamplingPercentageEstimatorSettings settings,
             AdaptiveSamplingPercentageEvaluatedCallback callback,
             ITelemetryProcessor next)
         {
@@ -260,7 +261,7 @@
             double currentSamplingPercentage,
             double newSamplingPercentage,
             bool isSamplingPercentageChanged,
-            SamplingPercentageEstimatorSettings settings)
+            Channel.Implementation.SamplingPercentageEstimatorSettings settings)
         {
             if (isSamplingPercentageChanged)
             {

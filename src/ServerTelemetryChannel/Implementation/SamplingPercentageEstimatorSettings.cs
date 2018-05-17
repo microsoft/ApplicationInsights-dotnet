@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
+﻿namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation
 {
     using System;
 
@@ -18,7 +18,7 @@
         /// </summary>
         public SamplingPercentageEstimatorSettings()
         {
-            // set defalt values
+            // set default values
             this.MaxTelemetryItemsPerSecond = 5.0;
             this.InitialSamplingPercentage = 100.0;
             this.MinSamplingPercentage = 0.1;
