@@ -13,9 +13,11 @@ namespace Microsoft.ApplicationInsights.Tracing.Tests
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using static System.Globalization.CultureInfo;
+
     public class AdapterHelper : IDisposable
     {
-        public readonly string InstrumentationKey;
+        public string InstrumentationKey { get; }
 
 #if NET45 || NET46
         private static readonly string ApplicationInsightsConfigFilePath =
@@ -29,7 +31,7 @@ namespace Microsoft.ApplicationInsights.Tracing.Tests
         {
             this.InstrumentationKey = instrumentationKey;
 
-            string configuration = string.Format(
+            string configuration = string.Format(InvariantCulture,
                                     @"<?xml version=""1.0"" encoding=""utf-8"" ?>
                                      <ApplicationInsights xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
                                         <InstrumentationKey>{0}</InstrumentationKey>
@@ -76,9 +78,9 @@ namespace Microsoft.ApplicationInsights.Tracing.Tests
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool dispossing)
+        protected virtual void Dispose(bool disposing)
         {
-            if (dispossing)
+            if (disposing)
             {
                 this.Channel.Dispose();
 

@@ -20,11 +20,12 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
     using Microsoft.Diagnostics.Tracing.Session;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using static System.Globalization.CultureInfo;
+
     [TestClass]
-    public class EtwTelemetryModuleTests : IDisposable
+    public sealed class EtwTelemetryModuleTests : IDisposable
     {
         private const int NoEventSourcesConfiguredEventId = 1;
-        private const int FailedToEnableProvidersEventId = 2;
         private const int ModuleInitializationFailedEventId = 3;
         private const int AccessDeniedEventId = 4;
 
@@ -53,7 +54,9 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
         }
 
         [ClassInitialize]
+#pragma warning disable CA1801 // Review unused parameters
         public static void InitializeClass(TestContext testContext)
+#pragma warning restore CA1801 // Review unused parameters
         {
             // Only users with administrative privileges, users in the Performance Log Users group,
             // and services running as LocalSystem, LocalService, or NetworkService can enable trace providers
@@ -253,7 +256,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 
                 TestProvider.Log.Info("Hello!");
                 int expectedEventCount = 2;
-                await WaitForItems(adapterHelper.Channel, expectedEventCount);
+                await WaitForItems(adapterHelper.Channel, expectedEventCount).ConfigureAwait(false);
 
                 // The very 1st event is for the manifest.
                 Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
@@ -278,7 +281,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 TestProvider.Log.Info("World!");
 
                 int expectedEventCount = 3;
-                await WaitForItems(adapterHelper.Channel, expectedEventCount);
+                await WaitForItems(adapterHelper.Channel, expectedEventCount).ConfigureAwait(false);
 
                 // The very 1st event is for the manifest.
                 Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
@@ -308,7 +311,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 
                 // There's going to be a delay around 2000ms before the events reaches the channel.
                 int expectedEventCount = 2;
-                await this.WaitForItems(this.adapterHelper.Channel, expectedEventCount);
+                await this.WaitForItems(this.adapterHelper.Channel, expectedEventCount).ConfigureAwait(false);
 
                 Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
                 TraceTelemetry actual = (TraceTelemetry)this.adapterHelper.Channel.SentItems[1];
@@ -317,11 +320,11 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 Assert.AreEqual("Blah blah", actual.Message);
                 Assert.AreEqual(SeverityLevel.Verbose, actual.SeverityLevel);
                 Assert.AreEqual(eventId.ToString(), actual.Properties["uniqueId"]);
-                Assert.AreEqual(TestProvider.ComplexEventId.ToString(), actual.Properties["EventId"]);
+                Assert.AreEqual(TestProvider.ComplexEventId.ToString(InvariantCulture), actual.Properties["EventId"]);
                 Assert.AreEqual(nameof(TestProvider.Complex) + "/Extension", actual.Properties["EventName"]);
                 Assert.AreEqual(activityId.ToString(), actual.Properties["ActivityID"]);
                 Assert.AreEqual("0x8000F00000000001", actual.Properties["Keywords"]);
-                Assert.AreEqual(((int)EventChannel.Debug).ToString(), actual.Properties["Channel"]);
+                Assert.AreEqual(((int)EventChannel.Debug).ToString(InvariantCulture), actual.Properties["Channel"]);
                 Assert.AreEqual("Extension", actual.Properties["Opcode"]);
                 Assert.AreEqual("0x00000020", actual.Properties["Task"]);
             }
@@ -344,7 +347,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 TestProvider.Log.Warning(1, 2);
 
                 int expectedEventCount = 3;
-                await this.WaitForItems(this.adapterHelper.Channel, expectedEventCount);
+                await this.WaitForItems(this.adapterHelper.Channel, expectedEventCount).ConfigureAwait(false);
 
                 // The very 1st event is for the manifest.
                 Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
@@ -368,7 +371,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 TestProvider.Log.Tricky(7, "TrickyEvent", "Actual message");
 
                 int expectedEventCount = 2;
-                await this.WaitForItems(this.adapterHelper.Channel, expectedEventCount);
+                await this.WaitForItems(this.adapterHelper.Channel, expectedEventCount).ConfigureAwait(false);
 
                 Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
                 TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems[1];
@@ -378,8 +381,8 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 Assert.AreEqual("Actual message", telemetry.Properties["Message"]);
                 Assert.AreEqual("7", telemetry.Properties["EventId"]);
                 Assert.AreEqual("Tricky", telemetry.Properties["EventName"]);
-                Assert.AreEqual("7", telemetry.Properties[telemetry.Properties.Keys.First(key => key.StartsWith("EventId") && key != "EventId")]);
-                Assert.AreEqual("TrickyEvent", telemetry.Properties[telemetry.Properties.Keys.First(key => key.StartsWith("EventName") && key != "EventName")]);
+                Assert.AreEqual("7", telemetry.Properties[telemetry.Properties.Keys.First(key => key.StartsWith("EventId", StringComparison.Ordinal) && !string.Equals(key, "EventId", StringComparison.Ordinal))]);
+                Assert.AreEqual("TrickyEvent", telemetry.Properties[telemetry.Properties.Keys.First(key => key.StartsWith("EventName", StringComparison.Ordinal) && !string.Equals(key, "EventName", StringComparison.Ordinal))]);
             }
         }
 
@@ -397,34 +400,34 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 
                 TestProvider.Log.Info("Hey!");
                 TestProvider.Log.Warning(1, 2);
-                await this.WaitForItems(this.adapterHelper.Channel, 3);
+                await this.WaitForItems(this.adapterHelper.Channel, 3).ConfigureAwait(false);
 
                 // Now request reporting events only with certain keywords
                 listeningRequest.Keywords = (ulong)TestProvider.Keywords.NonRoutine;
                 module.Initialize(GetTestTelemetryConfiguration(resetChannel: false));
-                await Task.Delay(500);
+                await Task.Delay(500).ConfigureAwait(false);
 
                 TestProvider.Log.Info("Hey again!");
                 TestProvider.Log.Warning(3, 4);
-                await this.WaitForItems(this.adapterHelper.Channel, 5);
+                await this.WaitForItems(this.adapterHelper.Channel, 5).ConfigureAwait(false);
 
                 List<TraceTelemetry> expectedTelemetry = new List<TraceTelemetry>();
                 TraceTelemetry traceTelemetry = new TraceTelemetry("Hey!", SeverityLevel.Information);
                 traceTelemetry.Properties["information"] = "Hey!";
                 expectedTelemetry.Add(traceTelemetry);
                 traceTelemetry = new TraceTelemetry("Warning!", SeverityLevel.Warning);
-                traceTelemetry.Properties["i1"] = 1.ToString();
-                traceTelemetry.Properties["i2"] = 2.ToString();
+                traceTelemetry.Properties["i1"] = 1.ToString(InvariantCulture);
+                traceTelemetry.Properties["i2"] = 2.ToString(InvariantCulture);
                 expectedTelemetry.Add(traceTelemetry);
                 // Note that second informational event is not expected
                 traceTelemetry = new TraceTelemetry("Warning!", SeverityLevel.Warning);
-                traceTelemetry.Properties["i1"] = 3.ToString();
-                traceTelemetry.Properties["i2"] = 4.ToString();
+                traceTelemetry.Properties["i1"] = 3.ToString(InvariantCulture);
+                traceTelemetry.Properties["i2"] = 4.ToString(InvariantCulture);
                 expectedTelemetry.Add(traceTelemetry);
 
                 CollectionAssert.AreEqual(
                     expectedTelemetry,
-                    this.adapterHelper.Channel.SentItems.Where(item => !((TraceTelemetry)item).Properties["EventId"].Equals("65534")).ToList(),
+                    this.adapterHelper.Channel.SentItems.Where(item => !((TraceTelemetry)item).Properties["EventId"].Equals("65534", StringComparison.Ordinal)).ToList(),
                     new TraceTelemetryComparer(),
                     "Reported events are not what was expected");
             }
@@ -450,7 +453,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 // Wait 2 seconds to see if any events arrive asynchronously through the ETW module.
                 // This is a long time but unfortunately there is no good way to make ETW infrastructure "go faster"
                 // and we want to make sure that no TPL events sneak through.
-                await this.WaitForItems(this.adapterHelper.Channel, 1, TimeSpan.FromSeconds(2));
+                await this.WaitForItems(this.adapterHelper.Channel, 1, TimeSpan.FromSeconds(2)).ConfigureAwait(false);
 
                 Assert.AreEqual(0, this.adapterHelper.Channel.SentItems.Length);
             }
@@ -476,21 +479,21 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                     });
                 }
 
-                await this.WaitForItems(this.adapterHelper.Channel, 12);
+                await this.WaitForItems(this.adapterHelper.Channel, 12).ConfigureAwait(false);
 
                 ITelemetry[] capturedItems = this.adapterHelper.Channel.SentItems;
                 TraceTelemetry requestStopEvent = capturedItems.OfType<TraceTelemetry>().FirstOrDefault((i) =>
                     i.Properties.TryGetValue("EventName", out string eventName)
-                    && eventName == "Request/Stop");
+                    && string.Equals(eventName, "Request/Stop", StringComparison.Ordinal));
                 Assert.IsNotNull(requestStopEvent, "Request/Stop event not found");
                 Assert.IsTrue(requestStopEvent.Properties.TryGetValue("ActivityID", out string activityID), "Event does not have ActivityID property");
-                Assert.IsTrue(activityID.StartsWith("//"), "The activity ID is not a hierarchical one");
+                Assert.IsTrue(activityID.StartsWith("//", StringComparison.Ordinal), "The activity ID is not a hierarchical one");
             }
         }
 
-        private async Task PerformActivityAsync(int requestId)
+        private Task PerformActivityAsync(int requestId)
         {
-            await Task.Run(async () =>
+            return Task.Run(async () =>
             {
                 TestProvider.Log.RequestStart(requestId);
                 await Task.Delay(50).ConfigureAwait(false);
@@ -520,7 +523,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                     return;
                 }
 
-                itemsCaptured = await channel.WaitForItemsCaptured(timeout.Value);
+                itemsCaptured = await channel.WaitForItemsCaptured(timeout.Value).ConfigureAwait(false);
                 if (itemsCaptured == null)
                 {
                     // Timed out waiting for new events to arrive.
@@ -536,7 +539,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
             try
             {
                 // This clean up is there to clean up possible left over trace event sessions during the Debug of the unit tests.
-                foreach (var name in TraceEventSession.GetActiveSessionNames().Where(n => n.StartsWith("ApplicationInsights-")))
+                foreach (var name in TraceEventSession.GetActiveSessionNames().Where(n => n.StartsWith("ApplicationInsights-", StringComparison.Ordinal)))
                 {
                     TraceEventSession.GetActiveSession(name).Stop();
                 }

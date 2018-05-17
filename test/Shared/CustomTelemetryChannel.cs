@@ -14,14 +14,18 @@ namespace Microsoft.ApplicationInsights
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
 
-    internal class CustomTelemetryChannel : ITelemetryChannel
+    internal sealed class CustomTelemetryChannel : ITelemetryChannel
     {
         private EventWaitHandle waitHandle;
 
         public CustomTelemetryChannel()
         {
             this.waitHandle = new AutoResetEvent(false);
+#if NET45
             this.SentItems = new ITelemetry[0];
+#else
+            this.SentItems = Array.Empty<ITelemetry>();
+#endif
         }
 
         public bool? DeveloperMode { get; set; }
@@ -85,7 +89,11 @@ namespace Microsoft.ApplicationInsights
         {
             lock (this)
             {
+#if NET45
                 this.SentItems = new ITelemetry[0];
+#else
+                this.SentItems = Array.Empty<ITelemetry>();
+#endif
             }
 
             return this;

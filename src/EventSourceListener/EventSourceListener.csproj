@@ -10,12 +10,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   
-  <!-- Import is done after first property group becuase Product.props use AssemblyName property. -->
+  <!-- Import is done after first property group because Product.props use AssemblyName property. -->
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
   <PropertyGroup>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <IncludeSymbols>True</IncludeSymbols>
+    <IncludeSymbols>False</IncludeSymbols>
     <PackageId>Microsoft.ApplicationInsights.EventSourceListener</PackageId>
     <Title>Application Insights EventSourceListener</Title>
     <Description>Application Insights EventSourceListener allows sending data from EventSource events to Application Insights. Application Insights will collect your logs from multiple sources and provide rich powerful search capabilities. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta3" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
@@ -45,7 +45,7 @@
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microbuild.Core" Version="0.2.0">
+    <PackageReference Include="Microbuild.Core" Version="0.3.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>

@@ -16,6 +16,8 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using static System.Globalization.CultureInfo;
+
     [TestClass]
     [TestCategory("DiagnosticSourceListener")]
     public sealed class DiagnosticSourceTelemetryModuleTests : IDisposable
@@ -53,9 +55,27 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests
                 Assert.AreEqual("Hey!", telemetry.Message);
                 Assert.AreEqual(testDiagnosticSource.Name, telemetry.Properties["DiagnosticSource"]);
                 Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
-                Assert.AreEqual(1234.ToString(), telemetry.Properties["Prop1"]);
-                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(DiagnosticSourceTelemetryModule), prefix: "dsl:");
+                Assert.AreEqual(1234.ToString(InvariantCulture), telemetry.Properties["Prop1"]);
+                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "dsl:");
                 Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
+            }
+        }
+
+        [TestMethod]
+        public void ReportsSingleEventEvenIfInitializedMoreThanOnce()
+        {
+            using (var module = new DiagnosticSourceTelemetryModule())
+            {
+                var testDiagnosticSource = new TestDiagnosticSource();
+                var listeningRequest = new DiagnosticSourceListeningRequest(testDiagnosticSource.Name);
+                module.Sources.Add(listeningRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                testDiagnosticSource.Write("JustOnce", new { Index = 8888 });
+
+                Assert.AreEqual(1, this.adapterHelper.Channel.SentItems.Length);
             }
         }
 
@@ -75,6 +95,31 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests
                 TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
                 Assert.AreEqual("Hey!", telemetry.Message);
                 Assert.AreEqual(string.Empty, telemetry.Properties["Prop1"]);
+            }
+        }
+
+        [TestMethod]
+        public void CallsOnEventWrittenHandler()
+        {
+            OnEventWrittenHandler onEventWrittenHandler = (sourceName, message, payload, client) =>
+            {
+                var traceTelemetry = new TraceTelemetry("CustomPayloadProperties", SeverityLevel.Verbose);
+                traceTelemetry.Properties.Add("CustomPayloadProperties", "true");
+                client.Track(traceTelemetry);
+            };
+
+            using (var module = new DiagnosticSourceTelemetryModule(onEventWrittenHandler))
+            {
+                var testDiagnosticSource = new TestDiagnosticSource();
+                var listeningRequest = new DiagnosticSourceListeningRequest(testDiagnosticSource.Name);
+                module.Sources.Add(listeningRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                testDiagnosticSource.Write("Hey!", new { Prop1 = 1234 });
+
+                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+                Assert.IsTrue(telemetry.Properties.All(kvp => kvp.Key.Equals("CustomPayloadProperties") && kvp.Value.Equals("true")));
             }
         }
 

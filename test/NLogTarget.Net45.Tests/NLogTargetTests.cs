@@ -62,7 +62,7 @@
                 Assert.Fail("Expected NLogConfigurationException but none was thrown with message:{0}", ex.Message);
             }
         }
-        
+
         [TestMethod]
         [TestCategory("NLogTarget")]
         public void ExceptionsDoNotEscapeNLog()
@@ -124,7 +124,7 @@
 
             var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
 
-            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(ApplicationInsightsTarget), prefix: "nlog:");
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "nlog:");
             Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
         }
 
@@ -164,7 +164,7 @@
             target.Layout = @"${uppercase:${level}} ${message}";
 
             Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey("test", null, target);
-            
+
             aiLogger.Debug("Message");
 
             var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
@@ -222,7 +222,9 @@
         [TestCategory("NLogTarget")]
         public void GlobalDiagnosticContextPropertiesAreAddedToProperties()
         {
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+            ApplicationInsightsTarget target = new ApplicationInsightsTarget();
+            target.ContextProperties.Add(new TargetPropertyWithContext("global_prop", "${gdc:item=global_prop}"));
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey(target: target);
 
             NLog.GlobalDiagnosticsContext.Set("global_prop", "global_value");
             aiLogger.Debug("Message");
@@ -235,7 +237,9 @@
         [TestCategory("NLogTarget")]
         public void GlobalDiagnosticContextPropertiesSupplementEventProperties()
         {
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+            ApplicationInsightsTarget target = new ApplicationInsightsTarget();
+            target.ContextProperties.Add(new TargetPropertyWithContext("global_prop", "${gdc:item=global_prop}"));
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey(target: target);
 
             NLog.GlobalDiagnosticsContext.Set("global_prop", "global_value");
 
@@ -250,9 +254,13 @@
 
         [TestMethod]
         [TestCategory("NLogTarget")]
+#pragma warning disable CA1707 // Identifiers should not contain underscores
         public void EventPropertyKeyNameIsAppendedWith_1_IfSameAsGlobalDiagnosticContextKeyName()
+#pragma warning restore CA1707 // Identifiers should not contain underscores
         {
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+            ApplicationInsightsTarget target = new ApplicationInsightsTarget();
+            target.ContextProperties.Add(new TargetPropertyWithContext("Name", "${gdc:item=Name}"));
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey(target: target);
 
             NLog.GlobalDiagnosticsContext.Set("Name", "Global Value");
             var eventInfo = new LogEventInfo(LogLevel.Trace, "TestLogger", "Hello!");
@@ -292,7 +300,7 @@
         public void CustomMessageIsAddedToExceptionTelemetryCustomProperties()
         {
             Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
-            
+
             try
             {
                 throw new Exception("Test logging exception");
@@ -303,7 +311,7 @@
             }
 
             ExceptionTelemetry telemetry = (ExceptionTelemetry)this.adapterHelper.Channel.SentItems.First();
-            Assert.IsTrue(telemetry.Properties["Message"].StartsWith("custom message"));
+            Assert.IsTrue(telemetry.Properties["Message"].StartsWith("custom message", StringComparison.Ordinal));
         }
 
         [TestMethod]
@@ -311,7 +319,7 @@
         public void NLogTraceIsSentAsVerboseTraceItem()
         {
             var aiLogger = this.CreateTargetWithGivenInstrumentationKey("F8474271-D231-45B6-8DD4-D344C309AE69");
-            
+
             aiLogger.Trace("trace");
 
             var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();

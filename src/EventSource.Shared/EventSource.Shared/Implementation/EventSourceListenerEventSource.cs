@@ -34,9 +34,6 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation
         {
             [NonEvent]
             get;
-
-            [NonEvent]
-            private set;
         }
 
         [Event(NoEventSourcesConfiguredEventId, Level = EventLevel.Warning, Keywords = Keywords.Configuration, Message = "No Sources configured for the {1}")]

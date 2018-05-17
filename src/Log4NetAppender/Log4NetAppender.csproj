@@ -1,8 +1,6 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Company>Microsoft</Company>
-    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
@@ -18,7 +16,7 @@
 
   <PropertyGroup>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <IncludeSymbols>True</IncludeSymbols>
+    <IncludeSymbols>False</IncludeSymbols>
     <PackageId>Microsoft.ApplicationInsights.Log4NetAppender</PackageId>
     <Title>Application Insights Log4Net Appender</Title>
     <Description>Application Insights Log4Net Appender is a customer appender allowing you to send Log4Net log messages to Application Insights. Application Insights will collect your logs from multiple sources and provide rich powerful search capabilities. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
@@ -34,13 +32,13 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="MicroBuild.Core" Version="0.2.0">
+    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.0-beta3" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.2" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
