@@ -21,7 +21,7 @@
         double currentSamplingPercentage,
         double newSamplingPercentage,
         bool isSamplingPercentageChanged,
-        SamplingPercentageEstimatorSettings settings);
+        Channel.Implementation.SamplingPercentageEstimatorSettings settings);
 
     /// <summary>
     /// Telemetry processor to estimate ideal sampling percentage.
@@ -36,7 +36,7 @@
         /// <summary>
         /// Dynamic sampling estimator settings.
         /// </summary>
-        private SamplingPercentageEstimatorSettings settings;
+        private Channel.Implementation.SamplingPercentageEstimatorSettings settings;
 
         /// <summary>
         /// Average telemetry item counter.
@@ -73,7 +73,7 @@
         /// <param name="next">Next TelemetryProcessor in call chain.</param>
         /// </summary>
         public SamplingPercentageEstimatorTelemetryProcessor(ITelemetryProcessor next)
-            : this(new SamplingPercentageEstimatorSettings(), null, next)
+            : this(new Channel.Implementation.SamplingPercentageEstimatorSettings(), null, next)
         {
         }
 
@@ -84,7 +84,7 @@
         /// <param name="next">Next TelemetryProcessor in call chain.</param>
         /// </summary>
         public SamplingPercentageEstimatorTelemetryProcessor(
-            SamplingPercentageEstimatorSettings settings, 
+            Channel.Implementation.SamplingPercentageEstimatorSettings settings, 
             AdaptiveSamplingPercentageEvaluatedCallback callback, 
             ITelemetryProcessor next)
         {

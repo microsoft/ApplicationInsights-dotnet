@@ -93,7 +93,7 @@
         /// <return>Instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
         public static TelemetryProcessorChainBuilder UseAdaptiveSampling(
             this TelemetryProcessorChainBuilder builder,
-            SamplingPercentageEstimatorSettings settings,
+            WindowsServer.Channel.Implementation.SamplingPercentageEstimatorSettings settings,
             AdaptiveSamplingPercentageEvaluatedCallback callback, 
             string excludedTypes = null,
             string includedTypes = null)
