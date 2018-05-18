@@ -83,7 +83,7 @@
         /// <summary>
         /// Gets the values known for dimension identified by the specified 1-based dimension index.
         /// </summary>
-        /// <param name="dimensionNumber">1-based dimension number. Currently it can be <c>1</c> or <c>2</c>.</param>
+        /// <param name="dimensionNumber">1-based dimension number. Currently it can be <c>1</c> ... <c>10</c>.</param>
         /// <returns>The values known for the specified dimension.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2233", Justification = "dimensionNumber is validated.")]
         public IReadOnlyCollection<string> GetDimensionValues(int dimensionNumber)

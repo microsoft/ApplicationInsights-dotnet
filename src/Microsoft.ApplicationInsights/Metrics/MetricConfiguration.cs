@@ -1,18 +1,25 @@
 ﻿namespace Microsoft.ApplicationInsights.Metrics
 {
     using System;
-
+    using System.Collections.Generic;
     using static System.FormattableString;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {654}</summary>
+    /// <summary>Encapsulates the configuration for a metric and its respecitve data time series.</summary>
     public class MetricConfiguration : IEquatable<MetricConfiguration>
     {
         private readonly int hashCode;
 
-        /// <summary>@ToDo: Complete documentation before stable release. {477}</summary>
-        /// <param name="seriesCountLimit">@ToDo: Complete documentation before stable release. {815}</param>
-        /// <param name="valuesPerDimensionLimit">@ToDo: Complete documentation before stable release. {426}</param>
-        /// <param name="seriesConfig">@ToDo: Complete documentation before stable release. {618}</param>
+        private readonly int[] valuesPerDimensionLimits = new int[MetricIdentifier.MaxDimensionsCount];
+
+        /// <summary>Creates a new instance of <c>MetricConfiguration</c>.</summary>
+        /// <param name="seriesCountLimit">How many data time series a metric can contain as a maximum.
+        /// Once this limit is reached, calls to <c>TryTrackValue(..)</c>, <c>TryGetDataSeries(..)</c> and similar
+        /// that would normally result in new series will return <c>false</c>.</param>
+        /// <param name="valuesPerDimensionLimit">How many different values each of the dimensions of a metric can
+        /// have as a maximum.
+        /// Once this limit is reached, calls to <c>TryTrackValue(..)</c>, <c>TryGetDataSeries(..)</c> and similar
+        /// that would normally result in new series will return <c>false</c>.</param>
+        /// <param name="seriesConfig">The configuration for how each series of this metric should be aggregated.</param>
         public MetricConfiguration(
                                 int seriesCountLimit,
                                 int valuesPerDimensionLimit,
@@ -25,37 +32,103 @@
                                                     Invariant($"Metrics must allow at least one data series (but {seriesCountLimit} was specified)."));
             }
 
+            this.SeriesCountLimit = seriesCountLimit;
+
             if (valuesPerDimensionLimit < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(valuesPerDimensionLimit));
             }
-           
+
+            for (int d = 0; d < this.valuesPerDimensionLimits.Length; d++)
+            {
+                this.valuesPerDimensionLimits[d] = valuesPerDimensionLimit;
+            }
+
             Util.ValidateNotNull(seriesConfig, nameof(seriesConfig));
-
-            this.SeriesCountLimit = seriesCountLimit;
-            this.ValuesPerDimensionLimit = valuesPerDimensionLimit;
-
             this.SeriesConfig = seriesConfig;
 
-            this.hashCode = Util.CombineHashCodes(
-                                        this.SeriesCountLimit.GetHashCode(),
-                                        this.ValuesPerDimensionLimit.GetHashCode(),
-                                        this.SeriesConfig.GetType().FullName.GetHashCode(),
-                                        this.SeriesConfig.GetHashCode());
+            this.hashCode = this.ComputeHashCode();
         }
 
-        /// <summary>Gets @ToDo: Complete documentation before stable release. {215}</summary>
+        /// <summary>Creates a new instance of <c>MetricConfiguration</c>.</summary>
+        /// <param name="seriesCountLimit">How many data time series a metric can contain as a maximum.
+        /// Once this limit is reached, calls to <c>TryTrackValue(..)</c>, <c>TryGetDataSeries(..)</c> and similar
+        /// that would normally result in new series will return <c>false</c>.</param>
+        /// <param name="valuesPerDimensionLimits">How many different values each of the dimensions of a metric can
+        /// have as a maximum. If this enumeration contains less elements than the number of supported dimensions,
+        /// then the last specified element is replicated for subsequent dimensions. If this enumeration contains
+        /// too many elements, superflous elements are ignored.
+        /// Once this limit is reached, calls to <c>TryTrackValue(..)</c>, <c>TryGetDataSeries(..)</c> and similar
+        /// that would normally result in new series will return <c>false</c>.</param>
+        /// <param name="seriesConfig">The configuration for how each series of this metric should be aggregated.</param>
+        public MetricConfiguration(
+                                int seriesCountLimit,
+                                IEnumerable<int> valuesPerDimensionLimits,
+                                IMetricSeriesConfiguration seriesConfig)
+        {
+            if (seriesCountLimit < 1)
+            {
+                throw new ArgumentOutOfRangeException(
+                                                    nameof(seriesCountLimit),
+                                                    Invariant($"Metrics must allow at least one data series (but {seriesCountLimit} was specified)."));
+            }
+
+            this.SeriesCountLimit = seriesCountLimit;
+
+            if (valuesPerDimensionLimits == null)
+            {
+                throw new ArgumentNullException(nameof(valuesPerDimensionLimits));
+            }
+
+            int lastLim = 0, d = 0;
+            foreach (int lim in valuesPerDimensionLimits)
+            {
+                lastLim = lim;
+
+                if (lastLim < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(valuesPerDimensionLimits) + "[" + d + "]");
+                }
+
+                this.valuesPerDimensionLimits[d] = lastLim;
+                d++;
+            }
+
+            for (; d < this.valuesPerDimensionLimits.Length; d++)
+            {
+                this.valuesPerDimensionLimits[d] = lastLim;
+            }
+
+            Util.ValidateNotNull(seriesConfig, nameof(seriesConfig));
+            this.SeriesConfig = seriesConfig;
+
+            this.hashCode = this.ComputeHashCode();
+        }
+
+        /// <summary>Gets how many data time series a metric can contain as a maximum.
+        /// Once this limit is reached, calls to <c>TryTrackValue(..)</c>, <c>TryGetDataSeries(..)</c> and similar
+        /// that would normally result in new series will return <c>false</c>.</summary>
         public int SeriesCountLimit { get; }
 
-        /// <summary>Gets @ToDo: Complete documentation before stable release. {311}</summary>
-        public int ValuesPerDimensionLimit { get; }
-
-        /// <summary>Gets @ToDo: Complete documentation before stable release. {528}</summary>
+        /// <summary>Gets the configuration for how each series of this metric should be aggregated.</summary>
         public IMetricSeriesConfiguration SeriesConfig { get; }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {611}</summary>
-        /// <param name="obj">@ToDo: Complete documentation before stable release. {066}</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {342}</returns>
+        /// <summary>
+        /// Gets the maximum number of distinct values for a dimension identified by the specified 1-based dimension index.
+        /// </summary>
+        /// <param name="dimensionNumber">1-based dimension number. Currently it can be <c>1</c>...<c>10</c>.</param>
+        /// <returns>The maximum number of distinct values for the specified dimension.</returns>
+        public int GetValuesPerDimensionLimit(int dimensionNumber)
+        {
+            MetricIdentifier.ValidateDimensionNumberForGetter(dimensionNumber, MetricIdentifier.MaxDimensionsCount);
+
+            int dimensionIndex = dimensionNumber - 1;
+            return this.valuesPerDimensionLimits[dimensionIndex];
+        }
+
+        /// <summary>Gets whether tho objects describe idendical configuration.</summary>
+        /// <param name="obj">A configuration object.</param>
+        /// <returns>Whether tho objects describe idendical configuration.</returns>
         public override bool Equals(object obj)
         {
             if (obj != null)
@@ -70,9 +143,9 @@
             return false;
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {321}</summary>
-        /// <param name="other">@ToDo: Complete documentation before stable release. {605}</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {731}</returns>
+        /// <summary>Gets whether tho objects describe idendical configuration.</summary>
+        /// <param name="other">A configuration object.</param>
+        /// <returns>Whether tho objects describe idendical configuration.</returns>
         public virtual bool Equals(MetricConfiguration other)
         {
             if (other == null)
@@ -85,17 +158,49 @@
                 return true;
             }
 
-            return (this.SeriesCountLimit == other.SeriesCountLimit)
-                && (this.ValuesPerDimensionLimit == other.ValuesPerDimensionLimit)
-                && this.GetType().Equals(other.GetType())
-                && this.SeriesConfig.Equals(other.SeriesConfig);
+            if ((this.SeriesCountLimit != other.SeriesCountLimit)
+                    || (this.valuesPerDimensionLimits?.Length != other.valuesPerDimensionLimits?.Length)
+                    || (false == this.GetType().Equals(other.GetType()))
+                    || (false == this.SeriesConfig.Equals(other.SeriesConfig)))
+            {
+                return false;
+            }
+
+            if (this.valuesPerDimensionLimits == other.valuesPerDimensionLimits)
+            {
+                return true;
+            }
+
+            if (this.valuesPerDimensionLimits == null || other.valuesPerDimensionLimits == null)
+            {
+                return false;
+            }
+
+            for (int d = 0; d < this.valuesPerDimensionLimits.Length; d++)
+            {
+                if (this.valuesPerDimensionLimits[d] != other.valuesPerDimensionLimits[d])
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {852}</summary>
-        /// <returns>@ToDo: Complete documentation before stable release. {895}</returns>
+        /// <summary>Gets the Hash Code for this object.</summary>
+        /// <returns>The Hash Code for this object.</returns>
         public override int GetHashCode()
         {
             return this.hashCode;
+        }
+
+        private int ComputeHashCode()
+        {
+            return Util.CombineHashCodes(
+                                        this.SeriesCountLimit.GetHashCode(),
+                                        Util.CombineHashCodes(this.valuesPerDimensionLimits),
+                                        this.SeriesConfig.GetType().FullName.GetHashCode(),
+                                        this.SeriesConfig.GetHashCode());
         }
     }
 }

@@ -533,7 +533,7 @@
             return (this.hashCode == otherMetricIdentifier.hashCode) && this.identifierString.Equals(otherMetricIdentifier.identifierString);
         }
 
-        internal void ValidateDimensionNumberForGetter(int dimensionNumber)
+        internal static void ValidateDimensionNumberForGetter(int dimensionNumber, int thisDimensionsCount)
         {
             if (dimensionNumber < 1)
             {
@@ -549,17 +549,22 @@
                                 Invariant($"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Only {nameof(dimensionNumber)} = 1, 2, ..., 10 are supported."));
             }
 
-            if (this.DimensionsCount < 1)
+            if (thisDimensionsCount < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(dimensionNumber), "Cannot access dimension becasue this metric has no dimensions.");
             }
 
-            if (dimensionNumber > this.DimensionsCount)
+            if (dimensionNumber > thisDimensionsCount)
             {
                 throw new ArgumentOutOfRangeException(Invariant($"Cannot access dimension for {nameof(dimensionNumber)}={dimensionNumber}")
-                                                    + Invariant($" becasue this metric only has {this.DimensionsCount} dimensions.")
-                                                    + " Note that {nameof(dimensionNumber)} is a 1-based index.");
+                                                    + Invariant($" becasue this metric only has {thisDimensionsCount} dimensions.")
+                                                    + Invariant($" Note that {nameof(dimensionNumber)} is a 1-based index."));
             }
+        }
+
+        internal void ValidateDimensionNumberForGetter(int dimensionNumber)
+        {
+            ValidateDimensionNumberForGetter(dimensionNumber, this.DimensionsCount);
         }
 
         private static void EnsureDimensionNamesValid(

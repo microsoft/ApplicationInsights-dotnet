@@ -131,9 +131,10 @@ Microsoft.ApplicationInsights.Metrics.MetricAggregate.MetricId.get -> string
 Microsoft.ApplicationInsights.Metrics.MetricAggregate.MetricNamespace.get -> string
 Microsoft.ApplicationInsights.Metrics.MetricConfiguration
 Microsoft.ApplicationInsights.Metrics.MetricConfiguration.MetricConfiguration(int seriesCountLimit, int valuesPerDimensionLimit, Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration seriesConfig) -> void
+Microsoft.ApplicationInsights.Metrics.MetricConfiguration.MetricConfiguration(int seriesCountLimit, System.Collections.Generic.IEnumerable<int> valuesPerDimensionLimits, Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration seriesConfig) -> void
 Microsoft.ApplicationInsights.Metrics.MetricConfiguration.SeriesConfig.get -> Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration
 Microsoft.ApplicationInsights.Metrics.MetricConfiguration.SeriesCountLimit.get -> int
-Microsoft.ApplicationInsights.Metrics.MetricConfiguration.ValuesPerDimensionLimit.get -> int
+Microsoft.ApplicationInsights.Metrics.MetricConfiguration.GetValuesPerDimensionLimit(int dimensionNumber) -> int
 Microsoft.ApplicationInsights.Metrics.MetricConfigurationForMeasurement
 Microsoft.ApplicationInsights.Metrics.MetricConfigurationForMeasurement.MetricConfigurationForMeasurement(int seriesCountLimit, int valuesPerDimensionLimit, Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement seriesConfig) -> void
 Microsoft.ApplicationInsights.Metrics.MetricIdentifier
