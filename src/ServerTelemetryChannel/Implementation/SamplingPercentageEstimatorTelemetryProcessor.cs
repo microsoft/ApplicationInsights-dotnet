@@ -16,12 +16,13 @@
     /// <param name="newSamplingPercentage">Suggested new sampling percentage that will allow to keep desired telemetry item generation rate given the volume of items states the same.</param>
     /// <param name="isSamplingPercentageChanged">A value indicating whether new sampling percentage will be applied by dynamic sampling algorithm. New sampling percentage may not be immediately applied in case it was recently changed.</param>
     /// <param name="settings">Dynamic sampling algorithm settings.</param>
+    [Obsolete("This was a failed experiment. Please use 'Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation.AdaptiveSamplingPercentageEvaluatedCallback' instead.")]
     public delegate void AdaptiveSamplingPercentageEvaluatedCallback(
-        double afterSamplingTelemetryItemRatePerSecond,
-        double currentSamplingPercentage,
-        double newSamplingPercentage,
-        bool isSamplingPercentageChanged,
-        Channel.Implementation.SamplingPercentageEstimatorSettings settings);
+       double afterSamplingTelemetryItemRatePerSecond,
+       double currentSamplingPercentage,
+       double newSamplingPercentage,
+       bool isSamplingPercentageChanged,
+       Channel.Implementation.SamplingPercentageEstimatorSettings settings);
 
     /// <summary>
     /// Telemetry processor to estimate ideal sampling percentage.
@@ -66,7 +67,7 @@
         /// <summary>
         /// Callback to invoke every time sampling percentage is evaluated.
         /// </summary>
-        private AdaptiveSamplingPercentageEvaluatedCallback evaluationCallback;
+        private Channel.Implementation.AdaptiveSamplingPercentageEvaluatedCallback evaluationCallback;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SamplingPercentageEstimatorTelemetryProcessor"/> class.
@@ -85,7 +86,7 @@
         /// </summary>
         public SamplingPercentageEstimatorTelemetryProcessor(
             Channel.Implementation.SamplingPercentageEstimatorSettings settings, 
-            AdaptiveSamplingPercentageEvaluatedCallback callback, 
+            Channel.Implementation.AdaptiveSamplingPercentageEvaluatedCallback callback, 
             ITelemetryProcessor next)
         {
             if (settings == null)
