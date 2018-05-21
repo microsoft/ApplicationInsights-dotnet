@@ -94,7 +94,7 @@
         public static TelemetryProcessorChainBuilder UseAdaptiveSampling(
             this TelemetryProcessorChainBuilder builder,
             WindowsServer.Channel.Implementation.SamplingPercentageEstimatorSettings settings,
-            AdaptiveSamplingPercentageEvaluatedCallback callback, 
+            WindowsServer.Channel.Implementation.AdaptiveSamplingPercentageEvaluatedCallback callback, 
             string excludedTypes = null,
             string includedTypes = null)
         {

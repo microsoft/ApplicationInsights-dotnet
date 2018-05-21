@@ -25,7 +25,7 @@
         /// <summary>
         /// Callback invoked every time sampling percentage is evaluated.
         /// </summary>
-        private readonly AdaptiveSamplingPercentageEvaluatedCallback evaluationCallback;
+        private readonly Channel.Implementation.AdaptiveSamplingPercentageEvaluatedCallback evaluationCallback;
 
         /// <summary>
         /// Sampling percentage estimator telemetry processor.
@@ -49,7 +49,7 @@
         /// </summary>
         public AdaptiveSamplingTelemetryProcessor(
             Channel.Implementation.SamplingPercentageEstimatorSettings settings,
-            AdaptiveSamplingPercentageEvaluatedCallback callback,
+            Channel.Implementation.AdaptiveSamplingPercentageEvaluatedCallback callback,
             ITelemetryProcessor next)
         {
             this.estimatorSettings = settings;
