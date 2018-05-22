@@ -63,6 +63,17 @@
             return metric;
         }
 
+        /// <summary>@ToDo: Complete documentation before stable release. {799}</summary>
+        /// <param name="metricIdentifier">@ToDo: Complete documentation before stable release. {564}</param>
+        /// <param name="metric">@ToDo: Complete documentation before stable release. {324}</param>
+        /// <returns>@ToDo: Complete documentation before stable release. {708}</returns>
+        public bool TryGet(MetricIdentifier metricIdentifier, out Metric metric)
+        {
+            Util.ValidateNotNull(metricIdentifier, nameof(metricIdentifier));
+
+            return this.metrics.TryGetValue(metricIdentifier, out metric);
+        }
+
         /// <summary>@ToDo: Complete documentation before stable release. {200}</summary>
         public void Clear()
         {
@@ -80,6 +91,19 @@
             }
 
             return this.metrics.ContainsKey(metric.Identifier);
+        }
+
+        /// <summary>@ToDo: Complete documentation before stable release. {629}</summary>
+        /// <param name="metricIdentifier">@ToDo: Complete documentation before stable release. {398}</param>
+        /// <returns>@ToDo: Complete documentation before stable release. {479}</returns>
+        public bool Contains(MetricIdentifier metricIdentifier)
+        {
+            if (metricIdentifier == null)
+            {
+                return false;
+            }
+
+            return this.metrics.ContainsKey(metricIdentifier);
         }
 
         /// <summary>@ToDo: Complete documentation before stable release. {200}</summary>
@@ -109,6 +133,30 @@
 
             Metric removedMetric;
             return this.metrics.TryRemove(metric.Identifier, out removedMetric);
+        }
+
+        /// <summary>@ToDo: Complete documentation before stable release. {041}</summary>
+        /// <param name="metricIdentifier">@ToDo: Complete documentation before stable release. {667}</param>
+        /// <returns>@ToDo: Complete documentation before stable release. {197}</returns>
+        public bool Remove(MetricIdentifier metricIdentifier)
+        {
+            Metric removedMetric;
+            return this.Remove(metricIdentifier, out removedMetric);
+        }
+
+        /// <summary>@ToDo: Complete documentation before stable release. {041}</summary>
+        /// <param name="metricIdentifier">@ToDo: Complete documentation before stable release. {667}</param>
+        /// <param name="removedMetric">@ToDo: Complete documentation before stable release. {668}</param>
+        /// <returns>@ToDo: Complete documentation before stable release. {197}</returns>
+        public bool Remove(MetricIdentifier metricIdentifier, out Metric removedMetric)
+        {
+            if (metricIdentifier == null)
+            {
+                removedMetric = null;
+                return false;
+            }
+
+            return this.metrics.TryRemove(metricIdentifier, out removedMetric);
         }
 
         /// <summary>@ToDo: Complete documentation before stable release. {533}</summary>

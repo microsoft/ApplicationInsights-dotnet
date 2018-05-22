@@ -33,7 +33,7 @@
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
             Util.ValidateNotNull(metricIdentifier, nameof(metricIdentifier));
-            EnsureConfigurationValid(metricIdentifier.DimensionsCount > 0, configuration);
+            EnsureConfigurationValid(metricIdentifier.DimensionsCount, configuration);
 
             this.metricManager = metricManager;
             this.Identifier = metricIdentifier;
@@ -54,7 +54,7 @@
                 int[] dimensionValuesCountLimits = new int[metricIdentifier.DimensionsCount];
                 for (int d = 0; d < metricIdentifier.DimensionsCount; d++)
                 {
-                    dimensionValuesCountLimits[d] = configuration.ValuesPerDimensionLimit;
+                    dimensionValuesCountLimits[d] = configuration.GetValuesPerDimensionLimit(d + 1);
                 }
 
                 this.metricSeries = new MultidimensionalCube2<MetricSeries>(
@@ -1200,17 +1200,20 @@
         }
        
         private static void EnsureConfigurationValid(
-                                    bool isMultidimensional,
+                                    int dimensionsCount,
                                     MetricConfiguration configuration)
         {
             Util.ValidateNotNull(configuration, nameof(configuration));
             Util.ValidateNotNull(configuration.SeriesConfig, nameof(configuration.SeriesConfig));
 
-            if (isMultidimensional && configuration.ValuesPerDimensionLimit < 1)
+            for (int d = 0; d < dimensionsCount; d++)
             {
-                throw new ArgumentException("Multidimensional metrics must allow at least one dimension-value per dimesion"
-                                          + Invariant($" (but {configuration.ValuesPerDimensionLimit} was specified")
-                                          + Invariant($" in {nameof(configuration)}.{nameof(configuration.ValuesPerDimensionLimit)})."));
+                if (configuration.GetValuesPerDimensionLimit(d + 1) < 1)
+                {
+                    throw new ArgumentException("Multidimensional metrics must allow at least one dimension-value per dimesion"
+                                    + Invariant($" (but {nameof(configuration.GetValuesPerDimensionLimit)}({d + 1})")
+                                    + Invariant($" = {configuration.GetValuesPerDimensionLimit(d + 1)} was specified."));
+                }
             }
 
             if (configuration.SeriesCountLimit < 1)
@@ -1220,7 +1223,7 @@
                                          + Invariant($" in {nameof(configuration)}.{nameof(configuration.SeriesCountLimit)})."));
             }
 
-            if (isMultidimensional && configuration.SeriesCountLimit < 2)
+            if (dimensionsCount > 0 && configuration.SeriesCountLimit < 2)
             {
                 throw new ArgumentException("Multidimensional metrics must allow at least two data series:"
                                          + " 1 for the basic (zero-dimensional) series and 1 additional series"

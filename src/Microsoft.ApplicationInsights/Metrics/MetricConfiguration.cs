@@ -91,7 +91,12 @@
                 }
 
                 this.valuesPerDimensionLimits[d] = lastLim;
+
                 d++;
+                if (d >= MetricIdentifier.MaxDimensionsCount)
+                {
+                    break;
+                }
             }
 
             for (; d < this.valuesPerDimensionLimits.Length; d++)
@@ -118,6 +123,7 @@
         /// </summary>
         /// <param name="dimensionNumber">1-based dimension number. Currently it can be <c>1</c>...<c>10</c>.</param>
         /// <returns>The maximum number of distinct values for the specified dimension.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2233: Operations should not overflow", Justification = "No overflow")]
         public int GetValuesPerDimensionLimit(int dimensionNumber)
         {
             MetricIdentifier.ValidateDimensionNumberForGetter(dimensionNumber, MetricIdentifier.MaxDimensionsCount);

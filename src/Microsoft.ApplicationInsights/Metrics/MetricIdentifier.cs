@@ -542,11 +542,12 @@
                                 Invariant($"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Note that {nameof(dimensionNumber)} is a 1-based index."));
             }
 
-            if (dimensionNumber > 10)
+            if (dimensionNumber > MetricIdentifier.MaxDimensionsCount)
             {
                 throw new ArgumentOutOfRangeException(
                                 nameof(dimensionNumber),
-                                Invariant($"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Only {nameof(dimensionNumber)} = 1, 2, ..., 10 are supported."));
+                                Invariant($"{dimensionNumber} is an invalid {nameof(dimensionNumber)}.")
+                              + Invariant($" Only {nameof(dimensionNumber)} = 1, 2, ..., {MetricIdentifier.MaxDimensionsCount} are supported."));
             }
 
             if (thisDimensionsCount < 1)
