@@ -27,7 +27,7 @@
         public TraceTelemetry()
         {
             this.Data = new MessageData();
-            this.context = new TelemetryContext(this.Data.properties);
+            this.context = new TelemetryContext();
         }
 
         /// <summary>

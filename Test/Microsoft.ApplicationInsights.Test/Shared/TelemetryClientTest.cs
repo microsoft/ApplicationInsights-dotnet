@@ -315,6 +315,21 @@
             Assert.AreEqual(null, trace.SeverityLevel);
         }
 
+        [TestMethod]
+        public void TrackTraceAppliesCustomPropertiesToTelemetry()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            Dictionary<string, string> customProps = new Dictionary<string, string>();
+            customProps.Add("key1", "value1");
+            client.TrackTrace("my custommessae", SeverityLevel.Error, customProps);
+
+            var trace = (TraceTelemetry)sentTelemetry.Single();
+            Assert.IsTrue(trace.Properties.ContainsKey("key1"));
+            Assert.AreEqual("value1", trace.Properties["key1"]);
+        }
+
         #endregion
 
         #region TrackException
@@ -380,6 +395,21 @@
 
             var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
             Assert.AreEqual(null, exceptionTelemetry.SeverityLevel);
+        }
+
+        [TestMethod]
+        public void TrackExceptionAppliedCustomPropertiesToTelemetry()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            Dictionary<string, string> customProps = new Dictionary<string, string>();
+            customProps.Add("key1", "value1");
+            client.TrackException(new Exception(),customProps);
+
+            var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
+            Assert.IsTrue(exceptionTelemetry.Properties.ContainsKey("key1"));
+            Assert.AreEqual("value1", exceptionTelemetry.Properties["key1"]);            
         }
 
         #endregion
@@ -525,7 +555,7 @@
         }
 
         [TestMethod]
-        public void TrackAvailabilityTracksCustomDimensions()
+        public void TrackAvailabilityAppliesCustomDimensionsToProperties()
         {
             var sentTelemetry = new List<ITelemetry>();
             TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);

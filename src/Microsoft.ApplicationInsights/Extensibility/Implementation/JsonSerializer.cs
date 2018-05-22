@@ -573,6 +573,7 @@
                         writer.WriteProperty("severityLevel", traceTelemetry.SeverityLevel.Value.ToString());
                     }
 
+                    Utils.CopyDictionary(traceTelemetry.Context.Properties, traceTelemetry.Data.properties);
                     writer.WriteProperty("properties", traceTelemetry.Properties); // TODO: handle case where the property dictionary doesn't need to be instantiated.
 
                     writer.WriteEndObject();
