@@ -5,6 +5,7 @@
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
 
     /// <summary>
     /// Represents a method that is invoked every time sampling percentage is evaluated
@@ -15,12 +16,13 @@
     /// <param name="newSamplingPercentage">Suggested new sampling percentage that will allow to keep desired telemetry item generation rate given the volume of items states the same.</param>
     /// <param name="isSamplingPercentageChanged">A value indicating whether new sampling percentage will be applied by dynamic sampling algorithm. New sampling percentage may not be immediately applied in case it was recently changed.</param>
     /// <param name="settings">Dynamic sampling algorithm settings.</param>
+    [Obsolete("This was a failed experiment. Please use 'Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation.AdaptiveSamplingPercentageEvaluatedCallback' instead.")]
     public delegate void AdaptiveSamplingPercentageEvaluatedCallback(
-        double afterSamplingTelemetryItemRatePerSecond,
-        double currentSamplingPercentage,
-        double newSamplingPercentage,
-        bool isSamplingPercentageChanged,
-        SamplingPercentageEstimatorSettings settings);
+       double afterSamplingTelemetryItemRatePerSecond,
+       double currentSamplingPercentage,
+       double newSamplingPercentage,
+       bool isSamplingPercentageChanged,
+       Channel.Implementation.SamplingPercentageEstimatorSettings settings);
 
     /// <summary>
     /// Telemetry processor to estimate ideal sampling percentage.
@@ -35,7 +37,7 @@
         /// <summary>
         /// Dynamic sampling estimator settings.
         /// </summary>
-        private SamplingPercentageEstimatorSettings settings;
+        private Channel.Implementation.SamplingPercentageEstimatorSettings settings;
 
         /// <summary>
         /// Average telemetry item counter.
@@ -65,14 +67,14 @@
         /// <summary>
         /// Callback to invoke every time sampling percentage is evaluated.
         /// </summary>
-        private AdaptiveSamplingPercentageEvaluatedCallback evaluationCallback;
+        private Channel.Implementation.AdaptiveSamplingPercentageEvaluatedCallback evaluationCallback;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SamplingPercentageEstimatorTelemetryProcessor"/> class.
         /// <param name="next">Next TelemetryProcessor in call chain.</param>
         /// </summary>
         public SamplingPercentageEstimatorTelemetryProcessor(ITelemetryProcessor next)
-            : this(new SamplingPercentageEstimatorSettings(), null, next)
+            : this(new Channel.Implementation.SamplingPercentageEstimatorSettings(), null, next)
         {
         }
 
@@ -83,8 +85,8 @@
         /// <param name="next">Next TelemetryProcessor in call chain.</param>
         /// </summary>
         public SamplingPercentageEstimatorTelemetryProcessor(
-            SamplingPercentageEstimatorSettings settings, 
-            AdaptiveSamplingPercentageEvaluatedCallback callback, 
+            Channel.Implementation.SamplingPercentageEstimatorSettings settings, 
+            Channel.Implementation.AdaptiveSamplingPercentageEvaluatedCallback callback, 
             ITelemetryProcessor next)
         {
             if (settings == null)
