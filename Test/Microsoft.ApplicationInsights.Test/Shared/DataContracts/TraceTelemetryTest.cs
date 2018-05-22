@@ -64,7 +64,7 @@
             expected.Message = "My Test";
             expected.Properties.Add("Property2", "Value2");
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TraceTelemetry, AI.MessageData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MessageData>(expected);
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
             Assert.AreEqual(item.name, AI.ItemType.Message);
@@ -80,7 +80,7 @@
             var expected = new TraceTelemetry { SeverityLevel = SeverityLevel.Information };
             ((ITelemetry)expected).Sanitize();
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TraceTelemetry, AI.MessageData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MessageData>(expected);
 
             Assert.AreEqual(AI.SeverityLevel.Information, item.data.baseData.severityLevel.Value);
         }
@@ -92,7 +92,7 @@
             original.Message = null;
             original.SeverityLevel = null;
             ((ITelemetry)original).Sanitize();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TraceTelemetry, AI.MessageData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MessageData>(original);
 
             Assert.AreEqual(2, item.data.baseData.ver);
         }
@@ -141,7 +141,7 @@
             var telemetry = new TraceTelemetry("my trace");
             ((ISupportSampling)telemetry).SamplingPercentage = 10;
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TraceTelemetry, AI.MessageData>(telemetry);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MessageData>(telemetry);
 
             Assert.AreEqual(10, item.sampleRate);
         }

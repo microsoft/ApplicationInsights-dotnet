@@ -36,7 +36,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             this.InternalData = new RemoteDependencyData();
             this.successFieldSet = true;
-            this.context = new TelemetryContext(this.InternalData.properties);
+            this.context = new TelemetryContext();
             this.GenerateId();
         }
 
@@ -93,7 +93,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         private DependencyTelemetry(DependencyTelemetry source)
         {
             this.InternalData = source.InternalData.DeepClone();
-            this.context = source.context.DeepClone(this.InternalData.properties);
+            this.context = source.context.DeepClone();
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;

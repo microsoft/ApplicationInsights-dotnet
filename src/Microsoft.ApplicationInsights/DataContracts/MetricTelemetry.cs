@@ -28,7 +28,7 @@
         {
             this.Data = new MetricData();
             this.Metric = new DataPoint();
-            this.Context = new TelemetryContext(this.Data.properties);
+            this.Context = new TelemetryContext();
 
             this.Metric.kind = DataPointType.Aggregation;
 
@@ -128,7 +128,7 @@
         {
             this.Data = source.Data.DeepClone();
             this.Metric = source.Metric.DeepClone();
-            this.Context = source.Context.DeepClone(this.Data.properties);
+            this.Context = source.Context.DeepClone();
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
         }

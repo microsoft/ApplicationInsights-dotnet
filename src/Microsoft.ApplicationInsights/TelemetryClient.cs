@@ -104,7 +104,7 @@
 
             if (properties != null && properties.Count > 0)
             {
-                Utils.CopyDictionary(properties, telemetry.Context.Properties);
+                Utils.CopyDictionary(properties, telemetry.Properties);
             }
 
             if (metrics != null && metrics.Count > 0)
@@ -112,7 +112,7 @@
                 Utils.CopyDictionary(metrics, telemetry.Metrics);
             }
 
-            this.TrackEvent(telemetry);
+            // this.TrackEvent(telemetry);
         }
 
         /// <summary>
@@ -399,7 +399,7 @@
 
             if (properties != null && properties.Count > 0)
             {
-                Utils.CopyDictionary(properties, availabilityTelemetry.Context.Properties);
+                Utils.CopyDictionary(properties, availabilityTelemetry.Properties);
             }
 
             if (metrics != null && metrics.Count > 0)

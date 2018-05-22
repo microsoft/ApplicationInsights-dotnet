@@ -53,7 +53,7 @@
         private TraceTelemetry(TraceTelemetry source)
         {
             this.Data = source.Data.DeepClone();
-            this.context = source.context.DeepClone(this.Data.properties);
+            this.context = source.context.DeepClone();
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;

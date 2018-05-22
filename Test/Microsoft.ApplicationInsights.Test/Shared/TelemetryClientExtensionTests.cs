@@ -200,8 +200,8 @@
                 telemetry = operation.Telemetry;
             }
 
-            Assert.IsTrue(telemetry.Properties.ContainsKey("my custom tag"));
-            Assert.AreEqual("value", telemetry.Properties["my custom tag"]);
+            Assert.IsTrue(telemetry.Context.Properties.ContainsKey("my custom tag"));
+            Assert.AreEqual("value", telemetry.Context.Properties["my custom tag"]);
         }
 
         [TestMethod]

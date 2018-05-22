@@ -62,6 +62,30 @@
         }
 
         [TestMethod]
+        public void MetricTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
+        {
+            var expected = new MetricTelemetry();
+            expected.Name = "TestMetric";
+            expected.Context.Properties.Add("contextpropkey", "contextpropvalue");
+            expected.Properties.Add("TestProperty", "TestPropertyValue");
+
+            ((ITelemetry)expected).Sanitize();
+
+            Assert.AreEqual(1, expected.Properties.Count);
+            Assert.AreEqual(1, expected.Context.Properties.Count);
+
+            Assert.IsTrue(expected.Properties.ContainsKey("TestProperty"));
+            Assert.IsTrue(expected.Context.Properties.ContainsKey("contextpropkey"));
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MetricData>(expected);
+
+            // Items added to both Metric.Properties, and Metric.Context.Properties are serialized to properties.
+            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("contextpropkey"));
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
+        }
+
+        [TestMethod]
         public void AggregateMetricTelemetrySerializesToJsonCorrectlyWithNamespace()
         {
             var expected = new MetricTelemetry();
@@ -77,7 +101,7 @@
             expected.StandardDeviation = 0.5;
             expected.Properties.Add("Property1", "Value1");
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, AI.MetricData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MetricData>(expected);
 
             Assert.AreEqual(typeof(AI.MetricData).Name, item.data.baseType);
 
@@ -112,7 +136,7 @@
             expected.StandardDeviation = 0.5;
             expected.Properties.Add("Property1", "Value1");
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, AI.MetricData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MetricData>(expected);
 
             Assert.AreEqual(typeof(AI.MetricData).Name, item.data.baseType);
 
@@ -182,7 +206,7 @@
             metricTelemetry.Context.InstrumentationKey = "AIC-" + Guid.NewGuid().ToString();
             ((ITelemetry)metricTelemetry).Sanitize();
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, AI.MetricData>(metricTelemetry);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MetricData>(metricTelemetry);
 
             Assert.AreEqual(metricTelemetry.Context.InstrumentationKey, item.iKey);
         }
@@ -230,7 +254,7 @@
             original.Count = null;
             original.StandardDeviation = null;
             ((ITelemetry)original).Sanitize();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, AI.MetricData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MetricData>(original);
 
             Assert.AreEqual(2, item.data.baseData.ver);
         }

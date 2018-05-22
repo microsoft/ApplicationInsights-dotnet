@@ -29,7 +29,7 @@
         public ExceptionTelemetry()
         {
             this.Data = new ExceptionData();
-            this.context = new TelemetryContext(this.Data.properties);
+            this.context = new TelemetryContext();
         }
 
         /// <summary>
@@ -54,7 +54,7 @@
         private ExceptionTelemetry(ExceptionTelemetry source)
         {
             this.Data = source.Data.DeepClone();
-            this.context = source.context.DeepClone(this.Data.properties);
+            this.context = source.context.DeepClone();
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;

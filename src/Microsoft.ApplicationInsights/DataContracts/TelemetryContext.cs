@@ -144,11 +144,11 @@
             }
         }
 
-        internal TelemetryContext DeepClone(IDictionary<string, string> properties)
-        {
-            Debug.Assert(properties != null, "properties parameter should not be null");
-            var other = new TelemetryContext(properties);
+        internal TelemetryContext DeepClone()
+        {            
+            var other = new TelemetryContext();
             other.InstrumentationKey = this.InstrumentationKey;
+            Utils.CopyDictionary(this.properties, other.properties);            
             return other;
         }
 

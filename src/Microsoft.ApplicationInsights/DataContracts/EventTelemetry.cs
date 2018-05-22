@@ -27,7 +27,7 @@
         public EventTelemetry()
         {
             this.Data = new EventData();
-            this.context = new TelemetryContext(this.Data.properties);
+            this.context = new TelemetryContext();
         }
 
         /// <summary>
@@ -41,7 +41,7 @@
         private EventTelemetry(EventTelemetry source)
         {
             this.Data = source.Data.DeepClone();
-            this.context = source.context.DeepClone(this.Data.properties);
+            this.context = source.context.DeepClone();
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
