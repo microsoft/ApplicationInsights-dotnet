@@ -1,49 +1,52 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <Description>Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/documentation/articles/app-insights-asp-net-five/ for more information. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
-    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
-    <AssemblyTitle>Application Insights for ASP.NET Core Web Applications</AssemblyTitle>
+    <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
     <VersionPrefix>2.3.0</VersionPrefix>
     <Authors>Microsoft</Authors>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <AssemblyTitle>Application Insights for ASP.NET Core Web Applications</AssemblyTitle>
+    <Description>Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/documentation/articles/app-insights-asp-net-five/ for more information. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-aspnetcore.git</RepositoryUrl>
+    
     <TargetFrameworks>net451;net46;netstandard1.6</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard1.6</TargetFrameworks>
-    <DelaySign Condition=" '$(OS)' == 'Windows_NT' ">true</DelaySign>
+    
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.1</NetStandardImplicitPackageVersion>	
+	  <OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\src\$(MSBuildProjectName)</OutputPath>
+	  <IntermediateOutputPath Condition="'$(IntermediateOutputPath)'=='' ">..\..\artifacts\obj\src\$(MSBuildProjectName)</IntermediateOutputPath>	
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--Package Settings-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>Microsoft.ApplicationInsights.AspNetCore</AssemblyName>
-    <AssemblyOriginatorKeyFile>../../keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <IncludeSymbols>False</IncludeSymbols>
     <PackageId>Microsoft.ApplicationInsights.AspNetCore</PackageId>
     <PackageTags>Analytics;ApplicationInsights;Telemetry;AppInsights;aspnetcore</PackageTags>
     <PackageIconUrl>https://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageIconUrl>
-    <PackageProjectUrl>https://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
     <PackageLicenseUrl>https://go.microsoft.com/fwlink/?LinkID=510709</PackageLicenseUrl>
+    <PackageProjectUrl>https://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-aspnetcore.git</RepositoryUrl>
-    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.1</NetStandardImplicitPackageVersion>	
-	<OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\src\$(MSBuildProjectName)</OutputPath>
-	<IntermediateOutputPath Condition="'$(IntermediateOutputPath)'=='' ">..\..\artifacts\obj\src\$(MSBuildProjectName)</IntermediateOutputPath>	
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <!--Symbols Settings-->
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>    
   </PropertyGroup>
-  
+
   <ItemGroup>
+    <!--Private Assets-->
     <PackageReference Include="Desktop.Analyzers" Version="1.2.0-beta2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.ApiDesignGuidelines.Analyzers" Version="1.2.0-beta2">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="1.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.0.2" />
-    <PackageReference Include="Microsoft.Extensions.DiagnosticAdapter" Version="1.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.0.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="1.2.0-beta2">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
@@ -68,15 +71,23 @@
     <PackageReference Include="System.Runtime.InteropServices.Analyzers" Version="1.2.0-beta2">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="System.Text.Encodings.Web" Version="4.3.1" />
     <PackageReference Include="System.Threading.Tasks.Analyzers" Version="1.2.0-beta2">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.6.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.6.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.6.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.6.1" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.4" />
+    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.6.4" />
+    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.6.4" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.6.4" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.6.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="1.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.0.2" />
+    <PackageReference Include="Microsoft.Extensions.DiagnosticAdapter" Version="1.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.0.2" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net451' OR '$(TargetFramework)' == 'net46' ">
@@ -89,4 +100,10 @@
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
   </ItemGroup>
 
+  <ImportGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <!--3 files are required for signing in this order: Signing.props, MicroBuild.Core.props, and MicroBuild.Core.targets-->
+    <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" />
+    <Import Project="..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props" Condition="Exists('..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props')" />
+    <Import Project="..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets')" />
+  </ImportGroup>
 </Project>
