@@ -26,9 +26,6 @@
     <Compile Include="TelemetryItemType.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="Bond.CSharp" Version="7.0.1">
       <PrivateAssets>build</PrivateAssets>
     </PackageReference>

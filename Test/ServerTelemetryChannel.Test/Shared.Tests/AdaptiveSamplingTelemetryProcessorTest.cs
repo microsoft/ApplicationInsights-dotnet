@@ -15,6 +15,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
 
     [TestClass]
     public class AdaptiveSamplingTelemetryProcessorTest
@@ -32,7 +33,7 @@
                 // set up adaptive sampling that evaluates and changes sampling % frequently
                 chainBuilder
                     .UseAdaptiveSampling(
-                        new SamplingPercentageEstimatorSettings()
+                        new Channel.Implementation.SamplingPercentageEstimatorSettings()
                         {
                             EvaluationInterval = TimeSpan.FromSeconds(1),
                             SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(2),
@@ -71,7 +72,7 @@
                 // set up adaptive sampling that evaluates and changes sampling % frequently
                 chainBuilder
                     .UseAdaptiveSampling(
-                        new SamplingPercentageEstimatorSettings()
+                        new Channel.Implementation.SamplingPercentageEstimatorSettings()
                         {
                             EvaluationInterval = TimeSpan.FromSeconds(1),
                             SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(2),
@@ -134,7 +135,7 @@
                 // set up adaptive sampling that evaluates and changes sampling % frequently
                 chainBuilder
                     .UseAdaptiveSampling(
-                        new SamplingPercentageEstimatorSettings()
+                        new Channel.Implementation.SamplingPercentageEstimatorSettings()
                         {
                             InitialSamplingPercentage = 5.0,
                             EvaluationInterval = TimeSpan.FromSeconds(1),
@@ -290,7 +291,7 @@
             double currentSamplingPercentage,
             double newSamplingPercentage,
             bool isSamplingPercentageChanged,
-            SamplingPercentageEstimatorSettings settings)
+            Channel.Implementation.SamplingPercentageEstimatorSettings settings)
         {
             Trace.WriteLine(string.Format(
                 "[Sampling% evaluation] {0}, Eps: {1}, Current %: {2}, New %: {3}, Changed: {4}",
