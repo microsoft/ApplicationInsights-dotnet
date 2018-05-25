@@ -1,6 +1,8 @@
 # Changelog 
 
-### Version 2.6.2
+
+
+### Version 2.6.4
 - [Log4Net new supports NetStandard 1.3!](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/167)
 - [NLog Flush should include async delay](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/176)
 - [NLog can include additional ContextProperties](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/183)
