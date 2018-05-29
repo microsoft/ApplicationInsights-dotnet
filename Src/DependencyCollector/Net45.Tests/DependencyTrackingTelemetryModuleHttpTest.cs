@@ -96,7 +96,14 @@
         [Timeout(5000)]
         public async Task TestZeroContentResponseDiagnosticSource()
         {
-            await this.TestCollectionHttpClientSucessfulResponse(LocalhostUrlDiagSource, 200, 0);
+            await this.TestCollectionHttpClientSuccessfulResponse(LocalhostUrlDiagSource, 200, 0);
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task TestZeroAndNonZeroContentResponseDiagnosticSource()
+        {
+            await this.TestZeroContentResponseAfterNonZeroResponse(LocalhostUrlDiagSource, 200);
         }
 
         [TestMethod]
@@ -379,7 +386,7 @@
             }
         }
 
-        private async Task TestCollectionHttpClientSucessfulResponse(string url, int statusCode, int contentLength, bool injectLegacyHeaders = false)
+        private async Task TestCollectionHttpClientSuccessfulResponse(string url, int statusCode, int contentLength, bool injectLegacyHeaders = false)
         {
             using (this.CreateDependencyTrackingModule(true))
             {
@@ -406,6 +413,62 @@
                 }
 
                 this.ValidateTelemetry(true, this.sentTelemetry.Single(), new Uri(url), null, statusCode >= 200 && statusCode < 300, statusCode.ToString(CultureInfo.InvariantCulture));
+            }
+        }
+
+        private async Task TestZeroContentResponseAfterNonZeroResponse(string url, int statusCode)
+        {
+            using (this.CreateDependencyTrackingModule(true))
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    using (new LocalServer(
+                        url,
+                        context =>
+                        {
+                            context.Response.ContentLength64 = 1;
+                            context.Response.StatusCode = statusCode;
+                            context.Response.OutputStream.WriteByte(0x1);
+                            context.Response.OutputStream.Close();
+                        }))
+                    {
+                        try
+                        {
+                            using (HttpResponseMessage response = await client.GetAsync(url))
+                            {
+                                Assert.AreEqual(1, response.Content.Headers.ContentLength);
+                            }
+                        }
+                        catch (WebException)
+                        {
+                            // ignore and let ValidateTelemetry method check status code
+                        }
+                    }
+
+                    using (new LocalServer(
+                        url,
+                        context =>
+                        {
+                            context.Response.ContentLength64 = 0;
+                            context.Response.StatusCode = statusCode;
+                        }))
+                    {
+                        try
+                        {
+                            using (HttpResponseMessage response = await client.GetAsync(url))
+                            {
+                                Assert.AreEqual(0, response.Content.Headers.ContentLength);
+                            }
+                        }
+                        catch (WebException)
+                        {
+                            // ignore and let ValidateTelemetry method check status code
+                        }
+                    }
+                }
+
+                Assert.AreEqual(2, this.sentTelemetry.Count);
+                this.ValidateTelemetry(true, this.sentTelemetry.Last(), new Uri(url), null, statusCode >= 200 && statusCode < 300, statusCode.ToString(CultureInfo.InvariantCulture));
             }
         }
 
