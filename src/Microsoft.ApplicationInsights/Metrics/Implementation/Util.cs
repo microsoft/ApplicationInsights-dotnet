@@ -283,6 +283,25 @@
             return hash;
         }
 
+        public static int CombineHashCodes(int[] arr)
+        {
+            if (arr == null)
+            {
+                return 0;
+            }
+
+            int hash = 17;
+            unchecked
+            {
+                for (int i = 0; i < arr.Length; i++)
+                {
+                    hash = (hash * 23) + arr[i];
+                }
+            }
+
+            return hash;
+        }
+
         /// <summary>@ToDo: Complete documentation before stable release. {659}</summary>
         /// <param name="source">@ToDo: Complete documentation before stable release. {688}</param>
         /// <param name="target">@ToDo: Complete documentation before stable release. {859}</param>
