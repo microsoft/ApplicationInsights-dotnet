@@ -19,19 +19,9 @@
             original.CounterName = null;
             original.InstanceName = null;
             ((ITelemetry)original).Sanitize();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PerformanceCounterTelemetry, AI.MetricData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MetricData>(original);
 
             Assert.AreEqual(2, item.data.baseData.ver);
-        }
-
-        [TestMethod]
-        public void ContextPropertiesUsedAsTelemetryItemProperties()
-        {
-            PerformanceCounterTelemetry item = new PerformanceCounterTelemetry();
-
-            item.Context.Properties["a"] = "b";
-
-            Assert.AreEqual("b", item.Properties["a"]);
         }
 
         [TestMethod]

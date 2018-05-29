@@ -26,7 +26,7 @@
         public AvailabilityTelemetry()
         {
             this.Data = new AvailabilityData();
-            this.context = new TelemetryContext(this.Data.properties);
+            this.context = new TelemetryContext();
             this.Data.id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
             this.Success = true;
         }
@@ -52,7 +52,7 @@
         private AvailabilityTelemetry(AvailabilityTelemetry source)
         {
             this.Data = source.Data.DeepClone();
-            this.context = source.context.DeepClone(this.Data.properties);
+            this.context = source.context.DeepClone();
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
         }

@@ -15,10 +15,31 @@
     public class AvailabilityTelemetryTest
     {
         [TestMethod]
+        public void AvailabilityTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
+        {
+            var expected = CreateAvailabilityTelemetry();
+
+            ((ITelemetry)expected).Sanitize();
+
+            Assert.AreEqual(1, expected.Properties.Count);
+            Assert.AreEqual(1, expected.Context.Properties.Count);
+
+            Assert.IsTrue(expected.Properties.ContainsKey("TestProperty"));
+            Assert.IsTrue(expected.Context.Properties.ContainsKey("contextpropkey"));
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.AvailabilityData>(expected);
+
+            // Items added to both availability.Properties, and availability.Context.Properties are serialized to properties.
+            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("contextpropkey"));
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
+        }
+
+        [TestMethod]
         public void AvailabilityTelemetrySerializesToJson()
         {
             AvailabilityTelemetry expected = this.CreateAvailabilityTelemetry();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AvailabilityTelemetry, AI.AvailabilityData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.AvailabilityData>(expected);
 
             Assert.AreEqual<DateTimeOffset>(expected.Timestamp, DateTimeOffset.Parse(item.time, null, System.Globalization.DateTimeStyles.AssumeUniversal));
             Assert.AreEqual(expected.Sequence, item.seq);
@@ -137,6 +158,7 @@
                 Success = true
             };
             item.Context.InstrumentationKey = Guid.NewGuid().ToString();
+            item.Context.Properties.Add("contextpropkey", "contextpropvalue");
             item.Properties.Add("TestProperty", "TestValue");
             item.Sequence = "12";
 

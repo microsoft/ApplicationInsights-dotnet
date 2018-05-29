@@ -64,7 +64,7 @@
             expected.Message = "My Test";
             expected.Properties.Add("Property2", "Value2");
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TraceTelemetry, AI.MessageData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MessageData>(expected);
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
             Assert.AreEqual(item.name, AI.ItemType.Message);
@@ -80,7 +80,7 @@
             var expected = new TraceTelemetry { SeverityLevel = SeverityLevel.Information };
             ((ITelemetry)expected).Sanitize();
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TraceTelemetry, AI.MessageData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MessageData>(expected);
 
             Assert.AreEqual(AI.SeverityLevel.Information, item.data.baseData.severityLevel.Value);
         }
@@ -92,7 +92,7 @@
             original.Message = null;
             original.SeverityLevel = null;
             ((ITelemetry)original).Sanitize();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TraceTelemetry, AI.MessageData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MessageData>(original);
 
             Assert.AreEqual(2, item.data.baseData.ver);
         }
@@ -141,7 +141,7 @@
             var telemetry = new TraceTelemetry("my trace");
             ((ISupportSampling)telemetry).SamplingPercentage = 10;
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TraceTelemetry, AI.MessageData>(telemetry);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MessageData>(telemetry);
 
             Assert.AreEqual(10, item.sampleRate);
         }
@@ -161,6 +161,28 @@
             var result = deepComparator.Compare(trace, other);
 
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
+        }
+
+        [TestMethod]
+        public void EventTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
+        {
+            var expected = new TraceTelemetry();
+            expected.Context.Properties.Add("contextpropkey", "contextpropvalue");
+            expected.Properties.Add("TestProperty", "TestPropertyValue");
+            ((ITelemetry)expected).Sanitize();
+
+            Assert.AreEqual(1, expected.Properties.Count);
+            Assert.AreEqual(1, expected.Context.Properties.Count);
+
+            Assert.IsTrue(expected.Properties.ContainsKey("TestProperty"));
+            Assert.IsTrue(expected.Context.Properties.ContainsKey("contextpropkey"));
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MessageData>(expected);
+
+            // Items added to both MessageData.Properties, and MessageData.Context.Properties are serialized to properties.
+            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("contextpropkey"));
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
         }
     }
 }

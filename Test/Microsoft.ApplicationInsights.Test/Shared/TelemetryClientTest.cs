@@ -315,6 +315,21 @@
             Assert.AreEqual(null, trace.SeverityLevel);
         }
 
+        [TestMethod]
+        public void TrackTraceAppliesCustomPropertiesToTelemetry()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            Dictionary<string, string> customProps = new Dictionary<string, string>();
+            customProps.Add("key1", "value1");
+            client.TrackTrace("my custommessae", SeverityLevel.Error, customProps);
+
+            var trace = (TraceTelemetry)sentTelemetry.Single();
+            Assert.IsTrue(trace.Properties.ContainsKey("key1"));
+            Assert.AreEqual("value1", trace.Properties["key1"]);
+        }
+
         #endregion
 
         #region TrackException
@@ -380,6 +395,21 @@
 
             var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
             Assert.AreEqual(null, exceptionTelemetry.SeverityLevel);
+        }
+
+        [TestMethod]
+        public void TrackExceptionAppliedCustomPropertiesToTelemetry()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            Dictionary<string, string> customProps = new Dictionary<string, string>();
+            customProps.Add("key1", "value1");
+            client.TrackException(new Exception(),customProps);
+
+            var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
+            Assert.IsTrue(exceptionTelemetry.Properties.ContainsKey("key1"));
+            Assert.AreEqual("value1", exceptionTelemetry.Properties["key1"]);            
         }
 
         #endregion
@@ -525,7 +555,7 @@
         }
 
         [TestMethod]
-        public void TrackAvailabilityTracksCustomDimensions()
+        public void TrackAvailabilityAppliesCustomDimensionsToProperties()
         {
             var sentTelemetry = new List<ITelemetry>();
             TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
@@ -1113,8 +1143,8 @@
                 telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
                 TestUtil.ValidateNumericAggregateValues(sentTelemetry[0], "", "CowsSold", 2, 1.1, 0.6, 0.5, 0.05);
-                Assert.AreEqual(1, sentTelemetry[0].Context.Properties.Count);
-                Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+                Assert.AreEqual(1, ((MetricTelemetry)sentTelemetry[0]).Properties.Count);
+                Assert.IsTrue(((MetricTelemetry)sentTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
                 sentTelemetry.Clear();
 
                 metric.TrackValue(0.7);
@@ -1123,8 +1153,8 @@
                 telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
                 TestUtil.ValidateNumericAggregateValues(sentTelemetry[0], "", "CowsSold", 2, 1.5, 0.8, 0.7, 0.05);
-                Assert.AreEqual(1, sentTelemetry[0].Context.Properties.Count);
-                Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+                Assert.AreEqual(1, ((MetricTelemetry)sentTelemetry[0]).Properties.Count);
+                Assert.IsTrue(((MetricTelemetry)sentTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
                 sentTelemetry.Clear();
             }
             {
@@ -1142,9 +1172,9 @@
                 telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
                 TestUtil.ValidateNumericAggregateValues(sentTelemetry[0], "", "CowsSold", 2, 1.1, 0.6, 0.5, 0.05);
-                Assert.AreEqual(2, sentTelemetry[0].Context.Properties.Count);
-                Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("Purple", sentTelemetry[0].Context.Properties["Color"]);
+                Assert.AreEqual(2, ((MetricTelemetry)sentTelemetry[0]).Properties.Count);
+                Assert.IsTrue(((MetricTelemetry)sentTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+                Assert.AreEqual("Purple", ((MetricTelemetry)sentTelemetry[0]).Properties["Color"]);
                 sentTelemetry.Clear();
 
                 metric.TryTrackValue(0.7, "Purple");
@@ -1153,9 +1183,9 @@
                 telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
                 TestUtil.ValidateNumericAggregateValues(sentTelemetry[0], String.Empty, "CowsSold", 2, 1.5, 0.8, 0.7, 0.05);
-                Assert.AreEqual(2, sentTelemetry[0].Context.Properties.Count);
-                Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("Purple", sentTelemetry[0].Context.Properties["Color"]);
+                Assert.AreEqual(2, ((MetricTelemetry)sentTelemetry[0]).Properties.Count);
+                Assert.IsTrue(((MetricTelemetry)sentTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+                Assert.AreEqual("Purple", ((MetricTelemetry)sentTelemetry[0]).Properties["Color"]);
                 sentTelemetry.Clear();
             }
             {
@@ -1178,10 +1208,10 @@
                                                         .ToArray();
 
                 TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], String.Empty, "CowsSold", 2, 1.1, 0.6, 0.5, 0.05);
-                Assert.AreEqual(3, orderedTelemetry[0].Context.Properties.Count);
-                Assert.IsTrue(orderedTelemetry[0].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("Purple", orderedTelemetry[0].Context.Properties["Color"]);
-                Assert.AreEqual("Large", orderedTelemetry[0].Context.Properties["Size"]);
+                Assert.AreEqual(3, ((MetricTelemetry)sentTelemetry[0]).Properties.Count);
+                Assert.IsTrue(((MetricTelemetry)sentTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+                Assert.AreEqual("Purple", ((MetricTelemetry)sentTelemetry[0]).Properties["Color"]);
+                Assert.AreEqual("Large", ((MetricTelemetry)sentTelemetry[0]).Properties["Size"]);
                 sentTelemetry.Clear();
 
                 metric.TryTrackValue(0.7, "Purple", "Large");
@@ -1196,16 +1226,16 @@
                                             .ToArray();
 
                 TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], String.Empty, "CowsSold", 1, 0.8, 0.8, 0.8, 0);
-                Assert.AreEqual(3, orderedTelemetry[0].Context.Properties.Count);
-                Assert.IsTrue(orderedTelemetry[0].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("Purple", orderedTelemetry[0].Context.Properties["Color"]);
-                Assert.AreEqual("Small", orderedTelemetry[0].Context.Properties["Size"]);
+                Assert.AreEqual(3, ((MetricTelemetry)sentTelemetry[0]).Properties.Count);
+                Assert.IsTrue(((MetricTelemetry)sentTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+                Assert.AreEqual("Purple", ((MetricTelemetry)sentTelemetry[0]).Properties["Color"]);
+                Assert.AreEqual("Small", ((MetricTelemetry)sentTelemetry[0]).Properties["Size"]);
 
                 TestUtil.ValidateNumericAggregateValues(orderedTelemetry[1], String.Empty, "CowsSold", 1, 0.7, 0.7, 0.7, 0);
-                Assert.AreEqual(3, orderedTelemetry[1].Context.Properties.Count);
-                Assert.IsTrue(orderedTelemetry[1].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("Purple", orderedTelemetry[1].Context.Properties["Color"]);
-                Assert.AreEqual("Large", orderedTelemetry[1].Context.Properties["Size"]);
+                Assert.AreEqual(3, ((MetricTelemetry)orderedTelemetry[1]).Properties.Count);
+                Assert.IsTrue(((MetricTelemetry)orderedTelemetry[1]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+                Assert.AreEqual("Purple", ((MetricTelemetry)orderedTelemetry[1]).Properties["Color"]);
+                Assert.AreEqual("Large", ((MetricTelemetry)orderedTelemetry[1]).Properties["Size"]);
 
                 sentTelemetry.Clear();
             }
@@ -1253,18 +1283,18 @@
                                         .ToArray();
 
                 TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], "Test MetricNamespace", "Test MetricId", 2, 1.1, 0.6, 0.5, 0.05);
-                Assert.AreEqual(11, orderedTelemetry[0].Context.Properties.Count);
-                Assert.IsTrue(orderedTelemetry[0].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("DV1", orderedTelemetry[0].Context.Properties["Dim 1"]);
-                Assert.AreEqual("DV2", orderedTelemetry[0].Context.Properties["Dim 2"]);
-                Assert.AreEqual("DV3", orderedTelemetry[0].Context.Properties["Dim 3"]);
-                Assert.AreEqual("DV4", orderedTelemetry[0].Context.Properties["Dim 4"]);
-                Assert.AreEqual("DV5", orderedTelemetry[0].Context.Properties["Dim 5"]);
-                Assert.AreEqual("DV6", orderedTelemetry[0].Context.Properties["Dim 6"]);
-                Assert.AreEqual("DV7", orderedTelemetry[0].Context.Properties["Dim 7"]);
-                Assert.AreEqual("DV8", orderedTelemetry[0].Context.Properties["Dim 8"]);
-                Assert.AreEqual("DV9", orderedTelemetry[0].Context.Properties["Dim 9"]);
-                Assert.AreEqual("DV10", orderedTelemetry[0].Context.Properties["Dim 10"]);
+                Assert.AreEqual(11, ((MetricTelemetry)sentTelemetry[0]).Properties.Count);
+                Assert.IsTrue(((MetricTelemetry)sentTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+                Assert.AreEqual("DV1", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 1"]);
+                Assert.AreEqual("DV2", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 2"]);
+                Assert.AreEqual("DV3", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 3"]);
+                Assert.AreEqual("DV4", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 4"]);
+                Assert.AreEqual("DV5", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 5"]);
+                Assert.AreEqual("DV6", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 6"]);
+                Assert.AreEqual("DV7", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 7"]);
+                Assert.AreEqual("DV8", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 8"]);
+                Assert.AreEqual("DV9", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 9"]);
+                Assert.AreEqual("DV10", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 10"]);
                 sentTelemetry.Clear();
 
                 metric.TryTrackValue(0.7, "DV1", "DV2", "DV3", "DV4", "DV5", "DV6", "DV7", "DV8", "DV9", "DV10");
@@ -1279,32 +1309,32 @@
                                         .ToArray();
 
                 TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], "Test MetricNamespace", "Test MetricId", 1, 0.8, 0.8, 0.8, 0);
-                Assert.AreEqual(11, orderedTelemetry[0].Context.Properties.Count);
-                Assert.IsTrue(orderedTelemetry[0].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("DV1", orderedTelemetry[0].Context.Properties["Dim 1"]);
-                Assert.AreEqual("DV2", orderedTelemetry[0].Context.Properties["Dim 2"]);
-                Assert.AreEqual("DV3", orderedTelemetry[0].Context.Properties["Dim 3"]);
-                Assert.AreEqual("DV4", orderedTelemetry[0].Context.Properties["Dim 4"]);
-                Assert.AreEqual("DV5", orderedTelemetry[0].Context.Properties["Dim 5"]);
-                Assert.AreEqual("DV6a", orderedTelemetry[0].Context.Properties["Dim 6"]);
-                Assert.AreEqual("DV7", orderedTelemetry[0].Context.Properties["Dim 7"]);
-                Assert.AreEqual("DV8", orderedTelemetry[0].Context.Properties["Dim 8"]);
-                Assert.AreEqual("DV9", orderedTelemetry[0].Context.Properties["Dim 9"]);
-                Assert.AreEqual("DV10", orderedTelemetry[0].Context.Properties["Dim 10"]);
+                Assert.AreEqual(11, ((MetricTelemetry)sentTelemetry[0]).Properties.Count);
+                Assert.IsTrue(((MetricTelemetry)sentTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+                Assert.AreEqual("DV1", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 1"]);
+                Assert.AreEqual("DV2", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 2"]);
+                Assert.AreEqual("DV3", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 3"]);
+                Assert.AreEqual("DV4", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 4"]);
+                Assert.AreEqual("DV5", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 5"]);
+                Assert.AreEqual("DV6a", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 6"]);
+                Assert.AreEqual("DV7", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 7"]);
+                Assert.AreEqual("DV8", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 8"]);
+                Assert.AreEqual("DV9", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 9"]);
+                Assert.AreEqual("DV10", ((MetricTelemetry)sentTelemetry[0]).Properties["Dim 10"]);
 
                 TestUtil.ValidateNumericAggregateValues(orderedTelemetry[1], "Test MetricNamespace", "Test MetricId", 1, 0.7, 0.7, 0.7, 0);
-                Assert.AreEqual(11, orderedTelemetry[1].Context.Properties.Count);
-                Assert.IsTrue(orderedTelemetry[1].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                Assert.AreEqual("DV1", orderedTelemetry[1].Context.Properties["Dim 1"]);
-                Assert.AreEqual("DV2", orderedTelemetry[1].Context.Properties["Dim 2"]);
-                Assert.AreEqual("DV3", orderedTelemetry[1].Context.Properties["Dim 3"]);
-                Assert.AreEqual("DV4", orderedTelemetry[1].Context.Properties["Dim 4"]);
-                Assert.AreEqual("DV5", orderedTelemetry[1].Context.Properties["Dim 5"]);
-                Assert.AreEqual("DV6", orderedTelemetry[1].Context.Properties["Dim 6"]);
-                Assert.AreEqual("DV7", orderedTelemetry[1].Context.Properties["Dim 7"]);
-                Assert.AreEqual("DV8", orderedTelemetry[1].Context.Properties["Dim 8"]);
-                Assert.AreEqual("DV9", orderedTelemetry[1].Context.Properties["Dim 9"]);
-                Assert.AreEqual("DV10", orderedTelemetry[1].Context.Properties["Dim 10"]);
+                Assert.AreEqual(11, ((MetricTelemetry)orderedTelemetry[1]).Properties.Count);
+                Assert.IsTrue(((MetricTelemetry)orderedTelemetry[1]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+                Assert.AreEqual("DV1", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 1"]);
+                Assert.AreEqual("DV2", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 2"]);
+                Assert.AreEqual("DV3", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 3"]);
+                Assert.AreEqual("DV4", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 4"]);
+                Assert.AreEqual("DV5", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 5"]);
+                Assert.AreEqual("DV6", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 6"]);
+                Assert.AreEqual("DV7", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 7"]);
+                Assert.AreEqual("DV8", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 8"]);
+                Assert.AreEqual("DV9", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 9"]);
+                Assert.AreEqual("DV10", ((MetricTelemetry)orderedTelemetry[1]).Properties["Dim 10"]);
 
                 sentTelemetry.Clear();
             }
@@ -1802,31 +1832,31 @@
                                                         .ToArray();
 
             TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], String.Empty, "Metric A", 8, 916, 118, 111, 2.29128784747792);
-            Assert.AreEqual(2, orderedTelemetry[0].Context.Properties.Count);
-            Assert.IsTrue(orderedTelemetry[0].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-            Assert.AreEqual("Val", orderedTelemetry[0].Context.Properties["Dim1"]);
+            Assert.AreEqual(2, ((MetricTelemetry)orderedTelemetry[0]).Properties.Count);
+            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+            Assert.AreEqual("Val", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim1"]);
 
             TestUtil.ValidateNumericAggregateValues(orderedTelemetry[1], String.Empty, "Metric A", 8, 836, 108, 101, 2.29128784747792);
-            Assert.AreEqual(1, orderedTelemetry[1].Context.Properties.Count);
-            Assert.IsTrue(orderedTelemetry[1].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+            Assert.AreEqual(1, ((MetricTelemetry)orderedTelemetry[1]).Properties.Count);
+            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[1]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
 
             TestUtil.ValidateNumericAggregateValues(orderedTelemetry[2], String.Empty, "Metric A", 4, 1250, 314, 311, 1.11803398874989);
-            Assert.AreEqual(2, orderedTelemetry[2].Context.Properties.Count);
-            Assert.IsTrue(orderedTelemetry[2].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-            Assert.AreEqual("Val", orderedTelemetry[2].Context.Properties["Dim1"]);
+            Assert.AreEqual(2, ((MetricTelemetry)orderedTelemetry[2]).Properties.Count);
+            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[2]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+            Assert.AreEqual("Val", ((MetricTelemetry)orderedTelemetry[2]).Properties["Dim1"]);
 
             TestUtil.ValidateNumericAggregateValues(orderedTelemetry[3], String.Empty, "Metric A", 4, 1210, 304, 301, 1.11803398874989);
-            Assert.AreEqual(1, orderedTelemetry[3].Context.Properties.Count);
-            Assert.IsTrue(orderedTelemetry[3].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+            Assert.AreEqual(1, ((MetricTelemetry)orderedTelemetry[3]).Properties.Count);
+            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[3]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
 
             TestUtil.ValidateNumericAggregateValues(orderedTelemetry[4], String.Empty, "Metric A", 2, 631, 316, 315, 0.5);
-            Assert.AreEqual(2, orderedTelemetry[4].Context.Properties.Count);
-            Assert.IsTrue(orderedTelemetry[4].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-            Assert.AreEqual("Val", orderedTelemetry[4].Context.Properties["Dim1"]);
+            Assert.AreEqual(2, ((MetricTelemetry)orderedTelemetry[4]).Properties.Count);
+            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[4]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+            Assert.AreEqual("Val", ((MetricTelemetry)orderedTelemetry[4]).Properties["Dim1"]);
 
             TestUtil.ValidateNumericAggregateValues(orderedTelemetry[5], String.Empty, "Metric A", 2, 611, 306, 305, 0.5);
-            Assert.AreEqual(1, orderedTelemetry[5].Context.Properties.Count);
-            Assert.IsTrue(orderedTelemetry[5].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+            Assert.AreEqual(1, ((MetricTelemetry)orderedTelemetry[5]).Properties.Count);
+            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[5]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
 
             orderedTelemetry = sentTelemetry2
                                         .OrderByDescending((t) => ((MetricTelemetry) t).Count * 10000 + ((MetricTelemetry) t).Sum)
@@ -1834,13 +1864,13 @@
                                         .ToArray();
 
             TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], String.Empty, "Metric A", 2, 423, 212, 211, 0.5);
-            Assert.AreEqual(2, orderedTelemetry[0].Context.Properties.Count);
-            Assert.IsTrue(orderedTelemetry[0].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-            Assert.AreEqual("Val", orderedTelemetry[0].Context.Properties["Dim1"]);
+            Assert.AreEqual(2, ((MetricTelemetry)orderedTelemetry[0]).Properties.Count);
+            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+            Assert.AreEqual("Val", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim1"]);
 
             TestUtil.ValidateNumericAggregateValues(orderedTelemetry[1], String.Empty, "Metric A", 2, 403, 202, 201, 0.5);
-            Assert.AreEqual(1, orderedTelemetry[1].Context.Properties.Count);
-            Assert.IsTrue(orderedTelemetry[1].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+            Assert.AreEqual(1, ((MetricTelemetry)orderedTelemetry[1]).Properties.Count);
+            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[1]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
 
 
             Metric metricB21c1 = client21.GetMetric("Metric B", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient);
@@ -1923,25 +1953,25 @@
                                                         .ToArray();
 
             TestUtil.ValidateNumericAggregateValues(orderedTelemetry[0], String.Empty, "AnimalsSold", 4, 1000, 400, 100, 111.803398874989);
-            Assert.AreEqual(3, orderedTelemetry[0].Context.Properties.Count);
-            Assert.IsTrue(orderedTelemetry[0].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-            Assert.AreEqual("Rabbit", orderedTelemetry[0].Context.Properties["Species"]);
-            Assert.AreEqual("MyValue", orderedTelemetry[0].Context.Properties["MyTag"]);
+            Assert.AreEqual(3, ((MetricTelemetry)orderedTelemetry[0]).Properties.Count);
+            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[0]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+            Assert.AreEqual("Rabbit", ((MetricTelemetry)orderedTelemetry[0]).Properties["Species"]);
+            Assert.AreEqual("MyValue", ((MetricTelemetry)orderedTelemetry[0]).Properties["MyTag"]);
             Assert.AreEqual("Super-Fancy", orderedTelemetry[0].Context.Device.Model);
             Assert.AreEqual("3A3C34B6-CA2D-4372-B772-3B015E1E83DC", orderedTelemetry[0].Context.InstrumentationKey);
 
             TestUtil.ValidateNumericAggregateValues(orderedTelemetry[1], String.Empty, "AnimalsSold", 2, 70, 40, 30, 5);
-            Assert.AreEqual(3, orderedTelemetry[1].Context.Properties.Count);
-            Assert.IsTrue(orderedTelemetry[1].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-            Assert.AreEqual("Cow", orderedTelemetry[1].Context.Properties["Species"]);
-            Assert.AreEqual("MyValue", orderedTelemetry[1].Context.Properties["MyTag"]);
+            Assert.AreEqual(3, ((MetricTelemetry)orderedTelemetry[1]).Properties.Count);
+            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[1]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+            Assert.AreEqual("Cow", ((MetricTelemetry)orderedTelemetry[1]).Properties["Species"]);
+            Assert.AreEqual("MyValue", ((MetricTelemetry)orderedTelemetry[1]).Properties["MyTag"]);
             Assert.AreEqual("Super-Fancy", orderedTelemetry[1].Context.Device.Model);
             Assert.AreEqual("3A3C34B6-CA2D-4372-B772-3B015E1E83DC", orderedTelemetry[1].Context.InstrumentationKey);
 
             TestUtil.ValidateNumericAggregateValues(orderedTelemetry[2], String.Empty, "AnimalsSold", 2, 30, 20, 10, 5);
-            Assert.AreEqual(2, orderedTelemetry[2].Context.Properties.Count);
-            Assert.IsTrue(orderedTelemetry[2].Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-            Assert.AreEqual("Cow", orderedTelemetry[2].Context.Properties["Species"]);
+            Assert.AreEqual(2, ((MetricTelemetry)orderedTelemetry[2]).Properties.Count);
+            Assert.IsTrue(((MetricTelemetry)orderedTelemetry[2]).Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+            Assert.AreEqual("Cow", ((MetricTelemetry)orderedTelemetry[2]).Properties["Species"]);
             Assert.IsNull(orderedTelemetry[2].Context.Device.Model);
             Assert.AreEqual("754DD89F-61D6-4539-90C7-D886449E12BC", orderedTelemetry[2].Context.InstrumentationKey);
 

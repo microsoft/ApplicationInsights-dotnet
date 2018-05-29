@@ -34,7 +34,7 @@
         public PageViewTelemetry()
         {
             this.Data = new PageViewData();
-            this.context = new TelemetryContext(this.Data.properties);
+            this.context = new TelemetryContext();
         }
 
         /// <summary>
@@ -54,7 +54,7 @@
         private PageViewTelemetry(PageViewTelemetry source)
         {
             this.Data = source.Data.DeepClone();
-            this.context = source.context.DeepClone(this.Data.properties);
+            this.context = source.context.DeepClone();
         }
 
         /// <summary>

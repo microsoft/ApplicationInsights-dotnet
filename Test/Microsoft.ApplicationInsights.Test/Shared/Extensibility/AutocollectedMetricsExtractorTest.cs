@@ -75,15 +75,15 @@
 
             AssertEx.IsType<RequestTelemetry>(telemetrySentToChannel[1]);
             Assert.AreEqual("Test Request 1", ((RequestTelemetry) telemetrySentToChannel[1]).Name);
-            Assert.AreEqual(true, ((RequestTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+            Assert.AreEqual(true, telemetrySentToChannel[1].Context.Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Requests', Ver:'1.0')",
-                         ((RequestTelemetry) telemetrySentToChannel[1]).Properties["_MS.ProcessedByMetricExtractors"]);
+                         telemetrySentToChannel[1].Context.Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<RequestTelemetry>(telemetrySentToChannel[2]);
             Assert.AreEqual("Test Request 2", ((RequestTelemetry) telemetrySentToChannel[2]).Name);
-            Assert.AreEqual(true, ((RequestTelemetry) telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+            Assert.AreEqual(true, telemetrySentToChannel[1].Context.Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Requests', Ver:'1.0')",
-                         ((RequestTelemetry) telemetrySentToChannel[2]).Properties["_MS.ProcessedByMetricExtractors"]);
+                         telemetrySentToChannel[2].Context.Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[3]);
         }
@@ -268,27 +268,27 @@
             Assert.AreEqual(7, telemetrySentToChannel.Count);
             
             AssertEx.IsType<RequestTelemetry>(telemetrySentToChannel[0]);
-            Assert.AreEqual(true, ((RequestTelemetry) telemetrySentToChannel[0]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+            Assert.AreEqual(true, telemetrySentToChannel[0].Context.Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Requests', Ver:'1.0')",
-                         ((RequestTelemetry) telemetrySentToChannel[0]).Properties["_MS.ProcessedByMetricExtractors"]);
+                         telemetrySentToChannel[0].Context.Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<DependencyTelemetry>(telemetrySentToChannel[1]);
             Assert.AreEqual("Test Dependency Call 1", ((DependencyTelemetry) telemetrySentToChannel[1]).Name);
-            Assert.AreEqual(true, ((DependencyTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+            Assert.AreEqual(true, telemetrySentToChannel[1].Context.Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Dependencies', Ver:'1.0')",
-                         ((DependencyTelemetry) telemetrySentToChannel[1]).Properties["_MS.ProcessedByMetricExtractors"]);
+                         telemetrySentToChannel[1].Context.Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<DependencyTelemetry>(telemetrySentToChannel[2]);
             Assert.AreEqual("Test Dependency Call 2", ((DependencyTelemetry)telemetrySentToChannel[2]).Name);
-            Assert.AreEqual(true, ((DependencyTelemetry)telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+            Assert.AreEqual(true, telemetrySentToChannel[2].Context.Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Dependencies', Ver:'1.0')",
-                         ((DependencyTelemetry)telemetrySentToChannel[2]).Properties["_MS.ProcessedByMetricExtractors"]);
+                         telemetrySentToChannel[2].Context.Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<DependencyTelemetry>(telemetrySentToChannel[3]);
             Assert.AreEqual("Test Dependency Call 3", ((DependencyTelemetry) telemetrySentToChannel[3]).Name);
-            Assert.AreEqual(true, ((DependencyTelemetry) telemetrySentToChannel[3]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
+            Assert.AreEqual(true, telemetrySentToChannel[3].Context.Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Dependencies', Ver:'1.0')",
-                         ((DependencyTelemetry) telemetrySentToChannel[3]).Properties["_MS.ProcessedByMetricExtractors"]);
+                         telemetrySentToChannel[3].Context.Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<EventTelemetry>(telemetrySentToChannel[4]);
             Assert.AreEqual("Test Event", ((EventTelemetry) telemetrySentToChannel[4]).Name);
