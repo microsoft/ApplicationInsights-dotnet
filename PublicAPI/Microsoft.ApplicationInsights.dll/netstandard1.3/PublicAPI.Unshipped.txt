@@ -1,10 +1,12 @@
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.SetOperationDetail(string key, object detail) -> void
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.TryGetOperationDetail(string key, out object detail) -> bool
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SetParsedStack(System.Diagnostics.StackFrame[] frames) -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricNamespace.get -> string
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricNamespace.set -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricTelemetry(string metricNamespace, string name, int count, double sum, double min, double max, double standardDeviation) -> void
-Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.TryGetOperationDetail(string key, out object detail) -> bool
-Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.SetOperationDetail(string key, object detail) -> void
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationIdProvider.get -> Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationIdProvider.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Id.get -> string
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Id.set -> void
+Microsoft.ApplicationInsights.DataContracts.TelemetryContext.GlobalProperties.get -> System.Collections.Generic.IDictionary<string, string>
 Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider
 Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider.TryGetApplicationId(string instrumentationKey, out string applicationId) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.ApplicationInsightsApplicationIdProvider
@@ -14,13 +16,11 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.Applica
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.ApplicationInsightsApplicationIdProvider.ProfileQueryEndpoint.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.ApplicationInsightsApplicationIdProvider.TryGetApplicationId(string instrumentationKey, out string applicationId) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider
-Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.TryGetApplicationId(string instrumentationKey, out string applicationId) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.Defined.get -> System.Collections.Generic.IReadOnlyDictionary<string, string>
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.Defined.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.Next.get -> Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider
 Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.Next.set -> void
-Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Id.get -> string
-Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Id.set -> void
+Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId.DictionaryApplicationIdProvider.TryGetApplicationId(string instrumentationKey, out string applicationId) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.AddHeartbeatProperty(string propertyName, string propertyValue, bool isHealthy) -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.ExcludedHeartbeatProperties.get -> System.Collections.Generic.IList<string>
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule.ExcludedHeartbeatPropertyProviders.get -> System.Collections.Generic.IList<string>
@@ -38,6 +38,8 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHeartbeatPro
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHeartbeatPropertyManager.IsHeartbeatEnabled.get -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHeartbeatPropertyManager.IsHeartbeatEnabled.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.IHeartbeatPropertyManager.SetHeartbeatProperty(string propertyName, string propertyValue = null, bool? isHealthy = null) -> bool
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationIdProvider.get -> Microsoft.ApplicationInsights.Extensibility.IApplicationIdProvider
+Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ApplicationIdProvider.set -> void
 Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.Metric.GetAllSeries() -> System.Collections.Generic.IReadOnlyList<System.Collections.Generic.KeyValuePair<string[], Microsoft.ApplicationInsights.Metrics.MetricSeries>>
 Microsoft.ApplicationInsights.Metric.GetDimensionValues(int dimensionNumber) -> System.Collections.Generic.IReadOnlyCollection<string>
@@ -130,11 +132,11 @@ Microsoft.ApplicationInsights.Metrics.MetricAggregate.MetricAggregate(string met
 Microsoft.ApplicationInsights.Metrics.MetricAggregate.MetricId.get -> string
 Microsoft.ApplicationInsights.Metrics.MetricAggregate.MetricNamespace.get -> string
 Microsoft.ApplicationInsights.Metrics.MetricConfiguration
-Microsoft.ApplicationInsights.Metrics.MetricConfiguration.MetricConfiguration(int seriesCountLimit, int valuesPerDimensionLimit, Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration seriesConfig) -> void
+Microsoft.ApplicationInsights.Metrics.MetricConfiguration.GetValuesPerDimensionLimit(int dimensionNumber) -> int
 Microsoft.ApplicationInsights.Metrics.MetricConfiguration.MetricConfiguration(int seriesCountLimit, System.Collections.Generic.IEnumerable<int> valuesPerDimensionLimits, Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration seriesConfig) -> void
+Microsoft.ApplicationInsights.Metrics.MetricConfiguration.MetricConfiguration(int seriesCountLimit, int valuesPerDimensionLimit, Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration seriesConfig) -> void
 Microsoft.ApplicationInsights.Metrics.MetricConfiguration.SeriesConfig.get -> Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration
 Microsoft.ApplicationInsights.Metrics.MetricConfiguration.SeriesCountLimit.get -> int
-Microsoft.ApplicationInsights.Metrics.MetricConfiguration.GetValuesPerDimensionLimit(int dimensionNumber) -> int
 Microsoft.ApplicationInsights.Metrics.MetricConfigurationForMeasurement
 Microsoft.ApplicationInsights.Metrics.MetricConfigurationForMeasurement.MetricConfigurationForMeasurement(int seriesCountLimit, int valuesPerDimensionLimit, Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement seriesConfig) -> void
 Microsoft.ApplicationInsights.Metrics.MetricIdentifier
@@ -197,11 +199,11 @@ Microsoft.ApplicationInsights.Metrics.MetricsCollection.CopyTo(Microsoft.Applica
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.Count.get -> int
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.GetEnumerator() -> System.Collections.Generic.IEnumerator<Microsoft.ApplicationInsights.Metric>
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.GetOrCreate(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier, Microsoft.ApplicationInsights.Metrics.MetricConfiguration metricConfiguration) -> Microsoft.ApplicationInsights.Metric
-Microsoft.ApplicationInsights.Metrics.MetricsCollection.TryGet(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier, out Microsoft.ApplicationInsights.Metric metric) -> bool
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.IsReadOnly.get -> bool
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.Remove(Microsoft.ApplicationInsights.Metric metric) -> bool
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.Remove(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier) -> bool
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.Remove(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier, out Microsoft.ApplicationInsights.Metric removedMetric) -> bool
+Microsoft.ApplicationInsights.Metrics.MetricsCollection.TryGet(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier, out Microsoft.ApplicationInsights.Metric metric) -> bool
 Microsoft.ApplicationInsights.Metrics.TelemetryConfigurationExtensions
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier) -> Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier, Microsoft.ApplicationInsights.Metrics.MetricConfiguration metricConfiguration) -> Microsoft.ApplicationInsights.Metric
@@ -277,4 +279,3 @@ static Microsoft.ApplicationInsights.Metrics.MetricIdentifier.DefaultMetricNames
 static Microsoft.ApplicationInsights.Metrics.TelemetryConfigurationExtensions.GetMetricManager(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration telemetryPipeline) -> Microsoft.ApplicationInsights.Metrics.MetricManager
 static readonly Microsoft.ApplicationInsights.MetricConfigurations.Common -> Microsoft.ApplicationInsights.MetricConfigurations
 virtual Microsoft.ApplicationInsights.Metrics.MetricConfiguration.Equals(Microsoft.ApplicationInsights.Metrics.MetricConfiguration other) -> bool
-Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SetParsedStack(System.Diagnostics.StackFrame[] frames) -> void
