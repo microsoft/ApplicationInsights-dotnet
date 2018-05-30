@@ -60,7 +60,7 @@
             expected.Metrics.Add("Metric1", 30);
             expected.Properties.Add("Property1", "Value1");
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PageViewTelemetry, AI.PageViewData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.PageViewData>(expected);
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
             Assert.AreEqual(item.name, AI.ItemType.PageView);
@@ -129,7 +129,7 @@
             var telemetry = new PageViewTelemetry("my page view");
             ((ISupportSampling)telemetry).SamplingPercentage = 10;
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PageViewTelemetry, AI.PageViewData>(telemetry);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.PageViewData>(telemetry);
 
             Assert.AreEqual(10, item.sampleRate);
         }

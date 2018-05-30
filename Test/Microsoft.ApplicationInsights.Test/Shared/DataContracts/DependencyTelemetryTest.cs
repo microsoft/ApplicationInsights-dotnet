@@ -27,7 +27,7 @@
         public void RemoteDependencyTelemetrySerializesToJson()
         {
             DependencyTelemetry expected = this.CreateRemoteDependencyTelemetry();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RemoteDependencyData>(expected);
 
             Assert.AreEqual<DateTimeOffset>(expected.Timestamp, DateTimeOffset.Parse(item.time, null, System.Globalization.DateTimeStyles.AssumeUniversal));
             Assert.AreEqual(expected.Sequence, item.seq);
@@ -54,7 +54,7 @@
             original.Type = null;
             original.Success = null;
             ((ITelemetry)original).Sanitize();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RemoteDependencyData>(original);
 
             Assert.AreEqual(2, item.data.baseData.ver);
         }
@@ -64,7 +64,7 @@
         {
             DependencyTelemetry expected = this.CreateRemoteDependencyTelemetry();
             expected.Context.InstrumentationKey = "AIC-" + expected.Context.InstrumentationKey;
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RemoteDependencyData>(expected);
 
             Assert.AreEqual(expected.Context.InstrumentationKey, item.iKey);
         }
@@ -73,7 +73,7 @@
         public void RemoteDependencyTelemetrySerializeCommandNameToJson()
         {
             DependencyTelemetry expected = this.CreateRemoteDependencyTelemetry("Select * from Customers where CustomerID=@1");
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RemoteDependencyData>(expected);
             AI.RemoteDependencyData dp = item.data.baseData;
             Assert.AreEqual(expected.Data, dp.data);
         }
@@ -82,7 +82,7 @@
         public void RemoteDependencyTelemetrySerializeNullCommandNameToJson()
         {
             DependencyTelemetry expected = this.CreateRemoteDependencyTelemetry(null);
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RemoteDependencyData>(expected);
             AI.RemoteDependencyData dp = item.data.baseData;
             Assert.IsTrue(string.IsNullOrEmpty(dp.data));
         }
@@ -91,7 +91,7 @@
         public void RemoteDependencyTelemetrySerializeEmptyCommandNameToJson()
         {
             DependencyTelemetry expected = this.CreateRemoteDependencyTelemetry(string.Empty);
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RemoteDependencyData>(expected);
             AI.RemoteDependencyData dp = item.data.baseData;
             Assert.IsTrue(string.IsNullOrEmpty(dp.data));
         }
@@ -162,7 +162,7 @@
             var telemetry = this.CreateRemoteDependencyTelemetry("mycommand");
             ((ISupportSampling)telemetry).SamplingPercentage = 10;
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(telemetry);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RemoteDependencyData>(telemetry);
 
             Assert.AreEqual(10, item.sampleRate);
         }

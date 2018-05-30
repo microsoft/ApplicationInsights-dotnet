@@ -77,7 +77,7 @@
             original.ResponseCode = null;
             original.Url = null;
             ((ITelemetry)original).Sanitize();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RequestData>(original);
 
             Assert.AreEqual(2, item.data.baseData.ver);
         }
@@ -89,7 +89,7 @@
 
             ((ITelemetry)expected).Sanitize();
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RequestData>(expected);
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
             Assert.AreEqual(item.name, AI.ItemType.Request);
@@ -117,7 +117,7 @@
                 var requestTelemetry = new RequestTelemetry();
                 requestTelemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
                 ((ITelemetry)requestTelemetry).Sanitize();
-                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(requestTelemetry);
+                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RequestData>(requestTelemetry);
 
                 Assert.AreEqual(2, item.data.baseData.ver);
                 Assert.IsNotNull(item.data.baseData.id);
@@ -189,7 +189,7 @@
   
             ((ITelemetry)telemetry).Sanitize();  
   
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(telemetry);  
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RequestData>(telemetry);  
   
             // RequestTelemetry.Id is deprecated and you cannot access it. Method above will validate that all required fields would be populated  
             // AssertEx.Contains("id", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
@@ -211,7 +211,7 @@
             ((ISupportSampling)telemetry).SamplingPercentage = 10;
             ((ITelemetry)telemetry).Sanitize();
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(telemetry);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RequestData>(telemetry);
 
             Assert.AreEqual(10, item.sampleRate);
         }

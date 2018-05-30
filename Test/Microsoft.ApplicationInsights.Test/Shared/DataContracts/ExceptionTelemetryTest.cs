@@ -98,7 +98,7 @@
             ExceptionTelemetry original = new ExceptionTelemetry();
             original.Exception = null;
             original.SeverityLevel = null;
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
 
             Assert.AreEqual(2, item.data.baseData.ver);
         }
@@ -107,7 +107,7 @@
         public void SerializeWritesItemVersionAsExpectedByEndpoint()
         {
             ExceptionTelemetry original = CreateExceptionTelemetry();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
 
             Assert.AreEqual(2, item.data.baseData.ver);
         }
@@ -116,7 +116,7 @@
         public void SerializeUsesExceptionMessageIfTelemetryMessageNotProvided()
         {
             ExceptionTelemetry original = CreateExceptionTelemetry(new ArgumentException("Test"));
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
 
             Assert.AreEqual("Test", item.data.baseData.exceptions[0].message);
         }
@@ -126,7 +126,7 @@
         {
             ExceptionTelemetry original = CreateExceptionTelemetry(new ArgumentException("Test"));
             original.Message = "Custom";
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
 
             Assert.AreEqual("Custom", item.data.baseData.exceptions[0].message);
         }
@@ -138,7 +138,7 @@
             ExceptionTelemetry original = CreateExceptionTelemetry(outerException);
 
             original.Message = "Custom";
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
 
             Assert.AreEqual("Custom", item.data.baseData.exceptions[0].message);
             Assert.AreEqual("Inner", item.data.baseData.exceptions[1].message);
@@ -155,7 +155,7 @@
             ExceptionTelemetry original = CreateExceptionTelemetry(aggregateException);
 
             original.Message = "Custom";
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
 
             Assert.AreEqual("Custom", item.data.baseData.exceptions[0].message);
             Assert.AreEqual("Inner1", item.data.baseData.exceptions[1].message);
@@ -167,7 +167,7 @@
         {
             ExceptionTelemetry original = CreateExceptionTelemetry();
             original.SeverityLevel = SeverityLevel.Information;
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
 
             Assert.AreEqual(AI.SeverityLevel.Information, item.data.baseData.severityLevel.Value);
         }
@@ -177,7 +177,7 @@
         {
             var exception = new Exception();
             ExceptionTelemetry original = CreateExceptionTelemetry(exception);
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
 
             Assert.AreEqual(exception.GetType().FullName, item.data.baseData.exceptions[0].typeName);
         }
@@ -187,7 +187,7 @@
         {
             var exception = new Exception("Test Message");
             ExceptionTelemetry original = CreateExceptionTelemetry(exception);
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
 
             Assert.AreEqual(exception.Message, item.data.baseData.exceptions[0].message);
         }
@@ -196,7 +196,7 @@
         public void SerializeWritesDataBaseTypeAsExpectedByEndpoint()
         {
             ExceptionTelemetry original = CreateExceptionTelemetry();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
             Assert.AreEqual(typeof(AI.ExceptionData).Name, item.data.baseType);
         }
 
@@ -221,7 +221,7 @@
             var exception = new Exception("Root Message", innerException);
             ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
 
             Assert.AreEqual(innerException.Message, item.data.baseData.exceptions[1].message);
         }
@@ -233,7 +233,7 @@
             var exception = new Exception("Test Exception", innerException);
             ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
 
             Assert.AreEqual(exception.GetHashCode(), item.data.baseData.exceptions[1].outerId);
         }
@@ -244,7 +244,7 @@
             var exception = new AggregateException();
             ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
 
             Assert.AreEqual(1, item.data.baseData.exceptions.Count);
         }
@@ -255,7 +255,7 @@
             var exception = new AggregateException("Test Exception", new[] { new Exception(), new Exception() });
             ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
 
             Assert.AreEqual(exception.GetHashCode(), item.data.baseData.exceptions[1].outerId);
             Assert.AreEqual(exception.GetHashCode(), item.data.baseData.exceptions[2].outerId);
@@ -269,7 +269,7 @@
                 var exception = CreateExceptionWithStackTrace();
                 ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
 
-                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
+                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
 
                 Assert.IsTrue(item.data.baseData.exceptions[0].hasFullStack);
             }
@@ -281,7 +281,7 @@
             var exception = new AggregateException("Test Exception", new Exception());
 
             ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
 
             Assert.AreEqual(2, item.data.baseData.exceptions.Count);
         }
@@ -292,7 +292,7 @@
             ExceptionTelemetry expected = CreateExceptionTelemetry();
             expected.Properties.Add("TestProperty", "TestValue");
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
 
             AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
@@ -303,7 +303,7 @@
             ExceptionTelemetry expected = CreateExceptionTelemetry();
             expected.Metrics.Add("TestMetric", 4.2);
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
 
             AssertEx.AreEqual(expected.Metrics.ToArray(), item.data.baseData.measurements.ToArray());
         }
@@ -313,7 +313,7 @@
         {
             var exceptionTelemetry = new ExceptionTelemetry();
             exceptionTelemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(exceptionTelemetry);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(exceptionTelemetry);
 
             Assert.AreEqual(2, item.data.baseData.ver);
             Assert.IsNotNull(item.data.baseData.exceptions);
@@ -449,7 +449,7 @@
             var telemetry = new ExceptionTelemetry();
             ((ISupportSampling)telemetry).SamplingPercentage = 10;
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(telemetry);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(telemetry);
 
             Assert.AreEqual(10, item.sampleRate);
         }

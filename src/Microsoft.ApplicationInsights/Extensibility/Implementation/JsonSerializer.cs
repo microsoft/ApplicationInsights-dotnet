@@ -532,7 +532,7 @@
                     jsonWriter.WriteProperty("responseCode", requestTelemetry.Data.responseCode);
                     jsonWriter.WriteProperty("url", requestTelemetry.Data.url);
                     jsonWriter.WriteProperty("measurements", requestTelemetry.Data.measurements);
-                    //Utils.CopyDictionary(requestTelemetry.Context.GlobalProperties, requestTelemetry.Data.properties);
+                    // Utils.CopyDictionary(requestTelemetry.Context.GlobalProperties, requestTelemetry.Data.properties);
                     jsonWriter.WriteProperty("properties", requestTelemetry.Data.properties);
 
                     jsonWriter.WriteEndObject();
