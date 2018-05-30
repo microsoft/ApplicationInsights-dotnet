@@ -471,10 +471,12 @@
                     {
                         telemetryWithProperties.Properties.Add("DeveloperMode", "true");
                     }
-                }
-
-                Utils.CopyDictionary(this.Context.Properties, telemetryWithProperties.Properties);
+                }                
             }
+
+            // Properties set of TelemetryClient's Context are copied over to that of ITelemetry's Context
+            Utils.CopyDictionary(this.Context.Properties, telemetry.Context.Properties);
+            Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
 
             telemetry.Context.Initialize(this.Context, instrumentationKey);
             foreach (ITelemetryInitializer initializer in this.configuration.TelemetryInitializers)
