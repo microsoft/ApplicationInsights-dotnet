@@ -164,6 +164,11 @@
             }
         }
 
+        internal void SanitizeGlobalProperties()
+        {
+           this.globalProperties.SanitizeProperties();
+        }
+
         internal TelemetryContext DeepClone(IDictionary<string, string> properties)
         {
             Debug.Assert(properties != null, "properties parameter should not be null");

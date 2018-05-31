@@ -312,6 +312,7 @@
                     streamWriter.Write(Environment.NewLine);
                 }
 
+                telemetryItem.Context.SanitizeGlobalProperties();
                 telemetryItem.Sanitize();
                 SerializeTelemetryItem(telemetryItem, jsonWriter);
             }
