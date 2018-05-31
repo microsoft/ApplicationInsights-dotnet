@@ -15,6 +15,27 @@
     public class AvailabilityTelemetryTest
     {
         [TestMethod]
+        public void AvailabilityTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
+        {
+            var expected = CreateAvailabilityTelemetry();
+
+            ((ITelemetry)expected).Sanitize();
+
+            Assert.AreEqual(1, expected.Properties.Count);
+            Assert.AreEqual(1, expected.Context.GlobalProperties.Count);
+
+            Assert.IsTrue(expected.Properties.ContainsKey("TestProperty"));
+            Assert.IsTrue(expected.Context.GlobalProperties.ContainsKey("TestPropertyGlobal"));
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.AvailabilityData>(expected);
+
+            // Items added to both availability.Properties, and availability.Context.GlobalProperties are serialized to properties.
+            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestPropertyGlobal"));
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
+        }
+
+        [TestMethod]
         public void AvailabilityTelemetrySerializesToJson()
         {
             AvailabilityTelemetry expected = this.CreateAvailabilityTelemetry();
@@ -138,6 +159,7 @@
             };
             item.Context.InstrumentationKey = Guid.NewGuid().ToString();
             item.Properties.Add("TestProperty", "TestValue");
+            item.Context.GlobalProperties.Add("TestPropertyGlobal", "TestValue");
             item.Sequence = "12";
 
             return item;

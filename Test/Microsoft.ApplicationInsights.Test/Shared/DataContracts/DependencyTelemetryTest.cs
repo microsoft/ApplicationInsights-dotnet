@@ -24,6 +24,27 @@
         }
 
         [TestMethod]
+        public void DependencyTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
+        {
+            var expected = CreateRemoteDependencyTelemetry();
+
+            ((ITelemetry)expected).Sanitize();
+
+            Assert.AreEqual(1, expected.Properties.Count);
+            Assert.AreEqual(1, expected.Context.GlobalProperties.Count);
+
+            Assert.IsTrue(expected.Properties.ContainsKey("TestProperty"));
+            Assert.IsTrue(expected.Context.GlobalProperties.ContainsKey("TestPropertyGlobal"));
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.AvailabilityData>(expected);
+
+            // Items added to both dependency.Properties, and dependency.Context.GlobalProperties are serialized to properties.
+            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestPropertyGlobal"));
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
+        }
+
+        [TestMethod]
         public void RemoteDependencyTelemetrySerializesToJson()
         {
             DependencyTelemetry expected = this.CreateRemoteDependencyTelemetry();
@@ -227,6 +248,7 @@
                                             };
             item.Context.InstrumentationKey = Guid.NewGuid().ToString();
             item.Properties.Add("TestProperty", "TestValue");
+            item.Context.GlobalProperties.Add("TestPropertyGlobal", "TestValue");
 
             return item;
         }

@@ -83,6 +83,27 @@
         }
 
         [TestMethod]
+        public void RequestTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
+        {
+            var expected = CreateTestTelemetry();
+
+            ((ITelemetry)expected).Sanitize();
+
+            Assert.AreEqual(1, expected.Properties.Count);
+            Assert.AreEqual(1, expected.Context.GlobalProperties.Count);
+
+            Assert.IsTrue(expected.Properties.ContainsKey("itempropkey"));
+            Assert.IsTrue(expected.Context.GlobalProperties.ContainsKey("contextpropkey"));
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RequestData>(expected);
+
+            // Items added to both request.Properties, and request.Context.GlobalProperties are serialized to properties.
+            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("contextpropkey"));
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("itempropkey"));
+        }
+
+        [TestMethod]
         public void RequestTelemetrySerializesToJson()
         {
             var expected = CreateTestTelemetry();
@@ -241,7 +262,8 @@
             request.Success = true;
             request.Url = new Uri("http://localhost/myapp/MyPage.aspx");
             request.Metrics.Add("Metric1", 30);
-            request.Properties.Add("userHostAddress", "::1");
+            request.Properties.Add("itempropkey", "::1");
+            request.Context.GlobalProperties.Add("contextpropkey", "contextpropvalue");
             return request;
         }
     }

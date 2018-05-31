@@ -79,6 +79,28 @@
         }
 
         [TestMethod]
+        public void EventTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
+        {
+            var expected = new EventTelemetry();
+            expected.Context.GlobalProperties.Add("TestPropertyGlobal", "contextpropvalue");
+            expected.Properties.Add("TestProperty", "TestPropertyValue");
+            ((ITelemetry)expected).Sanitize();
+
+            Assert.AreEqual(1, expected.Properties.Count);
+            Assert.AreEqual(1, expected.Context.GlobalProperties.Count);
+
+            Assert.IsTrue(expected.Properties.ContainsKey("TestProperty"));
+            Assert.IsTrue(expected.Context.GlobalProperties.ContainsKey("TestPropertyGlobal"));
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.EventData>(expected);
+
+            // Items added to both event.Properties, and event.Context.GlobalProperties are serialized to properties.
+            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestPropertyGlobal"));
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
+        }
+
+        [TestMethod]
         public void SanitizeWillTrimAppropriateFields()
         {
             EventTelemetry telemetry = new EventTelemetry();

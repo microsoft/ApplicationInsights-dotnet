@@ -75,6 +75,28 @@
         }
 
         [TestMethod]
+        public void PageViewTelemetryTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
+        {
+            var expected = new PageViewTelemetry();
+            expected.Context.GlobalProperties.Add("TestPropertyGlobal", "contextpropvalue");
+            expected.Properties.Add("TestProperty", "TestPropertyValue");
+            ((ITelemetry)expected).Sanitize();
+
+            Assert.AreEqual(1, expected.Properties.Count);
+            Assert.AreEqual(1, expected.Context.GlobalProperties.Count);
+
+            Assert.IsTrue(expected.Properties.ContainsKey("TestProperty"));
+            Assert.IsTrue(expected.Context.GlobalProperties.ContainsKey("TestPropertyGlobal"));
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.PageViewData>(expected);
+
+            // Items added to both PageViewTelemetry.Properties, and PageViewTelemetry.Context.GlobalProperties are serialized to properties.
+            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestPropertyGlobal"));
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
+        }
+
+        [TestMethod]
         public void SanitizeWillTrimAppropriateFields()
         {
             PageViewTelemetry telemetry = new PageViewTelemetry();

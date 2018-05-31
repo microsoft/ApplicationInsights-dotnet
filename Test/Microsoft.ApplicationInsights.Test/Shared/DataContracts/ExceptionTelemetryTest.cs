@@ -466,6 +466,26 @@
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
 
+        [TestMethod]
+        public void ExceptionTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
+        {
+            var expected = CreateExceptionTelemetry();
+            ((ITelemetry)expected).Sanitize();
+
+            Assert.AreEqual(1, expected.Properties.Count);
+            Assert.AreEqual(1, expected.Context.GlobalProperties.Count);
+
+            Assert.IsTrue(expected.Properties.ContainsKey("TestProperty"));
+            Assert.IsTrue(expected.Context.GlobalProperties.ContainsKey("TestPropertyGlobal"));
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
+
+            // Items added to both Exception.Properties, and Exception.Context.Properties are serialized to properties.
+            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestPropertyGlobal"));
+        }
+
         private static Exception CreateExceptionWithStackTrace()
         {
             try
@@ -486,7 +506,9 @@
             }
 
             ExceptionTelemetry output = new ExceptionTelemetry(exception) { Timestamp = DateTimeOffset.UtcNow };
+            output.Context.GlobalProperties.Add("TestPropertyGlobal", "contextpropvalue");
             output.Context.InstrumentationKey = "required";
+            output.Properties.Add("TestProperty", "TestPropertyValue");
             return output;
         }
     }

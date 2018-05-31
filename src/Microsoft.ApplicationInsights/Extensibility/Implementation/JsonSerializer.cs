@@ -337,8 +337,8 @@
                     writer.WriteProperty("ver", eventTelemetry.Data.ver);
                     writer.WriteProperty("name", eventTelemetry.Data.name);
                     writer.WriteProperty("measurements", eventTelemetry.Data.measurements);
-                    writer.WriteProperty("properties", eventTelemetry.Data.properties);
-
+                    Utils.CopyDictionary(eventTelemetry.Context.GlobalProperties, eventTelemetry.Data.properties);
+                    writer.WriteProperty("properties", eventTelemetry.Data.properties);                    
                     writer.WriteEndObject();
                 }
 
@@ -365,6 +365,7 @@
 
                     writer.WriteProperty("ver", exceptionTelemetry.Data.ver);
                     writer.WriteProperty("problemId", exceptionTelemetry.Data.problemId);
+                    Utils.CopyDictionary(exceptionTelemetry.Context.GlobalProperties, exceptionTelemetry.Data.properties);
                     writer.WriteProperty("properties", exceptionTelemetry.Data.properties);
                     writer.WriteProperty("measurements", exceptionTelemetry.Data.measurements);
                     writer.WritePropertyName("exceptions");
@@ -429,6 +430,7 @@
                         writer.WriteEndArray();
                     }
 
+                    Utils.CopyDictionary(metricTelemetry.Context.GlobalProperties, metricTelemetry.Data.properties);
                     writer.WriteProperty("properties", metricTelemetry.Data.properties);
 
                     writer.WriteEndObject();
@@ -461,6 +463,7 @@
                     writer.WriteProperty("url", pageViewTelemetry.Data.url);
                     writer.WriteProperty("duration", pageViewTelemetry.Data.duration);
                     writer.WriteProperty("measurements", pageViewTelemetry.Data.measurements);
+                    Utils.CopyDictionary(pageViewTelemetry.Context.GlobalProperties, pageViewTelemetry.Data.properties);
                     writer.WriteProperty("properties", pageViewTelemetry.Data.properties);
 
                     writer.WriteEndObject();
@@ -496,7 +499,7 @@
                     writer.WriteProperty("success", dependencyTelemetry.InternalData.success);
                     writer.WriteProperty("type", dependencyTelemetry.InternalData.type);
                     writer.WriteProperty("target", dependencyTelemetry.InternalData.target);
-
+                    Utils.CopyDictionary(dependencyTelemetry.Context.GlobalProperties, dependencyTelemetry.InternalData.properties);
                     writer.WriteProperty("properties", dependencyTelemetry.InternalData.properties);
                     writer.WriteProperty("measurements", dependencyTelemetry.InternalData.measurements);
                     writer.WriteEndObject();
@@ -532,7 +535,7 @@
                     jsonWriter.WriteProperty("responseCode", requestTelemetry.Data.responseCode);
                     jsonWriter.WriteProperty("url", requestTelemetry.Data.url);
                     jsonWriter.WriteProperty("measurements", requestTelemetry.Data.measurements);
-                    // Utils.CopyDictionary(requestTelemetry.Context.GlobalProperties, requestTelemetry.Data.properties);
+                    Utils.CopyDictionary(requestTelemetry.Context.GlobalProperties, requestTelemetry.Data.properties);
                     jsonWriter.WriteProperty("properties", requestTelemetry.Data.properties);
 
                     jsonWriter.WriteEndObject();
@@ -568,6 +571,7 @@
                         writer.WriteProperty("severityLevel", traceTelemetry.SeverityLevel.Value.ToString());
                     }
 
+                    Utils.CopyDictionary(traceTelemetry.Context.GlobalProperties, traceTelemetry.Data.properties);
                     writer.WriteProperty("properties", traceTelemetry.Properties); // TODO: handle case where the property dictionary doesn't need to be instantiated.
 
                     writer.WriteEndObject();
@@ -604,7 +608,7 @@
                     writer.WriteProperty("success", availabilityTelemetry.Data.success);
                     writer.WriteProperty("runLocation", availabilityTelemetry.Data.runLocation);
                     writer.WriteProperty("message", availabilityTelemetry.Data.message);
-                    writer.WriteProperty("properties", availabilityTelemetry.Data.properties);
+                    Utils.CopyDictionary(availabilityTelemetry.Context.GlobalProperties, availabilityTelemetry.Data.properties);
                     writer.WriteProperty("properties", availabilityTelemetry.Data.properties);
                     writer.WriteProperty("measurements", availabilityTelemetry.Data.measurements);
 

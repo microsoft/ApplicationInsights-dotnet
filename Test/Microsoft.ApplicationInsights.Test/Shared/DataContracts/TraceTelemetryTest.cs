@@ -162,5 +162,27 @@
 
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
+
+        [TestMethod]
+        public void TraceTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
+        {
+            var expected = new TraceTelemetry();
+            expected.Context.GlobalProperties.Add("contextpropkey", "contextpropvalue");
+            expected.Properties.Add("TestProperty", "TestPropertyValue");
+            ((ITelemetry)expected).Sanitize();
+
+            Assert.AreEqual(1, expected.Properties.Count);
+            Assert.AreEqual(1, expected.Context.GlobalProperties.Count);
+
+            Assert.IsTrue(expected.Properties.ContainsKey("TestProperty"));
+            Assert.IsTrue(expected.Context.GlobalProperties.ContainsKey("contextpropkey"));
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MessageData>(expected);
+
+            // Items added to both MessageData.Properties, and MessageData.Context.GlobalProperties are serialized to properties.
+            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("contextpropkey"));
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
+        }
     }
 }
