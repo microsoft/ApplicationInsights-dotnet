@@ -32,7 +32,6 @@
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
         private TelemetryProcessorChainBuilder builder;
-        private SnapshottingList<IMetricProcessorV1> metricProcessors = new SnapshottingList<IMetricProcessorV1>();
         private MetricManager metricManager = null;
 
         /// <summary>
@@ -244,15 +243,6 @@
         /// Gets the default telemetry sink.
         /// </summary>
         public TelemetrySink DefaultTelemetrySink => this.telemetrySinks.DefaultSink;
-
-        /// <summary>
-        /// Gets the list of <see cref="IMetricProcessorV1"/> objects used for custom metric data processing        
-        /// before client-side metric aggregation process.
-        /// </summary>
-        internal IList<IMetricProcessorV1> MetricProcessors
-        {
-            get { return this.metricProcessors; }
-        }
 
         /// <summary>
         /// Gets or sets the chain of processors.

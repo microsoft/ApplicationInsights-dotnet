@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using System;
-    using System.Collections.Generic;
     using System.Globalization;
 
     using Microsoft.ApplicationInsights.Channel;
@@ -25,7 +24,7 @@
     /// they want from any kind of telemetry. 
     /// This extractor contains several implementations of the (internal) <c>ISpecificAutocollectedMetricsExtractor</c>-interface to which
     /// it delegates the aggregation of particular metrics. All those implementations share the
-    /// same <see cref="Microsoft.ApplicationInsights.Extensibility.MetricManagerV1"/>-instance for metric aggregation.
+    /// same (dedicated) <see cref="Microsoft.ApplicationInsights.Metrics.MetricManager"/>-instance for metric aggregation.
     /// </summary>
     public sealed class AutocollectedMetricsExtractor : ITelemetryProcessor, ITelemetryModule, IDisposable
     {
@@ -98,9 +97,9 @@
         /// <summary>
         /// This class implements the <see cref="ITelemetryModule"/> interface by defining this method.
         /// It will be called by the infrastructure when the telemetry pipeline is being built.
-        /// This will ensure that the extractor is initialized using the same <see cref="TelemetryConfiguration"/> as the rest of the pipeline.
-        /// Specifically, this will also ensure that the <see cref="Microsoft.ApplicationInsights.Extensibility.MetricManagerV1"/> and its
-        /// respective <see cref="TelemetryClient"/> used internally for sending extracted metrics use the same configuration.
+        /// This will ensure that the extractor is initialized using the same <see cref="TelemetryConfiguration" /> as the rest of the pipeline.
+        /// Specifically, this will also ensure that the <see cref="TelemetryClient" /> used internally for sending extracted metrics uses
+        /// the same configuration.
         /// </summary>
         /// <param name="configuration">The telemetric configuration to be used by this extractor.</param>
         public void Initialize(TelemetryConfiguration configuration)
