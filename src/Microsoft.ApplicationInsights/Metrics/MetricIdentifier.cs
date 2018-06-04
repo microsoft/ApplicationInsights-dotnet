@@ -8,10 +8,12 @@
     using static System.FormattableString;
 
     /// <summary>@ToDo: Complete documentation before stable release. {085}</summary>
-    internal sealed class MetricIdentifier : IEquatable<MetricIdentifier>
+    public sealed class MetricIdentifier : IEquatable<MetricIdentifier>
     {
         /// <summary>@ToDo: Complete documentation before stable release. {369}</summary>
         public const int MaxDimensionsCount = 10;
+
+        private const string NoNamespaceIdentifierStringComponent = "<NoNamespace>";
 
         private static readonly char[] InvalidMetricChars = new char[]
             {
@@ -19,7 +21,7 @@
                         '`',  '~', '!',  '@', '#', '$', '%', '^', '&', '*', '+', '?'
             };
 
-        private static string defaultMetricNamespace = "Custom Metrics";
+        private static string defaultMetricNamespace = String.Empty;
 
         /// <summary>
         /// Gets or sets this is what metric namespace will be set to if it is not specified.
@@ -33,23 +35,33 @@
 
             set
             {
-                ValidateLiteral(value, nameof(value));
+                ValidateLiteral(value, nameof(value), allowEmpty: true);
                 defaultMetricNamespace = value.Trim();
             }
         }
 
         /// <summary>@ToDo: Complete documentation before stable release. {030}</summary>
         /// @PublicExposureCandidate
-        internal static void ValidateLiteral(string partValue, string partName)
+        private static void ValidateLiteral(string partValue, string partName, bool allowEmpty)
         {
             if (partValue == null)
             {
                 throw new ArgumentNullException(partName);
             }
 
-            if (String.IsNullOrWhiteSpace(partValue))
+            if (allowEmpty)
             {
-                throw new ArgumentException(Invariant($"{partName} may not be empty."));
+                if (partValue.Length > 0 && String.IsNullOrWhiteSpace(partValue))
+                {
+                    throw new ArgumentException(Invariant($"{partName} may not be non-empty, but whitespace-only."));
+                }
+            }
+            else
+            {
+                if (String.IsNullOrWhiteSpace(partValue))
+                {
+                    throw new ArgumentException(Invariant($"{partName} may not be empty or whitespace-only."));
+                }
             }
 
             int pos = partName.IndexOfAny(InvalidMetricChars);
@@ -343,17 +355,17 @@
                         string dimension9Name,
                         string dimension10Name)
         {
-            if (String.IsNullOrWhiteSpace(metricNamespace))
+            if (metricNamespace == null)
             {
                 metricNamespace = DefaultMetricNamespace;
             }
             else
             {
-                ValidateLiteral(metricNamespace, nameof(metricNamespace));
+                ValidateLiteral(metricNamespace, nameof(metricNamespace), allowEmpty: true);
                 metricNamespace = metricNamespace.Trim();
             }
 
-            ValidateLiteral(metricId, nameof(metricId));
+            ValidateLiteral(metricId, nameof(metricId), allowEmpty: false);
             metricId = metricId.Trim();
 
             int dimCount;
@@ -521,7 +533,7 @@
             return (this.hashCode == otherMetricIdentifier.hashCode) && this.identifierString.Equals(otherMetricIdentifier.identifierString);
         }
 
-        internal void ValidateDimensionNumberForGetter(int dimensionNumber)
+        internal static void ValidateDimensionNumberForGetter(int dimensionNumber, int thisDimensionsCount)
         {
             if (dimensionNumber < 1)
             {
@@ -530,24 +542,30 @@
                                 Invariant($"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Note that {nameof(dimensionNumber)} is a 1-based index."));
             }
 
-            if (dimensionNumber > 10)
+            if (dimensionNumber > MetricIdentifier.MaxDimensionsCount)
             {
                 throw new ArgumentOutOfRangeException(
                                 nameof(dimensionNumber),
-                                Invariant($"{dimensionNumber} is an invalid {nameof(dimensionNumber)}. Only {nameof(dimensionNumber)} = 1, 2, ..., 10 are supported."));
+                                Invariant($"{dimensionNumber} is an invalid {nameof(dimensionNumber)}.")
+                              + Invariant($" Only {nameof(dimensionNumber)} = 1, 2, ..., {MetricIdentifier.MaxDimensionsCount} are supported."));
             }
 
-            if (this.DimensionsCount < 1)
+            if (thisDimensionsCount < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(dimensionNumber), "Cannot access dimension becasue this metric has no dimensions.");
             }
 
-            if (dimensionNumber > this.DimensionsCount)
+            if (dimensionNumber > thisDimensionsCount)
             {
                 throw new ArgumentOutOfRangeException(Invariant($"Cannot access dimension for {nameof(dimensionNumber)}={dimensionNumber}")
-                                                    + Invariant($" becasue this metric only has {this.DimensionsCount} dimensions.")
-                                                    + " Note that {nameof(dimensionNumber)} is a 1-based index.");
+                                                    + Invariant($" becasue this metric only has {thisDimensionsCount} dimensions.")
+                                                    + Invariant($" Note that {nameof(dimensionNumber)} is a 1-based index."));
             }
+        }
+
+        internal void ValidateDimensionNumberForGetter(int dimensionNumber)
+        {
+            ValidateDimensionNumberForGetter(dimensionNumber, this.DimensionsCount);
         }
 
         private static void EnsureDimensionNamesValid(
@@ -613,7 +631,15 @@
         {
             StringBuilder idStr = new StringBuilder();
 
-            idStr.Append(this.MetricNamespace);
+            if (this.MetricNamespace.Length > 0)
+            {
+                idStr.Append(this.MetricNamespace);
+            }
+            else
+            {
+                idStr.Append(MetricIdentifier.NoNamespaceIdentifierStringComponent);
+            }
+            
             idStr.Append("+");
             idStr.Append(this.MetricId);
 

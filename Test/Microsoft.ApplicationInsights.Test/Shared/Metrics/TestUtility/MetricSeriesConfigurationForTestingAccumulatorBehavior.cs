@@ -6,7 +6,7 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics.TestUtility
 {
-    internal class MetricSeriesConfigurationForTestingAccumulatorBehavior : IMetricSeriesConfiguration
+    public class MetricSeriesConfigurationForTestingAccumulatorBehavior : IMetricSeriesConfiguration
     {
         private readonly int _hashCode;
 
@@ -176,7 +176,7 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
                 max = Util.EnsureConcreteValue(max);
 
                 MetricAggregate aggregate = new MetricAggregate(
-                                                    DataSeries?.MetricIdentifier.MetricNamespace ?? Util.NullString,
+                                                    DataSeries?.MetricIdentifier.MetricNamespace ?? String.Empty,
                                                     DataSeries?.MetricIdentifier.MetricId ?? Util.NullString,
                                                     MetricSeriesConfigurationForTestingAccumulatorBehavior.Constants.AggregateKindMoniker);
 

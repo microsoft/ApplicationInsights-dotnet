@@ -411,6 +411,13 @@
                     {
                         writer.WriteStartArray();
                         writer.WriteStartObject();
+
+                        string metricNamespace = metricTelemetry.Metric.ns;
+                        if (false == String.IsNullOrEmpty(metricNamespace))
+                        {
+                            writer.WriteProperty("ns", metricNamespace);
+                        }
+
                         writer.WriteProperty("name", metricTelemetry.Metric.name);
                         writer.WriteProperty("kind", metricTelemetry.Metric.kind.ToString());
                         writer.WriteProperty("value", metricTelemetry.Metric.value);

@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
     /// <summary>@ToDo: Complete documentation before stable release. {265}</summary>
-    internal interface IMetricValueFilter
+    public interface IMetricValueFilter
     {
         /// <summary>@ToDo: Complete documentation before stable release. {919}</summary>
         /// <param name="dataSeries">@ToDo: Complete documentation before stable release. {526}</param>

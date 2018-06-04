@@ -33,6 +33,11 @@ namespace AI
     [System.CodeDom.Compiler.GeneratedCode("gbc", "0.10.1.0")]
     public partial class DataPoint
     {
+        [global::Bond.Attribute("Description", "Namespace of the metric.")]
+        [global::Bond.Attribute("MaxStringLength", "256")]
+        [global::Bond.Id(5)]
+        public string ns { get; set; }
+
         [global::Bond.Attribute("Description", "Name of the metric.")]
         [global::Bond.Attribute("MaxStringLength", "1024")]
         [global::Bond.Id(10), global::Bond.Required]
@@ -68,6 +73,7 @@ namespace AI
 
         protected DataPoint(string fullName, string name)
         {
+            ns = "";
             this.name = "";
             kind = DataPointType.Measurement;
         }

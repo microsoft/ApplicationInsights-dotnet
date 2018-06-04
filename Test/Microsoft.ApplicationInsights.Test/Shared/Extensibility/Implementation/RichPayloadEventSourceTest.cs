@@ -80,11 +80,9 @@
         {
             this.DoTracking(
                 RichPayloadEventSource.Keywords.Metrics,
-#pragma warning disable CS0618
-                new MetricTelemetry("TestMetric", 1),
+                new MetricTelemetry("Test Metric Namespace", "Test Metric Name", 1, 42, 42, 42, 0),
                 typeof(External.MetricData),
                 (client, item) => { client.TrackMetric((MetricTelemetry)item); });
-#pragma warning restore CS0618
         }
 
         /// <summary>

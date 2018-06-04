@@ -28,6 +28,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         public const int MaxTestNameLength = 1024;
         public const int MaxRunLocationLength = 2024;
         public const int MaxAvailabilityMessageLength = 8192;
+        public const int MaxMetricNamespaceLength = 256;
 
         public static readonly IDictionary<string, int> TagSizeLimits = new Dictionary<string, int>()
         {

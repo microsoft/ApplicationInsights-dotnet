@@ -125,16 +125,16 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
             return telemetryConfig;
         }
 
-        public static void ValidateNumericAggregateValues(ITelemetry aggregate, string name, int count, double sum, double max, double min, double stdDev, DateTimeOffset timestamp, string periodMs)
+        public static void ValidateNumericAggregateValues(ITelemetry aggregate, string ns, string name, int count, double sum, double max, double min, double stdDev, DateTimeOffset timestamp, string periodMs)
         {
-            ValidateNumericAggregateValues(aggregate, name, count, sum, max, min, stdDev);
+            ValidateNumericAggregateValues(aggregate, ns, name, count, sum, max, min, stdDev);
 
             var metricAggregate = (MetricTelemetry) aggregate;
             Assert.AreEqual(timestamp, metricAggregate.Timestamp, "metricAggregate.Timestamp mismatch");
             Assert.AreEqual(periodMs, metricAggregate?.Properties?[TestUtil.AggregationIntervalMonikerPropertyKey], "metricAggregate.Properties[AggregationIntervalMonikerPropertyKey] mismatch");
         }
 
-        public static void ValidateNumericAggregateValues(ITelemetry aggregate, string name, int count, double sum, double max, double min, double? stdDev)
+        public static void ValidateNumericAggregateValues(ITelemetry aggregate, string ns, string name, int count, double sum, double max, double min, double? stdDev)
         {
             Assert.IsNotNull(aggregate);
 
@@ -142,6 +142,7 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
 
             Assert.IsNotNull(metricAggregate);
 
+            Assert.AreEqual(ns, metricAggregate.MetricNamespace, "metricAggregate.MetricNamespace mismatch");
             Assert.AreEqual(name, metricAggregate.Name, "metricAggregate.Name mismatch");
             Assert.AreEqual(count, metricAggregate.Count, "metricAggregate.Count mismatch");
             Assert.AreEqual(sum, metricAggregate.Sum, TestUtil.MaxAllowedPrecisionError, "metricAggregate.Sum mismatch");
@@ -173,20 +174,21 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
             }
         }
 
-        internal static void ValidateNumericAggregateValues(MetricAggregate aggregate, string name, int count, double sum, double max, double min, double stdDev, DateTimeOffset timestamp, long periodMs, string aggKindMoniker)
+        internal static void ValidateNumericAggregateValues(MetricAggregate aggregate, string ns, string name, int count, double sum, double max, double min, double stdDev, DateTimeOffset timestamp, long periodMs, string aggKindMoniker)
         {
-            ValidateNumericAggregateValues(aggregate, name, count, sum, max, min, stdDev, aggKindMoniker);
+            ValidateNumericAggregateValues(aggregate, ns, name, count, sum, max, min, stdDev, aggKindMoniker);
 
             Assert.AreEqual(timestamp, aggregate.AggregationPeriodStart, "metricAggregate.Timestamp mismatch");
             Assert.AreEqual(periodMs, (long) aggregate.AggregationPeriodDuration.TotalMilliseconds, "metricAggregate.Properties[AggregationIntervalMonikerPropertyKey] mismatch");
         }
 
-        internal static void ValidateNumericAggregateValues(MetricAggregate aggregate, string name, int count, double sum, double max, double min, double stdDev, string aggKindMoniker)
+        internal static void ValidateNumericAggregateValues(MetricAggregate aggregate, string ns, string name, int count, double sum, double max, double min, double stdDev, string aggKindMoniker)
         {
             Assert.IsNotNull(aggregate);
 
             Assert.AreEqual(aggKindMoniker, aggregate.AggregationKindMoniker);
 
+            Assert.AreEqual(ns, aggregate.MetricNamespace, "aggregate.MetricNamespace mismatch");
             Assert.AreEqual(name, aggregate.MetricId, "aggregate.Name mismatch");
 
             Assert.IsNotNull(aggregate.AggregationKindMoniker);
@@ -260,7 +262,7 @@ namespace Microsoft.ApplicationInsights.Metrics.TestUtility
         /// a clean test run.
         /// </summary>
         /// <param name="metricManagers"></param>
-        internal static void CompleteDefaultAggregationCycle(params MetricManager[] metricManagers)
+        public static void CompleteDefaultAggregationCycle(params MetricManager[] metricManagers)
         {
             if (metricManagers == null)
             {
