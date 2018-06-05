@@ -328,6 +328,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;
 
             DependencyTelemetry telemetry = new DependencyTelemetry();
+            telemetry.SetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, request);
 
             // properly fill dependency telemetry operation context: OperationCorrelationTelemetryInitializer initializes child telemetry
             telemetry.Context.Operation.Id = currentActivity.RootId;
@@ -352,6 +353,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             if (response != null)
             {
                 this.ParseResponse(response, telemetry);
+                telemetry.SetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, response);
             }
             else
             {
@@ -364,7 +366,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 telemetry.Success = false;
             }
 
-            this.client.Track(telemetry);
+            this.client.TrackDependency(telemetry);
         }
 
         //// netcoreapp1.1 and prior event. See https://github.com/dotnet/corefx/blob/release/1.0.0-rc2/src/Common/src/System/Net/Http/HttpHandlerDiagnosticListenerExtensions.cs.
@@ -386,6 +388,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 dependency.Telemetry.Target = requestUri.Host;
                 dependency.Telemetry.Type = RemoteDependencyConstants.HTTP;
                 dependency.Telemetry.Data = requestUri.OriginalString;
+                dependency.Telemetry.SetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, request);
                 this.pendingTelemetry.AddIfNotExists(request, dependency);
 
                 this.InjectRequestHeaders(request, dependency.Telemetry.Context.InstrumentationKey, true);
@@ -404,11 +407,16 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerResponse(loggingRequestId);
                 var request = response.RequestMessage;
-                if (request != null && this.pendingTelemetry.TryGetValue(request, out IOperationHolder<DependencyTelemetry> dependency))
+
+                if (this.pendingTelemetry.TryGetValue(request, out IOperationHolder<DependencyTelemetry> dependency))
                 {
-                    this.ParseResponse(response, dependency.Telemetry);
-                    this.client.StopOperation(dependency);
-                    this.pendingTelemetry.Remove(request);
+                    dependency.Telemetry.SetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, response);
+                    if (request != null)
+                    {
+                        this.ParseResponse(response, dependency.Telemetry);
+                        this.client.StopOperation(dependency);
+                        this.pendingTelemetry.Remove(request);
+                    }
                 }
             }
         }

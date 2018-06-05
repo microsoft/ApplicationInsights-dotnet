@@ -44,7 +44,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Activity currentActivity = Activity.Current;
 
             // extensibility point - can chain more telemetry extraction methods here
-            ITelemetry telemetry = this.ExtractDependencyTelemetry(diagnosticListener, currentActivity);
+            var telemetry = this.ExtractDependencyTelemetry(diagnosticListener, currentActivity);
             if (telemetry == null)
             {
                 return;
@@ -58,7 +58,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             telemetry.Context.Properties["DiagnosticSource"] = diagnosticListener.Name;
             telemetry.Context.Properties["Activity"] = currentActivity.OperationName;
 
-            this.Client.Track(telemetry);
+            this.Client.TrackDependency(telemetry);
         }
 
         internal void RegisterHandler(string diagnosticSourceName, IDiagnosticEventHandler eventHandler)

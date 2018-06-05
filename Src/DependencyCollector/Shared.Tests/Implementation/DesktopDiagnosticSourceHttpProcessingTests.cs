@@ -30,7 +30,10 @@ namespace Microsoft.ApplicationInsights.Tests
         private Uri testUrl = new Uri("http://www.microsoft.com/");
         private int sleepTimeMsecBetweenBeginAndEnd = 100;
         private TelemetryConfiguration configuration;
-        private List<ITelemetry> sendItems = new List<ITelemetry>();
+        private List<ITelemetry> sendItems;
+        private object request;
+        private object response;
+        private object responseHeaders;
         private DesktopDiagnosticSourceHttpProcessing httpDesktopProcessingFramework;
         #endregion //Fields
 
@@ -39,9 +42,29 @@ namespace Microsoft.ApplicationInsights.Tests
         [TestInitialize]
         public void TestInitialize()
         {
+            this.sendItems = new List<ITelemetry>();
+            this.request = null;
+            this.response = null;
+            this.responseHeaders = null;
+
             this.configuration = new TelemetryConfiguration()
             {
-                TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) },
+                TelemetryChannel = new StubTelemetryChannel
+                {
+                    OnSend = telemetry =>
+                    {
+                        this.sendItems.Add(telemetry);
+
+                        // The correlation id lookup service also makes http call, just make sure we skip that
+                        DependencyTelemetry depTelemetry = telemetry as DependencyTelemetry;
+                        if (depTelemetry != null)
+                        {
+                            depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, out this.request);
+                            depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, out this.response);
+                            depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseHeadersOperationDetailName, out this.responseHeaders);
+                        }
+                    },
+                },
                 InstrumentationKey = TestInstrumentationKey,
                 ApplicationIdProvider = new MockApplicationIdProvider(TestInstrumentationKey, TestApplicationId)
             };
@@ -74,7 +97,7 @@ namespace Microsoft.ApplicationInsights.Tests
             stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacketForOnRequestSend(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, stopwatch.Elapsed.TotalMilliseconds, "200");
+            this.ValidateTelemetryPacketForOnRequestSend(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, stopwatch.Elapsed.TotalMilliseconds, "200");
         }
 
          /// <summary>
@@ -106,11 +129,11 @@ namespace Microsoft.ApplicationInsights.Tests
             var successResponse = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK);
 
             Stopwatch stopwatch = Stopwatch.StartNew();
-            this.httpDesktopProcessingFramework.OnBegin(request);  
-            this.httpDesktopProcessingFramework.OnBegin(request);  
-            this.httpDesktopProcessingFramework.OnBegin(request);  
-            this.httpDesktopProcessingFramework.OnBegin(request);  
-            this.httpDesktopProcessingFramework.OnBegin(request);  
+            this.httpDesktopProcessingFramework.OnBegin(request);
+            this.httpDesktopProcessingFramework.OnBegin(request);
+            this.httpDesktopProcessingFramework.OnBegin(request);
+            this.httpDesktopProcessingFramework.OnBegin(request);
+            this.httpDesktopProcessingFramework.OnBegin(request);
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
             this.httpDesktopProcessingFramework.OnEndResponse(request, redirectResponse);
@@ -121,7 +144,7 @@ namespace Microsoft.ApplicationInsights.Tests
             this.httpDesktopProcessingFramework.OnEndResponse(request, successResponse);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacketForOnRequestSend(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, stopwatch.Elapsed.TotalMilliseconds, "302");
+            this.ValidateTelemetryPacketForOnRequestSend(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, stopwatch.Elapsed.TotalMilliseconds, "302");
         }
 
         /// <summary>
@@ -305,21 +328,33 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreNotEqual(sampleHeaderValueWithAppId, actualHeaderValue);
         }
 
-        private static void ValidateTelemetryPacketForOnRequestSend(DependencyTelemetry remoteDependencyTelemetryActual, Uri url, string kind, bool? success, double valueMin, string statusCode)
+        private void ValidateTelemetryPacketForOnRequestSend(DependencyTelemetry remoteDependencyTelemetryActual, Uri url, string kind, bool? success, double valueMin, string statusCode)
         {
             Assert.AreEqual("GET " + url.AbsolutePath, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
             string expectedVersion =
                 SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), prefix: "rdddsd:");
-            ValidateTelemetryPacket(remoteDependencyTelemetryActual, url, kind, success, valueMin, statusCode, expectedVersion);
+            this.ValidateTelemetryPacket(remoteDependencyTelemetryActual, url, kind, success, valueMin, statusCode, expectedVersion);
         }
 
-        private static void ValidateTelemetryPacket(DependencyTelemetry remoteDependencyTelemetryActual, Uri url, string kind, bool? success, double valueMin, string statusCode, string expectedVersion)
+        private void ValidateTelemetryPacket(DependencyTelemetry remoteDependencyTelemetryActual, Uri url, string kind, bool? success, double valueMin, string statusCode, string expectedVersion, bool responseExpected = true)
         {
             Assert.AreEqual(url.Host, remoteDependencyTelemetryActual.Target, true, "Resource target in the sent telemetry is wrong");
             Assert.AreEqual(url.OriginalString, remoteDependencyTelemetryActual.Data, true, "Resource data in the sent telemetry is wrong");
             Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
             Assert.AreEqual(success, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
             Assert.AreEqual(statusCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");
+
+            // Validate the http request was captured
+            Assert.IsNotNull(this.request, "Http request was not found within the operation details.");
+            Assert.IsNotNull(this.request as WebRequest, "Http request was not the expected type.");
+
+            // If expected -- validate the response was captured
+            if (responseExpected)
+            {
+                Assert.IsNotNull(this.response, "Http response was not found within the operation details.");
+                Assert.IsNotNull(this.response as WebResponse, "Http response was not the expected type.");
+                Assert.IsNull(this.responseHeaders, "Http response headers were not found within the operation details.");
+            }
 
             var valueMinRelaxed = valueMin - TimeAccuracyMilliseconds;
             Assert.IsTrue(

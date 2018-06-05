@@ -33,6 +33,9 @@
         private StubTelemetryChannel channel;
         private TelemetryConfiguration config;
         private List<DependencyTelemetry> sentTelemetry;
+        private object request;
+        private object response;
+        private object responseHeaders;
 
         /// <summary>
         /// Initialize.
@@ -41,6 +44,9 @@
         public void Initialize()
         {
             this.sentTelemetry = new List<DependencyTelemetry>();
+            this.request = null;
+            this.response = null;
+            this.responseHeaders = null;
 
             this.channel = new StubTelemetryChannel
             {
@@ -51,6 +57,9 @@
                     if (depTelemetry != null)
                     {
                         this.sentTelemetry.Add(depTelemetry);
+                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, out this.request);
+                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, out this.response);
+                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseHeadersOperationDetailName, out this.responseHeaders);
                     }
                 },
                 EndpointAddress = FakeProfileApiEndpoint
@@ -220,6 +229,19 @@
                     Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.StandardParentIdHeader));   
                 }
             }
+
+            // Validate the http request was captured
+            Assert.IsNotNull(this.request, "Http request was not found within the operation details.");
+            var webRequest = this.request as HttpRequestMessage;
+            Assert.IsNotNull(webRequest, "Http request was not the expected type.");
+
+            // Validate the http response was captured
+            Assert.IsNotNull(this.response, "Http response was not found within the operation details.");
+            var webResponse = this.response as HttpResponseMessage;
+            Assert.IsNotNull(webResponse, "Http response was not the expected type.");
+
+            // Validate the http response headers were not captured
+            Assert.IsNull(this.responseHeaders, "Http response headers were not found within the operation details.");
         }
 
         private sealed class LocalServer : IDisposable

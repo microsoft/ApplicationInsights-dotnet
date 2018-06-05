@@ -1,12 +1,15 @@
 # Changelog
 
+
 ## Version 2.7.0-beta1
+- [Add operation details for HTTP and SQL operation to the dependency telemetry.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/900)
 - [Fix: Do not call base HandleErrorAttribute.OnException in MVC unhandled exception filter](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/921)
 - [Send UserActionable event about correlation issue with HTTP request with body when .NET 4.7.1 is not installed](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/903)
 - [Added support to collect Perf Counters for .NET Core Apps if running inside Azure WebApps](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/889)
 - [Opt-in legacy correlation headers (x-ms-request-id and x-ms-request-root-id) extraction and injection](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/887)
 - [Fix: Correlation is not working for POST requests](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/898) when .NET 4.7.1 runtime is installed.
 - [Fix: Tracking mixed HTTP responses with and without content](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/919)
+
 
 ## Version 2.6.0-beta4
 - [Remove CorrelationIdLookupHelper. Use TelemetryConfiguration.ApplicationIdProvider instead.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/880) With this change you can update URL to query application ID from which enables environments with reverse proxy configuration to access Application Insights ednpoints.
