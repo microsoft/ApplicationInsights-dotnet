@@ -4,6 +4,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using System;
     using System.Collections.Generic;
     using System.Net;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -16,8 +17,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private readonly PropertyFetcher requestFetcherRequestEvent;
         private readonly PropertyFetcher requestFetcherResponseEvent;
         private readonly PropertyFetcher responseFetcher;
-        private readonly PropertyFetcher responseStatusFetcher;
-        private readonly PropertyFetcher responseHeadersFetcher;
+        private readonly PropertyFetcher requestFetcherResponseExEvent;
+        private readonly PropertyFetcher responseExStatusFetcher;
+        private readonly PropertyFetcher responseExHeadersFetcher;
 
         private bool disposed = false;
 
@@ -28,8 +30,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.requestFetcherRequestEvent = new PropertyFetcher("Request");
             this.requestFetcherResponseEvent = new PropertyFetcher("Request");
             this.responseFetcher = new PropertyFetcher("Response");
-            this.responseStatusFetcher = new PropertyFetcher("StatusCode");
-            this.responseHeadersFetcher = new PropertyFetcher("Headers");
+
+            this.requestFetcherResponseExEvent = new PropertyFetcher("Request");
+            this.responseExStatusFetcher = new PropertyFetcher("StatusCode");
+            this.responseExHeadersFetcher = new PropertyFetcher("Headers");
         }
 
         /// <summary>
@@ -76,10 +80,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     case "System.Net.Http.Desktop.HttpRequestOut.Ex.Stop":
                     {
                         // request is never null
-                        var request = this.requestFetcherResponseEvent.Fetch(value.Value);
+                        var request = this.requestFetcherResponseExEvent.Fetch(value.Value);
                         DependencyCollectorEventSource.Log.HttpDesktopEndCallbackCalled(ClientServerDependencyTracker.GetIdForRequestObject(request));
-                        object statusCode = this.responseStatusFetcher.Fetch(value.Value);
-                        object headers = this.responseHeadersFetcher.Fetch(value.Value);
+                        object statusCode = this.responseExStatusFetcher.Fetch(value.Value);
+                        object headers = this.responseExHeadersFetcher.Fetch(value.Value);
                         this.httpDesktopProcessing.OnEndResponse(request, statusCode, headers);
                         break;
                     }

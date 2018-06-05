@@ -38,7 +38,7 @@ Run your project, and then [open your Application Insights resource][WebDocument
 
 ## To upgrade to the latest SDK 
 
-* After you upgrade, you'll need to merge back any customizations you made to ApplicationInsights.config. If you're unsure whether you customized it, create a new project, add Application Insights to it, and compare your .config file with the one in the new project. Make a note of any differences.
+* After you upgrade, you'll need to merge back any customizations you made to ApplicationInsights.config. If you're unsure whether you customized it, create a new project, add Application Insights to it, and compare your `.config` file with the one in the new project. Make a note of any differences.
 * In Solution Explorer, right-click your project and choose **Manage NuGet packages**.
 * Set the filter to show Updates. 
 * Select **Microsoft.ApplicationInsights.Web** and choose **Update**. (This will also upgrade all the dependent packages.)
@@ -46,7 +46,7 @@ Run your project, and then [open your Application Insights resource][WebDocument
 * Rebuild your solution.
 
 ## To build
-Follow [contributor's guide] (https://github.com/Microsoft/ApplicationInsights-dotnet-server/blob/develop/CONTRIBUTING.md)
+Follow [contributor's guide](https://github.com/Microsoft/ApplicationInsights-dotnet-server/blob/develop/CONTRIBUTING.md)
 
 ## Branches
 - [master][master] contains the *latest* published release located on [NuGet][WebNuGet].

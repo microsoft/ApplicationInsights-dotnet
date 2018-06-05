@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse
 {
     using System;
     using System.Collections.Generic;
@@ -8,6 +6,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
     using System.Globalization;
     using System.Linq;
     using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -107,25 +106,25 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
         }
 
         /// <summary>
-        /// Gets the QuickPulse service endpoint to send to.
+        /// Gets or sets the QuickPulse service endpoint to send to.
         /// </summary>
         /// <remarks>Loaded from configuration.</remarks>
         public string QuickPulseServiceEndpoint { get; set; }
 
         /// <summary>
-        /// Gets the flag indicating whether full telemetry items collection is disabled.
+        /// Gets or sets a value indicating whether full telemetry items collection is disabled.
         /// </summary>
         /// <remarks>Loaded from configuration.</remarks>
         public bool DisableFullTelemetryItems { get; set; }
 
         /// <summary>
-        /// Gets the flag indicating whether top CPU processes collection is disabled.
+        /// Gets or sets a value indicating whether top CPU processes collection is disabled.
         /// </summary>
         /// <remarks>Loaded from configuration.</remarks>
         public bool DisableTopCpuProcesses { get; set; }
 
         /// <summary>
-        /// Gets the authentication API key.
+        /// Gets or sets the authentication API key.
         /// Authentication API key is created in the Azure Portal for an application and ensures secure distribution of
         /// the collection configuration when using QuickPulse.
         /// </summary>
@@ -291,7 +290,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
                                 string.Format(CultureInfo.InvariantCulture, "Unexpected error processing counter '{0}': {1}", counter, e.Message),
                                 e,
                                 Tuple.Create("MetricId", counter.Item1)));
-                            
 
                         QuickPulseEventSource.Log.CounterRegistrationFailedEvent(e.Message, counter.Item2);
                     }

@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
-    using System.Diagnostics;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Net.Http;
     using System.Threading;
@@ -20,7 +20,6 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-
     /// <summary>
     /// .NET Core specific tests that verify Http Dependencies are collected for outgoing request
     /// </summary>
@@ -34,6 +33,9 @@
         private StubTelemetryChannel channel;
         private TelemetryConfiguration config;
         private List<DependencyTelemetry> sentTelemetry;
+        private object request;
+        private object response;
+        private object responseHeaders;
 
         /// <summary>
         /// Initialize.
@@ -42,6 +44,9 @@
         public void Initialize()
         {
             this.sentTelemetry = new List<DependencyTelemetry>();
+            this.request = null;
+            this.response = null;
+            this.responseHeaders = null;
 
             this.channel = new StubTelemetryChannel
             {
@@ -52,6 +57,9 @@
                     if (depTelemetry != null)
                     {
                         this.sentTelemetry.Add(depTelemetry);
+                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, out this.request);
+                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, out this.response);
+                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseHeadersOperationDetailName, out this.responseHeaders);
                     }
                 },
                 EndpointAddress = FakeProfileApiEndpoint
@@ -83,6 +91,34 @@
         /// </summary>
         [TestMethod]
         [Timeout(5000)]
+        public async Task TestDependencyCollectionWithLegacyHeaders()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.EnableLegacyCorrelationHeadersInjection = true;
+                module.Initialize(this.config);
+
+                var url = new Uri(localhostUrl);
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+                using (new LocalServer(localhostUrl))
+                {
+                    await new HttpClient().SendAsync(request);
+                }
+
+                // DiagnosticSource Response event is fired after SendAsync returns on netcoreapp1.*
+                // let's wait until dependency is collected
+                Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry != null, TimeSpan.FromSeconds(1)));
+
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200", true);
+            }
+        }
+
+        /// <summary>
+        /// Tests that dependency is collected properly when there is no parent activity.
+        /// </summary>
+        [TestMethod]
+        [Timeout(5000)]
         public async Task TestDependencyCollectionNoParentActivity()
         {
             using (var module = new DependencyTrackingTelemetryModule())
@@ -99,9 +135,9 @@
 
                 // DiagnosticSource Response event is fired after SendAsync returns on netcoreapp1.*
                 // let's wait until dependency is collected
-                Assert.IsTrue(SpinWait.SpinUntil(() => sentTelemetry != null, TimeSpan.FromSeconds(1)));
+                Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry != null, TimeSpan.FromSeconds(1)));
 
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200", false);
             }
         }
 
@@ -127,16 +163,15 @@
 
                 // DiagnosticSource Response event is fired after SendAsync returns on netcoreapp1.*
                 // let's wait until dependency is collected
-                Assert.IsTrue(SpinWait.SpinUntil(() => sentTelemetry != null, TimeSpan.FromSeconds(1)));
+                Assert.IsTrue(SpinWait.SpinUntil(() => this.sentTelemetry != null, TimeSpan.FromSeconds(1)));
 
                 parent.Stop();
 
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200", false);
 
                 Assert.AreEqual("k=v", request.Headers.GetValues(RequestResponseHeaders.CorrelationContextHeader).Single());
             }
         }
-
 
         /// <summary>
         /// Tests dependency collection when request procession causes exception (DNS issue).
@@ -158,7 +193,7 @@
             }
         }
 
-        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, HttpRequestMessage request, bool success, string resultCode)
+        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, HttpRequestMessage request, bool success, string resultCode, bool expectLegacyHeaders)
         {
             Assert.AreEqual(url, item.Data);
             Assert.AreEqual(url.Host, item.Target);
@@ -183,9 +218,30 @@
             if (request != null)
             {
                 Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());
-                Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
-                Assert.AreEqual(item.Context.Operation.Id, request.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
+                if (expectLegacyHeaders)
+                {
+                    Assert.AreEqual(item.Context.Operation.Id, request.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
+                    Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
+                }
+                else
+                {
+                    Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.StandardRootIdHeader));
+                    Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.StandardParentIdHeader));   
+                }
             }
+
+            // Validate the http request was captured
+            Assert.IsNotNull(this.request, "Http request was not found within the operation details.");
+            var webRequest = this.request as HttpRequestMessage;
+            Assert.IsNotNull(webRequest, "Http request was not the expected type.");
+
+            // Validate the http response was captured
+            Assert.IsNotNull(this.response, "Http response was not found within the operation details.");
+            var webResponse = this.response as HttpResponseMessage;
+            Assert.IsNotNull(webResponse, "Http response was not the expected type.");
+
+            // Validate the http response headers were not captured
+            Assert.IsNull(this.responseHeaders, "Http response headers were not found within the operation details.");
         }
 
         private sealed class LocalServer : IDisposable
@@ -202,7 +258,7 @@
                     .UseUrls(url)
                     .Build();
 
-                Task.Run( () => this.host.Run(cts.Token));
+                Task.Run(() => this.host.Run(this.cts.Token));
             }
 
             public void Dispose()

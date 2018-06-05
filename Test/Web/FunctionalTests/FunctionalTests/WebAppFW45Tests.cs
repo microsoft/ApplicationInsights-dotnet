@@ -157,8 +157,7 @@
                 Method = HttpMethod.Get,
             };
 
-            requestMessage.Headers.Add("x-ms-request-id", "guid1");
-            requestMessage.Headers.Add("x-ms-request-root-id", "guid2");
+            requestMessage.Headers.Add("request-id", "|guid2.guid1.");
 
             var responseTask = client.SendAsync(requestMessage);
             responseTask.Wait(TimeoutInMs);
@@ -170,8 +169,8 @@
 
             // Check that request has operation Id, parentId and Id are set from headers
             Assert.AreEqual("guid2", request.tags[new ContextTagKeys().OperationId], "Request Operation Id is not parsed from header");
-            Assert.AreEqual("guid1", request.tags[new ContextTagKeys().OperationParentId], "Request Parent Id is not parsed from header");
-            Assert.IsTrue(request.data.baseData.id.StartsWith("|guid2."), "Request Id is not properly set");
+            Assert.AreEqual("|guid2.guid1.", request.tags[new ContextTagKeys().OperationParentId], "Request Parent Id is not parsed from header");
+            Assert.IsTrue(request.data.baseData.id.StartsWith("|guid2.guid1."), "Request Id is not properly set");
         }
 
         [TestMethod]        
@@ -274,7 +273,7 @@
             Assert.IsTrue(postTask.Result.IsSuccessStatusCode);
 
             var request = Listener.ReceiveItemsOfType<TelemetryItem<RequestData>>(1, TimeoutInMs)[0];
-            
+
             var testFinish = DateTimeOffset.UtcNow;
             Trace.WriteLine("Finish: " + testFinish);
 
@@ -427,22 +426,22 @@
 
             // Obtains items with web prefix only so as to eliminate firstchance exceptions.
             var items = Listener.ReceiveItemsOfTypesWithWebPrefix<TelemetryItem<RequestData>, TelemetryItem<ExceptionData>>(2, TimeoutInMs);
-            int requestItemIndex = (items[0] is TelemetryItem<RequestData>) ? 0 : 1;
-            int exceptionItemIndex = (requestItemIndex == 0) ? 1 : 0;
+            var requestItem = (TelemetryItem<RequestData>)items.Single(r => r is TelemetryItem<RequestData>);
+            var exceptionItem = (TelemetryItem<ExceptionData>)items.Single(r => r is TelemetryItem<ExceptionData>);
 
-            Assert.AreEqual(this.Config.IKey, items[requestItemIndex].iKey, "IKey is not the same as in config file");
-            Assert.AreEqual(this.Config.IKey, items[exceptionItemIndex].iKey, "IKey is not the same as in config file");
+            Assert.AreEqual(this.Config.IKey, requestItem.iKey, "IKey is not the same as in config file");
+            Assert.AreEqual(this.Config.IKey, exceptionItem.iKey, "IKey is not the same as in config file");
 
             // Check that request id is set in exception operation parentId for UnhandledException
             Assert.AreEqual(
-                ((TelemetryItem<RequestData>)items[requestItemIndex]).data.baseData.id,
-                items[exceptionItemIndex].tags[new ContextTagKeys().OperationParentId],
+                requestItem.data.baseData.id,
+                exceptionItem.tags[new ContextTagKeys().OperationParentId],
                 "Exception ParentId is not same as Request id");
 
             // Check that request and exception from UnhandledException have the same operation id
             Assert.AreEqual(
-                items[requestItemIndex].tags[new ContextTagKeys().OperationId],
-                items[exceptionItemIndex].tags[new ContextTagKeys().OperationId],
+                requestItem.tags[new ContextTagKeys().OperationId],
+                exceptionItem.tags[new ContextTagKeys().OperationId],
                 "Exception Operation Id for exception is not same as Request Operation Id");
         }
 

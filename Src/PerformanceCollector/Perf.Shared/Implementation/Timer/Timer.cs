@@ -30,7 +30,7 @@
         /// <param name="dueTime">The due time.</param>
         public void ScheduleNextTick(TimeSpan dueTime)
         {
-            this.timer.Change((long)dueTime.TotalMilliseconds, Timeout.Infinite);
+            this.timer.Change(dueTime, Timeout.InfiniteTimeSpan);
         }
 
         /// <summary>

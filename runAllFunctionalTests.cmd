@@ -16,4 +16,6 @@ CALL "%VSTestPath%" /UseVsixExtensions:true "%BuildRoot%Test\E2ETests\E2ETests\D
 
 CALL "%VSTestPath%" /UseVsixExtensions:true "%BuildRoot%Test\E2ETests\E2ETests\DependencyCollectionTests.dll" /TestCaseFilter:"TestCategory=Net452OnNet462SM" /logger:trx
 
+CALL "%VSTestPath%" /UseVsixExtensions:true "%BuildRoot%Test\E2ETests\E2ETests\DependencyCollectionTests.dll" /TestCaseFilter:"TestCategory=Net452OnNet471" /logger:trx
+
 PAUSE

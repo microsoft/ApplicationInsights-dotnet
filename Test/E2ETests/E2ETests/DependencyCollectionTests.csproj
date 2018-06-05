@@ -52,8 +52,8 @@
    </ItemGroup>
    -->
   <ItemGroup>
-    <Reference Include="Microsoft.ApplicationInsights, Version=2.6.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.6.4\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
+    <Reference Include="Microsoft.ApplicationInsights, Version=2.7.0-beta1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.7.0-beta1\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -82,6 +82,7 @@
     <Compile Include="Helpers\TelemetryItemFactory.cs" />
     <Compile Include="net462SM\Test452OnNet462SM.cs" />
     <Compile Include="net462\Test452OnNet462.cs" />
+    <Compile Include="net471\Test452OnNet471.cs" />
     <Compile Include="netcore20\TestCore20OnNetCore20.cs" />
     <Compile Include="Test452Base.cs" />
   </ItemGroup>
@@ -101,7 +102,7 @@
     <None Include="docker-compose452AppOn462StatusMonitor.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="docker-compose452AppOn47.yml">
+    <None Include="docker-compose452AppOn471.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="docker-compose452AppOn462.yml">
@@ -115,7 +116,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="net47\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>

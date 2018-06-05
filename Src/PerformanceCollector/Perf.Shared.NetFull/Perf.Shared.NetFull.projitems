@@ -22,29 +22,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\StandardPerformanceCounter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\ICounterValue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\StandardPerformanceCollector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\AzureWebEnvironmentVariables.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\CacheHelper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\CounterFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\NormalizedCPUPercentageGauge.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\CPUPercenageGauge.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\ICachedEnvironmentVariableAccess.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\ICounterValue.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\RawCounterGauge.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\PerformanceCounterImplementation.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\RateCounterGauge.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\RatioCounterGauge.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\SumUpCountersGauge.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\WebAppPerformanceCollector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)PerformanceCounterCollectionRequest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Timer\Timer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Timer\TimerInterface.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)PerformanceCollectorModule.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Resources.Designer.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources.resx">
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <Generator>ResXFileCodeGenerator</Generator>
-    </EmbeddedResource>
   </ItemGroup>
 </Project>

@@ -42,7 +42,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SqlClientDiagnostics\SqlClientDiagnosticFetcherTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SqlClientDiagnostics\SqlClientDiagnosticSourceListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)PropertyFetcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SanitizedHostList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryDiagnosticSourceListener.cs" />
   </ItemGroup>
@@ -62,7 +61,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlConnectionProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlProcessingBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RetryPolicy.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryExtensionsForDependencyCollector.cs" />
   </ItemGroup>
   <ItemGroup>

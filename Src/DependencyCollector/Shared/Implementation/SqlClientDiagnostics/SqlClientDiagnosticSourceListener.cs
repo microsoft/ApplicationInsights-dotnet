@@ -90,18 +90,20 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         {
                             var dependencyName = string.Empty;
                             var target = string.Empty;
+                            SqlConnection connection = null;
 
                             if (command.Connection != null)
                             {
-                                target = string.Join(" | ", command.Connection.DataSource, command.Connection.Database);
+                                connection = command.Connection;
+                                target = string.Join(" | ", connection.DataSource, connection.Database);
 
                                 var commandName = command.CommandType == CommandType.StoredProcedure
                                     ? command.CommandText
                                     : string.Empty;
 
                                 dependencyName = string.IsNullOrEmpty(commandName)
-                                    ? string.Join(" | ", command.Connection.DataSource, command.Connection.Database)
-                                    : string.Join(" | ", command.Connection.DataSource, command.Connection.Database, commandName);
+                                    ? string.Join(" | ", connection.DataSource, connection.Database)
+                                    : string.Join(" | ", connection.DataSource, connection.Database, commandName);
                             }
 
                             var timestamp = CommandBefore.Timestamp.Fetch(evnt.Value) as long?
@@ -116,7 +118,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                                 Data = command.CommandText,
                                 Success = true
                             };
-                            
+
+                            // Populate the operation details for intializers
+                            telemetry.SetOperationDetail(RemoteDependencyConstants.SqlCommandOperationDetailName, command);
+
                             InitializeTelemetry(telemetry, operationId, timestamp);
 
                             this.operationHolder.Store(command, Tuple.Create(telemetry, /* isCustomCreated: */ false));
@@ -148,7 +153,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             telemetry.Stop(timestamp);
 
-                            this.client.Track(telemetry);
+                            this.client.TrackDependency(telemetry);
                         }
                         else
                         {
@@ -181,7 +186,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             ConfigureExceptionTelemetry(telemetry, exception);
 
-                            this.client.Track(telemetry);
+                            this.client.TrackDependency(telemetry);
                         }
                         else
                         {
@@ -213,7 +218,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                                 Data = operation,
                                 Success = true
                             };
-                        
+
                             InitializeTelemetry(telemetry, operationId, timestamp);
 
                             this.operationHolder.Store(connection, Tuple.Create(telemetry, /* isCustomCreated: */ false));
@@ -270,7 +275,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             ConfigureExceptionTelemetry(telemetry, exception);
 
-                            this.client.Track(telemetry);
+                            this.client.TrackDependency(telemetry);
                         }
                         else
                         {
@@ -372,7 +377,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             telemetry.Stop(timestamp);
 
-                            this.client.Track(telemetry);
+                            this.client.TrackDependency(telemetry);
                         }
                         else
                         {
@@ -406,7 +411,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             ConfigureExceptionTelemetry(telemetry, exception);
 
-                            this.client.Track(telemetry);
+                            this.client.TrackDependency(telemetry);
                         }
                         else
                         {

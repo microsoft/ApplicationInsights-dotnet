@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppression.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MockApplicationIdProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SdkVersionHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubSynchronizationContext.cs" />

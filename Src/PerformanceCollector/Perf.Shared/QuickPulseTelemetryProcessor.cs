@@ -21,6 +21,11 @@
     public class QuickPulseTelemetryProcessor : ITelemetryProcessor, ITelemetryModule, IQuickPulseTelemetryProcessor
     {
         /// <summary>
+        /// An overall, cross-stream quota tracker
+        /// </summary>
+        private readonly QuickPulseQuotaTracker globalQuotaTracker;
+
+        /// <summary>
         /// 1.0 - initial release
         /// 1.1 - added DocumentStreamId, EventTelemetryDocument, TraceTelemetryDocument
         /// </summary>
@@ -47,11 +52,6 @@
         private bool isCollecting = false;
 
         private bool disableFullTelemetryItems = false;
-
-        /// <summary>
-        /// An overall, cross-stream quota tracker
-        /// </summary>
-        private readonly QuickPulseQuotaTracker globalQuotaTracker;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryProcessor"/> class.
@@ -452,7 +452,7 @@
                     ITelemetryDocument telemetryDocument = null;
                     IEnumerable<DocumentStream> documentStreams = configurationAccumulatorLocal.CollectionConfiguration.DocumentStreams;
 
-                    //!!! report runtime errors for filter groups?
+                    // !!! report runtime errors for filter groups?
                     CollectionConfigurationError[] groupErrors;
 
                     if (telemetryAsRequest != null)
@@ -559,7 +559,7 @@
                         ref projectionError);
                 }
 
-                //!!! report errors from string[] errors; and string projectionError;
+                // !!! report errors from string[] errors; and string projectionError;
             }
             finally
             {

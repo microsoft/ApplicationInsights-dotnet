@@ -183,7 +183,13 @@
             this.WriteEvent(20, count, this.ApplicationName);
         }
 
-#endregion
+        [Event(21, Level = EventLevel.Informational, Message = @"PerfCounter collection is supported for Apps targetting .NET Core only when they are deployed as Azure Web Apps")]
+        public void PerfCounterNetCoreOnlyOnAzureWebApp(string applicationName = "dummy")
+        {
+            this.WriteEvent(21, this.ApplicationName);
+        }
+
+        #endregion
 
         [NonEvent]
         private string GetApplicationName()

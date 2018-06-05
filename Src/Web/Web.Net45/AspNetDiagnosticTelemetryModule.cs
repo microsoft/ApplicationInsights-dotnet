@@ -21,6 +21,7 @@
         private const string IncomingRequestStartEventName = "Microsoft.AspNet.HttpReqIn.Start";
         private const string IncomingRequestStopEventName = "Microsoft.AspNet.HttpReqIn.Stop";
         private const string IncomingRequestStopLostActivity = "Microsoft.AspNet.HttpReqIn.ActivityLost.Stop";
+        private const string IncomingRequestStopRestoredActivity = "Microsoft.AspNet.HttpReqIn.ActivityRestored.Stop";
 
         private IDisposable allListenerSubscription;
         private RequestTrackingTelemetryModule requestModule;
@@ -117,6 +118,7 @@
             private const string FirstRequestFlag = "Microsoft.ApplicationInsights.FirstRequestFlag";
             private readonly RequestTrackingTelemetryModule requestModule;
             private readonly ExceptionTrackingTelemetryModule exceptionModule;
+            private readonly PropertyFetcher activityFetcher = new PropertyFetcher(nameof(Activity));
 
             public AspNetEventObserver(RequestTrackingTelemetryModule requestModule, ExceptionTrackingTelemetryModule exceptionModule)
             {
@@ -140,7 +142,12 @@
                     {
                         var context = HttpContext.Current;
                         var request = context.Request;
-                        string rootId = request.UnvalidatedGetHeader(ActivityHelpers.RootOperationIdHeaderName);
+                        string rootId = null;
+                        if (ActivityHelpers.RootOperationIdHeaderName != null)
+                        {
+                            rootId = request.UnvalidatedGetHeader(ActivityHelpers.RootOperationIdHeaderName);
+                        }
+
                         if (!string.IsNullOrEmpty(rootId))
                         {
                             // Got legacy headers from older AppInsights version or some custom header.
@@ -181,6 +188,17 @@
                         this.exceptionModule?.OnError(context);
                         this.requestModule?.OnEndRequest(context);
                     }
+                }
+                else if (value.Key == IncomingRequestStopRestoredActivity)
+                {
+                    var activity = (Activity)this.activityFetcher.Fetch(value.Value);
+                    if (activity == null)
+                    {
+                        WebEventSource.Log.ActivityIsNull(IncomingRequestStopRestoredActivity);
+                        return;
+                    }
+
+                    this.requestModule.TrackIntermediateRequest(context, activity);
                 }
             }
 

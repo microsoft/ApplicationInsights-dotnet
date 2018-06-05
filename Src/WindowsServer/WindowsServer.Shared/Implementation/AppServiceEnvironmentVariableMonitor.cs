@@ -36,8 +36,7 @@
         /// <summary>
         /// Prevents a default instance of the <see cref="AppServiceEnvironmentVariableMonitor" /> class from being created.
         /// </summary>
-        private AppServiceEnvironmentVariableMonitor() : 
-            base(
+        private AppServiceEnvironmentVariableMonitor() : base(
                 AppServiceEnvironmentVariableMonitor.PreloadedMonitoredEnvironmentVariables, 
                 AppServiceEnvironmentVariableMonitor.DefaultMonitorInterval)
         {

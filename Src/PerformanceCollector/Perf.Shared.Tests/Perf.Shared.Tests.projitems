@@ -17,8 +17,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Filtering\FilterConjunctionGroupTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Filtering\FilterTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Filtering\Mocks\TelemetryMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\SimpleTelemetryProcessorSpy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mocks\PerformanceCollectorMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PerformanceCollectorEventSourceTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PerformanceCollectorWebAppTestBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\Mocks\CategorySampleMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\Mocks\ClockMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\Mocks\QuickPulseCollectionTimeSlotManagerMock.cs" />
@@ -38,5 +41,21 @@
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseTelemetryModuleTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseTelemetryProcessorTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseTestHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollectorTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\AzureWebAppTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\CacheHelperTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\CPUPercenageGaugeTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\NormalizedCPUPercenageGaugeTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\RateCounterTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\RatioCounterTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\SumUpCountersGaugeTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\SampleFiles\RemoteEnvironmentVariablesAllSampleOne.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\SampleFiles\RemoteEnvironmentVariablesAllSampleTwo.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

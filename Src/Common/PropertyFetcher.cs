@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.Common
 {
     using System;
     using System.Reflection;
@@ -61,9 +61,7 @@
 
                 public TypedFetchProperty(PropertyInfo property)
                 {
-                    this.propertyFetch =
-                        (Func<TObject, TProperty>)
-                        property.GetMethod.CreateDelegate(typeof(Func<TObject, TProperty>));
+                    this.propertyFetch = (Func<TObject, TProperty>)property.GetMethod.CreateDelegate(typeof(Func<TObject, TProperty>));
                 }
 
                 public override object Fetch(object obj)

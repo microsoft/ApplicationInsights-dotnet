@@ -21,13 +21,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         protected TelemetryClient telemetryClient;
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
         private readonly TelemetryConfiguration configuration;
-        private ICollection<string> correlationDomainExclusionList;
-        private bool setCorrelationHeaders;
+        private readonly ICollection<string> correlationDomainExclusionList;
+        private readonly bool setCorrelationHeaders;
+        private readonly bool injectLegacyHeaders;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpProcessing"/> class.
         /// </summary>
-        public HttpProcessing(TelemetryConfiguration configuration, string sdkVersion, string agentVersion, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList)
+        public HttpProcessing(TelemetryConfiguration configuration, string sdkVersion, string agentVersion, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, bool injectLegacyHeaders)
         {
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
@@ -41,6 +42,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 this.telemetryClient.Context.GetInternalContext().AgentVersion = agentVersion;
             }
+
+            this.injectLegacyHeaders = injectLegacyHeaders;
         }
 
         /// <summary>
@@ -69,7 +72,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         internal object OnBegin(object thisObj, bool injectCorrelationHeaders = true)
         {
             try
-            {                
+            {
                 if (thisObj == null)
                 {
                     DependencyCollectorEventSource.Log.NotExpectedCallback(0, "OnBeginHttp", "thisObj == null");
@@ -141,6 +144,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 telemetry.Target = DependencyTargetNameHelper.GetDependencyTargetName(url);
                 telemetry.Type = RemoteDependencyConstants.HTTP;
                 telemetry.Data = url.OriginalString;
+                telemetry.SetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, webRequest);
 
                 // Add the source instrumentation key header if collection is enabled, the request host is not in the excluded list and the same header doesn't already exist
                 if (this.setCorrelationHeaders && !this.correlationDomainExclusionList.Contains(url.Host))
@@ -160,20 +164,24 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         AppMapCorrelationEventSource.Log.SetCrossComponentCorrelationHeaderFailed(ex.ToInvariantString());
                     }
 
-                    // Add the root ID
-                    var rootId = telemetry.Context.Operation.Id;
-                    if (!string.IsNullOrEmpty(rootId) && webRequest.Headers[RequestResponseHeaders.StandardRootIdHeader] == null)
+                    if (this.injectLegacyHeaders)
                     {
-                        webRequest.Headers.Add(RequestResponseHeaders.StandardRootIdHeader, rootId);
-                    }
-
-                    // Add the parent ID
-                    var parentId = telemetry.Id;
-                    if (!string.IsNullOrEmpty(parentId))
-                    {
-                        if (webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader] == null)
+                        // Add the root ID
+                        var rootId = telemetry.Context.Operation.Id;
+                        if (!string.IsNullOrEmpty(rootId) &&
+                            webRequest.Headers[RequestResponseHeaders.StandardRootIdHeader] == null)
                         {
-                            webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
+                            webRequest.Headers.Add(RequestResponseHeaders.StandardRootIdHeader, rootId);
+                        }
+
+                        // Add the parent ID
+                        var parentId = telemetry.Id;
+                        if (!string.IsNullOrEmpty(parentId))
+                        {
+                            if (webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader] == null)
+                            {
+                                webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
+                            }
                         }
                     }
 
@@ -208,9 +216,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         /// <summary>
         /// Common helper for all End Callbacks.
-        /// </summary>        
+        /// </summary>
         /// <param name="request">The HttpWebRequest instance.</param>
-        /// <param name="response">The HttpWebResponse instance.</param>                
+        /// <param name="response">The HttpWebResponse instance.</param>
         internal void OnEndResponse(object request, object response)
         {
             try
@@ -225,6 +233,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         {
                             statusCode = (int)responseObj.StatusCode;
                             this.SetTarget(telemetry, responseObj.Headers);
+
+                            // Set the operation details for the response
+                            telemetry.SetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, responseObj);
                         }
                         catch (ObjectDisposedException)
                         {
@@ -246,9 +257,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         /// <summary>
         /// Common helper for all End Callbacks.
-        /// </summary>        
+        /// </summary>
         /// <param name="exception">The exception object if any.</param>
-        /// <param name="request">HttpWebRequest instance.</param>                
+        /// <param name="request">HttpWebRequest instance.</param>
         internal void OnEndException(object exception, object request)
         {
             try
@@ -265,6 +276,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         {
                             statusCode = (int)responseObj.StatusCode;
                             this.SetTarget(telemetry, responseObj.Headers);
+
+                            // Set the operation details for the response
+                            telemetry.SetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, responseObj);
                         }
                         catch (ObjectDisposedException)
                         {
@@ -295,9 +309,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         /// <summary>
         /// Common helper for all End Callbacks.
-        /// </summary>        
+        /// </summary>
         /// <param name="request">WebRequest object.</param>
-        /// <param name="statusCode">HttpStatusCode from response.</param>                
+        /// <param name="statusCode">HttpStatusCode from response.</param>
         /// <param name="responseHeaders">Response headers.</param>
         internal void OnEndResponse(object request, object statusCode, object responseHeaders)
         {
@@ -311,6 +325,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     }
 
                     this.SetTarget(telemetry, (WebHeaderCollection)responseHeaders);
+                    telemetry.SetOperationDetail(RemoteDependencyConstants.HttpResponseHeadersOperationDetailName, responseHeaders);
 
                     ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
                 }

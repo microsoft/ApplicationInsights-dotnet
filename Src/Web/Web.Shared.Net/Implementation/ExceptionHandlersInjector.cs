@@ -97,7 +97,6 @@
             //     {
             //        if (filterContext != null && filterContext.HttpContext != null && filterContext.Exception != null && filterContext.HttpContext.IsCustomErrorEnabled)
             //            telemetryClient.TrackException(new ExceptionTelemetry(filterContext.Exception));
-            //        base.OnException(filterContext);
             //     }
             // }
             // 
@@ -127,7 +126,6 @@
                 var controllerContextType = GetTypeOrFail("System.Web.Mvc.ControllerContext, System.Web.Mvc");
                 var httpContextGetter = GetMethodOrFail(controllerContextType, "get_HttpContext");
 
-                var baseOnException = GetMethodOrFail(handleErrorType, OnExceptionMethodName, new[] { exceptionContextType });
                 var addFilter = GetMethodOrFail(globalFilterCollectionType, "Add", new[] { typeof(object) });
 
                 // HttpContextBase requires full assembly name to be resolved
@@ -153,7 +151,6 @@
                     telemetryClientField,
                     exceptionGetter,
                     trackExceptionMethod,
-                    baseOnException,
                     exceptionTelemetryCtor,
                     httpContextBaseType,
                     httpContextGetter,
@@ -183,7 +180,6 @@
         /// <param name="telemetryClientField">FieldInfo of MVCExceptionFilter.telemetryClient.</param>
         /// <param name="exceptionGetter">MethodInfo to get ExceptionContext.Exception.</param>
         /// <param name="trackException">MethodInfo of TelemetryClient.TrackException(ExceptionTelemetry).</param>
-        /// <param name="baseOnException">MethodInfo of base (HandleErrorAttribute) OnException method.</param>
         /// <param name="exceptionTelemetryCtor">ConstructorInfo of ExceptionTelemetry.</param>
         /// <param name="httpContextBaseType">Type of HttpContextBase.</param>
         /// <param name="httpContextGetter">MethodInfo to get ExceptionContext.HttpContext.</param>
@@ -194,7 +190,6 @@
             FieldInfo telemetryClientField,
             MethodInfo exceptionGetter,
             MethodInfo trackException,
-            MethodInfo baseOnException,
             ConstructorInfo exceptionTelemetryCtor,
             Type httpContextBaseType,
             MethodInfo httpContextGetter,
@@ -205,7 +200,6 @@
             // {
             //    if (filterContext != null && filterContext.HttpContext != null && filterContext.Exception != null && filterContext.HttpContext.IsCustomErrorEnabled)
             //        telemetryClient.TrackException(new ExceptionTelemetry(filterContext.Exception));
-            //    base.OnException(filterContext);
             // }  
              
             // defines public override void OnException(ExceptionContext filterContext)
@@ -284,12 +278,7 @@
             il.Emit(OpCodes.Callvirt, trackException);
             il.Emit(OpCodes.Br_S, end);
 
-            // call base.OnException(filterContext);
             il.MarkLabel(end);
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Call, baseOnException);
-
             il.Emit(OpCodes.Ret);
         }
 
@@ -383,7 +372,6 @@
             //     {
             //        if (context != null && context.Exception != null)
             //            telemetryClient.TrackException(new ExceptionTelemetry(context.Exception));
-            //        base.OnLog(context);
             //     }
             // }
             // 
@@ -409,7 +397,6 @@
                     return;
                 }
 
-                var baseOnLog = GetMethodOrFail(baseExceptionLoggerType, "Log", new[] { exceptionContextType });
                 var addLogger = GetMethodOrFail(servicesContainerType, "Add", new[] { typeof(Type), typeof(object) });
                 var exceptionGetter = GetMethodOrFail(exceptionContextType, "get_Exception");
                 var exceptionLoggerBaseCtor = baseExceptionLoggerType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, CallingConventions.Standard, new Type[0], null);
@@ -427,7 +414,7 @@
                 EmitConstructor(typeBuilder, typeof(TelemetryClient), telemetryClientField, exceptionLoggerBaseCtor);
 
                 // emit Log method 
-                EmitWebApiLog(typeBuilder, exceptionContextType, exceptionGetter, telemetryClientField, exceptionTelemetryCtor, trackExceptionMethod, baseOnLog);
+                EmitWebApiLog(typeBuilder, exceptionContextType, exceptionGetter, telemetryClientField, exceptionTelemetryCtor, trackExceptionMethod);
 
                 // create error WebApiExceptionLogger type
                 var exceptionLoggerType = typeBuilder.CreateType();
@@ -454,15 +441,13 @@
         /// <param name="telemetryClientField">FieldInfo of WebAPIExceptionFilter.telemetryClient.</param>
         /// <param name="exceptionTelemetryCtor">ConstructorInfo of ExceptionTelemetry.</param>
         /// <param name="trackException">MethodInfo of TelemetryClient.TrackException(ExceptionTelemetry).</param>
-        /// <param name="baseOnLog">MethodInfo of base (ExceptionLogger) OnLog method.</param>
-        private static void EmitWebApiLog(TypeBuilder typeBuilder, Type exceptionContextType, MethodInfo exceptionGetter, FieldInfo telemetryClientField, ConstructorInfo exceptionTelemetryCtor, MethodInfo trackException, MethodInfo baseOnLog)
+        private static void EmitWebApiLog(TypeBuilder typeBuilder, Type exceptionContextType, MethodInfo exceptionGetter, FieldInfo telemetryClientField, ConstructorInfo exceptionTelemetryCtor, MethodInfo trackException)
         {
             // This method emits following code:
             // public override void OnLog(ExceptionLoggerContext context)
             // {
             //    if (context != null && context.Exception != null)
             //        telemetryClient.TrackException(new ExceptionTelemetry(context.Exception));
-            //    base.OnLog(context);
             // }
             // public override void OnLog(ExceptionLoggerContext context)
             var log = typeBuilder.DefineMethod(OnLogMethodName, MethodAttributes.Public | MethodAttributes.ReuseSlot | MethodAttributes.Virtual | MethodAttributes.HideBySig, null, new[] { exceptionContextType });
@@ -507,12 +492,7 @@
             il.Emit(OpCodes.Callvirt, trackException);
             il.Emit(OpCodes.Br_S, end);
 
-            // base.OnLog(context);
             il.MarkLabel(end);
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Call, baseOnLog);
-
             il.Emit(OpCodes.Ret);
         }
 

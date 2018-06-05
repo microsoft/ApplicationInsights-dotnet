@@ -57,6 +57,11 @@
         public bool DisableDiagnosticSourceInstrumentation { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to enable legacy (x-ms*) correlation headers injection.
+        /// </summary>
+        public bool EnableLegacyCorrelationHeadersInjection { get; set; }
+
+        /// <summary>
         /// Gets the component correlation configuration.
         /// </summary>
         public ICollection<string> ExcludeComponentCorrelationHttpHeadersOnDomains
@@ -138,7 +143,8 @@
                             this.httpCoreDiagnosticSourceListener = new HttpCoreDiagnosticSourceListener(
                                 configuration,
                                 this.SetComponentCorrelationHttpHeaders,
-                                this.ExcludeComponentCorrelationHttpHeadersOnDomains);
+                                this.ExcludeComponentCorrelationHttpHeadersOnDomains,
+                                this.EnableLegacyCorrelationHeadersInjection);
 
                             if (this.IncludeDiagnosticSourceActivities != null && this.IncludeDiagnosticSourceActivities.Count > 0)
                             {
@@ -185,7 +191,13 @@
             var agentVersion = Decorator.GetAgentVersion();
             DependencyCollectorEventSource.Log.RemoteDependencyModuleInformation("AgentVersion is " + agentVersion);
 
-            this.httpProcessing = new ProfilerHttpProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.WebRequestConditionalHolder, this.SetComponentCorrelationHttpHeaders, this.ExcludeComponentCorrelationHttpHeadersOnDomains);
+            this.httpProcessing = new ProfilerHttpProcessing(
+                this.telemetryConfiguration,
+                agentVersion,
+                DependencyTableStore.Instance.WebRequestConditionalHolder,
+                this.SetComponentCorrelationHttpHeaders,
+                this.ExcludeComponentCorrelationHttpHeadersOnDomains,
+                this.EnableLegacyCorrelationHeadersInjection);
             this.sqlCommandProcessing = new ProfilerSqlCommandProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
             this.sqlConnectionProcessing = new ProfilerSqlConnectionProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
 
@@ -260,7 +272,8 @@
                     this.telemetryConfiguration,
                     DependencyTableStore.Instance.WebRequestCacheHolder,
                     this.SetComponentCorrelationHttpHeaders,
-                    this.ExcludeComponentCorrelationHttpHeadersOnDomains);
+                    this.ExcludeComponentCorrelationHttpHeadersOnDomains,
+                    this.EnableLegacyCorrelationHeadersInjection);
                 this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(desktopHttpProcessing, new ApplicationInsightsUrlFilter(this.telemetryConfiguration));
             }
 
@@ -268,7 +281,8 @@
                 this.telemetryConfiguration,
                 DependencyTableStore.Instance.WebRequestCacheHolder, 
                 this.SetComponentCorrelationHttpHeaders, 
-                this.ExcludeComponentCorrelationHttpHeadersOnDomains);
+                this.ExcludeComponentCorrelationHttpHeadersOnDomains,
+                this.EnableLegacyCorrelationHeadersInjection);
 
             // In 4.5 EventListener has a race condition issue in constructor so we retry to create listeners
             this.httpEventListener = RetryPolicy.Retry<InvalidOperationException, TelemetryConfiguration, FrameworkHttpEventListener>(

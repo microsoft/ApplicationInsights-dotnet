@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AccountIdTelemetryInitializerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AuthenticatedUserIdTelemetryInitializerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\HttpContextTestExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\HttpModuleHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\InMemoryCaptureTelemetryChannel.cs" />

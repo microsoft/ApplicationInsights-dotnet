@@ -99,7 +99,7 @@
         internal static void EndTracking(TelemetryClient telemetryClient, DependencyTelemetry telemetry)
         {
             telemetry.Stop();
-            telemetryClient.Track(telemetry);
+            telemetryClient.TrackDependency(telemetry);
         }
 
         /// <summary>

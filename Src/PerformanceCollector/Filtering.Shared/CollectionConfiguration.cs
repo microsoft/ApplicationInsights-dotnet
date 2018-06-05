@@ -90,12 +90,12 @@
         public IEnumerable<CalculatedMetric<TraceTelemetry>> TraceMetrics => this.traceTelemetryMetrics;
 
         /// <summary>
-        /// Telemetry types only. Used by QuickPulseTelemetryProcessor.
+        /// Gets Telemetry types only. Used by QuickPulseTelemetryProcessor.
         /// </summary>
         public IEnumerable<Tuple<string, AggregationType>> TelemetryMetadata => this.telemetryMetadata;
         
         /// <summary>
-        /// Document streams. Telemetry items are provided by QuickPulseTelemetryProcessor.
+        /// Gets document streams. Telemetry items are provided by QuickPulseTelemetryProcessor.
         /// </summary>
         public IEnumerable<DocumentStream> DocumentStreams => this.documentStreams; 
         

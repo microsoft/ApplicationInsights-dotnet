@@ -35,12 +35,18 @@
         private StubTelemetryChannel channel;
         private TelemetryConfiguration config;
         private List<DependencyTelemetry> sentTelemetry;
+        private object request;
+        private object response;
+        private object responseHeaders;
 
         [TestInitialize]
         public void Initialize()
         {
             ServicePointManager.DefaultConnectionLimit = 1000;
             this.sentTelemetry = new List<DependencyTelemetry>();
+            this.request = null;
+            this.response = null;
+            this.responseHeaders = null;
 
             this.channel = new StubTelemetryChannel
             {
@@ -51,6 +57,9 @@
                     if (depTelemetry != null)
                     {
                         this.sentTelemetry.Add(depTelemetry);
+                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, out this.request);
+                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, out this.response);
+                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, out this.responseHeaders);
                     }
                 },
                 EndpointAddress = FakeProfileApiEndpoint
@@ -87,9 +96,23 @@
 
         [TestMethod]
         [Timeout(5000)]
+        public void TestBasicDependencyCollectionDiagnosticSourceLegacyHeaders()
+        {
+            this.TestCollectionSuccessfulResponse(true, LocalhostUrlDiagSource, 200, true);
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
         public async Task TestZeroContentResponseDiagnosticSource()
         {
-            await this.TestCollectionHttpClientSucessfulResponse(LocalhostUrlDiagSource, 200, 0);
+            await this.TestCollectionHttpClientSuccessfulResponse(LocalhostUrlDiagSource, 200, 0);
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task TestZeroAndNonZeroContentResponseDiagnosticSource()
+        {
+            await this.TestZeroContentResponseAfterNonZeroResponse(LocalhostUrlDiagSource, 200);
         }
 
         [TestMethod]
@@ -147,11 +170,9 @@
                 // HttpDesktopDiagnosticListener cannot collect dependencies if HttpWebResponse was not closed/disposed
                 Assert.IsFalse(this.sentTelemetry.Any());
                 var requestId = request.Headers[RequestResponseHeaders.RequestIdHeader];
-                var rootId = request.Headers[RequestResponseHeaders.StandardRootIdHeader];
                 Assert.IsNotNull(requestId);
-                Assert.IsNotNull(rootId);
-                Assert.AreEqual(requestId, request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
-                Assert.IsTrue(requestId.StartsWith('|' + rootId + '.'));
+                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
             }
         }
 
@@ -336,9 +357,9 @@
             }
         }
 
-        private void TestCollectionSuccessfulResponse(bool enableDiagnosticSource, string url, int statusCode)
+        private void TestCollectionSuccessfulResponse(bool enableDiagnosticSource, string url, int statusCode, bool injectLegacyHeaders = false)
         {
-            using (this.CreateDependencyTrackingModule(enableDiagnosticSource))
+            using (this.CreateDependencyTrackingModule(enableDiagnosticSource, injectLegacyHeaders))
             {
                 HttpWebRequest request = WebRequest.CreateHttp(url);
 
@@ -370,11 +391,11 @@
                     }
                 }
 
-                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), new Uri(url), request, statusCode >= 200 && statusCode < 300, statusCode.ToString(CultureInfo.InvariantCulture));
+                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), new Uri(url), request, statusCode >= 200 && statusCode < 300, statusCode.ToString(CultureInfo.InvariantCulture), expectLegacyHeaders: injectLegacyHeaders);
             }
         }
 
-        private async Task TestCollectionHttpClientSucessfulResponse(string url, int statusCode, int contentLength)
+        private async Task TestCollectionHttpClientSuccessfulResponse(string url, int statusCode, int contentLength, bool injectLegacyHeaders = false)
         {
             using (this.CreateDependencyTrackingModule(true))
             {
@@ -400,7 +421,63 @@
                     }
                 }
 
-                this.ValidateTelemetry(true, this.sentTelemetry.Single(), new Uri(url), null, statusCode >= 200 && statusCode < 300, statusCode.ToString(CultureInfo.InvariantCulture));
+                this.ValidateTelemetry(true, this.sentTelemetry.Single(), new Uri(url), null, statusCode >= 200 && statusCode < 300, statusCode.ToString(CultureInfo.InvariantCulture), responseExpected: contentLength != 0);
+            }
+        }
+
+        private async Task TestZeroContentResponseAfterNonZeroResponse(string url, int statusCode)
+        {
+            using (this.CreateDependencyTrackingModule(true))
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    using (new LocalServer(
+                        url,
+                        context =>
+                        {
+                            context.Response.ContentLength64 = 1;
+                            context.Response.StatusCode = statusCode;
+                            context.Response.OutputStream.WriteByte(0x1);
+                            context.Response.OutputStream.Close();
+                        }))
+                    {
+                        try
+                        {
+                            using (HttpResponseMessage response = await client.GetAsync(url))
+                            {
+                                Assert.AreEqual(1, response.Content.Headers.ContentLength);
+                            }
+                        }
+                        catch (WebException)
+                        {
+                            // ignore and let ValidateTelemetry method check status code
+                        }
+                    }
+
+                    using (new LocalServer(
+                        url,
+                        context =>
+                        {
+                            context.Response.ContentLength64 = 0;
+                            context.Response.StatusCode = statusCode;
+                        }))
+                    {
+                        try
+                        {
+                            using (HttpResponseMessage response = await client.GetAsync(url))
+                            {
+                                Assert.AreEqual(0, response.Content.Headers.ContentLength);
+                            }
+                        }
+                        catch (WebException)
+                        {
+                            // ignore and let ValidateTelemetry method check status code
+                        }
+                    }
+                }
+
+                Assert.AreEqual(2, this.sentTelemetry.Count);
+                this.ValidateTelemetry(true, this.sentTelemetry.Last(), new Uri(url), null, statusCode >= 200 && statusCode < 300, statusCode.ToString(CultureInfo.InvariantCulture), responseExpected: false);
             }
         }
 
@@ -430,7 +507,7 @@
                     await httpClient.GetAsync(url, cts.Token).ContinueWith(t => { });
                 }
 
-                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), new Uri(url), null, false, string.Empty);
+                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), new Uri(url), null, false, string.Empty, responseExpected: false);
             }
         }
 
@@ -447,7 +524,7 @@
                     // here the start of dependency is tracked with HttpDesktopDiagnosticSourceListener, 
                     // so the expected SDK version should have DiagnosticSource 'rdddsd' prefix. 
                     // however the end is tracked by FrameworkHttpEventListener
-                    this.ValidateTelemetry(true, this.sentTelemetry.Single(), url, null, false, string.Empty);
+                    this.ValidateTelemetry(true, this.sentTelemetry.Single(), url, null, false, string.Empty, responseExpected: false);
                 }
                 else
                 {
@@ -458,7 +535,7 @@
             }
         }
 
-        private void ValidateTelemetry(bool diagnosticSource, DependencyTelemetry item, Uri url, WebRequest request, bool success, string resultCode)
+        private void ValidateTelemetry(bool diagnosticSource, DependencyTelemetry item, Uri url, WebRequest request, bool success, string resultCode, bool responseExpected = true, bool headersExpected = false, bool expectLegacyHeaders = false)
         {
             Assert.AreEqual(url, item.Data);
 
@@ -487,9 +564,33 @@
             Assert.AreEqual(Activity.Current?.Id, item.Context.Operation.ParentId);
             Assert.IsTrue(item.Id.StartsWith('|' + item.Context.Operation.Id + '.'));
 
+            // Validate the http request was captured
             if (diagnosticSource)
             {
-                this.ValidateTelemetryForDiagnosticSource(item, url, request);
+                Assert.IsNotNull(this.request, "Http request was not found within the operation details.");
+                var webRequest = this.request as WebRequest;
+                Assert.IsNotNull(webRequest, "Http request was not the expected type.");
+            }
+
+            // If expected -- validate the response was captured
+            if (diagnosticSource && responseExpected)
+            {
+                Assert.IsNotNull(this.response, "Http response was not found within the operation details.");
+                var webResponse = this.response as WebResponse;
+                Assert.IsNotNull(webResponse, "Http response was not the expected type.");
+            }
+
+            // If expected -- validate the headers were captured
+            if (diagnosticSource && headersExpected)
+            {
+                Assert.IsNotNull(this.responseHeaders, "Http response headers were not found within the operation details.");
+                var headers = this.responseHeaders as WebHeaderCollection;
+                Assert.IsNotNull(headers, "Http response headers were not the expected type.");
+            }
+
+            if (diagnosticSource)
+            {
+                this.ValidateTelemetryForDiagnosticSource(item, url, request, expectLegacyHeaders);
             }
             else
             {
@@ -497,7 +598,7 @@
             }
         }
 
-        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, WebRequest request)
+        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, WebRequest request, bool expectLegacyHeaders)
         {
             var expectedMethod = request != null ? request.Method : "GET";
             Assert.AreEqual(expectedMethod + " " + url.AbsolutePath, item.Name);
@@ -511,8 +612,17 @@
             if (request != null)
             {
                 Assert.AreEqual(requestId, request.Headers[RequestResponseHeaders.RequestIdHeader]);
-                Assert.AreEqual(requestId, request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
-                Assert.AreEqual(item.Context.Operation.Id, request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+
+                if (expectLegacyHeaders)
+                {
+                    Assert.AreEqual(requestId, request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+                    Assert.AreEqual(item.Context.Operation.Id, request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+                }
+                else
+                {
+                    Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+                    Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+                }
 
                 if (Activity.Current != null)
                 {
@@ -551,7 +661,7 @@
             }
         }
 
-        private DependencyTrackingTelemetryModule CreateDependencyTrackingModule(bool enableDiagnosticSource)
+        private DependencyTrackingTelemetryModule CreateDependencyTrackingModule(bool enableDiagnosticSource, bool injectLegacyHeaders = false)
         {
             var module = new DependencyTrackingTelemetryModule();
 
@@ -559,6 +669,8 @@
             {
                 module.DisableDiagnosticSourceInstrumentation = true;
             }
+
+            module.EnableLegacyCorrelationHeadersInjection = injectLegacyHeaders;
 
             module.Initialize(this.config);
             Assert.AreEqual(enableDiagnosticSource, DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);

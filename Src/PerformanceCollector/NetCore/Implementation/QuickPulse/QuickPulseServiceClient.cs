@@ -221,13 +221,13 @@
             {
                 Version = this.version,
                 InvariantVersion = MonitoringDataPoint.CurrentInvariantVersion,
-                //InstrumentationKey = instrumentationKey, // ikey is currently set in query string parameter
+                // InstrumentationKey = instrumentationKey, // ikey is currently set in query string parameter
                 Instance = this.instanceName,
                 StreamId = this.streamId,
                 MachineName = this.machineName,
                 Timestamp = timestamp.UtcDateTime,
                 IsWebApp = this.isWebApp,
-                PerformanceCollectionSupported = false,
+                PerformanceCollectionSupported = this.isWebApp,
                 ProcessorCount = this.processorCount
             };
 
@@ -265,7 +265,7 @@
                     MachineName = this.machineName,
                     Timestamp = sample.EndTimestamp.UtcDateTime,
                     IsWebApp = this.isWebApp,
-                    PerformanceCollectionSupported = false,
+                    PerformanceCollectionSupported = this.isWebApp,
                     ProcessorCount = this.processorCount,
                     Metrics = metricPoints.ToArray(),
                     Documents = documents,

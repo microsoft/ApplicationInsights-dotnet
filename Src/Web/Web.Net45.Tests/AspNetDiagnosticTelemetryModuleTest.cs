@@ -113,11 +113,24 @@
             var client = new TelemetryClient(this.configuration);
             client.TrackTrace(trace);
 
-            this.aspNetDiagnosticsSource.StopActivity();
-            Assert.AreEqual(2, this.sendItems.Count);
+            this.aspNetDiagnosticsSource.ReportRestoredActivity(restoredActivity);
+            Assert.AreEqual(1, this.sendItems.Count);
 
-            var requestTelemetry = this.sendItems[0] as RequestTelemetry ?? this.sendItems[1] as RequestTelemetry;
+            restoredActivity.Stop();
+            this.aspNetDiagnosticsSource.StopLostActivity(activity);
+
+            Assert.AreEqual(3, this.sendItems.Count);
+            var requestRestoredTelemetry = (RequestTelemetry)this.sendItems[1];
+            Assert.IsNotNull(requestRestoredTelemetry);
+
+            Assert.AreEqual(3, this.sendItems.Count);
+
+            var requestTelemetry = (RequestTelemetry)this.sendItems[2];
             Assert.IsNotNull(requestTelemetry);
+
+            Assert.AreEqual(requestTelemetry.Id, requestRestoredTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual(restoredActivity.Id, requestRestoredTelemetry.Id);
+            Assert.AreEqual(requestTelemetry.Context.Operation.Id, requestRestoredTelemetry.Context.Operation.Id);
 
             Assert.AreEqual(restoredActivity.ParentId, requestTelemetry.Id);
             Assert.AreEqual(restoredActivity.Id, trace.Context.Operation.ParentId);
@@ -168,7 +181,7 @@
         }
 
         [TestMethod]
-        public void RequestTelemetryIsSetWithLegacyHeaders()
+        public void RequestTelemetryIsNotSetWithLegacyHeaders()
         {
             FakeAspNetDiagnosticSource.FakeContext =
                 HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
@@ -178,6 +191,31 @@
                 });
 
             this.module = this.CreateModule();
+
+            var activity = new Activity(FakeAspNetDiagnosticSource.IncomingRequestEventName);
+            this.aspNetDiagnosticsSource.StartActivityWithoutChecks(activity);
+            this.aspNetDiagnosticsSource.StopActivity();
+
+            Assert.AreEqual(1, this.sendItems.Count);
+
+            var requestTelemetry = this.sendItems[0] as RequestTelemetry;
+            Assert.IsNotNull(requestTelemetry);
+            Assert.AreEqual(activity.RootId, requestTelemetry.Context.Operation.Id);
+            Assert.IsNull(requestTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual(activity.Id, requestTelemetry.Id);
+        }
+
+        [TestMethod]
+        public void RequestTelemetryIsSetWithLegacyHeaders()
+        {
+            FakeAspNetDiagnosticSource.FakeContext =
+                HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
+                {
+                    ["x-ms-request-id"] = "guid1",
+                    ["x-ms-request-root-id"] = "guid2"
+                });
+
+            this.module = this.CreateModule("x-ms-request-root-id", "x-ms-request-id");
 
             var activity = new Activity(FakeAspNetDiagnosticSource.IncomingRequestEventName);
             Assert.IsTrue(this.aspNetDiagnosticsSource.IsEnabled(FakeAspNetDiagnosticSource.IncomingRequestEventName, activity));
@@ -345,6 +383,7 @@
             public const string IncomingRequestEventName = "Microsoft.AspNet.HttpReqIn";
             private const string AspNetListenerName = "Microsoft.AspNet.TelemetryCorrelation";
             private const string IncomingRequestStopLostActivity = "Microsoft.AspNet.HttpReqIn.ActivityLost.Stop";
+            private const string IncomingRequestStopRestoredActivity = "Microsoft.AspNet.HttpReqIn.ActivityRestored.Stop";
 
             private readonly DiagnosticListener listener;
 
@@ -431,6 +470,13 @@
                 Debug.Assert(Activity.Current == null, "Activity.Current is not null");
 
                 this.listener.Write(IncomingRequestStopLostActivity, new { activity });
+            }
+
+            public void ReportRestoredActivity(Activity activity)
+            {
+                Debug.Assert(activity != null, "Activity is null");
+
+                this.listener.Write(IncomingRequestStopRestoredActivity, new { Activity = activity });
             }
 
             public void Dispose()

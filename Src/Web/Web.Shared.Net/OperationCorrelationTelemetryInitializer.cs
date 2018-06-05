@@ -17,8 +17,8 @@
         /// </summary>
         public OperationCorrelationTelemetryInitializer()
         {
-            ActivityHelpers.ParentOperationIdHeaderName = RequestResponseHeaders.StandardParentIdHeader;
-            ActivityHelpers.RootOperationIdHeaderName = RequestResponseHeaders.StandardRootIdHeader;
+            ActivityHelpers.ParentOperationIdHeaderName = null;
+            ActivityHelpers.RootOperationIdHeaderName = null;
         }
 
         /// <summary>
@@ -26,10 +26,7 @@
         /// </summary>
         public string ParentOperationIdHeaderName
         {
-            get
-            {
-                return ActivityHelpers.ParentOperationIdHeaderName;
-            }
+            get => ActivityHelpers.ParentOperationIdHeaderName;
 
             set
             {
@@ -45,10 +42,7 @@
         /// </summary>
         public string RootOperationIdHeaderName
         {
-            get
-            {
-                return ActivityHelpers.RootOperationIdHeaderName;
-            }
+            get => ActivityHelpers.RootOperationIdHeaderName;
 
             set
             {

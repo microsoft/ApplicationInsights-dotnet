@@ -76,7 +76,7 @@
         <NugetVersionFilePath>$(MSBuildThisFileDirectory).nugetVersion</NugetVersionFilePath>
         <BuildNugetVersion Condition="Exists($(NugetVersionFilePath))">$([System.IO.File]::ReadAllText($(NugetVersionFilePath)))</BuildNugetVersion>
 
-        <CoreSdkVersion>2.6.4</CoreSdkVersion>
+        <CoreSdkVersion>2.7.0-beta1</CoreSdkVersion>
 
         <!-- Forces EventRegister target to generate ETW manifest file --> 
         <EtwManifestForceAll>true</EtwManifestForceAll>
@@ -89,10 +89,8 @@
         <RequireRestoreConsent>false</RequireRestoreConsent>
         
         <!-- Set the root namespace for all assemblies in this project hierarchy --> 
-        <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>        
-      
-        <!-- Disable StyleCop by default to prevent StyleCop.MSBuild package from slowing down the debug build -->
-        <StyleCopEnabled>false</StyleCopEnabled>
+        <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>
+        
     </PropertyGroup>
     
   <!-- Generate AssemblyFileVersion and AssemblyVersion attributes. -->

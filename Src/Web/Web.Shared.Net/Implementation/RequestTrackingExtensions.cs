@@ -36,8 +36,7 @@
                 }
                 else
                 {
-                    string rootId, parentId;
-                    if (ActivityHelpers.TryParseCustomHeaders(platformContext.Request, out rootId, out parentId))
+                    if (ActivityHelpers.TryParseCustomHeaders(platformContext.Request, out var rootId, out var parentId))
                     {
                         currentActivity.SetParentId(rootId);
                         if (!string.IsNullOrEmpty(parentId))
@@ -67,11 +66,13 @@
                 }
                 else
                 {
-                    var parentId =
-                        platformContext.Request.UnvalidatedGetHeader(ActivityHelpers.ParentOperationIdHeaderName);
-                    if (!string.IsNullOrEmpty(parentId))
+                    if (ActivityHelpers.ParentOperationIdHeaderName != null)
                     {
-                        requestContext.ParentId = parentId;
+                        var parentId = platformContext.Request.UnvalidatedGetHeader(ActivityHelpers.ParentOperationIdHeaderName);
+                        if (!string.IsNullOrEmpty(parentId))
+                        {
+                            requestContext.ParentId = parentId;
+                        }
                     }
                 }
             }

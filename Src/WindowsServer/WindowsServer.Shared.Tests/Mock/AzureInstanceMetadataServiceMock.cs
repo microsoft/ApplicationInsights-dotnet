@@ -22,31 +22,6 @@
 
 #if NETCORE
 
-        public class ResponseHandlerMock
-        {        
-            public static Dictionary<string,Action<HttpResponse>> OnRequestDictionary { get; set; } = new Dictionary<string, Action<HttpResponse>>();
-
-            public void Configure(IApplicationBuilder app)
-            {
-                
-                app.Run(async (context) =>
-                {
-                    string testPath = context.Request.Path.Value.Trim('/');
-
-                    if (ResponseHandlerMock.OnRequestDictionary.ContainsKey(testPath))
-                    {
-                        Action<HttpResponse> onRequest = ResponseHandlerMock.OnRequestDictionary[testPath];
-                        onRequest(context.Response);
-                    }
-                    else
-                    {
-                        context.Response.StatusCode = 200;
-                        await context.Response.WriteAsync("Hello World!");
-                    }
-                });
-            }
-        }
-
         internal AzureInstanceMetadataServiceMock(string baseUrl, string testName, Action<HttpResponse> onRequest = null)
         {
             ResponseHandlerMock.OnRequestDictionary.Add(testName, onRequest);
@@ -58,7 +33,7 @@
                 .UseUrls(baseUrl + "?testName=" + testName)
                 .Build();
 
-            Task.Run(() => this.host.Run(cts.Token));
+            Task.Run(() => this.host.Run(this.cts.Token));
         }
 
 #else
@@ -105,5 +80,34 @@
 #endif
             this.cts.Dispose();
         }
+
+#if NETCORE
+
+        public class ResponseHandlerMock
+        {
+            public static Dictionary<string, Action<HttpResponse>> OnRequestDictionary { get; set; } = new Dictionary<string, Action<HttpResponse>>();
+
+            public void Configure(IApplicationBuilder app)
+            {
+                app.Run(async (context) =>
+                {
+                    string testPath = context.Request.Path.Value.Trim('/');
+
+                    if (ResponseHandlerMock.OnRequestDictionary.ContainsKey(testPath))
+                    {
+                        Action<HttpResponse> onRequest = ResponseHandlerMock.OnRequestDictionary[testPath];
+                        onRequest(context.Response);
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = 200;
+                        await context.Response.WriteAsync("Hello World!");
+                    }
+                });
+            }
+        }
+
+#endif
+
     }
 }

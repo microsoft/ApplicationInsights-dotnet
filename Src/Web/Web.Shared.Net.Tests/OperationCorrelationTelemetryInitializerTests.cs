@@ -15,14 +15,10 @@
         [TestCleanup]
         public void Cleanup()
         {
-#if NET45
             while (Activity.Current != null)
             {
                 Activity.Current.Stop();
             }
-#else
-            ActivityHelpers.CleanOperationContext();
-#endif
         }
 
         [TestMethod]
@@ -33,11 +29,11 @@
         }
 
         [TestMethod]
-        public void DefaultHeadersOperationCorrelationTelemetryInitializerAreSet()
+        public void DefaultHeadersOperationCorrelationTelemetryInitializerAreNotSetByDefault()
         {
             var initializer = new OperationCorrelationTelemetryInitializer();
-            Assert.AreEqual(RequestResponseHeaders.StandardParentIdHeader, initializer.ParentOperationIdHeaderName);
-            Assert.AreEqual(RequestResponseHeaders.StandardRootIdHeader, initializer.RootOperationIdHeaderName);
+            Assert.IsNull(initializer.ParentOperationIdHeaderName);
+            Assert.IsNull(initializer.RootOperationIdHeaderName);
         }
 
         [TestMethod]

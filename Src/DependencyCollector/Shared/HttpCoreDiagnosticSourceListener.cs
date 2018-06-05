@@ -54,9 +54,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private readonly ConcurrentDictionary<string, Exception> pendingExceptions =
             new ConcurrentDictionary<string, Exception>();
 
-        private bool isNetCore20HttpClient;
+        private readonly bool isNetCore20HttpClient;
+        private readonly bool injectLegacyHeaders = false;
 
-        public HttpCoreDiagnosticSourceListener(TelemetryConfiguration configuration, bool setComponentCorrelationHttpHeaders, IEnumerable<string> correlationDomainExclusionList)
+        public HttpCoreDiagnosticSourceListener(TelemetryConfiguration configuration, bool setComponentCorrelationHttpHeaders, IEnumerable<string> correlationDomainExclusionList, bool injectLegacyHeaders)
         {
             this.client = new TelemetryClient(configuration);
             this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceCore + ":");
@@ -68,12 +69,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
             this.setComponentCorrelationHttpHeaders = setComponentCorrelationHttpHeaders;
             this.correlationDomainExclusionList = correlationDomainExclusionList ?? Enumerable.Empty<string>();
+            this.injectLegacyHeaders = injectLegacyHeaders;
 
             this.subscriber = new HttpCoreDiagnosticSourceSubscriber(this, this.applicationInsightsUrlFilter, this.isNetCore20HttpClient);
         }
 
         /// <summary>
-        /// Get the DependencyTelemetry objects that are still waiting for a response from the dependency. This will most likely only be used for testing purposes.
+        /// Gets the DependencyTelemetry objects that are still waiting for a response from the dependency. This will most likely only be used for testing purposes.
         /// </summary>
         internal ConditionalWeakTable<HttpRequestMessage, IOperationHolder<DependencyTelemetry>> PendingDependencyTelemetry => this.pendingTelemetry;
 
@@ -326,6 +328,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;
 
             DependencyTelemetry telemetry = new DependencyTelemetry();
+            telemetry.SetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, request);
 
             // properly fill dependency telemetry operation context: OperationCorrelationTelemetryInitializer initializes child telemetry
             telemetry.Context.Operation.Id = currentActivity.RootId;
@@ -350,6 +353,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             if (response != null)
             {
                 this.ParseResponse(response, telemetry);
+                telemetry.SetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, response);
             }
             else
             {
@@ -362,7 +366,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 telemetry.Success = false;
             }
 
-            this.client.Track(telemetry);
+            this.client.TrackDependency(telemetry);
         }
 
         //// netcoreapp1.1 and prior event. See https://github.com/dotnet/corefx/blob/release/1.0.0-rc2/src/Common/src/System/Net/Http/HttpHandlerDiagnosticListenerExtensions.cs.
@@ -384,6 +388,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 dependency.Telemetry.Target = requestUri.Host;
                 dependency.Telemetry.Type = RemoteDependencyConstants.HTTP;
                 dependency.Telemetry.Data = requestUri.OriginalString;
+                dependency.Telemetry.SetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, request);
                 this.pendingTelemetry.AddIfNotExists(request, dependency);
 
                 this.InjectRequestHeaders(request, dependency.Telemetry.Context.InstrumentationKey, true);
@@ -402,11 +407,16 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerResponse(loggingRequestId);
                 var request = response.RequestMessage;
-                if (request != null && this.pendingTelemetry.TryGetValue(request, out IOperationHolder<DependencyTelemetry> dependency))
+
+                if (this.pendingTelemetry.TryGetValue(request, out IOperationHolder<DependencyTelemetry> dependency))
                 {
-                    this.ParseResponse(response, dependency.Telemetry);
-                    this.client.StopOperation(dependency);
-                    this.pendingTelemetry.Remove(request);
+                    dependency.Telemetry.SetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, response);
+                    if (request != null)
+                    {
+                        this.ParseResponse(response, dependency.Telemetry);
+                        this.client.StopOperation(dependency);
+                        this.pendingTelemetry.Remove(request);
+                    }
                 }
             }
         }
@@ -435,42 +445,48 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         AppMapCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
                     }
 
-                    // Add the root ID
-                    string rootId = currentActivity.RootId;
-                    if (!string.IsNullOrEmpty(rootId) &&
-                        !requestHeaders.Contains(RequestResponseHeaders.StandardRootIdHeader))
+                    if (isLegacyEvent)
                     {
-                        requestHeaders.Add(RequestResponseHeaders.StandardRootIdHeader, rootId);
-                    }
-
-                    // Add the parent ID
-                    string parentId = currentActivity.Id;
-                    if (!string.IsNullOrEmpty(parentId) &&
-                        !requestHeaders.Contains(RequestResponseHeaders.StandardParentIdHeader))
-                    {
-                        requestHeaders.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
-                        if (isLegacyEvent)
+                        if (!requestHeaders.Contains(RequestResponseHeaders.RequestIdHeader))
                         {
-                            requestHeaders.Add(RequestResponseHeaders.RequestIdHeader, parentId);
+                            requestHeaders.Add(RequestResponseHeaders.RequestIdHeader, currentActivity.Id);
+                        }
+
+                        if (!requestHeaders.Contains(RequestResponseHeaders.CorrelationContextHeader))
+                        {
+                            // we expect baggage to be empty or contain a few items
+                            using (IEnumerator<KeyValuePair<string, string>> e = currentActivity.Baggage.GetEnumerator())
+                            {
+                                if (e.MoveNext())
+                                {
+                                    var baggage = new List<string>();
+                                    do
+                                    {
+                                        KeyValuePair<string, string> item = e.Current;
+                                        baggage.Add(new NameValueHeaderValue(item.Key, item.Value).ToString());
+                                    }
+                                    while (e.MoveNext());
+
+                                    requestHeaders.Add(RequestResponseHeaders.CorrelationContextHeader, baggage);
+                                }
+                            }
                         }
                     }
 
-                    if (isLegacyEvent)
+                    if (this.injectLegacyHeaders)
                     {
-                        // we expect baggage to be empty or contain a few items
-                        using (IEnumerator<KeyValuePair<string, string>> e = currentActivity.Baggage.GetEnumerator())
+                        // Add the root ID
+                        string rootId = currentActivity.RootId;
+                        if (!string.IsNullOrEmpty(rootId) && !requestHeaders.Contains(RequestResponseHeaders.StandardRootIdHeader))
                         {
-                            if (e.MoveNext())
-                            {
-                                var baggage = new List<string>();
-                                do
-                                {
-                                    KeyValuePair<string, string> item = e.Current;
-                                    baggage.Add(new NameValueHeaderValue(item.Key, item.Value).ToString());
-                                }
-                                while (e.MoveNext());
-                                request.Headers.Add(RequestResponseHeaders.CorrelationContextHeader, baggage);
-                            }
+                            requestHeaders.Add(RequestResponseHeaders.StandardRootIdHeader, rootId);
+                        }
+
+                        // Add the parent ID
+                        string parentId = currentActivity.Id;
+                        if (!string.IsNullOrEmpty(parentId) && !requestHeaders.Contains(RequestResponseHeaders.StandardParentIdHeader))
+                        {
+                            requestHeaders.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
                         }
                     }
                 }
@@ -563,7 +579,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             this.httpDiagnosticListener,
                             (evnt, r, _) =>
                             {
-                                if (isNetCore20HttpClient)
+                                if (this.isNetCore20HttpClient)
                                 {
                                     if (evnt == HttpExceptionEventName)
                                     {

@@ -1,16 +1,6 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TestUtils.TestConstants;
-using System.IO;
-using System.Diagnostics;
-using System.Threading;
-using System.Net.Http;
 using System.Threading.Tasks;
-using E2ETests.Helpers;
-using AI;
-using Microsoft.ApplicationInsights.DataContracts;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace E2ETests.Net462
 {
@@ -88,6 +78,13 @@ namespace E2ETests.Net462
         public void Test452OnNet462_PostCallHttpDependency()
         {
             base.TestPostCallHttpDependency(VersionPrefix);
+        }
+
+        [TestMethod]
+        [TestCategory("Net452OnNet462")]
+        public async Task Test452OnNet462_HttpDependencyCorrelationInPostRequest()
+        {
+            await base.TestHttpDependencyCorrelationInPostRequest();
         }
 
         [TestMethod]

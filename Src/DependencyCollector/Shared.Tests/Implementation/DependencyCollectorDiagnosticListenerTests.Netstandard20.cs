@@ -36,6 +36,32 @@ namespace Microsoft.ApplicationInsights.Tests
 
             // Request-Id and Correlation-Context are injected by HttpClient
             // check only legacy headers here
+            Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.StandardRootIdHeader));
+            Assert.IsFalse(request.Headers.Contains(RequestResponseHeaders.StandardParentIdHeader));
+            Assert.AreEqual(this.testApplicationId1, GetRequestContextKeyValue(request, RequestResponseHeaders.RequestContextCorrelationSourceKey));
+        }
+
+        /// <summary>
+        /// Tests that OnStartActivity injects headers.
+        /// </summary>
+        [TestMethod]
+        public void OnActivityStartInjectsLegacyHeaders()
+        {
+            var listenerWithLegacyHeaders = new HttpCoreDiagnosticSourceListener(
+                this.configuration,
+                setComponentCorrelationHttpHeaders: true,
+                correlationDomainExclusionList: new[] { "excluded.host.com" },
+                injectLegacyHeaders: true);
+
+            var activity = new Activity("System.Net.Http.HttpRequestOut");
+            activity.AddBaggage("k", "v");
+            activity.Start();
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
+            listenerWithLegacyHeaders.OnActivityStart(request);
+
+            // Request-Id and Correlation-Context are injected by HttpClient
+            // check only legacy headers here
             Assert.AreEqual(activity.RootId, request.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
             Assert.AreEqual(activity.Id, request.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
             Assert.AreEqual(this.testApplicationId1, GetRequestContextKeyValue(request, RequestResponseHeaders.RequestContextCorrelationSourceKey));
@@ -80,6 +106,9 @@ namespace Microsoft.ApplicationInsights.Tests
             string expectedVersion =
                 SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), prefix: "rdddsc:");
             Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
+
+            // Check the operation details
+            this.ValidateOperationDetails(telemetry);
         }
 
         /// <summary>
@@ -100,6 +129,9 @@ namespace Microsoft.ApplicationInsights.Tests
 
             Assert.AreEqual("Canceled", telemetry.ResultCode);
             Assert.AreEqual(false, telemetry.Success);
+
+            // Check the operation details
+            this.ValidateOperationDetails(telemetry, responseExpected: false);
         }
 
         /// <summary>
@@ -120,6 +152,9 @@ namespace Microsoft.ApplicationInsights.Tests
 
             Assert.AreEqual("Faulted", telemetry.ResultCode);
             Assert.AreEqual(false, telemetry.Success);
+
+            // Check the operation details
+            this.ValidateOperationDetails(telemetry, responseExpected: false);
         }
 
         /// <summary>
@@ -146,6 +181,9 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual(exceptionTelemetry.Context.Operation.Id, dependencyTelemetry.Context.Operation.Id);
             Assert.AreEqual(exceptionTelemetry.Context.Operation.ParentId, dependencyTelemetry.Id);
             Assert.AreEqual("The server name or address could not be resolved", dependencyTelemetry.Context.Properties["Error"]);
+
+            // Check the operation details
+            this.ValidateOperationDetails(dependencyTelemetry, responseExpected: false);
         }
 
         /// <summary>
