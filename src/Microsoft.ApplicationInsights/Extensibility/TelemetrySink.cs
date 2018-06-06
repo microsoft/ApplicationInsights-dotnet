@@ -5,6 +5,7 @@
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Represents a destination for telemetry, consisting of a set of telemetry processors and a channel.
@@ -205,10 +206,13 @@
         /// <param name="item">Item to process.</param>
         public void Process(ITelemetry item)
         {
-            if (!this.isDisposed)
+            if (this.isDisposed)
             {
-                this.TelemetryProcessorChain.Process(item);
+                CoreEventSource.Log.TelemetrySinkCalledAfterBeingDisposed();
+                return;
             }
+
+            this.TelemetryProcessorChain.Process(item);
         }
 
         private void EnsureNotDisposed()
