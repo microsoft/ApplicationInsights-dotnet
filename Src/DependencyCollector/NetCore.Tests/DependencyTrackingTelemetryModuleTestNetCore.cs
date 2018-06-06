@@ -264,7 +264,15 @@
             public void Dispose()
             {
                 this.cts.Cancel(false);
-                this.host.Dispose();
+                try
+                {
+                    this.host.Dispose();
+                }
+                catch (Exception)
+                {
+                    // ignored, see https://github.com/aspnet/KestrelHttpServer/issues/1513
+                    // Kestrel 2.0.0 should have fix it, but it does not seem important for our tests
+                }
             }
 
             private class Startup
