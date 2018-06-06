@@ -205,7 +205,10 @@
         /// <param name="item">Item to process.</param>
         public void Process(ITelemetry item)
         {
-            this.TelemetryProcessorChain.Process(item);
+            if (!this.isDisposed)
+            {
+                this.TelemetryProcessorChain.Process(item);
+            }
         }
 
         private void EnsureNotDisposed()
