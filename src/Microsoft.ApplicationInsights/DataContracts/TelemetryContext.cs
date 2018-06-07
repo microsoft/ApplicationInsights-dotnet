@@ -78,7 +78,9 @@
         /// </summary>
         public DeviceContext Device
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(this.Properties)); }
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>

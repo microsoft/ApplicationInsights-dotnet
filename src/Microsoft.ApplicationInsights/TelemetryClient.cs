@@ -475,7 +475,9 @@
             }
 
             // Properties set of TelemetryClient's Context are copied over to that of ITelemetry's Context
+#pragma warning disable CS0618 // Type or member is obsolete
             Utils.CopyDictionary(this.Context.Properties, telemetry.Context.Properties);
+#pragma warning restore CS0618 // Type or member is obsolete
             Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
 
             telemetry.Context.Initialize(this.Context, instrumentationKey);
