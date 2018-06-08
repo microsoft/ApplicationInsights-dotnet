@@ -488,13 +488,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
-#if NET46
+
                 Assert.Equal(6, modules.Count());
                 var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
                 Assert.NotNull(perfCounterModule);
-#else
-                Assert.Equal(5, modules.Count());
-#endif
 
                 var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
                 Assert.NotNull(dependencyModuleDescriptor);
