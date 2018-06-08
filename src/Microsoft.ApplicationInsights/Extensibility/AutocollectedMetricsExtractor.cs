@@ -37,17 +37,18 @@
         /// We have dedicated instance variables to refer to each individual extractors because we are exposing some of their properties to the config subsystem here.
         /// However, for calling common methods for all of them, we also group them together.
         /// </summary>
-        private readonly IEnumerable<ExtractorWithInfo> extractors;
+        private readonly ExtractorWithInfo[] extractors;
 
         /// <summary>
-        /// Gets the metric manager that owns all extracted metric data series.
-        /// The <c>MetricManager</c> allows participating extractors to access the <c>Microsoft.ApplicationInsights.Extensibility.MetricManager</c> instance
-        /// that aggregates all metrics to be extracted. Participants should call
-        /// <see cref="MetricManagerV1.CreateMetric(string, System.Collections.Generic.IDictionary{string, string})"/> on
-        /// this instance for construction of all data series to be extracted from telemetry. This will ensure that all metric documents are
-        /// aggregated and tagged correctly and are processed using the <see cref="TelemetryConfiguration"/> instance used to initialize this extractor.
+        /// The <see cref="TelemetryClient"/> that will be used to send all extracted metrics.
+        /// !!! All participating implementations of <see cref="ISpecificAutocollectedMetricsExtractor" /> must             !!! 
+        /// !!! use <see cref="MetricAggregationScope.TelemetryClient" /> when accessing <see cref="Metric" /> for          !!! 
+        /// !!! extracted metrics, and NOT the default (which is <c>MetricAggregationScope.TelemetryConfiguration</c>).         !!! 
+        /// !!! This will make sure that this specific instance of <c>TelemetryClient</c> is used and its Context is respected. !!! 
+        /// The above is required to ensure that all metric documents are tagged correctly and are processed using the particular 
+        /// <see cref="TelemetryConfiguration"/> instance used to initialize this extractor.
         /// </summary>
-        private MetricManagerV1 metricManager = null;
+        private TelemetryClient metricTelemetryClient = null;
 
         /// <summary>
         /// The telemetry processor that will be called after this processor.
@@ -104,17 +105,16 @@
         /// <param name="configuration">The telemetric configuration to be used by this extractor.</param>
         public void Initialize(TelemetryConfiguration configuration)
         {
-            TelemetryClient telemetryClient = (configuration == null)
+            TelemetryClient metricsClient = (configuration == null)
                                                     ? new TelemetryClient()
                                                     : new TelemetryClient(configuration);
 
-            if (!string.IsNullOrWhiteSpace(MetricTerms.Autocollection.Moniker.Key))
+            if (false == String.IsNullOrWhiteSpace(MetricTerms.Autocollection.Moniker.Key))
             {
-                telemetryClient.Context.Properties[MetricTerms.Autocollection.Moniker.Key] = MetricTerms.Autocollection.Moniker.Value;
+                metricsClient.Context.Properties[MetricTerms.Autocollection.Moniker.Key] = MetricTerms.Autocollection.Moniker.Value;
             }
 
-            this.metricManager = new MetricManagerV1(telemetryClient);
-            this.InitializeExtractors();
+            this.InitializeExtractors(metricsClient);
         }
 
         /// <summary>
@@ -136,14 +136,14 @@
         /// <summary>
         /// Disposes this telemetry extractor.
         /// </summary>
+        /// <remarks>This class is sealed. The pattern "private void Dispose(bool disposing)" is not applicable.</remarks>
         public void Dispose()
         {
-            IDisposable metricMgr = this.metricManager;
-            if (metricMgr != null)
+            TelemetryClient metricsClient = this.metricTelemetryClient;
+            if (metricsClient != null)
             {
-                // benign race
-                metricMgr.Dispose();
-                this.metricManager = null;
+                metricsClient.Flush();
+                this.InitializeExtractors(metricsClient: null);
             }
         }
 
@@ -175,7 +175,7 @@
                 extractorVersion = "unknown";
             }
 
-            string extractorInfo = string.Format(
+            string extractorInfo = String.Format(
                                         CultureInfo.InvariantCulture,
                                         MetricTerms.Extraction.ProcessedByExtractors.Moniker.ExtractorInfoTemplate,
                                         extractorName,
@@ -195,9 +195,9 @@
             string extractionPipelineInfo;
             bool hasPrevInfo = item.Context.Properties.TryGetValue(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key, out extractionPipelineInfo);
 
-            if (!hasPrevInfo)
+            if (false == hasPrevInfo)
             {
-                extractionPipelineInfo = string.Empty;
+                extractionPipelineInfo = String.Empty;
             }
             else
             {
@@ -214,45 +214,40 @@
         /// <summary>
         /// Calls all participating extractors to initialize themselves.
         /// </summary>
-        private void InitializeExtractors()
+        private void InitializeExtractors(TelemetryClient metricsClient)
         {
-            MetricManagerV1 thisMetricManager = this.metricManager;
+            this.metricTelemetryClient = metricsClient;
 
-            foreach (ExtractorWithInfo participant in this.extractors)
+            for (int e = 0; e < this.extractors.Length; e++)
             {
                 try
                 {
-                    participant.Extractor.InitializeExtractor(thisMetricManager);
+                    this.extractors[e].Extractor.InitializeExtractor(metricsClient);
                 }
                 catch (Exception ex)
                 {
-                    CoreEventSource.Log.LogError("Error in " + participant.Info + ": " + ex.ToString());
+                    CoreEventSource.Log.LogError("Initialization error in " + this.extractors[e].Info + ": " + ex.ToString());
                 }
             }
         }
 
         /// <summary>
-        /// Calls the <see cref="ISpecificAutocollectedMetricsExtractor.ExtractMetrics(ITelemetry, out bool)"/> of each participating extractor for the specified item.
+        /// Calls the <see cref="ISpecificAutocollectedMetricsExtractor.ExtractMetrics(ITelemetry, out Boolean)"/> of each participating extractor for the specified item.
         /// Catches and logs all errors.
         /// If <c>isItemProcessed</c> is True, adds a corresponding marker to the item's properties.
         /// </summary>
         /// <param name="fromItem">The item from which to extract metrics.</param>
         private void ExtractMetrics(ITelemetry fromItem)
         {
-            //// Workaround: There is a suspected but unconfirmed issue around Extractor performance with telemetry from which no metrics need to be extracted.
-            //// Putting this IF as a temporary workaround until this can be investigated. 
-            if (!((fromItem is RequestTelemetry) || (fromItem is DependencyTelemetry)))
+            ISupportSampling potentiallySampledItem = fromItem as ISupportSampling;
+            if (potentiallySampledItem != null && false == this.EnsureItemNotSampled(potentiallySampledItem))
             {
                 return;
             }
 
-            if (!this.EnsureItemNotSampled(fromItem))
+            for (int e = 0; e < this.extractors.Length; e++)
             {
-                return;
-            }
-
-            foreach (ExtractorWithInfo participant in this.extractors)
-            {
+                ExtractorWithInfo participant = this.extractors[e];
                 try
                 {
                     bool isItemProcessed;
@@ -265,20 +260,18 @@
                 }
                 catch (Exception ex)
                 {
-                    CoreEventSource.Log.LogError("Error in " + participant.Extractor.GetType().Name + ": " + ex.ToString());
+                    CoreEventSource.Log.LogError("Extraction error in " + participant.Extractor.GetType().Name + ": " + ex.ToString());
                 }
             }
         }
 
-        private bool EnsureItemNotSampled(ITelemetry item)
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private bool EnsureItemNotSampled(ISupportSampling item)
         {
-            ISupportSampling potentiallySampledItem = item as ISupportSampling;
-
-            if (potentiallySampledItem != null
-                    && potentiallySampledItem.SamplingPercentage.HasValue
-                    && potentiallySampledItem.SamplingPercentage.Value < (100.0 - 1.0E-12))
+            if (item.SamplingPercentage.HasValue
+                    && item.SamplingPercentage.Value < (100.0 - 1.0E-12))
             {
-                if (!this.isMetricExtractorAfterSamplingLogged)  
+                if (false == this.isMetricExtractorAfterSamplingLogged)
                 {
                     //// benign race
                     this.isMetricExtractorAfterSamplingLogged = true;
