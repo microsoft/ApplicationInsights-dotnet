@@ -117,9 +117,14 @@
         /// <summary>@ToDo: Complete documentation before stable release. {134}</summary>
         public void Flush()
         {
+            this.Flush(flushDownstreamPipeline: true);
+        }
+
+        internal void Flush(bool flushDownstreamPipeline)
+        {
             DateTimeOffset now = DateTimeOffset.Now;
             AggregationPeriodSummary aggregates = this.aggregationManager.StartOrCycleAggregators(MetricAggregationCycleKind.Default, futureFilter: null, tactTimestamp: now);
-            this.TrackMetricAggregates(aggregates, flush: true);
+            this.TrackMetricAggregates(aggregates, flushDownstreamPipeline);
         }
 
         internal void TrackMetricAggregates(AggregationPeriodSummary aggregates, bool flush)
