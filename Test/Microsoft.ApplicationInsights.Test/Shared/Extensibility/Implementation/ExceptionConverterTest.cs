@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.ApplicationInsights.TestFramework;
-
+    using Moq;
 
     /// <summary>
     /// Tests of exception stack serialization.
@@ -59,6 +59,29 @@
             // We should keep top of stack, and end of stack hence CreateException function should be present
             Assert.AreEqual("Microsoft.ApplicationInsights.Extensibility.Implementation.ExceptionConverterTest.FailedFunction", expDetails.parsedStack[0].method);
             Assert.AreEqual("Microsoft.ApplicationInsights.Extensibility.Implementation.ExceptionConverterTest.CreateException", expDetails.parsedStack[expDetails.parsedStack.Count - 1].method);
+        }
+
+        [TestMethod]
+        public void TestNullMethodInfoInStack()
+        {
+            var frameMock = new Mock<System.Diagnostics.StackFrame>(null, 0, 0);
+            frameMock.Setup(x => x.GetMethod()).Returns((MethodBase)null);
+
+            External.StackFrame stackFrame = null;
+
+            try
+            {
+                stackFrame = ExceptionConverter.GetStackFrame(frameMock.Object, 0);
+            }
+            catch (Exception e)
+            {
+                Assert.Fail("GetStackFrame threw " + e);
+            }
+
+            Assert.AreEqual("unknown", stackFrame.assembly);
+            Assert.AreEqual(null, stackFrame.fileName);
+            Assert.AreEqual("unknown", stackFrame.method);
+            Assert.AreEqual(0, stackFrame.line);
         }
 
 #if !NETCOREAPP1_1

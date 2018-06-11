@@ -151,17 +151,18 @@
                 const int spikeProductionFrequencyMs = 3000;
 
                 using (var regularProductionTimer = new Timer(
-                            (state) =>
-                            {
-                                for (int i = 0; i < 2; i++)
-                                {
-                                    tc.TelemetryProcessorChain.Process(new RequestTelemetry());
-                                    Interlocked.Increment(ref itemsProduced);
-                                }
-                            },
-                            null,
-                            0,
-                            regularProductionFrequencyMs))
+                    (state) =>
+                    {
+                        for (int i = 0; i < 2; i++)
+                        {
+                            tc.TelemetryProcessorChain.Process(new RequestTelemetry());
+                            Interlocked.Increment(ref itemsProduced);
+                        }
+                    },
+                    null,
+                    0,
+                    regularProductionFrequencyMs))
+
                 using (var spikeProductionTimer = new Timer(
                             (state) =>
                             {
@@ -176,6 +177,8 @@
                             spikeProductionFrequencyMs))
                 {
                     Thread.Sleep(30000);
+                    spikeProductionTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                    Thread.Sleep(1000);
                 }
             }
 
