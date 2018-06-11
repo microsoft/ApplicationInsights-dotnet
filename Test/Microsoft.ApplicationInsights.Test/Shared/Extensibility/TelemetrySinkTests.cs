@@ -284,6 +284,16 @@
             Assert.IsTrue(secondSinkTelemetryProcessorDisposed);
             Assert.IsFalse(firstChannelDisposed);
             Assert.IsFalse(secondChannelDisposed);
+
+            // does not throw
+            try
+            {
+                client.TrackTrace("t2");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.ToString());
+            }
         }
     }
 }
