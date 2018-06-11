@@ -110,7 +110,7 @@
 
             if (!string.IsNullOrWhiteSpace(MetricTerms.Autocollection.Moniker.Key))
             {
-                telemetryClient.Context.Properties[MetricTerms.Autocollection.Moniker.Key] = MetricTerms.Autocollection.Moniker.Value;
+                telemetryClient.Context.GlobalProperties[MetricTerms.Autocollection.Moniker.Key] = MetricTerms.Autocollection.Moniker.Value;
             }
 
             this.metricManager = new MetricManagerV1(telemetryClient);
@@ -193,7 +193,7 @@
         private static void AddExtractorInfo(ITelemetry item, string extractorInfo)
         {
             string extractionPipelineInfo;
-            bool hasPrevInfo = item.Context.Properties.TryGetValue(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key, out extractionPipelineInfo);
+            bool hasPrevInfo = item.Context.GlobalProperties.TryGetValue(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key, out extractionPipelineInfo);
 
             if (!hasPrevInfo)
             {
@@ -208,7 +208,7 @@
             }
 
             extractionPipelineInfo = extractionPipelineInfo + extractorInfo;
-            item.Context.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = extractionPipelineInfo;
+            item.Context.GlobalProperties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = extractionPipelineInfo;
         }
 
         /// <summary>
