@@ -16,6 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.WindowsServer;    
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
@@ -25,11 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.Extensions.Configuration.Memory;
     using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Options;
-
-#if NET451 || NET46
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
-#endif
-
+    
     /// <summary>
     /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.
     /// </summary>
@@ -163,9 +160,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     includedActivities.Add("Microsoft.Azure.ServiceBus");
                 });
 
-#if NET451 || NET46
                 services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
-#endif
                 services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
                 services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();
                 services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
