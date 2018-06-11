@@ -1,20 +1,20 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics
 {
     using System;
-    using System.Collections.Generic;
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
+    using Microsoft.ApplicationInsights.Metrics;
 
     /// <summary>
     /// An instance of this class is contained within the <see cref="AutocollectedMetricsExtractor"/> telemetry processor.
-    /// It extracts auto-collected, pre-aggregated (aka. "standard") metrics from RequestTelemetry objects which represent invocations of the monitored service.
+    /// It extracts auto-collected, pre-aggregated (aka. "standard") metrics from RequestTelemetry objects which represent
+    /// invocations of the monitored service.
     /// </summary>
     internal class RequestMetricsExtractor : ISpecificAutocollectedMetricsExtractor
     {
-        private MetricV1 responseSuccessTimeMetric;
-        private MetricV1 responseFailureTimeMetric;
+        private MetricSeries responseTimeSuccessSeries;
+        private MetricSeries responseTimeFailureSeries;
 
         public RequestMetricsExtractor()
         {
@@ -22,25 +22,27 @@
 
         public string ExtractorName { get; } = "Requests";
 
-        public string ExtractorVersion { get; } = "1.0";
+        public string ExtractorVersion { get; } = "1.1";
 
-        public void InitializeExtractor(MetricManagerV1 metricManager)
+        public void InitializeExtractor(TelemetryClient metricTelemetryClient)
         {
-            this.responseSuccessTimeMetric = metricManager.CreateMetric(
-                    MetricTerms.Autocollection.Metric.RequestDuration.Name,
-                    new Dictionary<string, string>()
-                    {
-                        [MetricTerms.Autocollection.Request.PropertyNames.Success] = Boolean.TrueString,
-                        [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.RequestDuration.Id,
-                    });
+            if (metricTelemetryClient == null)
+            {
+                this.responseTimeSuccessSeries = null;
+                this.responseTimeFailureSeries = null;
+            }
+            else
+            {
+                Metric responseTimeMetric = metricTelemetryClient.GetMetric(
+                                                    MetricTerms.Autocollection.Metric.RequestDuration.Name,
+                                                    MetricTerms.Autocollection.Request.PropertyNames.Success,
+                                                    MetricTerms.Autocollection.MetricId.Moniker.Key,
+                                                    MetricConfigurations.Common.Measurement(),
+                                                    MetricAggregationScope.TelemetryClient);
 
-            this.responseFailureTimeMetric = metricManager.CreateMetric(
-                    MetricTerms.Autocollection.Metric.RequestDuration.Name,
-                    new Dictionary<string, string>()
-                    {
-                        [MetricTerms.Autocollection.Request.PropertyNames.Success] = Boolean.FalseString,
-                        [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.RequestDuration.Id,
-                    });
+                responseTimeMetric.TryGetDataSeries(out this.responseTimeSuccessSeries, Boolean.TrueString, MetricTerms.Autocollection.Metric.RequestDuration.Id);
+                responseTimeMetric.TryGetDataSeries(out this.responseTimeFailureSeries, Boolean.FalseString, MetricTerms.Autocollection.Metric.RequestDuration.Id);
+            }
         }
 
         public void ExtractMetrics(ITelemetry fromItem, out bool isItemProcessed)
@@ -56,14 +58,14 @@
                                 ? (request.Success.Value == false)
                                 : false;
 
-            MetricV1 metric = isFailed
-                                ? this.responseFailureTimeMetric
-                                : this.responseSuccessTimeMetric;
+            MetricSeries metricSeries = isFailed
+                                ? this.responseTimeFailureSeries
+                                : this.responseTimeSuccessSeries;
 
-            if (metric != null)
+            if (metricSeries != null)
             {
                 isItemProcessed = true;
-                metric.Track(request.Duration.TotalMilliseconds);
+                metricSeries.TrackValue(request.Duration.TotalMilliseconds);
             }
             else
             {
