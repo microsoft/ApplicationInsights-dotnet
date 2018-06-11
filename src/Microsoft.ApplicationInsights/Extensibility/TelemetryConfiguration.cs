@@ -32,7 +32,6 @@
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
         private TelemetryProcessorChainBuilder builder;
-        private SnapshottingList<IMetricProcessorV1> metricProcessors = new SnapshottingList<IMetricProcessorV1>();
         private MetricManager metricManager = null;
 
         /// <summary>
@@ -246,42 +245,6 @@
         public TelemetrySink DefaultTelemetrySink => this.telemetrySinks.DefaultSink;
 
         /// <summary>
-        /// Gets the list of <see cref="IMetricProcessorV1"/> objects used for custom metric data processing        
-        /// before client-side metric aggregation process.
-        /// </summary>
-        internal IList<IMetricProcessorV1> MetricProcessors
-        {
-            get { return this.metricProcessors; }
-        }
-
-        internal MetricManager MetricManager
-        {
-            get
-            {
-                MetricManager manager = this.metricManager;
-                if (manager == null)
-                {
-                    var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(this);
-                    MetricManager newManager = new MetricManager(pipelineAdapter);
-                    MetricManager prevManager = Interlocked.CompareExchange(ref this.metricManager, newManager, null);
-
-                    if (prevManager == null)
-                    {
-                        manager = newManager;
-                    }
-                    else
-                    {
-                        // We just created a new manager that we are not using. Stop is before discarding.
-                        Task fireAndForget = newManager.StopDefaultAggregationCycleAsync();
-                        manager = prevManager;
-                    }
-                }
-
-                return manager;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the chain of processors.
         /// </summary>
         internal TelemetryProcessorChain TelemetryProcessorChain
@@ -346,6 +309,30 @@
             GC.SuppressFinalize(this);
         }
 
+        internal MetricManager GetMetricManager(bool createIfNotExists)
+        {
+            MetricManager manager = this.metricManager;
+            if (manager == null && createIfNotExists)
+            {
+                var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(this);
+                MetricManager newManager = new MetricManager(pipelineAdapter);
+                MetricManager prevManager = Interlocked.CompareExchange(ref this.metricManager, newManager, null);
+
+                if (prevManager == null)
+                {
+                    manager = newManager;
+                }
+                else
+                {
+                    // We just created a new manager that we are not using. Stop is before discarding.
+                    Task fireAndForget = newManager.StopDefaultAggregationCycleAsync();
+                    manager = prevManager;
+                }
+            }
+
+            return manager;
+        }
+
         /// <summary>
         /// Disposes of resources.
         /// </summary>
@@ -356,6 +343,11 @@
             {
                 this.isDisposed = true;
                 Interlocked.CompareExchange(ref active, null, this);
+
+                // I think we should be flushing this.telemetrySinks.DefaultSink.TelemetryChannel at this point.
+                // Filed https://github.com/Microsoft/ApplicationInsights-dotnet/issues/823 to track.
+                // For now just flushing the metrics:
+                this.metricManager?.Flush();
 
                 if (this.telemetryProcessorChain != null)
                 {
@@ -371,14 +363,6 @@
                         this.telemetrySinks.Remove(sink);
                     }
                 }
-            }
-        }
-
-        private void EnsureNotDisposed()
-        {
-            if (this.isDisposed)
-            {
-                throw new ObjectDisposedException(nameof(TelemetryConfiguration));
             }
         }
     }
