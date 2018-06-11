@@ -54,6 +54,25 @@
             }
         }
 
+        [TestMethod]
+        public void TrackDoesNotThrowIfConfigurationIsDisposed()
+        {
+            var channel = new InMemoryChannel();
+            var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
+            var client = new TelemetryClient(configuration);
+
+            configuration.Dispose();
+
+            try
+            {
+                client.TrackTrace("trace");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.ToString());
+            }
+        }
+
         #region TrackEvent
 
         [TestMethod]
