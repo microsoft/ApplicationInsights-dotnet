@@ -42,17 +42,28 @@
 
             var methodInfo = stackFrame.GetMethod();
             string fullName;
-            if (methodInfo.DeclaringType != null)
+            string assemblyName;
+
+            if (methodInfo == null)
             {
-                fullName = methodInfo.DeclaringType.FullName + "." + methodInfo.Name;
+                fullName = "unknown";
+                assemblyName = "unknown";
             }
             else
             {
-                fullName = methodInfo.Name;
+                assemblyName = methodInfo.Module.Assembly.FullName;
+                if (methodInfo.DeclaringType != null)
+                {
+                    fullName = methodInfo.DeclaringType.FullName + "." + methodInfo.Name;
+                }
+                else
+                {
+                    fullName = methodInfo.Name;
+                }
             }
 
             convertedStackFrame.method = fullName;
-            convertedStackFrame.assembly = methodInfo.Module.Assembly.FullName;
+            convertedStackFrame.assembly = assemblyName;
             convertedStackFrame.fileName = stackFrame.GetFileName();
 
             // 0 means it is unavailable

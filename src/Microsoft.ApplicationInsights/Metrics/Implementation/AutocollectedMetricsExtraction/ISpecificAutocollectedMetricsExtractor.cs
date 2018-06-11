@@ -24,8 +24,8 @@
         /// <summary>
         /// Pre-initialize this extractor.
         /// </summary>
-        /// <param name="metricManager">The manager to be used for aggregation.</param>
-        void InitializeExtractor(MetricManagerV1 metricManager);
+        /// <param name="metricTelemetryClient">The <c>TelemetryClient</c> to be used for sending extracted metrics.</param>
+        void InitializeExtractor(TelemetryClient metricTelemetryClient);
 
         /// <summary>
         /// Perform actual metric data point extraction from the specified item.
