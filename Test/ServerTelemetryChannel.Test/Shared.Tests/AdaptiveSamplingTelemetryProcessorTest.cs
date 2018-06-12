@@ -99,6 +99,8 @@
                             productionFrequencyMs))
                 {
                     Thread.Sleep(25000);
+                    productionTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                    Thread.Sleep(1000);
                 }
             }
 
