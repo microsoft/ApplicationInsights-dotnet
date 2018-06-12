@@ -13,9 +13,9 @@
         public Action<object> OnSendEvent = eventSourceWriter => { };
 
         public StubTelemetry()
-        {
-            this.Context = new TelemetryContext();
+        {            
             this.Properties = new Dictionary<string, string>();
+            this.Context = new TelemetryContext(this.Properties);
         }
 
         public DateTimeOffset Timestamp { get; set; }

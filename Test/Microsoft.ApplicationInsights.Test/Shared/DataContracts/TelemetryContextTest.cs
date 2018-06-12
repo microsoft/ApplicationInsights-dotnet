@@ -9,6 +9,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.ApplicationInsights.TestFramework;
+    using System.Collections.Generic;
 
     [TestClass]
     public class TelemetryContextTest
@@ -173,6 +174,24 @@
             context.Session.Id = "Test Value";
             string json = CopyAndSerialize(context);
             AssertEx.Contains("\"" + ContextTagKeys.Keys.SessionId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [TestMethod]
+        public void TestSanitizeGlobalProperties()
+        {
+            var addedKeyWithSizeAboveLimit = new string('K', Property.MaxDictionaryNameLength + 1);
+            var addedValueWithSizeAboveLimit = new string('V', Property.MaxValueLength + 1);
+
+            var expectedKeyWithSizeWithinLimit = new string('K', Property.MaxDictionaryNameLength);
+            var expectedValueWithSizeWithinLimit = new string('V', Property.MaxValueLength);
+
+            var context = new TelemetryContext();
+            context.GlobalProperties.Add(addedKeyWithSizeAboveLimit, addedValueWithSizeAboveLimit);
+            context.SanitizeGlobalProperties();
+
+            Assert.IsTrue(context.GlobalProperties.ContainsKey(expectedKeyWithSizeWithinLimit));
+            var value = context.GlobalProperties[expectedKeyWithSizeWithinLimit];
+            Assert.AreEqual(expectedValueWithSizeWithinLimit, value);
         }
 
         private static string CopyAndSerialize(TelemetryContext source)

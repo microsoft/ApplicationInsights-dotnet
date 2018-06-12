@@ -916,12 +916,14 @@
             var configuration = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
             var client = new TelemetryClient(configuration);
             client.Context.Properties["TestProperty"] = "TestValue";
+            client.Context.GlobalProperties["TestGlobalProperty"] = "TestGlobalValue";
             client.Context.InstrumentationKey = "Test Key";
 
             var telemetry = new StubTelemetry();
             client.Track(telemetry);
 
-            AssertEx.AreEqual(client.Context.Properties.ToArray(), telemetry.Properties.ToArray());
+            AssertEx.AreEqual(client.Context.Properties.ToArray(), telemetry.Context.Properties.ToArray());
+            AssertEx.AreEqual(client.Context.GlobalProperties.ToArray(), telemetry.Context.GlobalProperties.ToArray());
         }
 
         [TestMethod]
@@ -930,6 +932,7 @@
             var configuration = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
             var client = new TelemetryClient(configuration);
             client.Context.Properties["TestProperty"] = "ClientValue";
+            client.Context.GlobalProperties["TestProperty"] = "ClientValue";
             client.Context.InstrumentationKey = "Test Key";
 
             var telemetry = new StubTelemetry { Properties = { { "TestProperty", "TelemetryValue" } } };
@@ -942,20 +945,29 @@
         public void TrackCopiesPropertiesFromClientToTelemetryBeforeInvokingInitializersBecauseExplicitlySetValuesTakePrecedence()
         {
             const string PropertyName = "TestProperty";
+            const string PropertyNameGlobal = "TestGlobalProperty";
 
             string valueInInitializer = null;
+            string globalValueInInitializer = null;
             var initializer = new StubTelemetryInitializer();
-            initializer.OnInitialize = telemetry => valueInInitializer = ((ISupportProperties)telemetry).Properties[PropertyName];
+            initializer.OnInitialize =
+                (telemetry) =>
+                {
+                    valueInInitializer = ((ISupportProperties)telemetry).Properties[PropertyName];
+                    globalValueInInitializer = ((ISupportProperties)telemetry).Properties[PropertyNameGlobal];
+                };
 
             var configuration = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel()) { TelemetryInitializers = { initializer } };
 
             var client = new TelemetryClient(configuration);
             client.Context.Properties[PropertyName] = "ClientValue";
+            client.Context.Properties[PropertyNameGlobal] = "ClientValue";
             client.Context.InstrumentationKey = "Test Key";
 
             client.Track(new StubTelemetry());
 
             Assert.AreEqual(client.Context.Properties[PropertyName], valueInInitializer);
+            Assert.AreEqual(client.Context.Properties[PropertyNameGlobal], globalValueInInitializer);
         }
 
 #if !NETCOREAPP1_1
