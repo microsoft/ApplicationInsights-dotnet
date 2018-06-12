@@ -4,6 +4,7 @@
     using Implementation;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
 
 #if NET45
     /// <summary>
@@ -23,7 +24,7 @@
         public void Initialize(ITelemetry telemetryItem)
         {
             var itemContext = telemetryItem.Context.Operation;
-
+            var telemetryProp = telemetryItem as ISupportProperties;
             bool isActivityAvailable = false;
             isActivityAvailable = ActivityExtensions.TryRun(() =>
             { 
@@ -40,10 +41,10 @@
                         }
 
                         foreach (var baggage in currentActivity.Baggage)
-                        {
-                            if (!telemetryItem.Context.Properties.ContainsKey(baggage.Key))
+                        {                            
+                            if (telemetryProp != null && telemetryProp.Properties.ContainsKey(baggage.Key))
                             {
-                                telemetryItem.Context.Properties.Add(baggage);
+                                telemetryProp.Properties.Add(baggage);
                             }
                         }
                     }
@@ -85,10 +86,10 @@
                         if (parentContext.CorrelationContext != null)
                         {
                             foreach (var item in parentContext.CorrelationContext)
-                            {
-                                if (!telemetryItem.Context.Properties.ContainsKey(item.Key))
+                            {                                
+                                if (telemetryProp != null && telemetryProp.Properties.ContainsKey(item.Key))
                                 {
-                                    telemetryItem.Context.Properties.Add(item);
+                                    telemetryProp.Properties.Add(item);
                                 }
                             }
                         }
