@@ -19,7 +19,7 @@
             original.CounterName = null;
             original.InstanceName = null;
             ((ITelemetry)original).Sanitize();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PerformanceCounterTelemetry, AI.MetricData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MetricData>(original);
 
             Assert.AreEqual(2, item.data.baseData.ver);
         }

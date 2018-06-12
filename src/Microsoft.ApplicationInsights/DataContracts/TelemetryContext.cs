@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -15,6 +16,7 @@
     public sealed class TelemetryContext
     {
         private readonly IDictionary<string, string> properties;
+        private readonly IDictionary<string, string> globalProperties;
 
         private string instrumentationKey;
 
@@ -31,14 +33,21 @@
         /// Initializes a new instance of the <see cref="TelemetryContext"/> class.
         /// </summary>
         public TelemetryContext()
-            : this(new ConcurrentDictionary<string, string>())
+            : this(new ConcurrentDictionary<string, string>(), new ConcurrentDictionary<string, string>())
         {
         }
 
         internal TelemetryContext(IDictionary<string, string> properties)
+            : this(properties, new ConcurrentDictionary<string, string>())
+        {            
+        }
+
+        internal TelemetryContext(IDictionary<string, string> properties, IDictionary<string, string> globalProperties)
         {
             Debug.Assert(properties != null, "properties");
+            Debug.Assert(properties != null, "globalProperties");
             this.properties = properties;
+            this.globalProperties = globalProperties;
         }
 
         /// <summary>
@@ -69,7 +78,9 @@
         /// </summary>
         public DeviceContext Device
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(this.Properties)); }
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>
@@ -117,9 +128,20 @@
         /// Gets a dictionary of application-defined property values.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
+        [Obsolete("Use GlobalProperties to set global level properties. For properties at item level, use ISupportProperties.Properties.")]
         public IDictionary<string, string> Properties
         {
             get { return this.properties; }
+        }
+
+        /// <summary>
+        /// Gets a dictionary of application-defined property values which are global in scope.
+        /// Future SDK versions could serialize this separately from the item level properties.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
+        /// </summary>
+        internal IDictionary<string, string> GlobalProperties
+        {
+            get { return this.globalProperties; }
         }
 
         internal InternalContext Internal => this.internalContext;
@@ -144,10 +166,16 @@
             }
         }
 
+        internal void SanitizeGlobalProperties()
+        {
+           this.globalProperties.SanitizeProperties();
+        }
+
         internal TelemetryContext DeepClone(IDictionary<string, string> properties)
         {
             Debug.Assert(properties != null, "properties parameter should not be null");
             var other = new TelemetryContext(properties);
+            Utils.CopyDictionary(this.globalProperties, other.globalProperties);
             other.InstrumentationKey = this.InstrumentationKey;
             return other;
         }

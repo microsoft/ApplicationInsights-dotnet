@@ -104,7 +104,7 @@
 
             if (properties != null && properties.Count > 0)
             {
-                Utils.CopyDictionary(properties, telemetry.Context.Properties);
+                Utils.CopyDictionary(properties, telemetry.Properties);
             }
 
             if (metrics != null && metrics.Count > 0)
@@ -172,7 +172,7 @@
 
             if (properties != null && properties.Count > 0)
             {
-                Utils.CopyDictionary(properties, telemetry.Context.Properties);
+                Utils.CopyDictionary(properties, telemetry.Properties);
             }
 
             this.TrackTrace(telemetry);
@@ -193,7 +193,7 @@
 
             if (properties != null && properties.Count > 0)
             {
-                Utils.CopyDictionary(properties, telemetry.Context.Properties);
+                Utils.CopyDictionary(properties, telemetry.Properties);
             }
 
             this.TrackTrace(telemetry);
@@ -276,7 +276,7 @@
 
             if (properties != null && properties.Count > 0)
             {
-                Utils.CopyDictionary(properties, telemetry.Context.Properties);
+                Utils.CopyDictionary(properties, telemetry.Properties);
             }
 
             if (metrics != null && metrics.Count > 0)
@@ -399,7 +399,7 @@
 
             if (properties != null && properties.Count > 0)
             {
-                Utils.CopyDictionary(properties, availabilityTelemetry.Context.Properties);
+                Utils.CopyDictionary(properties, availabilityTelemetry.Properties);
             }
 
             if (metrics != null && metrics.Count > 0)
@@ -471,10 +471,14 @@
                     {
                         telemetryWithProperties.Properties.Add("DeveloperMode", "true");
                     }
-                }
-
-                Utils.CopyDictionary(this.Context.Properties, telemetryWithProperties.Properties);
+                }                
             }
+
+            // Properties set of TelemetryClient's Context are copied over to that of ITelemetry's Context
+#pragma warning disable CS0618 // Type or member is obsolete
+            Utils.CopyDictionary(this.Context.Properties, telemetry.Context.Properties);
+#pragma warning restore CS0618 // Type or member is obsolete
+            Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
 
             telemetry.Context.Initialize(this.Context, instrumentationKey);
             foreach (ITelemetryInitializer initializer in this.configuration.TelemetryInitializers)

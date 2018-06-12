@@ -275,6 +275,8 @@
                     listener.EnableEvents(RichPayloadEventSource.Log.EventSourceInternal, EventLevel.Verbose, keywords);
 
                     item.Context.Properties.Add("property1", "value1");
+                    (item as ISupportProperties)?.Properties.Add("itemprop1","itemvalue1");
+                    item.Context.GlobalProperties.Add("globalproperty1", "globalvalue1");
                     item.Context.User.Id = "testUserId";
                     item.Context.Operation.Id = Guid.NewGuid().ToString();
 
@@ -310,6 +312,25 @@
 
                     Assert.AreEqual(2, keysFound);
                     Assert.IsNotNull(actualEvent.Payload[2]);
+
+                    if(item is ISupportProperties)
+                    {
+                        object[] properties = (object[])((IDictionary<string, object>)actualEvent.Payload[2])["properties"];                        
+                        if(!(item is PerformanceCounterTelemetry))
+                        {
+                            // There should be 3 entries in properties
+                            // 1. from item's ISupportProperties.Properties
+                            // 2. from item context.GlobalProperties
+                            // 3. from item context.Properties                            
+                            Assert.AreEqual(3, properties.Length);                                                        
+                        }
+                        else
+                        {
+                            // There should be 4 entries in properties                            
+                            // 4. PerfCounter name is a custom property.
+                            Assert.AreEqual(4, properties.Length);
+                        }
+                    }
 
                     var expectedProperties = dataType.GetProperties().AsEnumerable();
                     var actualPropertiesPayload = (IDictionary<string, object>)actualEvent.Payload[2];
