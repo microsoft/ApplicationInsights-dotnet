@@ -122,8 +122,8 @@
             Assert.IsTrue(telemetry.Context.Operation.ParentId.StartsWith("|activityRoot."));
 
             Assert.AreEqual("operation", telemetry.Context.Operation.Name);
-            Assert.AreEqual(1, telemetry.Context.Properties.Count);
-            Assert.AreEqual("v1", telemetry.Context.Properties["k1"]);
+            Assert.AreEqual(1, telemetry.Properties.Count);
+            Assert.AreEqual("v1", telemetry.Properties["k1"]);
             currentActivity.Stop();
         }
 
@@ -145,7 +145,7 @@
             Assert.AreEqual("rootId", telemetry.Context.Operation.Id);
             Assert.IsNull(telemetry.Context.Operation.ParentId);
             Assert.AreEqual("operation", telemetry.Context.Operation.Name);
-            Assert.AreEqual(0, telemetry.Context.Properties.Count);
+            Assert.AreEqual(0, telemetry.Properties.Count);
             currentActivity.Stop();
         }
 
@@ -166,8 +166,8 @@
             Assert.AreEqual("activityRoot", telemetry.Context.Operation.Id);
             Assert.AreEqual("parentId", telemetry.Context.Operation.ParentId);
             Assert.AreEqual("operation", telemetry.Context.Operation.Name);
-            Assert.AreEqual(1, telemetry.Context.Properties.Count);
-            Assert.AreEqual("v1", telemetry.Context.Properties["k1"]);
+            Assert.AreEqual(1, telemetry.Properties.Count);
+            Assert.AreEqual("v1", telemetry.Properties["k1"]);
             currentActivity.Stop();
         }
     }
