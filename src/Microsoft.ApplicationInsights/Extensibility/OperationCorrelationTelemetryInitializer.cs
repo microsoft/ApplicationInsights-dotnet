@@ -41,7 +41,7 @@
                         }
 
                         foreach (var baggage in currentActivity.Baggage)
-                        {                            
+                        {
                             if (telemetryProp != null && !telemetryProp.Properties.ContainsKey(baggage.Key))
                             {
                                 telemetryProp.Properties.Add(baggage);
@@ -86,7 +86,7 @@
                         if (parentContext.CorrelationContext != null)
                         {
                             foreach (var item in parentContext.CorrelationContext)
-                            {                                
+                            {
                                 if (telemetryProp != null && !telemetryProp.Properties.ContainsKey(item.Key))
                                 {
                                     telemetryProp.Properties.Add(item);
