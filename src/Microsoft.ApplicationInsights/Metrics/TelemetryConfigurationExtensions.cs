@@ -11,7 +11,7 @@
         /// <returns>@ToDo: Complete documentation before stable release. {580}</returns>
         public static MetricManager GetMetricManager(this TelemetryConfiguration telemetryPipeline)
         {
-            return telemetryPipeline?.MetricManager;
+            return telemetryPipeline?.GetMetricManager(createIfNotExists: true);
         }
     }
 }

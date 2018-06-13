@@ -9,8 +9,6 @@
     /// </summary>
     internal class PassThroughProcessor : ITelemetryProcessor
     {
-        private TelemetrySink sink;
-
         public PassThroughProcessor(TelemetrySink sink)
         {
             if (sink == null)
@@ -18,14 +16,14 @@
                 throw new ArgumentNullException(nameof(sink));
             }
 
-            this.sink = sink;
+            this.Sink = sink;
         }
 
-        internal TelemetrySink Sink => this.sink;
+        internal TelemetrySink Sink { get; } 
 
         public void Process(ITelemetry item)
         {
-            this.sink.Process(item);
+            this.Sink.Process(item);
         }
     }
 }

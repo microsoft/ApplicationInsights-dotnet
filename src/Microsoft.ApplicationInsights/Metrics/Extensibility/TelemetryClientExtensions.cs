@@ -38,6 +38,24 @@
             }
         }
 
+        internal static bool TryGetMetricManager(this TelemetryClient telemetryClient, out MetricManager metricManager)
+        {
+            if (telemetryClient == null)
+            {
+                metricManager = null;
+                return false;
+            }
+
+            ConditionalWeakTable<TelemetryClient, MetricManager> metricManagers = metricManagersForTelemetryClients;
+            if (metricManagers == null)
+            {
+                metricManager = null;
+                return false;
+            }
+
+            return metricManagers.TryGetValue(telemetryClient, out metricManager);
+        }
+
         private static MetricManager GetOrCreateMetricManager(TelemetryClient telemetryClient)
         {
             ConditionalWeakTable<TelemetryClient, MetricManager> metricManagers = metricManagersForTelemetryClients;
