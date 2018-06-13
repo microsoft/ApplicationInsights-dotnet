@@ -139,7 +139,7 @@
         /// Future SDK versions could serialize this separately from the item level properties.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
-        internal IDictionary<string, string> GlobalProperties
+        public IDictionary<string, string> GlobalProperties
         {
             get { return this.globalProperties; }
         }
