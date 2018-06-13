@@ -581,17 +581,27 @@
         }
 
         /// <summary>
-        /// Flushes the in-memory buffer.
+        /// Flushes the in-memory buffer and any metrics being pre-aggregated.
         /// </summary>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#flushing-data">Learn more</a>
         /// </remarks>
         public void Flush()
         {
-            var telemetryChannel = this.configuration?.TelemetryChannel;
-            if (telemetryChannel != null)
+            MetricManager privateMetricManager;
+            if (this.TryGetMetricManager(out privateMetricManager))
             {
-                telemetryChannel.Flush();
+                privateMetricManager.Flush(flushDownstreamPipeline: false);
+            }
+
+            TelemetryConfiguration pipeline = this.configuration;
+            if (pipeline != null)
+            {
+                MetricManager sharedMetricManager = pipeline.GetMetricManager(createIfNotExists: false);
+                sharedMetricManager?.Flush(flushDownstreamPipeline: false);
+
+                ITelemetryChannel channel = pipeline.TelemetryChannel;
+                channel?.Flush();
             }
         }
 

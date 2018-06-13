@@ -10,7 +10,7 @@
     /// </summary>
 #if !NET45
     // .Net 4.5 has a custom implementation of RichPayloadEventSource
-    [System.Diagnostics.Tracing.EventData(Name = "PartB_AvailabilityData")]
+    [System.Diagnostics.Tracing.EventData(Name = "PartB_MessageData")]
 #endif
     internal partial class MessageData
     {
