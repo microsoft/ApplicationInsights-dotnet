@@ -44,8 +44,8 @@
 
         internal TelemetryContext(IDictionary<string, string> properties, IDictionary<string, string> globalProperties)
         {
-            Debug.Assert(properties != null, "properties");
-            Debug.Assert(properties != null, "globalProperties");
+            Debug.Assert(properties != null, nameof(properties));
+            Debug.Assert(globalProperties != null, nameof(globalProperties));
             this.properties = properties;
             this.globalProperties = globalProperties;
         }
