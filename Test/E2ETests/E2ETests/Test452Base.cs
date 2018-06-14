@@ -275,7 +275,7 @@ namespace E2ETests
             string restoredActivityId = null;
             using (var httpClient = new HttpClient())
             {
-                // The POST controller method wi;ll manually track dependency through the StartOperation 
+                // The POST controller method will manually track dependency through the StartOperation 
                 var request = new HttpRequestMessage(HttpMethod.Post, string.Format($"http://{Apps[TestConstants.WebApiName].ipAddress}/api/values"));
                 request.Headers.Add("Request-Id", $"|{operationId}.");
 
@@ -303,7 +303,7 @@ namespace E2ETests
             PrintDependencies(dependencies);
             Assert.AreEqual(1, dependencies.Count);
 
-            var requests = WaitForReceiveRequestItemsFromDataIngestion(Apps[TestConstants.WebApiName].ipAddress, Apps[TestConstants.WebApiName].ikey);
+            var requests = WaitForReceiveRequestItemsFromDataIngestion(Apps[TestConstants.WebApiName].ipAddress, Apps[TestConstants.WebApiName].ikey, expectNumberOfItems:2);
             Trace.WriteLine("Requests count for WebApp:" + requests.Count);
             PrintRequests(requests);
 
@@ -1037,16 +1037,23 @@ namespace E2ETests
             Trace.WriteLine("Dependencies count for Source:" + dependenciesSource.Count);
             Assert.IsTrue(dependenciesSource.Count == 1);
 
-            var requestSource = requestsSource[0];
             var requestTarget = requestsTarget[0];
-            var dependencySource = dependenciesSource[0];            
-
-            Assert.IsTrue(requestSource.tags["ai.operation.id"].Equals(requestTarget.tags["ai.operation.id"]),
-                "Operation id for request telemetry in source and target must be same.");
-
-            Assert.IsTrue(requestSource.tags["ai.operation.id"].Equals(dependencySource.tags["ai.operation.id"]),
+            var dependencySource = dependenciesSource[0];
+            Assert.IsTrue(requestTarget.tags["ai.operation.id"].Equals(dependencySource.tags["ai.operation.id"]),
                 "Operation id for request telemetry dependency telemetry in source must be same.");
 
+            var requestSource = requestsSource.SingleOrDefault(rd => rd.data.baseData.url.Contains(sourcePath));
+            if (requestSource != null)
+            {
+                Assert.IsTrue(requestSource.tags["ai.operation.id"].Equals(requestTarget.tags["ai.operation.id"]),
+                    "Operation id for request telemetry in source and target must be same.");
+                Assert.IsTrue(requestSource.tags["ai.operation.id"].Equals(dependencySource.tags["ai.operation.id"]),
+                    "Operation id for request telemetry dependency telemetry in source must be same.");
+            }
+            else
+            {
+                Assert.Inconclusive("Source request was not received");
+            }
         }
 
         private async Task ValidateBasicRequestAsync(string targetInstanceIp, string targetPath,
@@ -1058,9 +1065,16 @@ namespace E2ETests
             var requestsWebApp = WaitForReceiveRequestItemsFromDataIngestion(targetInstanceIp, ikey);
 
             Trace.WriteLine("RequestCount for WebApp:" + requestsWebApp.Count);
+            PrintRequests(requestsWebApp);
+
             PrintApplicationTraces(ikey);
-            Assert.IsTrue(requestsWebApp.Count == 1);
-            var request = requestsWebApp[0];
+
+            // we may receive several requests, including aux /flush and /Dependencies requests
+            Assert.IsTrue(requestsWebApp.Count >= 1);
+            var targetRequests = requestsWebApp.Where(r => r.data.baseData.url.Contains(targetPath)).ToList();
+            Assert.AreEqual(1, targetRequests.Count);
+            var request = targetRequests[0];
+
             Assert.AreEqual(expectedRequestTelemetry.ResponseCode, request.data.baseData.responseCode, "Response code is incorrect");
         }
 
@@ -1107,13 +1121,13 @@ namespace E2ETests
             return items;
         }
 
-        private static IList<TelemetryItem<RequestData>> WaitForReceiveRequestItemsFromDataIngestion(string targetInstanceIp, string ikey, int maxRetryCount = 5, bool flushChannel = true)
+        private static IList<TelemetryItem<RequestData>> WaitForReceiveRequestItemsFromDataIngestion(string targetInstanceIp, string ikey, int maxRetryCount = 5, bool flushChannel = true, int expectNumberOfItems = 1)
         {
             int receivedItemCount = 0;
             int iteration = 0;
             IList<TelemetryItem<RequestData>> items = new List<TelemetryItem<RequestData>>();
 
-            while (iteration < maxRetryCount && receivedItemCount < 1)
+            while (iteration < maxRetryCount && receivedItemCount < expectNumberOfItems)
             {
                 Thread.Sleep(AISDKBufferFlushTime);
                 items = dataendpointClient.GetItemsOfType<TelemetryItem<AI.RequestData>>(ikey);
@@ -1125,7 +1139,7 @@ namespace E2ETests
                 }
             }
 
-            Trace.WriteLine("Items received in iteration: " + iteration);
+            Trace.WriteLine($"{receivedItemCount} items received in iteration {iteration}");
             return items;
         }
 
