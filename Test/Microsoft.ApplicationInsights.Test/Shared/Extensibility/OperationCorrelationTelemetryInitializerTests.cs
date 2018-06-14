@@ -99,9 +99,11 @@
             Assert.IsTrue(telemetry.Context.Operation.ParentId.StartsWith("|parent."));
             Assert.AreEqual("operation", telemetry.Context.Operation.Name);
 
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.AreEqual(2, telemetry.Context.Properties.Count);
             Assert.AreEqual("v1", telemetry.Context.Properties["k1"]);
             Assert.AreEqual("v2", telemetry.Context.Properties["k2"]);
+#pragma warning restore CS0618 // Type or member is obsolete
             currentActivity.Stop();
         }
 

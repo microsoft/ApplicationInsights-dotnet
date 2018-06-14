@@ -247,8 +247,8 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
                         TestUtil.ValidateNumericAggregateValues(metricTelemetry, "NS", "mid-foobar", expectedCount, sum: 0, max: 0, min: 0, stdDev: 0);
                     
                         Assert.AreEqual(1, metricTelemetry.Properties.Count);
-                        Assert.IsTrue(metricTelemetry.Context.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
-                        Assert.AreEqual("0", metricTelemetry.Context.Properties[TestUtil.AggregationIntervalMonikerPropertyKey]);
+                        Assert.IsTrue(metricTelemetry.Properties.ContainsKey(TestUtil.AggregationIntervalMonikerPropertyKey));
+                        Assert.AreEqual("0", metricTelemetry.Properties[TestUtil.AggregationIntervalMonikerPropertyKey]);
                         Assert.IsTrue((metricTelemetry.Timestamp - DateTimeOffset.Now).Duration() < TimeSpan.FromMilliseconds(100));
 
                         Assert.AreEqual(mockInstrumentationKey, metricTelemetry.Context.InstrumentationKey);

@@ -274,7 +274,9 @@
                 {
                     listener.EnableEvents(RichPayloadEventSource.Log.EventSourceInternal, EventLevel.Verbose, keywords);
 
+#pragma warning disable CS0618 // Type or member is obsolete
                     item.Context.Properties.Add("property1", "value1");
+#pragma warning restore CS0618 // Type or member is obsolete
                     (item as ISupportProperties)?.Properties.Add("itemprop1","itemvalue1");
                     item.Context.GlobalProperties.Add("globalproperty1", "globalvalue1");
                     item.Context.User.Id = "testUserId";
@@ -315,8 +317,10 @@
 
                     if(item is ISupportProperties)
                     {
-                        object[] properties = (object[])((IDictionary<string, object>)actualEvent.Payload[2])["properties"];                        
-                        if(!(item is PerformanceCounterTelemetry))
+                        object[] properties = (object[])((IDictionary<string, object>)actualEvent.Payload[2])["properties"];
+#pragma warning disable CS0618 // Type or member is obsolete
+                        if (!(item is PerformanceCounterTelemetry))
+#pragma warning restore CS0618 // Type or member is obsolete
                         {
                             // There should be 3 entries in properties
                             // 1. from item's ISupportProperties.Properties

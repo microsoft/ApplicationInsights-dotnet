@@ -298,7 +298,11 @@
 
                 foreach (var tag in Activity.Current.Tags)
                 {
-                    telemetry.Context.Properties[tag.Key] = tag.Value;
+                    var telProp = telemetry as ISupportProperties;
+                    if(telProp != null)
+                    {
+                        telProp.Properties[tag.Key] = tag.Value;
+                    }                        
                 }
             }
         }
