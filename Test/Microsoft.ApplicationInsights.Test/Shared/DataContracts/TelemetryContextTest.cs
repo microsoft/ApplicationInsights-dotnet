@@ -38,7 +38,22 @@
             var context = new TelemetryContext();
             AssertEx.Throws<ArgumentNullException>(() => context.InstrumentationKey = null);
         }
-        
+
+        [TestMethod]
+        public void FlagsIsZeroByDefault()
+        {
+            var context = new TelemetryContext();
+            Assert.AreEqual(0, context.Flags);
+        }
+
+        [TestMethod]
+        public void FlagsCanBeSetAndGet()
+        {
+            var context = new TelemetryContext();
+            context.Flags |= 0x00100000;
+            Assert.AreEqual(0x00100000, context.Flags);
+        }
+
         [TestMethod]
         public void ComponentIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
@@ -119,6 +134,40 @@
             target.Initialize(source, source.InstrumentationKey);
 
             Assert.AreEqual("TargetValue", target.InstrumentationKey);
+        }
+
+        [TestMethod]
+        public void InitializeSetsFlagsFromSource()
+        {
+            var source = new TelemetryContext { Flags = 0x00100000 };
+            var target = new TelemetryContext();
+
+            target.Initialize(source, source.InstrumentationKey);
+
+            Assert.AreEqual(0x00100000, target.Flags);
+        }
+
+
+        [TestMethod]
+        public void InitializeSetsFlagsFromArgument()
+        {
+            var source = new TelemetryContext();
+            var target = new TelemetryContext { Flags = 0x00100000 };
+
+            target.Initialize(source, source.InstrumentationKey);
+
+            Assert.AreEqual(0x00100000, target.Flags);
+        }
+
+        [TestMethod]
+        public void InitializeSetsFlagsFromSourceAndArgument()
+        {
+            var source = new TelemetryContext { Flags = 0x00010000 };
+            var target = new TelemetryContext { Flags = 0x00100000 };
+
+            target.Initialize(source, source.InstrumentationKey);
+
+            Assert.AreEqual(0x00110000, target.Flags);
         }
 
         [TestMethod]

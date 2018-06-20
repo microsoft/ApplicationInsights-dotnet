@@ -52,6 +52,11 @@
             if (context != null)
             {
                 json.WriteProperty("iKey", context.InstrumentationKey);
+                if (context.Flags != 0)
+                {
+                    json.WriteProperty("flags", context.Flags);
+                }
+
                 json.WriteProperty("tags", context.SanitizedTags);
             }
         }

@@ -14,7 +14,14 @@
     /// </summary>
     public sealed class TelemetryContext
     {
+        /// <summary>
+        /// Value for the flag that indicates that server should not store IP address from incoming events.
+        /// </summary>
+        public const long FlagDropIdentifiers = 0x200000;
+
         private readonly IDictionary<string, string> properties;
+
+        private readonly InternalContext internalContext = new InternalContext();
 
         private string instrumentationKey;
 
@@ -25,7 +32,6 @@
         private UserContext user;
         private OperationContext operation;
         private LocationContext location;
-        private InternalContext internalContext = new InternalContext();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryContext"/> class.
@@ -55,6 +61,11 @@
             get { return this.instrumentationKey ?? string.Empty; }
             set { Property.Set(ref this.instrumentationKey, value); }
         }
+
+        /// <summary> 
+        /// Gets or sets flags which controls events priority and endpoint behavior.
+        /// </summary> 
+        public long Flags { get; set; }
 
         /// <summary>
         /// Gets the object describing the component tracked by this <see cref="TelemetryContext"/>.
@@ -160,6 +171,8 @@
         internal void Initialize(TelemetryContext source, string instrumentationKey)
         {
             Property.Initialize(ref this.instrumentationKey, instrumentationKey);
+
+            this.Flags |= source.Flags;
 
             source.component?.CopyTo(this.Component);
             source.device?.CopyTo(this.Device);
