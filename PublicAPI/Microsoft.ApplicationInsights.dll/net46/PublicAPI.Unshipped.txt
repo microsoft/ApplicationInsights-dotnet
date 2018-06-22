@@ -280,5 +280,4 @@ static readonly Microsoft.ApplicationInsights.MetricConfigurations.Common -> Mic
 virtual Microsoft.ApplicationInsights.Metrics.MetricConfiguration.Equals(Microsoft.ApplicationInsights.Metrics.MetricConfiguration other) -> bool
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Flags.get -> long
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Flags.set -> void
-const Microsoft.ApplicationInsights.DataContracts.TelemetryContext.FlagDropIdentifiers -> long
 const Microsoft.ApplicationInsights.DataContracts.TelemetryContext.FlagDropIdentifiers = 2097152 -> long
