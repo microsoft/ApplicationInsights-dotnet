@@ -265,7 +265,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyMessageData.ver,
                     dummyMessageData.message,
                     dummyMessageData.severityLevel,
-                    dummyMessageData.properties
+                    dummyMessageData.properties,
+                    dummyMessageData.measurements
                 }
             }.GetType());
 
@@ -286,7 +287,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.ver,
                             data.message,
                             data.severityLevel,
-                            data.properties
+                            data.properties,
+                            data.measurements
                         }
                     };
 
