@@ -110,7 +110,7 @@
 
             if (false == String.IsNullOrWhiteSpace(MetricTerms.Autocollection.Moniker.Key))
             {
-                metricsClient.Context.Properties[MetricTerms.Autocollection.Moniker.Key] = MetricTerms.Autocollection.Moniker.Value;
+                metricsClient.Context.GlobalProperties[MetricTerms.Autocollection.Moniker.Key] = MetricTerms.Autocollection.Moniker.Value;
             }
 
             this.InitializeExtractors(metricsClient);
@@ -191,8 +191,14 @@
         /// <param name="extractorInfo">The string to be added to the item's properties.</param>
         private static void AddExtractorInfo(ITelemetry item, string extractorInfo)
         {
-            string extractionPipelineInfo;
-            bool hasPrevInfo = item.Context.Properties.TryGetValue(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key, out extractionPipelineInfo);
+            var itemWithProperties = item as ISupportProperties;
+            if (itemWithProperties == null)
+            {
+                return;
+            }
+
+            string extractionPipelineInfo;            
+            bool hasPrevInfo = itemWithProperties.Properties.TryGetValue(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key, out extractionPipelineInfo);
 
             if (false == hasPrevInfo)
             {
@@ -207,7 +213,7 @@
             }
 
             extractionPipelineInfo = extractionPipelineInfo + extractorInfo;
-            item.Context.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = extractionPipelineInfo;
+            itemWithProperties.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = extractionPipelineInfo;
         }
 
         /// <summary>
