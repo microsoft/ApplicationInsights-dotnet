@@ -21,7 +21,7 @@
     <!--Package Settings-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <IncludeSymbols>False</IncludeSymbols>
+    <IncludeSymbols>True</IncludeSymbols>
     <PackageId>Microsoft.ApplicationInsights.AspNetCore</PackageId>
     <PackageTags>Analytics;ApplicationInsights;Telemetry;AppInsights;aspnetcore</PackageTags>
     <PackageIconUrl>https://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageIconUrl>
