@@ -96,5 +96,50 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
             headers[headerName] = new StringValues(HeadersUtilities.SetHeaderKeyValue(headers[headerName].AsEnumerable(), keyName, keyValue).ToArray());
         }
+
+        internal static string[] SafeGetCommaSeparatedHeaderValues(IHeaderDictionary headers, string headerName, int maxLength, int maxItems)
+        {
+            string[] traceStateValues = headers.GetCommaSeparatedValues(headerName);
+
+            if (traceStateValues == null)
+            {
+                return null;
+            }
+
+            int length = traceStateValues.Sum(p => p.Length) + traceStateValues.Length - 1; // all values and commas
+            if (length <= maxLength && traceStateValues.Length <= maxItems)
+            {
+                return traceStateValues;
+            }
+
+            List<string> truncated;
+            if (length > maxLength)
+            {
+                int currentLength = 0;
+
+                truncated = traceStateValues.TakeWhile(kvp =>
+                {
+                    if (currentLength + kvp.Length > maxLength)
+                    {
+                        return false;
+                    }
+
+                    currentLength += kvp.Length + 1; // pair and comma
+                    return true;
+                }).ToList();
+            }
+            else
+            {
+                truncated = traceStateValues.ToList();
+            }
+
+            // if there are more than maxItems - truncate the end
+            if (truncated.Count > maxItems)
+            {
+                return truncated.Take(maxItems).ToArray();
+            }
+
+            return truncated.ToArray();
+        }
     }
 }

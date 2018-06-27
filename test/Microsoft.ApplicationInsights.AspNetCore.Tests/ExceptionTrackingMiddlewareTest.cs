@@ -20,7 +20,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
                 CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry),
                 CommonMocks.GetMockApplicationIdProvider(),
                 injectResponseHeaders: true,
-                trackExceptions: true);
+                trackExceptions: true,
+                enableW3CHeaders:false);
 
             middleware.OnHostingException(null, null);
 
@@ -36,7 +37,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
                 CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry), 
                 CommonMocks.GetMockApplicationIdProvider(),
                 injectResponseHeaders: true,
-                trackExceptions: true);
+                trackExceptions: true,
+                enableW3CHeaders: false);
 
             middleware.OnHostingException(null, null);
 
