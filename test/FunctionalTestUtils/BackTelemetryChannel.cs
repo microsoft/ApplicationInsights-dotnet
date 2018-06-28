@@ -49,8 +49,7 @@
         }
 
         public void Flush()
-        {
-            throw new NotImplementedException();
+        {            
         }
 
         public void Send(ITelemetry item)

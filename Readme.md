@@ -40,7 +40,7 @@ Developing
 ----------
 To successfully build the sources on your machine, make sure you've installed the following prerequisites:
 * Visual Studio 2017 Community or Enterprise. Please make sure to install all the latest updates to Visual Studio
-* .NET 4.6
+* .NET Framework 4.6
 * .NET Core SDK 1.1.7
 * .NET Core SDK 2.0 or above.(https://www.microsoft.com/net/download/windows)
 
