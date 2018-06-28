@@ -1,6 +1,7 @@
 # Changelog 
 
-
+### Version 2.6.5
+- [NLog can perform Layout of InstrumentationKey](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/203)
 
 ### Version 2.6.4
 - [Log4Net new supports NetStandard 1.3!](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/167)

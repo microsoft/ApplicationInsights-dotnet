@@ -95,6 +95,19 @@
 
         [TestMethod]
         [TestCategory("NLogTarget")]
+        public void InstrumentationKeyIsReadFromLayout()
+        {
+            string instrumentationKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
+
+            var gdcKey = Guid.NewGuid().ToString();
+            NLog.GlobalDiagnosticsContext.Set(gdcKey, instrumentationKey);
+
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey($"${{gdc:item={gdcKey}}}");
+            this.VerifyMessagesInMockChannel(aiLogger, instrumentationKey);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
         public void TraceAreEnqueuedInChannelAndContainAllProperties()
         {
             string instrumentationKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
