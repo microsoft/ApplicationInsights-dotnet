@@ -30,6 +30,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     {
         private TelemetryClient telemetryClient;
         private DateTime lastLogEventTime;
+        private NLog.Layouts.Layout instrumentationKeyLayout = string.Empty;
 
         /// <summary>
         /// Initializers a new instance of ApplicationInsightsTarget type.
@@ -42,7 +43,11 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         /// <summary>
         /// Gets or sets the Application Insights instrumentationKey for your application. 
         /// </summary>
-        public string InstrumentationKey { get; set; }
+        public string InstrumentationKey
+        {
+            get => (this.instrumentationKeyLayout as NLog.Layouts.SimpleLayout)?.Text ?? null;
+            set => this.instrumentationKeyLayout = value ?? string.Empty;
+        }
 
         /// <summary>
         /// Gets the array of custom attributes to be passed into the logevent context
@@ -109,9 +114,11 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         {
             base.InitializeTarget();
             this.telemetryClient = new TelemetryClient();
-            if (!string.IsNullOrEmpty(this.InstrumentationKey))
+
+            string instrumentationKey = this.instrumentationKeyLayout.Render(LogEventInfo.CreateNullEvent());
+            if (!string.IsNullOrWhiteSpace(instrumentationKey))
             {
-                this.telemetryClient.Context.InstrumentationKey = this.InstrumentationKey;
+                this.telemetryClient.Context.InstrumentationKey = instrumentationKey;
             }
 
             this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("nlog:");
