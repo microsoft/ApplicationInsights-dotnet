@@ -51,6 +51,17 @@
         }
 
         [TestMethod]
+        public void SerializesNotZeroFlags()
+        {
+            EventTelemetry t = new EventTelemetry();
+            t.Context.Flags = TelemetryContext.FlagDropIdentifiers;
+
+            string json = JsonSerializer.SerializeAsString(t);
+
+            Assert.IsTrue(json.Contains("\"flags\":\"2097152\""));
+        }
+
+        [TestMethod]
         public void IfCallConvertToArrayAndThanDeserializeYouGetSameResult()
         {
             byte[] array = JsonSerializer.ConvertToByteArray("test");
