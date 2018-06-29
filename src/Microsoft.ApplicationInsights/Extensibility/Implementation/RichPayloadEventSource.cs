@@ -40,6 +40,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// <param name="item">A collected Telemetry item.</param>
         public void Process(ITelemetry item)
         {
+            var telemetryProps = item as ISupportProperties;
+            if (telemetryProps != null)
+            {
+                Utils.CopyDictionary(item.Context.GlobalProperties, telemetryProps.Properties);
+            }
+
             if (item is RequestTelemetry)
             {
                 if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Requests))
@@ -377,6 +383,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CoreEventSource.Log.LogVerbose(msg);
 
                 return;
+            }
+
+            var telemetryProps = item as ISupportProperties;
+            if (telemetryProps != null)
+            {
+                Utils.CopyDictionary(item.Context.GlobalProperties, telemetryProps.Properties);
             }
 
             handler(item);

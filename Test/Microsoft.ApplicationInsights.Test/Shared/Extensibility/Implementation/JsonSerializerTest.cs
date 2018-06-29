@@ -41,6 +41,23 @@
         }
 
         [TestMethod]
+        public void SanitizesTelemetryContextGlobalProperties()
+        {
+            var addedValueWithSizeAboveLimit = new string('V', Property.MaxValueLength + 1);
+            var expectedValueWithSizeWithinLimit = new string('V', Property.MaxValueLength);
+
+            EventTelemetry t = new EventTelemetry("myevent");
+            t.Context.GlobalProperties.Add("mykey", addedValueWithSizeAboveLimit);
+
+            string exceptionAsJson = JsonSerializer.SerializeAsString(t);
+
+            JObject obj = JsonConvert.DeserializeObject<JObject>(exceptionAsJson);
+
+            Assert.AreEqual(expectedValueWithSizeWithinLimit, obj["data"]["baseData"]["properties"]["mykey"]);
+            
+        }
+
+        [TestMethod]
         public void SanitizesTimestampInIsoFormat()
         {
             EventTelemetry t = new EventTelemetry();

@@ -5,6 +5,9 @@ This changelog will be used to generate documentation on [release notes page](ht
 ## Version vNext
 - [Allow to set flags on event](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/844). It will be used in conjunction with the feature that will allow to keep IP addresses.
 
+## Version 2.7.0-beta3
+- [Add a new distict properties collection, GlobalProperties, on TelemetryContext, and obsolete the Properties on TelememetryContext.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/820)
+
 ## Version 2.7.0-beta2
 - [Fix: NullReferenceException if telemtery is tracked after TelemetryConfiguration is disposed](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/928)
 - [Move the implementation of the extraction of auto-collected (aka standard) metrics from internal legacy APIs to the recently shipped metric aggregation APIs.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/806)

@@ -183,7 +183,7 @@
                         string dimensionName;
                         if (MetricDimensionNames.TelemetryContext.IsProperty(dimension.Key, out dimensionName))
                         {
-                            telemetryContext.Properties[dimensionName] = dimension.Value;
+                            telemetryContext.GlobalProperties[dimensionName] = dimension.Value;
                         }
                         else
                         {

@@ -15,7 +15,7 @@
         /// <summary>
         /// Serializes and deserializes the telemetry item and returns the results.
         /// </summary>
-        internal static AI.TelemetryItem<TelemetryDataType> SerializeDeserializeTelemetryItem<TODO_DELETEME, TelemetryDataType>(ITelemetry telemetry)
+        internal static AI.TelemetryItem<TelemetryDataType> SerializeDeserializeTelemetryItem<TelemetryDataType>(ITelemetry telemetry)
         {
             byte[] b = JsonSerializer.Serialize(telemetry, compress: false);
 
