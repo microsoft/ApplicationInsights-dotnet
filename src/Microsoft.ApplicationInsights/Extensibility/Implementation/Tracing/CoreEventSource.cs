@@ -512,6 +512,16 @@
             this.WriteEvent(42, httpStatusCode, this.nameProvider.Name);
         }
 
+        [Event(
+            43,
+            Keywords = Keywords.UserActionable,
+            Message = "Process was called on the TelemetrySink after it was disposed, the telemetry data was dropped.",
+            Level = EventLevel.Error)]
+        public void TelemetrySinkCalledAfterBeingDisposed(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(43, this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

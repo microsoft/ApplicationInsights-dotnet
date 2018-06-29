@@ -14,7 +14,7 @@
     <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.NetCore.Tests</AssemblyName>
     <DebugType>pdbonly</DebugType> 
     <DebugSymbols>true</DebugSymbols> 
-    <DefineConstants>$(DefineConstants);NETCOREAPP</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETCOREAPP;NETCOREAPP1_1</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

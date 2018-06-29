@@ -283,6 +283,25 @@
             return hash;
         }
 
+        public static int CombineHashCodes(int[] arr)
+        {
+            if (arr == null)
+            {
+                return 0;
+            }
+
+            int hash = 17;
+            unchecked
+            {
+                for (int i = 0; i < arr.Length; i++)
+                {
+                    hash = (hash * 23) + arr[i];
+                }
+            }
+
+            return hash;
+        }
+
         /// <summary>@ToDo: Complete documentation before stable release. {659}</summary>
         /// <param name="source">@ToDo: Complete documentation before stable release. {688}</param>
         /// <param name="target">@ToDo: Complete documentation before stable release. {859}</param>
@@ -294,19 +313,11 @@
             // Copy internal tags:
             target.Initialize(source, instrumentationKey: null);
 
-            // Copy public properties:
-            IDictionary<string, string> sourceProperties = source.Properties;
-            IDictionary<string, string> targetProperties = target.Properties;
-            if (targetProperties != null && sourceProperties != null && sourceProperties.Count > 0)
-            {
-                foreach (KeyValuePair<string, string> property in sourceProperties)
-                {
-                    if (false == String.IsNullOrEmpty(property.Key) && false == targetProperties.ContainsKey(property.Key))
-                    {
-                        targetProperties[property.Key] = property.Value;
-                    }
-                }
-            }
+            // Copy public properties:            
+#pragma warning disable CS0618 // Type or member is obsolete
+            Utils.CopyDictionary(source.Properties, target.Properties);
+#pragma warning restore CS0618 // Type or member is obsolete
+            Utils.CopyDictionary(source.GlobalProperties, target.GlobalProperties);
 
             // Copy iKey:
 

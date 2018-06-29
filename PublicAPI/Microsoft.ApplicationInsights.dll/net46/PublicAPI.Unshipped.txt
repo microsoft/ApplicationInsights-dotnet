@@ -131,11 +131,13 @@ Microsoft.ApplicationInsights.Metrics.MetricAggregate.MetricId.get -> string
 Microsoft.ApplicationInsights.Metrics.MetricAggregate.MetricNamespace.get -> string
 Microsoft.ApplicationInsights.Metrics.MetricConfiguration
 Microsoft.ApplicationInsights.Metrics.MetricConfiguration.MetricConfiguration(int seriesCountLimit, int valuesPerDimensionLimit, Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration seriesConfig) -> void
+Microsoft.ApplicationInsights.Metrics.MetricConfiguration.MetricConfiguration(int seriesCountLimit, System.Collections.Generic.IEnumerable<int> valuesPerDimensionLimits, Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration seriesConfig) -> void
 Microsoft.ApplicationInsights.Metrics.MetricConfiguration.SeriesConfig.get -> Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration
 Microsoft.ApplicationInsights.Metrics.MetricConfiguration.SeriesCountLimit.get -> int
-Microsoft.ApplicationInsights.Metrics.MetricConfiguration.ValuesPerDimensionLimit.get -> int
+Microsoft.ApplicationInsights.Metrics.MetricConfiguration.GetValuesPerDimensionLimit(int dimensionNumber) -> int
 Microsoft.ApplicationInsights.Metrics.MetricConfigurationForMeasurement
 Microsoft.ApplicationInsights.Metrics.MetricConfigurationForMeasurement.MetricConfigurationForMeasurement(int seriesCountLimit, int valuesPerDimensionLimit, Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement seriesConfig) -> void
+Microsoft.ApplicationInsights.Metrics.MetricConfigurationForMeasurement.MetricConfigurationForMeasurement(int seriesCountLimit, System.Collections.Generic.IEnumerable<int> valuesPerDimensionLimits, Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement seriesConfig) -> void
 Microsoft.ApplicationInsights.Metrics.MetricIdentifier
 Microsoft.ApplicationInsights.Metrics.MetricIdentifier.DimensionsCount.get -> int
 Microsoft.ApplicationInsights.Metrics.MetricIdentifier.Equals(Microsoft.ApplicationInsights.Metrics.MetricIdentifier otherMetricIdentifier) -> bool
@@ -191,12 +193,16 @@ Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Re
 Microsoft.ApplicationInsights.Metrics.MetricsCollection
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.Clear() -> void
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.Contains(Microsoft.ApplicationInsights.Metric metric) -> bool
+Microsoft.ApplicationInsights.Metrics.MetricsCollection.Contains(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier) -> bool
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.CopyTo(Microsoft.ApplicationInsights.Metric[] array, int arrayIndex) -> void
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.Count.get -> int
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.GetEnumerator() -> System.Collections.Generic.IEnumerator<Microsoft.ApplicationInsights.Metric>
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.GetOrCreate(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier, Microsoft.ApplicationInsights.Metrics.MetricConfiguration metricConfiguration) -> Microsoft.ApplicationInsights.Metric
+Microsoft.ApplicationInsights.Metrics.MetricsCollection.TryGet(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier, out Microsoft.ApplicationInsights.Metric metric) -> bool
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.IsReadOnly.get -> bool
 Microsoft.ApplicationInsights.Metrics.MetricsCollection.Remove(Microsoft.ApplicationInsights.Metric metric) -> bool
+Microsoft.ApplicationInsights.Metrics.MetricsCollection.Remove(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier) -> bool
+Microsoft.ApplicationInsights.Metrics.MetricsCollection.Remove(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier, out Microsoft.ApplicationInsights.Metric removedMetric) -> bool
 Microsoft.ApplicationInsights.Metrics.TelemetryConfigurationExtensions
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier) -> Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(Microsoft.ApplicationInsights.Metrics.MetricIdentifier metricIdentifier, Microsoft.ApplicationInsights.Metrics.MetricConfiguration metricConfiguration) -> Microsoft.ApplicationInsights.Metric

@@ -76,13 +76,13 @@
             AssertEx.IsType<RequestTelemetry>(telemetrySentToChannel[1]);
             Assert.AreEqual("Test Request 1", ((RequestTelemetry) telemetrySentToChannel[1]).Name);
             Assert.AreEqual(true, ((RequestTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
-            Assert.AreEqual("(Name:'Requests', Ver:'1.0')",
+            Assert.AreEqual("(Name:'Requests', Ver:'1.1')",
                          ((RequestTelemetry) telemetrySentToChannel[1]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<RequestTelemetry>(telemetrySentToChannel[2]);
             Assert.AreEqual("Test Request 2", ((RequestTelemetry) telemetrySentToChannel[2]).Name);
             Assert.AreEqual(true, ((RequestTelemetry) telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
-            Assert.AreEqual("(Name:'Requests', Ver:'1.0')",
+            Assert.AreEqual("(Name:'Requests', Ver:'1.1')",
                          ((RequestTelemetry) telemetrySentToChannel[2]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[3]);
@@ -269,25 +269,25 @@
             
             AssertEx.IsType<RequestTelemetry>(telemetrySentToChannel[0]);
             Assert.AreEqual(true, ((RequestTelemetry) telemetrySentToChannel[0]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
-            Assert.AreEqual("(Name:'Requests', Ver:'1.0')",
+            Assert.AreEqual("(Name:'Requests', Ver:'1.1')",
                          ((RequestTelemetry) telemetrySentToChannel[0]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<DependencyTelemetry>(telemetrySentToChannel[1]);
             Assert.AreEqual("Test Dependency Call 1", ((DependencyTelemetry) telemetrySentToChannel[1]).Name);
             Assert.AreEqual(true, ((DependencyTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
-            Assert.AreEqual("(Name:'Dependencies', Ver:'1.0')",
+            Assert.AreEqual("(Name:'Dependencies', Ver:'1.1')",
                          ((DependencyTelemetry) telemetrySentToChannel[1]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<DependencyTelemetry>(telemetrySentToChannel[2]);
             Assert.AreEqual("Test Dependency Call 2", ((DependencyTelemetry)telemetrySentToChannel[2]).Name);
             Assert.AreEqual(true, ((DependencyTelemetry)telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
-            Assert.AreEqual("(Name:'Dependencies', Ver:'1.0')",
+            Assert.AreEqual("(Name:'Dependencies', Ver:'1.1')",
                          ((DependencyTelemetry)telemetrySentToChannel[2]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<DependencyTelemetry>(telemetrySentToChannel[3]);
             Assert.AreEqual("Test Dependency Call 3", ((DependencyTelemetry) telemetrySentToChannel[3]).Name);
             Assert.AreEqual(true, ((DependencyTelemetry) telemetrySentToChannel[3]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
-            Assert.AreEqual("(Name:'Dependencies', Ver:'1.0')",
+            Assert.AreEqual("(Name:'Dependencies', Ver:'1.1')",
                          ((DependencyTelemetry) telemetrySentToChannel[3]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             AssertEx.IsType<EventTelemetry>(telemetrySentToChannel[4]);
@@ -423,7 +423,7 @@
             Assert.AreEqual(true, Math.Abs(metricT.StandardDeviation.Value - 5.590169943749474) < 0.0000001);
             Assert.AreEqual(50, metricT.Sum);
 
-            Assert.AreEqual(4, metricT.Properties.Count);
+            Assert.AreEqual(5, metricT.Properties.Count);
             Assert.IsTrue(metricT.Properties.ContainsKey("_MS.AggregationIntervalMs"));
             Assert.IsTrue(metricT.Properties.ContainsKey("_MS.IsAutocollected"));
             Assert.AreEqual("True", metricT.Properties["_MS.IsAutocollected"]);
@@ -431,6 +431,8 @@
             Assert.AreEqual("dependencies/duration", metricT.Properties["_MS.MetricId"]);
             Assert.AreEqual(true, metricT.Properties.ContainsKey("Dependency.Success"));
             Assert.AreEqual(Boolean.TrueString, metricT.Properties["Dependency.Success"]);
+            Assert.AreEqual(true, metricT.Properties.ContainsKey("Dependency.Type"));
+            Assert.AreEqual("Other", metricT.Properties["Dependency.Type"]);
 
             Assert.AreEqual("Dependency duration", metricF.Name);
             Assert.AreEqual(3, metricF.Count);
@@ -439,7 +441,7 @@
             Assert.AreEqual(true, Math.Abs(metricF.StandardDeviation.Value - 40.8248290) < 0.0000001);
             Assert.AreEqual(300, metricF.Sum);
 
-            Assert.AreEqual(4, metricF.Properties.Count);
+            Assert.AreEqual(5, metricF.Properties.Count);
             Assert.IsTrue(metricF.Properties.ContainsKey("_MS.AggregationIntervalMs"));
             Assert.IsTrue(metricF.Properties.ContainsKey("_MS.IsAutocollected"));
             Assert.AreEqual("True", metricF.Properties["_MS.IsAutocollected"]);
@@ -447,6 +449,8 @@
             Assert.AreEqual("dependencies/duration", metricF.Properties["_MS.MetricId"]);
             Assert.AreEqual(true, metricF.Properties.ContainsKey("Dependency.Success"));
             Assert.AreEqual(Boolean.FalseString, metricF.Properties["Dependency.Success"]);
+            Assert.AreEqual(true, metricT.Properties.ContainsKey("Dependency.Type"));
+            Assert.AreEqual("Other", metricT.Properties["Dependency.Type"]);
         }
 
         [TestMethod]
@@ -513,7 +517,6 @@
             //// 6)* E, true ==> Other, true: +1 = 3
             //// 7)  E, false ==> Other, false: 1
             //// 8)  Unknown, false: 3
-
 
             Assert.AreEqual(27 + 8, telemetrySentToChannel.Count);
             for (int i = 0; i < 35; i++)
