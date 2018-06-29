@@ -19,5 +19,4 @@ struct PageViewData
     [ActAsRequired("Required field for correct correlation.")]
     [Description("Identifier of a page view instance. Used for correlation between page view and other telemetry items.")]
     50: required string 	 id;
-    
 }

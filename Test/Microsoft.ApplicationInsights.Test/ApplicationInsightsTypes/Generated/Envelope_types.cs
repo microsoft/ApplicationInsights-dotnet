@@ -72,6 +72,11 @@ namespace AI
         [global::Bond.Id(60)]
         public string iKey { get; set; }
 
+        [global::Bond.Attribute("Description", "A collection of values bit-packed to represent how the event was processed. Currently represents whether IP address needs to be stripped out from event (set 0x200000) or should be preserved.")]
+        [global::Bond.Attribute("Name", "TelemetryProperties")]
+        [global::Bond.Id(70)]
+        public long flags { get; set; }
+
         [global::Bond.Attribute("Name", "Tags")]
         [global::Bond.Attribute("TypeAlias", "ContextTagKeys")]
         [global::Bond.Attribute("Description", "Key/value collection of context properties. See ContextTagKeys for information on available properties.")]

@@ -19,6 +19,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     internal sealed partial class RichPayloadEventSource
     {
         private readonly string dummyPartAiKeyValue = string.Empty;
+        private readonly long dummyPartAFlagsValue = 0;
         private readonly IDictionary<string, string> dummyPartATagsValue = new Dictionary<string, string>();
 
         /// <summary>
@@ -211,7 +212,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyRequestData.url,
                     dummyRequestData.properties,
                     dummyRequestData.measurements
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
@@ -238,7 +240,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.url,
                             data.properties,
                             data.measurements
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { RequestTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -265,8 +268,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyMessageData.ver,
                     dummyMessageData.message,
                     dummyMessageData.severityLevel,
-                    dummyMessageData.properties
-                }
+                    dummyMessageData.properties,
+                    dummyMessageData.measurements
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
@@ -286,8 +291,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.ver,
                             data.message,
                             data.severityLevel,
-                            data.properties
-                        }
+                            data.properties,
+                            data.measurements
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { TraceTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -315,7 +322,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyEventData.name,
                     dummyEventData.properties,
                     dummyEventData.measurements
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
@@ -336,7 +344,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.name,
                             data.properties,
                             data.measurements
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { EventTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -371,7 +380,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyDependencyData.type,
                     dummyDependencyData.properties,
                     dummyDependencyData.measurements
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
@@ -399,7 +409,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.type,
                             data.properties,
                             data.measurements
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { DependencyTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -441,7 +452,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         }
                     }.AsEnumerable(),
                     dummyMetricData.properties
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
@@ -471,7 +483,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                                 i.stdDev
                             }),
                             data.properties
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { MetricTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -527,7 +540,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyExceptionData.problemId,
                     dummyExceptionData.properties,
                     dummyExceptionData.measurements,
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
@@ -566,7 +580,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.problemId,
                             data.properties,
                             data.measurements
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { ExceptionTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -608,7 +623,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         }
                     }.AsEnumerable(),
                     dummyMetricData.properties
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
@@ -640,7 +656,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                                 i.stdDev
                             }),
                             data.properties
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { MetricTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -671,7 +688,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyPageViewData.name,
                     dummyPageViewData.properties,
                     dummyPageViewData.measurements,
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
@@ -695,7 +713,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.name,
                             data.properties,
                             data.measurements,
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { PageViewTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -723,7 +742,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyEventData.name,
                     dummyEventData.properties,
                     dummyEventData.measurements
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
@@ -746,7 +766,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.name,
                             data.properties,
                             data.measurements
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { EventTelemetry.TelemetryName, eventSourceOptions, extendedData });
