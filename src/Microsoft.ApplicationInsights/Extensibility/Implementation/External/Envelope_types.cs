@@ -76,6 +76,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
+        public long flags { get; set; }
+
+        
+        
+        
         
         public IDictionary<string, string> tags { get; set; }
 

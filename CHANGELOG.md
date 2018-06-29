@@ -1,6 +1,9 @@
 ﻿# Changelog
 
-This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
+This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
+
+## Version vNext
+- [Allow to set flags on event](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/844). It will be used in conjunction with the feature that will allow to keep IP addresses.
 
 ## Version 2.7.0-beta3
 - [Add a new distict properties collection, GlobalProperties, on TelemetryContext, and obsolete the Properties on TelememetryContext.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/820)

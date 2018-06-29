@@ -22,4 +22,8 @@ struct MessageData
     [MaxValueLength("8192")]
     100: map<string, string> 	 properties;
     
+    [Description("Collection of custom measurements.")]
+    [MaxKeyLength("150")]
+    200: map<string, double> 	 measurements;
+    
 }
