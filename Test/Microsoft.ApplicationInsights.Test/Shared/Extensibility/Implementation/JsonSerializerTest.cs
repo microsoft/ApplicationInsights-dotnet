@@ -75,7 +75,7 @@
 
             string json = JsonSerializer.SerializeAsString(t);
 
-            Assert.IsTrue(json.Contains("\"flags\":\"2097152\""));
+            Assert.IsTrue(json.Contains("\"flags\":2097152"), json);
         }
 
         [TestMethod]
