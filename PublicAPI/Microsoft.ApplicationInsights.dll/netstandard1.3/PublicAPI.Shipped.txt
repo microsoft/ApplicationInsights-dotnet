@@ -243,7 +243,6 @@ Microsoft.ApplicationInsights.DataContracts.TelemetryContext.InstrumentationKey.
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Location.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.LocationContext
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Operation.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Properties.get -> System.Collections.Generic.IDictionary<string, string>
-Microsoft.ApplicationInsights.DataContracts.TelemetryContext.GlobalProperties.get -> System.Collections.Generic.IDictionary<string, string>
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Session.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.SessionContext
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TelemetryContext() -> void
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.User.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext
