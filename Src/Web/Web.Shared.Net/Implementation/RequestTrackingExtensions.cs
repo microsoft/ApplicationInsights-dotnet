@@ -1,16 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
     using System;
-#if NET45
     using System.Diagnostics;
-#endif
     using System.Linq;
     using System.Web;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
-#if NET45
     using Microsoft.AspNet.TelemetryCorrelation;
-#endif
 
     internal static class RequestTrackingExtensions
     {

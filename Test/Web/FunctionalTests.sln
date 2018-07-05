@@ -26,7 +26,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAppFW45Sampled", "Functi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppFW45", "FunctionalTests\TestApps\ConsoleAppFW45\ConsoleAppFW45.csproj", "{B3284820-85BB-4273-B05F-D64FB175015A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationInsightsTypes", "..\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj", "{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationInsightsTypes", "..\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj", "{4B0BC3B7-C7FC-4333-9E28-5790D9153F07}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -129,5 +129,8 @@ Global
 		{BD4C55CF-0513-4F93-936B-6EE57497ED84} = {B439008F-8E36-41F4-AF58-A4197C7D2D81}
 		{4E735DB0-178C-4719-9F5A-A04280739A3F} = {B439008F-8E36-41F4-AF58-A4197C7D2D81}
 		{B3284820-85BB-4273-B05F-D64FB175015A} = {B439008F-8E36-41F4-AF58-A4197C7D2D81}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {641403C1-6462-4AC0-8F1F-8921D5B4AF28}
 	EndGlobalSection
 EndGlobal
