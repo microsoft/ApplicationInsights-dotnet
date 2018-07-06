@@ -5,7 +5,6 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 2.7.0-beta3
 - [Allow to set flags on event](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/844). It will be used in conjunction with the feature that will allow to keep IP addresses.
-- [Add a new distict properties collection, GlobalProperties, on TelemetryContext, and obsolete the Properties on TelememetryContext.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/820)
 - [Fix: SerializationException resolving Activity in cross app-domain calls](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/613)
 - [Make HttpClient instance static to avoid re-creating with every transmission. This had caused connection/memory leaks in .net core 2.1] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/594)
   Related: (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/690)
