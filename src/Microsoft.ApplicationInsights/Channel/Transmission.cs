@@ -25,7 +25,8 @@
 
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
 #if NETSTANDARD1_3
-        private readonly HttpClient client;
+        private static HttpClient client = new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
+        private CancellationTokenSource cancellationTokenSource;
 #endif
         private int isSending;
 
@@ -56,15 +57,12 @@
             this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
             this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
             this.TelemetryItems = null;
-#if NETSTANDARD1_3
-            this.client = new HttpClient() { Timeout = this.Timeout };
-#endif
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class.
         /// </summary>
-        public Transmission(Uri address, ICollection<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan)) 
+        public Transmission(Uri address, ICollection<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan))
             : this(address, JsonSerializer.Serialize(telemetryItems, true), JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout)
         {
             this.TelemetryItems = telemetryItems;
@@ -117,8 +115,8 @@
         /// </summary>
         public string ContentEncoding
         {
-            get; 
-            private set;            
+            get;
+            private set;
         }
 
         /// <summary>
@@ -163,7 +161,9 @@
                 using (MemoryStream contentStream = new MemoryStream(this.Content))
                 {
                     HttpRequestMessage request = this.CreateRequestMessage(this.EndpointAddress, contentStream);
-                    await this.client.SendAsync(request).ConfigureAwait(false);
+                    this.cancellationTokenSource = new CancellationTokenSource(this.Timeout);             
+                    await client.SendAsync(request, this.cancellationTokenSource.Token).ConfigureAwait(false);
+                    
                     return null;
                 }
 #else
@@ -188,7 +188,7 @@
             {
                 Interlocked.Exchange(ref this.isSending, 0);
             }
-    }
+        }
 
         /// <summary>
         /// Splits the Transmission object into two pieces using a method 
