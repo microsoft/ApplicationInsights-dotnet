@@ -313,19 +313,11 @@
             // Copy internal tags:
             target.Initialize(source, instrumentationKey: null);
 
-            // Copy public properties:
-            IDictionary<string, string> sourceProperties = source.Properties;
-            IDictionary<string, string> targetProperties = target.Properties;
-            if (targetProperties != null && sourceProperties != null && sourceProperties.Count > 0)
-            {
-                foreach (KeyValuePair<string, string> property in sourceProperties)
-                {
-                    if (false == String.IsNullOrEmpty(property.Key) && false == targetProperties.ContainsKey(property.Key))
-                    {
-                        targetProperties[property.Key] = property.Value;
-                    }
-                }
-            }
+            // Copy public properties:            
+#pragma warning disable CS0618 // Type or member is obsolete
+            Utils.CopyDictionary(source.Properties, target.Properties);
+#pragma warning restore CS0618 // Type or member is obsolete
+            Utils.CopyDictionary(source.GlobalProperties, target.GlobalProperties);
 
             // Copy iKey:
 

@@ -36,7 +36,7 @@
                 Metric responseTimeMetric = metricTelemetryClient.GetMetric(
                                                     MetricTerms.Autocollection.Metric.RequestDuration.Name,
                                                     MetricTerms.Autocollection.Request.PropertyNames.Success,
-                                                    MetricTerms.Autocollection.MetricId.Moniker.Key,
+                                                    MetricDimensionNames.TelemetryContext.Property(MetricTerms.Autocollection.MetricId.Moniker.Key),
                                                     MetricConfigurations.Common.Measurement(),
                                                     MetricAggregationScope.TelemetryClient);
 

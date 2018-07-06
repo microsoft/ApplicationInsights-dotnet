@@ -98,9 +98,15 @@ namespace Microsoft.ApplicationInsights.Metrics
                 source.User.Id = "U";
                 source.User.UserAgent = "V";
 #pragma warning restore 618
+#pragma warning disable CS0618 // Type or member is obsolete
                 source.Properties["Dim 1"] = "W";
                 source.Properties["Dim 2"] = "X";
                 source.Properties["Dim 3"] = "Y";
+#pragma warning restore CS0618 // Type or member is obsolete
+
+                source.GlobalProperties["Dim 1G"] = "W";
+                source.GlobalProperties["Dim 2G"] = "X";
+                source.GlobalProperties["Dim 3G"] = "Y";
 
                 Util.CopyTelemetryContext(source, target);
 
@@ -130,6 +136,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 Assert.AreEqual("V", target.User.UserAgent);
 #pragma warning restore 618
 
+#pragma warning disable CS0618 // Type or member is obsolete
                 Assert.IsTrue(target.Properties.ContainsKey("Dim 1"));
                 Assert.AreEqual("W", target.Properties["Dim 1"]);
 
@@ -138,6 +145,15 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 Assert.IsTrue(target.Properties.ContainsKey("Dim 3"));
                 Assert.AreEqual("Y", target.Properties["Dim 3"]);
+#pragma warning restore CS0618 // Type or member is obsolete
+                Assert.IsTrue(target.GlobalProperties.ContainsKey("Dim 1G"));
+                Assert.AreEqual("W", target.GlobalProperties["Dim 1G"]);
+
+                Assert.IsTrue(target.GlobalProperties.ContainsKey("Dim 2G"));
+                Assert.AreEqual("X", target.GlobalProperties["Dim 2G"]);
+
+                Assert.IsTrue(target.GlobalProperties.ContainsKey("Dim 3G"));
+                Assert.AreEqual("Y", target.GlobalProperties["Dim 3G"]);
             }
         }
 

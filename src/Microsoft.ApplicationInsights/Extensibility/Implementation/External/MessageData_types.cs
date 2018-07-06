@@ -54,6 +54,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         public IDictionary<string, string> properties { get; set; }
 
+        
+        
+        
+        public IDictionary<string, double> measurements { get; set; }
+
         public MessageData()
             : this("AI.MessageData", "MessageData")
         {}
@@ -63,6 +68,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             ver = 2;
             message = "";
             properties = new ConcurrentDictionary<string, string>();
+            measurements = new ConcurrentDictionary<string, double>();
         }
     }
 } // AI

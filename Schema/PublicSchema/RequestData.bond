@@ -22,7 +22,7 @@ struct RequestData
     60: required string 	 responseCode;
     
     [Description("Indication of successfull or unsuccessfull call.")]
-    70: required bool 	 success;
+    70: required bool 	 success = true;
     
     [MaxStringLength("1024")]
     [Description("Source of the request. Examples are the instrumentation key of the caller or the ip address of the caller.")]
