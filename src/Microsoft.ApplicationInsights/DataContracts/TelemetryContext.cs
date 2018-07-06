@@ -138,8 +138,7 @@
         /// <summary>
         /// Gets a dictionary of application-defined property values.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
-        /// </summary>
-        [Obsolete("Use GlobalProperties to set global level properties. For properties at item level, use ISupportProperties.Properties.")]
+        /// </summary>        
         public IDictionary<string, string> Properties
         {
             get { return this.properties; }
@@ -150,7 +149,7 @@
         /// Future SDK versions could serialize this separately from the item level properties.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
-        public IDictionary<string, string> GlobalProperties
+        internal IDictionary<string, string> GlobalProperties
         {
             get { return this.globalProperties; }
         }
