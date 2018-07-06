@@ -244,7 +244,7 @@
 
                 Metric dependencyCallDuration = thisMetricTelemetryClient.GetMetric(
                                                             metricId: MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
-                                                            dimension1Name: MetricTerms.Autocollection.MetricId.Moniker.Key,
+                                                            dimension1Name: MetricDimensionNames.TelemetryContext.Property(MetricTerms.Autocollection.MetricId.Moniker.Key),                                                            
                                                             dimension2Name: MetricTerms.Autocollection.DependencyCall.PropertyNames.Success,
                                                             dimension3Name: MetricTerms.Autocollection.DependencyCall.PropertyNames.TypeName,
                                                             metricConfiguration: config,

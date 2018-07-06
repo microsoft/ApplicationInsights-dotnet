@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -14,7 +15,15 @@
     /// </summary>
     public sealed class TelemetryContext
     {
+        /// <summary>
+        /// Value for the flag that indicates that server should not store IP address from incoming events.
+        /// </summary>
+        public const long FlagDropIdentifiers = 0x200000;
+
         private readonly IDictionary<string, string> properties;
+        private readonly IDictionary<string, string> globalProperties;
+
+        private readonly InternalContext internalContext = new InternalContext();
 
         private string instrumentationKey;
 
@@ -25,20 +34,26 @@
         private UserContext user;
         private OperationContext operation;
         private LocationContext location;
-        private InternalContext internalContext = new InternalContext();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryContext"/> class.
         /// </summary>
         public TelemetryContext()
-            : this(new ConcurrentDictionary<string, string>())
+            : this(new ConcurrentDictionary<string, string>(), new ConcurrentDictionary<string, string>())
         {
         }
 
         internal TelemetryContext(IDictionary<string, string> properties)
+            : this(properties, new ConcurrentDictionary<string, string>())
+        {            
+        }
+
+        internal TelemetryContext(IDictionary<string, string> properties, IDictionary<string, string> globalProperties)
         {
-            Debug.Assert(properties != null, "properties");
+            Debug.Assert(properties != null, nameof(properties));
+            Debug.Assert(globalProperties != null, nameof(globalProperties));
             this.properties = properties;
+            this.globalProperties = globalProperties;
         }
 
         /// <summary>
@@ -56,6 +71,11 @@
             set { Property.Set(ref this.instrumentationKey, value); }
         }
 
+        /// <summary> 
+        /// Gets or sets flags which controls events priority and endpoint behavior.
+        /// </summary> 
+        public long Flags { get; set; }
+
         /// <summary>
         /// Gets the object describing the component tracked by this <see cref="TelemetryContext"/>.
         /// </summary>
@@ -69,7 +89,9 @@
         /// </summary>
         public DeviceContext Device
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(this.Properties)); }
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>
@@ -116,10 +138,20 @@
         /// <summary>
         /// Gets a dictionary of application-defined property values.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
-        /// </summary>
+        /// </summary>        
         public IDictionary<string, string> Properties
         {
             get { return this.properties; }
+        }
+
+        /// <summary>
+        /// Gets a dictionary of application-defined property values which are global in scope.
+        /// Future SDK versions could serialize this separately from the item level properties.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
+        /// </summary>
+        internal IDictionary<string, string> GlobalProperties
+        {
+            get { return this.globalProperties; }
         }
 
         internal InternalContext Internal => this.internalContext;
@@ -144,10 +176,16 @@
             }
         }
 
+        internal void SanitizeGlobalProperties()
+        {
+           this.globalProperties.SanitizeProperties();
+        }
+
         internal TelemetryContext DeepClone(IDictionary<string, string> properties)
         {
             Debug.Assert(properties != null, "properties parameter should not be null");
             var other = new TelemetryContext(properties);
+            Utils.CopyDictionary(this.globalProperties, other.globalProperties);
             other.InstrumentationKey = this.InstrumentationKey;
             return other;
         }
@@ -160,6 +198,8 @@
         internal void Initialize(TelemetryContext source, string instrumentationKey)
         {
             Property.Initialize(ref this.instrumentationKey, instrumentationKey);
+
+            this.Flags |= source.Flags;
 
             source.component?.CopyTo(this.Component);
             source.device?.CopyTo(this.Device);

@@ -53,6 +53,11 @@ namespace AI
         [global::Bond.Id(100), global::Bond.Type(typeof(Dictionary<string, string>))]
         public IDictionary<string, string> properties { get; set; }
 
+        [global::Bond.Attribute("Description", "Collection of custom measurements.")]
+        [global::Bond.Attribute("MaxKeyLength", "150")]
+        [global::Bond.Id(200), global::Bond.Type(typeof(Dictionary<string, double>))]
+        public IDictionary<string, double> measurements { get; set; }
+
         public MessageData()
             : this("AI.MessageData", "MessageData")
         {}
@@ -62,6 +67,7 @@ namespace AI
             ver = 2;
             message = "";
             properties = new Dictionary<string, string>();
+            measurements = new Dictionary<string, double>();
         }
     }
 } // AI
