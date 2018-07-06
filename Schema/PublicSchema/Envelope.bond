@@ -38,6 +38,10 @@ struct Envelope
     [MaxStringLength("40")]
     60: string 	 iKey;
     
+    [Description("A collection of values bit-packed to represent how the event was processed. Currently represents whether IP address needs to be stripped out from event (set 0x200000) or should be preserved.")]
+    [Name("TelemetryProperties")]
+    70: int64 	 flags;
+    
     [Name("Tags")]
     [TypeAlias("ContextTagKeys")]
     [Description("Key/value collection of context properties. See ContextTagKeys for information on available properties.")]

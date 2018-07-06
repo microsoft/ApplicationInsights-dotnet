@@ -95,6 +95,7 @@ namespace AI
             this.name = "";
             duration = "";
             responseCode = "";
+            success = true;
             url = "";
             properties = new Dictionary<string, string>();
             measurements = new Dictionary<string, double>();

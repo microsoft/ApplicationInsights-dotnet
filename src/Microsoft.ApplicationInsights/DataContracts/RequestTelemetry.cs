@@ -32,7 +32,7 @@
         /// </summary>
         public RequestTelemetry()
         {
-            this.Data = new RequestData() { success = true };
+            this.Data = new RequestData();
             this.context = new TelemetryContext(this.Data.properties);
             this.GenerateId();
         }

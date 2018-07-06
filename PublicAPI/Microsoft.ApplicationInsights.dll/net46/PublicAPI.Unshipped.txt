@@ -278,3 +278,6 @@ static Microsoft.ApplicationInsights.Metrics.MetricIdentifier.DefaultMetricNames
 static Microsoft.ApplicationInsights.Metrics.TelemetryConfigurationExtensions.GetMetricManager(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration telemetryPipeline) -> Microsoft.ApplicationInsights.Metrics.MetricManager
 static readonly Microsoft.ApplicationInsights.MetricConfigurations.Common -> Microsoft.ApplicationInsights.MetricConfigurations
 virtual Microsoft.ApplicationInsights.Metrics.MetricConfiguration.Equals(Microsoft.ApplicationInsights.Metrics.MetricConfiguration other) -> bool
+Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Flags.get -> long
+Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Flags.set -> void
+const Microsoft.ApplicationInsights.DataContracts.TelemetryContext.FlagDropIdentifiers = 2097152 -> long

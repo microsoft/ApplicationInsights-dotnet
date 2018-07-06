@@ -56,7 +56,7 @@
             expected.Properties["Test Property"] = "Test Value";
             expected.Metrics["Test Property"] = 4.2;
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<EventTelemetry, AI.EventData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.EventData>(expected);
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
             Assert.AreEqual(AI.ItemType.Event, item.name);
@@ -73,9 +73,31 @@
             EventTelemetry original = new EventTelemetry();
             original.Name = null;
             ((ITelemetry)original).Sanitize();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<EventTelemetry, AI.EventData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.EventData>(original);
 
             Assert.AreEqual(2, item.data.baseData.ver);
+        }
+
+        [TestMethod]
+        public void EventTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
+        {
+            var expected = new EventTelemetry();
+            expected.Context.GlobalProperties.Add("TestPropertyGlobal", "contextpropvalue");
+            expected.Properties.Add("TestProperty", "TestPropertyValue");
+            ((ITelemetry)expected).Sanitize();
+
+            Assert.AreEqual(1, expected.Properties.Count);
+            Assert.AreEqual(1, expected.Context.GlobalProperties.Count);
+
+            Assert.IsTrue(expected.Properties.ContainsKey("TestProperty"));
+            Assert.IsTrue(expected.Context.GlobalProperties.ContainsKey("TestPropertyGlobal"));
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.EventData>(expected);
+
+            // Items added to both event.Properties, and event.Context.GlobalProperties are serialized to properties.
+            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestPropertyGlobal"));
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
         }
 
         [TestMethod]
@@ -145,7 +167,7 @@
             var telemetry = new EventTelemetry("my event");
             ((ISupportSampling)telemetry).SamplingPercentage = 10;
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<EventTelemetry, AI.EventData>(telemetry);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.EventData>(telemetry);
 
             Assert.AreEqual(10, item.sampleRate);
         }

@@ -1,4 +1,4 @@
-<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
   <PropertyGroup>
@@ -16,7 +16,7 @@
 
     <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <IncludeSymbols>False</IncludeSymbols>
+    <IncludeSymbols>True</IncludeSymbols>
     <!--PackageOutputPath>Defined in Directory.Build.props</PackageOutputPath-->
     <PackageId>Microsoft.ApplicationInsights</PackageId>
     <!--PackageVersion is defined in GlobalStaticVersion.props-->
@@ -58,7 +58,7 @@
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28" Condition="$(OS) == 'Windows_NT'">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
     <Reference Include="System.Net.Http" />
   </ItemGroup>
 

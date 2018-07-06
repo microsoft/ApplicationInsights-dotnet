@@ -1,6 +1,13 @@
 ﻿# Changelog
 
-This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
+This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
+
+
+## Version 2.7.0-beta3
+- [Allow to set flags on event](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/844). It will be used in conjunction with the feature that will allow to keep IP addresses.
+- [Fix: SerializationException resolving Activity in cross app-domain calls](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/613)
+- [Make HttpClient instance static to avoid re-creating with every transmission. This had caused connection/memory leaks in .net core 2.1] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/594)
+  Related: (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/690)
 
 ## Version 2.7.0-beta2
 - [Fix: NullReferenceException if telemtery is tracked after TelemetryConfiguration is disposed](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/928)

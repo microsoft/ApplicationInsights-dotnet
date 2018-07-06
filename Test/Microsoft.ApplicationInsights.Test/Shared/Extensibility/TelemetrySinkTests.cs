@@ -33,13 +33,13 @@
             chainBuilder.Use((next) =>
             {
                 var first = new StubTelemetryProcessor(next);
-                first.OnProcess = (telemetry) => telemetry.Context.Properties.Add("SeenByFirst", "true");
+                first.OnProcess = (telemetry) => telemetry.Context.GlobalProperties.Add("SeenByFirst", "true");
                 return first;
             });
             chainBuilder.Use((next) =>
             {
                 var second = new StubTelemetryProcessor(next);
-                second.OnProcess = (telemetry) => telemetry.Context.Properties.Add("SeenBySecond", "true");
+                second.OnProcess = (telemetry) => telemetry.Context.GlobalProperties.Add("SeenBySecond", "true");
                 return second;
             });
 
@@ -47,8 +47,8 @@
             client.TrackTrace("t1");
 
             Assert.AreEqual(1, sentTelemetry.Count);
-            Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey("SeenByFirst"));
-            Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey("SeenBySecond"));
+            Assert.IsTrue(sentTelemetry[0].Context.GlobalProperties.ContainsKey("SeenByFirst"));
+            Assert.IsTrue(sentTelemetry[0].Context.GlobalProperties.ContainsKey("SeenBySecond"));
         }
 
         [TestMethod]
@@ -66,13 +66,13 @@
             chainBuilder.Use((next) =>
             {
                 var first = new StubTelemetryProcessor(next);
-                first.OnProcess = (telemetry) => telemetry.Context.Properties.Add("SeenByFirst", "true");
+                first.OnProcess = (telemetry) => telemetry.Context.GlobalProperties.Add("SeenByFirst", "true");
                 return first;
             });
             chainBuilder.Use((next) =>
             {
                 var second = new StubTelemetryProcessor(next);
-                second.OnProcess = (telemetry) => telemetry.Context.Properties.Add("SeenBySecond", "true");
+                second.OnProcess = (telemetry) => telemetry.Context.GlobalProperties.Add("SeenBySecond", "true");
                 return second;
             });
 
@@ -81,8 +81,8 @@
 
             Assert.IsFalse(configuration.TelemetryProcessors.OfType<StubTelemetryProcessor>().Any()); // Both processors belong to the sink, not to the common chain.
             Assert.AreEqual(1, sentTelemetry.Count);
-            Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey("SeenByFirst"));
-            Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey("SeenBySecond"));
+            Assert.IsTrue(sentTelemetry[0].Context.GlobalProperties.ContainsKey("SeenByFirst"));
+            Assert.IsTrue(sentTelemetry[0].Context.GlobalProperties.ContainsKey("SeenBySecond"));
         }
 
         [TestMethod]
@@ -100,7 +100,7 @@
             commonChainBuilder.Use((next) =>
             {
                 var commonProcessor = new StubTelemetryProcessor(next);
-                commonProcessor.OnProcess = (telemetry) => telemetry.Context.Properties.Add("SeenByCommonProcessor", "true");
+                commonProcessor.OnProcess = (telemetry) => telemetry.Context.GlobalProperties.Add("SeenByCommonProcessor", "true");
                 return commonProcessor;
             });
 
@@ -109,7 +109,7 @@
             sinkChainBuilder.Use((next) =>
             {
                 var sinkProcessor = new StubTelemetryProcessor(next);
-                sinkProcessor.OnProcess = (telemetry) => telemetry.Context.Properties.Add("SeenBySinkProcessor", "true");
+                sinkProcessor.OnProcess = (telemetry) => telemetry.Context.GlobalProperties.Add("SeenBySinkProcessor", "true");
                 return sinkProcessor;
             });
 
@@ -117,8 +117,8 @@
             client.TrackTrace("t1");
 
             Assert.AreEqual(1, sentTelemetry.Count);
-            Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey("SeenByCommonProcessor"));
-            Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey("SeenBySinkProcessor"));
+            Assert.IsTrue(sentTelemetry[0].Context.GlobalProperties.ContainsKey("SeenByCommonProcessor"));
+            Assert.IsTrue(sentTelemetry[0].Context.GlobalProperties.ContainsKey("SeenBySinkProcessor"));
         }
 
         [TestMethod]
@@ -192,7 +192,7 @@
             commonChainBuilder.Use((next) =>
             {
                 var commonProcessor = new StubTelemetryProcessor(next);
-                commonProcessor.OnProcess = (telemetry) => telemetry.Context.Properties.Add("SeenByCommonProcessor", "true");
+                commonProcessor.OnProcess = (telemetry) => telemetry.Context.GlobalProperties.Add("SeenByCommonProcessor", "true");
                 return commonProcessor;
             });
 
@@ -205,7 +205,7 @@
             firstSinkChainBuilder.Use((next) =>
             {
                 var firstSinkTelemetryProcessor = new StubTelemetryProcessor(next);
-                firstSinkTelemetryProcessor.OnProcess = (telemetry) => telemetry.Context.Properties.Add("SeenByFirstSinkProcessor", "true");
+                firstSinkTelemetryProcessor.OnProcess = (telemetry) => telemetry.Context.GlobalProperties.Add("SeenByFirstSinkProcessor", "true");
                 return firstSinkTelemetryProcessor;
             });
             configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder = firstSinkChainBuilder;
@@ -220,7 +220,7 @@
             secondSinkChainBuilder.Use((next) =>
             {
                 var secondSinkTelemetryProcessor = new StubTelemetryProcessor(next);
-                secondSinkTelemetryProcessor.OnProcess = (telemetry) => telemetry.Context.Properties.Add("SeenBySecondSinkProcessor", "true");
+                secondSinkTelemetryProcessor.OnProcess = (telemetry) => telemetry.Context.GlobalProperties.Add("SeenBySecondSinkProcessor", "true");
                 return secondSinkTelemetryProcessor;
             });
             secondSink.TelemetryProcessorChainBuilder = secondSinkChainBuilder;
@@ -229,14 +229,14 @@
             client.TrackTrace("t1");
 
             Assert.AreEqual(1, firstChannelTelemetry.Count);
-            Assert.IsTrue(firstChannelTelemetry[0].Context.Properties.ContainsKey("SeenByCommonProcessor"));
-            Assert.IsTrue(firstChannelTelemetry[0].Context.Properties.ContainsKey("SeenByFirstSinkProcessor"));
-            Assert.IsFalse(firstChannelTelemetry[0].Context.Properties.ContainsKey("SeenBySecondSinkProcessor"));
+            Assert.IsTrue(firstChannelTelemetry[0].Context.GlobalProperties.ContainsKey("SeenByCommonProcessor"));
+            Assert.IsTrue(firstChannelTelemetry[0].Context.GlobalProperties.ContainsKey("SeenByFirstSinkProcessor"));
+            Assert.IsFalse(firstChannelTelemetry[0].Context.GlobalProperties.ContainsKey("SeenBySecondSinkProcessor"));
 
             Assert.AreEqual(1, secondChannelTelemetry.Count);
-            Assert.IsTrue(secondChannelTelemetry[0].Context.Properties.ContainsKey("SeenByCommonProcessor"));
-            Assert.IsFalse(secondChannelTelemetry[0].Context.Properties.ContainsKey("SeenByFirstSinkProcessor"));
-            Assert.IsTrue(secondChannelTelemetry[0].Context.Properties.ContainsKey("SeenBySecondSinkProcessor"));
+            Assert.IsTrue(secondChannelTelemetry[0].Context.GlobalProperties.ContainsKey("SeenByCommonProcessor"));
+            Assert.IsFalse(secondChannelTelemetry[0].Context.GlobalProperties.ContainsKey("SeenByFirstSinkProcessor"));
+            Assert.IsTrue(secondChannelTelemetry[0].Context.GlobalProperties.ContainsKey("SeenBySecondSinkProcessor"));
         }
 
         [TestMethod]

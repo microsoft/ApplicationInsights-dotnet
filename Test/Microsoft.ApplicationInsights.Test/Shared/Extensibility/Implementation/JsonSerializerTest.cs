@@ -41,6 +41,23 @@
         }
 
         [TestMethod]
+        public void SanitizesTelemetryContextGlobalProperties()
+        {
+            var addedValueWithSizeAboveLimit = new string('V', Property.MaxValueLength + 1);
+            var expectedValueWithSizeWithinLimit = new string('V', Property.MaxValueLength);
+
+            EventTelemetry t = new EventTelemetry("myevent");
+            t.Context.GlobalProperties.Add("mykey", addedValueWithSizeAboveLimit);
+
+            string exceptionAsJson = JsonSerializer.SerializeAsString(t);
+
+            JObject obj = JsonConvert.DeserializeObject<JObject>(exceptionAsJson);
+
+            Assert.AreEqual(expectedValueWithSizeWithinLimit, obj["data"]["baseData"]["properties"]["mykey"]);
+            
+        }
+
+        [TestMethod]
         public void SanitizesTimestampInIsoFormat()
         {
             EventTelemetry t = new EventTelemetry();
@@ -48,6 +65,17 @@
             string json = JsonSerializer.SerializeAsString(t);
 
             Assert.IsTrue(json.Contains("\"time\":\"0001-01-01T00:00:00.0000000Z\""));
+        }
+
+        [TestMethod]
+        public void SerializesNotZeroFlags()
+        {
+            EventTelemetry t = new EventTelemetry();
+            t.Context.Flags = TelemetryContext.FlagDropIdentifiers;
+
+            string json = JsonSerializer.SerializeAsString(t);
+
+            Assert.IsTrue(json.Contains("\"flags\":2097152"), json);
         }
 
         [TestMethod]
