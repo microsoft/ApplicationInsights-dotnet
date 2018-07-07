@@ -83,7 +83,7 @@
         /// Gets or sets the maximum number of telemetry items that can be in the backlog to send. Items will be dropped
         /// once this limit is hit.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">The value is zero or less.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The value is less than the Minimum Backlog Size.</exception>
         /// <exception cref="ArgumentException">The value is less than the Capacity.</exception>
         public int BacklogSize
         {
@@ -96,7 +96,7 @@
             {
                 if (value < this.minimumBacklogSize)
                 {
-                    throw new ArgumentOutOfRangeException("value");
+                    throw new ArgumentOutOfRangeException($"capacity cannot be lower than the Minimum Backlog Size. ({this.minimumBacklogSize})");
                 }
 
                 if (value < this.capacity)
