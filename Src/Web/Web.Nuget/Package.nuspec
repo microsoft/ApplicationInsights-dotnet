@@ -20,7 +20,7 @@
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
         <dependency id="Microsoft.ApplicationInsights.WindowsServer" version="$version$" />
         <dependency id="Microsoft.AspNet.TelemetryCorrelation" version="1.0.3" />
-        <dependency id="System.Diagnostics.DiagnosticSource" version="4.4.0" />
+        <dependency id="System.Diagnostics.DiagnosticSource" version="4.5.0" />
       </group>
     </dependencies>
   </metadata>

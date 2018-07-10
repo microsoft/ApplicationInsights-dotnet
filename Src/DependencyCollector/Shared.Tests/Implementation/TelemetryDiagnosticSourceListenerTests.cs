@@ -37,11 +37,24 @@
         #region Subscribtion tests
 
         [TestMethod]
+        public void TelemetryDiagnosticSourceListenerOnCreatedListener()
+        {
+            DiagnosticListener listener = new DiagnosticListener("Test.A");
+            var inclusionList = new[] { "Test.A" }.ToList();
+            using (var dl = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
+            {
+                dl.Subscribe();
+                Assert.IsTrue(listener.IsEnabled(), "There is a subscriber for a new diagnostic source");
+            }
+        }
+
+        [TestMethod]
         public void TelemetryDiagnosticSourceListenerCapturesAllActivitiesByDefault()
         {
             var inclusionList = new[] { "Test.A" }.ToList();
-            using (new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
+            using (var dl = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
+                dl.Subscribe();
                 DiagnosticListener listener = new DiagnosticListener("Test.A");
                 Activity activity = new Activity("Test.A.Client.Monitoring");
 
@@ -74,8 +87,9 @@
         public void TelemetryDiagnosticSourceListenerIgnoresNotIncludedSources()
         {
             var inclusionList = new[] { "Test.B" }.ToList();
-            using (new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
+            using (var dl = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
+                dl.Subscribe();
                 // Diagnostic Source A is ignored
                 DiagnosticListener listenerA = new DiagnosticListener("Test.A");
                 Activity activityA = new Activity("Test.A.Client.Monitoring");
@@ -114,8 +128,9 @@
         public void TelemetryDiagnosticSourceListenerIgnoresNotIncludedActivities()
         {
             var inclusionList = new[] { "Test.A:Test.A.Client.Monitoring" }.ToList();
-            using (new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
+            using (var dl = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
+                dl.Subscribe();
                 // Diagnostic Source is not ignored
                 DiagnosticListener listener = new DiagnosticListener("Test.A");
 
@@ -167,8 +182,9 @@
         public void TelemetryDiagnosticSourceListenerCollectsTelemetryFromRawActivity()
         {
             var inclusionList = new[] { "Test.A" }.ToList();
-            using (new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
+            using (var dl = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
+                dl.Subscribe();
                 DiagnosticListener listener = new DiagnosticListener("Test.A");
 
                 // generic example
@@ -231,6 +247,7 @@
             var inclusionList = new[] { "Test.A:Send", "Test.B" }.ToList();
             using (var telemetryListener = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
+                telemetryListener.Subscribe();
                 TestableEventHandler ahandler = new TestableEventHandler();
                 TestableEventHandler bhandler = new TestableEventHandler();
                 telemetryListener.RegisterHandler("Test.A", ahandler);
