@@ -4,12 +4,12 @@
 $newVersion = .\NuGet.exe list "Microsoft.ApplicationInsights" -Source https://www.myget.org/F/applicationinsights -Pre -NonInteractive | Select-String -Pattern "Microsoft.ApplicationInsights " | %{$_.Line.Split(" ")} | Select -skip 1
 
 ##Use this to manually set the new version##
-$newVersion = "2.7.0-beta2"
+$newVersion = "2.7.0-beta3"
 
 Write-Host "New Version: " $newVersion
 
 #$oldVersion = cat .\Directory.Build.props | Select-String -Pattern "CoreSdkVersion" | %{$_.Line.Split("<>")} | Select -skip 2 | Select -First 1
-$oldVersion = "2.7.0-beta1"
+$oldVersion = "2.7.0-beta2"
 
 Write-Host "Old Version: " $oldVersion
 
