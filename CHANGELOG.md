@@ -2,6 +2,7 @@
 
 ## Version 2.7.0-beta3
 - [Fix: SerializationException resolving Activity in cross app-domain calls](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/613)
+- [Fix: Race condition in generic diagnostic source listener](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/948)
 
 ## Version 2.7.0-beta1
 - [Add operation details for HTTP and SQL operation to the dependency telemetry.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/900)
