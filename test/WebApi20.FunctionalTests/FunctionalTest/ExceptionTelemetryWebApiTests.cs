@@ -30,7 +30,8 @@ namespace WebApi20.FunctionalTests.FunctionalTest
                 expectedRequestTelemetry.Success = false;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
 
-                this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
+                // the is no response header because of https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/717
+                this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry, false);
             }
         }
 

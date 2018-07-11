@@ -32,18 +32,19 @@
         }
 
         [MethodImpl(MethodImplOptions.NoOptimization)]
-        public void ValidateBasicRequest(InProcessServer server, string requestPath, RequestTelemetry expected)
+        public void ValidateBasicRequest(InProcessServer server, string requestPath, RequestTelemetry expected, bool expectRequestContextInResponse = true)
         {
             // Subtract 50 milliseconds to hack around strange behavior on build server where the RequestTelemetry.Timestamp is somehow sometimes earlier than now by a few milliseconds.
             expected.Timestamp = DateTimeOffset.Now.Subtract(TimeSpan.FromMilliseconds(50));
             Stopwatch timer = Stopwatch.StartNew();
 
-            this.ExecuteRequest(server.BaseHost + requestPath);
+            var response = this.ExecuteRequest(server.BaseHost + requestPath);
 
             var actual = server.Listener.ReceiveItemsOfType<TelemetryItem<RequestData>>(1, TestListenerTimeoutInMs);
-            this.DebugTelemetryItems(actual);
-
             timer.Stop();
+
+            this.DebugTelemetryItems(actual);
+            this.output.WriteLine("Response headers: " + string.Join(",", response.Headers.Select(kvp => $"{kvp.Key} = {kvp.Value}")));
 
             var item = actual.OfType<TelemetryItem<RequestData>>().FirstOrDefault();
             Assert.NotNull(item);
@@ -53,6 +54,7 @@
             Assert.Equal(expected.Name, data.name);
             Assert.Equal(expected.Success, data.success);
             Assert.Equal(expected.Url, new Uri(data.url));
+            Assert.Equal(expectRequestContextInResponse, response.Headers.Contains("Request-Context"));
             output.WriteLine("actual.Duration: " + data.duration);
             output.WriteLine("timer.Elapsed: " + timer.Elapsed);
             Assert.True(TimeSpan.Parse(data.duration) < timer.Elapsed.Add(TimeSpan.FromMilliseconds(20)), "duration");
@@ -115,7 +117,7 @@
         }
 #endif
 
-        protected void ExecuteRequest(string requestPath)
+        protected HttpResponseMessage ExecuteRequest(string requestPath)
         {
             var httpClientHandler = new HttpClientHandler();
             httpClientHandler.UseDefaultCredentials = true;
@@ -126,6 +128,8 @@
                 var task = httpClient.GetAsync(requestPath);
                 task.Wait(TestListenerTimeoutInMs);
                 this.output.WriteLine(string.Format("{0}: Ended request: {1}", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt"), requestPath));
+
+                return task.Result;
             }
         }
 

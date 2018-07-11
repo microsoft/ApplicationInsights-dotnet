@@ -31,17 +31,23 @@
         private readonly TelemetryClient client;
         private readonly IApplicationIdProvider applicationIdProvider;
         private readonly string sdkVersion = SdkVersionUtils.GetVersion();
+        private readonly bool injectResponseHeaders;
+        private readonly bool trackExceptions;
         private const string ActivityCreatedByHostingDiagnosticListener = "ActivityCreatedByHostingDiagnosticListener";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:HostingDiagnosticListener"/> class.
         /// </summary>
         /// <param name="client"><see cref="TelemetryClient"/> to post traces to.</param>
-        /// <param name="applicationIdProvider">Nullable Provider for resolving application Id to be used by Correlation.</param>
-        public HostingDiagnosticListener(TelemetryClient client, IApplicationIdProvider applicationIdProvider = null)
+        /// <param name="applicationIdProvider">Provider for resolving application Id to be used in multiple instruemntation keys scenarios.</param>
+        /// <param name="injectResponseHeaders">Flag that indicates that response headers should be injected.</param>
+        /// <param name="trackExceptions">Flag that indicates that exceptions should be tracked.</param>
+        public HostingDiagnosticListener(TelemetryClient client, IApplicationIdProvider applicationIdProvider, bool injectResponseHeaders, bool trackExceptions)
         {
             this.client = client ?? throw new ArgumentNullException(nameof(client));
             this.applicationIdProvider = applicationIdProvider;
+            this.injectResponseHeaders = injectResponseHeaders;
+            this.trackExceptions = trackExceptions;
         }
 
         /// <inheritdoc/>
@@ -87,7 +93,7 @@
                     httpContext.Features.Set(activity);
                 }
 
-                var requestTelemetry = InitializeRequestTelemetryFromActivity(httpContext, Activity.Current, isActivityCreatedFromRequestIdHeader, Stopwatch.GetTimestamp());
+                var requestTelemetry = InitializeRequestTelemetry(httpContext, currentActivity, isActivityCreatedFromRequestIdHeader, Stopwatch.GetTimestamp());
                 SetAppIdInResponseHeader(httpContext, requestTelemetry);
             }
         }
@@ -145,7 +151,7 @@
                 activity.Start();
                 httpContext.Features.Set(activity);
 
-                var requestTelemetry = InitializeRequestTelemetryFromActivity(httpContext, activity, isActivityCreatedFromRequestIdHeader, timestamp);
+                var requestTelemetry = InitializeRequestTelemetry(httpContext, activity, isActivityCreatedFromRequestIdHeader, timestamp);
                 SetAppIdInResponseHeader(httpContext, requestTelemetry);
             }
         }
@@ -196,7 +202,7 @@
             this.OnException(httpContext, exception);
         }
 
-        private RequestTelemetry InitializeRequestTelemetryFromActivity(HttpContext httpContext, Activity activity, bool isActivityCreatedFromRequestIdHeader, long timestamp)
+        private RequestTelemetry InitializeRequestTelemetry(HttpContext httpContext, Activity activity, bool isActivityCreatedFromRequestIdHeader, long timestamp)
         {
             var requestTelemetry = new RequestTelemetry();
 
@@ -223,6 +229,27 @@
             requestTelemetry.Context.Operation.Id = activity.RootId;
 
             this.client.Initialize(requestTelemetry);
+
+            // set Source
+            string headerCorrelationId = HttpHeadersUtilities.GetRequestContextKeyValue(httpContext.Request.Headers, RequestResponseHeaders.RequestContextSourceKey);
+
+            string applicationId = null;
+            // If the source header is present on the incoming request, and it is an external component (not the same ikey as the one used by the current component), populate the source field.
+            if (!string.IsNullOrEmpty(headerCorrelationId))
+            {
+                headerCorrelationId = StringUtilities.EnforceMaxLength(headerCorrelationId, InjectionGuardConstants.AppIdMaxLengeth);
+                if (string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey))
+                {
+                    requestTelemetry.Source = headerCorrelationId;
+                }
+
+                else if ((this.applicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out applicationId) ?? false)
+                    && applicationId != headerCorrelationId)
+                {
+                    requestTelemetry.Source = headerCorrelationId;
+                }
+            }
+
             requestTelemetry.Start(timestamp);
             httpContext.Features.Set(requestTelemetry);
 
@@ -231,15 +258,22 @@
 
         private void SetAppIdInResponseHeader(HttpContext httpContext, RequestTelemetry requestTelemetry)
         {
-            IHeaderDictionary responseHeaders = httpContext.Response?.Headers;
-            if (responseHeaders != null &&
-                !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) &&
-                (!responseHeaders.ContainsKey(RequestResponseHeaders.RequestContextHeader) || HttpHeadersUtilities.ContainsRequestContextKeyValue(responseHeaders, RequestResponseHeaders.RequestContextTargetKey)))
+            if (this.injectResponseHeaders)
             {
-                string applicationId = null;
-                if (this.applicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out applicationId) ?? false)
+                IHeaderDictionary responseHeaders = httpContext.Response?.Headers;
+                if (responseHeaders != null &&
+                    !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) &&
+                    (!responseHeaders.ContainsKey(RequestResponseHeaders.RequestContextHeader) ||
+                     HttpHeadersUtilities.ContainsRequestContextKeyValue(responseHeaders,
+                         RequestResponseHeaders.RequestContextTargetKey)))
                 {
-                    HttpHeadersUtilities.SetRequestContextKeyValue(responseHeaders, RequestResponseHeaders.RequestContextTargetKey, applicationId);
+                    string applicationId = null;
+                    if (this.applicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey,
+                            out applicationId) ?? false)
+                    {
+                        HttpHeadersUtilities.SetRequestContextKeyValue(responseHeaders,
+                            RequestResponseHeaders.RequestContextTargetKey, applicationId);
+                    }
                 }
             }
         }
@@ -287,7 +321,7 @@
 
         private void OnException(HttpContext httpContext, Exception exception)
         {
-            if (this.client.IsEnabled())
+            if (this.trackExceptions && this.client.IsEnabled())
             {
                 var telemetry = httpContext?.Features.Get<RequestTelemetry>();
                 if (telemetry != null)

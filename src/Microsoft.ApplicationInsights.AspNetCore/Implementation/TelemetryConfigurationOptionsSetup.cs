@@ -63,7 +63,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     ITelemetryModule telemetryModule = this.modules.FirstOrDefault(((module) => module.GetType() == telemetryModuleConfigurator.TelemetryModuleType));
                     if (telemetryModule != null)
                     {
-                        telemetryModuleConfigurator.Configure(telemetryModule);
+                        telemetryModuleConfigurator.Configure(telemetryModule, this.applicationInsightsServiceOptions);
                     }
                     else
                     {

@@ -1,4 +1,8 @@
-﻿namespace FunctionalTestUtils
+﻿using System.Collections.Generic;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
+
+namespace FunctionalTestUtils
 {
     using System;
     using System.IO;
@@ -23,6 +27,8 @@
     // a variant of aspnet/Hosting/test/Microsoft.AspNetCore.Hosting.Tests/HostingEngineTests.cs
     public class InProcessServer : IDisposable
     {
+        public const string IKey = "Foo";
+        public const string AppId = "AppId";
         private readonly string httpListenerConnectionString;
         private readonly ITestOutputHelper output;
 
@@ -32,17 +38,17 @@
         private IWebHost hostingEngine;
         private string url;
 
-        private TelemetryHttpListenerObservable listener;       
-        
+        private TelemetryHttpListenerObservable listener;
+        private readonly Func<IWebHostBuilder, IWebHostBuilder> configureHost;
 
-        public InProcessServer(string assemblyName, ITestOutputHelper output)
+        public InProcessServer(string assemblyName, ITestOutputHelper output, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
             this.output = output;
 
             // localhost instead of machine name, as its not possible to get machine name when running non windows.
             var machineName = "localhost";
             this.url = "http://" + machineName + ":" + random.Next(5000, 14000).ToString();
-
+            this.configureHost = configureHost;
             this.httpListenerConnectionString = LauchApplicationAndStartListener(assemblyName);
         }
 
@@ -135,6 +141,18 @@
                 .UseKestrel()
                 .UseStartup(assemblyName)
                 .UseEnvironment("Production");
+            builder.ConfigureServices(services =>
+            {
+                services.AddSingleton<IApplicationIdProvider>(provider =>
+                    new DictionaryApplicationIdProvider()
+                    {
+                        Defined = new Dictionary<string, string> {[IKey] = AppId}
+                    });
+            });
+            if (configureHost != null)
+            {
+                builder = configureHost(builder);
+            }
 
             this.hostingEngine = builder.Build();
             this.hostingEngine.Start();

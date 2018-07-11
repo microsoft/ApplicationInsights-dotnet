@@ -30,7 +30,9 @@ namespace EmptyApp20.FunctionalTests.FunctionalTest
                 expectedRequestTelemetry.ResponseCode = "500";
                 expectedRequestTelemetry.Success = false;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
-                this.ValidateBasicRequest(server, "/Exception", expectedRequestTelemetry);
+                
+                // the is no response header because of https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/717
+                this.ValidateBasicRequest(server, "/Exception", expectedRequestTelemetry, false);
             }
         }
 
