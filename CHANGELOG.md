@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 2.4.0-beta3
+- [Allow configuring exception tracking in RequestTrackingTelemetryModule and merge OperationCorrelationTelemetryInitializer with RequestTrackingTelemetryModule](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/709)
+- [Allow disabling response headers injection](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/613)
+- Updated Web/Base SDK version dependency to 2.7.0-beta3
+- The above referenced base SDK contains fix for leaky HttpConnections. (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/690)
+
 ## Version 2.4.0-beta2
 - Updated Web/Base SDK version dependency to 2.7.0-beta2
 

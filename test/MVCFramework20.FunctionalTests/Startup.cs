@@ -31,7 +31,7 @@ namespace MVCFramework20.FunctionalTests
             applicationInsightsOptions.AddAutoCollectedMetricExtractor = false;
             applicationInsightsOptions.DeveloperMode = true;
             applicationInsightsOptions.EndpointAddress = endpointAddress.ConnectionString;
-            applicationInsightsOptions.InstrumentationKey = "foo";
+            applicationInsightsOptions.InstrumentationKey = InProcessServer.IKey;
 
             services.AddApplicationInsightsTelemetry(applicationInsightsOptions);
             services.AddMvc();

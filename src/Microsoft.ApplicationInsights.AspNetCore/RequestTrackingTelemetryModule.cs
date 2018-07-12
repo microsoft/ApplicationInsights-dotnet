@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore
+﻿using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+
+namespace Microsoft.ApplicationInsights.AspNetCore
 {
     using System;
     using System.Collections.Concurrent;
@@ -24,7 +26,8 @@
         /// RequestTrackingTelemetryModule
         /// </summary>
         public RequestTrackingTelemetryModule() : this(null)
-        {            
+        {
+            this.CollectionOptions = new RequestCollectionOptions();
         }
 
         public RequestTrackingTelemetryModule(IApplicationIdProvider applicationIdProvider)
@@ -33,6 +36,8 @@
             this.subscriptions = new ConcurrentBag<IDisposable>();
             this.diagnosticListeners = new List<IApplicationInsightDiagnosticListener>();
         }
+
+        public RequestCollectionOptions CollectionOptions { get; set; }
 
         /// <summary>
         /// Initializes the telemetry module.
@@ -49,7 +54,11 @@
                         this.telemetryClient = new TelemetryClient(configuration);
 
                         this.diagnosticListeners.Add
-                            (new HostingDiagnosticListener(this.telemetryClient, applicationIdProvider));
+                            (new HostingDiagnosticListener(
+                            this.telemetryClient,
+                            applicationIdProvider,
+                            this.CollectionOptions.InjectResponseHeaders,
+                            this.CollectionOptions.TrackExceptions));
 
                         this.diagnosticListeners.Add
                             (new MvcDiagnosticsListener());

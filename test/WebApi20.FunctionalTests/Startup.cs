@@ -30,7 +30,7 @@ namespace WebApi20.FunctionalTests
             services.AddSingleton<EndpointAddress>(endpointAddress);
 
             var builder = new ConfigurationBuilder();
-            builder.AddApplicationInsightsSettings(instrumentationKey: "Foo", endpointAddress: endpointAddress.ConnectionString, developerMode: true);
+            builder.AddApplicationInsightsSettings(instrumentationKey: InProcessServer.IKey, endpointAddress: endpointAddress.ConnectionString, developerMode: true);
             services.AddApplicationInsightsTelemetry(builder.Build());
 
             services.AddMvc();

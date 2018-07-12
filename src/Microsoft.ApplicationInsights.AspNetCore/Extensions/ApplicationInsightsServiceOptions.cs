@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 {
-    using System;
     using System.Reflection;
 
     /// <summary>
@@ -20,6 +19,7 @@
             this.EnableAuthenticationTrackingJavaScript = false;
             this.EnableHeartbeat = true;
             this.AddAutoCollectedMetricExtractor = true;
+            this.RequestCollectionOptions = new RequestCollectionOptions();
             this.ApplicationVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
         }
 
@@ -75,5 +75,10 @@
         /// Gets or sets a value indicating whether AutoCollectedMetricExtractor are added or not.
         /// </summary>
         public bool AddAutoCollectedMetricExtractor { get; set; }
+
+        /// <summary>
+        /// Gets <see cref="RequestCollectionOptions"/> that allow to manage <see cref="RequestTrackingTelemetryModule"/>
+        /// </summary>
+        public RequestCollectionOptions RequestCollectionOptions { get; }
     }
 }
