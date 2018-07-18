@@ -7,7 +7,7 @@
     /// </summary>
     public sealed class ExceptionDetailsInfo
     {
-        private readonly ExceptionDetails internalExceptionDetails = null;
+        internal readonly ExceptionDetails InternalExceptionDetails = null;
 
         /// <summary>
         /// Constructs the 
@@ -15,7 +15,7 @@
         /// <param name="exceptionDetails">Instance of </param>
         internal ExceptionDetailsInfo(ExceptionDetails exceptionDetails)
         {
-            this.internalExceptionDetails = exceptionDetails;
+            this.InternalExceptionDetails = exceptionDetails;
         }
 
         /// <summary>
@@ -23,8 +23,8 @@
         /// </summary>
         public string TypeName
         {
-            get => this.internalExceptionDetails.typeName;
-            set => this.internalExceptionDetails.typeName = value;
+            get => this.InternalExceptionDetails.typeName;
+            set => this.InternalExceptionDetails.typeName = value;
         }
 
         /// <summary>
@@ -32,8 +32,8 @@
         /// </summary>
         public string Message
         {
-            get => this.internalExceptionDetails.message;
-            set => this.internalExceptionDetails.message = value;
+            get => this.InternalExceptionDetails.message;
+            set => this.InternalExceptionDetails.message = value;
         }
     }
 }

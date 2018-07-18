@@ -373,7 +373,7 @@
             {
                 ExceptionDetails details = telemetry.Exceptions[counter];
                 ExceptionDetailsInfo newExceptionDetails = telemetry.ExceptionDetailsInfoList[counter];
-                Assert.ReferenceEquals(details, newExceptionDetails);
+                Assert.IsTrue(ReferenceEquals(details, newExceptionDetails.InternalExceptionDetails));
                 if (details.typeName == "System.AggregateException")
                 {
                     AssertEx.StartsWith(expectedSequence[counter], details.message);
@@ -401,11 +401,11 @@
 
             Assert.AreEqual(Constants.MaxExceptionCountToSave + 1, telemetry.Exceptions.Count);
             Assert.AreEqual(Constants.MaxExceptionCountToSave + 1, telemetry.ExceptionDetailsInfoList.Count);
-            for(int counter = 0; counter < telemetry.Exceptions.Count; counter++)
+            for(int counter = 0; counter < Constants.MaxExceptionCountToSave; counter++)
             {
                 ExceptionDetails details = telemetry.Exceptions[counter];
                 ExceptionDetailsInfo newExceptionDetails = telemetry.ExceptionDetailsInfoList[counter];
-                Assert.ReferenceEquals(details, newExceptionDetails);
+                Assert.IsTrue(ReferenceEquals(details, newExceptionDetails.InternalExceptionDetails));
                 if (details.typeName == "System.AggregateException")
                 {
                     AssertEx.StartsWith(counter.ToString(CultureInfo.InvariantCulture), details.message);
