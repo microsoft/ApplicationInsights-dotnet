@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.7.0-beta4
+- [When there is no parent operation, generate W3C compatible operation Id](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/952)
+
 ## Version 2.7.0-beta3
 - [Fix: SerializationException resolving Activity in cross app-domain calls](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/613)
 - [Fix: Race condition in generic diagnostic source listener](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/948)

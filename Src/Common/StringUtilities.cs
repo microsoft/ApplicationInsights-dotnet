@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Common
 {
+    using System;
     using System.Diagnostics;
     using System.Globalization;
 
@@ -8,6 +9,8 @@
     /// </summary>
     public static class StringUtilities
     {
+        private static readonly uint[] Lookup32 = CreateLookup32();
+
         /// <summary>
         /// Check a strings length and trim to a max length if needed.
         /// </summary>
@@ -23,6 +26,40 @@
             }
 
             return input;
+        }
+
+        /// <summary>
+        /// Generates random trace Id as per W3C Distributed tracing specification.
+        /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#trace-id
+        /// </summary>
+        /// <returns>Random 16 bytes array encoded as hex string</returns>
+        public static string GenerateTraceId()
+        {
+            // See https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa/24343727#24343727
+            var bytes = Guid.NewGuid().ToByteArray();
+
+            var result = new char[32];
+            for (int i = 0; i < 16; i++)
+            {
+                var val = Lookup32[bytes[i]];
+                result[2 * i] = (char)val;
+                result[(2 * i) + 1] = (char)(val >> 16);
+            }
+
+            return new string(result);
+        }
+
+        private static uint[] CreateLookup32()
+        {
+            // See https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa/24343727#24343727
+            var result = new uint[256];
+            for (int i = 0; i < 256; i++)
+            {
+                string s = i.ToString("x2", CultureInfo.InvariantCulture);
+                result[i] = ((uint)s[0]) + ((uint)s[1] << 16);
+            }
+
+            return result;
         }
     }
 }

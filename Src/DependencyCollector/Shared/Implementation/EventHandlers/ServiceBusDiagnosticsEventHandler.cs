@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -20,6 +21,11 @@
         {
         }
 
+        public override bool IsEventEnabled(string evnt, object arg1, object arg2)
+        {
+            return true;
+        }
+
         public override void OnEvent(KeyValuePair<string, object> evnt, DiagnosticListener ignored)
         {
             Activity currentActivity = Activity.Current;
@@ -28,13 +34,39 @@
             {
                 case "Microsoft.Azure.ServiceBus.ProcessSession.Stop":
                 case "Microsoft.Azure.ServiceBus.Process.Stop":
+                    // If we started auxiliary Activity before to override the Id with W3C compatible one, now it's time to stop it
+                    if (currentActivity.Duration == TimeSpan.Zero)
+                    {
+                        currentActivity.Stop();
+                    }
+
                     this.OnRequest(evnt.Key, evnt.Value, currentActivity);
                     break;
                 case "Microsoft.Azure.ServiceBus.Exception":
                     break;
                 default:
-                    if (evnt.Key.EndsWith(TelemetryDiagnosticSourceListener.ActivityStopNameSuffix, StringComparison.Ordinal))
+                    if (evnt.Key.EndsWith(TelemetryDiagnosticSourceListener.ActivityStartNameSuffix, StringComparison.Ordinal))
                     {
+                        // As a first step in supporting W3C protocol in ApplicationInsights,
+                        // we want to generate Activity Ids in the W3C compatible format.
+                        // While .NET changes to Activity are pending, we want to ensure trace starts with W3C compatible Id
+                        // as early as possible, so that everyone has a chance to upgrade and have compatibility with W3C systems once they arrive.
+                        // So if there is no parent Activity (i.e. this request has happened in the background, without parent scope), we'll override 
+                        // the current Activity with the one with properly formatted Id. This workaround should go away
+                        // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
+                        if (currentActivity.Parent == null)
+                        {
+                            currentActivity.UpdateParent(StringUtilities.GenerateTraceId());
+                        }
+                    }
+                    else if (evnt.Key.EndsWith(TelemetryDiagnosticSourceListener.ActivityStopNameSuffix, StringComparison.Ordinal))
+                    {
+                        // If we started auxiliary Activity before to override the Id with W3C compatible one, now it's time to stop it
+                        if (currentActivity.Duration == TimeSpan.Zero)
+                        {
+                            currentActivity.Stop();
+                        }
+
                         this.OnDependency(evnt.Key, evnt.Value, currentActivity);
                     }
 

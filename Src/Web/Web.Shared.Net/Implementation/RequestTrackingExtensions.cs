@@ -42,11 +42,14 @@
                     }
                     else
                     {
-                        // This is workaround for the issue https://github.com/Microsoft/ApplicationInsights-dotnet/issues/538
-                        // if there is no parent Activity, ID Activity generates is not random enough to work well with 
-                        // ApplicationInsights sampling algorithm
-                        // This code should go away when Activity is fixed: https://github.com/dotnet/corefx/issues/18418
-                        currentActivity.SetParentId(result.Id);
+                        // As a first step in supporting W3C protocol in ApplicationInsights,
+                        // we want to generate Activity Ids in the W3C compatible format.
+                        // While .NET changes to Activity are pending, we want to ensure trace starts with W3C compatible Id
+                        // as early as possible, so that everyone has a chance to upgrade and have compatibility with W3C systems once they arrive.
+                        // So if there is no current Activity (i.e. there were no Request-Id header in the incoming request), we'll override ParentId on 
+                        // the current Activity by the properly formatted one. This workaround should go away
+                        // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
+                        currentActivity.SetParentId(StringUtilities.GenerateTraceId());
 
                         // end of workaround
                     }
