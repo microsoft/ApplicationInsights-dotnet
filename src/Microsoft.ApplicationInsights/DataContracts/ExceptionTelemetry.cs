@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
@@ -11,13 +12,14 @@
     /// Telemetry type used to track exceptions.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=723596">Learn more</a>
     /// </summary>
-    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
+    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics 
     {
         internal const string TelemetryName = "Exception";
         internal readonly string BaseType = typeof(ExceptionData).Name;
         internal readonly ExceptionData Data;
 
         private readonly TelemetryContext context;
+        private IReadOnlyList<ExceptionDetailsInfo> exceptionDetailsInfoList;
         private Exception exception;
         private string message;
 
@@ -170,6 +172,18 @@
         }
 
         /// <summary>
+        /// Gets the list of <see cref="ExceptionDetailsInfo"/>. User can modify the contents of individual object, but
+        /// not the list itself.
+        /// </summary>
+        public IReadOnlyList<ExceptionDetailsInfo> ExceptionDetailsInfoList
+        {
+            get
+            {
+                return this.exceptionDetailsInfoList;
+            }
+        }
+
+        /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this exception.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
@@ -216,8 +230,6 @@
         /// </summary>
         public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
         {
-            List<StackFrame> orderedStackTrace = new List<StackFrame>();
-
             if (this.Exceptions != null && this.Exceptions.Count > 0)
             {
                 if (frames != null && frames.Length > 0)
@@ -312,6 +324,7 @@
             }
 
             this.Data.exceptions = exceptions;
+            this.exceptionDetailsInfoList = exceptions.Select(ex => new ExceptionDetailsInfo(ex)).ToList().AsReadOnly();
         }
     }
 }

@@ -99,6 +99,11 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
 Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt.Platform = 2 -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
 Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt.Unhandled = 0 -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
 Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt.UserCode = 1 -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
+Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo
+Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.TypeName.get -> string
+Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.TypeName.set -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.Message.get -> string
+Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.Message.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
@@ -108,6 +113,7 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetr
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetry(System.Exception exception) -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.HandledAt.get -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.HandledAt.set -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionDetailsInfoList.get -> System.Collections.Generic.IReadOnlyList<Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo>
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Message.get -> string
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Message.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>

@@ -40,6 +40,28 @@
         }
 
         [TestMethod]
+        public void ExceptionTelemetryReturnsNullExceptionDetails()
+        {
+            ExceptionTelemetry item = new ExceptionTelemetry();
+            Assert.IsNull(item.ExceptionDetailsInfoList);
+        }
+
+        [TestMethod]
+        public void ExceptionTelemetryExceptionDetailsUpdate()
+        {
+            var exception = new AggregateException("Test Exception", new Exception());
+            ExceptionTelemetry item = new ExceptionTelemetry(exception);
+            IReadOnlyList<ExceptionDetailsInfo> newExceptionDetails = item.ExceptionDetailsInfoList;
+            string modifiedMessage = "Modified Message";
+            string modifiedTypeName = "Modified TypeName";
+
+            newExceptionDetails[0].Message = modifiedMessage;
+            newExceptionDetails[0].TypeName = modifiedTypeName;
+            Assert.AreEqual(modifiedMessage, item.Exceptions[0].message);
+            Assert.AreEqual(modifiedTypeName, item.Exceptions[0].typeName);
+        }
+
+        [TestMethod]
         public void ExceptionsPropertyIsInternalUntilWeSortOutPublicInterface()
         {
             Assert.IsFalse(typeof(ExceptionTelemetry).GetTypeInfo().GetDeclaredProperty("Exceptions").GetGetMethod(true).IsPublic);
@@ -53,6 +75,7 @@
 
             Assert.AreSame(constructorException, testExceptionTelemetry.Exception);
             Assert.AreEqual(constructorException.Message, testExceptionTelemetry.Exceptions.First().message);
+            Assert.AreEqual(constructorException.Message, testExceptionTelemetry.ExceptionDetailsInfoList.First().Message);
         }
 
         [TestMethod]
@@ -66,6 +89,7 @@
 
             Assert.AreSame(nextException, testExceptionTelemetry.Exception);
             Assert.AreEqual(nextException.Message, testExceptionTelemetry.Exceptions.First().message);
+            Assert.AreEqual(nextException.Message, testExceptionTelemetry.ExceptionDetailsInfoList.First().Message);
         }
 
 #pragma warning disable 618
@@ -344,9 +368,12 @@
                                             };
 
             Assert.AreEqual(expectedSequence.Length, telemetry.Exceptions.Count);
-            int counter = 0;
-            foreach (ExceptionDetails details in telemetry.Exceptions)
+            Assert.AreEqual(expectedSequence.Length, telemetry.ExceptionDetailsInfoList.Count);
+            for(int counter = 0; counter < expectedSequence.Length; counter++)
             {
+                ExceptionDetails details = telemetry.Exceptions[counter];
+                ExceptionDetailsInfo newExceptionDetails = telemetry.ExceptionDetailsInfoList[counter];
+                Assert.ReferenceEquals(details, newExceptionDetails);
                 if (details.typeName == "System.AggregateException")
                 {
                     AssertEx.StartsWith(expectedSequence[counter], details.message);
@@ -355,7 +382,6 @@
                 {
                     Assert.AreEqual(expectedSequence[counter], details.message);
                 }
-                counter++;
             }
         }
 
@@ -374,9 +400,12 @@
             ExceptionTelemetry telemetry = new ExceptionTelemetry { Exception = rootLevelException };
 
             Assert.AreEqual(Constants.MaxExceptionCountToSave + 1, telemetry.Exceptions.Count);
-            int counter = 0;
-            foreach (ExceptionDetails details in telemetry.Exceptions.Take(Constants.MaxExceptionCountToSave))
+            Assert.AreEqual(Constants.MaxExceptionCountToSave + 1, telemetry.ExceptionDetailsInfoList.Count);
+            for(int counter = 0; counter < telemetry.Exceptions.Count; counter++)
             {
+                ExceptionDetails details = telemetry.Exceptions[counter];
+                ExceptionDetailsInfo newExceptionDetails = telemetry.ExceptionDetailsInfoList[counter];
+                Assert.ReferenceEquals(details, newExceptionDetails);
                 if (details.typeName == "System.AggregateException")
                 {
                     AssertEx.StartsWith(counter.ToString(CultureInfo.InvariantCulture), details.message);
@@ -385,7 +414,6 @@
                 {
                     Assert.AreEqual(counter.ToString(CultureInfo.InvariantCulture), details.message);
                 }
-                counter++;
             }
 
             ExceptionDetails first = telemetry.Exceptions.First();
