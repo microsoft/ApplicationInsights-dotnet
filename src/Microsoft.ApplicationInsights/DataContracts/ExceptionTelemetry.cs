@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
@@ -18,6 +19,7 @@
         internal readonly ExceptionData Data;
 
         private readonly TelemetryContext context;
+        private IExtension extension;
         private Exception exception;
         private string message;
 
@@ -77,6 +79,15 @@
         public TelemetryContext Context
         {
             get { return this.context; }
+        }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        public IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
         }
 
         /// <summary>

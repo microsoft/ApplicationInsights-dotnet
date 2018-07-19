@@ -4,6 +4,7 @@
     using System.Collections.Generic;
 
     using Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
     /// The class that represents information about performance counters.
@@ -12,7 +13,7 @@
     public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties
     {
         internal readonly MetricTelemetry Data;
-
+        private IExtension extension;
         private string categoryName = string.Empty;
         private string counterName = string.Empty;
 
@@ -92,6 +93,15 @@
             {
                 return this.Data.Context;
             }
+        }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        public IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
         }
 
         /// <summary>

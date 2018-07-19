@@ -2,6 +2,7 @@
 {
     using System;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
     /// Telemetry type used to track user sessions.
@@ -9,10 +10,11 @@
     [Obsolete("Session state events are no longer used. This telemetry item will be sent as EventTelemetry.")]
     public sealed class SessionStateTelemetry : ITelemetry
     {
-        internal readonly EventTelemetry Data;
+        internal readonly EventTelemetry Data;        
 
         private readonly string startEventName = "Session started";
         private readonly string endEventName = "Session ended";
+        private IExtension extension;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SessionStateTelemetry"/> class.
@@ -65,6 +67,15 @@
         public TelemetryContext Context
         {
             get { return this.Data.Context; }
+        }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        public IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
         }
 
         /// <summary>
