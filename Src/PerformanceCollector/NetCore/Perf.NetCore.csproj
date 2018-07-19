@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <VersionPrefix>2.7.0-beta3</VersionPrefix>
+    <VersionPrefix>2.7.0-beta4</VersionPrefix>
     <TargetFramework>netstandard1.6</TargetFramework>
     <DelaySign>true</DelaySign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
