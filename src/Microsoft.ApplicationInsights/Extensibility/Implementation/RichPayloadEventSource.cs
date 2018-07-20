@@ -198,6 +198,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.PageViewPerformance);
             }
 #pragma warning disable 618
