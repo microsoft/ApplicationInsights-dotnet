@@ -16,8 +16,6 @@
         internal const string BaseType = "PageViewPerformanceData";
 
         internal readonly PageViewPerfData Data;
-        private readonly TelemetryContext context;
-
         private double? samplingPercentage;
 
         /// <summary>
@@ -26,7 +24,7 @@
         public PageViewPerformanceTelemetry()
         {
             this.Data = new PageViewPerfData();
-            this.context = new TelemetryContext(this.Data.properties);
+            this.Context = new TelemetryContext(this.Data.properties);
         }
 
         /// <summary>
@@ -46,7 +44,7 @@
         private PageViewPerformanceTelemetry(PageViewPerformanceTelemetry source)
         {
             this.Data = source.Data.DeepClone();
-            this.context = source.context.DeepClone(this.Data.properties);
+            this.Context = source.Context.DeepClone(this.Data.properties);
         }
 
         /// <summary>
@@ -62,10 +60,7 @@
         /// <summary>
         /// Gets the context associated with the current telemetry item.
         /// </summary>
-        public TelemetryContext Context
-        {
-            get { return this.context; }
-        }
+        public TelemetryContext Context { get; private set; }
 
         /// <summary>
         /// Gets or sets page view ID.
