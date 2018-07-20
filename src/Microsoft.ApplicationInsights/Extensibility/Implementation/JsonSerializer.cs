@@ -484,7 +484,7 @@
         {
             writer.WriteStartObject();
 
-            pageViewPerfTelemetry.WriteTelemetryName(writer, PageViewTelemetry.TelemetryName);
+            pageViewPerfTelemetry.WriteTelemetryName(writer, PageViewPerformanceTelemetry.TelemetryName);
             pageViewPerfTelemetry.WriteEnvelopeProperties(writer);
             writer.WritePropertyName("data");
             {
@@ -505,6 +505,7 @@
                     writer.WriteProperty("sentRequest", pageViewPerfTelemetry.Data.sentRequest);
                     writer.WriteProperty("receivedResponse", pageViewPerfTelemetry.Data.receivedResponse);
                     writer.WriteProperty("measurements", pageViewPerfTelemetry.Data.measurements);
+                    Utils.CopyDictionary(pageViewPerfTelemetry.Context.GlobalProperties, pageViewPerfTelemetry.Data.properties);
                     writer.WriteProperty("properties", pageViewPerfTelemetry.Data.properties);
 
                     writer.WriteEndObject();

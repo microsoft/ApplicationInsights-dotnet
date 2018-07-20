@@ -11,9 +11,9 @@
     /// </summary>
     public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportSampling
     {
-        internal const string TelemetryName = "PageView";
+        internal const string TelemetryName = "PageViewPerformance";
 
-        internal readonly string BaseType = typeof(PageViewPerformanceTelemetry).Name;
+        internal readonly string BaseType = typeof(PageViewPerfData).Name;
 
         internal readonly PageViewPerfData Data;
         private readonly TelemetryContext context;
@@ -65,6 +65,15 @@
         public TelemetryContext Context
         {
             get { return this.context; }
+        }
+
+        /// <summary>
+        /// Gets or sets page view ID.
+        /// </summary>
+        public string Id
+        {
+            get { return this.Data.id; }
+            set { this.Data.id = value; }
         }
 
         /// <summary>
@@ -205,6 +214,7 @@
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
             this.Url = this.Url.SanitizeUri();
+            this.Id.SanitizeName();
         }
     }
 }

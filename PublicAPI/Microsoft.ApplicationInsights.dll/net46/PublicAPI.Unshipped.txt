@@ -1,4 +1,6 @@
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Id.get -> string
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Id.set -> void
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.DomProcessing.get -> System.TimeSpan
