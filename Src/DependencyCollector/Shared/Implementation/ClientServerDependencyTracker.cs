@@ -40,9 +40,9 @@
                 // But we need to initialize dependency telemetry from the current Activity:
                 // Activity was created for this dependency in the Http Desktop DiagnosticSource
                 var context = telemetry.Context;
-                context.Operation.Id = currentActivity.RootId;
-                context.Operation.ParentId = currentActivity.ParentId;
-                foreach (var item in currentActivity.Baggage)
+                context.Operation.Id = activity.RootId;
+                context.Operation.ParentId = activity.ParentId;
+                foreach (var item in activity.Baggage)
                 {
                     if (!context.Properties.ContainsKey(item.Key))
                     {
@@ -59,19 +59,22 @@
                 // Every operation must have its own Activity
                 // if dependency is tracked with profiler of event source, we need to generate a proper hierarchical Id for it
                 // in case of HTTP it will be propagated into the requert header.
-                // So, we will create a new Activity for the dependency, jut to generate an Id.
+                // So, we will create a new Activity for the dependency, just to generate an Id.
                 activity = new Activity(DependencyActivityName);
 
-                // This is workaround for the issue https://github.com/Microsoft/ApplicationInsights-dotnet/issues/538
-                // if there is no parent Activity, ID Activity generates is not random enough to work well with 
-                // ApplicationInsights sampling algorithm
-                // This code should go away when Activity is fixed: https://github.com/dotnet/corefx/issues/18418
+                // As a first step in supporting W3C protocol in ApplicationInsights,
+                // we want to generate Activity Ids in the W3C compatible format.
+                // While .NET changes to Activity are pending, we want to ensure trace starts with W3C compatible Id
+                // as early as possible, so that everyone has a chance to upgrade and have compatibility with W3C systems once they arrive.
+                // So if there is no parent Activity (i.e. this request has happened in the background, without parent scope), we'll override 
+                // the current Activity with the one with properly formatted Id. This workaround should go away
+                // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
                 if (currentActivity == null)
                 {
-                    activity.SetParentId(telemetry.Id);
+                    activity.SetParentId(StringUtilities.GenerateTraceId());
                 }
 
-                //// end of workaround
+                // end of workaround
 
                 activity.Start();
                 activity.Stop();

@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Net.Http;
+    using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Common;
@@ -167,7 +168,7 @@
 
                 parent.Stop();
 
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200", false);
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200", false, parent);
 
                 Assert.AreEqual("k=v", request.Headers.GetValues(RequestResponseHeaders.CorrelationContextHeader).Single());
             }
@@ -193,7 +194,7 @@
             }
         }
 
-        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, HttpRequestMessage request, bool success, string resultCode, bool expectLegacyHeaders)
+        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, HttpRequestMessage request, bool success, string resultCode, bool expectLegacyHeaders, Activity parent = null)
         {
             Assert.AreEqual(url, item.Data);
             Assert.AreEqual(url.Host, item.Target);
@@ -215,6 +216,19 @@
 
             var requestId = item.Id;
             Assert.IsTrue(requestId.StartsWith('|' + item.Context.Operation.Id + '.'));
+
+            if (parent == null)
+            {
+                // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331)
+                Assert.AreEqual(32, item.Context.Operation.Id.Length);
+                Assert.IsTrue(Regex.Match(item.Context.Operation.Id, @"[a-z][0-9]").Success);
+                // end of workaround test
+            }
+            else
+            {
+                Assert.AreEqual(parent.RootId, item.Context.Operation.Id);
+            }
+
             if (request != null)
             {
                 Assert.AreEqual(requestId, request.Headers.GetValues(RequestResponseHeaders.RequestIdHeader).Single());

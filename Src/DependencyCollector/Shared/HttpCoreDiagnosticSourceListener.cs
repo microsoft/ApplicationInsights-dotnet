@@ -268,7 +268,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 DependencyCollectorEventSource.Log.CurrentActivityIsNull(HttpExceptionEventName);
                 return;
             }
-
+            
             DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerException(currentActivity.Id);
 
             this.pendingExceptions.TryAdd(currentActivity.Id, exception);
@@ -296,6 +296,20 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 return;
             }
 
+            // As a first step in supporting W3C protocol in ApplicationInsights,
+            // we want to generate Activity Ids in the W3C compatible format.
+            // While .NET changes to Activity are pending, we want to ensure trace starts with W3C compatible Id
+            // as early as possible, so that everyone has a chance to upgrade and have compatibility with W3C systems once they arrive.
+            // So if there is no parent Activity (i.e. this request has happened in the background, without parent scope), we'll override 
+            // the current Activity with the one with properly formatted Id. This workaround should go away
+            // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
+            if (currentActivity.Parent == null)
+            {
+                currentActivity.UpdateParent(StringUtilities.GenerateTraceId());
+            }
+
+            // end of workaround
+
             DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStart(currentActivity.Id);
 
             this.InjectRequestHeaders(request, this.configuration.InstrumentationKey);
@@ -320,6 +334,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 DependencyCollectorEventSource.Log.CurrentActivityIsNull(HttpOutStopEventName);
                 return;
+            }
+
+            // If we started auxiliary Activity before to override the Id with W3C compatible one, now it's time to stop it
+            if (currentActivity.Duration == TimeSpan.Zero)
+            {
+                currentActivity.Stop();
             }
 
             DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStop(currentActivity.Id);
@@ -384,7 +404,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 Uri requestUri = request.RequestUri;
                 var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;
 
-                var dependency = this.client.StartOperation<DependencyTelemetry>(resourceName);
+                var dependency = Activity.Current != null ?
+                    this.client.StartOperation<DependencyTelemetry>(resourceName) :
+                    this.client.StartOperation<DependencyTelemetry>(resourceName, StringUtilities.GenerateTraceId());
+
                 dependency.Telemetry.Target = requestUri.Host;
                 dependency.Telemetry.Type = RemoteDependencyConstants.HTTP;
                 dependency.Telemetry.Data = requestUri.OriginalString;

@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AccountIdTelemetryInitializerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ActivityExtensionsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AuthenticatedUserIdTelemetryInitializerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\HttpContextTestExtensions.cs" />

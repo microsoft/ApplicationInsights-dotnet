@@ -9,6 +9,7 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.Common</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ActivityExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AppMapCorrelationEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConditionalWeakTableExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExceptionUtilities.cs" />

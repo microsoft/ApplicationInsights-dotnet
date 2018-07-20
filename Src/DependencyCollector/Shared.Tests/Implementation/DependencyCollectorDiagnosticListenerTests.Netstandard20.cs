@@ -62,8 +62,8 @@ namespace Microsoft.ApplicationInsights.Tests
 
             // Request-Id and Correlation-Context are injected by HttpClient
             // check only legacy headers here
-            Assert.AreEqual(activity.RootId, request.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
-            Assert.AreEqual(activity.Id, request.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
+            Assert.AreEqual(Activity.Current.RootId, request.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
+            Assert.AreEqual(Activity.Current.Id, request.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
             Assert.AreEqual(this.testApplicationId1, GetRequestContextKeyValue(request, RequestResponseHeaders.RequestContextCorrelationSourceKey));
         }
 
@@ -82,8 +82,8 @@ namespace Microsoft.ApplicationInsights.Tests
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
             this.listener.OnActivityStart(request);
 
+            activity = Activity.Current;
             HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
-            activity.SetEndTime(startTime.AddSeconds(1));
             this.listener.OnActivityStop(response, request, TaskStatus.RanToCompletion);
 
             var telemetry = this.sentTelemetry.Single() as DependencyTelemetry;
@@ -96,10 +96,44 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual(true, telemetry.Success);
 
             Assert.AreEqual(activity.StartTimeUtc, telemetry.Timestamp);
-            Assert.AreEqual(1, telemetry.Duration.TotalSeconds);
+            Assert.IsTrue(1 <= telemetry.Duration.TotalSeconds);
+            Assert.IsTrue(2 > telemetry.Duration.TotalSeconds);
 
             Assert.AreEqual(activity.RootId, telemetry.Context.Operation.Id);
             Assert.AreEqual(activity.ParentId, telemetry.Context.Operation.ParentId);
+            Assert.AreEqual(activity.Id, telemetry.Id);
+            Assert.AreEqual("v", telemetry.Context.Properties["k"]);
+
+            string expectedVersion =
+                SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), prefix: "rdddsc:");
+            Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
+
+            // Check the operation details
+            this.ValidateOperationDetails(telemetry);
+        }
+
+        /// <summary>
+        /// Tests that OnStopActivity tracks telemetry.
+        /// </summary>
+        [TestMethod]
+        public void OnActivityStopWithParentTracksTelemetry()
+        {
+            var parent = new Activity("parent")
+                .AddBaggage("k", "v")
+                .Start();
+
+            var activity = new Activity("System.Net.Http.HttpRequestOut").Start();
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
+            this.listener.OnActivityStart(request);
+
+            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+            this.listener.OnActivityStop(response, request, TaskStatus.RanToCompletion);
+
+            var telemetry = this.sentTelemetry.Single() as DependencyTelemetry;
+
+            Assert.AreEqual(parent.RootId, telemetry.Context.Operation.Id);
+            Assert.AreEqual(parent.Id, telemetry.Context.Operation.ParentId);
             Assert.AreEqual(activity.Id, telemetry.Id);
             Assert.AreEqual("v", telemetry.Context.Properties["k"]);
 
