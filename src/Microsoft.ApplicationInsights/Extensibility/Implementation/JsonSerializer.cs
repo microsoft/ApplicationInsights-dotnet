@@ -490,7 +490,7 @@
             {
                 writer.WriteStartObject();
 
-                writer.WriteProperty("baseType", pageViewPerfTelemetry.BaseType);
+                writer.WriteProperty("baseType", PageViewPerformanceTelemetry.BaseType);
                 writer.WritePropertyName("baseData");
                 {
                     writer.WriteStartObject();

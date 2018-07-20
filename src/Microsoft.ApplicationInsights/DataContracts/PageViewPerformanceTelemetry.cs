@@ -13,7 +13,7 @@
     {
         internal const string TelemetryName = "PageViewPerformance";
 
-        internal readonly string BaseType = typeof(PageViewPerfData).Name;
+        internal const string BaseType = "PageViewPerformanceData";
 
         internal readonly PageViewPerfData Data;
         private readonly TelemetryContext context;
