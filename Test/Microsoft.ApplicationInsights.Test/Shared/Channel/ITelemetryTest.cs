@@ -6,6 +6,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     internal class ITelemetryTest<TTelemetry, TEndpointData> 
         where TTelemetry : ITelemetry, new()
@@ -18,6 +19,7 @@
             this.ClassShouldHaveParameterizedConstructorToSimplifyCreationOfValidTelemetryInstancesInUserCode();
             this.ClassShouldImplementISupportCustomPropertiesIfItDefinesPropertiesProperty();
             this.TestProperties();
+            this.TestExtension();
             this.SerializeWritesTimestampAsExpectedByEndpoint();
             this.SerializeWritesSequenceAsExpectedByEndpoint();
             this.SerializeWritesInstrumentationKeyAsExpectedByEndpoint();
@@ -25,10 +27,26 @@
             this.SerializeWritesDataBaseTypeAsExpectedByEndpoint();
         }
 
+        private void TestExtension()
+        {
+            // Extention field exists
+            var extensionField = typeof(TTelemetry).GetRuntimeProperties().Any(p => p.Name == "Extension");
+            Assert.IsNotNull(extensionField);
+            
+            TTelemetry tel = new TTelemetry();
+            Assert.IsNull(tel.Extension, "Extension should be null by default");
+
+            // Set extension
+            var myExt = new MyExtension();
+            tel.Extension = myExt;
+
+            Assert.AreSame(myExt, tel.Extension, "Extension should be assignable.");            
+        }
+
         private void TestProperties()
         {
             foreach (PropertyInfo property in typeof(TTelemetry).GetRuntimeProperties())
-            {
+            {                
                 this.TestProperty(property);
             }
         }
@@ -236,6 +254,18 @@
             }
 
             return result;
+        }
+
+        private class MyExtension : IExtension
+        {
+            int myIntField;
+            string myStringField;
+
+            public void Serialize(ISerializationWriter serializationWriter)
+            {
+                serializationWriter.WriteProperty("myIntField", myIntField);
+                serializationWriter.WriteProperty("myStringField", myStringField);
+            }
         }
     }
 }
