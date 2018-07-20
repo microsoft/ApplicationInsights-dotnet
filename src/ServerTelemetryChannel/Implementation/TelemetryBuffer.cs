@@ -32,7 +32,7 @@
                 throw new ArgumentNullException("serializer");
             }
 
-#if !NETSTANDARD1_3
+#if !NETSTANDARD
             // We don't have implementation for IApplicationLifecycle for .NET Core
             if (applicationLifecycle == null)
             {
@@ -70,7 +70,7 @@
             {
                 if (value < 1)
                 {
-                    throw new ArgumentOutOfRangeException("value");
+                    throw new ArgumentOutOfRangeException("Capacity must be greater than 0");
                 }
 
                 if (value > this.backlogSize)

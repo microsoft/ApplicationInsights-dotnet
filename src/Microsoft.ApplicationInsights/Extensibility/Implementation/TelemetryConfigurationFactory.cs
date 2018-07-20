@@ -78,10 +78,10 @@
                 }
 
                 // If an environment variable exists with an instrumentation key then use it (instead) for the "blackfield" scenario.
-                string environmentIKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
-                if (!string.IsNullOrEmpty(environmentIKey))
+                string environmentInstrumentationKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
+                if (!string.IsNullOrEmpty(environmentInstrumentationKey))
                 {
-                    configuration.InstrumentationKey = environmentIKey;
+                    configuration.InstrumentationKey = environmentInstrumentationKey;
                 }
 
                 // Creating the processor chain with default processor (transmissionprocessor) if none configured

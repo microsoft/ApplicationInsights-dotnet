@@ -1,6 +1,55 @@
 ﻿# Changelog
 
-This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
+This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
+
+## Version 2.8.0-beta1
+- [Add a new distict properties collection, GlobalProperties, on TelemetryContext, and obsolete the Properties on TelemetryContext.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/820)
+
+## Version 2.7.0-beta3
+- [Allow to set flags on event](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/844). It will be used in conjunction with the feature that will allow to keep IP addresses.
+- [Fix: SerializationException resolving Activity in cross app-domain calls](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/613)
+- [Make HttpClient instance static to avoid re-creating with every transmission. This had caused connection/memory leaks in .net core 2.1] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/594)
+  Related: (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/690)
+
+## Version 2.7.0-beta2
+- [Fix: NullReferenceException if telemtery is tracked after TelemetryConfiguration is disposed](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/928)
+- [Move the implementation of the extraction of auto-collected (aka standard) metrics from internal legacy APIs to the recently shipped metric aggregation APIs.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/806)
+- [Fix: NullReferenceException in ExceptionConverter.GetStackFrame if StackFrame.GetMethod() is null](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/819)
+
+## Version 2.7.0-beta1 
+- [Extend the Beta period for Metrics Pre-Aggregation features shipped in 2.6.0-beta3.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/785)
+- [New: Added TryGetOperationDetail to DependencyTelemetry to facilitate advanced ITelemetryInitializer scenarios.  Allows ITelemetryInitializer implementations to specify fields that would otherwise not be sent automatically to the backend.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/900)
+
+## version 2.6.4
+- [Revert changed namespace: `SamplingPercentageEstimatorSettings`, `AdaptiveSamplingPercentageEvaluatedCallback`](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/727)
+- [Add netstandard2.0 target for TelemetryChannel which doesn't have a dependency on Newtonsoft.Json ](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/800)
+
+## Version 2.6.1 
+- [Extend the Beta period for Metrics Pre-Aggregation features shipped in 2.6.0-beta3.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/785)
+- [Fix: changed namespace SamplingPercentageEstimatorSettings](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/727)
+
+## Version 2.6.0-beta4
+- [New: Enable ExceptionTelemetry.SetParsedStack for .Net Standard](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/763)
+- [Fix: TelemetryClient throws NullReferenceException on Flush if the underlying configuration was disposed](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/755)
+
+## Version 2.6.0-beta3
+- [Report internal errors from Microsoft.AspNet.TelemteryCorrelation module](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/744)
+- [Fix: Telemetry tracked with StartOperation is tracked outside of corresponding activity's scope](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/864)
+- [Fix: TelemetryProcessor chain building should also initialize Modules.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/549)
+- [Fix: Wrong error message in AutocollectedMetricsExtractor.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/611)
+- [NEW: Interface and Configuration: IApplicationIdProvider.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/739)
+- [NEW: Metrics Pre-Aggregation: New `TelemetryClient.GetMetric(..).TrackValue(..)` and related APIs always locally pre-aggregate metrics before sending. They are replacing the legacy `TelemetryClient.TrackMetric(..)` APIs.](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/735) ([More info](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/643).)
+
+## Version 2.6.0-beta2
+- [Changed signature of TelemetryClient.TrackDependency](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/684)
+- [Added overload of TelemetryClientExtensions.StartOperation(Activity activity).](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/644)
+- [Finalize the architecture for adding default heartbeat properties (supporting proposal from Issue #636).](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/666).
+
+## Version 2.5.1
+- Fix for missing TelemetryContext. Thank you to our community for discovering and reporting this issue! 
+  [Logic bug within Initialize() in TelemetryContext](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/692),
+  [Dependency correlation is broken after upgrade to .NET SDK 2.5](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/706),
+  [Lost many context fields in 2.5.0](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/708)
 
 ## Version 2.5.0-beta2
 - Remove calculation of sampling-score based on Context.User.Id [Issue #625](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/625)

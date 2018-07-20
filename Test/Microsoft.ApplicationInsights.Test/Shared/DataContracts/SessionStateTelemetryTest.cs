@@ -50,7 +50,7 @@
         public void SerializeWritesStateAsExpectedByEndpoint()
         {
             var telemetry = new SessionStateTelemetry { State = SessionState.End };
-            TelemetryItem<EventData> envelope = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<SessionStateTelemetry, EventData>(telemetry);
+            TelemetryItem<EventData> envelope = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<EventData>(telemetry);
             Assert.AreEqual("Session ended", envelope.data.baseData.name);
             Assert.AreEqual(2, envelope.data.baseData.ver);
         }

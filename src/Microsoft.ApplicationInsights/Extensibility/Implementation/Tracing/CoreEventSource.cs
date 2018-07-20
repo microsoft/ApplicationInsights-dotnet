@@ -30,10 +30,10 @@
         /// <summary>
         /// Logs the information when there operation to stop does not match the current operation.
         /// </summary>
-        [Event(2, Message = "Operation to stop does not match the current operation.", Level = EventLevel.Error)]
-        public void InvalidOperationToStopError(string appDomainName = "Incorrect")
+        [Event(2, Message = "Operation to stop does not match the current operation. Details: {0}", Level = EventLevel.Error)]
+        public void InvalidOperationToStopError(string details, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(2, this.nameProvider.Name);
+            this.WriteEvent(2, details, this.nameProvider.Name);
         }
 
         [Event(
@@ -490,6 +490,36 @@
                 isHealthyHasValue,
                 isHealthy,
                 this.nameProvider.Name);
+        }
+
+        [Event(
+            41,
+            Keywords = Keywords.UserActionable,
+            Message = "Failed to retrieve Application Id for the current application insights resource. Make sure the configured instrumentation key is valid. Error: {0}",
+            Level = EventLevel.Warning)]
+        public void ApplicationIdProviderFetchApplicationIdFailed(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(41, exception, this.nameProvider.Name);
+        }
+
+        [Event(
+            42,
+            Keywords = Keywords.UserActionable,
+            Message = "Failed to retrieve Application Id for the current application insights resource. Endpoint returned HttpStatusCode: {0}",
+            Level = EventLevel.Warning)]
+        public void ApplicationIdProviderFetchApplicationIdFailedWithResponseCode(string httpStatusCode, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(42, httpStatusCode, this.nameProvider.Name);
+        }
+
+        [Event(
+            43,
+            Keywords = Keywords.UserActionable,
+            Message = "Process was called on the TelemetrySink after it was disposed, the telemetry data was dropped.",
+            Level = EventLevel.Error)]
+        public void TelemetrySinkCalledAfterBeingDisposed(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(43, this.nameProvider.Name);
         }
 
         /// <summary>

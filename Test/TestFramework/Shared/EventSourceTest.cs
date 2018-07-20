@@ -93,7 +93,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
 
         private static void VerifyEventApplicationName(MethodInfo eventMethod, EventWrittenEventArgs actualEvent)
         {
-#if !NETSTANDARD1_3 && !NETCOREAPP1_1
+#if !NETCOREAPP
             string expectedApplicationName = AppDomain.CurrentDomain.FriendlyName;
 #else
             string expectedApplicationName = "";

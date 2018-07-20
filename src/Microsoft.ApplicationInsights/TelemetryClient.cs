@@ -13,6 +13,8 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
     /// <summary>
     /// Send events, metrics and other telemetry to the Application Insights service.
@@ -88,7 +90,7 @@
         }
 
         /// <summary>
-        /// Send an <see cref="EventTelemetry"/> for display in Diagnostic Search and aggregation in Metrics Explorer.
+        /// Send an <see cref="EventTelemetry"/> for display in Diagnostic Search and in the Analytics Portal.
         /// </summary>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
@@ -102,7 +104,7 @@
 
             if (properties != null && properties.Count > 0)
             {
-                Utils.CopyDictionary(properties, telemetry.Context.Properties);
+                Utils.CopyDictionary(properties, telemetry.Properties);
             }
 
             if (metrics != null && metrics.Count > 0)
@@ -114,7 +116,7 @@
         }
 
         /// <summary>
-        /// Send an <see cref="EventTelemetry"/> for display in Diagnostic Search and aggregation in Metrics Explorer.
+        /// Send an <see cref="EventTelemetry"/> for display in Diagnostic Search and in the Analytics Portal.
         /// Create a separate <see cref="EventTelemetry"/> instance for each call to <see cref="TrackEvent(EventTelemetry)"/>.
         /// </summary>
         /// <remarks>
@@ -170,7 +172,7 @@
 
             if (properties != null && properties.Count > 0)
             {
-                Utils.CopyDictionary(properties, telemetry.Context.Properties);
+                Utils.CopyDictionary(properties, telemetry.Properties);
             }
 
             this.TrackTrace(telemetry);
@@ -191,7 +193,7 @@
 
             if (properties != null && properties.Count > 0)
             {
-                Utils.CopyDictionary(properties, telemetry.Context.Properties);
+                Utils.CopyDictionary(properties, telemetry.Properties);
             }
 
             this.TrackTrace(telemetry);
@@ -212,7 +214,12 @@
         }
 
         /// <summary>
-        /// Send a <see cref="MetricTelemetry"/> for aggregation in Metric Explorer.
+        /// This method is deprecated. Metrics should always be pre-aggregated across a time period before being sent.<br />
+        /// Use one of the <c>GetMetric(..)</c> overloads to get a metric object for accessing SDK pre-aggregation capabilities.<br />
+        /// If you are implementing your own pre-aggregation logic, you can use the <c>Track(ITelemetry metricTelemetry)</c> method to
+        /// send the resulting aggregates.<br />
+        /// If your application requires sending a separate telemetry item at every occasion without aggregation across time,
+        /// you likely have a use case for event telemetry; see <see cref="TrackEvent(EventTelemetry)"/>.
         /// </summary>
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
@@ -230,12 +237,15 @@
         }
 
         /// <summary>
-        /// Send a <see cref="MetricTelemetry"/> that represents aggregated metric data.
-        /// Create a separate <see cref="MetricTelemetry"/> instance for each call to <see cref="TrackMetric(MetricTelemetry)"/>.
+        /// This method is deprecated. Metrics should always be pre-aggregated across a time period before being sent.<br />
+        /// Use one of the <c>GetMetric(..)</c> overloads to get a metric object for accessing SDK pre-aggregation capabilities.<br />
+        /// If you are implementing your own pre-aggregation logic, you can use the <c>Track(ITelemetry metricTelemetry)</c> method to
+        /// send the resulting aggregates.<br />
+        /// If your application requires sending a separate telemetry item at every occasion without aggregation across time,
+        /// you likely have a use case for event telemetry; see <see cref="TrackEvent(EventTelemetry)"/>.
         /// </summary>
-        /// <remarks>
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackmetric">Learn more</a>
-        /// </remarks>
+        /// <param name="telemetry">The metric telemetry item.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void TrackMetric(MetricTelemetry telemetry)
         {
             if (telemetry == null)
@@ -266,7 +276,7 @@
 
             if (properties != null && properties.Count > 0)
             {
-                Utils.CopyDictionary(properties, telemetry.Context.Properties);
+                Utils.CopyDictionary(properties, telemetry.Properties);
             }
 
             if (metrics != null && metrics.Count > 0)
@@ -296,30 +306,48 @@
         }
 
         /// <summary>
-        /// Send information about external dependency call in the application.
+        /// Send information about an external dependency (outgoing call) in the application.
         /// </summary>
-        /// <param name="dependencyName">External dependency name.</param>
-        /// <param name="commandName">Dependency call command name.</param>
+        /// <param name="dependencyName">Name of the command initiated with this dependency call. Low cardinality value. Examples are stored procedure name and URL path template.</param>
+        /// <param name="data">Command initiated by this dependency call. Examples are SQL statement and HTTP URL's with all query parameters.</param>
         /// <param name="startTime">The time when the dependency was called.</param>
         /// <param name="duration">The time taken by the external dependency to handle the call.</param>
         /// <param name="success">True if the dependency call was handled successfully.</param>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
         /// </remarks>
-        public void TrackDependency(string dependencyName, string commandName, DateTimeOffset startTime, TimeSpan duration, bool success)
+        [Obsolete]
+        public void TrackDependency(string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
         {
 #pragma warning disable 618
-            this.TrackDependency(new DependencyTelemetry(dependencyName, commandName, startTime, duration, success));
+            this.TrackDependency(new DependencyTelemetry(dependencyName, data, startTime, duration, success));
 #pragma warning restore 618
         }
 
         /// <summary>
-        /// Send information about external dependency call in the application.
+        /// Send information about an external dependency (outgoing call) in the application.
         /// </summary>
-        /// <param name="dependencyTypeName">External dependency type.</param>
+        /// <param name="dependencyTypeName">External dependency type. Very low cardinality value for logical grouping and interpretation of fields. Examples are SQL, Azure table, and HTTP.</param>
+        /// <param name="dependencyName">Name of the command initiated with this dependency call. Low cardinality value. Examples are stored procedure name and URL path template.</param>
+        /// <param name="data">Command initiated by this dependency call. Examples are SQL statement and HTTP URL's with all query parameters.</param>
+        /// <param name="startTime">The time when the dependency was called.</param>
+        /// <param name="duration">The time taken by the external dependency to handle the call.</param>
+        /// <param name="success">True if the dependency call was handled successfully.</param>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
+        /// </remarks>
+        public void TrackDependency(string dependencyTypeName, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
+        {
+            this.TrackDependency(new DependencyTelemetry(dependencyTypeName, null, dependencyName, data, startTime, duration, null, success));
+        }
+
+        /// <summary>
+        /// Send information about an external dependency (outgoing call) in the application.
+        /// </summary>
+        /// <param name="dependencyTypeName">External dependency type. Very low cardinality value for logical grouping and interpretation of fields. Examples are SQL, Azure table, and HTTP.</param>
         /// <param name="target">External dependency target.</param>
-        /// <param name="dependencyName">External dependency name.</param>
-        /// <param name="data">Dependency call command name.</param>
+        /// <param name="dependencyName">Name of the command initiated with this dependency call. Low cardinality value. Examples are stored procedure name and URL path template.</param>
+        /// <param name="data">Command initiated by this dependency call. Examples are SQL statement and HTTP URL's with all query parameters.</param>
         /// <param name="startTime">The time when the dependency was called.</param>
         /// <param name="duration">The time taken by the external dependency to handle the call.</param>
         /// <param name="resultCode">Result code of dependency call execution.</param>
@@ -347,6 +375,8 @@
             }
 
             this.Track(telemetry);
+
+            telemetry.ClearOperationDetails();
         }
 
         /// <summary>
@@ -369,7 +399,7 @@
 
             if (properties != null && properties.Count > 0)
             {
-                Utils.CopyDictionary(properties, availabilityTelemetry.Context.Properties);
+                Utils.CopyDictionary(properties, availabilityTelemetry.Properties);
             }
 
             if (metrics != null && metrics.Count > 0)
@@ -441,10 +471,14 @@
                     {
                         telemetryWithProperties.Properties.Add("DeveloperMode", "true");
                     }
-                }
-
-                Utils.CopyDictionary(this.Context.Properties, telemetryWithProperties.Properties);
+                }                
             }
+
+            // Properties set of TelemetryClient's Context are copied over to that of ITelemetry's Context
+#pragma warning disable CS0618 // Type or member is obsolete
+            Utils.CopyDictionary(this.Context.Properties, telemetry.Context.Properties);
+#pragma warning restore CS0618 // Type or member is obsolete
+            Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
 
             telemetry.Context.Initialize(this.Context, instrumentationKey);
             foreach (ITelemetryInitializer initializer in this.configuration.TelemetryInitializers)
@@ -551,14 +585,611 @@
         }
 
         /// <summary>
-        /// Flushes the in-memory buffer.
+        /// Flushes the in-memory buffer and any metrics being pre-aggregated.
         /// </summary>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#flushing-data">Learn more</a>
         /// </remarks>
         public void Flush()
         {
-            this.configuration.TelemetryChannel.Flush();
+            MetricManager privateMetricManager;
+            if (this.TryGetMetricManager(out privateMetricManager))
+            {
+                privateMetricManager.Flush(flushDownstreamPipeline: false);
+            }
+
+            TelemetryConfiguration pipeline = this.configuration;
+            if (pipeline != null)
+            {
+                MetricManager sharedMetricManager = pipeline.GetMetricManager(createIfNotExists: false);
+                sharedMetricManager?.Flush(flushDownstreamPipeline: false);
+
+                ITelemetryChannel channel = pipeline.TelemetryChannel;
+                channel?.Flush();
+            }
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
+        /// associated with this client.<br />
+        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
+        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
+        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
+        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
+        /// instance of <c>Metric</c>.</returns>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        public Metric GetMetric(
+                            string metricId)
+        {
+            return this.GetOrCreateMetric(
+                        MetricAggregationScope.TelemetryConfiguration,
+                        new MetricIdentifier(metricId),
+                        metricConfiguration: null);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
+        /// associated with this client.<br />
+        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
+        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
+        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
+        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
+        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
+        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
+        /// instance of <c>Metric</c>.</returns>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        public Metric GetMetric(
+                            string metricId,
+                            MetricConfiguration metricConfiguration)
+        {
+            return this.GetOrCreateMetric(
+                        MetricAggregationScope.TelemetryConfiguration,
+                        new MetricIdentifier(metricId),
+                        metricConfiguration: metricConfiguration);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
+        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
+        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
+        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
+        /// instance of <c>Metric</c>.</returns>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
+        /// See <see cref="MetricAggregationScope" /> for more info.</param>
+        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
+        public Metric GetMetric(
+                            string metricId,
+                            MetricConfiguration metricConfiguration,
+                            MetricAggregationScope aggregationScope)
+        {
+            return this.GetOrCreateMetric(
+                        aggregationScope,
+                        new MetricIdentifier(metricId),
+                        metricConfiguration: metricConfiguration);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
+        /// associated with this client.<br />
+        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
+        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
+        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <param name="dimension1Name">The name of the first dimension.</param>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
+        public Metric GetMetric(
+                            string metricId,
+                            string dimension1Name)
+        {
+            return this.GetOrCreateMetric(
+                        MetricAggregationScope.TelemetryConfiguration,
+                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name),
+                        metricConfiguration: null);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
+        /// associated with this client.<br />
+        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
+        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
+        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <param name="dimension1Name">The name of the first dimension.</param>
+        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
+        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
+        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
+        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
+        /// instance of <c>Metric</c>.</returns>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        public Metric GetMetric(
+                            string metricId,
+                            string dimension1Name,
+                            MetricConfiguration metricConfiguration)
+        {
+            return this.GetOrCreateMetric(
+                        MetricAggregationScope.TelemetryConfiguration,
+                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name),
+                        metricConfiguration: metricConfiguration);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <param name="dimension1Name">The name of the first dimension.</param>
+        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
+        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
+        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
+        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
+        /// instance of <c>Metric</c>.</returns>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
+        /// See <see cref="MetricAggregationScope" /> for more info.</param>
+        public Metric GetMetric(
+                            string metricId,
+                            string dimension1Name,
+                            MetricConfiguration metricConfiguration,
+                            MetricAggregationScope aggregationScope)
+        {
+            return this.GetOrCreateMetric(
+                        aggregationScope,
+                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name),
+                        metricConfiguration: metricConfiguration);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
+        /// associated with this client.<br />
+        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
+        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
+        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <param name="dimension1Name">The name of the first dimension.</param>
+        /// <param name="dimension2Name">The name of the second dimension.</param>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
+        public Metric GetMetric(
+                            string metricId,
+                            string dimension1Name,
+                            string dimension2Name)
+        {
+            return this.GetOrCreateMetric(
+                        MetricAggregationScope.TelemetryConfiguration,
+                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name),
+                        metricConfiguration: null);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
+        /// associated with this client.<br />
+        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
+        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
+        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <param name="dimension1Name">The name of the first dimension.</param>
+        /// <param name="dimension2Name">The name of the second dimension.</param>
+        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
+        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
+        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
+        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
+        /// instance of <c>Metric</c>.</returns>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        public Metric GetMetric(
+                            string metricId,
+                            string dimension1Name,
+                            string dimension2Name,
+                            MetricConfiguration metricConfiguration)
+        {
+            return this.GetOrCreateMetric(
+                        MetricAggregationScope.TelemetryConfiguration,
+                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name),
+                        metricConfiguration);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <param name="dimension1Name">The name of the first dimension.</param>
+        /// <param name="dimension2Name">The name of the second dimension.</param>
+        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
+        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
+        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
+        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
+        /// instance of <c>Metric</c>.</returns>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
+        /// See <see cref="MetricAggregationScope" /> for more info.</param>
+        public Metric GetMetric(
+                            string metricId,
+                            string dimension1Name,
+                            string dimension2Name,
+                            MetricConfiguration metricConfiguration,
+                            MetricAggregationScope aggregationScope)
+        {
+            return this.GetOrCreateMetric(
+                        aggregationScope,
+                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name),
+                        metricConfiguration);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
+        /// associated with this client.<br />
+        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
+        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
+        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <param name="dimension1Name">The name of the first dimension.</param>
+        /// <param name="dimension2Name">The name of the second dimension.</param>
+        /// <param name="dimension3Name">The name of the third dimension.</param>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
+        public Metric GetMetric(
+                            string metricId,
+                            string dimension1Name,
+                            string dimension2Name,
+                            string dimension3Name)
+        {
+            return this.GetOrCreateMetric(
+                        MetricAggregationScope.TelemetryConfiguration,
+                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name),
+                        metricConfiguration: null);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
+        /// associated with this client.<br />
+        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
+        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
+        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <param name="dimension1Name">The name of the first dimension.</param>
+        /// <param name="dimension2Name">The name of the second dimension.</param>
+        /// <param name="dimension3Name">The name of the third dimension.</param>
+        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
+        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
+        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
+        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
+        /// instance of <c>Metric</c>.</returns>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        public Metric GetMetric(
+                            string metricId,
+                            string dimension1Name,
+                            string dimension2Name,
+                            string dimension3Name,
+                            MetricConfiguration metricConfiguration)
+        {
+            return this.GetOrCreateMetric(
+                        MetricAggregationScope.TelemetryConfiguration,
+                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name),
+                        metricConfiguration);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <param name="dimension1Name">The name of the first dimension.</param>
+        /// <param name="dimension2Name">The name of the second dimension.</param>
+        /// <param name="dimension3Name">The name of the third dimension.</param>
+        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
+        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
+        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
+        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
+        /// instance of <c>Metric</c>.</returns>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
+        /// See <see cref="MetricAggregationScope" /> for more info.</param>
+        public Metric GetMetric(
+                            string metricId,
+                            string dimension1Name,
+                            string dimension2Name,
+                            string dimension3Name,
+                            MetricConfiguration metricConfiguration,
+                            MetricAggregationScope aggregationScope)
+        {
+            return this.GetOrCreateMetric(
+                        aggregationScope,
+                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name),
+                        metricConfiguration);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
+        /// associated with this client.<br />
+        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
+        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
+        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <param name="dimension1Name">The name of the first dimension.</param>
+        /// <param name="dimension2Name">The name of the second dimension.</param>
+        /// <param name="dimension3Name">The name of the third dimension.</param>
+        /// <param name="dimension4Name">The name of the fourth dimension.</param>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
+        public Metric GetMetric(
+                            string metricId,
+                            string dimension1Name,
+                            string dimension2Name,
+                            string dimension3Name,
+                            string dimension4Name)
+        {
+            return this.GetOrCreateMetric(
+                        MetricAggregationScope.TelemetryConfiguration,
+                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name, dimension4Name),
+                        metricConfiguration: null);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
+        /// associated with this client.<br />
+        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
+        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
+        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <param name="dimension1Name">The name of the first dimension.</param>
+        /// <param name="dimension2Name">The name of the second dimension.</param>
+        /// <param name="dimension3Name">The name of the third dimension.</param>
+        /// <param name="dimension4Name">The name of the fourth dimension.</param>
+        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
+        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
+        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
+        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
+        /// instance of <c>Metric</c>.</returns>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        public Metric GetMetric(
+                            string metricId,
+                            string dimension1Name,
+                            string dimension2Name,
+                            string dimension3Name,
+                            string dimension4Name,
+                            MetricConfiguration metricConfiguration)
+        {
+            return this.GetOrCreateMetric(
+                        MetricAggregationScope.TelemetryConfiguration,
+                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name, dimension4Name),
+                        metricConfiguration);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <param name="metricId">The ID (name) of the metric.
+        ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        /// <param name="dimension1Name">The name of the first dimension.</param>
+        /// <param name="dimension2Name">The name of the second dimension.</param>
+        /// <param name="dimension3Name">The name of the third dimension.</param>
+        /// <param name="dimension4Name">The name of the fourth dimension.</param>
+        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
+        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
+        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
+        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
+        /// instance of <c>Metric</c>.</returns>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
+        /// See <see cref="MetricAggregationScope" /> for more info.</param>
+        public Metric GetMetric(
+                            string metricId,
+                            string dimension1Name,
+                            string dimension2Name,
+                            string dimension3Name,
+                            string dimension4Name,
+                            MetricConfiguration metricConfiguration,
+                            MetricAggregationScope aggregationScope)
+        {
+            return this.GetOrCreateMetric(
+                        aggregationScope,
+                        new MetricIdentifier(MetricIdentifier.DefaultMetricNamespace, metricId, dimension1Name, dimension2Name, dimension3Name, dimension4Name),
+                        metricConfiguration);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
+        /// associated with this client.<br />
+        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
+        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
+        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
+        /// <param name="metricIdentifier">A grouping containing the Namespace, the ID (name) and the dimension names of the metric.</param>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        /// <returns>A <see cref="Metric"/> instance that you can use to automatically aggregate and then sent metric data value.</returns>
+        public Metric GetMetric(
+                            MetricIdentifier metricIdentifier)
+        {
+            return this.GetOrCreateMetric(
+                        MetricAggregationScope.TelemetryConfiguration,
+                        metricIdentifier,
+                        metricConfiguration: null);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <remarks>The aggregated values will be sent to the <c>TelemetryConfiguration</c>
+        /// associated with this client.<br />
+        /// The aggregation scope of the fetched<c>Metric</c> is <c>TelemetryConfiguration</c>; this
+        /// means that all values tracked for a given metric ID and dimensions will be aggregated together
+        /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
+        /// <param name="metricIdentifier">A grouping containing the Namespace, the ID (name) and the dimension names of the metric.</param>
+        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
+        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
+        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
+        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
+        /// instance of <c>Metric</c>.</returns>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        public Metric GetMetric(
+                            MetricIdentifier metricIdentifier,
+                            MetricConfiguration metricConfiguration)
+        {
+            return this.GetOrCreateMetric(
+                        MetricAggregationScope.TelemetryConfiguration,
+                        metricIdentifier,
+                        metricConfiguration);
+        }
+
+        /// <summary>
+        /// Gets or creates a metric container that you can use to track, aggregate and send metric values.<br />
+        /// Optionally specify a metric configuration to control how the tracked values are aggregated.
+        /// </summary>
+        /// <param name="metricIdentifier">A grouping containing the Namespace, the ID (name) and the dimension names of the metric.</param>
+        /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
+        /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
+        /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
+        /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
+        /// instance of <c>Metric</c>.</returns>
+        /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
+        /// and aggregation scope, but with a different configuration. When calling this method to get a previously
+        /// created metric, you can simply avoid specifying any configuration (or specify null) to imply the
+        /// configuration used earlier.</exception>
+        /// <param name="aggregationScope">The scope across which the values for the metric are to be aggregated in memory.
+        /// See <see cref="MetricAggregationScope" /> for more info.</param>
+        public Metric GetMetric(
+                            MetricIdentifier metricIdentifier,
+                            MetricConfiguration metricConfiguration,
+                            MetricAggregationScope aggregationScope)
+        {
+            return this.GetOrCreateMetric(
+                        aggregationScope,
+                        metricIdentifier,
+                        metricConfiguration);
+        }
+
+        private Metric GetOrCreateMetric(
+                                    MetricAggregationScope aggregationScope,
+                                    MetricIdentifier metricIdentifier,
+                                    MetricConfiguration metricConfiguration)
+        {
+            MetricManager metricManager = this.GetMetricManager(aggregationScope);
+            Metric metric = metricManager.Metrics.GetOrCreate(metricIdentifier, metricConfiguration);
+            return metric;
         }
     }
 }

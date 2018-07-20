@@ -23,16 +23,17 @@
   <ItemGroup Condition="$(OS) == 'Windows_NT'">
     <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
-    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="15.5.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.2.0-beta3" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.2.0-beta3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.0" />
+    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="15.6.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
     <PackageReference Include="CompareNETObjects" Version="3.12.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
-    <PackageReference Include="MicroBuild.Core" Version="0.2.0">
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
+    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Moq" Version="4.8.2" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Management" />
@@ -40,13 +41,11 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.XML" />
-    <Reference Include="System.Xml.Linq" />  
-    <Compile Include="..\Net45\Extensibility\Implementation\Platform\PlatformReferencesTests.cs" Condition="$(OS) == 'Windows_NT'">
-      <Link>Extensibility\Implementation\Platform\PlatformReferencesTests.cs</Link>
-    </Compile>
-    <Compile Include="..\Net46\Extensibility\Implementation\RichPayloadEventSourceTest.cs" Condition="$(OS) == 'Windows_NT'">
-      <Link>Extensibility\Implementation\RichPayloadEventSourceTest.cs</Link>
-    </Compile>
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
   <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" Condition="$(OS) == 'Windows_NT'" />

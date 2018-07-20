@@ -3,7 +3,7 @@ import "SeverityLevel.bond"
 
 namespace AI
 
-[Description("Instances of Message represent printf-like trace statements that are text-searched. Log4Net, NLog and other text-based log file entries are translated into instances of this type. The message does not have measurements.")]
+[Description("Instances of Message represent printf-like trace statements that are text-searched. Log4Net, NLog and other text-based log file entries are translated into intances of this type. The message does not have measurements.")]
 struct MessageData
     : Domain
 {
@@ -21,5 +21,9 @@ struct MessageData
     [MaxKeyLength("150")]
     [MaxValueLength("8192")]
     100: map<string, string> 	 properties;
+    
+    [Description("Collection of custom measurements.")]
+    [MaxKeyLength("150")]
+    200: map<string, double> 	 measurements;
     
 }

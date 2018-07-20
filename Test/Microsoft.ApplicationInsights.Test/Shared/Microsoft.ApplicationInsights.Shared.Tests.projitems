@@ -10,6 +10,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ActivityExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MetricTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OperationTelemetryExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StartOperationActivityTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionAsyncTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TransmissionProcessorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Channel\InMemoryChannelTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Channel\InMemoryTransmitterTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Channel\ITelemetryTest.cs" />
@@ -24,20 +31,25 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\DependencyTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\RequestTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\SessionStateTelemetryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryContextInitializeTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryContextTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryItemTestHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EnumerableExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ApplicationId\ApplicationIdHelperTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ApplicationId\ApplicationInsightsApplicationIdProviderTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ApplicationId\ApplicationIdTestBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ApplicationId\DictionaryApplicationIdProviderTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ApplicationId\FailedRequestsManagerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ApplicationId\ProfileServiceWrapperTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationHolderTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonSerializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryProcessorChainBuilderTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\CoreEventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ExtensionsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\HeartbeatTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricManagerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\HeartbeatProviderMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricSample.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\AutocollectedMetricsExtractorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\OperationCorrelationTelemetryInitializerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ComponentContextTest.cs" />
@@ -73,15 +85,44 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ThreadResourceLockTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\UserContextTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\WeakConcurrentRandomTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\StubMetricProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfigurationFactoryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfigurationTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetrySinkTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)OperationTelemetryExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\MetricConfigurationTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\MetricEmissionTestsVirtualTime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\MetricManagerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\MetricSeriesTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\MetricsExamples.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\TelemetryConfigurationExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\CommonSimpleDataSeriesAggregatorTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\DefaultAggregationPeriodCycle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\MeasurementAggregator_restrictToUInt32ValuesFalse_Tests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\MeasurementAggregator_restrictToUInt32ValuesTrue_Tests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\MetricAggregationManagerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\UtilTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\ConcurrentDatastructures\GrowingCollectionTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\ConcurrentDatastructures\MultidimensionalCube2Tests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Implementation\ConcurrentDatastructures\MultidimensionalCubeTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AggregationPeriodSummaryTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\ApplicationInsightsTelemetryPipelineTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\MetricExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\TelemetryClientExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\Extensibility\AutocollectedMetricsExtraction\AutocollectedMetricsExtractorTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\ArrayEqualityComparer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\MetricSeriesConfigurationForTestingAccumulatorBehavior.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\StubApplicationInsightsTelemetryChannel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\TestCategoryNames.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\TestUtil.cs" />
+    <None    Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\Materials\StdDev Test Tool.xlsx" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionAsyncTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TransmissionProcessorTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientTest.cs" />
+  </ItemGroup>
+  <PropertyGroup>
+    <IsNetCoreBuild Condition="'$(TargetFramework)' == 'netcoreapp1.1'">True</IsNetCoreBuild>
+    <IsNetCoreBuild Condition="'$(TargetFramework)' == 'netcoreapp2.0'">True</IsNetCoreBuild>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(IsNetCoreBuild)'!='True'">
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Platform\PlatformReferencesTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\RichPayloadEventSourceTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FailOnAssertSetup.cs" />
   </ItemGroup>
 </Project>

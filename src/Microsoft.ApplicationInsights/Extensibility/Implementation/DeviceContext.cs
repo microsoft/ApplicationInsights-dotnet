@@ -107,15 +107,14 @@
             tags.UpdateTagValue(ContextTagKeys.Keys.DeviceOEMName, this.OemName);
             tags.UpdateTagValue(ContextTagKeys.Keys.DeviceModel, this.Model);
         }
-
-        internal void CopyFrom(TelemetryContext telemetryContext)
+        
+        internal void CopyTo(DeviceContext target)
         {
-            var source = telemetryContext.Device;
-            Tags.CopyTagValue(source.Type, ref this.type);
-            Tags.CopyTagValue(source.Id, ref this.id);
-            Tags.CopyTagValue(source.OperatingSystem, ref this.operatingSystem);
-            Tags.CopyTagValue(source.OemName, ref this.oemName);
-            Tags.CopyTagValue(source.Model, ref this.model);
+            Tags.CopyTagValue(this.Type, ref target.type);
+            Tags.CopyTagValue(this.Id, ref target.id);
+            Tags.CopyTagValue(this.OperatingSystem, ref target.operatingSystem);
+            Tags.CopyTagValue(this.OemName, ref target.oemName);
+            Tags.CopyTagValue(this.Model, ref target.model);
         }
     }
 }

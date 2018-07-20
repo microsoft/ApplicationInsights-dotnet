@@ -34,11 +34,10 @@
         {
             tags.UpdateTagValue(ContextTagKeys.Keys.ApplicationVersion, this.Version);
         }
-
-        internal void CopyFrom(TelemetryContext telemetryContext)
+        
+        internal void CopyTo(ComponentContext target)
         {
-            var target = telemetryContext.Component;
-            Tags.CopyTagValue(target.Version, ref this.version);
+            Tags.CopyTagValue(this.Version, ref target.version);
         }
     }
 }

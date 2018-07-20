@@ -243,6 +243,7 @@ Microsoft.ApplicationInsights.DataContracts.TelemetryContext.InstrumentationKey.
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Location.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.LocationContext
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Operation.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Properties.get -> System.Collections.Generic.IDictionary<string, string>
+Microsoft.ApplicationInsights.DataContracts.TelemetryContext.GlobalProperties.get -> System.Collections.Generic.IDictionary<string, string>
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Session.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.SessionContext
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TelemetryContext() -> void
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.User.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext
@@ -427,8 +428,9 @@ Microsoft.ApplicationInsights.TelemetryClient.Track(Microsoft.ApplicationInsight
 Microsoft.ApplicationInsights.TelemetryClient.TrackAvailability(Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry telemetry) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackAvailability(string name, System.DateTimeOffset timeStamp, System.TimeSpan duration, string runLocation, bool success, string message = null, System.Collections.Generic.IDictionary<string, string> properties = null, System.Collections.Generic.IDictionary<string, double> metrics = null) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry telemetry) -> void
-Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(string dependencyName, string commandName, System.DateTimeOffset startTime, System.TimeSpan duration, bool success) -> void
+Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, bool success) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(string dependencyTypeName, string target, string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, string resultCode, bool success) -> void
+Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(string dependencyTypeName, string dependencyName, string data, System.DateTimeOffset startTime, System.TimeSpan duration, bool success) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackEvent(Microsoft.ApplicationInsights.DataContracts.EventTelemetry telemetry) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackEvent(string eventName, System.Collections.Generic.IDictionary<string, string> properties = null, System.Collections.Generic.IDictionary<string, double> metrics = null) -> void
 Microsoft.ApplicationInsights.TelemetryClient.TrackException(Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry telemetry) -> void
@@ -516,6 +518,7 @@ static Microsoft.ApplicationInsights.OperationTelemetryExtensions.Start(this Mic
 static Microsoft.ApplicationInsights.OperationTelemetryExtensions.Stop(this Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry telemetry) -> void
 static Microsoft.ApplicationInsights.OperationTelemetryExtensions.Stop(this Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry telemetry, long timestamp) -> void
 static Microsoft.ApplicationInsights.TelemetryClientExtensions.StartOperation<T>(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, T operationTelemetry) -> Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
+static Microsoft.ApplicationInsights.TelemetryClientExtensions.StartOperation<T>(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, System.Diagnostics.Activity activity) -> Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
 static Microsoft.ApplicationInsights.TelemetryClientExtensions.StartOperation<T>(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, string operationName) -> Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
 static Microsoft.ApplicationInsights.TelemetryClientExtensions.StartOperation<T>(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, string operationName, string operationId, string parentOperationId = null) -> Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T>
 static Microsoft.ApplicationInsights.TelemetryClientExtensions.StopOperation<T>(this Microsoft.ApplicationInsights.TelemetryClient telemetryClient, Microsoft.ApplicationInsights.Extensibility.IOperationHolder<T> operation) -> void

@@ -81,12 +81,21 @@
         }
 
         /// <summary>
+        /// Gets a list of default heartbeat property providers that are disabled and will not contribute to the
+        /// default heartbeat properties. The only default heartbeat property provide currently defined is named
+        /// 'Base'.
+        /// </summary>
+        public IList<string> ExcludedHeartbeatPropertyProviders
+        {
+            get => this.HeartbeatProvider.ExcludedHeartbeatPropertyProviders;
+        }
+
+        /// <summary>
         /// Gets a list of property names that are not to be sent with the heartbeats. null/empty list means allow all default properties through.
         /// 
         /// <remarks>
         /// Default properties supplied by the Application Insights SDK:
-        /// - runtimeFramework
-        /// - baseSdkTargetFramework
+        /// baseSdkTargetFramework, osType, processSessionId
         /// </remarks>
         /// </summary>
         public IList<string> ExcludedHeartbeatProperties
@@ -214,7 +223,7 @@
         /// <returns>True if the new payload item is successfully added, false otherwise.</returns>
         public bool AddHeartbeatProperty(string propertyName, string propertyValue, bool isHealthy)
         {
-            return this.HeartbeatProvider.AddHeartbeatProperty(propertyName, propertyValue, isHealthy);
+            return this.HeartbeatProvider.AddHeartbeatProperty(propertyName, false, propertyValue, isHealthy);
         }
 
         /// <summary>
@@ -234,7 +243,7 @@
         {
             if (!string.IsNullOrEmpty(propertyName) && (propertyValue != null || isHealthy != null))
             {
-                return this.HeartbeatProvider.SetHeartbeatProperty(propertyName, propertyValue, isHealthy);
+                return this.HeartbeatProvider.SetHeartbeatProperty(propertyName, false, propertyValue, isHealthy);
             }
             else
             {

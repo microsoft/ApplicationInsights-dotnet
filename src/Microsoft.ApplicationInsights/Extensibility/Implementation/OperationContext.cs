@@ -75,14 +75,13 @@
             tags.UpdateTagValue(ContextTagKeys.Keys.OperationSyntheticSource, this.SyntheticSource);
         }
 
-        internal void CopyFrom(TelemetryContext telemetryContext)
+        internal void CopyTo(OperationContext target)
         {
-            var source = telemetryContext.Operation;
-            Tags.CopyTagValue(source.Id, ref this.id);
-            Tags.CopyTagValue(source.ParentId, ref this.parentId);
-            Tags.CopyTagValue(source.CorrelationVector, ref this.correlationVector);
-            Tags.CopyTagValue(source.Name, ref this.name);
-            Tags.CopyTagValue(source.SyntheticSource, ref this.syntheticSource);
+            Tags.CopyTagValue(this.Id, ref target.id);
+            Tags.CopyTagValue(this.ParentId, ref target.parentId);
+            Tags.CopyTagValue(this.CorrelationVector, ref target.correlationVector);
+            Tags.CopyTagValue(this.Name, ref target.name);
+            Tags.CopyTagValue(this.SyntheticSource, ref target.syntheticSource);
         }
     }
 }

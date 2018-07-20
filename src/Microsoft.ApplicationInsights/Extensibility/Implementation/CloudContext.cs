@@ -39,12 +39,11 @@
             tags.UpdateTagValue(ContextTagKeys.Keys.CloudRole, this.RoleName);
             tags.UpdateTagValue(ContextTagKeys.Keys.CloudRoleInstance, this.RoleInstance);
         }
-
-        internal void CopyFrom(TelemetryContext telemetryContext)
+        
+        internal void CopyTo(CloudContext target)
         {
-            var source = telemetryContext.Cloud;
-            Tags.CopyTagValue(source.RoleName, ref this.roleName);
-            Tags.CopyTagValue(source.RoleInstance, ref this.roleInstance);
+            Tags.CopyTagValue(this.RoleName, ref target.roleName);
+            Tags.CopyTagValue(this.RoleInstance, ref target.roleInstance);
         }
     }
 }

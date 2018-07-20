@@ -40,6 +40,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// <param name="item">A collected Telemetry item.</param>
         public void Process(ITelemetry item)
         {
+            var telemetryProps = item as ISupportProperties;
+            if (telemetryProps != null)
+            {
+                Utils.CopyDictionary(item.Context.GlobalProperties, telemetryProps.Properties);
+            }
+
             if (item is RequestTelemetry)
             {
                 if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Requests))
@@ -54,6 +60,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Requests);
             }
             else if (item is TraceTelemetry)
@@ -70,6 +77,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Traces);
             }
             else if (item is EventTelemetry)
@@ -86,6 +94,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Events);
             }
             else if (item is DependencyTelemetry)
@@ -102,6 +111,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.InternalData,
+                    telemetryItem.Context.Flags,
                     Keywords.Dependencies);
             }
             else if (item is MetricTelemetry)
@@ -118,6 +128,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Metrics);
             }
             else if (item is ExceptionTelemetry)
@@ -134,6 +145,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Exceptions);
             }
 #pragma warning disable 618
@@ -151,6 +163,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Metrics);
             }
 #pragma warning restore 618
@@ -168,6 +181,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.PageViews);
             }
             else if (item is PageViewPerformanceTelemetry)
@@ -201,6 +215,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Events);
             }
             else if (item is AvailabilityTelemetry)
@@ -217,6 +232,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Availability);
             }
             else
@@ -274,12 +290,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
         }
 
-        private void WriteEvent<T>(string eventName, string instrumentationKey, IDictionary<string, string> tags, T data, EventKeywords keywords)
+        private void WriteEvent<T>(string eventName, string instrumentationKey, IDictionary<string, string> tags, T data, long flags, EventKeywords keywords)
         {
             this.EventSourceInternal.Write(
                 eventName,
                 new EventSourceOptions() { Keywords = keywords },
-                new { PartA_iKey = instrumentationKey, PartA_Tags = tags, _B = data });
+                new { PartA_iKey = instrumentationKey, PartA_Tags = tags, _B = data, PartA_flags = flags });
         }
 
         private void WriteEvent(OperationTelemetry item, EventOpcode eventOpCode)
@@ -383,6 +399,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CoreEventSource.Log.LogVerbose(msg);
 
                 return;
+            }
+
+            var telemetryProps = item as ISupportProperties;
+            if (telemetryProps != null)
+            {
+                Utils.CopyDictionary(item.Context.GlobalProperties, telemetryProps.Properties);
             }
 
             handler(item);

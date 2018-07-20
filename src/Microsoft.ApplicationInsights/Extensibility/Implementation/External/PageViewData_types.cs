@@ -46,6 +46,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         public string duration { get; set; }
 
+        
+        
+        
+        
+        public string id { get; set; }
+
         public PageViewData()
             : this("AI.PageViewData", "PageViewData")
         {}
@@ -54,6 +60,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             url = "";
             duration = "";
+            id = "";
         }
     }
 } // AI

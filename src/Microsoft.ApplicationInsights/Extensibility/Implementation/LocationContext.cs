@@ -28,11 +28,10 @@
         {
             tags.UpdateTagValue(ContextTagKeys.Keys.LocationIp, this.Ip);
         }
-
-        internal void CopyFrom(TelemetryContext telemetryContext)
+        
+        internal void CopyTo(LocationContext target)
         {
-            var source = telemetryContext.Location;
-            Tags.CopyTagValue(source.Ip, ref this.ip);
+            Tags.CopyTagValue(this.Ip, ref target.ip);
         }
     }
 }

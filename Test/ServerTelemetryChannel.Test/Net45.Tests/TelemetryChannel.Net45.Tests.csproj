@@ -25,25 +25,24 @@
   <ItemGroup Condition="$(OS) == 'Windows_NT'">
     <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <ProjectReference Include="..\..\..\Test\Microsoft.ApplicationInsights.Test\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
-    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="15.5.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.2.0-beta3" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.2.0-beta3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.0" />
+    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="15.6.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
     <PackageReference Include="CompareNETObjects" Version="3.12.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
-    <PackageReference Include="Castle.Core" Version="3.3.3" />
-    <PackageReference Include="Moq" Version="4.5.21" />
-    <PackageReference Include="MicroBuild.Core" Version="0.2.0">
-      <IncludeAssets>All</IncludeAssets>
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
     <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\TelemetryChannel.csproj">
       <Project>{3273d899-d9b3-44fe-b3ab-578e18b2ef90}</Project>
       <Name>TelemetryChannel</Name>
     </ProjectReference>
+    <PackageReference Include="Moq" Version="4.8.2" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
   <Import Project="..\..\..\Test\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" Condition="$(OS) == 'Windows_NT'" />
   <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" Condition="$(OS) == 'Windows_NT'" />

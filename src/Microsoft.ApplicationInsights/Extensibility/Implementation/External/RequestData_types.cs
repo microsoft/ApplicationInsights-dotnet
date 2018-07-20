@@ -96,6 +96,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             this.name = "";
             duration = "";
             responseCode = "";
+            success = true;
             url = "";
             properties = new ConcurrentDictionary<string, string>();
             measurements = new ConcurrentDictionary<string, double>();
