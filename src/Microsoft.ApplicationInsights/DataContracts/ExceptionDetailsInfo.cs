@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
@@ -10,9 +12,23 @@
         internal readonly ExceptionDetails InternalExceptionDetails = null;
 
         /// <summary>
-        /// Constructs the 
+        /// Constructs the instance of <see cref="ExceptionDetailsInfo"/>.
         /// </summary>
-        /// <param name="exceptionDetails">Instance of </param>
+        public ExceptionDetailsInfo(int id, int outerId, string typeName, string message, bool hasFullStack,
+            string stack, IEnumerable<StackFrame> parsedStack)
+        {
+            this.InternalExceptionDetails = new ExceptionDetails()
+            {
+                id = id,
+                outerId = outerId,
+                typeName = typeName,
+                message = message,
+                hasFullStack = hasFullStack,
+                stack = stack,
+                parsedStack = parsedStack.Select(ps => ps.Data).ToList()
+            };
+        }
+
         internal ExceptionDetailsInfo(ExceptionDetails exceptionDetails)
         {
             this.InternalExceptionDetails = exceptionDetails;
@@ -35,5 +51,7 @@
             get => this.InternalExceptionDetails.message;
             set => this.InternalExceptionDetails.message = value;
         }
+
+        internal ExceptionDetails ExceptionDetails => this.InternalExceptionDetails;
     }
 }

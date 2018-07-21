@@ -40,23 +40,118 @@
         }
 
         [TestMethod]
-        public void ExceptionTelemetryReturnsNullExceptionDetails()
+        public void ExceptionTelemetryCreatedBasedOnCustomData()
         {
-            ExceptionTelemetry item = new ExceptionTelemetry();
-            Assert.IsNull(item.ExceptionDetailsInfoList);
+            // ARRANGE
+            var topLevelexceptionDetails = new ExceptionDetailsInfo(1, -1, "TopLevelException", "Top level exception",
+                true, "Top level exception stack", new[]
+                {
+                    new StackFrame("Some.Assembly", "SomeFile.dll", 3, 33, "TopLevelMethod"),
+                    new StackFrame("Some.Assembly", "SomeOtherFile.dll", 2, 22, "LowerLevelMethod"),
+                    new StackFrame("Some.Assembly", "YetAnotherFile.dll", 1, 11, "LowLevelMethod")
+                });
+
+            var innerExceptionDetails = new ExceptionDetailsInfo(2, 1, "InnerException", "Inner exception", false,
+                "Inner exception stack", new[]
+                {
+                    new StackFrame("Some.Assembly", "ImportantFile.dll", 2, 22, "InnerMethod"),
+                    new StackFrame("Some.Assembly", "LessImportantFile.dll", 1, 11, "DeeperInnerMethod")
+                });
+
+            var exceptionInfo = new ExceptionInfo(new[] {topLevelexceptionDetails, innerExceptionDetails},
+                SeverityLevel.Error, "ProblemId",
+                new Dictionary<string, string>() {["property1"] = "value1", ["property2"] = "value2"},
+                new Dictionary<string, double>() {["property1"] = 1, ["property2"] = 2});
+
+            // ACT
+            ExceptionTelemetry item = new ExceptionTelemetry(exceptionInfo);
+
+            item.ExceptionInfo.ExceptionDetailsInfoList[1].Message = "Inner exception modified";
+
+            // ASSERT
+            // use internal fields to validate
+            Assert.AreEqual(item.Data.Data.ver, 2);
+            Assert.AreEqual(item.Data.Data.problemId, "ProblemId");
+            Assert.AreEqual(item.Data.Data.severityLevel, Extensibility.Implementation.External.SeverityLevel.Error);
+
+            Assert.AreEqual(item.Data.Data.properties.Count, 2);
+            Assert.IsTrue(item.Data.Data.properties.Keys.Contains("property1"));
+            Assert.IsTrue(item.Data.Data.properties.Keys.Contains("property2"));
+            Assert.IsTrue(item.Data.Data.properties.Values.Contains("value1"));
+            Assert.IsTrue(item.Data.Data.properties.Values.Contains("value2"));
+
+            Assert.AreEqual(item.Data.Data.measurements.Count, 2);
+            Assert.IsTrue(item.Data.Data.measurements.Keys.Contains("property1"));
+            Assert.IsTrue(item.Data.Data.measurements.Keys.Contains("property2"));
+            Assert.IsTrue(item.Data.Data.measurements.Values.Contains(1));
+            Assert.IsTrue(item.Data.Data.measurements.Values.Contains(2));
+
+            Assert.AreEqual(item.Data.Data.exceptions.Count, 2);
+
+            Assert.AreEqual(item.Data.Data.exceptions.First().id, 1);
+            Assert.AreEqual(item.Data.Data.exceptions.First().outerId, -1);
+            Assert.AreEqual(item.Data.Data.exceptions.First().typeName, "TopLevelException");
+            Assert.AreEqual(item.Data.Data.exceptions.First().message, "Top level exception");
+            Assert.AreEqual(item.Data.Data.exceptions.First().hasFullStack, true);
+            Assert.AreEqual(item.Data.Data.exceptions.First().stack, "Top level exception stack");
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack.Count, 3);
+
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[0].assembly, "Some.Assembly");
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[0].fileName, "SomeFile.dll");
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[0].level, 3);
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[0].line, 33);
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[0].method, "TopLevelMethod");
+
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[1].assembly, "Some.Assembly");
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[1].fileName, "SomeOtherFile.dll");
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[1].level, 2);
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[1].line, 22);
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[1].method, "LowerLevelMethod");
+
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[2].assembly, "Some.Assembly");
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[2].fileName, "YetAnotherFile.dll");
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[2].level, 1);
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[2].line, 11);
+            Assert.AreEqual(item.Data.Data.exceptions.First().parsedStack[2].method, "LowLevelMethod");
+
+            Assert.AreEqual(item.Data.Data.exceptions.Last().id, 2);
+            Assert.AreEqual(item.Data.Data.exceptions.Last().outerId, 1);
+            Assert.AreEqual(item.Data.Data.exceptions.Last().typeName, "InnerException");
+            Assert.AreEqual(item.Data.Data.exceptions.Last().message, "Inner exception modified");
+            Assert.AreEqual(item.Data.Data.exceptions.Last().hasFullStack, false);
+            Assert.AreEqual(item.Data.Data.exceptions.Last().stack, "Inner exception stack");
+            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack.Count, 2);
+
+            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[0].assembly, "Some.Assembly");
+            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[0].fileName, "ImportantFile.dll");
+            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[0].level, 2);
+            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[0].line, 22);
+            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[0].method, "InnerMethod");
+
+            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[1].assembly, "Some.Assembly");
+            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[1].fileName, "LessImportantFile.dll");
+            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[1].level, 1);
+            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[1].line, 11);
+            Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[1].method, "DeeperInnerMethod");
         }
 
         [TestMethod]
         public void ExceptionTelemetryExceptionDetailsUpdate()
         {
+            // ARRANGE
             var exception = new AggregateException("Test Exception", new Exception());
             ExceptionTelemetry item = new ExceptionTelemetry(exception);
+
+            // ACT
             IReadOnlyList<ExceptionDetailsInfo> newExceptionDetails = item.ExceptionDetailsInfoList;
+
             string modifiedMessage = "Modified Message";
             string modifiedTypeName = "Modified TypeName";
 
             newExceptionDetails[0].Message = modifiedMessage;
             newExceptionDetails[0].TypeName = modifiedTypeName;
+
+            // ASSERT
             Assert.AreEqual(modifiedMessage, item.Exceptions[0].message);
             Assert.AreEqual(modifiedTypeName, item.Exceptions[0].typeName);
         }

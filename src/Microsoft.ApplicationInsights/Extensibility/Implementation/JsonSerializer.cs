@@ -11,7 +11,6 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -190,7 +189,7 @@
 
                     int stackFrameArrayIndex = 0;
 
-                    foreach (StackFrame frame in exceptionDetails.parsedStack)
+                    foreach (External.StackFrame frame in exceptionDetails.parsedStack)
                     {
                         if (stackFrameArrayIndex++ != 0)
                         {
@@ -209,7 +208,7 @@
             }
         }
 
-        private static void SerializeStackFrame(StackFrame frame, IJsonWriter writer)
+        private static void SerializeStackFrame(External.StackFrame frame, IJsonWriter writer)
         {
             writer.WriteProperty("level", frame.level);
             writer.WriteProperty(
@@ -364,11 +363,11 @@
                 {
                     writer.WriteStartObject();
 
-                    writer.WriteProperty("ver", exceptionTelemetry.Data.ver);
-                    writer.WriteProperty("problemId", exceptionTelemetry.Data.problemId);
-                    Utils.CopyDictionary(exceptionTelemetry.Context.GlobalProperties, exceptionTelemetry.Data.properties);
-                    writer.WriteProperty("properties", exceptionTelemetry.Data.properties);
-                    writer.WriteProperty("measurements", exceptionTelemetry.Data.measurements);
+                    writer.WriteProperty("ver", exceptionTelemetry.Data.Data.ver);
+                    writer.WriteProperty("problemId", exceptionTelemetry.Data.Data.problemId);
+                    Utils.CopyDictionary(exceptionTelemetry.Context.GlobalProperties, exceptionTelemetry.Data.Data.properties);
+                    writer.WriteProperty("properties", exceptionTelemetry.Data.Data.properties);
+                    writer.WriteProperty("measurements", exceptionTelemetry.Data.Data.measurements);
                     writer.WritePropertyName("exceptions");
                     {
                         writer.WriteStartArray();
@@ -378,9 +377,9 @@
                         writer.WriteEndArray();
                     }
 
-                    if (exceptionTelemetry.Data.severityLevel.HasValue)
+                    if (exceptionTelemetry.Data.Data.severityLevel.HasValue)
                     {
-                        writer.WriteProperty("severityLevel", exceptionTelemetry.Data.severityLevel.Value.ToString());
+                        writer.WriteProperty("severityLevel", exceptionTelemetry.Data.Data.severityLevel.Value.ToString());
                     }
 
                     writer.WriteEndObject();
