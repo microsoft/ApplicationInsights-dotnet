@@ -138,7 +138,7 @@
         /// <summary>
         /// Gets a dictionary of application-defined property values.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
-        /// </summary>
+        /// </summary>        
         [Obsolete("Use GlobalProperties to set global level properties. For properties at item level, use ISupportProperties.Properties.")]
         public IDictionary<string, string> Properties
         {

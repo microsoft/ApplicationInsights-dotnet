@@ -2,11 +2,15 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
-## Version vNext
-- [Allow to set flags on event](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/844). It will be used in conjunction with the feature that will allow to keep IP addresses.
+## Version 2.8.0-beta1
+- [Add a new distict properties collection, GlobalProperties, on TelemetryContext, and obsolete the Properties on TelemetryContext.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/820)
+- [Allow to track PageViewPerformance data type](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/673).
 
 ## Version 2.7.0-beta3
-- [Add a new distict properties collection, GlobalProperties, on TelemetryContext, and obsolete the Properties on TelememetryContext.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/820)
+- [Allow to set flags on event](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/844). It will be used in conjunction with the feature that will allow to keep IP addresses.
+- [Fix: SerializationException resolving Activity in cross app-domain calls](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/613)
+- [Make HttpClient instance static to avoid re-creating with every transmission. This had caused connection/memory leaks in .net core 2.1](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/594)
+  Related: (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/690)
 
 ## Version 2.7.0-beta2
 - [Fix: NullReferenceException if telemtery is tracked after TelemetryConfiguration is disposed](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/928)
@@ -52,7 +56,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 - Remove calculation of sampling-score based on Context.User.Id [Issue #625](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/625)
 - New sdk-driven "heartbeat" functionality added which sends health status at pre-configured intervals. See [extending heartbeat properties doc for more information](./docs/ExtendingHeartbeatProperties.md)
 - Fixes a bug in ServerTelemetryChannel which caused application to crash on non-windows platforms. 
-			[Details on fix and workaround #654] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/654)
+			[Details on fix and workaround #654](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/654)
 			Original issue (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/551)
 - [Fixed a bug with the `AdaptiveSamplingTelemetryProcessor` that would cause starvation over time. Issue #756 (dotnet-server)](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/756)
 - Updated solution to build on Mac!
@@ -96,7 +100,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 - [Fixed a bug which caused SDK to stop sending telemetry.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/480)
 
 ## Version 2.3.0-beta3
-- [Added overloads of TelemetryClientExtensions.StartOperation.] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/163)
+- [Added overloads of TelemetryClientExtensions.StartOperation.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/163)
 - Fire new ETW events for Operation Start/Stop.
 
 ## Version 2.3.0-beta2
