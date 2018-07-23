@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 2.4.0-beta4
+- [Generate W3C compatible operation Id when there is no parent operation](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/952)
 - Updated Web/Base SDK version dependency to 2.7.0-beta4
 
 ## Version 2.4.0-beta3
