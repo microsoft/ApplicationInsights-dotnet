@@ -66,6 +66,11 @@
             /// Keyword for operations (Start/Stop).
             /// </summary>
             public const EventKeywords Operations = (EventKeywords)0x400;
+
+            /// <summary>
+            /// Keyword for page view performance.
+            /// </summary>
+            public const EventKeywords PageViewPerformance = (EventKeywords)0x800;
         }
     }
 }
