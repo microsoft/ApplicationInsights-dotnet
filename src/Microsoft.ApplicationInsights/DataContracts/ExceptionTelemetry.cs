@@ -62,7 +62,7 @@
             this.Data = exceptionInfo ?? throw new ArgumentNullException(nameof(exceptionInfo));
             this.context = new TelemetryContext(this.Data.Properties);
 
-            this.UpdateData(null, exceptionInfo);
+            this.UpdateData(exceptionInfo);
         }
 
         /// <summary>
@@ -164,7 +164,7 @@
                 }
 
                 this.exception = value;
-                this.UpdateData(value, null);
+                this.UpdateData(value);
             }
         }
 
@@ -202,7 +202,7 @@
                 }
                 else
                 {
-                    this.UpdateData(this.Exception, null);
+                    this.UpdateData(this.Exception);
                 }
             }
         }
@@ -337,44 +337,52 @@
             }
         }
 
-        private void UpdateData(Exception exception, ExceptionInfo exceptionInfo)
+        private void UpdateData(Exception exception)
         {
             if (this.isCreatedFromExceptionInfo)
             {
-                this.Data = exceptionInfo ?? throw new ArgumentNullException(nameof(exceptionInfo));
-                this.context = new TelemetryContext(this.Data.Properties);
+                throw new InvalidOperationException("Operation is not supported given the state of the object.");
             }
-            else
+
+            // collect the set of exceptions detail info from the passed in exception
+            List<ExceptionDetails> exceptions = new List<ExceptionDetails>();
+            this.ConvertExceptionTree(exception, null, exceptions);
+
+            // trim if we have too many, also add a custom exception to let the user know we're trimmed
+            if (exceptions.Count > Constants.MaxExceptionCountToSave)
             {
-                // collect the set of exceptions detail info from the passed in exception
-                List<ExceptionDetails> exceptions = new List<ExceptionDetails>();
-                this.ConvertExceptionTree(exception, null, exceptions);
+                // TODO: when we localize these messages, we should consider not using InvariantCulture
+                // create our "message" exception.
+                InnerExceptionCountExceededException countExceededException =
+                    new InnerExceptionCountExceededException(
+                        string.Format(
+                            CultureInfo.InvariantCulture,
+                            "The number of inner exceptions was {0} which is larger than {1}, the maximum number allowed during transmission. All but the first {1} have been dropped.",
+                            exceptions.Count,
+                            Constants.MaxExceptionCountToSave));
 
-                // trim if we have too many, also add a custom exception to let the user know we're trimmed
-                if (exceptions.Count > Constants.MaxExceptionCountToSave)
-                {
-                    // TODO: when we localize these messages, we should consider not using InvariantCulture
-                    // create our "message" exception.
-                    InnerExceptionCountExceededException countExceededException =
-                        new InnerExceptionCountExceededException(
-                            string.Format(
-                                CultureInfo.InvariantCulture,
-                                "The number of inner exceptions was {0} which is larger than {1}, the maximum number allowed during transmission. All but the first {1} have been dropped.",
-                                exceptions.Count,
-                                Constants.MaxExceptionCountToSave));
+                // remove all but the first N exceptions
+                exceptions.RemoveRange(Constants.MaxExceptionCountToSave,
+                    exceptions.Count - Constants.MaxExceptionCountToSave);
 
-                    // remove all but the first N exceptions
-                    exceptions.RemoveRange(Constants.MaxExceptionCountToSave,
-                        exceptions.Count - Constants.MaxExceptionCountToSave);
-
-                    // we'll add our new exception and parent it to the root exception (first one in the list)
-                    exceptions.Add(ExceptionConverter.ConvertToExceptionDetails(countExceededException, exceptions[0]));
-                }
-
-                this.Data = new ExceptionInfo(exceptions.Select(ex => new ExceptionDetailsInfo(ex)), this.SeverityLevel,
-                    this.ProblemId, this.Properties, this.Metrics);
-                this.context = new TelemetryContext(this.Data.Properties);
+                // we'll add our new exception and parent it to the root exception (first one in the list)
+                exceptions.Add(ExceptionConverter.ConvertToExceptionDetails(countExceededException, exceptions[0]));
             }
+
+            this.Data = new ExceptionInfo(exceptions.Select(ex => new ExceptionDetailsInfo(ex)), this.SeverityLevel,
+                this.ProblemId, this.Properties, this.Metrics);
+            this.context = new TelemetryContext(this.Data.Properties);
+        }
+
+        private void UpdateData(ExceptionInfo exceptionInfo)
+        {
+            if (!this.isCreatedFromExceptionInfo)
+            {
+                throw new InvalidOperationException("Operation is not supported given the state of the object.");
+            }
+
+            this.Data = exceptionInfo ?? throw new ArgumentNullException(nameof(exceptionInfo));
+            this.context = new TelemetryContext(this.Data.Properties);
         }
     }
 }

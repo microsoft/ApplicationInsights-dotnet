@@ -2,15 +2,16 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.8.0-beta1
+- Added method `ExceptionDetailsInfoList` on `ExceptionTelemetry` class that gives control to user to update exception
+message and exception type of underlying `System.Exception` object that user wants to send to telemetry. Related discussion is [here](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/498).
+- Added an option of creating ExceptionTelemetry object off of custom exception information rather than a System.Exception object.
 
 ## Version 2.7.0-beta3
 - [Allow to set flags on event](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/844). It will be used in conjunction with the feature that will allow to keep IP addresses.
 - [Fix: SerializationException resolving Activity in cross app-domain calls](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/613)
 - [Make HttpClient instance static to avoid re-creating with every transmission. This had caused connection/memory leaks in .net core 2.1](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/594)
   Related: (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/690)
-- Added method `ExceptionDetailsInfoList` on `ExceptionTelemetry` class that gives control to user to update exception
-message and exception type of underlying `System.Exception` object that user wants to send to telemetry. Related discussion is [here](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/498).
-- Added an option of creating ExceptionTelemetry object off of custom exception information rather than a System.Exception object.
 
 ## Version 2.7.0-beta2
 - [Fix: NullReferenceException if telemtery is tracked after TelemetryConfiguration is disposed](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/928)
