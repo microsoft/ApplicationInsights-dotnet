@@ -15,7 +15,7 @@
     using Microsoft.AspNetCore.Http;
     using Xunit;
 
-    public class RequestTrackingMiddlewareTest
+    public class RequestTrackingMiddlewareTest : IDisposable
     {
         private const string HttpRequestScheme = "http";
         private static readonly HostString HttpRequestHost = new HostString("testHost");
@@ -172,7 +172,6 @@
             Assert.NotNull(requestTelemetry);
             Assert.Equal(requestTelemetry.Id, Activity.Current.Id);
             Assert.Equal(requestTelemetry.Context.Operation.Id, Activity.Current.RootId);
-            Assert.Equal(requestTelemetry.Context.Operation.ParentId, Activity.Current.ParentId);
             Assert.Null(requestTelemetry.Context.Operation.ParentId);
 
             // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331)
@@ -608,6 +607,14 @@
             else
             {
                 middleware.OnEndRequest(context, timestamp);
+            }
+        }
+
+        public void Dispose()
+        {
+            while (Activity.Current != null)
+            {
+                Activity.Current.Stop();
             }
         }
     }
