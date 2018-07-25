@@ -32,6 +32,7 @@
     <!-- Binaries for .NET 4.5 -->
     <file src="$configuration$\Src\PerformanceCollector\Net45\Microsoft.AI.PerfCounterCollector.dll" target="lib\net45" />
     <file src="$configuration$\Src\PerformanceCollector\Net45\Microsoft.AI.PerfCounterCollector.pdb" target="lib\net45" />
+    <file src="$configuration$\Src\PerformanceCollector\Net45\Microsoft.AI.PerfCounterCollector.xml" target="lib\net45" />
 
     <!-- For .NET Standard 1.6 projects -->
     <file src="$configuration$\Src\PerformanceCollector\NetCore\netstandard1.6\Microsoft.AI.PerfCounterCollector.dll" target="lib\netstandard1.6" />
