@@ -336,3 +336,6 @@ override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Extension.
 override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Extension.set -> void
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.Extensibility.IExtension.DeepClone() -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.Extensibility.IExtension.Serialize(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
