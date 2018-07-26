@@ -58,20 +58,19 @@
                     new StackFrame("Some.Assembly", "LessImportantFile.dll", 1, 11, "DeeperInnerMethod")
                 });
 
-            var exceptionInfo = new ExceptionInfo(new[] {topLevelexceptionDetails, innerExceptionDetails},
+            // ACT
+            ExceptionTelemetry item = new ExceptionTelemetry(new[] {topLevelexceptionDetails, innerExceptionDetails},
                 SeverityLevel.Error, "ProblemId",
                 new Dictionary<string, string>() {["property1"] = "value1", ["property2"] = "value2"},
                 new Dictionary<string, double>() {["property1"] = 1, ["property2"] = 2});
 
-            // ACT
-            ExceptionTelemetry item = new ExceptionTelemetry(exceptionInfo);
-
-            item.ExceptionInfo.ExceptionDetailsInfoList[1].Message = "Inner exception modified";
+            item.ExceptionDetailsInfoList[1].Message = "Inner exception modified";
+            item.ProblemId = "ProblemId modified";
 
             // ASSERT
             // use internal fields to validate
             Assert.AreEqual(item.Data.Data.ver, 2);
-            Assert.AreEqual(item.Data.Data.problemId, "ProblemId");
+            Assert.AreEqual(item.Data.Data.problemId, "ProblemId modified");
             Assert.AreEqual(item.Data.Data.severityLevel, Extensibility.Implementation.External.SeverityLevel.Error);
 
             Assert.AreEqual(item.Data.Data.properties.Count, 2);

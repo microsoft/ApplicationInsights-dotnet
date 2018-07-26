@@ -9,7 +9,7 @@
     /// <summary>
     /// Wrapper class for <see cref="ExceptionData"/> that lets user provide exception data without having the actual Exception object.
     /// </summary>
-    public sealed class ExceptionInfo
+    internal sealed class ExceptionInfo
     {
         private readonly ExceptionData data;
         

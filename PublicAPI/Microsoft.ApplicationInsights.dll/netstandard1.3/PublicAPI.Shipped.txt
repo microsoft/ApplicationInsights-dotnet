@@ -114,6 +114,7 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Exception.get -> 
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Exception.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetry(System.Exception exception) -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetry(System.Collections.Generic.IEnumerable<Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo> exceptionDetailsInfoList, Microsoft.ApplicationInsights.DataContracts.SeverityLevel? severityLevel, string problemId, System.Collections.Generic.IDictionary<string, string> properties, System.Collections.Generic.IDictionary<string, double> measurements) -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.HandledAt.get -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.HandledAt.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionDetailsInfoList.get -> System.Collections.Generic.IReadOnlyList<Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo>
@@ -129,19 +130,6 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SeverityLevel.get
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SeverityLevel.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Timestamp.get -> System.DateTimeOffset
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Timestamp.set -> void
-Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionInfo.get -> Microsoft.ApplicationInsights.DataContracts.ExceptionInfo
-Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetry(Microsoft.ApplicationInsights.DataContracts.ExceptionInfo exceptionInfo) -> void
-Microsoft.ApplicationInsights.DataContracts.ExceptionInfo
-Microsoft.ApplicationInsights.DataContracts.ExceptionInfo.ExceptionDetailsInfoList.get -> System.Collections.Generic.IReadOnlyList<Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo>
-Microsoft.ApplicationInsights.DataContracts.ExceptionInfo.ExceptionInfo(System.Collections.Generic.IEnumerable<Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo> exceptionDetailsInfoList, Microsoft.ApplicationInsights.DataContracts.SeverityLevel? severityLevel, string problemId, System.Collections.Generic.IDictionary<string, string> properties, System.Collections.Generic.IDictionary<string, double> measurements) -> void
-Microsoft.ApplicationInsights.DataContracts.ExceptionInfo.Measurements.get -> System.Collections.Generic.IDictionary<string, double>
-Microsoft.ApplicationInsights.DataContracts.ExceptionInfo.Measurements.set -> void
-Microsoft.ApplicationInsights.DataContracts.ExceptionInfo.ProblemId.get -> string
-Microsoft.ApplicationInsights.DataContracts.ExceptionInfo.ProblemId.set -> void
-Microsoft.ApplicationInsights.DataContracts.ExceptionInfo.Properties.get -> System.Collections.Generic.IDictionary<string, string>
-Microsoft.ApplicationInsights.DataContracts.ExceptionInfo.Properties.set -> void
-Microsoft.ApplicationInsights.DataContracts.ExceptionInfo.SeverityLevel.get -> Microsoft.ApplicationInsights.DataContracts.SeverityLevel?
-Microsoft.ApplicationInsights.DataContracts.ExceptionInfo.SeverityLevel.set -> void
 Microsoft.ApplicationInsights.DataContracts.IJsonWriter
 Microsoft.ApplicationInsights.DataContracts.IJsonWriter.WriteComma() -> void
 Microsoft.ApplicationInsights.DataContracts.IJsonWriter.WriteEndArray() -> void

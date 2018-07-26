@@ -54,12 +54,19 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionTelemetry"/> class.
         /// </summary>
-        /// <param name="exceptionInfo">Exception info.</param>
-        public ExceptionTelemetry(ExceptionInfo exceptionInfo)
+        /// <param name="exceptionDetailsInfoList">Exception info.</param>
+        /// <param name="severityLevel">Severity level.</param>
+        /// <param name="problemId">Problem id.</param>
+        /// <param name="properties">Properties.</param>
+        /// <param name="measurements">Measurements.</param>
+        public ExceptionTelemetry(IEnumerable<ExceptionDetailsInfo> exceptionDetailsInfoList, SeverityLevel? severityLevel, string problemId,
+            IDictionary<string, string> properties, IDictionary<string, double> measurements)
         {
             this.isCreatedFromExceptionInfo = true;
 
-            this.Data = exceptionInfo ?? throw new ArgumentNullException(nameof(exceptionInfo));
+            ExceptionInfo exceptionInfo = new ExceptionInfo(exceptionDetailsInfoList, severityLevel, problemId, properties, measurements);
+
+            this.Data = exceptionInfo;
             this.context = new TelemetryContext(this.Data.Properties);
 
             this.UpdateData(exceptionInfo);
@@ -167,11 +174,6 @@
                 this.UpdateData(value);
             }
         }
-
-        /// <summary>
-        /// Gets the <see cref="ExceptionInfo"/> which describes the data contained within this <see cref="ITelemetry"/>.
-        /// </summary>
-        public ExceptionInfo ExceptionInfo => this.Data;
 
         /// <summary>
         /// Gets or sets ExceptionTelemetry message.
