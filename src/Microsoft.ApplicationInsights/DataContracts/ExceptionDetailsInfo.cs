@@ -14,6 +14,13 @@
         /// <summary>
         /// Constructs the instance of <see cref="ExceptionDetailsInfo"/>.
         /// </summary>
+        /// <param name="id">Exception id.</param>
+        /// <param name="outerId">Parent exception's id.</param>
+        /// <param name="typeName">Type name for the exception.</param>
+        /// <param name="message">Exception message.</param>
+        /// <param name="hasFullStack">Indicates that this exception has full stack information.</param>
+        /// <param name="stack">Exception's stack trace.</param>
+        /// <param name="parsedStack">Exception's stack.</param>
         public ExceptionDetailsInfo(int id, int outerId, string typeName, string message, bool hasFullStack,
             string stack, IEnumerable<StackFrame> parsedStack)
         {
