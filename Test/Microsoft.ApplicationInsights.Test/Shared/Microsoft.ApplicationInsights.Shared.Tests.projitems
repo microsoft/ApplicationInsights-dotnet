@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ActivityExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\PageViewPerformanceTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\MyTestExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MetricTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationTelemetryExtensionsTests.cs" />
