@@ -355,12 +355,21 @@
             metric.Max = 6.4;
             metric.StandardDeviation = 0.5;
             metric.Properties.Add("Property1", "Value1");
-
+            metric.Extension = new MyTestExtension();
             MetricTelemetry other = (MetricTelemetry)metric.DeepClone();
 
             CompareLogic deepComparator = new CompareLogic();
             var comparisonResult = deepComparator.Compare(metric, other);
             Assert.IsTrue(comparisonResult.AreEqual, comparisonResult.DifferencesString);
+        }
+
+        [TestMethod]
+        public void MetricTelemetryDeepCloneWithNullExtensionDoesNotThrow()
+        {
+            var telemetry = new MetricTelemetry();
+            // Extension is not set, means it'll be null.
+            // Validate that closing with null Extension does not throw.
+            var other = telemetry.DeepClone();
         }
     }
 }

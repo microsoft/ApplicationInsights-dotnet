@@ -132,6 +132,7 @@
             this.Context = source.Context.DeepClone(this.Data.properties);
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
+            this.extension = source.extension?.DeepClone();
         }
 
         /// <summary>

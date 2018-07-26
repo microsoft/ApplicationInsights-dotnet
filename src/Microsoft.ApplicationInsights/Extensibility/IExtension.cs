@@ -9,5 +9,10 @@
         /// Sanitizes the properties of the telemetry item based on DP constraints.
         /// </summary>
         void Serialize(ISerializationWriter serializationWriter);
+
+        /// <summary>
+        /// Clones the members of the element.
+        /// </summary>
+        IExtension DeepClone();
     }
 }

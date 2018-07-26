@@ -61,6 +61,7 @@
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
             this.Exception = source.Exception;
+            this.extension = source.extension?.DeepClone();
         }
 
         /// <summary>

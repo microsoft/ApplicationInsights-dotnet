@@ -153,12 +153,22 @@
             eventTelemetry.Name = "Test Event";
             eventTelemetry.Properties["Test Property"] = "Test Value";
             eventTelemetry.Metrics["Test Property"] = 4.2;
+            eventTelemetry.Extension = new MyTestExtension();
             EventTelemetry other = (EventTelemetry)eventTelemetry.DeepClone();
 
             CompareLogic deepComparator = new CompareLogic();
 
             var result = deepComparator.Compare(eventTelemetry, other);
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
+        }
+
+        [TestMethod]
+        public void EventTelemetryDeepCloneWithNullExtensionDoesNotThrow()
+        {
+            var telemetry = new EventTelemetry();
+            // Extension is not set, means it'll be null.
+            // Validate that closing with null Extension does not throw.
+            var other = telemetry.DeepClone();
         }
 
         [TestMethod]

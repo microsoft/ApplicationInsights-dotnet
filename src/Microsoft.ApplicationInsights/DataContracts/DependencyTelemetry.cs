@@ -99,6 +99,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
             this.successFieldSet = source.successFieldSet;
+            this.extension = source.extension?.DeepClone();
 
             // Only clone the details if the source has had details initialized
             if (source.operationDetails != null)

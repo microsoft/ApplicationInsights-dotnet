@@ -5,6 +5,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
     using KellermanSoftware.CompareNetObjects;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     [TestClass]
     public class SessionStateTelemetryTest
@@ -60,6 +61,7 @@
         {
             var telemetry = new SessionStateTelemetry();
             telemetry.State = SessionState.End;
+            telemetry.Extension = new MyTestExtension();
             var other = telemetry.DeepClone();
 
             CompareLogic deepComparator = new CompareLogic();
@@ -67,6 +69,16 @@
             var result = deepComparator.Compare(telemetry, other);
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
+
+        [TestMethod]
+        public void SessionStateTelemetryDeepCloneWithNullExtensionDoesNotThrow()
+        {
+            var telemetry = new SessionStateTelemetry();
+            // Extension is not set, means it'll be null.
+            // Validate that closing with null Extension does not throw.
+            var other = telemetry.DeepClone();
+        }
+
 #pragma warning restore 618
     }
 }

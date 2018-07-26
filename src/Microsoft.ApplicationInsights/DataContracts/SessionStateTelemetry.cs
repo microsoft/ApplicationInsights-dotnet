@@ -42,7 +42,7 @@
         /// <param name="source">Source instance of <see cref="SessionStateTelemetry"/> to clone from.</param>
         private SessionStateTelemetry(SessionStateTelemetry source)
         {
-            this.Data = (EventTelemetry)source.Data.DeepClone();
+            this.Data = (EventTelemetry)source.Data.DeepClone();            
         }
 
         /// <summary>
@@ -74,8 +74,8 @@
         /// </summary>
         public IExtension Extension
         {
-            get { return this.extension; }
-            set { this.extension = value; }
+            get { return this.Data.Extension; }
+            set { this.Data.Extension = value; }
         }
 
         /// <summary>

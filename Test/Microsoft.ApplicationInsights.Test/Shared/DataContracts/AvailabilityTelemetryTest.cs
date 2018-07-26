@@ -147,6 +147,15 @@
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
 
+        [TestMethod]
+        public void AvailabilityTelemetryDeepCloneWithNullExtensionDoesNotThrow()
+        {
+            var telemetry = new AvailabilityTelemetry();
+            // Extension is not set, means it'll be null.
+            // Validate that closing with null Extension does not throw.
+            var other = telemetry.DeepClone();
+        }
+
         private AvailabilityTelemetry CreateAvailabilityTelemetry()
         {
             AvailabilityTelemetry item = new AvailabilityTelemetry
@@ -161,7 +170,7 @@
             item.Properties.Add("TestProperty", "TestValue");
             item.Context.GlobalProperties.Add("TestPropertyGlobal", "TestValue");
             item.Sequence = "12";
-
+            item.Extension = new MyTestExtension();
             return item;
         }
 

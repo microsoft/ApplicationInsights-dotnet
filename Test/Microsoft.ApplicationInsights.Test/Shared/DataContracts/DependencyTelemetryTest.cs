@@ -24,6 +24,12 @@
         }
 
         [TestMethod]
+        public void DependencyTelemetryITelemetryContractConsistentlyWithOtherTelemetryTypes()
+        {
+            new ITelemetryTest<DependencyTelemetry, AI.RemoteDependencyData>().Run();
+        }
+
+        [TestMethod]
         public void DependencyTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
         {
             var expected = CreateRemoteDependencyTelemetry();
@@ -218,7 +224,6 @@
             telemetry.ClearOperationDetails();
         }
 
-#if !NETCOREAPP1_1
         [TestMethod]
         public void DependencyTelemetryDeepCloneCopiesAllProperties()
         {
@@ -231,7 +236,15 @@
             ComparisonResult result = deepComparator.Compare(telemetry, other);
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
-#endif
+
+        [TestMethod]
+        public void DependencyTelemetryDeepCloneWithNullExtensionDoesNotThrow()
+        {
+            var telemetry = new DependencyTelemetry();
+            // Extension is not set, means it'll be null.
+            // Validate that closing with null Extension does not throw.
+            var other = telemetry.DeepClone();
+        }
 
         private DependencyTelemetry CreateRemoteDependencyTelemetry()
         {
@@ -249,7 +262,7 @@
             item.Context.InstrumentationKey = Guid.NewGuid().ToString();
             item.Properties.Add("TestProperty", "TestValue");
             item.Context.GlobalProperties.Add("TestPropertyGlobal", "TestValue");
-
+            item.Extension = new MyTestExtension();
             return item;
         }
 

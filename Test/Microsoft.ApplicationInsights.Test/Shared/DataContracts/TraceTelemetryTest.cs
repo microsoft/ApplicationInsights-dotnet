@@ -155,12 +155,22 @@
             trace.SeverityLevel = SeverityLevel.Warning;
             trace.Sequence = "123456";
             trace.Timestamp = DateTimeOffset.Now;
+            trace.Extension = new MyTestExtension();
             var other = trace.DeepClone();
 
             var deepComparator = new CompareLogic();
             var result = deepComparator.Compare(trace, other);
 
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
+        }
+
+        [TestMethod]
+        public void TraceTelemetryDeepCloneWithNullExtensionDoesNotThrow()
+        {
+            var trace = new TraceTelemetry();        
+            // Extension is not set, means it'll be null.
+            // Validate that closing with null Extension does not throw.
+            var other = trace.DeepClone();            
         }
 
         [TestMethod]

@@ -59,6 +59,7 @@
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
+            this.extension = source.extension?.DeepClone();
         }
 
         /// <summary>

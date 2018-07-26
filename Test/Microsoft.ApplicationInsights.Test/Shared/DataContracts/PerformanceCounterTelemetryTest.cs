@@ -2,6 +2,7 @@
 {
     using System;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
@@ -40,6 +41,7 @@
             PerformanceCounterTelemetry item = new PerformanceCounterTelemetry("someCategory", "someCounter", "an instance", 15.7);
             item.Timestamp = DateTimeOffset.Now;
             item.Properties.Add("p1", "p1Val");
+            item.Extension = new MyTestExtension();
 
             PerformanceCounterTelemetry other = (PerformanceCounterTelemetry)item.DeepClone();
 
@@ -48,6 +50,16 @@
             var result = deepComparator.Compare(item, other);
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
+
+        [TestMethod]
+        public void PerformanceCounterTelemetryDeepCloneWithNullExtensionDoesNotThrow()
+        {
+            var telemetry = new PerformanceCounterTelemetry();
+            // Extension is not set, means it'll be null.
+            // Validate that closing with null Extension does not throw.
+            var other = telemetry.DeepClone();
+        }
+
 #pragma warning restore 618
     }
 }
