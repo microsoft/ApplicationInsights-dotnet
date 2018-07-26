@@ -47,7 +47,7 @@
         private void TestProperties()
         {
             foreach (PropertyInfo property in typeof(TTelemetry).GetRuntimeProperties())
-            {                
+            {
                 this.TestProperty(property);
             }
         }
@@ -260,6 +260,6 @@
             }
 
             return result;
-        }        
+        }
     }
 }

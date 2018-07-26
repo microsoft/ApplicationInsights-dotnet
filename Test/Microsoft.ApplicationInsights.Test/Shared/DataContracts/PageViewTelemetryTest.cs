@@ -177,7 +177,7 @@
         {
             var telemetry = new PageViewTelemetry();
             // Extension is not set, means it'll be null.
-            // Validate that closing with null Extension does not throw.
+            // Validate that cloning with null Extension does not throw.
             var other = telemetry.DeepClone();
         }
     }
