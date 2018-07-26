@@ -310,3 +310,29 @@ virtual Microsoft.ApplicationInsights.Metrics.MetricConfiguration.Equals(Microso
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Flags.get -> long
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Flags.set -> void
 const Microsoft.ApplicationInsights.DataContracts.TelemetryContext.FlagDropIdentifiers = 2097152 -> long
+Microsoft.ApplicationInsights.Channel.ITelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.Channel.ITelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.SessionStateTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.SessionStateTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Extension.set -> void
+override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Extension.set -> void
+override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Extension.set -> void
+abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Extension.set -> void
