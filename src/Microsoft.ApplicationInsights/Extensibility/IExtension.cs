@@ -1,17 +1,17 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     /// <summary>
-    /// The base interface for defining strongly typed extensions to the telemetry types.
+    /// Interface for defining strongly typed extensions to telemetry types.
     /// </summary>
     public interface IExtension
     {
         /// <summary>
-        /// Sanitizes the properties of the telemetry item based on DP constraints.
+        /// Writes serialization info about the class using the given <see cref="ISerializationWriter"/>
         /// </summary>
         void Serialize(ISerializationWriter serializationWriter);
 
         /// <summary>
-        /// Clones the members of the element.
+        /// Deep clones the members of the class.
         /// </summary>
         IExtension DeepClone();
     }

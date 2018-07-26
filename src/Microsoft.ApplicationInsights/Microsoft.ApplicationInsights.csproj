@@ -52,8 +52,10 @@
     <PackageReference Include="MicroBuild.Core" Version="0.3.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    
-    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28" Condition="$(OS) == 'Windows_NT'">
+    <PackageReference Include="PublicApiAnalyzer" Version="1.0.0-alpha001">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+      <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28" Condition="$(OS) == 'Windows_NT'">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
@@ -65,6 +67,14 @@
     <PackageReference Include="System.Net.Requests" Version="4.3.0" />
   </ItemGroup>
 
-
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\PublicAPI\Microsoft.ApplicationInsights.dll\$(TargetFramework)\PublicAPI.Shipped.txt">
+      <Link>PublicAPI.Shipped.txt</Link>      
+    </AdditionalFiles>
+    <AdditionalFiles Include="..\..\PublicAPI\Microsoft.ApplicationInsights.dll\$(TargetFramework)\PublicAPI.Unshipped.txt">
+      <Link>PublicAPI.Unshipped.txt</Link>      
+    </AdditionalFiles>    
+  </ItemGroup>
+  
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>

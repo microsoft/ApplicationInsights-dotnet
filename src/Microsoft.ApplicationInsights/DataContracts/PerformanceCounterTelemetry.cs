@@ -49,7 +49,7 @@
         {
             this.Data = (MetricTelemetry)source.Data.DeepClone();
             this.categoryName = source.categoryName;
-            this.counterName = source.counterName;            
+            this.counterName = source.counterName;
         }
 
         /// <summary>

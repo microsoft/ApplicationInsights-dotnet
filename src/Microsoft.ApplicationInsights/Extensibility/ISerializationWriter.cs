@@ -4,7 +4,7 @@
     using System.Collections.Generic;
 
     /// <summary>
-    /// The interface for defining writers capable of serializing data into various formats.
+    /// The interface for defining writers capable of serializing data into various formats.    
     /// </summary>
     public interface ISerializationWriter
     {

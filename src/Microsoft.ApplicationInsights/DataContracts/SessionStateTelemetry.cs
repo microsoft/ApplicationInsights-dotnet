@@ -10,7 +10,7 @@
     [Obsolete("Session state events are no longer used. This telemetry item will be sent as EventTelemetry.")]
     public sealed class SessionStateTelemetry : ITelemetry
     {
-        internal readonly EventTelemetry Data;        
+        internal readonly EventTelemetry Data;
 
         private readonly string startEventName = "Session started";
         private readonly string endEventName = "Session ended";
@@ -42,7 +42,7 @@
         /// <param name="source">Source instance of <see cref="SessionStateTelemetry"/> to clone from.</param>
         private SessionStateTelemetry(SessionStateTelemetry source)
         {
-            this.Data = (EventTelemetry)source.Data.DeepClone();            
+            this.Data = (EventTelemetry)source.Data.DeepClone();
         }
 
         /// <summary>
