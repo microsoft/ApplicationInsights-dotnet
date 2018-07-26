@@ -13,8 +13,7 @@
         internal readonly EventTelemetry Data;
 
         private readonly string startEventName = "Session started";
-        private readonly string endEventName = "Session ended";
-        private IExtension extension;
+        private readonly string endEventName = "Session ended";        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SessionStateTelemetry"/> class.

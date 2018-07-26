@@ -12,8 +12,7 @@
     [Obsolete("Use MetricTelemetry instead.")]
     public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties
     {
-        internal readonly MetricTelemetry Data;
-        private IExtension extension;
+        internal readonly MetricTelemetry Data;        
         private string categoryName = string.Empty;
         private string counterName = string.Empty;
 
