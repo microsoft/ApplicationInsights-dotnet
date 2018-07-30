@@ -103,51 +103,6 @@
         }
 
         /// <summary>
-        /// Defines constants used my metric aggregates produced by aggregators that are configured by metric configurations represented
-        /// through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>.
-        /// </summary>
-        public static class Constants
-        {
-            /// <summary>
-            /// The kind moniker for aggregates produced by aggregators that are configured by metric configurations represented
-            /// through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>.
-            /// </summary>
-            public const string AggregateKindMoniker = "Microsoft.Azure.Measurement";
-
-            /// <summary>
-            /// Defines constants used to refer to data fields contained within aggregates produced by aggregators that are configured
-            /// by metric configurations represented through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>.
-            /// </summary>
-            public static class AggregateKindDataKeys
-            {
-                /// <summary>
-                /// The name of the Count field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
-                /// </summary>
-                public const string Count = "Count";
-
-                /// <summary>
-                /// The name of the Sum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
-                /// </summary>
-                public const string Sum = "Sum";
-
-                /// <summary>
-                /// The name of the Minimum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
-                /// </summary>
-                public const string Min = "Min";
-
-                /// <summary>
-                /// The name of the Maximum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
-                /// </summary>
-                public const string Max = "Max";
-
-                /// <summary>
-                /// The name of the Standard Deviation field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
-                /// </summary>
-                public const string StdDev = "StdDev";
-            }
-        }
-
-        /// <summary>
         /// Groups constants used by metric aggregates produced by aggregators that are configured by metric configurations represented through
         /// instances of <see cref="MetricSeriesConfigurationForMeasurement"/>. This class cannot be instantiated. To access the constants, use the 
         /// extension method <c>MetricConfigurations.Common.Measurement().Constants()</c> or <see cref="MetricSeriesConfigurationForMeasurement.Constants"/>.
@@ -177,51 +132,6 @@
             public DataKeysConstants AggregateKindDataKeys
             {
                 get { return DataKeysConstants.Instance; }
-            }
-
-            /// <summary>
-            /// Defines constants used my metric aggregates produced by aggregators that are configured by metric configurations represented
-            /// through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>.
-            /// </summary>
-            public static class Constants
-            {
-                /// <summary>
-                /// The kind moniker for aggregates produced by aggregators that are configured by metric configurations represented
-                /// through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>.
-                /// </summary>
-                public const string AggregateKindMoniker = "Microsoft.Azure.Measurement";
-
-                /// <summary>
-                /// Defines constants used to refer to data fields contained within aggregates produced by aggregators that are configured
-                /// by metric configurations represented through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>.
-                /// </summary>
-                public static class AggregateKindDataKeys
-                {
-                    /// <summary>
-                    /// The name of the Count field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
-                    /// </summary>
-                    public const string Count = "Count";
-
-                    /// <summary>
-                    /// The name of the Sum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
-                    /// </summary>
-                    public const string Sum = "Sum";
-
-                    /// <summary>
-                    /// The name of the Minimum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
-                    /// </summary>
-                    public const string Min = "Min";
-
-                    /// <summary>
-                    /// The name of the Maximum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
-                    /// </summary>
-                    public const string Max = "Max";
-
-                    /// <summary>
-                    /// The name of the Standard Deviation field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
-                    /// </summary>
-                    public const string StdDev = "StdDev";
-                }
             }
 
             /// <summary>
@@ -276,6 +186,51 @@
                 {
                     get { return Constants.AggregateKindDataKeys.StdDev; }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Defines constants used my metric aggregates produced by aggregators that are configured by metric configurations represented
+        /// through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>.
+        /// </summary>
+        internal static class Constants
+        {
+            /// <summary>
+            /// The kind moniker for aggregates produced by aggregators that are configured by metric configurations represented
+            /// through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>.
+            /// </summary>
+            public const string AggregateKindMoniker = "Microsoft.Azure.Measurement";
+
+            /// <summary>
+            /// Defines constants used to refer to data fields contained within aggregates produced by aggregators that are configured
+            /// by metric configurations represented through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>.
+            /// </summary>
+            public static class AggregateKindDataKeys
+            {
+                /// <summary>
+                /// The name of the Count field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
+                /// </summary>
+                public const string Count = "Count";
+
+                /// <summary>
+                /// The name of the Sum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
+                /// </summary>
+                public const string Sum = "Sum";
+
+                /// <summary>
+                /// The name of the Minimum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
+                /// </summary>
+                public const string Min = "Min";
+
+                /// <summary>
+                /// The name of the Maximum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
+                /// </summary>
+                public const string Max = "Max";
+
+                /// <summary>
+                /// The name of the Standard Deviation field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
+                /// </summary>
+                public const string StdDev = "StdDev";
             }
         }
     }
