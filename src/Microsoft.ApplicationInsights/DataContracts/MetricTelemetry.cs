@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
@@ -15,10 +16,10 @@
     {
         internal const string TelemetryName = "Metric";
 
-        internal readonly string BaseType = typeof(MetricData).Name;
-
+        internal readonly string BaseType = typeof(MetricData).Name;        
         internal readonly MetricData Data;
         internal readonly DataPoint Metric;
+        private IExtension extension;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with empty
@@ -131,6 +132,7 @@
             this.Context = source.Context.DeepClone(this.Data.properties);
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
+            this.extension = source.extension?.DeepClone();
         }
 
         /// <summary>
@@ -147,6 +149,15 @@
         /// Gets the context associated with the current telemetry item.
         /// </summary>
         public TelemetryContext Context { get; }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        public IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
+        }
 
         /// <summary>
         /// Gets or sets the name of the metric.

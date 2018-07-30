@@ -588,6 +588,15 @@
         }
 
         [TestMethod]
+        public void ExceptionTelemetryDeepCloneWithNullExtensionDoesNotThrow()
+        {
+            var telemetry = new ExceptionTelemetry();
+            // Extension is not set, means it'll be null.
+            // Validate that cloning with null Extension does not throw.
+            var other = telemetry.DeepClone();
+        }
+
+        [TestMethod]
         public void ExceptionTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
         {
             var expected = CreateExceptionTelemetry();
@@ -630,6 +639,7 @@
             output.Context.GlobalProperties.Add("TestPropertyGlobal", "contextpropvalue");
             output.Context.InstrumentationKey = "required";
             output.Properties.Add("TestProperty", "TestPropertyValue");
+            output.Extension = new MyTestExtension();
             return output;
         }
     }

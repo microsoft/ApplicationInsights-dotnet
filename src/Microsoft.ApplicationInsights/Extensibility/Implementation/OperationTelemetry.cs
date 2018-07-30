@@ -74,6 +74,11 @@
         /// </summary>
         public abstract string Sequence { get; set; }
 
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        public abstract IExtension Extension { get; set; }
+
         /// <summary>  
         /// Gets or sets Time in StopWatch ticks representing begin time of the operation. Used internally
         /// for calculating duration between begin and end.

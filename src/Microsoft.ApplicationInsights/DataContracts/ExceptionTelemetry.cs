@@ -5,6 +5,7 @@
     using System.Globalization;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
@@ -16,15 +17,14 @@
     {
         internal const string TelemetryName = "Exception";
         internal readonly string BaseType = typeof(ExceptionData).Name;
-
         internal ExceptionInfo Data = null;
 
         private readonly bool isCreatedFromExceptionInfo = false;
 
         private TelemetryContext context;
+        private IExtension extension;
         private Exception exception;
         private string message;
-
         private double? samplingPercentage;
 
         /// <summary>
@@ -90,6 +90,8 @@
             {
                 this.exception = source.Exception;
             }
+            
+            this.extension = source.extension?.DeepClone();
         }
 
         /// <summary>
@@ -108,6 +110,15 @@
         public TelemetryContext Context
         {
             get { return this.context; }
+        }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        public IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
         }
 
         /// <summary>
