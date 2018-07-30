@@ -6,6 +6,8 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     internal class ITelemetryTest<TTelemetry, TEndpointData> 
         where TTelemetry : ITelemetry, new()
@@ -18,11 +20,28 @@
             this.ClassShouldHaveParameterizedConstructorToSimplifyCreationOfValidTelemetryInstancesInUserCode();
             this.ClassShouldImplementISupportCustomPropertiesIfItDefinesPropertiesProperty();
             this.TestProperties();
+            this.TestExtension();
             this.SerializeWritesTimestampAsExpectedByEndpoint();
             this.SerializeWritesSequenceAsExpectedByEndpoint();
             this.SerializeWritesInstrumentationKeyAsExpectedByEndpoint();
             this.SerializeWritesTelemetryNameAsExpectedByEndpoint();
             this.SerializeWritesDataBaseTypeAsExpectedByEndpoint();
+        }
+
+        private void TestExtension()
+        {
+            // Extention field exists
+            var extensionField = typeof(TTelemetry).GetRuntimeProperties().Any(p => p.Name == "Extension");
+            Assert.IsNotNull(extensionField);
+            
+            TTelemetry tel = new TTelemetry();
+            Assert.IsNull(tel.Extension, "Extension should be null by default");
+
+            // Set extension
+            var myExt = new MyTestExtension();
+            tel.Extension = myExt;
+
+            Assert.AreSame(myExt, tel.Extension, "Extension should be assignable.");            
         }
 
         private void TestProperties()
@@ -214,6 +233,11 @@
             {
                 // handle TraceTelemetry separately
                 result = "Message";
+            }
+            else if (telemetryType == typeof(DependencyTelemetry))
+            {
+                // handle DeppendencyTelemetry separately
+                result = "RemoteDependency";                
             }
 #pragma warning disable 618
             else if (telemetryType == typeof(SessionStateTelemetry))

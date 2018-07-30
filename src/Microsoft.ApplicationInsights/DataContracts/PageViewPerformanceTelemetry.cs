@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
@@ -16,6 +17,7 @@
         internal const string BaseType = "PageViewPerformanceData";
 
         internal readonly PageViewPerfData Data;
+        private IExtension extension;
         private double? samplingPercentage;
 
         /// <summary>
@@ -45,6 +47,7 @@
         {
             this.Data = source.Data.DeepClone();
             this.Context = source.Context.DeepClone(this.Data.properties);
+            this.extension = source.extension?.DeepClone();
         }
 
         /// <summary>
@@ -61,6 +64,15 @@
         /// Gets the context associated with the current telemetry item.
         /// </summary>
         public TelemetryContext Context { get; private set; }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        public IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
+        }
 
         /// <summary>
         /// Gets or sets page view ID.

@@ -2,6 +2,7 @@
 {
     using System;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
     /// The base telemetry type for application insights.
@@ -17,6 +18,11 @@
         /// Gets the context associated with this telemetry instance.
         /// </summary>
         TelemetryContext Context { get; }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strongly typed object.
+        /// </summary>
+        IExtension Extension { get; set; }
 
         /// <summary>
         /// Gets or sets the value that defines absolute order of the telemetry item.
