@@ -8,6 +8,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 - Added method `ExceptionDetailsInfoList` on `ExceptionTelemetry` class that gives control to user to update exception
 message and exception type of underlying `System.Exception` object that user wants to send to telemetry. Related discussion is [here](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/498).
 - Added an option of creating ExceptionTelemetry object off of custom exception information rather than a System.Exception object.
+- [Add support for hex values in config](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/551)
 
 ## Version 2.7.0-beta3
 - [Allow to set flags on event](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/844). It will be used in conjunction with the feature that will allow to keep IP addresses.
