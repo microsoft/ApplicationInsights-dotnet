@@ -33,6 +33,9 @@ steps:
     arguments: "--configuration Release --filter TestCategory!=WindowsOnly"
 
 - task: PublishTestResults@2
+  inputs:
+    testRunner: "VSTest"
+    testResultsFiles: "**/*.trx"
 
 - task: DotNetCoreCLI@1
   inputs:
