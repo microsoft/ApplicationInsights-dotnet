@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.4.0-beta4
+- [Generate W3C compatible operation Id when there is no parent operation](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/952)
+- Updated Web/Base SDK version dependency to 2.7.0-beta4
+
 ## Version 2.4.0-beta3
 - [Allow configuring exception tracking in RequestTrackingTelemetryModule and merge OperationCorrelationTelemetryInitializer with RequestTrackingTelemetryModule](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/709)
 - [Allow disabling response headers injection](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/613)

@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
@@ -14,7 +15,7 @@
     using Microsoft.AspNetCore.Http;
     using Xunit;
 
-    public class RequestTrackingMiddlewareTest
+    public class RequestTrackingMiddlewareTest : IDisposable
     {
         private const string HttpRequestScheme = "http";
         private static readonly HostString HttpRequestHost = new HostString("testHost");
@@ -171,8 +172,12 @@
             Assert.NotNull(requestTelemetry);
             Assert.Equal(requestTelemetry.Id, Activity.Current.Id);
             Assert.Equal(requestTelemetry.Context.Operation.Id, Activity.Current.RootId);
-            Assert.Equal(requestTelemetry.Context.Operation.ParentId, Activity.Current.ParentId);
             Assert.Null(requestTelemetry.Context.Operation.ParentId);
+
+            // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331)
+            Assert.Equal(32, requestTelemetry.Context.Operation.Id.Length);
+            Assert.True(Regex.Match(requestTelemetry.Context.Operation.Id, @"[a-z][0-9]").Success);
+            // end of workaround test
         }
 
         [Fact]
@@ -220,8 +225,8 @@
             middleware.OnBeginRequest(context, 0);
 
             Assert.NotNull(Activity.Current);
-            Assert.NotNull(Activity.Current.Baggage.FirstOrDefault(b => b.Key == "prop1" && b.Value == "value1"));
-            Assert.NotNull(Activity.Current.Baggage.FirstOrDefault(b => b.Key == "prop2" && b.Value == "value2"));
+            Assert.Single(Activity.Current.Baggage.Where(b => b.Key == "prop1" && b.Value == "value1"));
+            Assert.Single(Activity.Current.Baggage.Where(b => b.Key == "prop2" && b.Value == "value2"));
 
             var requestTelemetry = context.Features.Get<RequestTelemetry>();
             Assert.NotNull(requestTelemetry);
@@ -230,8 +235,8 @@
             Assert.NotEqual(requestTelemetry.Context.Operation.Id, standardRequestRootId);
             Assert.Equal(requestTelemetry.Context.Operation.ParentId, requestId);
             Assert.NotEqual(requestTelemetry.Context.Operation.ParentId, standardRequestId);
-            Assert.Equal(requestTelemetry.Context.Properties["prop1"], "value1");
-            Assert.Equal(requestTelemetry.Context.Properties["prop2"], "value2");
+            Assert.Equal("value1", requestTelemetry.Context.Properties["prop1"]);
+            Assert.Equal("value2", requestTelemetry.Context.Properties["prop2"]);
         }
 
         [Fact]
@@ -253,7 +258,7 @@
             middleware.OnHttpRequestInStart(context);
             middleware.OnHttpRequestInStop(context);
 
-            Assert.Equal(1, sentTelemetry.Count);
+            Assert.Single(sentTelemetry);
             var requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
 
             Assert.Equal(requestTelemetry.Id, activity.Id);
@@ -293,7 +298,7 @@
 
             middleware.OnHttpRequestInStop(context);
 
-            Assert.Equal(1, sentTelemetry.Count);
+            Assert.Single(sentTelemetry);
             var requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
 
             Assert.Equal(requestTelemetry.Id, activityInitializedByStandardHeader.Id);
@@ -315,7 +320,7 @@
 
             Assert.Single(sentTelemetry);
             Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
-            RequestTelemetry requestTelemetry = this.sentTelemetry.First() as RequestTelemetry;
+            RequestTelemetry requestTelemetry = this.sentTelemetry.Single() as RequestTelemetry;
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
             Assert.True(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
@@ -602,6 +607,14 @@
             else
             {
                 middleware.OnEndRequest(context, timestamp);
+            }
+        }
+
+        public void Dispose()
+        {
+            while (Activity.Current != null)
+            {
+                Activity.Current.Stop();
             }
         }
     }
