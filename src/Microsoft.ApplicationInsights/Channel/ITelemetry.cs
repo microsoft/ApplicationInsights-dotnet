@@ -20,7 +20,7 @@
         TelemetryContext Context { get; }
 
         /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strongly typed object.
         /// </summary>
         IExtension Extension { get; set; }
 
