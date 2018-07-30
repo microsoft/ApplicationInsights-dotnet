@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -16,8 +17,12 @@
     {
         internal const string TelemetryName = "Exception";
         internal readonly string BaseType = typeof(ExceptionData).Name;
-        internal readonly ExceptionData Data;
 
+        internal ExceptionInfo Data = null;
+
+        private readonly bool isCreatedFromExceptionInfo = false;
+
+        private TelemetryContext context;
         private readonly TelemetryContext context;
         private IExtension extension;
         private Exception exception;
@@ -30,8 +35,8 @@
         /// </summary>
         public ExceptionTelemetry()
         {
-            this.Data = new ExceptionData();
-            this.context = new TelemetryContext(this.Data.properties);
+            this.Data = new ExceptionInfo(new ExceptionData());
+            this.context = new TelemetryContext(this.Data.Properties);
         }
 
         /// <summary>
@@ -50,17 +55,45 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ExceptionTelemetry"/> class.
+        /// </summary>
+        /// <param name="exceptionDetailsInfoList">Exception info.</param>
+        /// <param name="severityLevel">Severity level.</param>
+        /// <param name="problemId">Problem id.</param>
+        /// <param name="properties">Properties.</param>
+        /// <param name="measurements">Measurements.</param>
+        public ExceptionTelemetry(IEnumerable<ExceptionDetailsInfo> exceptionDetailsInfoList, SeverityLevel? severityLevel, string problemId,
+            IDictionary<string, string> properties, IDictionary<string, double> measurements)
+        {
+            this.isCreatedFromExceptionInfo = true;
+
+            ExceptionInfo exceptionInfo = new ExceptionInfo(exceptionDetailsInfoList, severityLevel, problemId, properties, measurements);
+
+            this.Data = exceptionInfo;
+            this.context = new TelemetryContext(this.Data.Properties);
+
+            this.UpdateData(exceptionInfo);
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionTelemetry"/> class by cloning an existing instance.
         /// </summary>
         /// <param name="source">Source instance of <see cref="ExceptionTelemetry"/> to clone from.</param>
         private ExceptionTelemetry(ExceptionTelemetry source)
         {
+            this.isCreatedFromExceptionInfo = source.isCreatedFromExceptionInfo;
+
             this.Data = source.Data.DeepClone();
-            this.context = source.context.DeepClone(this.Data.properties);
+            this.context = source.context.DeepClone(this.Data.Properties);
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
-            this.Exception = source.Exception;
+
+            if (!this.isCreatedFromExceptionInfo)
+            {
+                this.exception = source.Exception;
+            }
+        }            
             this.extension = source.extension?.DeepClone();
         }
 
@@ -98,12 +131,12 @@
         {
             get
             {
-                return this.Data.problemId;
+                return this.Data.ProblemId;
             }
 
             set
             {
-                this.Data.problemId = value;
+                this.Data.ProblemId = value;
             }
         }
 
@@ -137,13 +170,22 @@
         {
             get
             {
-                return this.exception;
+                return this.isCreatedFromExceptionInfo
+                    ? throw new InvalidOperationException(
+                        "The property is unavailable on an instance created from an ExceptionInfo object")
+                    : this.exception;
             }
 
             set
             {
+                if (this.isCreatedFromExceptionInfo)
+                {
+                    throw new InvalidOperationException(
+                        "The property is unavailable on an instance created from an ExceptionInfo object");
+                }
+
                 this.exception = value;
-                this.UpdateExceptions(value);
+                this.UpdateData(value);
             }
         }
 
@@ -154,20 +196,29 @@
         {
             get
             {
-                return this.message;
+                return this.isCreatedFromExceptionInfo
+                    ? throw new InvalidOperationException(
+                        "The property is unavailable on an instance created from an ExceptionInfo object")
+                    : this.message;
             }
 
             set
             {
+                if (this.isCreatedFromExceptionInfo)
+                {
+                    throw new InvalidOperationException(
+                        "The property is unavailable on an instance created from an ExceptionInfo object");
+                }
+
                 this.message = value;
 
-                if (this.Data.exceptions != null && this.Data.exceptions.Count > 0)
+                if (this.Data.ExceptionDetailsInfoList != null && this.Data.ExceptionDetailsInfoList.Count > 0)
                 {
-                    this.Data.exceptions[0].message = value;
+                    this.Data.ExceptionDetailsInfoList[0].Message = value;
                 }
                 else
                 {
-                    this.UpdateExceptions(this.Exception);
+                    this.UpdateData(this.Exception);
                 }
             }
         }
@@ -178,8 +229,14 @@
         /// </summary>
         public IDictionary<string, double> Metrics
         {
-            get { return this.Data.measurements; }
+            get { return this.Data.Measurements; }
         }
+
+        /// <summary>
+        /// Gets the list of <see cref="ExceptionDetailsInfo"/>. User can modify the contents of individual object, but
+        /// not the list itself.
+        /// </summary>
+        public IReadOnlyList<ExceptionDetailsInfo> ExceptionDetailsInfoList => this.Data.ExceptionDetailsInfoList;
 
         /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this exception.
@@ -187,7 +244,7 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-            get { return this.Data.properties; }
+            get { return this.Data.Properties; }
         }
 
         /// <summary>
@@ -195,8 +252,8 @@
         /// </summary>
         public SeverityLevel? SeverityLevel
         {
-            get { return this.Data.severityLevel.TranslateSeverityLevel(); }
-            set { this.Data.severityLevel = value.TranslateSeverityLevel(); }
+            get => this.Data.SeverityLevel;
+            set => this.Data.SeverityLevel = value;
         }
 
         /// <summary>
@@ -211,7 +268,7 @@
 
         internal IList<ExceptionDetails> Exceptions
         {
-            get { return this.Data.exceptions; }
+            get { return this.Data.Data.exceptions; }
         }
 
         /// <summary>
@@ -228,20 +285,18 @@
         /// </summary>
         public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
         {
-            List<StackFrame> orderedStackTrace = new List<StackFrame>();
-
             if (this.Exceptions != null && this.Exceptions.Count > 0)
             {
                 if (frames != null && frames.Length > 0)
                 {
                     int stackLength = 0;
 
-                    this.Exceptions[0].parsedStack = new List<StackFrame>();
+                    this.Exceptions[0].parsedStack = new List<Extensibility.Implementation.External.StackFrame>();
                     this.Exceptions[0].hasFullStack = true;
 
                     for (int level = 0; level < frames.Length; level++)
                     {
-                        StackFrame sf = ExceptionConverter.GetStackFrame(frames[level], level);
+                        var sf = ExceptionConverter.GetStackFrame(frames[level], level);
 
                         stackLength += ExceptionConverter.GetStackFrameLength(sf);
 
@@ -298,8 +353,13 @@
             }
         }
 
-        private void UpdateExceptions(Exception exception)
+        private void UpdateData(Exception exception)
         {
+            if (this.isCreatedFromExceptionInfo)
+            {
+                throw new InvalidOperationException("Operation is not supported given the state of the object.");
+            }
+
             // collect the set of exceptions detail info from the passed in exception
             List<ExceptionDetails> exceptions = new List<ExceptionDetails>();
             this.ConvertExceptionTree(exception, null, exceptions);
@@ -309,21 +369,36 @@
             {
                 // TODO: when we localize these messages, we should consider not using InvariantCulture
                 // create our "message" exception.
-                InnerExceptionCountExceededException countExceededException = new InnerExceptionCountExceededException(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "The number of inner exceptions was {0} which is larger than {1}, the maximum number allowed during transmission. All but the first {1} have been dropped.",
-                        exceptions.Count,
-                        Constants.MaxExceptionCountToSave));
+                InnerExceptionCountExceededException countExceededException =
+                    new InnerExceptionCountExceededException(
+                        string.Format(
+                            CultureInfo.InvariantCulture,
+                            "The number of inner exceptions was {0} which is larger than {1}, the maximum number allowed during transmission. All but the first {1} have been dropped.",
+                            exceptions.Count,
+                            Constants.MaxExceptionCountToSave));
 
                 // remove all but the first N exceptions
-                exceptions.RemoveRange(Constants.MaxExceptionCountToSave, exceptions.Count - Constants.MaxExceptionCountToSave);
+                exceptions.RemoveRange(Constants.MaxExceptionCountToSave,
+                    exceptions.Count - Constants.MaxExceptionCountToSave);
 
                 // we'll add our new exception and parent it to the root exception (first one in the list)
                 exceptions.Add(ExceptionConverter.ConvertToExceptionDetails(countExceededException, exceptions[0]));
             }
 
-            this.Data.exceptions = exceptions;
+            this.Data = new ExceptionInfo(exceptions.Select(ex => new ExceptionDetailsInfo(ex)), this.SeverityLevel,
+                this.ProblemId, this.Properties, this.Metrics);
+            this.context = new TelemetryContext(this.Data.Properties);
+        }
+
+        private void UpdateData(ExceptionInfo exceptionInfo)
+        {
+            if (!this.isCreatedFromExceptionInfo)
+            {
+                throw new InvalidOperationException("Operation is not supported given the state of the object.");
+            }
+
+            this.Data = exceptionInfo ?? throw new ArgumentNullException(nameof(exceptionInfo));
+            this.context = new TelemetryContext(this.Data.Properties);
         }
     }
 }
