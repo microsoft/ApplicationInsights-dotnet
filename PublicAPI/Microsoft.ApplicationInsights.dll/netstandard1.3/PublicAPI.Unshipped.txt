@@ -203,16 +203,12 @@ Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.AggregateKindDataKeys.get -> Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.DataKeysConstants
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.AggregateKindMoniker.get -> string
-Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants
-Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindDataKeys
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.DataKeysConstants
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.DataKeysConstants.Count.get -> string
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.DataKeysConstants.Max.get -> string
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.DataKeysConstants.Min.get -> string
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.DataKeysConstants.StdDev.get -> string
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.DataKeysConstants.Sum.get -> string
-Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants
-Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.CreateNewAggregator(Microsoft.ApplicationInsights.Metrics.MetricSeries dataSeries, Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind aggregationCycleKind) -> Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricSeriesAggregator
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Equals(Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration other) -> bool
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Equals(Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement other) -> bool
@@ -276,18 +272,6 @@ const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.User.A
 const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.User.Id = "TelemetryContext.User.Id" -> string
 const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.User.UserAgent = "TelemetryContext.User.UserAgent" -> string
 const Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MaxDimensionsCount = 10 -> int
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindDataKeys.Count = "Count" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindDataKeys.Max = "Max" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindDataKeys.Min = "Min" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindDataKeys.StdDev = "StdDev" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindDataKeys.Sum = "Sum" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindMoniker = "Microsoft.Azure.Measurement" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys.Count = "Count" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys.Max = "Max" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys.Min = "Min" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys.StdDev = "StdDev" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys.Sum = "Sum" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants.AggregateKindMoniker = "Microsoft.Azure.Measurement" -> string
 override Microsoft.ApplicationInsights.Metrics.MetricConfiguration.Equals(object obj) -> bool
 override Microsoft.ApplicationInsights.Metrics.MetricConfiguration.GetHashCode() -> int
 override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.Equals(object otherObj) -> bool
