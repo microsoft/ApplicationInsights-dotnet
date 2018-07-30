@@ -63,7 +63,7 @@
         public void RichPayloadEventSourceExceptionSentTest()
         {
             var exceptionTelemetry = new ExceptionTelemetry(new SystemException("Test"));
-            exceptionTelemetry.Data.exceptions[0].parsedStack = new External.StackFrame[] { new External.StackFrame() };
+            exceptionTelemetry.Data.Data.exceptions[0].parsedStack = new External.StackFrame[] { new External.StackFrame() };
 
             this.DoTracking(
                 RichPayloadEventSource.Keywords.Exceptions,
