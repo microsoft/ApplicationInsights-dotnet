@@ -17,17 +17,14 @@
     {
         internal const string TelemetryName = "Exception";
         internal readonly string BaseType = typeof(ExceptionData).Name;
-
         internal ExceptionInfo Data = null;
 
         private readonly bool isCreatedFromExceptionInfo = false;
 
         private TelemetryContext context;
-        private readonly TelemetryContext context;
         private IExtension extension;
         private Exception exception;
         private string message;
-
         private double? samplingPercentage;
 
         /// <summary>
@@ -93,7 +90,7 @@
             {
                 this.exception = source.Exception;
             }
-        }            
+            
             this.extension = source.extension?.DeepClone();
         }
 
