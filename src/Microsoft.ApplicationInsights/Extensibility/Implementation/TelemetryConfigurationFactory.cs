@@ -411,7 +411,16 @@
                 }
                 else
                 {
-                    instance = Convert.ChangeType(valueString, expectedType, CultureInfo.InvariantCulture);
+                    if (valueString.ToLower().IndexOf("0x") == 0)
+                    {
+                        CultureInfo provider = CultureInfo.InvariantCulture;
+
+                        instance = Int32.Parse(valueString.Remove(0, 2), NumberStyles.AllowHexSpecifier, provider);
+                    }
+                    else
+                    {
+                        instance = Convert.ChangeType(valueString, expectedType, CultureInfo.InvariantCulture);
+                    }
                 }
             }
             catch (InvalidCastException e)
