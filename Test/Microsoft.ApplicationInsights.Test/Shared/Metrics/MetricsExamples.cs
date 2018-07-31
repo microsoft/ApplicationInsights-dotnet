@@ -71,22 +71,22 @@ namespace User.Namespace.Example01
 
             Metric animalsSold = client.GetMetric("AnimalsSold", "Species");
 
-            animalsSold.TryTrackValue(42, "Pigs");
-            animalsSold.TryTrackValue(24, "Horses");
+            animalsSold.TrackValue(42, "Pigs");
+            animalsSold.TrackValue(24, "Horses");
 
             // The values for Pigs and Horses will be aggregated separately from each other and will result in two distinct aggregates.
             // You can control the maximum number of number data series per metric (and thus your resource usage and cost).
             // The default limits are no more than 1000 total data series per metric, and no more than 100 different values per dimension.
             // We discuss elsewhere how to change them.
             // We use a common .Net pattern: TryXxx(..) to make sure that the limits are observed.
-            // If the limits are already reached, Metric.TryTrackValue(..) will return False and the value will not be tracked. Otherwise it will return True.
+            // If the limits are already reached, Metric.TrackValue(..) will return False and the value will not be tracked. Otherwise it will return True.
             // This is particularly useful if the data for a metric originates from user input, e.g. a file:
 
             Tuple<int, string> countAndSpecies = ReadSpeciesFromUserInput();
             int count = countAndSpecies.Item1;
             string species = countAndSpecies.Item2;
 
-            if (!animalsSold.TryTrackValue(count, species))
+            if (!animalsSold.TrackValue(count, species))
             {
                 client.TrackTrace($"Data series or dimension cap was reached for metric {animalsSold.Identifier.MetricId}.", TraceSeveretyLevel.Error);
             }
@@ -145,15 +145,15 @@ namespace User.Namespace.Example02
 
             TelemetryClient client = new TelemetryClient();
             Metric booksSold = client.GetMetric("BooksSold", "Genre", "Language");
-            booksSold.TryTrackValue(10, "Science Fiction", "English");
-            booksSold.TryTrackValue(15, "Historic Novels", "English");
-            booksSold.TryTrackValue(20, "Epic Tragedy", "Russian");
+            booksSold.TrackValue(10, "Science Fiction", "English");
+            booksSold.TrackValue(15, "Historic Novels", "English");
+            booksSold.TrackValue(20, "Epic Tragedy", "Russian");
 
-            // Recall from the previous example that each of the above TryTrackValue(..) statements will create a
+            // Recall from the previous example that each of the above TrackValue(..) statements will create a
             // new data series and use it to track the specified value.
             // If you use the same dimension values as before, then instead of creating a new series, the system will look up and use an existing series:
 
-            booksSold.TryTrackValue(8, "Science Fiction", "English");   // Now we have 18 Science Fiction books in English
+            booksSold.TrackValue(8, "Science Fiction", "English");   // Now we have 18 Science Fiction books in English
 
 
             // If you use certain data series frequently you can avoid this lookup by keeping a reference to it:
@@ -163,7 +163,7 @@ namespace User.Namespace.Example02
             epicTragedyInRussianSold.TrackValue(6); // Now we have 26 Epic Tragedies in Russian
             epicTragedyInRussianSold.TrackValue(5); // Now we have 31 Epic Tragedies in Russian
 
-            // Notice the "Try" in TryGetDataSeries(..). Recall the previous example where we explained the TryTrackValue(..) pattern.
+            // Notice the "Try" in TryGetDataSeries(..). Recall the previous example where we explained the TrackValue(..) pattern.
             // The same reasoning applies here.
 
             // So Metric is a container of one or more data series.
@@ -478,7 +478,7 @@ namespace User.Namespace.Example03
                                                                     valuesPerDimensionLimit:    100,
                                                                     seriesConfig:               new MetricSeriesConfigurationForMeasurement(restrictToUInt32Values: false)));
 
-            // seriesCountLimit is the max total number of series the metric can contain before TryTrackValue(..) and TryGetDataSeries(..) stop
+            // seriesCountLimit is the max total number of series the metric can contain before TrackValue(..) and TryGetDataSeries(..) stop
             // creating new data series and start returning false.
             // valuesPerDimensionLimit limits the number of distinct values per dimension in a similar manner.
             // usePersistentAggregation specifies whether the aggregator for each time series will be replaced at the end of each aggregation cycle (false)
@@ -902,7 +902,7 @@ namespace User.Namespace.Example06ab
             _telemetryClient.TrackTrace("Stuff #1 completed", TraceSeveretyLevel.Information);
 
             // Do more stuff...
-            _telemetryClient.GetMetric("Ducks Sold", "Color").TryTrackValue(count, "Purple");
+            _telemetryClient.GetMetric("Ducks Sold", "Color").TrackValue(count, "Purple");
         }
     }
 
@@ -918,7 +918,7 @@ namespace User.Namespace.Example06ab
             (new TelemetryClient()).TrackTrace("Stuff #1 completed", TraceSeveretyLevel.Information);
 
             // Do more stuff...
-            (new TelemetryClient()).GetMetric("Ducks Sold", "Color").TryTrackValue(count, "Purple");
+            (new TelemetryClient()).GetMetric("Ducks Sold", "Color").TrackValue(count, "Purple");
         }
     }
 
@@ -1123,7 +1123,7 @@ namespace User.Namespace.Example06c
             (new TelemetryClient()).TrackTrace("Stuff #1 completed", TraceSeveretyLevel.Information);
 
             // Do more stuff...
-            (new TelemetryClient()).GetMetric("Ducks Sold", "Color").TryTrackValue(count, "Purple");
+            (new TelemetryClient()).GetMetric("Ducks Sold", "Color").TrackValue(count, "Purple");
         }
     }
 
