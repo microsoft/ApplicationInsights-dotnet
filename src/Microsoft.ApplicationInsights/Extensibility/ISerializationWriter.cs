@@ -39,9 +39,14 @@
         void WriteList(string name, IList<string> items);
 
         /// <summary>
-        /// Writes name and value for a IDictionary field
+        /// Writes name and value for a IDictionary field with string,string as key,value
         /// </summary>
         void WriteDictionary(string name, IDictionary<string, string> items);
+
+        /// <summary>
+        /// Writes name and value for a IDictionary field with string,string as key,value
+        /// </summary>
+        void WriteDictionary(string name, IDictionary<string, double> items);
 
         /// <summary>
         /// Marks beginning of a complex object.

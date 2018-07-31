@@ -15,7 +15,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// The class that represents information about the collected dependency.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=839889">Learn more.</a>
     /// </summary>
-    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
+    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IExtension
     {
         internal new const string TelemetryName = "RemoteDependency";
 
@@ -127,7 +127,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strongly typed object.
         /// </summary>
         public override IExtension Extension
         {
@@ -340,6 +340,38 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.OperationDetails[key] = detail;
         }
 
+        /// <inheritdoc/>
+        public void Serialize(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteStartObject(TelemetryName);
+            serializationWriter.WriteProperty("time", TimeSpan.FromTicks(this.Timestamp.Ticks));
+            serializationWriter.WriteProperty("sampleRate", this.samplingPercentage);
+            serializationWriter.WriteProperty("seq", this.Sequence);
+
+            serializationWriter.WriteProperty("iKey", this.Context.InstrumentationKey);
+            serializationWriter.WriteProperty("flags", this.Context.Flags);
+
+            serializationWriter.WriteDictionary("tags", this.Context.SanitizedTags);
+            serializationWriter.WriteDictionary("globalTags", this.Context.GlobalProperties);
+
+            serializationWriter.WriteStartObject("data");
+            serializationWriter.WriteProperty("baseType", this.BaseType);
+
+            serializationWriter.WriteProperty("ver", this.InternalData.ver);
+            serializationWriter.WriteProperty("name", this.InternalData.name);
+            serializationWriter.WriteProperty("id", this.InternalData.id);
+            serializationWriter.WriteProperty("data", this.InternalData.data);
+            serializationWriter.WriteProperty("duration", this.InternalData.duration);
+            serializationWriter.WriteProperty("resultCode", this.InternalData.resultCode);
+            serializationWriter.WriteProperty("success", this.InternalData.success);
+            serializationWriter.WriteProperty("type", this.InternalData.type);
+            serializationWriter.WriteProperty("target", this.InternalData.target);
+            serializationWriter.WriteDictionary("properties", this.InternalData.properties);
+            serializationWriter.WriteDictionary("measurements", this.InternalData.measurements);
+            serializationWriter.WriteEndObject("data");
+            serializationWriter.WriteEndObject(TelemetryName);
+        }
+
         /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>
@@ -352,6 +384,14 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Type = this.Type.SanitizeDependencyType();
             this.Data = this.Data.SanitizeData();
             this.Properties.SanitizeProperties();
+        }
+
+        /// <summary>
+        /// Deeply clones the Extension of <see cref="DependencyTelemetry"/> object.
+        /// </summary>
+        IExtension IExtension.DeepClone()
+        {
+            return new DependencyTelemetry(this);
         }
 
         /// <summary>
