@@ -411,7 +411,7 @@
                 }
                 else
                 {
-                    if (valueString.ToLowerInvariant().IndexOf("0x", StringComparison.OrdinalIgnoreCase) == 0)
+                    if (valueString.IndexOf("0x", StringComparison.OrdinalIgnoreCase) == 0)
                     {
                         CultureInfo provider = CultureInfo.InvariantCulture;
 
