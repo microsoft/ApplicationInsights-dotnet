@@ -1119,8 +1119,8 @@
 
                 metric.TrackValue(0.5);
                 metric.TrackValue(0.6);
-                Assert.ThrowsException<ArgumentException>(() => metric.TryTrackValue(1.5, "A"));
-                Assert.ThrowsException<ArgumentException>(() => metric.TryTrackValue(2.5, "A", "X"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(1.5, "A"));
+                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(2.5, "A", "X"));
 
                 telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
@@ -1147,9 +1147,9 @@
                 Assert.AreEqual("CowsSold", metric.Identifier.MetricId);
                 Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
 
-                metric.TryTrackValue(0.5, "Purple");
-                metric.TryTrackValue(0.6, "Purple");
-                Assert.ThrowsException<ArgumentException>(() => metric.TryTrackValue(2.5, "A", "X"));
+                metric.TrackValue(0.5, "Purple");
+                metric.TrackValue(0.6, "Purple");
+                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(2.5, "A", "X"));
 
                 telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
@@ -1159,8 +1159,8 @@
                 Assert.AreEqual("Purple", ((MetricTelemetry)sentTelemetry[0]).Properties["Color"]);
                 sentTelemetry.Clear();
 
-                metric.TryTrackValue(0.7, "Purple");
-                metric.TryTrackValue(0.8, "Purple");
+                metric.TrackValue(0.7, "Purple");
+                metric.TrackValue(0.8, "Purple");
 
                 telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
@@ -1178,8 +1178,8 @@
                 Assert.AreEqual("CowsSold", metric.Identifier.MetricId);
                 Assert.AreEqual(MetricConfigurations.Common.Measurement(), metric.GetConfiguration());
 
-                metric.TryTrackValue(0.5, "Purple", "Large");
-                metric.TryTrackValue(0.6, "Purple", "Large");
+                metric.TrackValue(0.5, "Purple", "Large");
+                metric.TrackValue(0.6, "Purple", "Large");
 
                 telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
@@ -1196,8 +1196,8 @@
                 Assert.AreEqual("Large", ((MetricTelemetry)orderedTelemetry[0]).Properties["Size"]);
                 sentTelemetry.Clear();
 
-                metric.TryTrackValue(0.7, "Purple", "Large");
-                metric.TryTrackValue(0.8, "Purple", "Small");
+                metric.TrackValue(0.7, "Purple", "Large");
+                metric.TrackValue(0.8, "Purple", "Small");
 
                 telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(2, sentTelemetry.Count);
@@ -1253,8 +1253,8 @@
                 Assert.AreEqual("Dim 9", metric.Identifier.GetDimensionName(9));
                 Assert.AreEqual("Dim 10", metric.Identifier.GetDimensionName(10));
 
-                metric.TryTrackValue(0.5, "DV1", "DV2", "DV3", "DV4", "DV5", "DV6", "DV7", "DV8", "DV9", "DV10");
-                metric.TryTrackValue(0.6, "DV1", "DV2", "DV3", "DV4", "DV5", "DV6", "DV7", "DV8", "DV9", "DV10");
+                metric.TrackValue(0.5, "DV1", "DV2", "DV3", "DV4", "DV5", "DV6", "DV7", "DV8", "DV9", "DV10");
+                metric.TrackValue(0.6, "DV1", "DV2", "DV3", "DV4", "DV5", "DV6", "DV7", "DV8", "DV9", "DV10");
 
                 telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(1, sentTelemetry.Count);
@@ -1279,8 +1279,8 @@
                 Assert.AreEqual("DV10", ((MetricTelemetry)orderedTelemetry[0]).Properties["Dim 10"]);
                 sentTelemetry.Clear();
 
-                metric.TryTrackValue(0.7, "DV1", "DV2", "DV3", "DV4", "DV5", "DV6", "DV7", "DV8", "DV9", "DV10");
-                metric.TryTrackValue(0.8, "DV1", "DV2", "DV3", "DV4", "DV5", "DV6a", "DV7", "DV8", "DV9", "DV10");
+                metric.TrackValue(0.7, "DV1", "DV2", "DV3", "DV4", "DV5", "DV6", "DV7", "DV8", "DV9", "DV10");
+                metric.TrackValue(0.8, "DV1", "DV2", "DV3", "DV4", "DV5", "DV6a", "DV7", "DV8", "DV9", "DV10");
 
                 telemetryPipeline.GetMetricManager().Flush();
                 Assert.AreEqual(2, sentTelemetry.Count);
@@ -1716,20 +1716,20 @@
             Metric metricA111 = client11.GetMetric("Metric A", "Dim1", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryConfiguration);
             metricA111.TrackValue(101);
             metricA111.TrackValue(102);
-            metricA111.TryTrackValue(111, "Val");
-            metricA111.TryTrackValue(112, "Val");
+            metricA111.TrackValue(111, "Val");
+            metricA111.TrackValue(112, "Val");
 
             Metric metricA112 = client11.GetMetric("Metric A", "Dim1", MetricConfigurations.Common.Measurement());
             metricA112.TrackValue(103);
             metricA112.TrackValue(104);
-            metricA112.TryTrackValue(113, "Val");
-            metricA112.TryTrackValue(114, "Val");
+            metricA112.TrackValue(113, "Val");
+            metricA112.TrackValue(114, "Val");
 
             Metric metricA113 = client11.GetMetric("Metric A", "Dim1");
             metricA113.TrackValue(105);
             metricA113.TrackValue(106);
-            metricA113.TryTrackValue(115, "Val");
-            metricA113.TryTrackValue(116, "Val");
+            metricA113.TrackValue(115, "Val");
+            metricA113.TrackValue(116, "Val");
 
             Assert.AreSame(metricA111, metricA112);
             Assert.AreSame(metricA111, metricA113);
@@ -1755,30 +1755,30 @@
             Metric metricA121 = client12.GetMetric("Metric A", "Dim1", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryConfiguration);
             metricA121.TrackValue(107);
             metricA121.TrackValue(108);
-            metricA121.TryTrackValue(117, "Val");
-            metricA121.TryTrackValue(118, "Val");
+            metricA121.TrackValue(117, "Val");
+            metricA121.TrackValue(118, "Val");
 
             Assert.AreSame(metricA111, metricA121);
 
             Metric metricA211 = client21.GetMetric("Metric A", "Dim1", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryConfiguration);
             metricA211.TrackValue(201);
             metricA211.TrackValue(202);
-            metricA211.TryTrackValue(211, "Val");
-            metricA211.TryTrackValue(212, "Val");
+            metricA211.TrackValue(211, "Val");
+            metricA211.TrackValue(212, "Val");
 
             Assert.AreNotSame(metricA111, metricA211);
 
             Metric metricA11c1 = client11.GetMetric("Metric A", "Dim1", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient);
             metricA11c1.TrackValue(301);
             metricA11c1.TrackValue(302);
-            metricA11c1.TryTrackValue(311, "Val");
-            metricA11c1.TryTrackValue(312, "Val");
+            metricA11c1.TrackValue(311, "Val");
+            metricA11c1.TrackValue(312, "Val");
 
             Metric metricA11c2 = client11.GetMetric("Metric A", "Dim1", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient);
             metricA11c2.TrackValue(303);
             metricA11c2.TrackValue(304);
-            metricA11c2.TryTrackValue(313, "Val");
-            metricA11c2.TryTrackValue(314, "Val");
+            metricA11c2.TrackValue(313, "Val");
+            metricA11c2.TrackValue(314, "Val");
 
             Assert.AreNotSame(metricA111, metricA11c1);
             Assert.AreSame(metricA11c1, metricA11c2);
@@ -1794,8 +1794,8 @@
             Metric metricA12c1 = client12.GetMetric("Metric A", "Dim1", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient);
             metricA12c1.TrackValue(305);
             metricA12c1.TrackValue(306);
-            metricA12c1.TryTrackValue(315, "Val");
-            metricA12c1.TryTrackValue(316, "Val");
+            metricA12c1.TrackValue(315, "Val");
+            metricA12c1.TrackValue(316, "Val");
 
             Assert.AreNotSame(metricA11c1, metricA12c1);
 
@@ -1910,12 +1910,12 @@
             TelemetryClient client = new TelemetryClient(telemetryPipeline);
 
             Metric animalsSold = client.GetMetric("AnimalsSold", "Species", MetricConfigurations.Common.Measurement(), MetricAggregationScope.TelemetryClient);
-            animalsSold.TryTrackValue(10, "Cow");
-            animalsSold.TryTrackValue(20, "Cow");
+            animalsSold.TrackValue(10, "Cow");
+            animalsSold.TrackValue(20, "Cow");
             client.GetMetricManager(MetricAggregationScope.TelemetryClient).Flush();
 
-            animalsSold.TryTrackValue(100, "Rabbit");
-            animalsSold.TryTrackValue(200, "Rabbit");
+            animalsSold.TrackValue(100, "Rabbit");
+            animalsSold.TrackValue(200, "Rabbit");
 
             client.Context.InstrumentationKey = "3A3C34B6-CA2D-4372-B772-3B015E1E83DC";
             client.Context.Device.Model = "Super-Fancy";
@@ -1923,10 +1923,10 @@
             client.Context.Properties["MyTag"] = "MyValue";
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            animalsSold.TryTrackValue(30, "Cow");
-            animalsSold.TryTrackValue(40, "Cow");
-            animalsSold.TryTrackValue(300, "Rabbit");
-            animalsSold.TryTrackValue(400, "Rabbit");
+            animalsSold.TrackValue(30, "Cow");
+            animalsSold.TrackValue(40, "Cow");
+            animalsSold.TrackValue(300, "Rabbit");
+            animalsSold.TrackValue(400, "Rabbit");
             client.GetMetricManager(MetricAggregationScope.TelemetryClient).Flush();
 
             Assert.AreEqual(3, sentTelemetry.Count);
