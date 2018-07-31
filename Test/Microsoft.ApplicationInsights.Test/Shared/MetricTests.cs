@@ -388,28 +388,28 @@ namespace Microsoft.ApplicationInsights
 
                 Assert.AreEqual(1, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(1, "DV11", "DV21"));
+                Assert.IsTrue(metric.TrackValue(1, "DV11", "DV21"));
                 Assert.AreEqual(2, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(2, "DV11", "DV21"));
+                Assert.IsTrue(metric.TrackValue(2, "DV11", "DV21"));
                 Assert.AreEqual(2, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(3, "DV12", "DV21"));
+                Assert.IsTrue(metric.TrackValue(3, "DV12", "DV21"));
                 Assert.AreEqual(3, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(4, "DV13", "DV21"));
+                Assert.IsTrue(metric.TrackValue(4, "DV13", "DV21"));
                 Assert.AreEqual(4, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(5, "DV14", "DV21"));
+                Assert.IsTrue(metric.TrackValue(5, "DV14", "DV21"));
                 Assert.AreEqual(5, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(6, "DV12", "DV22"));
+                Assert.IsTrue(metric.TrackValue(6, "DV12", "DV22"));
                 Assert.AreEqual(6, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(7, "DV12", "DV23"));
+                Assert.IsTrue(metric.TrackValue(7, "DV12", "DV23"));
                 Assert.AreEqual(7, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(8, "DV12", "DV23"));
+                Assert.IsTrue(metric.TrackValue(8, "DV12", "DV23"));
                 Assert.AreEqual(7, metric.SeriesCount);
             }
             {
@@ -428,28 +428,28 @@ namespace Microsoft.ApplicationInsights
 
                 Assert.AreEqual(1, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(1, "DV11", "DV21"));
+                Assert.IsTrue(metric.TrackValue(1, "DV11", "DV21"));
                 Assert.AreEqual(2, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(2, "DV11", "DV21"));
+                Assert.IsTrue(metric.TrackValue(2, "DV11", "DV21"));
                 Assert.AreEqual(2, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(3, "DV12", "DV21"));
+                Assert.IsTrue(metric.TrackValue(3, "DV12", "DV21"));
                 Assert.AreEqual(3, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(4, "DV13", "DV21"));
+                Assert.IsTrue(metric.TrackValue(4, "DV13", "DV21"));
                 Assert.AreEqual(4, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(5, "DV14", "DV21"));
+                Assert.IsTrue(metric.TrackValue(5, "DV14", "DV21"));
                 Assert.AreEqual(5, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(6, "DV12", "DV22"));
+                Assert.IsFalse(metric.TrackValue(6, "DV12", "DV22"));
                 Assert.AreEqual(5, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(7, "DV12", "DV23"));
+                Assert.IsFalse(metric.TrackValue(7, "DV12", "DV23"));
                 Assert.AreEqual(5, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(8, "DV12", "DV23"));
+                Assert.IsFalse(metric.TrackValue(8, "DV12", "DV23"));
                 Assert.AreEqual(5, metric.SeriesCount);
             }
 
@@ -544,12 +544,12 @@ namespace Microsoft.ApplicationInsights
 
                 metric.TrackValue(1);
                 metric.TrackValue(2);
-                metric.TryTrackValue(3, "A", "B");
-                metric.TryTrackValue(4, "a", "B");
-                metric.TryTrackValue(5, "X", "B");
-                metric.TryTrackValue(6, "Y", "B");
-                metric.TryTrackValue(7, "Y", "C");
-                metric.TryTrackValue(8, "A", "B");
+                metric.TrackValue(3, "A", "B");
+                metric.TrackValue(4, "a", "B");
+                metric.TrackValue(5, "X", "B");
+                metric.TrackValue(6, "Y", "B");
+                metric.TrackValue(7, "Y", "C");
+                metric.TrackValue(8, "A", "B");
 
                 dimVals = metric.GetDimensionValues(1);
                 Assert.AreEqual(4, dimVals.Count);
@@ -591,12 +591,12 @@ namespace Microsoft.ApplicationInsights
 
                 metric.TrackValue(1);
                 metric.TrackValue(2);
-                metric.TryTrackValue(3, "A");
-                metric.TryTrackValue(4, "a");
-                metric.TryTrackValue(5, "X");
-                metric.TryTrackValue(6, "Y");
-                metric.TryTrackValue(7, "Y");
-                metric.TryTrackValue(8, "A");
+                metric.TrackValue(3, "A");
+                metric.TrackValue(4, "a");
+                metric.TrackValue(5, "X");
+                metric.TrackValue(6, "Y");
+                metric.TrackValue(7, "Y");
+                metric.TrackValue(8, "A");
 
                 dimVals = metric.GetDimensionValues(1);
                 Assert.AreEqual(4, dimVals.Count);
@@ -626,12 +626,12 @@ namespace Microsoft.ApplicationInsights
 
                 metric.TrackValue(1);
                 metric.TrackValue(1);
-                Assert.IsTrue(metric.TryTrackValue(2, "A", "B"));
-                Assert.IsTrue(metric.TryTrackValue(3, "a", "B"));
-                Assert.IsTrue(metric.TryTrackValue(4, "X", "B"));
-                Assert.IsFalse(metric.TryTrackValue(5, "Y", "B"));
-                Assert.IsFalse(metric.TryTrackValue(5, "Y", "C"));
-                Assert.IsTrue(metric.TryTrackValue(5, "A", "B"));
+                Assert.IsTrue(metric.TrackValue(2, "A", "B"));
+                Assert.IsTrue(metric.TrackValue(3, "a", "B"));
+                Assert.IsTrue(metric.TrackValue(4, "X", "B"));
+                Assert.IsFalse(metric.TrackValue(5, "Y", "B"));
+                Assert.IsFalse(metric.TrackValue(5, "Y", "C"));
+                Assert.IsTrue(metric.TrackValue(5, "A", "B"));
 
                 IReadOnlyCollection<string> dimVals = metric.GetDimensionValues(1);
                 Assert.AreEqual(3, dimVals.Count);
@@ -663,12 +663,12 @@ namespace Microsoft.ApplicationInsights
 
                 metric.TrackValue(1);
                 metric.TrackValue(1);
-                Assert.IsTrue(metric.TryTrackValue(2, "A"));
-                Assert.IsTrue(metric.TryTrackValue(3, "a"));
-                Assert.IsTrue(metric.TryTrackValue(4, "X"));
-                Assert.IsFalse(metric.TryTrackValue(5, "Y"));
-                Assert.IsFalse(metric.TryTrackValue(5, "Y"));
-                Assert.IsTrue(metric.TryTrackValue(5, "A"));
+                Assert.IsTrue(metric.TrackValue(2, "A"));
+                Assert.IsTrue(metric.TrackValue(3, "a"));
+                Assert.IsTrue(metric.TrackValue(4, "X"));
+                Assert.IsFalse(metric.TrackValue(5, "Y"));
+                Assert.IsFalse(metric.TrackValue(5, "Y"));
+                Assert.IsTrue(metric.TrackValue(5, "A"));
 
                 IReadOnlyCollection<string> dimVals = metric.GetDimensionValues(1);
                 Assert.AreEqual(3, dimVals.Count);
@@ -697,14 +697,14 @@ namespace Microsoft.ApplicationInsights
 
                 metric.TrackValue(0);
                 metric.TrackValue(0);
-                Assert.IsTrue(metric.TryTrackValue(0, "A", "B"));
-                Assert.IsTrue(metric.TryTrackValue(0, "a", "B"));
-                Assert.IsFalse(metric.TryTrackValue(0, "X", "B"));
-                Assert.IsFalse(metric.TryTrackValue(0, "Y", "B"));
-                Assert.IsFalse(metric.TryTrackValue(0, "Y", "C"));
-                Assert.IsTrue(metric.TryTrackValue(0, "A", "B"));
-                Assert.IsTrue(metric.TryTrackValue(0, "A", "C"));
-                Assert.IsFalse(metric.TryTrackValue(0, "A", "D"));
+                Assert.IsTrue(metric.TrackValue(0, "A", "B"));
+                Assert.IsTrue(metric.TrackValue(0, "a", "B"));
+                Assert.IsFalse(metric.TrackValue(0, "X", "B"));
+                Assert.IsFalse(metric.TrackValue(0, "Y", "B"));
+                Assert.IsFalse(metric.TrackValue(0, "Y", "C"));
+                Assert.IsTrue(metric.TrackValue(0, "A", "B"));
+                Assert.IsTrue(metric.TrackValue(0, "A", "C"));
+                Assert.IsFalse(metric.TrackValue(0, "A", "D"));
 
                 IReadOnlyCollection<string> dimVals = metric.GetDimensionValues(1);
                 Assert.AreEqual(2, dimVals.Count);
@@ -735,11 +735,11 @@ namespace Microsoft.ApplicationInsights
 
                 metric.TrackValue(0);
                 metric.TrackValue(0);
-                Assert.IsTrue(metric.TryTrackValue(0, "A"));
-                Assert.IsTrue(metric.TryTrackValue(0, "a"));
-                Assert.IsFalse(metric.TryTrackValue(0, "X"));
-                Assert.IsFalse(metric.TryTrackValue(0, "Y"));
-                Assert.IsTrue(metric.TryTrackValue(0, "A"));
+                Assert.IsTrue(metric.TrackValue(0, "A"));
+                Assert.IsTrue(metric.TrackValue(0, "a"));
+                Assert.IsFalse(metric.TrackValue(0, "X"));
+                Assert.IsFalse(metric.TrackValue(0, "Y"));
+                Assert.IsTrue(metric.TrackValue(0, "A"));
 
                 IReadOnlyCollection<string> dimVals = metric.GetDimensionValues(1);
                 Assert.AreEqual(2, dimVals.Count);
@@ -789,12 +789,12 @@ namespace Microsoft.ApplicationInsights
 
                 metric.TrackValue(1);
                 metric.TrackValue(2);
-                Assert.IsTrue( metric.TryTrackValue(3, "A", "B") );
-                Assert.IsTrue( metric.TryTrackValue(4, "a", "B") );
-                Assert.IsTrue( metric.TryTrackValue(7, "Y", "C") );
-                Assert.IsTrue( metric.TryTrackValue(5, "X", "B") );
-                Assert.IsFalse( metric.TryTrackValue(6, "Y", "B") );
-                Assert.IsTrue( metric.TryTrackValue(8, "A", "B") );
+                Assert.IsTrue( metric.TrackValue(3, "A", "B") );
+                Assert.IsTrue( metric.TrackValue(4, "a", "B") );
+                Assert.IsTrue( metric.TrackValue(7, "Y", "C") );
+                Assert.IsTrue( metric.TrackValue(5, "X", "B") );
+                Assert.IsFalse( metric.TrackValue(6, "Y", "B") );
+                Assert.IsTrue( metric.TrackValue(8, "A", "B") );
 
                 series = metric.GetAllSeries();
                 Assert.AreEqual(5, series.Count);
@@ -1233,7 +1233,7 @@ namespace Microsoft.ApplicationInsights
         /// <summary />
         [TestCategory(TestCategoryNames.NeedsAggregationCycleCompletion)]
         [TestMethod]
-        public void TryTrackValue()
+        public void TrackValue_MultipleSeries()
         {
             MemoryMetricTelemetryPipeline telemetryCollector = new MemoryMetricTelemetryPipeline();
             MetricManager metricManager = new MetricManager(telemetryCollector);
@@ -1256,40 +1256,40 @@ namespace Microsoft.ApplicationInsights
                 metric.TrackValue(42);
                 Assert.AreEqual(1, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(42, "A", "X"));
+                Assert.IsTrue(metric.TrackValue(42, "A", "X"));
                 Assert.AreEqual(2, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentException>( () => metric.TryTrackValue(42, "A", ""));
+                Assert.ThrowsException<ArgumentException>( () => metric.TrackValue(42, "A", ""));
                 Assert.AreEqual(2, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentNullException>( () => metric.TryTrackValue(42, "A", null));
+                Assert.ThrowsException<ArgumentNullException>( () => metric.TrackValue(42, "A", null));
                 Assert.AreEqual(2, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(42, "B", "X"));
+                Assert.IsTrue(metric.TrackValue(42, "B", "X"));
                 Assert.AreEqual(3, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(42, "C", "X"), "Values per Dim1 limit reached.");
+                Assert.IsFalse(metric.TrackValue(42, "C", "X"), "Values per Dim1 limit reached.");
                 Assert.AreEqual(3, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(42, "C", "Y"), "Values per Dim1 limit reached.");
+                Assert.IsFalse(metric.TrackValue(42, "C", "Y"), "Values per Dim1 limit reached.");
                 Assert.AreEqual(3, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentException>( () => metric.TryTrackValue(42, "C", "") );
+                Assert.ThrowsException<ArgumentException>( () => metric.TrackValue(42, "C", "") );
                 Assert.AreEqual(3, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentNullException>( () => metric.TryTrackValue(42, "C", null) );
+                Assert.ThrowsException<ArgumentNullException>( () => metric.TrackValue(42, "C", null) );
                 Assert.AreEqual(3, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(42, "A", "Y"));
+                Assert.IsTrue(metric.TrackValue(42, "A", "Y"));
                 Assert.AreEqual(4, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(42, "B", "Y"));
+                Assert.IsTrue(metric.TrackValue(42, "B", "Y"));
                 Assert.AreEqual(5, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(42, "B", "Z"));
+                Assert.IsFalse(metric.TrackValue(42, "B", "Z"));
                 Assert.AreEqual(5, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(42, "A", "Z"));
+                Assert.IsFalse(metric.TrackValue(42, "A", "Z"));
                 Assert.AreEqual(5, metric.SeriesCount);
 
                 metricManager.Flush();
@@ -1347,28 +1347,28 @@ namespace Microsoft.ApplicationInsights
                 metric.TrackValue(42);
                 Assert.AreEqual(1, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(42, "A"));
+                Assert.IsTrue(metric.TrackValue(42, "A"));
                 Assert.AreEqual(2, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentException>(() => metric.TryTrackValue(42, ""));
+                Assert.ThrowsException<ArgumentException>(() => metric.TrackValue(42, ""));
                 Assert.AreEqual(2, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentNullException>(() => metric.TryTrackValue(42, null));
+                Assert.ThrowsException<ArgumentNullException>(() => metric.TrackValue(42, null));
                 Assert.AreEqual(2, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(42, "B"));
+                Assert.IsTrue(metric.TrackValue(42, "B"));
                 Assert.AreEqual(3, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(42, "C"));
+                Assert.IsTrue(metric.TrackValue(42, "C"));
                 Assert.AreEqual(4, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(42, "C"));
+                Assert.IsTrue(metric.TrackValue(42, "C"));
                 Assert.AreEqual(4, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(42, "D"));
+                Assert.IsFalse(metric.TrackValue(42, "D"));
                 Assert.AreEqual(4, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(42, "E"));
+                Assert.IsFalse(metric.TrackValue(42, "E"));
                 Assert.AreEqual(4, metric.SeriesCount);
 
                 metricManager.Flush();
@@ -1433,10 +1433,10 @@ namespace Microsoft.ApplicationInsights
                 metric.TrackValue(42);
                 Assert.AreEqual(1, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentException>( () => metric.TryTrackValue(42, "A") );
+                Assert.ThrowsException<ArgumentException>( () => metric.TrackValue(42, "A") );
                 Assert.AreEqual(1, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentException>( () => metric.TryTrackValue(42, "A", "X") );
+                Assert.ThrowsException<ArgumentException>( () => metric.TrackValue(42, "A", "X") );
                 Assert.AreEqual(1, metric.SeriesCount);
 
                 metricManager.Flush();
@@ -1462,97 +1462,97 @@ namespace Microsoft.ApplicationInsights
                 metric.TrackValue(42);
                 Assert.AreEqual(1, metric.SeriesCount);
 
-                Assert.ThrowsException<ArgumentException>( () => metric.TryTrackValue(42, "D1.A", "D2.A", "D3.A", "D4.A", "D5.A") );
-                Assert.ThrowsException<ArgumentException>( () => metric.TryTrackValue(42, "D1.A", "D2.A", "D3.A") );
+                Assert.ThrowsException<ArgumentException>( () => metric.TrackValue(42, "D1.A", "D2.A", "D3.A", "D4.A", "D5.A") );
+                Assert.ThrowsException<ArgumentException>( () => metric.TrackValue(42, "D1.A", "D2.A", "D3.A") );
 
-                Assert.IsTrue(metric.TryTrackValue(1111, "D1.A", "D2.A", "D3.A", "D4.A"));
+                Assert.IsTrue(metric.TrackValue(1111, "D1.A", "D2.A", "D3.A", "D4.A"));
                 Assert.AreEqual(2, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(1111, "D1.A", "D2.A", "D3.A", "D4.A"));
+                Assert.IsTrue(metric.TrackValue(1111, "D1.A", "D2.A", "D3.A", "D4.A"));
                 Assert.AreEqual(2, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(1112, "D1.A", "D2.A", "D3.A", "D4.B"));
+                Assert.IsTrue(metric.TrackValue(1112, "D1.A", "D2.A", "D3.A", "D4.B"));
                 Assert.AreEqual(3, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(1112, "D1.A", "D2.A", "D3.A", "D4.B"));
+                Assert.IsTrue(metric.TrackValue(1112, "D1.A", "D2.A", "D3.A", "D4.B"));
                 Assert.AreEqual(3, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(1113, "D1.A", "D2.A", "D3.A", "D4.C"));
+                Assert.IsFalse(metric.TrackValue(1113, "D1.A", "D2.A", "D3.A", "D4.C"));
                 Assert.AreEqual(3, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(1121, "D1.A", "D2.A", "D3.B", "D4.A"));
+                Assert.IsTrue(metric.TrackValue(1121, "D1.A", "D2.A", "D3.B", "D4.A"));
                 Assert.AreEqual(4, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(1121, "D1.A", "D2.A", "D3.B", "D4.A"));
+                Assert.IsTrue(metric.TrackValue(1121, "D1.A", "D2.A", "D3.B", "D4.A"));
                 Assert.AreEqual(4, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(1122, "D1.A", "D2.A", "D3.B", "D4.B"));
+                Assert.IsTrue(metric.TrackValue(1122, "D1.A", "D2.A", "D3.B", "D4.B"));
                 Assert.AreEqual(5, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(1122, "D1.A", "D2.A", "D3.B", "D4.B"));
+                Assert.IsTrue(metric.TrackValue(1122, "D1.A", "D2.A", "D3.B", "D4.B"));
                 Assert.AreEqual(5, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(1123, "D1.A", "D2.A", "D3.B", "D4.C"));
+                Assert.IsFalse(metric.TrackValue(1123, "D1.A", "D2.A", "D3.B", "D4.C"));
                 Assert.AreEqual(5, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(1132, "D1.A", "D2.A", "D3.C", "D4.B"));
+                Assert.IsFalse(metric.TrackValue(1132, "D1.A", "D2.A", "D3.C", "D4.B"));
                 Assert.AreEqual(5, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(1133, "D1.A", "D2.A", "D3.C", "D4.C"));
+                Assert.IsFalse(metric.TrackValue(1133, "D1.A", "D2.A", "D3.C", "D4.C"));
                 Assert.AreEqual(5, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(1211, "D1.A", "D2.B", "D3.A", "D4.A"));
+                Assert.IsFalse(metric.TrackValue(1211, "D1.A", "D2.B", "D3.A", "D4.A"));
                 Assert.AreEqual(5, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(2111, "D1.B", "D2.A", "D3.A", "D4.A"));
+                Assert.IsTrue(metric.TrackValue(2111, "D1.B", "D2.A", "D3.A", "D4.A"));
                 Assert.AreEqual(6, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(2111, "D1.B", "D2.A", "D3.A", "D4.A"));
+                Assert.IsTrue(metric.TrackValue(2111, "D1.B", "D2.A", "D3.A", "D4.A"));
                 Assert.AreEqual(6, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(2111, "D1.B", "D2.B", "D3.A", "D4.A"));
+                Assert.IsFalse(metric.TrackValue(2111, "D1.B", "D2.B", "D3.A", "D4.A"));
                 Assert.AreEqual(6, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(2112, "D1.B", "D2.A", "D3.A", "D4.B"));
+                Assert.IsTrue(metric.TrackValue(2112, "D1.B", "D2.A", "D3.A", "D4.B"));
                 Assert.AreEqual(7, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(2112, "D1.B", "D2.A", "D3.A", "D4.B"));
+                Assert.IsTrue(metric.TrackValue(2112, "D1.B", "D2.A", "D3.A", "D4.B"));
                 Assert.AreEqual(7, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(2113, "D1.B", "D2.A", "D3.A", "D4.C"));
+                Assert.IsFalse(metric.TrackValue(2113, "D1.B", "D2.A", "D3.A", "D4.C"));
                 Assert.AreEqual(7, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(2121, "D1.B", "D2.A", "D3.B", "D4.A"));
+                Assert.IsTrue(metric.TrackValue(2121, "D1.B", "D2.A", "D3.B", "D4.A"));
                 Assert.AreEqual(8, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(2121, "D1.B", "D2.A", "D3.B", "D4.A"));
+                Assert.IsTrue(metric.TrackValue(2121, "D1.B", "D2.A", "D3.B", "D4.A"));
                 Assert.AreEqual(8, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(2122, "D1.B", "D2.A", "D3.B", "D4.B"));
+                Assert.IsTrue(metric.TrackValue(2122, "D1.B", "D2.A", "D3.B", "D4.B"));
                 Assert.AreEqual(9, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(2122, "D1.B", "D2.A", "D3.B", "D4.B"));
+                Assert.IsTrue(metric.TrackValue(2122, "D1.B", "D2.A", "D3.B", "D4.B"));
                 Assert.AreEqual(9, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(2123, "D1.B", "D2.A", "D3.B", "D4.C"));
+                Assert.IsFalse(metric.TrackValue(2123, "D1.B", "D2.A", "D3.B", "D4.C"));
                 Assert.AreEqual(9, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(2132, "D1.B", "D2.A", "D3.C", "D4.B"));
+                Assert.IsFalse(metric.TrackValue(2132, "D1.B", "D2.A", "D3.C", "D4.B"));
                 Assert.AreEqual(9, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(2133, "D1.B", "D2.A", "D3.C", "D4.C"));
+                Assert.IsFalse(metric.TrackValue(2133, "D1.B", "D2.A", "D3.C", "D4.C"));
                 Assert.AreEqual(9, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(2222, "D1.B", "D2.B", "D3.B", "D4.B"));
+                Assert.IsFalse(metric.TrackValue(2222, "D1.B", "D2.B", "D3.B", "D4.B"));
                 Assert.AreEqual(9, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(3111, "D1.C", "D2.A", "D3.A", "D4.A"));
+                Assert.IsTrue(metric.TrackValue(3111, "D1.C", "D2.A", "D3.A", "D4.A"));
                 Assert.AreEqual(10, metric.SeriesCount);
 
-                Assert.IsTrue(metric.TryTrackValue(3111, "D1.C", "D2.A", "D3.A", "D4.A"));
+                Assert.IsTrue(metric.TrackValue(3111, "D1.C", "D2.A", "D3.A", "D4.A"));
                 Assert.AreEqual(10, metric.SeriesCount);
 
-                Assert.IsFalse(metric.TryTrackValue(4111, "D1.D", "D2.A", "D3.A", "D4.A"));
+                Assert.IsFalse(metric.TrackValue(4111, "D1.D", "D2.A", "D3.A", "D4.A"));
                 Assert.AreEqual(10, metric.SeriesCount);
 
                 metricManager.Flush();

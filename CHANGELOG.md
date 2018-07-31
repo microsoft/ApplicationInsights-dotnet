@@ -11,6 +11,10 @@ message and exception type of underlying `System.Exception` object that user wan
 - Added an option of creating ExceptionTelemetry object off of custom exception information rather than a System.Exception object.
 - [Add support for hex values in config](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/551)
 
+## Version 2.7.0
+- Metrics: Renamed TryTrackValue(..) into TrackValue(..).
+- Metrics: Removed some superfluous public constants.
+
 ## Version 2.7.0-beta3
 - [Allow to set flags on event](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/844). It will be used in conjunction with the feature that will allow to keep IP addresses.
 - [Fix: SerializationException resolving Activity in cross app-domain calls](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/613)
