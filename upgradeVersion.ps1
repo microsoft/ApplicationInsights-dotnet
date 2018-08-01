@@ -4,12 +4,12 @@
 #$newVersion = .\NuGet.exe list "Microsoft.ApplicationInsights" -Source https://www.myget.org/F/applicationinsights -Pre -NonInteractive | Select-String -Pattern "Microsoft.ApplicationInsights " | %{$_.Line.Split(" ")} | Select -skip 1
 
 ##Use this to manually set the new version##
-$newVersion = "2.7.0-beta4"
+$newVersion = "2.7.0"
 
 Write-Host "New Version: " $newVersion
 
 #$oldVersion = cat .\Directory.Build.props | Select-String -Pattern "CoreSdkVersion" | %{$_.Line.Split("<>")} | Select -skip 2 | Select -First 1
-$oldVersion = "2.7.0-beta3"
+$oldVersion = "2.7.0-beta4"
 
 Write-Host "Old Version: " $oldVersion
 
@@ -18,7 +18,7 @@ Write-Host "Old Version: " $oldVersion
 # Set-Content Directory.Build.props 
 
 
-Get-ChildItem -Filter packages.config -Recurse | 
+Get-ChildItem -Path $PSScriptRoot -Filter packages.config -Recurse | 
 foreach-object {
   (Get-Content $_.FullName) | 
   Foreach-Object {$_ -replace $oldVersion, $newVersion} | 
@@ -26,7 +26,7 @@ foreach-object {
 }
 
 
-Get-ChildItem -Filter *proj -Recurse | 
+Get-ChildItem -Path $PSScriptRoot -Filter *proj -Recurse | 
 foreach-object {
   (Get-Content $_.FullName) | 
   Foreach-Object {$_ -replace $oldVersion, $newVersion} | 
