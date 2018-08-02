@@ -17,7 +17,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether allows wildcards in <see cref="Name" />.
+        /// Gets or sets a value indicating whether the value of the <see cref="Name"/> property should match the name of an EventSource exactly, or should the value be treated as EventSource name prefix.
         /// </summary>
         public bool PrefixMatch { get; set; }
 
