@@ -13,7 +13,7 @@
     /// Telemetry type used to track exceptions.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=723596">Learn more</a>
     /// </summary>
-    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
+    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IExtension
     {
         internal const string TelemetryName = "Exception";
         internal readonly string BaseType = typeof(ExceptionData).Name;
@@ -275,6 +275,49 @@
         public ITelemetry DeepClone()
         {
             return new ExceptionTelemetry(this);
+        }
+
+        /// <summary>
+        /// Deeply clones the Extension of <see cref="ExceptionTelemetry"/> object.
+        /// </summary>
+        IExtension IExtension.DeepClone()
+        {
+            return new ExceptionTelemetry(this);
+        }
+
+        /// <inheritdoc/>
+        public void Serialize(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty("name", TelemetryName);
+            serializationWriter.WriteProperty("time", TimeSpan.FromTicks(this.Timestamp.Ticks));
+            serializationWriter.WriteProperty("seq", this.Sequence);
+
+            serializationWriter.WriteProperty("iKey", this.Context.InstrumentationKey);
+            serializationWriter.WriteProperty("flags", this.Context.Flags);
+
+            serializationWriter.WriteDictionary("tags", this.Context.SanitizedTags);
+            Utils.CopyDictionary(this.Context.GlobalProperties, this.Data.Data.properties);
+            serializationWriter.WriteStartObject("data");
+            serializationWriter.WriteProperty("baseType", this.BaseType);
+            serializationWriter.WriteStartObject("baseData");
+
+            serializationWriter.WriteProperty("ver", this.Data.Data.ver);
+            serializationWriter.WriteProperty("problemId", this.Data.Data.problemId);
+
+            // serializationWriter.WriteStartList("exceptions");
+
+            // serializationWriter.WriteEndList();
+
+            if (this.Data.Data.severityLevel.HasValue)
+            {
+                serializationWriter.WriteProperty("severityLevel", this.Data.Data.severityLevel.Value.ToString());
+            }
+                
+            serializationWriter.WriteDictionary("properties", this.Data.Data.properties);
+            serializationWriter.WriteDictionary("measurements", this.Data.Data.measurements);
+            serializationWriter.WriteEndObject(); // basedata
+            serializationWriter.WriteEndObject(); // data
+            serializationWriter.WriteEndObject(); // overall
         }
 
         /// <summary>

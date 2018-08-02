@@ -17,7 +17,7 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
     /// </remarks>
-    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling
+    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling, IExtension
     {
         internal new const string TelemetryName = "Request";
 
@@ -235,6 +235,39 @@
             return new RequestTelemetry(this);
         }
 
+        /// <inheritdoc/>
+        public void Serialize(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty("name", TelemetryName);
+            serializationWriter.WriteProperty("time", TimeSpan.FromTicks(this.Timestamp.Ticks));
+            serializationWriter.WriteProperty("sampleRate", this.samplingPercentage);
+            serializationWriter.WriteProperty("seq", this.Sequence);
+
+            serializationWriter.WriteProperty("iKey", this.Context.InstrumentationKey);
+            serializationWriter.WriteProperty("flags", this.Context.Flags);
+
+            serializationWriter.WriteDictionary("tags", this.Context.SanitizedTags);
+            Utils.CopyDictionary(this.Context.GlobalProperties, this.Data.properties);
+            serializationWriter.WriteStartObject("data");
+            serializationWriter.WriteProperty("baseType", this.BaseType);
+            serializationWriter.WriteStartObject("baseData");
+
+            serializationWriter.WriteProperty("ver", this.Data.ver);
+            serializationWriter.WriteProperty("id", this.Data.id);
+            serializationWriter.WriteProperty("source", this.Data.source);
+            serializationWriter.WriteProperty("name", this.Data.name);
+            serializationWriter.WriteProperty("duration", this.Duration);
+            serializationWriter.WriteProperty("success", this.Data.success);
+            serializationWriter.WriteProperty("responseCode", this.Data.responseCode);
+            serializationWriter.WriteProperty("url", this.Data.url);
+
+            serializationWriter.WriteDictionary("properties", this.Data.properties);
+            serializationWriter.WriteDictionary("measurements", this.Data.measurements);
+            serializationWriter.WriteEndObject(); // basedata
+            serializationWriter.WriteEndObject(); // data
+            serializationWriter.WriteEndObject(); // overall
+        }
+
         /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>
@@ -255,6 +288,14 @@
                 this.ResponseCode = "200";
                 this.Success = true;
             }
+        }
+
+        /// <summary>
+        /// Deeply clones the Extension of <see cref="RequestTelemetry"/> object.
+        /// </summary>
+        IExtension IExtension.DeepClone()
+        {
+            return new RequestTelemetry(this);
         }
     }
 }

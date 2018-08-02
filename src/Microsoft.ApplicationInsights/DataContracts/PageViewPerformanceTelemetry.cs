@@ -10,7 +10,7 @@
     /// <summary>
     /// Telemetry type used to track page load performance.
     /// </summary>
-    public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IExtension
     {
         internal const string TelemetryName = "PageViewPerformance";
 
@@ -222,6 +222,47 @@
             this.Metrics.SanitizeMeasurements();
             this.Url = this.Url.SanitizeUri();
             this.Id.SanitizeName();
+        }
+
+        /// <summary>
+        /// Deeply clones the Extension of <see cref="PageViewPerformanceTelemetry"/> object.
+        /// </summary>
+        IExtension IExtension.DeepClone()
+        {
+            return new PageViewPerformanceTelemetry(this);
+        }
+
+        /// <inheritdoc/>
+        public void Serialize(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty("name", TelemetryName);
+            serializationWriter.WriteProperty("time", TimeSpan.FromTicks(this.Timestamp.Ticks));
+            serializationWriter.WriteProperty("sampleRate", this.samplingPercentage);
+            serializationWriter.WriteProperty("seq", this.Sequence);
+
+            serializationWriter.WriteProperty("iKey", this.Context.InstrumentationKey);
+            serializationWriter.WriteProperty("flags", this.Context.Flags);
+
+            serializationWriter.WriteDictionary("tags", this.Context.SanitizedTags);
+            Utils.CopyDictionary(this.Context.GlobalProperties, this.Data.properties);
+            serializationWriter.WriteStartObject("data");
+            serializationWriter.WriteProperty("baseType", BaseType);
+            serializationWriter.WriteStartObject("baseData");
+
+            serializationWriter.WriteProperty("ver", this.Data.ver);
+            serializationWriter.WriteProperty("name", this.Data.name);
+            serializationWriter.WriteProperty("url", this.Data.url);
+            serializationWriter.WriteProperty("duration", this.Data.duration);
+            serializationWriter.WriteProperty("domProcessing", this.Data.domProcessing);
+            serializationWriter.WriteProperty("perfTotal", this.Data.perfTotal);
+            serializationWriter.WriteProperty("networkConnect", this.Data.networkConnect);
+            serializationWriter.WriteProperty("sentRequest", this.Data.sentRequest);
+            serializationWriter.WriteProperty("receivedResponse", this.Data.receivedResponse);
+            serializationWriter.WriteDictionary("properties", this.Data.properties);
+            serializationWriter.WriteDictionary("measurements", this.Data.measurements);
+            serializationWriter.WriteEndObject(); // basedata
+            serializationWriter.WriteEndObject(); // data
+            serializationWriter.WriteEndObject(); // overall
         }
     }
 }

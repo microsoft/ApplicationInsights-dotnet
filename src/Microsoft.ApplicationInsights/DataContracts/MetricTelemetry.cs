@@ -12,7 +12,7 @@
     /// Telemetry type used to track metrics. Represents a sample set of values with a specified count, sum, max, min, and standard deviation.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackmetric">Learn more</a>
     /// </summary>
-    public sealed class MetricTelemetry : ITelemetry, ISupportProperties
+    public sealed class MetricTelemetry : ITelemetry, ISupportProperties, IExtension
     {
         internal const string TelemetryName = "Metric";
 
@@ -248,6 +248,51 @@
         public ITelemetry DeepClone()
         {
             return new MetricTelemetry(this);
+        }
+
+        /// <summary>
+        /// Deeply clones the Extension of <see cref="MetricTelemetry"/> object.
+        /// </summary>
+        IExtension IExtension.DeepClone()
+        {
+            return new MetricTelemetry(this);
+        }
+
+        /// <inheritdoc/>
+        public void Serialize(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty("name", TelemetryName);
+            serializationWriter.WriteProperty("time", TimeSpan.FromTicks(this.Timestamp.Ticks));
+            serializationWriter.WriteProperty("seq", this.Sequence);
+
+            serializationWriter.WriteProperty("iKey", this.Context.InstrumentationKey);
+            serializationWriter.WriteProperty("flags", this.Context.Flags);
+
+            serializationWriter.WriteDictionary("tags", this.Context.SanitizedTags);
+            Utils.CopyDictionary(this.Context.GlobalProperties, this.Data.properties);
+            serializationWriter.WriteStartObject("data");
+            serializationWriter.WriteProperty("baseType", this.BaseType);
+            serializationWriter.WriteStartObject("baseData");
+
+            serializationWriter.WriteProperty("ver", this.Data.ver);
+
+            serializationWriter.WriteStartList("metrics");
+            serializationWriter.WriteStartObject();
+            serializationWriter.WriteProperty("ns", this.MetricNamespace);
+            serializationWriter.WriteProperty("name", this.Metric.name);
+            serializationWriter.WriteProperty("kind", this.Metric.kind.ToString());
+            serializationWriter.WriteProperty("value", this.Metric.value);
+            serializationWriter.WriteProperty("count", this.Metric.count);
+            serializationWriter.WriteProperty("min", this.Metric.min);
+            serializationWriter.WriteProperty("max", this.Metric.max);
+            serializationWriter.WriteProperty("stdDev", this.Metric.stdDev);
+            serializationWriter.WriteEndObject();
+            serializationWriter.WriteEndList();
+
+            serializationWriter.WriteDictionary("properties", this.Data.properties);            
+            serializationWriter.WriteEndObject(); // basedata
+            serializationWriter.WriteEndObject(); // data
+            serializationWriter.WriteEndObject(); // overall
         }
 
         /// <summary>

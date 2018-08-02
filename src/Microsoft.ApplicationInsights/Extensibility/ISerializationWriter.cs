@@ -34,6 +34,11 @@
         void WriteProperty(string name, TimeSpan? value);
 
         /// <summary>
+        /// Writes name and value for a DateTimeOffset field
+        /// </summary>
+        void WriteProperty(string name, DateTimeOffset? value);
+
+        /// <summary>
         /// Writes name and values for a IList field
         /// </summary>
         void WriteList(string name, IList<string> items);
@@ -54,8 +59,23 @@
         void WriteStartObject(string name);
 
         /// <summary>
+        /// Marks beginning of a complex object.
+        /// </summary>
+        void WriteStartObject();
+
+        /// <summary>
+        /// Marks beginning of a list of complex typed object.
+        /// </summary>
+        void WriteStartList(string name);
+
+        /// <summary>
+        /// Marks end of a list of complex typed object.
+        /// </summary>
+        void WriteEndList();
+
+        /// <summary>
         /// Marks ending of a complex object.
         /// </summary>
-        void WriteEndObject(string name);
+        void WriteEndObject();
     }
 }

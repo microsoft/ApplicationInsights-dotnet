@@ -12,7 +12,7 @@
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
     /// </summary>
-    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IExtension
     {
         internal const string TelemetryName = "Message";
 
@@ -133,6 +133,42 @@
         public ITelemetry DeepClone()
         {
             return new TraceTelemetry(this);
+        }
+
+        /// <summary>
+        /// Deeply clones the Extension of <see cref="TraceTelemetry"/> object.
+        /// </summary>
+        IExtension IExtension.DeepClone()
+        {
+            return new TraceTelemetry(this);
+        }
+
+        /// <inheritdoc/>
+        public void Serialize(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty("name", TelemetryName);
+            serializationWriter.WriteProperty("time", TimeSpan.FromTicks(this.Timestamp.Ticks));
+            serializationWriter.WriteProperty("sampleRate", this.samplingPercentage);
+            serializationWriter.WriteProperty("seq", this.Sequence);
+
+            serializationWriter.WriteProperty("iKey", this.Context.InstrumentationKey);
+            serializationWriter.WriteProperty("flags", this.Context.Flags);
+
+            serializationWriter.WriteDictionary("tags", this.Context.SanitizedTags);
+            Utils.CopyDictionary(this.Context.GlobalProperties, this.Data.properties);
+            serializationWriter.WriteStartObject("data");
+            serializationWriter.WriteProperty("baseType", this.BaseType);
+            serializationWriter.WriteStartObject("baseData");
+
+            serializationWriter.WriteProperty("ver", this.Data.ver);
+            serializationWriter.WriteProperty("message", this.Data.message);
+            serializationWriter.WriteProperty("severityLevel", this.SeverityLevel.Value.ToString());
+
+            serializationWriter.WriteDictionary("properties", this.Data.properties);
+            serializationWriter.WriteDictionary("measurements", this.Data.measurements);
+            serializationWriter.WriteEndObject(); // basedata
+            serializationWriter.WriteEndObject(); // data
+            serializationWriter.WriteEndObject(); // overall
         }
 
         /// <summary>

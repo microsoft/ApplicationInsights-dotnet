@@ -12,7 +12,7 @@
     /// Telemetry type used to track custom events.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
     /// </summary>
-    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
+    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IExtension
     {
         internal const string TelemetryName = "Event";
 
@@ -132,6 +132,41 @@
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(EventTelemetry).FullName);
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
+        }
+
+        /// <summary>
+        /// Deeply clones the Extension of <see cref="EventTelemetry"/> object.
+        /// </summary>
+        IExtension IExtension.DeepClone()
+        {
+            return new EventTelemetry(this);
+        }
+
+        /// <inheritdoc/>
+        public void Serialize(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty("name", TelemetryName);
+            serializationWriter.WriteProperty("time", TimeSpan.FromTicks(this.Timestamp.Ticks));
+            serializationWriter.WriteProperty("sampleRate", this.samplingPercentage);
+            serializationWriter.WriteProperty("seq", this.Sequence);
+
+            serializationWriter.WriteProperty("iKey", this.Context.InstrumentationKey);
+            serializationWriter.WriteProperty("flags", this.Context.Flags);
+
+            serializationWriter.WriteDictionary("tags", this.Context.SanitizedTags);
+            Utils.CopyDictionary(this.Context.GlobalProperties, this.Data.properties);
+            serializationWriter.WriteStartObject("data");
+            serializationWriter.WriteProperty("baseType", this.BaseType);
+            serializationWriter.WriteStartObject("baseData");
+
+            serializationWriter.WriteProperty("ver", this.Data.ver);            
+            serializationWriter.WriteProperty("name", this.Data.name);            
+
+            serializationWriter.WriteDictionary("properties", this.Data.properties);
+            serializationWriter.WriteDictionary("measurements", this.Data.measurements);
+            serializationWriter.WriteEndObject(); // basedata
+            serializationWriter.WriteEndObject(); // data
+            serializationWriter.WriteEndObject(); // overall
         }
     }
 }

@@ -234,65 +234,77 @@
             return new GZipStream(stream, CompressionMode.Compress);
         }
 
-        private static void SerializeTelemetryItem(ITelemetry telemetryItem, JsonWriter jsonWriter)
+        private static void SerializeTelemetryItem(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter)
         {
             if (telemetryItem is EventTelemetry)
             {
                 EventTelemetry eventTelemetry = telemetryItem as EventTelemetry;
-                SerializeEventTelemetry(eventTelemetry, jsonWriter);
+                eventTelemetry.Serialize(jsonSerializationWriter);
+                // SerializeEventTelemetry(eventTelemetry, jsonWriter);
             }
             else if (telemetryItem is ExceptionTelemetry)
             {
                 ExceptionTelemetry exceptionTelemetry = telemetryItem as ExceptionTelemetry;
-                SerializeExceptionTelemetry(exceptionTelemetry, jsonWriter);
+                exceptionTelemetry.Serialize(jsonSerializationWriter);
+                // SerializeExceptionTelemetry(exceptionTelemetry, jsonWriter);
             }
             else if (telemetryItem is MetricTelemetry)
             {
                 MetricTelemetry metricTelemetry = telemetryItem as MetricTelemetry;
-                SerializeMetricTelemetry(metricTelemetry, jsonWriter);
+                metricTelemetry.Serialize(jsonSerializationWriter);
+                // SerializeMetricTelemetry(metricTelemetry, jsonWriter);
             }
             else if (telemetryItem is PageViewTelemetry)
             {
                 PageViewTelemetry pageViewTelemetry = telemetryItem as PageViewTelemetry;
-                SerializePageViewTelemetry(pageViewTelemetry, jsonWriter);
+                pageViewTelemetry.Serialize(jsonSerializationWriter);
+                // SerializePageViewTelemetry(pageViewTelemetry, jsonWriter);
             }
             else if (telemetryItem is PageViewPerformanceTelemetry)
             {
                 PageViewPerformanceTelemetry pageViewPerfTelemetry = telemetryItem as PageViewPerformanceTelemetry;
-                SerializePageViewPerformanceTelemetry(pageViewPerfTelemetry, jsonWriter);
+                pageViewPerfTelemetry.Serialize(jsonSerializationWriter);
+                // SerializePageViewPerformanceTelemetry(pageViewPerfTelemetry, jsonWriter);
             }
             else if (telemetryItem is DependencyTelemetry)
-            {
+            {                
                 DependencyTelemetry remoteDependencyTelemetry = telemetryItem as DependencyTelemetry;
-                SerializeDependencyTelemetry(remoteDependencyTelemetry, jsonWriter);
+                remoteDependencyTelemetry.Serialize(jsonSerializationWriter);
+
+                // SerializeDependencyTelemetry(remoteDependencyTelemetry, jsonWriter);
             }
             else if (telemetryItem is RequestTelemetry)
             {
                 RequestTelemetry requestTelemetry = telemetryItem as RequestTelemetry;
-                SerializeRequestTelemetry(requestTelemetry, jsonWriter);
+                requestTelemetry.Serialize(jsonSerializationWriter);
+                // SerializeRequestTelemetry(requestTelemetry, jsonWriter);
             }
 #pragma warning disable 618
             else if (telemetryItem is SessionStateTelemetry)
             {
                 EventTelemetry telemetry = (telemetryItem as SessionStateTelemetry).Data;
-                SerializeEventTelemetry(telemetry, jsonWriter);
+                telemetry.Serialize(jsonSerializationWriter);
+                // SerializeEventTelemetry(telemetry, jsonWriter);
             }
 #pragma warning restore 618
             else if (telemetryItem is TraceTelemetry)
             {
                 TraceTelemetry traceTelemetry = telemetryItem as TraceTelemetry;
-                SerializeTraceTelemetry(traceTelemetry, jsonWriter);
+                traceTelemetry.Serialize(jsonSerializationWriter);
+                // SerializeTraceTelemetry(traceTelemetry, jsonWriter);
             }
 #pragma warning disable 618
             else if (telemetryItem is PerformanceCounterTelemetry)
             {
                 MetricTelemetry telemetry = (telemetryItem as PerformanceCounterTelemetry).Data;
-                SerializeMetricTelemetry(telemetry, jsonWriter);
+                telemetry.Serialize(jsonSerializationWriter);
+                // SerializeMetricTelemetry(telemetry, jsonWriter);
             }
             else if (telemetryItem is AvailabilityTelemetry)
             {
                 AvailabilityTelemetry availabilityTelemetry = telemetryItem as AvailabilityTelemetry;
-                SerializeAvailability(availabilityTelemetry, jsonWriter);
+                availabilityTelemetry.Serialize(jsonSerializationWriter);
+                // SerializeAvailability(availabilityTelemetry, jsonWriter);
             }
             else
             {
@@ -306,7 +318,8 @@
         /// </summary>
         private static void SeializeToStream(IEnumerable<ITelemetry> telemetryItems, TextWriter streamWriter)
         {
-            JsonWriter jsonWriter = new JsonWriter(streamWriter);
+            // JsonWriter jsonWriter = new JsonWriter(streamWriter);
+            JsonSerializationWriter jsonSerializationWriter = new JsonSerializationWriter(streamWriter);
 
             int telemetryCount = 0;
             foreach (ITelemetry telemetryItem in telemetryItems)
@@ -318,7 +331,7 @@
 
                 telemetryItem.Context.SanitizeGlobalProperties();
                 telemetryItem.Sanitize();
-                SerializeTelemetryItem(telemetryItem, jsonWriter);
+                SerializeTelemetryItem(telemetryItem, jsonSerializationWriter);
             }
         }
 

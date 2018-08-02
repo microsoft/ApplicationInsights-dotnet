@@ -13,7 +13,7 @@
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
     /// </summary>
-    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics
+    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics, IExtension
     {
         internal const string TelemetryName = "Availability";
 
@@ -176,6 +176,45 @@
         public ITelemetry DeepClone()
         {
             return new AvailabilityTelemetry(this);
+        }
+
+        /// <summary>
+        /// Deeply clones the Extension of <see cref="AvailabilityTelemetry"/> object.
+        /// </summary>
+        IExtension IExtension.DeepClone()
+        {
+            return new AvailabilityTelemetry(this);
+        }
+
+        /// <inheritdoc/>
+        public void Serialize(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty("name", TelemetryName);
+            serializationWriter.WriteProperty("time", TimeSpan.FromTicks(this.Timestamp.Ticks));            
+            serializationWriter.WriteProperty("seq", this.Sequence);
+
+            serializationWriter.WriteProperty("iKey", this.Context.InstrumentationKey);
+            serializationWriter.WriteProperty("flags", this.Context.Flags);
+
+            serializationWriter.WriteDictionary("tags", this.Context.SanitizedTags);
+            Utils.CopyDictionary(this.Context.GlobalProperties, this.Data.properties);
+            serializationWriter.WriteStartObject("data");
+            serializationWriter.WriteProperty("baseType", this.BaseType);
+            serializationWriter.WriteStartObject("baseData");
+
+            serializationWriter.WriteProperty("ver", this.Data.ver);
+            serializationWriter.WriteProperty("id", this.Data.id);
+            serializationWriter.WriteProperty("name", this.Data.name);            
+            serializationWriter.WriteProperty("duration", this.Data.duration);
+            serializationWriter.WriteProperty("success", this.Data.success);
+            serializationWriter.WriteProperty("runLocation", this.Data.runLocation);
+            serializationWriter.WriteProperty("message", this.Data.message);
+            
+            serializationWriter.WriteDictionary("properties", this.Data.properties);
+            serializationWriter.WriteDictionary("measurements", this.Data.measurements);
+            serializationWriter.WriteEndObject(); // basedata
+            serializationWriter.WriteEndObject(); // data
+            serializationWriter.WriteEndObject(); // overall
         }
 
         /// <summary>

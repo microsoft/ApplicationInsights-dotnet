@@ -343,7 +343,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <inheritdoc/>
         public void Serialize(ISerializationWriter serializationWriter)
         {
-            serializationWriter.WriteStartObject(TelemetryName);
+            serializationWriter.WriteProperty("name", TelemetryName);
             serializationWriter.WriteProperty("time", TimeSpan.FromTicks(this.Timestamp.Ticks));
             serializationWriter.WriteProperty("sampleRate", this.samplingPercentage);
             serializationWriter.WriteProperty("seq", this.Sequence);
@@ -351,11 +351,11 @@ namespace Microsoft.ApplicationInsights.DataContracts
             serializationWriter.WriteProperty("iKey", this.Context.InstrumentationKey);
             serializationWriter.WriteProperty("flags", this.Context.Flags);
 
-            serializationWriter.WriteDictionary("tags", this.Context.SanitizedTags);
-            serializationWriter.WriteDictionary("globalTags", this.Context.GlobalProperties);
-
+            serializationWriter.WriteDictionary("tags", this.Context.SanitizedTags);            
+            Utils.CopyDictionary(this.Context.GlobalProperties, this.InternalData.properties);
             serializationWriter.WriteStartObject("data");
             serializationWriter.WriteProperty("baseType", this.BaseType);
+            serializationWriter.WriteStartObject("baseData");
 
             serializationWriter.WriteProperty("ver", this.InternalData.ver);
             serializationWriter.WriteProperty("name", this.InternalData.name);
@@ -368,8 +368,9 @@ namespace Microsoft.ApplicationInsights.DataContracts
             serializationWriter.WriteProperty("target", this.InternalData.target);
             serializationWriter.WriteDictionary("properties", this.InternalData.properties);
             serializationWriter.WriteDictionary("measurements", this.InternalData.measurements);
-            serializationWriter.WriteEndObject("data");
-            serializationWriter.WriteEndObject(TelemetryName);
+            serializationWriter.WriteEndObject(); // basedata
+            serializationWriter.WriteEndObject(); // data
+            serializationWriter.WriteEndObject(); // overall
         }
 
         /// <summary>

@@ -345,6 +345,7 @@ Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteDictionary
 Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteEndObject(string name) -> void
 Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteList(string name, System.Collections.Generic.IList<string> items) -> void
 Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.TimeSpan? value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.DateTimeOffset? value) -> void
 Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, bool? value) -> void
 Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, double? value) -> void
 Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, int? value) -> void
