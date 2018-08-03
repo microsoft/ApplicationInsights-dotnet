@@ -1,15 +1,8 @@
 ﻿using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ConsoleApp3
+namespace TestAppStableSDK
 {
     class Program
     {
@@ -24,7 +17,7 @@ namespace ConsoleApp3
 
             var met = new MetricTelemetry("mymetric", 38.09);
             client.TrackMetric(met);
-
+            
             try
             {
                 ThrowExc();

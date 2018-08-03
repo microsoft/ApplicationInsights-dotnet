@@ -68,7 +68,7 @@
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
     <PackageReference Include="System.Net.Requests" Version="4.3.0" />
   </ItemGroup>
-
+<!--
   <ItemGroup>
     <AdditionalFiles Include="..\..\PublicAPI\Microsoft.ApplicationInsights.dll\$(TargetFramework)\PublicAPI.Shipped.txt">
       <Link>PublicAPI.Shipped.txt</Link>      
@@ -77,6 +77,6 @@
       <Link>PublicAPI.Unshipped.txt</Link>      
     </AdditionalFiles>    
   </ItemGroup>
-  
+  -->
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>

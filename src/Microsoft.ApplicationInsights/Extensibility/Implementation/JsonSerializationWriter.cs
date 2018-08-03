@@ -18,14 +18,6 @@
         }
         
         /// <inheritdoc/>
-        public void WriteStartObject(string name)
-        {
-            this.WritePropertyName(name);
-            this.textWriter.Write('{');
-            this.currentObjectHasProperties = false;
-        }
-
-        /// <inheritdoc/>
         public void WriteStartObject()
         {            
             this.textWriter.Write('{');
@@ -33,14 +25,14 @@
         }
 
         /// <inheritdoc/>
-        public void WriteStartList(string name)
+        public void WriteStartObject(string name)
         {
             this.WritePropertyName(name);
-            this.textWriter.Write('[');
+            this.textWriter.Write('{');
             this.currentObjectHasProperties = false;
-        }
+        }        
 
-        // ISerializationWriter
+        /// <inheritdoc/>
         public void WriteProperty(string name, string value)
         {
             if (!string.IsNullOrEmpty(value))
@@ -50,6 +42,7 @@
             }
         }
 
+        /// <inheritdoc/>
         public void WriteProperty(string name, int? value)
         {
             if (value.HasValue)
@@ -59,6 +52,7 @@
             }
         }
 
+        /// <inheritdoc/>
         public void WriteProperty(string name, bool? value)
         {
             if (value.HasValue)
@@ -68,7 +62,7 @@
             }
         }
 
-        // ISerializationWriter
+        /// <inheritdoc/>
         public void WriteProperty(string name, double? value)
         {
             if (value.HasValue)
@@ -78,7 +72,7 @@
             }
         }
 
-        // ISerializationWriter
+        /// <inheritdoc/>
         public void WriteProperty(string name, TimeSpan? value)
         {
             if (value.HasValue)
@@ -87,6 +81,7 @@
             }
         }
 
+        /// <inheritdoc/>
         public void WriteProperty(string name, DateTimeOffset? value)
         {
             if (value.HasValue)
@@ -95,6 +90,7 @@
             }
         }
 
+        /// <inheritdoc/>
         public void WriteList(string name, IList<string> items)
         {
             if (items != null && items.Count > 0)
@@ -113,12 +109,38 @@
             }
         }
 
+        /// <inheritdoc/>
+        public void WriteList(string name, IList<IExtension> items)
+        {
+            bool commaNeeded = false;
+            if (items != null && items.Count > 0)
+            {
+                this.WritePropertyName(name);
+                this.WriteStartArray();
+                foreach (var item in items)
+                {                    
+                    if (commaNeeded)
+                    {
+                        this.WriteComma();
+                    }
+
+                    this.WriteStartObject();
+                    item.Serialize(this);
+                    commaNeeded = true;
+                    this.WriteEndObject();
+                }
+
+                this.WriteEndArray();                
+            }
+        }
+
+        /// <inheritdoc/>
         public void WriteDictionary(string name, IDictionary<string, double> values)
         {
             if (values != null && values.Count > 0)
             {
                 this.WritePropertyName(name);
-                this.WriteStartObject(name);
+                this.WriteStartObject();
                 foreach (KeyValuePair<string, double> item in values)
                 {
                     this.WriteProperty(item.Key, item.Value);
@@ -128,11 +150,13 @@
             }
         }
 
+        /// <inheritdoc/>
         public void WriteDictionary(string name, IDictionary<string, string> values)
         {
             if (values != null && values.Count > 0)
             {
-                this.WriteStartObject(name);
+                this.WritePropertyName(name);
+                this.WriteStartObject();
                 foreach (KeyValuePair<string, string> item in values)
                 {
                     this.WriteProperty(item.Key, item.Value);
@@ -142,34 +166,23 @@
             }
         }
 
+        /// <inheritdoc/>
         public void WriteEndObject()
         {
             this.textWriter.Write('}');
         }
 
+        /// <inheritdoc/>
+        public void WriteStartList(string name)
+        {
+            this.WritePropertyName(name);
+            this.WriteStartArray();
+        }
+
+        /// <inheritdoc/>
         public void WriteEndList()
         {
-            this.textWriter.Write(']');
-        }
-
-        private void WriteStartArray()
-        {
-            this.textWriter.Write('[');
-        }
-
-        private void WriteEndArray()
-        {
-            this.textWriter.Write(']');
-        }
-
-        private void WriteComma()
-        {
-            this.textWriter.Write(',');
-        }
-
-        private void WriteRawValue(object value)
-        {
-            this.textWriter.Write(string.Format(CultureInfo.InvariantCulture, "{0}", value));
+            this.WriteEndArray();
         }
 
         /// <summary>
@@ -203,6 +216,26 @@
             this.WriteString(name);
             this.textWriter.Write(':');
         }
+
+        private void WriteStartArray()
+        {
+            this.textWriter.Write('[');
+        }
+
+        private void WriteEndArray()
+        {
+            this.textWriter.Write(']');
+        }
+
+        private void WriteComma()
+        {
+            this.textWriter.Write(',');
+        }
+
+        private void WriteRawValue(object value)
+        {
+            this.textWriter.Write(string.Format(CultureInfo.InvariantCulture, "{0}", value));
+        }       
 
         private void WriteString(string value)
         {
