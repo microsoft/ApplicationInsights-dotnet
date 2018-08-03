@@ -146,6 +146,7 @@
         /// <inheritdoc/>
         public void Serialize(ISerializationWriter serializationWriter)
         {
+            serializationWriter.WriteStartObject();
             serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
             serializationWriter.WriteProperty("time", this.Timestamp.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));
             serializationWriter.WriteProperty("sampleRate", this.samplingPercentage);

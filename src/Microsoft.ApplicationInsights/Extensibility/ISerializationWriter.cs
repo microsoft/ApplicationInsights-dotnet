@@ -64,6 +64,11 @@
         void WriteStartObject(string name);
 
         /// <summary>
+        /// Marks beginning of a complex object.
+        /// </summary>
+        void WriteStartObject();
+
+        /// <summary>
         /// Marks ending of a complex object.
         /// </summary>
         void WriteEndObject();

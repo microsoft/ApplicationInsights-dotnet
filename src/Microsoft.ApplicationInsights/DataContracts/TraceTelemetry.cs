@@ -147,6 +147,7 @@
         /// <inheritdoc/>
         public void Serialize(ISerializationWriter serializationWriter)
         {
+            serializationWriter.WriteStartObject();
             serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
             serializationWriter.WriteProperty("time", this.Timestamp.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));
             serializationWriter.WriteProperty("sampleRate", this.samplingPercentage);
@@ -163,7 +164,7 @@
 
             serializationWriter.WriteProperty("ver", this.Data.ver);
             serializationWriter.WriteProperty("message", this.Data.message);
-            serializationWriter.WriteProperty("severityLevel", this.SeverityLevel.Value.ToString());
+            serializationWriter.WriteProperty("severityLevel", this.SeverityLevel.HasValue ? this.SeverityLevel.Value.ToString() : null);
 
             serializationWriter.WriteDictionary("properties", this.Data.properties);
             serializationWriter.WriteDictionary("measurements", this.Data.measurements);

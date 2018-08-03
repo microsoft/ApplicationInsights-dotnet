@@ -14,8 +14,15 @@
         public JsonSerializationWriter(TextWriter textWriter)
         {
             this.textWriter = textWriter;
+            // this.textWriter.Write('{');
+        }
+
+        /// <inheritdoc/>
+        public void WriteStartObject()
+        {        
             this.textWriter.Write('{');
-        }                        
+            this.currentObjectHasProperties = false;
+        }
 
         /// <inheritdoc/>
         public void WriteStartObject(string name)
@@ -165,11 +172,13 @@
             this.textWriter.Write('}');
         }
 
+/*
         private void WriteStartObject()
         {
             this.textWriter.Write('{');
             this.currentObjectHasProperties = false;
         }
+*/
 
         /// <summary>
         /// Writes the specified property name enclosed in double quotation marks followed by a colon.
