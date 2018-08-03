@@ -61,26 +61,11 @@
         /// <summary>
         /// Marks beginning of a complex object.
         /// </summary>
-        void WriteStartObject();
-
-        /// <summary>
-        /// Marks beginning of a complex object.
-        /// </summary>
         void WriteStartObject(string name);
 
         /// <summary>
         /// Marks ending of a complex object.
         /// </summary>
         void WriteEndObject();
-
-        /// <summary>
-        /// Starts a list of items.
-        /// </summary>
-        void WriteStartList(string name);
-
-        /// <summary>
-        /// Marks ending of a list of items.
-        /// </summary>
-        void WriteEndList();
     }
 }

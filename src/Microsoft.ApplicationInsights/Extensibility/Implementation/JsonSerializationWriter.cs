@@ -15,14 +15,7 @@
         {
             this.textWriter = textWriter;
             this.textWriter.Write('{');
-        }
-        
-        /// <inheritdoc/>
-        public void WriteStartObject()
-        {            
-            this.textWriter.Write('{');
-            this.currentObjectHasProperties = false;
-        }
+        }                        
 
         /// <inheritdoc/>
         public void WriteStartObject(string name)
@@ -172,17 +165,10 @@
             this.textWriter.Write('}');
         }
 
-        /// <inheritdoc/>
-        public void WriteStartList(string name)
+        private void WriteStartObject()
         {
-            this.WritePropertyName(name);
-            this.WriteStartArray();
-        }
-
-        /// <inheritdoc/>
-        public void WriteEndList()
-        {
-            this.WriteEndArray();
+            this.textWriter.Write('{');
+            this.currentObjectHasProperties = false;
         }
 
         /// <summary>

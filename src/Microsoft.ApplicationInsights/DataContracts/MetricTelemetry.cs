@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -261,8 +262,8 @@
         /// <inheritdoc/>
         public void Serialize(ISerializationWriter serializationWriter)
         {
-            serializationWriter.WriteProperty("name", TelemetryName);
-            serializationWriter.WriteProperty("time", TimeSpan.FromTicks(this.Timestamp.Ticks));
+            serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
+            serializationWriter.WriteProperty("time", this.Timestamp.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));            
             serializationWriter.WriteProperty("seq", this.Sequence);
 
             serializationWriter.WriteProperty("iKey", this.Context.InstrumentationKey);
@@ -276,18 +277,10 @@
 
             serializationWriter.WriteProperty("ver", this.Data.ver);
 
-            serializationWriter.WriteStartList("metrics");
-            serializationWriter.WriteStartObject();
-            serializationWriter.WriteProperty("ns", this.MetricNamespace);
-            serializationWriter.WriteProperty("name", this.Metric.name);
-            serializationWriter.WriteProperty("kind", this.Metric.kind.ToString());
-            serializationWriter.WriteProperty("value", this.Metric.value);
-            serializationWriter.WriteProperty("count", this.Metric.count);
-            serializationWriter.WriteProperty("min", this.Metric.min);
-            serializationWriter.WriteProperty("max", this.Metric.max);
-            serializationWriter.WriteProperty("stdDev", this.Metric.stdDev);
-            serializationWriter.WriteEndObject();
-            serializationWriter.WriteEndList();
+            IList<IExtension> metricLists = new List<IExtension>();
+            metricLists.Add(this.Metric);
+
+            serializationWriter.WriteList("metrics", metricLists);
 
             serializationWriter.WriteDictionary("properties", this.Data.properties);            
             serializationWriter.WriteEndObject(); // basedata

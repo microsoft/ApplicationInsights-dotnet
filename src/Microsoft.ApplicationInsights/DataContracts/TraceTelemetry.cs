@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -146,8 +147,8 @@
         /// <inheritdoc/>
         public void Serialize(ISerializationWriter serializationWriter)
         {
-            serializationWriter.WriteProperty("name", TelemetryName);
-            serializationWriter.WriteProperty("time", TimeSpan.FromTicks(this.Timestamp.Ticks));
+            serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
+            serializationWriter.WriteProperty("time", this.Timestamp.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));
             serializationWriter.WriteProperty("sampleRate", this.samplingPercentage);
             serializationWriter.WriteProperty("seq", this.Sequence);
 

@@ -341,7 +341,7 @@
         {
             writer.WriteStartObject();
 
-            eventTelemetry.WriteTelemetryName(writer, EventTelemetry.TelemetryName);
+            // eventTelemetry.WriteTelemetryName(EventTelemetry.TelemetryName);
             eventTelemetry.WriteEnvelopeProperties(writer);
             writer.WritePropertyName("data");
             {
@@ -370,7 +370,7 @@
         {
             writer.WriteStartObject();
 
-            exceptionTelemetry.WriteTelemetryName(writer, ExceptionTelemetry.TelemetryName);
+            // exceptionTelemetry.WriteTelemetryName(writer, ExceptionTelemetry.TelemetryName);
             exceptionTelemetry.WriteEnvelopeProperties(writer);
             writer.WritePropertyName("data");
             {
@@ -413,7 +413,7 @@
         {
             writer.WriteStartObject();
 
-            metricTelemetry.WriteTelemetryName(writer, MetricTelemetry.TelemetryName);
+           // metricTelemetry.WriteTelemetryName(writer, MetricTelemetry.TelemetryName);
             metricTelemetry.WriteEnvelopeProperties(writer);
             writer.WritePropertyName("data");
             {
@@ -464,7 +464,7 @@
         {
             writer.WriteStartObject();
 
-            pageViewTelemetry.WriteTelemetryName(writer, PageViewTelemetry.TelemetryName);
+            // pageViewTelemetry.WriteTelemetryName(writer, PageViewTelemetry.TelemetryName);
             pageViewTelemetry.WriteEnvelopeProperties(writer);
             writer.WritePropertyName("data");
             {
@@ -496,7 +496,7 @@
         {
             writer.WriteStartObject();
 
-            pageViewPerfTelemetry.WriteTelemetryName(writer, PageViewPerformanceTelemetry.TelemetryName);
+           // pageViewPerfTelemetry.WriteTelemetryName(writer, PageViewPerformanceTelemetry.TelemetryName);
             pageViewPerfTelemetry.WriteEnvelopeProperties(writer);
             writer.WritePropertyName("data");
             {
@@ -533,7 +533,7 @@
         {
             writer.WriteStartObject();
 
-            dependencyTelemetry.WriteTelemetryName(writer, DependencyTelemetry.TelemetryName);
+            // dependencyTelemetry.WriteTelemetryName(writer, DependencyTelemetry.TelemetryName);
             dependencyTelemetry.WriteEnvelopeProperties(writer);
             writer.WritePropertyName("data");
             {
@@ -569,7 +569,7 @@
         {
             jsonWriter.WriteStartObject();
 
-            requestTelemetry.WriteTelemetryName(jsonWriter, RequestTelemetry.TelemetryName);
+           // requestTelemetry.WriteTelemetryName(jsonWriter, RequestTelemetry.TelemetryName);
             requestTelemetry.WriteEnvelopeProperties(jsonWriter);
             jsonWriter.WritePropertyName("data");
             {
@@ -605,7 +605,7 @@
         {
             writer.WriteStartObject();
 
-            traceTelemetry.WriteTelemetryName(writer, TraceTelemetry.TelemetryName);
+            // traceTelemetry.WriteTelemetryName(writer, TraceTelemetry.TelemetryName);
             traceTelemetry.WriteEnvelopeProperties(writer);
             writer.WritePropertyName("data");
             {
@@ -643,7 +643,7 @@
         {
             writer.WriteStartObject();
 
-            availabilityTelemetry.WriteTelemetryName(writer, AvailabilityTelemetry.TelemetryName);
+           // availabilityTelemetry.WriteTelemetryName(writer, AvailabilityTelemetry.TelemetryName);
             availabilityTelemetry.WriteEnvelopeProperties(writer);
             writer.WritePropertyName("data");
             {

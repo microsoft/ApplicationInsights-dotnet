@@ -189,8 +189,8 @@
         /// <inheritdoc/>
         public void Serialize(ISerializationWriter serializationWriter)
         {
-            serializationWriter.WriteProperty("name", TelemetryName);
-            serializationWriter.WriteProperty("time", TimeSpan.FromTicks(this.Timestamp.Ticks));            
+            serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
+            serializationWriter.WriteProperty("time", this.Timestamp.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));
             serializationWriter.WriteProperty("seq", this.Sequence);
 
             serializationWriter.WriteProperty("iKey", this.Context.InstrumentationKey);
