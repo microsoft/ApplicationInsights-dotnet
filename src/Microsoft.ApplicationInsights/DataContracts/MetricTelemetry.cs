@@ -276,10 +276,8 @@
             serializationWriter.WriteStartObject("baseData");
 
             serializationWriter.WriteProperty("ver", this.Data.ver);
-
             IList<IExtension> metricLists = new List<IExtension>();
             metricLists.Add(this.Metric);
-
             serializationWriter.WriteList("metrics", metricLists);
 
             serializationWriter.WriteDictionary("properties", this.Data.properties);            

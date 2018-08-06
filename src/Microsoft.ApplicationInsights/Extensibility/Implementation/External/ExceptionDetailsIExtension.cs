@@ -10,7 +10,7 @@
     {
         public IExtension DeepClone()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public void Serialize(ISerializationWriter serializationWriter)

@@ -356,20 +356,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             Utils.CopyDictionary(this.Context.GlobalProperties, this.InternalData.properties);
             serializationWriter.WriteStartObject("data");
             serializationWriter.WriteProperty("baseType", this.BaseType);
-            serializationWriter.WriteStartObject("baseData");
-
-            serializationWriter.WriteProperty("ver", this.InternalData.ver);
-            serializationWriter.WriteProperty("name", this.InternalData.name);
-            serializationWriter.WriteProperty("id", this.InternalData.id);
-            serializationWriter.WriteProperty("data", this.InternalData.data);
-            serializationWriter.WriteProperty("duration", this.InternalData.duration);
-            serializationWriter.WriteProperty("resultCode", this.InternalData.resultCode);
-            serializationWriter.WriteProperty("success", this.InternalData.success);
-            serializationWriter.WriteProperty("type", this.InternalData.type);
-            serializationWriter.WriteProperty("target", this.InternalData.target);
-            serializationWriter.WriteDictionary("properties", this.InternalData.properties);
-            serializationWriter.WriteDictionary("measurements", this.InternalData.measurements);
-            serializationWriter.WriteEndObject(); // basedata
+            serializationWriter.WriteProperty("baseData", this.InternalData);            
             serializationWriter.WriteEndObject(); // data            
         }
 

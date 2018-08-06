@@ -4,6 +4,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
@@ -59,7 +60,47 @@
 
             Assert.AreEqual("user2", obj["Connections"][1]["userid"].ToString());
             Assert.AreEqual("usersecret2", obj["Connections"][1]["password"].ToString());
-        }       
+        }
+
+        [TestMethod]
+        public void SerializeAsStringMethodSerializesExceptionCorrectly()
+        {
+
+            ExceptionTelemetry myex = null;
+            try
+            {
+                int x = 0;
+                int y = 10 / x;
+            }
+            catch (Exception ex)
+            {
+                myex = new ExceptionTelemetry(ex);
+            }
+
+            var stringBuilder = new StringBuilder();
+            using (StringWriter stringWriter = new StringWriter(stringBuilder, CultureInfo.InvariantCulture))
+            {
+                var jsonSerializationWriter = new JsonSerializationWriter(stringWriter);
+                myex.Serialize(jsonSerializationWriter);                
+            }           
+            string actualJson = stringBuilder.ToString();
+            Trace.WriteLine(actualJson);
+
+            JObject obj = JsonConvert.DeserializeObject<JObject>(actualJson);
+
+            Assert.IsNotNull(actualJson);
+            Assert.AreEqual("10908", obj["DatabaseId"].ToString());
+            Assert.AreEqual("azpacalbcluster011", obj["DatabaseServer"].ToString());
+
+            Assert.AreEqual("Bellevue", obj["DBLocation"]["city"].ToString());
+            Assert.AreEqual("WA", obj["DBLocation"]["state"].ToString());
+
+            Assert.AreEqual("user1", obj["Connections"][0]["userid"].ToString());
+            Assert.AreEqual("usersecret1", obj["Connections"][0]["password"].ToString());
+
+            Assert.AreEqual("user2", obj["Connections"][1]["userid"].ToString());
+            Assert.AreEqual("usersecret2", obj["Connections"][1]["password"].ToString());
+        }
     }
 
     public class DatabaseExtension : IExtension

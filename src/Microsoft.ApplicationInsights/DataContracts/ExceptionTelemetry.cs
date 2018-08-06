@@ -300,16 +300,7 @@
             Utils.CopyDictionary(this.Context.GlobalProperties, this.Data.Data.properties);
             serializationWriter.WriteStartObject("data");
             serializationWriter.WriteProperty("baseType", this.BaseType);
-            serializationWriter.WriteStartObject("baseData");
-
-            serializationWriter.WriteProperty("ver", this.Data.Data.ver);
-            serializationWriter.WriteProperty("problemId", this.Data.Data.problemId);            
-            serializationWriter.WriteList("exceptions", this.Exceptions.ToList<IExtension>());                       
-            serializationWriter.WriteProperty("severityLevel", this.Data.Data.severityLevel.HasValue ? this.Data.Data.severityLevel.Value.ToString() : null);
-
-            serializationWriter.WriteDictionary("properties", this.Data.Data.properties);
-            serializationWriter.WriteDictionary("measurements", this.Data.Data.measurements);
-            serializationWriter.WriteEndObject(); // basedata
+            serializationWriter.WriteProperty("baseData", this.Data.Data);             
             serializationWriter.WriteEndObject(); // data            
         }
 

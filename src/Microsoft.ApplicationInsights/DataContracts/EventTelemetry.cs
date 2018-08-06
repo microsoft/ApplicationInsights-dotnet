@@ -158,14 +158,7 @@
             Utils.CopyDictionary(this.Context.GlobalProperties, this.Data.properties);
             serializationWriter.WriteStartObject("data");
             serializationWriter.WriteProperty("baseType", this.BaseType);
-            serializationWriter.WriteStartObject("baseData");
-
-            serializationWriter.WriteProperty("ver", this.Data.ver);            
-            serializationWriter.WriteProperty("name", this.Data.name);            
-
-            serializationWriter.WriteDictionary("properties", this.Data.properties);
-            serializationWriter.WriteDictionary("measurements", this.Data.measurements);
-            serializationWriter.WriteEndObject(); // basedata
+            serializationWriter.WriteProperty("baseData", this.Data);
             serializationWriter.WriteEndObject(); // data            
         }
     }

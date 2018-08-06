@@ -200,19 +200,10 @@
             Utils.CopyDictionary(this.Context.GlobalProperties, this.Data.properties);
             serializationWriter.WriteStartObject("data");
             serializationWriter.WriteProperty("baseType", this.BaseType);
-            serializationWriter.WriteStartObject("baseData");
-
-            serializationWriter.WriteProperty("ver", this.Data.ver);
-            serializationWriter.WriteProperty("id", this.Data.id);
-            serializationWriter.WriteProperty("name", this.Data.name);            
-            serializationWriter.WriteProperty("duration", this.Data.duration);
-            serializationWriter.WriteProperty("success", this.Data.success);
-            serializationWriter.WriteProperty("runLocation", this.Data.runLocation);
-            serializationWriter.WriteProperty("message", this.Data.message);
-            
+            serializationWriter.WriteProperty("baseData", this.Data);
             serializationWriter.WriteDictionary("properties", this.Data.properties);
             serializationWriter.WriteDictionary("measurements", this.Data.measurements);
-            serializationWriter.WriteEndObject(); // basedata
+            
             serializationWriter.WriteEndObject(); // data            
         }
 
