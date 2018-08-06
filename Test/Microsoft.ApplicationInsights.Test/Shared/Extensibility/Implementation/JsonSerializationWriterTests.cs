@@ -34,7 +34,10 @@
             var stringBuilder = new StringBuilder();
             using (StringWriter stringWriter = new StringWriter(stringBuilder, CultureInfo.InvariantCulture))
             {
-                dbExtension.Serialize(new JsonSerializationWriter(stringWriter));                
+                var jsonSerializationWriter = new JsonSerializationWriter(stringWriter);
+                jsonSerializationWriter.WriteStartObject();
+                dbExtension.Serialize(jsonSerializationWriter);
+                jsonSerializationWriter.WriteEndObject();
             }
 
             string actualJson = stringBuilder.ToString();
@@ -75,12 +78,11 @@
         }
 
         public void Serialize(ISerializationWriter serializationWriter)
-        {
+        {            
             serializationWriter.WriteProperty("DatabaseId", DatabaseId);
             serializationWriter.WriteProperty("DatabaseServer", DatabaseServer);
             serializationWriter.WriteProperty("DatabaseLocation", DatabaseLocation);
-            serializationWriter.WriteList("Connections", Connections.ToList<IExtension>());
-            serializationWriter.WriteEndObject();
+            serializationWriter.WriteList("Connections", Connections.ToList<IExtension>());            
         }
     }
 
