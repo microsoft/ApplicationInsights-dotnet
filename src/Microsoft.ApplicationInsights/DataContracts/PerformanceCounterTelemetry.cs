@@ -10,7 +10,7 @@
     /// The class that represents information about performance counters.
     /// </summary>
     [Obsolete("Use MetricTelemetry instead.")]
-    public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties
+    public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties, IExtension
     {
         internal readonly MetricTelemetry Data;        
         private string categoryName = string.Empty;
@@ -193,9 +193,23 @@
         }
 
         /// <summary>
+        /// Deeply clones the Extension of <see cref="PerformanceCounterTelemetry"/> object.
+        /// </summary>
+        IExtension IExtension.DeepClone()
+        {
+            return new PerformanceCounterTelemetry(this);
+        }
+
+        /// <inheritdoc/>
+        public void Serialize(ISerializationWriter serializationWriter)
+        {
+            this.Data.Serialize(serializationWriter);
+        }
+
+        /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>
-        void ITelemetry.Sanitize()
+            void ITelemetry.Sanitize()
         {
             ((ITelemetry)this.Data).Sanitize();
         }

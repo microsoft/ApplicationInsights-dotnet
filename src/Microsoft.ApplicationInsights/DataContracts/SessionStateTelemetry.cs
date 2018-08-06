@@ -8,12 +8,12 @@
     /// Telemetry type used to track user sessions.
     /// </summary>
     [Obsolete("Session state events are no longer used. This telemetry item will be sent as EventTelemetry.")]
-    public sealed class SessionStateTelemetry : ITelemetry
+    public sealed class SessionStateTelemetry : ITelemetry, IExtension
     {
         internal readonly EventTelemetry Data;
 
         private readonly string startEventName = "Session started";
-        private readonly string endEventName = "Session ended";        
+        private readonly string endEventName = "Session ended";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SessionStateTelemetry"/> class.
@@ -133,11 +133,25 @@
         }
 
         /// <summary>
+        /// Deeply clones the Extension of <see cref="SessionStateTelemetry"/> object.
+        /// </summary>
+        IExtension IExtension.DeepClone()
+        {
+            return new SessionStateTelemetry(this);
+        }
+
+        /// <summary>
         /// Sanitizes this telemetry instance to ensure it can be accepted by the Application Insights.
         /// </summary>
         void ITelemetry.Sanitize()
         {
             ((ITelemetry)this.Data).Sanitize();
+        }
+
+        /// <inheritdoc/>
+        public void Serialize(ISerializationWriter serializationWriter)
+        {
+            this.Data.Serialize(serializationWriter);
         }
     }
 }

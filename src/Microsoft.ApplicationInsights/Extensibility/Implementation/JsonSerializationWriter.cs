@@ -13,8 +13,7 @@
 
         public JsonSerializationWriter(TextWriter textWriter)
         {
-            this.textWriter = textWriter;
-            // this.textWriter.Write('{');
+            this.textWriter = textWriter;            
         }
 
         /// <inheritdoc/>
@@ -172,21 +171,6 @@
             this.textWriter.Write('}');
         }
 
-/*
-        private void WriteStartObject()
-        {
-            this.textWriter.Write('{');
-            this.currentObjectHasProperties = false;
-        }
-*/
-
-        /// <summary>
-        /// Writes the specified property name enclosed in double quotation marks followed by a colon.
-        /// </summary>
-        /// <remarks>
-        /// When this method is called multiple times, the second call after <see cref="WriteStartObject"/>
-        /// and all subsequent calls will write a coma before the name.
-        /// </remarks>
         private void WritePropertyName(string name)
         {
             if (name == null)
