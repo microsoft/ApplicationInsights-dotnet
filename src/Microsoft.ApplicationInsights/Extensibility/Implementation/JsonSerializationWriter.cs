@@ -134,6 +134,14 @@
         }
 
         /// <inheritdoc/>
+        public void WriteProperty(string name, IExtension value)
+        {
+            this.WriteStartObject(name);
+            value.Serialize(this);
+            this.WriteEndObject();
+        }
+
+        /// <inheritdoc/>
         public void WriteDictionary(string name, IDictionary<string, double> values)
         {
             if (values != null && values.Count > 0)

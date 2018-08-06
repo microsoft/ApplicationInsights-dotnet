@@ -22,12 +22,14 @@
         public void SerializeAsStringMethodSerializesATelemetryCorrectly()
         {
             var dbExtension = new DatabaseExtension();
-            dbExtension.DatabaseId = 10908;
-            dbExtension.DatabaseLocation = "Virginia";
+            dbExtension.DatabaseId = 10908;            
             dbExtension.DatabaseServer = "azpacalbcluster011";
+
+            dbExtension.DBLocation = new DBLocation() { city = "Bellevue", state = "WA" };
+
             var cons = new List<DBConnection>();
-            cons.Add(new DBConnection() { userid = "cijo", password = "secretcijo" });
-            cons.Add(new DBConnection() { userid = "anu", password = "secretanu" });
+            cons.Add(new DBConnection() { userid = "user1", password = "usersecret1" });
+            cons.Add(new DBConnection() { userid = "user2", password = "usersecret2" });
             dbExtension.Connections = cons;
 
 
@@ -42,15 +44,21 @@
 
             string actualJson = stringBuilder.ToString();
             Trace.WriteLine(actualJson);
-
-            // Expected: {"name":"Microsoft.ApplicationInsights.Exception","time":"0001-01-01T00:00:00.0000000+00:00","data":{"baseType":"ExceptionData","baseData":{"ver":2,"handledAt":"Unhandled","exceptions":[]}}}
-            // Deserialize (Validates a valid JSON string)
-            JObject obj = JsonConvert.DeserializeObject<JObject>(actualJson);
-
-            // Validates 2 random properties
-            Assert.IsNotNull(actualJson);
             
+            JObject obj = JsonConvert.DeserializeObject<JObject>(actualJson);
+            
+            Assert.IsNotNull(actualJson);            
             Assert.AreEqual("10908", obj["DatabaseId"].ToString());
+            Assert.AreEqual("azpacalbcluster011", obj["DatabaseServer"].ToString());
+
+            Assert.AreEqual("Bellevue", obj["DBLocation"]["city"].ToString());
+            Assert.AreEqual("WA", obj["DBLocation"]["state"].ToString());
+
+            Assert.AreEqual("user1", obj["Connections"][0]["userid"].ToString());
+            Assert.AreEqual("usersecret1", obj["Connections"][0]["password"].ToString());
+
+            Assert.AreEqual("user2", obj["Connections"][1]["userid"].ToString());
+            Assert.AreEqual("usersecret2", obj["Connections"][1]["password"].ToString());
         }       
     }
 
@@ -58,15 +66,15 @@
     {
         public int DatabaseId;
         public string DatabaseServer;
-        public string DatabaseLocation;
         public IList<DBConnection> Connections;
+        public DBLocation DBLocation;
 
         public IExtension DeepClone()
         {
             DatabaseExtension other = new DatabaseExtension();
             other.DatabaseId = this.DatabaseId;
             other.DatabaseServer = this.DatabaseServer;
-            other.DatabaseLocation = this.DatabaseLocation;
+            other.DBLocation = (DBLocation) this.DBLocation.DeepClone();
             IList<DBConnection> others = new List<DBConnection>();
             foreach(var item in this.Connections)
             {
@@ -81,7 +89,7 @@
         {            
             serializationWriter.WriteProperty("DatabaseId", DatabaseId);
             serializationWriter.WriteProperty("DatabaseServer", DatabaseServer);
-            serializationWriter.WriteProperty("DatabaseLocation", DatabaseLocation);
+            serializationWriter.WriteProperty("DBLocation", DBLocation);
             serializationWriter.WriteList("Connections", Connections.ToList<IExtension>());            
         }
     }
@@ -103,6 +111,26 @@
         {
             serializationWriter.WriteProperty("userid", userid);
             serializationWriter.WriteProperty("password", password);
+        }
+    }
+
+    public class DBLocation : IExtension
+    {
+        public string city;
+        public string state;
+
+        public IExtension DeepClone()
+        {
+            DBLocation other = new DBLocation();
+            other.city = this.city;
+            other.state = this.state;
+            return other;
+        }
+
+        public void Serialize(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty("city", city);
+            serializationWriter.WriteProperty("state", state);
         }
     }
 }

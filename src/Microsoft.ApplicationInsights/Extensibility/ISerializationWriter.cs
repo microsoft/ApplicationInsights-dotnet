@@ -39,7 +39,12 @@
         void WriteProperty(string name, DateTimeOffset? value);
 
         /// <summary>
-        /// Writes name and values for a IList field of string
+        /// Writes name and value for a IExtension field
+        /// </summary>
+        void WriteProperty(string name, IExtension value);
+
+        /// <summary>
+        /// Writes name and values for a IList field of strings
         /// </summary>
         void WriteList(string name, IList<string> items);
 
