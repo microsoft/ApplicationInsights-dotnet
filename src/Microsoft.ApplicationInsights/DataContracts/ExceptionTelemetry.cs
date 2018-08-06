@@ -305,13 +305,9 @@
 
             serializationWriter.WriteProperty("ver", this.Data.Data.ver);
             serializationWriter.WriteProperty("problemId", this.Data.Data.problemId);            
-            serializationWriter.WriteList("exceptions", this.Exceptions.ToList<IExtension>());
-           
-            if (this.Data.Data.severityLevel.HasValue)
-            {
-                serializationWriter.WriteProperty("severityLevel", this.Data.Data.severityLevel.Value.ToString());
-            }
-                
+            serializationWriter.WriteList("exceptions", this.Exceptions.ToList<IExtension>());                       
+            serializationWriter.WriteProperty("severityLevel", this.Data.Data.severityLevel.HasValue ? this.Data.Data.severityLevel.Value.ToString() : null);
+
             serializationWriter.WriteDictionary("properties", this.Data.Data.properties);
             serializationWriter.WriteDictionary("measurements", this.Data.Data.measurements);
             serializationWriter.WriteEndObject(); // basedata
