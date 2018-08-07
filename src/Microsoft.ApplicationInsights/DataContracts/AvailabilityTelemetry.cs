@@ -192,18 +192,13 @@
             serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
             serializationWriter.WriteProperty("time", this.Timestamp.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));
             serializationWriter.WriteProperty("seq", this.Sequence);
-
             serializationWriter.WriteProperty("iKey", this.Context.InstrumentationKey);
             serializationWriter.WriteProperty("flags", this.Context.Flags);
-
             serializationWriter.WriteDictionary("tags", this.Context.SanitizedTags);
             Utils.CopyDictionary(this.Context.GlobalProperties, this.Data.properties);
             serializationWriter.WriteStartObject("data");
             serializationWriter.WriteProperty("baseType", this.BaseType);
             serializationWriter.WriteProperty("baseData", this.Data);
-            serializationWriter.WriteDictionary("properties", this.Data.properties);
-            serializationWriter.WriteDictionary("measurements", this.Data.measurements);
-            
             serializationWriter.WriteEndObject(); // data            
         }
 

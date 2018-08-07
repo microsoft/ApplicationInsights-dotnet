@@ -248,20 +248,7 @@
             Utils.CopyDictionary(this.Context.GlobalProperties, this.Data.properties);
             serializationWriter.WriteStartObject("data");
             serializationWriter.WriteProperty("baseType", BaseType);
-            serializationWriter.WriteStartObject("baseData");
-
-            serializationWriter.WriteProperty("ver", this.Data.ver);
-            serializationWriter.WriteProperty("name", this.Data.name);
-            serializationWriter.WriteProperty("url", this.Data.url);
-            serializationWriter.WriteProperty("duration", this.Data.duration);
-            serializationWriter.WriteProperty("domProcessing", this.Data.domProcessing);
-            serializationWriter.WriteProperty("perfTotal", this.Data.perfTotal);
-            serializationWriter.WriteProperty("networkConnect", this.Data.networkConnect);
-            serializationWriter.WriteProperty("sentRequest", this.Data.sentRequest);
-            serializationWriter.WriteProperty("receivedResponse", this.Data.receivedResponse);
-            serializationWriter.WriteDictionary("properties", this.Data.properties);
-            serializationWriter.WriteDictionary("measurements", this.Data.measurements);
-            serializationWriter.WriteEndObject(); // basedata
+            serializationWriter.WriteProperty("baseData", this.Data);
             serializationWriter.WriteEndObject(); // data            
         }
     }

@@ -273,15 +273,7 @@
             Utils.CopyDictionary(this.Context.GlobalProperties, this.Data.properties);
             serializationWriter.WriteStartObject("data");
             serializationWriter.WriteProperty("baseType", this.BaseType);
-            serializationWriter.WriteStartObject("baseData");
-
-            serializationWriter.WriteProperty("ver", this.Data.ver);
-            IList<IExtension> metricLists = new List<IExtension>();
-            metricLists.Add(this.Metric);
-            serializationWriter.WriteList("metrics", metricLists);
-
-            serializationWriter.WriteDictionary("properties", this.Data.properties);            
-            serializationWriter.WriteEndObject(); // basedata
+            serializationWriter.WriteProperty("baseData", this.Data);
             serializationWriter.WriteEndObject(); // data            
         }
 

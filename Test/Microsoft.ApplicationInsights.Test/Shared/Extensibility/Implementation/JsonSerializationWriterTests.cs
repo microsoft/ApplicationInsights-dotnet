@@ -81,7 +81,9 @@
             using (StringWriter stringWriter = new StringWriter(stringBuilder, CultureInfo.InvariantCulture))
             {
                 var jsonSerializationWriter = new JsonSerializationWriter(stringWriter);
-                myex.Serialize(jsonSerializationWriter);                
+                jsonSerializationWriter.WriteStartObject();
+                myex.Serialize(jsonSerializationWriter);
+                jsonSerializationWriter.WriteEndObject();
             }           
             string actualJson = stringBuilder.ToString();
             Trace.WriteLine(actualJson);
@@ -89,17 +91,6 @@
             JObject obj = JsonConvert.DeserializeObject<JObject>(actualJson);
 
             Assert.IsNotNull(actualJson);
-            Assert.AreEqual("10908", obj["DatabaseId"].ToString());
-            Assert.AreEqual("azpacalbcluster011", obj["DatabaseServer"].ToString());
-
-            Assert.AreEqual("Bellevue", obj["DBLocation"]["city"].ToString());
-            Assert.AreEqual("WA", obj["DBLocation"]["state"].ToString());
-
-            Assert.AreEqual("user1", obj["Connections"][0]["userid"].ToString());
-            Assert.AreEqual("usersecret1", obj["Connections"][0]["password"].ToString());
-
-            Assert.AreEqual("user2", obj["Connections"][1]["userid"].ToString());
-            Assert.AreEqual("usersecret2", obj["Connections"][1]["password"].ToString());
         }
     }
 
