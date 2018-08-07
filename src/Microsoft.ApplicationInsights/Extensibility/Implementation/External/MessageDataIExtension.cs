@@ -15,8 +15,8 @@
             serializationWriter.WriteProperty("ver", this.ver);
             serializationWriter.WriteProperty("message", this.message);
             serializationWriter.WriteProperty("severityLevel", this.severityLevel.HasValue ? this.severityLevel.Value.ToString() : null);
-            serializationWriter.WriteDictionary("properties", this.properties);
-            serializationWriter.WriteDictionary("measurements", this.measurements);
+            serializationWriter.WriteProperty("properties", this.properties);
+            serializationWriter.WriteProperty("measurements", this.measurements);
         }
 
         IExtension IExtension.DeepClone()

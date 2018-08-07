@@ -20,11 +20,11 @@
         {
             serializationWriter.WriteProperty("ver", this.ver);
             serializationWriter.WriteProperty("problemId", this.problemId);
-            serializationWriter.WriteList("exceptions", this.exceptions.ToList<IExtension>());
+            serializationWriter.WriteProperty("exceptions", this.exceptions.ToList<IExtension>());
             serializationWriter.WriteProperty("severityLevel", this.severityLevel.TranslateSeverityLevel().HasValue ? this.severityLevel.TranslateSeverityLevel().Value.ToString() : null);
 
-            serializationWriter.WriteDictionary("properties", this.properties);
-            serializationWriter.WriteDictionary("measurements", this.measurements);
+            serializationWriter.WriteProperty("properties", this.properties);
+            serializationWriter.WriteProperty("measurements", this.measurements);
         }
     }
 }

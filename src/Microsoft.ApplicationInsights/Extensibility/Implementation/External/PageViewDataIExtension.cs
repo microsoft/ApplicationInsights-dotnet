@@ -13,8 +13,8 @@
             serializationWriter.WriteProperty("name", this.name);
             serializationWriter.WriteProperty("url", this.url);
             serializationWriter.WriteProperty("duration", Utils.ValidateDuration(this.duration));
-            serializationWriter.WriteDictionary("properties", this.properties);
-            serializationWriter.WriteDictionary("measurements", this.measurements);
+            serializationWriter.WriteProperty("properties", this.properties);
+            serializationWriter.WriteProperty("measurements", this.measurements);
         }
 
         IExtension IExtension.DeepClone()

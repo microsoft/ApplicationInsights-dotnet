@@ -58,7 +58,7 @@
                     json.WriteProperty("flags", context.Flags);
                 }
 
-                json.WriteDictionary("tags", context.SanitizedTags);
+                json.WriteProperty("tags", context.SanitizedTags);
             }
         }
 

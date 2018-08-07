@@ -46,22 +46,22 @@
         /// <summary>
         /// Writes name and values for a IList field of strings
         /// </summary>
-        void WriteList(string name, IList<string> items);
+        void WriteProperty(string name, IList<string> items);
 
         /// <summary>
         /// Writes name and values for a IList field of objects implementing IExtension
         /// </summary>
-        void WriteList(string name, IList<IExtension> items);
+        void WriteProperty(string name, IList<IExtension> items);
 
         /// <summary>
         /// Writes name and value for a IDictionary field with string,string as key,value
         /// </summary>
-        void WriteDictionary(string name, IDictionary<string, string> items);
+        void WriteProperty(string name, IDictionary<string, string> items);
 
         /// <summary>
         /// Writes name and value for a IDictionary field with string,string as key,value
         /// </summary>
-        void WriteDictionary(string name, IDictionary<string, double> items);
+        void WriteProperty(string name, IDictionary<string, double> items);
 
         /// <summary>
         /// Marks beginning of a complex object.

@@ -18,8 +18,8 @@
             serializationWriter.WriteProperty("success", this.success);
             serializationWriter.WriteProperty("runLocation", this.runLocation);
             serializationWriter.WriteProperty("message", this.message);
-            serializationWriter.WriteDictionary("properties", this.properties);
-            serializationWriter.WriteDictionary("measurements", this.measurements);
+            serializationWriter.WriteProperty("properties", this.properties);
+            serializationWriter.WriteProperty("measurements", this.measurements);
         }
 
         IExtension IExtension.DeepClone()

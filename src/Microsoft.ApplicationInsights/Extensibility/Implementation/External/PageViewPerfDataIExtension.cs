@@ -16,8 +16,8 @@
             serializationWriter.WriteProperty("networkConnect", Utils.ValidateDuration(this.networkConnect));
             serializationWriter.WriteProperty("sentRequest", Utils.ValidateDuration(this.sentRequest));
             serializationWriter.WriteProperty("receivedResponse", Utils.ValidateDuration(this.receivedResponse));
-            serializationWriter.WriteDictionary("properties", this.properties);
-            serializationWriter.WriteDictionary("measurements", this.measurements);
+            serializationWriter.WriteProperty("properties", this.properties);
+            serializationWriter.WriteProperty("measurements", this.measurements);
         }
 
         IExtension IExtension.DeepClone()

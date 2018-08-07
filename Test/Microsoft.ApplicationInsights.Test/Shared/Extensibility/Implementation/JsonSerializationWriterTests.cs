@@ -172,10 +172,10 @@
             serializationWriter.WriteProperty("MyTimeSpanField", MyTimeSpanField);
             serializationWriter.WriteProperty("MyDateTimeOffsetField", MyDateTimeOffsetField);
             serializationWriter.WriteProperty("MySubExtensionField", MySubExtensionField);
-            serializationWriter.WriteList("MyStringListField", MyStringListField);
-            serializationWriter.WriteList("MyExtensionListField", MyExtensionListField.ToList<IExtension>());
-            serializationWriter.WriteDictionary("MyStringDictionaryField", MyStringDictionaryField);
-            serializationWriter.WriteDictionary("MyDoubleDictionaryField", MyDoubleDictionaryField);            
+            serializationWriter.WriteProperty("MyStringListField", MyStringListField);
+            serializationWriter.WriteProperty("MyExtensionListField", MyExtensionListField.ToList<IExtension>());
+            serializationWriter.WriteProperty("MyStringDictionaryField", MyStringDictionaryField);
+            serializationWriter.WriteProperty("MyDoubleDictionaryField", MyDoubleDictionaryField);            
         }
     }
 

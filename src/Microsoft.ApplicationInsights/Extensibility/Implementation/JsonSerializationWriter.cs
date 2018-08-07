@@ -90,7 +90,7 @@
         }
 
         /// <inheritdoc/>
-        public void WriteList(string name, IList<string> items)
+        public void WriteProperty(string name, IList<string> items)
         {
             bool commaNeeded = false;
             if (items != null && items.Count > 0)
@@ -115,7 +115,7 @@
         }
 
         /// <inheritdoc/>
-        public void WriteList(string name, IList<IExtension> items)
+        public void WriteProperty(string name, IList<IExtension> items)
         {
             bool commaNeeded = false;
             if (items != null && items.Count > 0)
@@ -148,7 +148,7 @@
         }
 
         /// <inheritdoc/>
-        public void WriteDictionary(string name, IDictionary<string, double> values)
+        public void WriteProperty(string name, IDictionary<string, double> values)
         {
             if (values != null && values.Count > 0)
             {
@@ -164,7 +164,7 @@
         }
 
         /// <inheritdoc/>
-        public void WriteDictionary(string name, IDictionary<string, string> values)
+        public void WriteProperty(string name, IDictionary<string, string> values)
         {
             if (values != null && values.Count > 0)
             {
@@ -185,7 +185,7 @@
             this.textWriter.Write('}');
         }
 
-        private void WritePropertyName(string name)
+        internal void WritePropertyName(string name)
         {
             if (name == null)
             {
@@ -210,27 +210,27 @@
             this.textWriter.Write(':');
         }
 
-        private void WriteStartArray()
+        internal void WriteStartArray()
         {
             this.textWriter.Write('[');
         }
 
-        private void WriteEndArray()
+        internal void WriteEndArray()
         {
             this.textWriter.Write(']');
         }
 
-        private void WriteComma()
+        internal void WriteComma()
         {
             this.textWriter.Write(',');
         }
 
-        private void WriteRawValue(object value)
+        internal void WriteRawValue(object value)
         {
             this.textWriter.Write(string.Format(CultureInfo.InvariantCulture, "{0}", value));
-        }       
+        }
 
-        private void WriteString(string value)
+        internal void WriteString(string value)
         {
             this.textWriter.Write('"');
 

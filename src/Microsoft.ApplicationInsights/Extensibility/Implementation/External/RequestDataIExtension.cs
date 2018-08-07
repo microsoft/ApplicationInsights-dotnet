@@ -19,8 +19,8 @@
             serializationWriter.WriteProperty("success", this.success);
             serializationWriter.WriteProperty("responseCode", this.responseCode);
             serializationWriter.WriteProperty("url", this.url);
-            serializationWriter.WriteDictionary("properties", this.properties);
-            serializationWriter.WriteDictionary("measurements", this.measurements);
+            serializationWriter.WriteProperty("properties", this.properties);
+            serializationWriter.WriteProperty("measurements", this.measurements);
         }
 
         IExtension IExtension.DeepClone()

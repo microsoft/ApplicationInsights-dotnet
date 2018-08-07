@@ -13,8 +13,8 @@
         public void Serialize(ISerializationWriter serializationWriter)
         {
             serializationWriter.WriteProperty("ver", this.ver);            
-            serializationWriter.WriteList("metrics", this.metrics.ToList<IExtension>());
-            serializationWriter.WriteDictionary("properties", this.properties);
+            serializationWriter.WriteProperty("metrics", this.metrics.ToList<IExtension>());
+            serializationWriter.WriteProperty("properties", this.properties);
         }
 
         IExtension IExtension.DeepClone()

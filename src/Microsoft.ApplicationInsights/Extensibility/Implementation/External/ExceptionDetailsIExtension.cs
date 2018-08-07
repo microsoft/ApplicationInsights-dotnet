@@ -21,7 +21,7 @@
             serializationWriter.WriteProperty("message", this.message);
             serializationWriter.WriteProperty("hasFullStack", this.hasFullStack);
             serializationWriter.WriteProperty("stack", this.stack);            
-            serializationWriter.WriteList("parsedStack", this.parsedStack.ToList<IExtension>());
+            serializationWriter.WriteProperty("parsedStack", this.parsedStack.ToList<IExtension>());
         }
     }
 }
