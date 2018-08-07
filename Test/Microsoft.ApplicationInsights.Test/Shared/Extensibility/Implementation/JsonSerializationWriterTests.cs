@@ -20,26 +20,48 @@
     public class JsonSerializationWriterTests
     {
         [TestMethod]
-        public void SerializeAsStringMethodSerializesATelemetryCorrectly()
+        public void SerializeComplexObject()
         {
-            var dbExtension = new DatabaseExtension();
-            dbExtension.DatabaseId = 10908;            
-            dbExtension.DatabaseServer = "azpacalbcluster011";
+            var complexExtension = new ComplexExtension();            
+            var mySubSubExtension1 = new MySubSubExtension() { Field3 = "Value1 for field3", Field4 = 100.00 };
+            var mySubSubExtension2 = new MySubSubExtension() { Field3 = "Value2 for field3", Field4 = 200.00 };
+            var mySubExtension1 = new MySubExtension() { Field1 = "Value1 for field1", Field2 = 100 , MySubSubExtension = mySubSubExtension1 };
+            var mySubExtension2 = new MySubExtension() { Field1 = "Value2 for field1", Field2 = 200, MySubSubExtension = mySubSubExtension2 };
+            var listExtension = new List<MySubExtension>();
+            listExtension.Add(mySubExtension1);
+            listExtension.Add(mySubExtension2);
 
-            dbExtension.DBLocation = new DBLocation() { city = "Bellevue", state = "WA" };
+            var listString = new List<string>();
+            listString.Add("Item1");
+            listString.Add("Item2");
+            listString.Add("Item3");
 
-            var cons = new List<DBConnection>();
-            cons.Add(new DBConnection() { userid = "user1", password = "usersecret1" });
-            cons.Add(new DBConnection() { userid = "user2", password = "usersecret2" });
-            dbExtension.Connections = cons;
+            complexExtension.MyBoolField = true;
+            complexExtension.MyDateTimeOffsetField = DateTimeOffset.Now;
+            complexExtension.MyDoubleField = 100.10;
+            complexExtension.MyIntField = 100;
+            complexExtension.MyStringField = "ValueStringField";
+            complexExtension.MyTimeSpanField = TimeSpan.FromSeconds(2);
+            complexExtension.MySubExtensionField = mySubExtension1;
+            complexExtension.MyExtensionListField = listExtension;
+            complexExtension.MyStringListField = listString;
 
+            var dicString = new Dictionary<string, string>();
+            dicString.Add("Key1", "Value1");
+            dicString.Add("Key2", "Value2");
+            complexExtension.MyStringDictionaryField = dicString;
+
+            var dicDouble = new Dictionary<string, double>();
+            dicDouble.Add("Key1", 1000.000);
+            dicDouble.Add("Key2", 2000.000);
+            complexExtension.MyDoubleDictionaryField = dicDouble;
 
             var stringBuilder = new StringBuilder();
             using (StringWriter stringWriter = new StringWriter(stringBuilder, CultureInfo.InvariantCulture))
             {
                 var jsonSerializationWriter = new JsonSerializationWriter(stringWriter);
                 jsonSerializationWriter.WriteStartObject();
-                dbExtension.Serialize(jsonSerializationWriter);
+                complexExtension.Serialize(jsonSerializationWriter);
                 jsonSerializationWriter.WriteEndObject();
             }
 
@@ -49,89 +71,154 @@
             JObject obj = JsonConvert.DeserializeObject<JObject>(actualJson);
             
             Assert.IsNotNull(actualJson);            
-            Assert.AreEqual("10908", obj["DatabaseId"].ToString());
-            Assert.AreEqual("azpacalbcluster011", obj["DatabaseServer"].ToString());
+            Assert.AreEqual("ValueStringField", obj["MyStringField"].ToString());
+            Assert.AreEqual(100, int.Parse(obj["MyIntField"].ToString()));
+            Assert.AreEqual(100.10, double.Parse(obj["MyDoubleField"].ToString()));
+            Assert.AreEqual(true, bool.Parse(obj["MyBoolField"].ToString()));
+            Assert.AreEqual(TimeSpan.FromSeconds(2), TimeSpan.Parse(obj["MyTimeSpanField"].ToString()));
+            //Assert.AreEqual(DateTimeOffset., double.Parse(obj["MyDateTimeOffsetField"].ToString()));
 
-            Assert.AreEqual("Bellevue", obj["DBLocation"]["city"].ToString());
-            Assert.AreEqual("WA", obj["DBLocation"]["state"].ToString());
+            Assert.AreEqual("Value1 for field1",obj["MySubExtensionField"]["Field1"].ToString());
+            Assert.AreEqual(100, int.Parse(obj["MySubExtensionField"]["Field2"].ToString()));
 
-            Assert.AreEqual("user1", obj["Connections"][0]["userid"].ToString());
-            Assert.AreEqual("usersecret1", obj["Connections"][0]["password"].ToString());
+            Assert.AreEqual("Value1 for field3", obj["MySubExtensionField"]["MySubSubExtension"]["Field3"].ToString());
+            Assert.AreEqual(100, int.Parse(obj["MySubExtensionField"]["MySubSubExtension"]["Field4"].ToString()));
 
-            Assert.AreEqual("user2", obj["Connections"][1]["userid"].ToString());
-            Assert.AreEqual("usersecret2", obj["Connections"][1]["password"].ToString());
-        }        
+            Assert.AreEqual("Item1", obj["MyStringListField"][0].ToString());
+            Assert.AreEqual("Item2", obj["MyStringListField"][1].ToString());
+            Assert.AreEqual("Item3", obj["MyStringListField"][2].ToString());
+
+            Assert.AreEqual("Value1 for field1", obj["MyExtensionListField"][0]["Field1"].ToString());
+            Assert.AreEqual(100, int.Parse(obj["MyExtensionListField"][0]["Field2"].ToString()));
+            Assert.AreEqual("Value1 for field3", obj["MyExtensionListField"][0]["MySubSubExtension"]["Field3"].ToString());
+            Assert.AreEqual(100, int.Parse(obj["MyExtensionListField"][0]["MySubSubExtension"]["Field4"].ToString()));
+
+            Assert.AreEqual("Value2 for field1", obj["MyExtensionListField"][1]["Field1"].ToString());
+            Assert.AreEqual(200, int.Parse(obj["MyExtensionListField"][1]["Field2"].ToString()));
+            Assert.AreEqual("Value2 for field3", obj["MyExtensionListField"][1]["MySubSubExtension"]["Field3"].ToString());
+            Assert.AreEqual(200, int.Parse(obj["MyExtensionListField"][1]["MySubSubExtension"]["Field4"].ToString()));
+
+            Assert.AreEqual("Value1", obj["MyStringDictionaryField"]["Key1"].ToString());
+            Assert.AreEqual("Value2", obj["MyStringDictionaryField"]["Key2"].ToString());
+
+            Assert.AreEqual(1000, double.Parse(obj["MyDoubleDictionaryField"]["Key1"].ToString()));
+            Assert.AreEqual(2000, double.Parse(obj["MyDoubleDictionaryField"]["Key2"].ToString()));
+
+        }
     }
 
-    public class DatabaseExtension : IExtension
+    public class ComplexExtension : IExtension
     {
-        public int DatabaseId;
-        public string DatabaseServer;
-        public IList<DBConnection> Connections;
-        public DBLocation DBLocation;
-
+        public string MyStringField;
+        public int MyIntField;
+        public double MyDoubleField;
+        public bool MyBoolField;
+        public TimeSpan MyTimeSpanField;
+        public DateTimeOffset MyDateTimeOffsetField;
+        public MySubExtension MySubExtensionField;
+        public IList<string> MyStringListField;
+        public IList<MySubExtension> MyExtensionListField;
+        public IDictionary<string, string> MyStringDictionaryField;
+        public IDictionary<string, double> MyDoubleDictionaryField;
+        
         public IExtension DeepClone()
         {
-            DatabaseExtension other = new DatabaseExtension();
-            other.DatabaseId = this.DatabaseId;
-            other.DatabaseServer = this.DatabaseServer;
-            other.DBLocation = (DBLocation) this.DBLocation.DeepClone();
-            IList<DBConnection> others = new List<DBConnection>();
-            foreach(var item in this.Connections)
-            {
-                others.Add((DBConnection) item.DeepClone());
-            }
+            ComplexExtension other = new ComplexExtension();
+            other.MyStringField = this.MyStringField;
+            other.MyIntField = this.MyIntField;
+            other.MyDoubleField = this.MyDoubleField;
+            other.MyBoolField = this.MyBoolField;
+            other.MyTimeSpanField = this.MyTimeSpanField;
+            other.MyDateTimeOffsetField = this.MyDateTimeOffsetField;
+            other.MySubExtensionField = (MySubExtension) this.MySubExtensionField.DeepClone();
 
-            other.Connections = others;
+            IList<string> otherString = new List<string>();
+            foreach(var item in this.MyStringListField)
+            {
+                otherString.Add(item);
+            }
+            other.MyStringListField = otherString;
+
+            IList<MySubExtension> others = new List<MySubExtension>();
+            foreach(var item in this.MyExtensionListField)
+            {
+                others.Add((MySubExtension) item.DeepClone());
+            }
+            other.MyExtensionListField = others;
+
+            IDictionary<string, string> otherStringDic = new Dictionary<string, string>();
+            foreach (var item in this.MyStringDictionaryField)
+            {
+                otherStringDic.Add(item.Key, item.Value);
+            }
+            other.MyStringDictionaryField = otherStringDic;
+
+            IDictionary<string, double> otherDoubleDic = new Dictionary<string, double>();
+            foreach (var item in this.MyDoubleDictionaryField)
+            {
+                otherDoubleDic.Add(item.Key, item.Value);
+            }
+            other.MyDoubleDictionaryField = otherDoubleDic;
+
             return other;
         }
 
         public void Serialize(ISerializationWriter serializationWriter)
         {            
-            serializationWriter.WriteProperty("DatabaseId", DatabaseId);
-            serializationWriter.WriteProperty("DatabaseServer", DatabaseServer);
-            serializationWriter.WriteProperty("DBLocation", DBLocation);
-            serializationWriter.WriteList("Connections", Connections.ToList<IExtension>());            
+            serializationWriter.WriteProperty("MyStringField", MyStringField);
+            serializationWriter.WriteProperty("MyIntField", MyIntField);
+            serializationWriter.WriteProperty("MyDoubleField", MyDoubleField);
+            serializationWriter.WriteProperty("MyBoolField", MyBoolField);
+            serializationWriter.WriteProperty("MyTimeSpanField", MyTimeSpanField);
+            serializationWriter.WriteProperty("MyDateTimeOffsetField", MyDateTimeOffsetField);
+            serializationWriter.WriteProperty("MySubExtensionField", MySubExtensionField);
+            serializationWriter.WriteList("MyStringListField", MyStringListField);
+            serializationWriter.WriteList("MyExtensionListField", MyExtensionListField.ToList<IExtension>());
+            serializationWriter.WriteDictionary("MyStringDictionaryField", MyStringDictionaryField);
+            serializationWriter.WriteDictionary("MyDoubleDictionaryField", MyDoubleDictionaryField);            
         }
     }
 
-    public class DBConnection : IExtension
+    public class MySubExtension : IExtension
     {
-        public string userid;
-        public string password;
+        public string Field1;
+        public int Field2;
+        public IExtension MySubSubExtension;
 
         public IExtension DeepClone()
         {
-            DBConnection other = new DBConnection();
-            other.userid = this.userid;
-            other.password = this.password;
+            MySubExtension other = new MySubExtension();
+            other.Field1 = this.Field1;
+            other.Field2 = this.Field2;
+            other.MySubSubExtension = this.MySubSubExtension.DeepClone();
             return other;
         }
 
         public void Serialize(ISerializationWriter serializationWriter)
         {
-            serializationWriter.WriteProperty("userid", userid);
-            serializationWriter.WriteProperty("password", password);
+            serializationWriter.WriteProperty("Field1", Field1);
+            serializationWriter.WriteProperty("Field2", Field2);
+            serializationWriter.WriteProperty("MySubSubExtension", MySubSubExtension);
         }
     }
 
-    public class DBLocation : IExtension
+    public class MySubSubExtension : IExtension
     {
-        public string city;
-        public string state;
+        public string Field3;
+        public double Field4;
 
         public IExtension DeepClone()
         {
-            DBLocation other = new DBLocation();
-            other.city = this.city;
-            other.state = this.state;
+            MySubSubExtension other = new MySubSubExtension();
+            other.Field3 = this.Field3;
+            other.Field4 = this.Field4;
             return other;
         }
 
         public void Serialize(ISerializationWriter serializationWriter)
         {
-            serializationWriter.WriteProperty("city", city);
-            serializationWriter.WriteProperty("state", state);
+            serializationWriter.WriteProperty("Field3", Field3);
+            serializationWriter.WriteProperty("Field4", Field4);
         }
     }
 }

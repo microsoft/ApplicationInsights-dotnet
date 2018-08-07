@@ -92,19 +92,25 @@
         /// <inheritdoc/>
         public void WriteList(string name, IList<string> items)
         {
+            bool commaNeeded = false;
             if (items != null && items.Count > 0)
             {
                 this.WritePropertyName(name);
+
                 this.WriteStartArray();
+
                 foreach (var item in items)
                 {
-                    this.WriteComma();
-                    this.WriteRawValue(item);
+                    if (commaNeeded)
+                    {
+                        this.WriteComma();
+                    }
+
+                    this.WriteString(item);
+                    commaNeeded = true;
                 }
 
                 this.WriteEndArray();
-
-                this.WriteEndObject();
             }
         }
 

@@ -209,7 +209,7 @@
         /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>
-            void ITelemetry.Sanitize()
+        void ITelemetry.Sanitize()
         {
             ((ITelemetry)this.Data).Sanitize();
         }
