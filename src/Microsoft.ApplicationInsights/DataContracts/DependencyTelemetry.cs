@@ -345,14 +345,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public void Serialize(ISerializationWriter serializationWriter)
         {            
             serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
-            serializationWriter.WriteProperty("time", this.Timestamp.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));
-            serializationWriter.WriteProperty("sampleRate", this.samplingPercentage);
-            serializationWriter.WriteProperty("seq", this.Sequence);
+            this.WriteEnvelopeProperties(serializationWriter);          
 
-            serializationWriter.WriteProperty("iKey", this.Context.InstrumentationKey);
-            serializationWriter.WriteProperty("flags", this.Context.Flags);
-
-            serializationWriter.WriteDictionary("tags", this.Context.SanitizedTags);            
             Utils.CopyDictionary(this.Context.GlobalProperties, this.InternalData.properties);
             serializationWriter.WriteStartObject("data");
             serializationWriter.WriteProperty("baseType", this.BaseType);

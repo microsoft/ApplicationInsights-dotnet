@@ -7,7 +7,7 @@
 
     internal static class Telemetry
     {
-        public static void WriteEnvelopeProperties(this ITelemetry telemetry, IJsonWriter json)
+        public static void WriteEnvelopeProperties(this ITelemetry telemetry, ISerializationWriter json)
         {
             json.WriteProperty("time", telemetry.Timestamp.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));
 
@@ -48,7 +48,7 @@
             return eventName;
         }
 
-        public static void WriteTelemetryContext(IJsonWriter json, TelemetryContext context)
+        public static void WriteTelemetryContext(ISerializationWriter json, TelemetryContext context)
         {
             if (context != null)
             {
@@ -58,7 +58,7 @@
                     json.WriteProperty("flags", context.Flags);
                 }
 
-                json.WriteProperty("tags", context.SanitizedTags);
+                json.WriteDictionary("tags", context.SanitizedTags);
             }
         }
 

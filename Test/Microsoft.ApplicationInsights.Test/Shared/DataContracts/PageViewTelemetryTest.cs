@@ -97,7 +97,7 @@
         }
 
         [TestMethod]
-        public void SerializePopulatesRequiredFieldsOfPageViewPerfTelemetry()
+        public void SerializePopulatesRequiredFieldsOfPageViewTelemetry()
         {
             using (StringWriter stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
