@@ -60,38 +60,7 @@
 
             Assert.AreEqual("user2", obj["Connections"][1]["userid"].ToString());
             Assert.AreEqual("usersecret2", obj["Connections"][1]["password"].ToString());
-        }
-
-        [TestMethod]
-        public void SerializeAsStringMethodSerializesExceptionCorrectly()
-        {
-
-            ExceptionTelemetry myex = null;
-            try
-            {
-                int x = 0;
-                int y = 10 / x;
-            }
-            catch (Exception ex)
-            {
-                myex = new ExceptionTelemetry(ex);
-            }
-
-            var stringBuilder = new StringBuilder();
-            using (StringWriter stringWriter = new StringWriter(stringBuilder, CultureInfo.InvariantCulture))
-            {
-                var jsonSerializationWriter = new JsonSerializationWriter(stringWriter);
-                jsonSerializationWriter.WriteStartObject();
-                myex.Serialize(jsonSerializationWriter);
-                jsonSerializationWriter.WriteEndObject();
-            }           
-            string actualJson = stringBuilder.ToString();
-            Trace.WriteLine(actualJson);
-
-            JObject obj = JsonConvert.DeserializeObject<JObject>(actualJson);
-
-            Assert.IsNotNull(actualJson);
-        }
+        }        
     }
 
     public class DatabaseExtension : IExtension
