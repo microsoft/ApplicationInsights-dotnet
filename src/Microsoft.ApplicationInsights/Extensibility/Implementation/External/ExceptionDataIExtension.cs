@@ -21,7 +21,7 @@
             serializationWriter.WriteProperty("ver", this.ver);
             serializationWriter.WriteProperty("problemId", this.problemId);
             serializationWriter.WriteList("exceptions", this.exceptions.ToList<IExtension>());
-            serializationWriter.WriteProperty("severityLevel", this.severityLevel.HasValue ? this.severityLevel.Value.ToString() : null);
+            serializationWriter.WriteProperty("severityLevel", this.severityLevel.TranslateSeverityLevel().HasValue ? this.severityLevel.TranslateSeverityLevel().Value.ToString() : null);
 
             serializationWriter.WriteDictionary("properties", this.properties);
             serializationWriter.WriteDictionary("measurements", this.measurements);

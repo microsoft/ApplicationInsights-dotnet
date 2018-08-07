@@ -12,7 +12,7 @@
             serializationWriter.WriteProperty("ver", this.ver);
             serializationWriter.WriteProperty("name", this.name);
             serializationWriter.WriteProperty("url", this.url);
-            serializationWriter.WriteProperty("duration", this.duration);
+            serializationWriter.WriteProperty("duration", Utils.ValidateDuration(this.duration));
             serializationWriter.WriteDictionary("properties", this.properties);
             serializationWriter.WriteDictionary("measurements", this.measurements);
         }

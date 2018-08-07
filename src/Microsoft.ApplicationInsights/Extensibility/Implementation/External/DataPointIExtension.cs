@@ -13,7 +13,7 @@
             serializationWriter.WriteProperty("name", this.name);
             serializationWriter.WriteProperty("kind", this.kind.ToString());
             serializationWriter.WriteProperty("value", this.value);
-            serializationWriter.WriteProperty("count", this.count);
+            serializationWriter.WriteProperty("count", this.count.HasValue ? this.count : 1);
             serializationWriter.WriteProperty("min", this.min);
             serializationWriter.WriteProperty("max", this.max);
             serializationWriter.WriteProperty("stdDev", this.stdDev);
