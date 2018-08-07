@@ -471,7 +471,7 @@
         /// Tracks the specified value.<br />
         /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.<br />
         /// This method uses the zero-dimensional <c>MetricSeries</c> associated with this metric.
-        /// Use <c>TryTrackValue(..)</c> to track values into <c>MetricSeries</c> associated with specific dimension-values in multi-dimensional metrics.
+        /// Use <c>TrackValue(..)</c> to track values into <c>MetricSeries</c> associated with specific dimension-values in multi-dimensional metrics.
         /// </summary>
         /// <param name="metricValue">The value to be aggregated.</param>
         public void TrackValue(double metricValue)
@@ -483,7 +483,7 @@
         /// Tracks the specified value.<br />
         /// An aggregate representing tracked values will be automatically sent to the cloud ingestion endpoint at the end of each aggregation period.<br />
         /// This method uses the zero-dimensional <c>MetricSeries</c> associated with this metric.
-        /// Use <c>TryTrackValue(..)</c> to track values into <c>MetricSeries</c> associated with specific dimension-values in multi-dimensional metrics.
+        /// Use <c>TrackValue(..)</c> to track values into <c>MetricSeries</c> associated with specific dimension-values in multi-dimensional metrics.
         /// </summary>
         /// <param name="metricValue">The value to be aggregated.</param>
         public void TrackValue(object metricValue)
@@ -501,7 +501,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(double metricValue, string dimension1Value)
+        public bool TrackValue(double metricValue, string dimension1Value)
         {
             MetricSeries series;
             bool canTrack = this.TryGetDataSeries(out series, dimension1Value);
@@ -523,7 +523,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(object metricValue, string dimension1Value)
+        public bool TrackValue(object metricValue, string dimension1Value)
         {
             MetricSeries series;
             if (this.TryGetDataSeries(out series, dimension1Value))
@@ -546,7 +546,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(double metricValue, string dimension1Value, string dimension2Value)
+        public bool TrackValue(double metricValue, string dimension1Value, string dimension2Value)
         {
             MetricSeries series;
             bool canTrack = this.TryGetDataSeries(out series, dimension1Value, dimension2Value);
@@ -569,7 +569,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(object metricValue, string dimension1Value, string dimension2Value)
+        public bool TrackValue(object metricValue, string dimension1Value, string dimension2Value)
         {
             MetricSeries series;
             if (this.TryGetDataSeries(out series, dimension1Value, dimension2Value))
@@ -593,7 +593,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value)
+        public bool TrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value)
         {
             MetricSeries series;
             bool canTrack = this.TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value);
@@ -617,7 +617,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value)
+        public bool TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value)
         {
             MetricSeries series;
             if (this.TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value))
@@ -642,7 +642,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value)
+        public bool TrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value)
         {
             MetricSeries series;
             bool canTrack = this.TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value, dimension4Value);
@@ -667,7 +667,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value)
+        public bool TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value)
         {
             MetricSeries series;
             if (this.TryGetDataSeries(out series, dimension1Value, dimension2Value, dimension3Value, dimension4Value))
@@ -693,7 +693,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(
+        public bool TrackValue(
                                 double metricValue,
                                 string dimension1Value,
                                 string dimension2Value,
@@ -725,7 +725,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(
+        public bool TrackValue(
                                 object metricValue,
                                 string dimension1Value,
                                 string dimension2Value,
@@ -758,7 +758,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(
+        public bool TrackValue(
                                 double metricValue,
                                 string dimension1Value,
                                 string dimension2Value,
@@ -792,7 +792,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(
+        public bool TrackValue(
                                 object metricValue,
                                 string dimension1Value,
                                 string dimension2Value,
@@ -827,7 +827,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(
+        public bool TrackValue(
                                 double metricValue,
                                 string dimension1Value,
                                 string dimension2Value,
@@ -871,7 +871,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(
+        public bool TrackValue(
                                 object metricValue,
                                 string dimension1Value,
                                 string dimension2Value,
@@ -916,7 +916,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(
+        public bool TrackValue(
                                 double metricValue,
                                 string dimension1Value,
                                 string dimension2Value,
@@ -963,7 +963,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(
+        public bool TrackValue(
                                 object metricValue,
                                 string dimension1Value,
                                 string dimension2Value,
@@ -1011,7 +1011,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(
+        public bool TrackValue(
                                 double metricValue,
                                 string dimension1Value,
                                 string dimension2Value,
@@ -1061,7 +1061,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(
+        public bool TrackValue(
                                 object metricValue,
                                 string dimension1Value,
                                 string dimension2Value,
@@ -1112,7 +1112,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(
+        public bool TrackValue(
                                 double metricValue,
                                 string dimension1Value,
                                 string dimension2Value,
@@ -1165,7 +1165,7 @@
         /// <returns><c>True</c> if the specified value was added to the <c>MetricSeries</c> indicated by the specified dimension name;
         /// <c>False</c> if the indicated series could not be created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
-        public bool TryTrackValue(
+        public bool TrackValue(
                                 object metricValue,
                                 string dimension1Value,
                                 string dimension2Value,
