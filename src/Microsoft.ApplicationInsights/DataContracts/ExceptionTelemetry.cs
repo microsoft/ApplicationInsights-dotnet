@@ -13,7 +13,7 @@
     /// Telemetry type used to track exceptions.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=723596">Learn more</a>
     /// </summary>
-    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IExtension
+    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, ISerializableWithWriter
     {
         internal const string TelemetryName = "Exception";
         internal readonly string BaseType = typeof(ExceptionData).Name;
@@ -273,14 +273,6 @@
         /// </summary>
         /// <returns>A cloned instance.</returns>
         public ITelemetry DeepClone()
-        {
-            return new ExceptionTelemetry(this);
-        }
-
-        /// <summary>
-        /// Deeply clones the Extension of <see cref="ExceptionTelemetry"/> object.
-        /// </summary>
-        IExtension IExtension.DeepClone()
         {
             return new ExceptionTelemetry(this);
         }

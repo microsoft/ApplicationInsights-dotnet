@@ -4,15 +4,10 @@
     using System.Linq;
 
     /// <summary>
-    /// Additional implementation for ExceptionDetails.
+    /// Partial class to implement ISerializableWithWriter.
     /// </summary>
-    internal partial class ExceptionDetails : IExtension
+    internal partial class ExceptionDetails : ISerializableWithWriter
     {
-        public IExtension DeepClone()
-        {
-            return null;
-        }
-
         public void Serialize(ISerializationWriter serializationWriter)
         {
             serializationWriter.WriteProperty("id", this.id);
@@ -21,7 +16,7 @@
             serializationWriter.WriteProperty("message", this.message);
             serializationWriter.WriteProperty("hasFullStack", this.hasFullStack);
             serializationWriter.WriteProperty("stack", this.stack);            
-            serializationWriter.WriteProperty("parsedStack", this.parsedStack.ToList<IExtension>());
+            serializationWriter.WriteProperty("parsedStack", this.parsedStack.ToList<ISerializableWithWriter>());
         }
     }
 }

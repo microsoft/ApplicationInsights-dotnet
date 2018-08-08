@@ -6,9 +6,9 @@
     using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
-    /// Partial class to implement IExtension
+    /// Partial class to implement ISerializableWithWriter
     /// </summary>
-    internal partial class MessageData : IExtension
+    internal partial class MessageData : ISerializableWithWriter
     {
         public void Serialize(ISerializationWriter serializationWriter)
         {
@@ -17,11 +17,6 @@
             serializationWriter.WriteProperty("severityLevel", this.severityLevel.HasValue ? this.severityLevel.Value.ToString() : null);
             serializationWriter.WriteProperty("properties", this.properties);
             serializationWriter.WriteProperty("measurements", this.measurements);
-        }
-
-        IExtension IExtension.DeepClone()
-        {
-            return this.DeepClone();
         }
     }
 }

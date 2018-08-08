@@ -5,9 +5,9 @@
     using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
-    /// Partial class to implement IExtension
+    /// Partial class to implement ISerializableWithWriter
     /// </summary>
-    internal partial class RemoteDependencyData : IExtension
+    internal partial class RemoteDependencyData : ISerializableWithWriter
     {
         public void Serialize(ISerializationWriter serializationWriter)
         {
@@ -22,11 +22,6 @@
             serializationWriter.WriteProperty("target", this.target);
             serializationWriter.WriteProperty("properties", this.properties);
             serializationWriter.WriteProperty("measurements", this.measurements);
-        }
-
-        IExtension IExtension.DeepClone()
-        {
-            return this.DeepClone();
         }
     }
 }

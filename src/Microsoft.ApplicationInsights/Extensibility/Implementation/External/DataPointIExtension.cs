@@ -3,9 +3,9 @@
     using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
-    /// Partial class to implement IExtension
+    /// Partial class to implement ISerializableWithWriter
     /// </summary>
-    internal partial class DataPoint : IExtension
+    internal partial class DataPoint : ISerializableWithWriter
     {       
         public void Serialize(ISerializationWriter serializationWriter)
         {
@@ -17,11 +17,6 @@
             serializationWriter.WriteProperty("min", this.min);
             serializationWriter.WriteProperty("max", this.max);
             serializationWriter.WriteProperty("stdDev", this.stdDev);
-        }
-
-        IExtension IExtension.DeepClone()
-        {
-            return this.DeepClone();
         }
     }
 }

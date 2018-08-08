@@ -13,7 +13,7 @@
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
     /// </summary>
-    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics, IExtension
+    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics, ISerializableWithWriter
     {
         internal const string TelemetryName = "Availability";
 
@@ -174,14 +174,6 @@
         /// </summary>
         /// <returns>A cloned instance.</returns>
         public ITelemetry DeepClone()
-        {
-            return new AvailabilityTelemetry(this);
-        }
-
-        /// <summary>
-        /// Deeply clones the Extension of <see cref="AvailabilityTelemetry"/> object.
-        /// </summary>
-        IExtension IExtension.DeepClone()
         {
             return new AvailabilityTelemetry(this);
         }

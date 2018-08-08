@@ -7,20 +7,15 @@
     using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
-    /// Additional implementation for ExceptionDetails.
+    /// Partial class to implement ISerializableWithWriter
     /// </summary>
-    internal partial class ExceptionData : IExtension
+    internal partial class ExceptionData : ISerializableWithWriter
     {
-        IExtension IExtension.DeepClone()
-        {
-            return this.DeepClone();
-        }
-
         public void Serialize(ISerializationWriter serializationWriter)
         {
             serializationWriter.WriteProperty("ver", this.ver);
             serializationWriter.WriteProperty("problemId", this.problemId);
-            serializationWriter.WriteProperty("exceptions", this.exceptions.ToList<IExtension>());
+            serializationWriter.WriteProperty("exceptions", this.exceptions.ToList<ISerializableWithWriter>());
             serializationWriter.WriteProperty("severityLevel", this.severityLevel.TranslateSeverityLevel().HasValue ? this.severityLevel.TranslateSeverityLevel().Value.ToString() : null);
 
             serializationWriter.WriteProperty("properties", this.properties);

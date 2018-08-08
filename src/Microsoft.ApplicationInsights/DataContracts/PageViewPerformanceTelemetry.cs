@@ -11,7 +11,7 @@
     /// <summary>
     /// Telemetry type used to track page load performance.
     /// </summary>
-    public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IExtension
+    public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISerializableWithWriter
     {
         internal const string TelemetryName = "PageViewPerformance";
 
@@ -223,14 +223,6 @@
             this.Metrics.SanitizeMeasurements();
             this.Url = this.Url.SanitizeUri();
             this.Id.SanitizeName();
-        }
-
-        /// <summary>
-        /// Deeply clones the Extension of <see cref="PageViewPerformanceTelemetry"/> object.
-        /// </summary>
-        IExtension IExtension.DeepClone()
-        {
-            return new PageViewPerformanceTelemetry(this);
         }
 
         /// <inheritdoc/>

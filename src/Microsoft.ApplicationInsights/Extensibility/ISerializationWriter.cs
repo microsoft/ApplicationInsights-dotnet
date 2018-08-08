@@ -39,9 +39,9 @@
         void WriteProperty(string name, DateTimeOffset? value);
 
         /// <summary>
-        /// Writes name and value for a IExtension field
+        /// Writes name and value for a ISerializableWithWriter field
         /// </summary>
-        void WriteProperty(string name, IExtension value);
+        void WriteProperty(string name, ISerializableWithWriter value);
 
         /// <summary>
         /// Writes name and values for a IList field of strings
@@ -49,9 +49,9 @@
         void WriteProperty(string name, IList<string> items);
 
         /// <summary>
-        /// Writes name and values for a IList field of objects implementing IExtension
+        /// Writes name and values for a IList field of objects implementing ISerializableWithWriter
         /// </summary>
-        void WriteProperty(string name, IList<IExtension> items);
+        void WriteProperty(string name, IList<ISerializableWithWriter> items);
 
         /// <summary>
         /// Writes name and value for a IDictionary field with string,string as key,value

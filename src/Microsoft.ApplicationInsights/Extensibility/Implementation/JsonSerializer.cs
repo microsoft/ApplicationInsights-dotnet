@@ -155,9 +155,9 @@
 
         private static void SerializeTelemetryItem(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter)
         {                        
-            if (telemetryItem is IExtension)
+            if (telemetryItem is ISerializableWithWriter)
             {
-                IExtension telemetry = telemetryItem as IExtension;
+                ISerializableWithWriter telemetry = telemetryItem as ISerializableWithWriter;
                 jsonSerializationWriter.WriteStartObject();
                 telemetry.Serialize(jsonSerializationWriter);
                 jsonSerializationWriter.WriteEndObject();                

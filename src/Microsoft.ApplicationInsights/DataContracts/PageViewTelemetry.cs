@@ -18,7 +18,7 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
     /// </remarks>
-    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IExtension
+    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISerializableWithWriter
     {
         internal const string TelemetryName = "PageView";
 
@@ -174,14 +174,6 @@
         /// </summary>
         /// <returns>A cloned instance.</returns>
         public ITelemetry DeepClone()
-        {
-            return new PageViewTelemetry(this);
-        }
-
-        /// <summary>
-        /// Deeply clones the Extension of <see cref="PageViewTelemetry"/> object.
-        /// </summary>
-        IExtension IExtension.DeepClone()
         {
             return new PageViewTelemetry(this);
         }

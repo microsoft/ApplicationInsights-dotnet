@@ -13,7 +13,7 @@
     /// Telemetry type used to track custom events.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
     /// </summary>
-    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IExtension
+    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, ISerializableWithWriter
     {
         internal const string TelemetryName = "Event";
 
@@ -133,14 +133,6 @@
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(EventTelemetry).FullName);
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
-        }
-
-        /// <summary>
-        /// Deeply clones the Extension of <see cref="EventTelemetry"/> object.
-        /// </summary>
-        IExtension IExtension.DeepClone()
-        {
-            return new EventTelemetry(this);
         }
 
         /// <inheritdoc/>

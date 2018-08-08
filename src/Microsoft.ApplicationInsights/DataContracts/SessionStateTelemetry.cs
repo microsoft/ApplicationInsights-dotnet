@@ -8,7 +8,7 @@
     /// Telemetry type used to track user sessions.
     /// </summary>
     [Obsolete("Session state events are no longer used. This telemetry item will be sent as EventTelemetry.")]
-    public sealed class SessionStateTelemetry : ITelemetry, IExtension
+    public sealed class SessionStateTelemetry : ITelemetry, ISerializableWithWriter
     {
         internal readonly EventTelemetry Data;
 
@@ -128,14 +128,6 @@
         /// </summary>
         /// <returns>A cloned instance.</returns>
         public ITelemetry DeepClone()
-        {
-            return new SessionStateTelemetry(this);
-        }
-
-        /// <summary>
-        /// Deeply clones the Extension of <see cref="SessionStateTelemetry"/> object.
-        /// </summary>
-        IExtension IExtension.DeepClone()
         {
             return new SessionStateTelemetry(this);
         }

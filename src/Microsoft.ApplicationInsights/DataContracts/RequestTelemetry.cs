@@ -17,7 +17,7 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
     /// </remarks>
-    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling, IExtension
+    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling, ISerializableWithWriter
     {
         internal new const string TelemetryName = "Request";
 
@@ -267,14 +267,6 @@
                 this.ResponseCode = "200";
                 this.Success = true;
             }
-        }
-
-        /// <summary>
-        /// Deeply clones the Extension of <see cref="RequestTelemetry"/> object.
-        /// </summary>
-        IExtension IExtension.DeepClone()
-        {
-            return new RequestTelemetry(this);
         }
     }
 }

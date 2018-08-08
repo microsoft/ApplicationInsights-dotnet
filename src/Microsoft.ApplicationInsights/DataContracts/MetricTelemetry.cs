@@ -13,7 +13,7 @@
     /// Telemetry type used to track metrics. Represents a sample set of values with a specified count, sum, max, min, and standard deviation.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackmetric">Learn more</a>
     /// </summary>
-    public sealed class MetricTelemetry : ITelemetry, ISupportProperties, IExtension
+    public sealed class MetricTelemetry : ITelemetry, ISupportProperties, ISerializableWithWriter
     {
         internal const string TelemetryName = "Metric";
 
@@ -247,14 +247,6 @@
         /// </summary>
         /// <returns>A cloned instance.</returns>
         public ITelemetry DeepClone()
-        {
-            return new MetricTelemetry(this);
-        }
-
-        /// <summary>
-        /// Deeply clones the Extension of <see cref="MetricTelemetry"/> object.
-        /// </summary>
-        IExtension IExtension.DeepClone()
         {
             return new MetricTelemetry(this);
         }

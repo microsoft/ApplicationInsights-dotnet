@@ -3,15 +3,10 @@
     using System;
 
     /// <summary>
-    /// Partial class to add the EventData attribute and any additional customizations to the generated type.
+    /// Partial class to impelement ISerializableWithWriter
     /// </summary>    
-    internal partial class StackFrame : IExtension
+    internal partial class StackFrame : ISerializableWithWriter
     {
-        public IExtension DeepClone()
-        {
-            return null;
-        }
-
         public void Serialize(ISerializationWriter serializationWriter)
         {
             serializationWriter.WriteProperty("level", this.level);

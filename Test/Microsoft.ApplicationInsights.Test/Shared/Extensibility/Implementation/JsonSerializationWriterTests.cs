@@ -107,7 +107,7 @@
         }
     }
 
-    public class ComplexExtension : IExtension
+    public class ComplexExtension : ISerializableWithWriter
     {
         public string MyStringField;
         public int MyIntField;
@@ -119,49 +119,7 @@
         public IList<string> MyStringListField;
         public IList<MySubExtension> MyExtensionListField;
         public IDictionary<string, string> MyStringDictionaryField;
-        public IDictionary<string, double> MyDoubleDictionaryField;
-        
-        public IExtension DeepClone()
-        {
-            ComplexExtension other = new ComplexExtension();
-            other.MyStringField = this.MyStringField;
-            other.MyIntField = this.MyIntField;
-            other.MyDoubleField = this.MyDoubleField;
-            other.MyBoolField = this.MyBoolField;
-            other.MyTimeSpanField = this.MyTimeSpanField;
-            other.MyDateTimeOffsetField = this.MyDateTimeOffsetField;
-            other.MySubExtensionField = (MySubExtension) this.MySubExtensionField.DeepClone();
-
-            IList<string> otherString = new List<string>();
-            foreach(var item in this.MyStringListField)
-            {
-                otherString.Add(item);
-            }
-            other.MyStringListField = otherString;
-
-            IList<MySubExtension> others = new List<MySubExtension>();
-            foreach(var item in this.MyExtensionListField)
-            {
-                others.Add((MySubExtension) item.DeepClone());
-            }
-            other.MyExtensionListField = others;
-
-            IDictionary<string, string> otherStringDic = new Dictionary<string, string>();
-            foreach (var item in this.MyStringDictionaryField)
-            {
-                otherStringDic.Add(item.Key, item.Value);
-            }
-            other.MyStringDictionaryField = otherStringDic;
-
-            IDictionary<string, double> otherDoubleDic = new Dictionary<string, double>();
-            foreach (var item in this.MyDoubleDictionaryField)
-            {
-                otherDoubleDic.Add(item.Key, item.Value);
-            }
-            other.MyDoubleDictionaryField = otherDoubleDic;
-
-            return other;
-        }
+        public IDictionary<string, double> MyDoubleDictionaryField;                
 
         public void Serialize(ISerializationWriter serializationWriter)
         {            
@@ -173,26 +131,17 @@
             serializationWriter.WriteProperty("MyDateTimeOffsetField", MyDateTimeOffsetField);
             serializationWriter.WriteProperty("MySubExtensionField", MySubExtensionField);
             serializationWriter.WriteProperty("MyStringListField", MyStringListField);
-            serializationWriter.WriteProperty("MyExtensionListField", MyExtensionListField.ToList<IExtension>());
+            serializationWriter.WriteProperty("MyExtensionListField", MyExtensionListField.ToList<ISerializableWithWriter>());
             serializationWriter.WriteProperty("MyStringDictionaryField", MyStringDictionaryField);
             serializationWriter.WriteProperty("MyDoubleDictionaryField", MyDoubleDictionaryField);            
         }
     }
 
-    public class MySubExtension : IExtension
+    public class MySubExtension : ISerializableWithWriter
     {
         public string Field1;
         public int Field2;
-        public IExtension MySubSubExtension;
-
-        public IExtension DeepClone()
-        {
-            MySubExtension other = new MySubExtension();
-            other.Field1 = this.Field1;
-            other.Field2 = this.Field2;
-            other.MySubSubExtension = this.MySubSubExtension.DeepClone();
-            return other;
-        }
+        public ISerializableWithWriter MySubSubExtension;
 
         public void Serialize(ISerializationWriter serializationWriter)
         {
@@ -202,18 +151,10 @@
         }
     }
 
-    public class MySubSubExtension : IExtension
+    public class MySubSubExtension : ISerializableWithWriter
     {
         public string Field3;
         public double Field4;
-
-        public IExtension DeepClone()
-        {
-            MySubSubExtension other = new MySubSubExtension();
-            other.Field3 = this.Field3;
-            other.Field4 = this.Field4;
-            return other;
-        }
 
         public void Serialize(ISerializationWriter serializationWriter)
         {

@@ -6,20 +6,15 @@
     using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
-    /// Partial class to implement IExtension
+    /// Partial class to implement ISerializableWithWriter
     /// </summary>
-    internal partial class MetricData : IExtension
+    internal partial class MetricData : ISerializableWithWriter
     {
         public void Serialize(ISerializationWriter serializationWriter)
         {
             serializationWriter.WriteProperty("ver", this.ver);            
-            serializationWriter.WriteProperty("metrics", this.metrics.ToList<IExtension>());
+            serializationWriter.WriteProperty("metrics", this.metrics.ToList<ISerializableWithWriter>());
             serializationWriter.WriteProperty("properties", this.properties);
-        }
-
-        IExtension IExtension.DeepClone()
-        {
-            return this.DeepClone();
         }
     }
 }

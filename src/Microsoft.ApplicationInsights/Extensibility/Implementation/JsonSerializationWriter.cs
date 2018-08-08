@@ -115,7 +115,7 @@
         }
 
         /// <inheritdoc/>
-        public void WriteProperty(string name, IList<IExtension> items)
+        public void WriteProperty(string name, IList<ISerializableWithWriter> items)
         {
             bool commaNeeded = false;
             if (items != null && items.Count > 0)
@@ -140,7 +140,7 @@
         }
 
         /// <inheritdoc/>
-        public void WriteProperty(string name, IExtension value)
+        public void WriteProperty(string name, ISerializableWithWriter value)
         {
             this.WriteStartObject(name);
             value.Serialize(this);

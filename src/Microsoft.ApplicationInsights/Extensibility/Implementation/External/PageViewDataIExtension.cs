@@ -3,9 +3,9 @@
     using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
-    /// Partial class to implement IExtension
+    /// Partial class to implement ISerializableWithWriter
     /// </summary>
-    internal partial class PageViewData : IExtension
+    internal partial class PageViewData : ISerializableWithWriter
     {
         public new void Serialize(ISerializationWriter serializationWriter)
         {
@@ -15,11 +15,6 @@
             serializationWriter.WriteProperty("duration", Utils.ValidateDuration(this.duration));
             serializationWriter.WriteProperty("properties", this.properties);
             serializationWriter.WriteProperty("measurements", this.measurements);
-        }
-
-        IExtension IExtension.DeepClone()
-        {
-            return this.DeepClone();
         }
     }
 }

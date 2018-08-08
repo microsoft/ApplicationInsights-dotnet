@@ -1,9 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
     /// <summary>
-    /// Partial class to implement IExtension
+    /// Partial class to implement ISerializableWithWriter
     /// </summary>
-    internal partial class PageViewPerfData : IExtension
+    internal partial class PageViewPerfData : ISerializableWithWriter
     {
         public new void Serialize(ISerializationWriter serializationWriter)
         {
@@ -18,11 +18,6 @@
             serializationWriter.WriteProperty("receivedResponse", Utils.ValidateDuration(this.receivedResponse));
             serializationWriter.WriteProperty("properties", this.properties);
             serializationWriter.WriteProperty("measurements", this.measurements);
-        }
-
-        IExtension IExtension.DeepClone()
-        {
-            return this.DeepClone();
         }
     }
 }

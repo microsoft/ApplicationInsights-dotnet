@@ -16,7 +16,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// The class that represents information about the collected dependency.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=839889">Learn more.</a>
     /// </summary>
-    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IExtension
+    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, ISerializableWithWriter
     {
         internal new const string TelemetryName = "RemoteDependency";
 
@@ -366,14 +366,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Type = this.Type.SanitizeDependencyType();
             this.Data = this.Data.SanitizeData();
             this.Properties.SanitizeProperties();
-        }
-
-        /// <summary>
-        /// Deeply clones the Extension of <see cref="DependencyTelemetry"/> object.
-        /// </summary>
-        IExtension IExtension.DeepClone()
-        {
-            return new DependencyTelemetry(this);
         }
 
         /// <summary>
