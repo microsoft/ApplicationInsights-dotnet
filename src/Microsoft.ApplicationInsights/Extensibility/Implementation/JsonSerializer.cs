@@ -9,6 +9,7 @@
     using System.IO.Compression;
     using System.Text;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -157,6 +158,64 @@
         {                        
             if (telemetryItem is ISerializableWithWriter)
             {
+                if (telemetryItem is EventTelemetry)
+                {
+                    EventTelemetry eventTelemetry = telemetryItem as EventTelemetry;
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, eventTelemetry.Data.properties);
+                }
+                else if (telemetryItem is ExceptionTelemetry)
+                {
+                    ExceptionTelemetry exTelemetry = telemetryItem as ExceptionTelemetry;
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, exTelemetry.Data.Data.properties);
+                }
+                else if (telemetryItem is MetricTelemetry)
+                {
+                    MetricTelemetry mTelemetry = telemetryItem as MetricTelemetry;
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, mTelemetry.Data.properties);
+                }
+                else if (telemetryItem is PageViewTelemetry)
+                {
+                    PageViewTelemetry pvTelemetry = telemetryItem as PageViewTelemetry;
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pvTelemetry.Data.pvTelemetry);
+                }
+                else if (telemetryItem is PageViewPerformanceTelemetry)
+                {
+                    PageViewPerformanceTelemetry pvptelemetry = telemetryItem as PageViewPerformanceTelemetry;
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pvptelemetry.Data.properties);
+                }
+                else if (telemetryItem is DependencyTelemetry)
+                {
+                    DependencyTelemetry depTelemetry = telemetryItem as DependencyTelemetry;
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, depTelemetry.Data.properties);
+                }
+                else if (telemetryItem is RequestTelemetry)
+                {
+                    RequestTelemetry reqTelemetry = telemetryItem as RequestTelemetry;
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, reqTelemetry.Data.properties);
+                }
+#pragma warning disable 618
+                else if (telemetryItem is SessionStateTelemetry)
+                {
+                    SessionStateTelemetry sessionTelemetry = telemetryItem as SessionStateTelemetry;
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, sessionTelemetry.Data.properties);
+                }
+                else if (telemetryItem is PerformanceCounterTelemetry)
+                {
+                    PerformanceCounterTelemetry pcTelemetry = telemetryItem as PerformanceCounterTelemetry;
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pcTelemetry.Data.properties);
+                }
+#pragma warning restore 618
+                else if (telemetryItem is TraceTelemetry)
+                {
+                    TraceTelemetry traceTelemetry = telemetryItem as TraceTelemetry;
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, traceTelemetry.Data.properties);
+                }                
+                else if (telemetryItem is AvailabilityTelemetry)
+                {
+                    AvailabilityTelemetry availabilityTelemetry = telemetryItem as AvailabilityTelemetry;
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, availabilityTelemetry.Data.properties);
+                }
+
                 ISerializableWithWriter telemetry = telemetryItem as ISerializableWithWriter;
                 jsonSerializationWriter.WriteStartObject();
                 telemetry.Serialize(jsonSerializationWriter);

@@ -141,7 +141,6 @@
         {
             serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
             this.WriteEnvelopeProperties(serializationWriter);
-            Utils.CopyDictionary(this.Context.GlobalProperties, this.Data.properties);
             serializationWriter.WriteStartObject("data");
             serializationWriter.WriteProperty("baseType", this.BaseType);
             serializationWriter.WriteProperty("baseData", this.Data);            

@@ -345,9 +345,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public override void Serialize(ISerializationWriter serializationWriter)
         {            
             serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
-            this.WriteEnvelopeProperties(serializationWriter);          
-
-            Utils.CopyDictionary(this.Context.GlobalProperties, this.InternalData.properties);
+            this.WriteEnvelopeProperties(serializationWriter);                      
             serializationWriter.WriteStartObject("data");
             serializationWriter.WriteProperty("baseType", this.BaseType);
             serializationWriter.WriteProperty("baseData", this.InternalData);            
