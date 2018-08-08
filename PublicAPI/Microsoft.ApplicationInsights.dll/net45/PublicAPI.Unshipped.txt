@@ -86,26 +86,26 @@ Microsoft.ApplicationInsights.Metric.TryGetDataSeries(out Microsoft.ApplicationI
 Microsoft.ApplicationInsights.Metric.TryGetDataSeries(out Microsoft.ApplicationInsights.Metrics.MetricSeries series, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value) -> bool
 Microsoft.ApplicationInsights.Metric.TryGetDataSeries(out Microsoft.ApplicationInsights.Metrics.MetricSeries series, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value, string dimension9Value) -> bool
 Microsoft.ApplicationInsights.Metric.TryGetDataSeries(out Microsoft.ApplicationInsights.Metrics.MetricSeries series, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value, string dimension9Value, string dimension10Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(double metricValue, string dimension1Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(double metricValue, string dimension1Value, string dimension2Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value, string dimension9Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value, string dimension9Value, string dimension10Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(object metricValue, string dimension1Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(object metricValue, string dimension1Value, string dimension2Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value, string dimension9Value) -> bool
-Microsoft.ApplicationInsights.Metric.TryTrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value, string dimension9Value, string dimension10Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue, string dimension1Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue, string dimension1Value, string dimension2Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value, string dimension9Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(double metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value, string dimension9Value, string dimension10Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(object metricValue, string dimension1Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(object metricValue, string dimension1Value, string dimension2Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value, string dimension9Value) -> bool
+Microsoft.ApplicationInsights.Metric.TrackValue(object metricValue, string dimension1Value, string dimension2Value, string dimension3Value, string dimension4Value, string dimension5Value, string dimension6Value, string dimension7Value, string dimension8Value, string dimension9Value, string dimension10Value) -> bool
 Microsoft.ApplicationInsights.MetricAggregationScope
 Microsoft.ApplicationInsights.MetricAggregationScope.TelemetryClient = 1 -> Microsoft.ApplicationInsights.MetricAggregationScope
 Microsoft.ApplicationInsights.MetricAggregationScope.TelemetryConfiguration = 0 -> Microsoft.ApplicationInsights.MetricAggregationScope
@@ -203,16 +203,12 @@ Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.AggregateKindDataKeys.get -> Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.DataKeysConstants
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.AggregateKindMoniker.get -> string
-Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants
-Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindDataKeys
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.DataKeysConstants
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.DataKeysConstants.Count.get -> string
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.DataKeysConstants.Max.get -> string
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.DataKeysConstants.Min.get -> string
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.DataKeysConstants.StdDev.get -> string
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.DataKeysConstants.Sum.get -> string
-Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants
-Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.CreateNewAggregator(Microsoft.ApplicationInsights.Metrics.MetricSeries dataSeries, Microsoft.ApplicationInsights.Metrics.Extensibility.MetricAggregationCycleKind aggregationCycleKind) -> Microsoft.ApplicationInsights.Metrics.Extensibility.IMetricSeriesAggregator
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Equals(Microsoft.ApplicationInsights.Metrics.IMetricSeriesConfiguration other) -> bool
 Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Equals(Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement other) -> bool
@@ -276,18 +272,6 @@ const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.User.A
 const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.User.Id = "TelemetryContext.User.Id" -> string
 const Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext.User.UserAgent = "TelemetryContext.User.UserAgent" -> string
 const Microsoft.ApplicationInsights.Metrics.MetricIdentifier.MaxDimensionsCount = 10 -> int
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindDataKeys.Count = "Count" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindDataKeys.Max = "Max" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindDataKeys.Min = "Min" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindDataKeys.StdDev = "StdDev" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindDataKeys.Sum = "Sum" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Constants.AggregateKindMoniker = "Microsoft.Azure.Measurement" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys.Count = "Count" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys.Max = "Max" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys.Min = "Min" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys.StdDev = "StdDev" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants.AggregateKindDataKeys.Sum = "Sum" -> string
-const Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.Constants.AggregateKindMoniker = "Microsoft.Azure.Measurement" -> string
 override Microsoft.ApplicationInsights.Metrics.MetricConfiguration.Equals(object obj) -> bool
 override Microsoft.ApplicationInsights.Metrics.MetricConfiguration.GetHashCode() -> int
 override Microsoft.ApplicationInsights.Metrics.MetricIdentifier.Equals(object otherObj) -> bool
@@ -310,3 +294,42 @@ virtual Microsoft.ApplicationInsights.Metrics.MetricConfiguration.Equals(Microso
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Flags.get -> long
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Flags.set -> void
 const Microsoft.ApplicationInsights.DataContracts.TelemetryContext.FlagDropIdentifiers = 2097152 -> long
+Microsoft.ApplicationInsights.Channel.ITelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.Channel.ITelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.SessionStateTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.SessionStateTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Extension.set -> void
+override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Extension.set -> void
+override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Extension.set -> void
+abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.Extensibility.IExtension.DeepClone() -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.Extensibility.IExtension.Serialize(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteDictionary(string name, System.Collections.Generic.IDictionary<string, string> items) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteEndObject(string name) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteList(string name, System.Collections.Generic.IList<string> items) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.TimeSpan? value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, bool? value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, double? value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, int? value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, string value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteStartObject(string name) -> void

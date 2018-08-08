@@ -505,7 +505,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             eventSourceOptionsKeywordsProperty.SetValue(eventSourceOptions, keywords);
             var dummyExceptionData = new ExceptionData();
             var dummyExceptionDetails = new ExceptionDetails();
-            var dummyStackFrame = new StackFrame();
+            var dummyStackFrame = new External.StackFrame();
             var writeMethod = writeGenericMethod.MakeGenericMethod(new
             {
                 PartA_iKey = this.dummyPartAiKeyValue,
@@ -553,7 +553,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     item.Sanitize();
                     var telemetryItem = item as ExceptionTelemetry;
-                    var data = telemetryItem.Data;
+                    var data = telemetryItem.Data.Data;
                     var extendedData = new
                     {
                         // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod

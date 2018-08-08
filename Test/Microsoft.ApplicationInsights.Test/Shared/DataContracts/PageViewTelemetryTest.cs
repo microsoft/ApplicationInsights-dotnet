@@ -164,12 +164,21 @@
             pageView.Duration = TimeSpan.FromSeconds(123);
             pageView.Metrics.Add("Metric1", 30);
             pageView.Properties.Add("Property1", "Value1");
-
+            pageView.Extension = new MyTestExtension();
             PageViewTelemetry other = (PageViewTelemetry)pageView.DeepClone();
 
             CompareLogic deepComparator = new CompareLogic();
             var result = deepComparator.Compare(pageView, other);
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
+        }
+
+        [TestMethod]
+        public void PageViewTelemetryDeepCloneWithNullExtensionDoesNotThrow()
+        {
+            var telemetry = new PageViewTelemetry();
+            // Extension is not set, means it'll be null.
+            // Validate that cloning with null Extension does not throw.
+            var other = telemetry.DeepClone();
         }
     }
 }

@@ -144,7 +144,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     ExceptionTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
+                    telemetryItem.Data.Data,
                     telemetryItem.Context.Flags,
                     Keywords.Exceptions);
             }
