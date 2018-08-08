@@ -13,7 +13,7 @@
     /// Telemetry type used to track custom events.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
     /// </summary>
-    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, ISerializableWithWriter
+    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
     {
         internal const string TelemetryName = "Event";
 

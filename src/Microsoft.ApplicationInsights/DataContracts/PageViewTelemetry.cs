@@ -18,7 +18,7 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
     /// </remarks>
-    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISerializableWithWriter
+    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling
     {
         internal const string TelemetryName = "PageView";
 

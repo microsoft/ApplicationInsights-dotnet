@@ -13,7 +13,7 @@
     /// Telemetry type used to track exceptions.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=723596">Learn more</a>
     /// </summary>
-    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, ISerializableWithWriter
+    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
     {
         internal const string TelemetryName = "Exception";
         internal readonly string BaseType = typeof(ExceptionData).Name;

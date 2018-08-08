@@ -8,7 +8,7 @@
     /// Telemetry type used to track user sessions.
     /// </summary>
     [Obsolete("Session state events are no longer used. This telemetry item will be sent as EventTelemetry.")]
-    public sealed class SessionStateTelemetry : ITelemetry, ISerializableWithWriter
+    public sealed class SessionStateTelemetry : ITelemetry
     {
         internal readonly EventTelemetry Data;
 

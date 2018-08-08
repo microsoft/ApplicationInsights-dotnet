@@ -10,7 +10,7 @@
     /// The class that represents information about performance counters.
     /// </summary>
     [Obsolete("Use MetricTelemetry instead.")]
-    public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties, ISerializableWithWriter
+    public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties
     {
         internal readonly MetricTelemetry Data;        
         private string categoryName = string.Empty;

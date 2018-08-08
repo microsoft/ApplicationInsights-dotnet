@@ -49,5 +49,10 @@
         /// </summary>
         /// <returns>The cloned object.</returns>
         ITelemetry DeepClone();
+
+        /// <summary>
+        /// Writes serialization info about the class using the given <see cref="ISerializationWriter"/>
+        /// </summary>
+        void Serialize(ISerializationWriter serializationWriter);
     }
 }

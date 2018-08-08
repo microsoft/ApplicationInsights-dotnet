@@ -11,7 +11,7 @@
     /// <summary>
     /// Telemetry type used to track page load performance.
     /// </summary>
-    public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISerializableWithWriter
+    public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportSampling
     {
         internal const string TelemetryName = "PageViewPerformance";
 

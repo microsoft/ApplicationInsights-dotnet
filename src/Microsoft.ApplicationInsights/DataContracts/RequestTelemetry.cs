@@ -17,7 +17,7 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
     /// </remarks>
-    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling, ISerializableWithWriter
+    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling
     {
         internal new const string TelemetryName = "Request";
 
@@ -236,7 +236,7 @@
         }
 
         /// <inheritdoc/>
-        public void Serialize(ISerializationWriter serializationWriter)
+        public override void Serialize(ISerializationWriter serializationWriter)
         {
             serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
             this.WriteEnvelopeProperties(serializationWriter);
