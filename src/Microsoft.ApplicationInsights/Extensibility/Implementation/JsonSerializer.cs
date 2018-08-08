@@ -156,8 +156,6 @@
 
         private static void SerializeTelemetryItem(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter)
         {                        
-            if (telemetryItem is ISerializableWithWriter)
-            {
                 if (telemetryItem is EventTelemetry)
                 {
                     EventTelemetry eventTelemetry = telemetryItem as EventTelemetry;
@@ -210,17 +208,10 @@
                     AvailabilityTelemetry availabilityTelemetry = telemetryItem as AvailabilityTelemetry;
                     Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, availabilityTelemetry.Data.properties);
                 }
-
-                ISerializableWithWriter telemetry = telemetryItem as ISerializableWithWriter;
+                
                 jsonSerializationWriter.WriteStartObject();
-                telemetry.Serialize(jsonSerializationWriter);
-                jsonSerializationWriter.WriteEndObject();                
-            }                
-            else
-            {
-                string msg = string.Format(CultureInfo.InvariantCulture, "Unable to serialize. Unknown telemetry type: {0}", telemetryItem.GetType());                
-                CoreEventSource.Log.LogVerbose(msg);
-            }
+                telemetryItem.Serialize(jsonSerializationWriter);
+                jsonSerializationWriter.WriteEndObject();
         }
 
         /// <summary>
