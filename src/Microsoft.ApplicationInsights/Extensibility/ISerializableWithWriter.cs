@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     /// <summary>
-    /// Interface for defining objects which can be serialized with a given <see cref="ISerializationWriter"
+    /// Interface for defining objects which can be serialized with a given <see cref="ISerializationWriter"/>
     /// </summary>
     public interface ISerializableWithWriter
     {

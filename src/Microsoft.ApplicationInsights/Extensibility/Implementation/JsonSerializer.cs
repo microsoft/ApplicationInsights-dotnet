@@ -176,7 +176,7 @@
                 else if (telemetryItem is PageViewTelemetry)
                 {
                     PageViewTelemetry pvTelemetry = telemetryItem as PageViewTelemetry;
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pvTelemetry.Data.pvTelemetry);
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pvTelemetry.Data.properties);
                 }
                 else if (telemetryItem is PageViewPerformanceTelemetry)
                 {
@@ -186,7 +186,7 @@
                 else if (telemetryItem is DependencyTelemetry)
                 {
                     DependencyTelemetry depTelemetry = telemetryItem as DependencyTelemetry;
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, depTelemetry.Data.properties);
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, depTelemetry.InternalData.properties);
                 }
                 else if (telemetryItem is RequestTelemetry)
                 {
@@ -194,15 +194,10 @@
                     Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, reqTelemetry.Data.properties);
                 }
 #pragma warning disable 618
-                else if (telemetryItem is SessionStateTelemetry)
-                {
-                    SessionStateTelemetry sessionTelemetry = telemetryItem as SessionStateTelemetry;
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, sessionTelemetry.Data.properties);
-                }
                 else if (telemetryItem is PerformanceCounterTelemetry)
                 {
                     PerformanceCounterTelemetry pcTelemetry = telemetryItem as PerformanceCounterTelemetry;
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pcTelemetry.Data.properties);
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pcTelemetry.Properties);
                 }
 #pragma warning restore 618
                 else if (telemetryItem is TraceTelemetry)
