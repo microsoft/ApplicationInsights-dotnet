@@ -49,7 +49,7 @@
 
         public void Serialize(ISerializationWriter serializationWriter)
         {
-            throw new NotImplementedException();
+            
         }
     }
 }
