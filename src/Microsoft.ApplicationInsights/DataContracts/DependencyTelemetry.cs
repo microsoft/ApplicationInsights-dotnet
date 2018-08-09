@@ -348,7 +348,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.WriteEnvelopeProperties(serializationWriter);                      
             serializationWriter.WriteStartObject("data");
             serializationWriter.WriteProperty("baseType", this.BaseType);
-            serializationWriter.WriteProperty("baseData", this.InternalData);            
+            serializationWriter.WriteProperty("baseData", this.InternalData);
+            serializationWriter.WriteProperty("extension", this.Extension);
             serializationWriter.WriteEndObject(); // data            
         }
 

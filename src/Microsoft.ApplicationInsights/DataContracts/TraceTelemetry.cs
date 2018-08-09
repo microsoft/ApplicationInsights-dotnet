@@ -143,7 +143,8 @@
             this.WriteEnvelopeProperties(serializationWriter);
             serializationWriter.WriteStartObject("data");
             serializationWriter.WriteProperty("baseType", this.BaseType);
-            serializationWriter.WriteProperty("baseData", this.Data);            
+            serializationWriter.WriteProperty("baseData", this.Data);
+            serializationWriter.WriteProperty("extension", this.Extension);
             serializationWriter.WriteEndObject(); // data
         }
 

@@ -142,9 +142,12 @@
         /// <inheritdoc/>
         public void WriteProperty(string name, ISerializableWithWriter value)
         {
-            this.WriteStartObject(name);
-            value.Serialize(this);
-            this.WriteEndObject();
+            if (value != null)
+            {
+                this.WriteStartObject(name);
+                value.Serialize(this);
+                this.WriteEndObject();
+            }
         }
 
         /// <inheritdoc/>
