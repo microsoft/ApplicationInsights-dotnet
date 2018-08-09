@@ -322,16 +322,18 @@ abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTel
 abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Extension.set -> void
 Microsoft.ApplicationInsights.Extensibility.IExtension
 Microsoft.ApplicationInsights.Extensibility.IExtension.DeepClone() -> Microsoft.ApplicationInsights.Extensibility.IExtension
-Microsoft.ApplicationInsights.Extensibility.IExtension.Serialize(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
 Microsoft.ApplicationInsights.Extensibility.ISerializationWriter
-Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteDictionary(string name, System.Collections.Generic.IDictionary<string, string> items) -> void
-Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteDictionary(string name, System.Collections.Generic.IDictionary<string, double> items) -> void
-Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteEndObject(string name) -> void
-Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteList(string name, System.Collections.Generic.IList<string> items) -> void
-Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.TimeSpan? value) -> void
-Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.DateTimeOffset? value) -> void
-Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, bool? value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, string value) -> void
 Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, double? value) -> void
 Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, int? value) -> void
-Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, string value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, bool? value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.TimeSpan? value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.DateTimeOffset? value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, Microsoft.ApplicationInsights.Extensibility.ISerializableWithWriter value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.Collections.Generic.IList<string> items) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.Collections.Generic.IList<Microsoft.ApplicationInsights.Extensibility.ISerializableWithWriter> items) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.Collections.Generic.IDictionary<string, string> items) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.Collections.Generic.IDictionary<string, double> items) -> void
 Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteStartObject(string name) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteStartObject() -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteEndObject() -> void
