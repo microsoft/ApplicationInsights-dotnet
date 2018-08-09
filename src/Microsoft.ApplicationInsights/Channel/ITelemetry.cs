@@ -21,7 +21,7 @@
 
         /// <summary>
         /// Gets or sets gets the extension used to extend this telemetry instance using new strongly
-        /// typed object. <TODO: Write a note about customers using AI Default channels>
+        /// typed object.
         /// </summary>
         IExtension Extension { get; set; }
 
