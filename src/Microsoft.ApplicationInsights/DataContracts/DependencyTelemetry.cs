@@ -4,6 +4,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -127,7 +128,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strongly typed object.
         /// </summary>
         public override IExtension Extension
         {
@@ -338,6 +339,18 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public void SetOperationDetail(string key, object detail)
         {
             this.OperationDetails[key] = detail;
+        }
+
+        /// <inheritdoc/>
+        public override void Serialize(ISerializationWriter serializationWriter)
+        {            
+            serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
+            this.WriteEnvelopeProperties(serializationWriter);                      
+            serializationWriter.WriteStartObject("data");
+            serializationWriter.WriteProperty("baseType", this.BaseType);
+            serializationWriter.WriteProperty("baseData", this.InternalData);
+            serializationWriter.WriteProperty("extension", this.Extension);
+            serializationWriter.WriteEndObject(); // data            
         }
 
         /// <summary>

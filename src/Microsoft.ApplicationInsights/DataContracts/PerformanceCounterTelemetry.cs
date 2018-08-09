@@ -192,6 +192,12 @@
             return new PerformanceCounterTelemetry(this);
         }
 
+        /// <inheritdoc/>
+        public void Serialize(ISerializationWriter serializationWriter)
+        {
+            this.Data.Serialize(serializationWriter);
+        }
+
         /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>

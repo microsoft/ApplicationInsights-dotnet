@@ -20,7 +20,8 @@
         TelemetryContext Context { get; }
 
         /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strongly typed object.
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strongly
+        /// typed object.
         /// </summary>
         IExtension Extension { get; set; }
 
@@ -49,5 +50,10 @@
         /// </summary>
         /// <returns>The cloned object.</returns>
         ITelemetry DeepClone();
+
+        /// <summary>
+        /// Writes serialization info about the class using the given <see cref="ISerializationWriter"/>
+        /// </summary>
+        void Serialize(ISerializationWriter serializationWriter);
     }
 }

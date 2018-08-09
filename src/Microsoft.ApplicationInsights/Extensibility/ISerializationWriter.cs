@@ -34,14 +34,34 @@
         void WriteProperty(string name, TimeSpan? value);
 
         /// <summary>
-        /// Writes name and values for a IList field
+        /// Writes name and value for a DateTimeOffset field
         /// </summary>
-        void WriteList(string name, IList<string> items);
+        void WriteProperty(string name, DateTimeOffset? value);
 
         /// <summary>
-        /// Writes name and value for a IDictionary field
+        /// Writes name and value for a ISerializableWithWriter field
         /// </summary>
-        void WriteDictionary(string name, IDictionary<string, string> items);
+        void WriteProperty(string name, ISerializableWithWriter value);
+
+        /// <summary>
+        /// Writes name and values for a IList field of strings
+        /// </summary>
+        void WriteProperty(string name, IList<string> items);
+
+        /// <summary>
+        /// Writes name and values for a IList field of objects implementing ISerializableWithWriter
+        /// </summary>
+        void WriteProperty(string name, IList<ISerializableWithWriter> items);
+
+        /// <summary>
+        /// Writes name and value for a IDictionary field with string,string as key,value
+        /// </summary>
+        void WriteProperty(string name, IDictionary<string, string> items);
+
+        /// <summary>
+        /// Writes name and value for a IDictionary field with string,string as key,value
+        /// </summary>
+        void WriteProperty(string name, IDictionary<string, double> items);
 
         /// <summary>
         /// Marks beginning of a complex object.
@@ -49,8 +69,13 @@
         void WriteStartObject(string name);
 
         /// <summary>
+        /// Marks beginning of a complex object.
+        /// </summary>
+        void WriteStartObject();
+
+        /// <summary>
         /// Marks ending of a complex object.
         /// </summary>
-        void WriteEndObject(string name);
+        void WriteEndObject();
     }
 }

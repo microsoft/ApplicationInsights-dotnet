@@ -13,7 +13,7 @@
         internal readonly EventTelemetry Data;
 
         private readonly string startEventName = "Session started";
-        private readonly string endEventName = "Session ended";        
+        private readonly string endEventName = "Session ended";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SessionStateTelemetry"/> class.
@@ -138,6 +138,12 @@
         void ITelemetry.Sanitize()
         {
             ((ITelemetry)this.Data).Sanitize();
+        }
+
+        /// <inheritdoc/>
+        public void Serialize(ISerializationWriter serializationWriter)
+        {
+            this.Data.Serialize(serializationWriter);
         }
     }
 }

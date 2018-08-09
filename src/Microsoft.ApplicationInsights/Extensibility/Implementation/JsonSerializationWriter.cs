@@ -1,72 +1,47 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
-{
+{    
     using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
-    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
 
-    internal class JsonWriter : IJsonWriter
+    internal class JsonSerializationWriter : ISerializationWriter
     {
-        private readonly EmptyObjectDetector emptyObjectDetector;
         private readonly TextWriter textWriter;
         private bool currentObjectHasProperties;
 
-        internal JsonWriter(TextWriter textWriter)
+        public JsonSerializationWriter(TextWriter textWriter)
         {
-            this.emptyObjectDetector = new EmptyObjectDetector();
-            this.textWriter = textWriter;
+            this.textWriter = textWriter;            
         }
 
-        public void WriteStartArray()
-        {
-            this.textWriter.Write('[');
-        }
-
+        /// <inheritdoc/>
         public void WriteStartObject()
-        {
+        {        
             this.textWriter.Write('{');
             this.currentObjectHasProperties = false;
         }
 
-        public void WriteEndArray()
+        /// <inheritdoc/>
+        public void WriteStartObject(string name)
         {
-            this.textWriter.Write(']');
-        }
+            this.WritePropertyName(name);
+            this.textWriter.Write('{');
+            this.currentObjectHasProperties = false;
+        }        
 
-        public void WriteEndObject()
-        {
-            this.textWriter.Write('}');
-        }
-
-        public void WriteComma()
-        {
-            this.textWriter.Write(',');
-        }
-
-        public void WriteRawValue(object value)
-        {
-            this.textWriter.Write(string.Format(CultureInfo.InvariantCulture, "{0}", value));
-        }
-
+        /// <inheritdoc/>
         public void WriteProperty(string name, string value)
         {
             if (!string.IsNullOrEmpty(value))
-            { 
+            {
                 this.WritePropertyName(name);
                 this.WriteString(value);
             }
         }
 
-        public void WriteProperty(string name, bool? value)
-        {
-            if (value.HasValue)
-            {
-                this.WritePropertyName(name);
-                this.textWriter.Write(value.Value ? "true" : "false");
-            }
-        }
-
+        /// <inheritdoc/>
         public void WriteProperty(string name, int? value)
         {
             if (value.HasValue)
@@ -76,6 +51,17 @@
             }
         }
 
+        /// <inheritdoc/>
+        public void WriteProperty(string name, bool? value)
+        {
+            if (value.HasValue)
+            {
+                this.WritePropertyName(name);
+                this.textWriter.Write(value.Value ? "true" : "false");
+            }
+        }
+
+        /// <inheritdoc/>
         public void WriteProperty(string name, double? value)
         {
             if (value.HasValue)
@@ -85,6 +71,7 @@
             }
         }
 
+        /// <inheritdoc/>
         public void WriteProperty(string name, TimeSpan? value)
         {
             if (value.HasValue)
@@ -93,6 +80,7 @@
             }
         }
 
+        /// <inheritdoc/>
         public void WriteProperty(string name, DateTimeOffset? value)
         {
             if (value.HasValue)
@@ -101,6 +89,68 @@
             }
         }
 
+        /// <inheritdoc/>
+        public void WriteProperty(string name, IList<string> items)
+        {
+            bool commaNeeded = false;
+            if (items != null && items.Count > 0)
+            {
+                this.WritePropertyName(name);
+
+                this.WriteStartArray();
+
+                foreach (var item in items)
+                {
+                    if (commaNeeded)
+                    {
+                        this.WriteComma();
+                    }
+
+                    this.WriteString(item);
+                    commaNeeded = true;
+                }
+
+                this.WriteEndArray();
+            }
+        }
+
+        /// <inheritdoc/>
+        public void WriteProperty(string name, IList<ISerializableWithWriter> items)
+        {
+            bool commaNeeded = false;
+            if (items != null && items.Count > 0)
+            {
+                this.WritePropertyName(name);
+                this.WriteStartArray();
+                foreach (var item in items)
+                {                    
+                    if (commaNeeded)
+                    {
+                        this.WriteComma();
+                    }
+
+                    this.WriteStartObject();
+                    item.Serialize(this);
+                    commaNeeded = true;
+                    this.WriteEndObject();
+                }
+
+                this.WriteEndArray();                
+            }
+        }
+
+        /// <inheritdoc/>
+        public void WriteProperty(string name, ISerializableWithWriter value)
+        {
+            if (value != null)
+            {
+                this.WriteStartObject(name);
+                value.Serialize(this);
+                this.WriteEndObject();
+            }
+        }
+
+        /// <inheritdoc/>
         public void WriteProperty(string name, IDictionary<string, double> values)
         {
             if (values != null && values.Count > 0)
@@ -116,6 +166,7 @@
             }
         }
 
+        /// <inheritdoc/>
         public void WriteProperty(string name, IDictionary<string, string> values)
         {
             if (values != null && values.Count > 0)
@@ -131,14 +182,13 @@
             }
         }
 
-        /// <summary>
-        /// Writes the specified property name enclosed in double quotation marks followed by a colon.
-        /// </summary>
-        /// <remarks>
-        /// When this method is called multiple times, the second call after <see cref="WriteStartObject"/>
-        /// and all subsequent calls will write a coma before the name.
-        /// </remarks>
-        public void WritePropertyName(string name)
+        /// <inheritdoc/>
+        public void WriteEndObject()
+        {
+            this.textWriter.Write('}');
+        }
+
+        internal void WritePropertyName(string name)
         {
             if (name == null)
             {
@@ -162,8 +212,28 @@
             this.WriteString(name);
             this.textWriter.Write(':');
         }
-        
-        protected void WriteString(string value)
+
+        internal void WriteStartArray()
+        {
+            this.textWriter.Write('[');
+        }
+
+        internal void WriteEndArray()
+        {
+            this.textWriter.Write(']');
+        }
+
+        internal void WriteComma()
+        {
+            this.textWriter.Write(',');
+        }
+
+        internal void WriteRawValue(object value)
+        {
+            this.textWriter.Write(string.Format(CultureInfo.InvariantCulture, "{0}", value));
+        }
+
+        internal void WriteString(string value)
         {
             this.textWriter.Write('"');
 
@@ -208,107 +278,6 @@
             }
 
             this.textWriter.Write('"');
-        }
-
-        private sealed class EmptyObjectDetector : IJsonWriter
-        {
-            public bool IsEmpty { get; set; }
-
-            public void WriteStartArray()
-            {
-            }
-            
-            public void WriteStartObject()
-            {
-            }
-
-            public void WriteEndArray()
-            {
-            }
-
-            public void WriteEndObject()
-            {
-            }
-
-            public void WriteComma()
-            {
-            }
-
-            public void WriteProperty(string name, string value)
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    this.IsEmpty = false;
-                }
-            }
-
-            public void WriteProperty(string name, bool? value)
-            {
-                if (value.HasValue)
-                {
-                    this.IsEmpty = false;
-                }
-            }
-
-            public void WriteProperty(string name, int? value)
-            {
-                if (value.HasValue)
-                {
-                    this.IsEmpty = false;
-                }
-            }
-
-            public void WriteProperty(string name, double? value)
-            {
-                if (value.HasValue)
-                {
-                    this.IsEmpty = false;
-                }
-            }
-
-            public void WriteProperty(string name, TimeSpan? value)
-            {
-                if (value.HasValue)
-                {
-                    this.IsEmpty = false;
-                }
-            }
-
-            public void WriteProperty(string name, DateTimeOffset? value)
-            {
-                if (value.HasValue)
-                {
-                    this.IsEmpty = false;
-                }
-            }
-
-            public void WriteProperty(string name, IDictionary<string, double> value)
-            {
-                if (value != null && value.Count > 0)
-                {
-                    this.IsEmpty = false;
-                }                
-            }
-
-            public void WriteProperty(string name, IDictionary<string, string> value)
-            {
-                if (value != null && value.Count > 0)
-                {
-                    this.IsEmpty = false;
-                }
-            }
-
-            public void WritePropertyName(string name)
-            {
-            }
-
-            public void WriteRawValue(object value)
-            {
-                if (value != null)
-                {
-                    this.IsEmpty = false;
-                }
-            }
         }
     }
 }

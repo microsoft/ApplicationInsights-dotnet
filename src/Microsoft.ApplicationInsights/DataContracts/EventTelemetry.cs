@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -132,6 +133,18 @@
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(EventTelemetry).FullName);
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
+        }
+
+        /// <inheritdoc/>
+        public void Serialize(ISerializationWriter serializationWriter)
+        {            
+            serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
+            this.WriteEnvelopeProperties(serializationWriter);            
+            serializationWriter.WriteStartObject("data");
+            serializationWriter.WriteProperty("baseType", this.BaseType);
+            serializationWriter.WriteProperty("baseData", this.Data);
+            serializationWriter.WriteProperty("extension", this.Extension);
+            serializationWriter.WriteEndObject(); // data            
         }
     }
 }

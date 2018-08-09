@@ -46,5 +46,10 @@
         {
             this.OnSendEvent(writer);
         }
+
+        public void Serialize(ISerializationWriter serializationWriter)
+        {
+            
+        }
     }
 }

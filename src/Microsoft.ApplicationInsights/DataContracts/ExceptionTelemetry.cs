@@ -277,6 +277,18 @@
             return new ExceptionTelemetry(this);
         }
 
+        /// <inheritdoc/>
+        public void Serialize(ISerializationWriter serializationWriter)
+        {            
+            serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
+            this.WriteEnvelopeProperties(serializationWriter);            
+            serializationWriter.WriteStartObject("data");
+            serializationWriter.WriteProperty("baseType", this.BaseType);
+            serializationWriter.WriteProperty("baseData", this.Data.Data);
+            serializationWriter.WriteProperty("extension", this.Extension);
+            serializationWriter.WriteEndObject(); // data            
+        }
+
         /// <summary>
         /// Set parsedStack from an array of StackFrame objects.
         /// </summary>
