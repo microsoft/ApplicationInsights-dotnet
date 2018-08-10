@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 2.7.1
+## Version 2.7.2
 - [Fix ServiceBus requests correlation](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/970)
 
 ## Version 2.7.0-beta4
