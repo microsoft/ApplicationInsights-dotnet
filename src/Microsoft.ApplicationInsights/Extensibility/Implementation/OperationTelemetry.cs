@@ -102,6 +102,9 @@
         /// <inheritdoc/>
         public abstract void Serialize(ISerializationWriter serializationWriter);
 
+        /// <inheritdoc/>
+        public abstract void SerializeData(ISerializationWriter serializationWriter);
+
         /// <summary>
         /// Sets operation Id.
         /// </summary>

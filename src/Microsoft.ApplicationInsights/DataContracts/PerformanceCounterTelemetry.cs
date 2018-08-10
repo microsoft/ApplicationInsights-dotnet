@@ -198,6 +198,12 @@
             this.Data.Serialize(serializationWriter);
         }
 
+        /// <inheritdoc/>
+        public void SerializeData(ISerializationWriter serializationWriter)
+        {
+            this.Data.SerializeData(serializationWriter);
+        }
+
         /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>

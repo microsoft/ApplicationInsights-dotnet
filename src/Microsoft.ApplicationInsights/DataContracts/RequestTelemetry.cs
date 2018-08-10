@@ -242,9 +242,15 @@
             this.WriteEnvelopeProperties(serializationWriter);
             serializationWriter.WriteStartObject("data");
             serializationWriter.WriteProperty("baseType", this.BaseType);
-            serializationWriter.WriteProperty("baseData", this.Data);
-            serializationWriter.WriteProperty("extension", this.Extension);
+            this.SerializeData(serializationWriter);
             serializationWriter.WriteEndObject(); // data
+        }
+
+        /// <inheritdoc/>
+        public override void SerializeData(ISerializationWriter serializationWriter)
+        {            
+            serializationWriter.WriteProperty("baseData", this.Data);
+            serializationWriter.WriteProperty("extension", this.Extension);            
         }
 
         /// <summary>

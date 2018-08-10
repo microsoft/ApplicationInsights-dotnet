@@ -55,5 +55,10 @@
         /// Writes serialization info about the class using the given <see cref="ISerializationWriter"/>
         /// </summary>
         void Serialize(ISerializationWriter serializationWriter);
+
+        /// <summary>
+        /// Writes serialization info about the data class of the implementing type using the given <see cref="ISerializationWriter"/>
+        /// </summary>
+        void SerializeData(ISerializationWriter serializationWriter);
     }
 }
