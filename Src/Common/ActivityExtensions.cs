@@ -6,10 +6,9 @@
     {
         public static Activity UpdateParent(this Activity original, string newParentId)
         {
-            if (original == null || original.Parent != null)
-            {
-                return original;
-            }
+            Debug.Assert(original != null, "original Activity cannot be null");
+            Debug.Assert(original.ParentId == null, "cannot update parent - parentId is not null");
+            Debug.Assert(original.Parent == null, "cannot update parent - parent is not null");
 
             var auxActivity = new Activity(original.OperationName)
                 .SetParentId(newParentId)

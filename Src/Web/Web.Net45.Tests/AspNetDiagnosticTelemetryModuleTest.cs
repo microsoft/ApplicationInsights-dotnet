@@ -315,7 +315,7 @@
             // so they look like OperationTelemetry.Id
             foreach (var operationId in ids)
             {
-                // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331)
+                // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331 TODO)
                 Assert.AreEqual(32, operationId.Length);
                 Assert.IsTrue(Regex.Match(operationId, @"[a-z][0-9]").Success);
                 // end of workaround test

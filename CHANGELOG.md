@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.7.1
+- [Fix ServiceBus requests correlation](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/970)
+
 ## Version 2.7.0-beta4
 - [When there is no parent operation, generate W3C compatible operation Id](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/952)
 

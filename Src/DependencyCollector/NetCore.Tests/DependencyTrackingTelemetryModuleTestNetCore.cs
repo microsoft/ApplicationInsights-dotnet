@@ -219,7 +219,7 @@
 
             if (parent == null)
             {
-                // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331)
+                // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331 TODO)
                 Assert.AreEqual(32, item.Context.Operation.Id.Length);
                 Assert.IsTrue(Regex.Match(item.Context.Operation.Id, @"[a-z][0-9]").Success);
                 // end of workaround test

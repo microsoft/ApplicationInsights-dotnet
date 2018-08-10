@@ -85,7 +85,7 @@
             Assert.True(requestTelemetry.Id.StartsWith('|' + operationId + '.', StringComparison.Ordinal));
             Assert.NotEqual(operationId, requestTelemetry.Id);
 
-            // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331)
+            // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331 TODO)
             Assert.Equal(32, operationId.Length);
             Assert.True(Regex.Match(operationId, @"[a-z][0-9]").Success);
             // end of workaround test

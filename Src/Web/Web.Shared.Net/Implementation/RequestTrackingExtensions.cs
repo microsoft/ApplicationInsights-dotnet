@@ -48,7 +48,7 @@
                         // as early as possible, so that everyone has a chance to upgrade and have compatibility with W3C systems once they arrive.
                         // So if there is no current Activity (i.e. there were no Request-Id header in the incoming request), we'll override ParentId on 
                         // the current Activity by the properly formatted one. This workaround should go away
-                        // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
+                        // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331 (TODO)
                         currentActivity.SetParentId(StringUtilities.GenerateTraceId());
 
                         // end of workaround
