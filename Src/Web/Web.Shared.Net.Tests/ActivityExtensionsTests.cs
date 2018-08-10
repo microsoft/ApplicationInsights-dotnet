@@ -66,27 +66,6 @@
         }
 
         [TestMethod]
-        public void UpdateParentNoopWhenActivityIsNull()
-        {
-            Activity originalActivity = null;
-
-            var newActivity = originalActivity.UpdateParent("newparent");
-            Assert.IsNull(newActivity);
-            Assert.IsNull(Activity.Current);
-        }
-
-        [TestMethod]
-        public void UpdateParentNoopWhenActivityHasInProcParent()
-        {
-            Activity grandpa = new Activity("grandpa").Start();
-            Activity parent = new Activity("parent").Start();
-
-            var newActivity = parent.UpdateParent("newparent");
-            Assert.AreEqual(parent, newActivity);
-            Assert.AreEqual(Activity.Current, parent);
-        }
-
-        [TestMethod]
         public void UpdateParentCopiesNotStartedActivity()
         {
             Activity originalActivity = new Activity("dummy");

@@ -68,7 +68,7 @@
                 // as early as possible, so that everyone has a chance to upgrade and have compatibility with W3C systems once they arrive.
                 // So if there is no parent Activity (i.e. this request has happened in the background, without parent scope), we'll override 
                 // the current Activity with the one with properly formatted Id. This workaround should go away
-                // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
+                // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331 (TODO)
                 if (currentActivity == null)
                 {
                     activity.SetParentId(StringUtilities.GenerateTraceId());

@@ -5,6 +5,7 @@ namespace Microsoft.ApplicationInsights.Tests
     using System.Linq;
     using System.Net;
     using System.Net.Http;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Common;
@@ -110,6 +111,76 @@ namespace Microsoft.ApplicationInsights.Tests
 
             // Check the operation details
             this.ValidateOperationDetails(telemetry);
+        }
+
+        /// <summary>
+        /// Tests that activity without parent gets a new W3C compatible root id.
+        /// </summary>
+        [TestMethod]
+        public void OnActivityWithoutParentGeneratesW3CTraceId()
+        {
+            var activity = new Activity("System.Net.Http.HttpRequestOut");
+            activity.AddBaggage("k", "v");
+            var startTime = DateTime.UtcNow.AddSeconds(-1);
+            activity.SetStartTime(startTime);
+            activity.Start();
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
+            this.listener.OnActivityStart(request);
+
+            activity = Activity.Current;
+            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+            this.listener.OnActivityStop(response, request, TaskStatus.RanToCompletion);
+
+            var telemetry = this.sentTelemetry.Single() as DependencyTelemetry;
+
+            // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331 TODO)
+            Assert.AreEqual(32, telemetry.Context.Operation.Id.Length);
+            Assert.IsTrue(Regex.Match(telemetry.Context.Operation.Id, @"[a-z][0-9]").Success);
+            // end of workaround test
+        }
+
+        /// <summary>
+        /// Tests that activity without parent id does not get a new W3C compatible root id.
+        /// </summary>
+        [TestMethod]
+        public void OnActivityWithParentId()
+        {
+            var activity = new Activity("System.Net.Http.HttpRequestOut")
+                .SetParentId("parent")
+                .Start();
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
+            this.listener.OnActivityStart(request);
+
+            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+            this.listener.OnActivityStop(response, request, TaskStatus.RanToCompletion);
+
+            var telemetry = this.sentTelemetry.Single() as DependencyTelemetry;
+
+            Assert.AreEqual("parent", telemetry.Context.Operation.Id);
+            Assert.AreEqual("parent", telemetry.Context.Operation.ParentId);
+        }
+
+        /// <summary>
+        /// Tests that activity without parent does not get a new W3C compatible root id.
+        /// </summary>
+        [TestMethod]
+        public void OnActivityWithParent()
+        {
+            var parent = new Activity("dummy").Start();
+            var activity = new Activity("System.Net.Http.HttpRequestOut").Start();
+ 
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
+            this.listener.OnActivityStart(request);
+
+            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+            this.listener.OnActivityStop(response, request, TaskStatus.RanToCompletion);
+
+            var telemetry = this.sentTelemetry.Single() as DependencyTelemetry;
+
+            Assert.AreEqual(parent.RootId, telemetry.Context.Operation.Id);
+            Assert.AreEqual(parent.Id, telemetry.Context.Operation.ParentId);
         }
 
         /// <summary>

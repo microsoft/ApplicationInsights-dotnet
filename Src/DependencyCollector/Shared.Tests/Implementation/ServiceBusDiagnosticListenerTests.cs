@@ -165,6 +165,29 @@
         }
 
         [TestMethod]
+        public void ServiceBusProcessHandingExternalParent()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
+                module.Initialize(this.configuration);
+
+                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.ServiceBus");
+
+                var telemetry = this.TrackOperation<RequestTelemetry>(listener, "Microsoft.Azure.ServiceBus.Process", TaskStatus.RanToCompletion, "parent");
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("Process", telemetry.Name);
+                Assert.AreEqual($"type:{RemoteDependencyConstants.AzureServiceBus} | name:queueName | endpoint:sb://queuename.myservicebus.com/", telemetry.Source);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.AreEqual("parent", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual("parent", telemetry.Context.Operation.Id);
+                Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
+            }
+        }
+
+        [TestMethod]
         public void ServiceBusProcessHandingWithoutParent()
         {
             using (var module = new DependencyTrackingTelemetryModule())
@@ -181,7 +204,7 @@
                 Assert.AreEqual($"type:{RemoteDependencyConstants.AzureServiceBus} | name:queueName | endpoint:sb://queuename.myservicebus.com/", telemetry.Source);
                 Assert.IsTrue(telemetry.Success.Value);
 
-                // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331)
+                // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331 TODO)
                 Assert.AreEqual(32, telemetry.Context.Operation.Id.Length);
                 Assert.IsTrue(Regex.Match(telemetry.Context.Operation.Id, @"[a-z][0-9]").Success);
                 // end of workaround test
@@ -211,7 +234,7 @@
             }
         }
 
-        private T TrackOperation<T>(DiagnosticListener listener, string activityName, TaskStatus status) where T : OperationTelemetry
+        private T TrackOperation<T>(DiagnosticListener listener, string activityName, TaskStatus status, string parentId = null) where T : OperationTelemetry
         {
             Activity activity = null;
 
@@ -219,6 +242,11 @@
             {
                 activity = new Activity(activityName);
                 activity.AddTag("MessageId", "messageId");
+                if (Activity.Current == null && parentId != null)
+                {
+                    activity.SetParentId(parentId);
+                }
+
                 if (listener.IsEnabled(activityName + ".Start"))
                 {
                     listener.StartActivity(activity, new { Entity = "queueName", Endpoint = new Uri("sb://queuename.myservicebus.com/") });
