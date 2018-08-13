@@ -3,6 +3,7 @@
 ### Version 2.7.1
 - [NLog can perform Layout of InstrumentationKey](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/203)
 - Upgrade `System.Diagnostics.DiagnosticSource` to version 4.5.0
+- [Event Source telemetry module: Microsoft-ApplicationInsights-Data id disabled by default to work around CLR bug](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/206)
 
 ### Version 2.6.4
 - [Log4Net new supports NetStandard 1.3!](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/167)

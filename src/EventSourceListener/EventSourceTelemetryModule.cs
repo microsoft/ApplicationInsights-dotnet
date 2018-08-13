@@ -29,6 +29,8 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     /// </summary>
     public class EventSourceTelemetryModule : EventListener, ITelemetryModule
     {
+        private const string AppInsightsDataEventSource = "Microsoft-ApplicationInsights-Data";
+
         private readonly OnEventWrittenHandler onEventWrittenHandler;
         private OnEventWrittenHandler eventWrittenHandlerPicker;
 
@@ -90,7 +92,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             if (this.Sources.Count == 0)
             {
                 EventSourceListenerEventSource.Log.NoSourcesConfigured(nameof(EventSourceListener.EventSourceTelemetryModule));
-                return;
+                // Continue--we need to be prepared for handling disabled sources.
             }
 
             try
@@ -103,6 +105,16 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                     {
                         this.DisableEvents(enabledEventSource);
                     }
+                }
+
+                // Special case: because of .NET bug https://github.com/dotnet/coreclr/issues/14434, using Microsoft-ApplicationInsights-Data will result in infinite loop.
+                // So we will disable it by default, unless there is explicit configuration for this EventSource.
+                bool hasExplicitConfigForAiDataSource =
+                    this.Sources.Any(req => req.Name?.StartsWith(AppInsightsDataEventSource, StringComparison.Ordinal) ?? false) ||
+                    this.DisabledSources.Any(req => req.Name?.StartsWith(AppInsightsDataEventSource, StringComparison.Ordinal) ?? false);
+                if (!hasExplicitConfigForAiDataSource)
+                {
+                    this.DisabledSources.Add(new DisableEventSourceRequest { Name = AppInsightsDataEventSource });
                 }
 
                 // Set the initialized flag now to ensure that we do not miss any sources that came online as we are executing the initialization
