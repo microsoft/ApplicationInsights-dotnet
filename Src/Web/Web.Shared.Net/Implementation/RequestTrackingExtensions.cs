@@ -81,8 +81,8 @@
             {
                 requestContext.Id = currentActivity.RootId;
                 foreach (var item in currentActivity.Baggage)
-                {
-                    result.Context.Properties[item.Key] = item.Value;
+                {                    
+                    result.Properties[item.Key] = item.Value;
                 }
             }
 
