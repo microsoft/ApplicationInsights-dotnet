@@ -178,7 +178,7 @@
             Assert.AreEqual("guid", requestTelemetry.Context.Operation.Id);
             Assert.AreEqual("|guid.", requestTelemetry.Context.Operation.ParentId);
             Assert.AreEqual(activity.Id, requestTelemetry.Id);
-            Assert.AreEqual("v", requestTelemetry.Context.Properties["k"]);
+            Assert.AreEqual("v", requestTelemetry.Properties["k"]);
         }
 
         [TestMethod]

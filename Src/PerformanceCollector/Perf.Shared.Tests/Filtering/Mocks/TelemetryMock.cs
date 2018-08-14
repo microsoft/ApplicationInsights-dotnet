@@ -5,6 +5,7 @@
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     internal class TelemetryMock : ITelemetry
     {
@@ -49,6 +50,8 @@
 
         public string Sequence { get; set; }
 
+        public IExtension Extension { get; set; }
+
         public void Sanitize()
         {
             throw new NotImplementedException();
@@ -57,6 +60,10 @@
         public ITelemetry DeepClone()
         {
             return this;
+        }
+
+        public void SerializeData(ISerializationWriter serializationWriter)
+        {
         }
 
         public class TelemetryContextMock

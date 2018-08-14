@@ -356,9 +356,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             telemetry.Id = currentActivity.Id;
             foreach (var item in currentActivity.Baggage)
             {
-                if (!telemetry.Context.Properties.ContainsKey(item.Key))
+                if (!telemetry.Properties.ContainsKey(item.Key))
                 {
-                    telemetry.Context.Properties[item.Key] = item.Value;
+                    telemetry.Properties[item.Key] = item.Value;
                 }
             }
             
@@ -379,7 +379,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 if (this.pendingExceptions.TryRemove(currentActivity.Id, out Exception exception))
                 {
-                    telemetry.Context.Properties[DependencyErrorPropertyKey] = exception.GetBaseException().Message;
+                    telemetry.Properties[DependencyErrorPropertyKey] = exception.GetBaseException().Message;
                 }
 
                 telemetry.ResultCode = requestTaskStatus.ToString();

@@ -44,9 +44,9 @@
                 context.Operation.ParentId = activity.ParentId;
                 foreach (var item in activity.Baggage)
                 {
-                    if (!context.Properties.ContainsKey(item.Key))
+                    if (!telemetry.Properties.ContainsKey(item.Key))
                     {
-                        context.Properties.Add(item);
+                        telemetry.Properties.Add(item);
                     }
                 }
 
