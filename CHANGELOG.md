@@ -1,6 +1,6 @@
 # Changelog 
 
-### Version 2.7.1
+### Version 2.7.2
 - [NLog can perform Layout of InstrumentationKey](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/203)
 - Upgrade `System.Diagnostics.DiagnosticSource` to version 4.5.0
 - [Event Source telemetry module: Microsoft-ApplicationInsights-Data id disabled by default to work around CLR bug](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/206)
