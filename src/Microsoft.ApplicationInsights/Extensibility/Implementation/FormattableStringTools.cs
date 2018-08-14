@@ -40,10 +40,9 @@ namespace System
             return str;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305: Specify IFormatProvider", Justification = "Intended overload.")]
         public override string ToString()
         {
-            string str = String.Format(this.format, this.args);
+            string str = String.Format(CultureInfo.InvariantCulture, this.format, this.args);
             return str;
         }
 
