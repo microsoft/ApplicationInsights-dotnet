@@ -328,6 +328,14 @@
             object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(int), null, null);
             Assert.AreEqual(42, instance);
         }
+        
+        [TestMethod]
+        public void LoadInstanceConvertsValueToExpectedTypeGivenXmlDefinitionWithNoChildElementsParseHexValue()
+        {
+            var definition = new XElement("Definition", "0x42");
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(int), null, null);
+            Assert.AreEqual(66, instance);
+        }
 
         [TestMethod]
         public void LoadInstanceTrimsValueOfGivenXmlElementToIgnoreWhitespaceUsersMayAddToConfiguration()

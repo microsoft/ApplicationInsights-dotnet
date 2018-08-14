@@ -2,8 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
@@ -18,6 +20,7 @@
         internal readonly string BaseType = typeof(EventData).Name;
         internal readonly EventData Data;
         private readonly TelemetryContext context;
+        private IExtension extension;
 
         private double? samplingPercentage;
 
@@ -45,6 +48,7 @@
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
+            this.extension = source.extension?.DeepClone();
         }
 
         /// <summary>
@@ -63,6 +67,15 @@
         public TelemetryContext Context
         {
             get { return this.context; }
+        }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        public IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
         }
 
         /// <summary>
@@ -120,6 +133,12 @@
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(EventTelemetry).FullName);
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
+        }
+
+        /// <inheritdoc/>
+        public void SerializeData(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty(this.Data);
         }
     }
 }

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
@@ -19,6 +20,7 @@
         internal readonly string BaseType = typeof(AvailabilityData).Name;
         internal readonly AvailabilityData Data;
         private readonly TelemetryContext context;
+        private IExtension extension;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AvailabilityTelemetry"/> class with empty properties.
@@ -55,6 +57,7 @@
             this.context = source.context.DeepClone(this.Data.properties);
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
+            this.extension = source.extension?.DeepClone();
         }
 
         /// <summary>
@@ -132,6 +135,15 @@
         }
 
         /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        public IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
+        }
+
+        /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this availability test run.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
@@ -164,6 +176,12 @@
         public ITelemetry DeepClone()
         {
             return new AvailabilityTelemetry(this);
+        }
+
+        /// <inheritdoc/>
+        public void SerializeData(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty(this.Data);            
         }
 
         /// <summary>

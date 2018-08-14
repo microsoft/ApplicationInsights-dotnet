@@ -144,7 +144,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     ExceptionTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
+                    telemetryItem.Data.Data,
                     telemetryItem.Context.Flags,
                     Keywords.Exceptions);
             }
@@ -183,6 +183,23 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     telemetryItem.Data,
                     telemetryItem.Context.Flags,
                     Keywords.PageViews);
+            }
+            else if (item is PageViewPerformanceTelemetry)
+            {
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.PageViewPerformance))
+                {
+                    return;
+                }
+
+                item.Sanitize();
+                var telemetryItem = item as PageViewPerformanceTelemetry;
+                this.WriteEvent(
+                    PageViewPerformanceTelemetry.TelemetryName,
+                    telemetryItem.Context.InstrumentationKey,
+                    telemetryItem.Context.SanitizedTags,
+                    telemetryItem.Data,
+                    telemetryItem.Context.Flags,
+                    Keywords.PageViewPerformance);
             }
 #pragma warning disable 618
             else if (item is SessionStateTelemetry)

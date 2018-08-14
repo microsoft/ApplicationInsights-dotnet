@@ -10,8 +10,6 @@
     using System.Text;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -148,85 +146,6 @@
             return SerializeAsString(new ITelemetry[] { telemetry });
         }
 
-        #region Exception Serializer helper
-
-        private static void SerializeExceptions(IEnumerable<ExceptionDetails> exceptions, IJsonWriter writer)
-        {
-            int exceptionArrayIndex = 0;
-
-            foreach (ExceptionDetails exceptionDetails in exceptions)
-            {
-                if (exceptionArrayIndex++ != 0)
-                {
-                    writer.WriteComma();
-                }
-
-                writer.WriteStartObject();
-                writer.WriteProperty("id", exceptionDetails.id);
-                if (exceptionDetails.outerId != 0)
-                {
-                    writer.WriteProperty("outerId", exceptionDetails.outerId);
-                }
-
-                writer.WriteProperty(
-                    "typeName",
-                    Utils.PopulateRequiredStringValue(exceptionDetails.typeName, "typeName", typeof(ExceptionTelemetry).FullName));
-                writer.WriteProperty(
-                    "message",
-                    Utils.PopulateRequiredStringValue(exceptionDetails.message, "message", typeof(ExceptionTelemetry).FullName));
-
-                if (exceptionDetails.hasFullStack)
-                {
-                    writer.WriteProperty("hasFullStack", exceptionDetails.hasFullStack);
-                }
-
-                writer.WriteProperty("stack", exceptionDetails.stack);
-
-                if (exceptionDetails.parsedStack.Count > 0)
-                {
-                    writer.WritePropertyName("parsedStack");
-
-                    writer.WriteStartArray();
-
-                    int stackFrameArrayIndex = 0;
-
-                    foreach (StackFrame frame in exceptionDetails.parsedStack)
-                    {
-                        if (stackFrameArrayIndex++ != 0)
-                        {
-                            writer.WriteComma();
-                        }
-
-                        writer.WriteStartObject();
-                        SerializeStackFrame(frame, writer);
-                        writer.WriteEndObject();
-                    }
-
-                    writer.WriteEndArray();
-                }
-
-                writer.WriteEndObject();
-            }
-        }
-
-        private static void SerializeStackFrame(StackFrame frame, IJsonWriter writer)
-        {
-            writer.WriteProperty("level", frame.level);
-            writer.WriteProperty(
-                "method",
-                Utils.PopulateRequiredStringValue(frame.method, "StackFrameMethod", typeof(ExceptionTelemetry).FullName));
-            writer.WriteProperty("assembly", frame.assembly);
-            writer.WriteProperty("fileName", frame.fileName);
-
-            // 0 means it is unavailable
-            if (frame.line != 0)
-            {
-                writer.WriteProperty("line", frame.line);
-            }
-        }
-
-        #endregion Exception Serializer helper
-
         /// <summary>
         /// Creates a GZIP compression stream that wraps <paramref name="stream"/>. For windows phone 8.0 it returns <paramref name="stream"/>. 
         /// </summary>
@@ -235,66 +154,107 @@
             return new GZipStream(stream, CompressionMode.Compress);
         }
 
-        private static void SerializeTelemetryItem(ITelemetry telemetryItem, JsonWriter jsonWriter)
+        private static void SerializeTelemetryItem(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter)
         {
+            jsonSerializationWriter.WriteStartObject();
+
             if (telemetryItem is EventTelemetry)
             {
                 EventTelemetry eventTelemetry = telemetryItem as EventTelemetry;
-                SerializeEventTelemetry(eventTelemetry, jsonWriter);
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, eventTelemetry.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, eventTelemetry.BaseType, EventTelemetry.TelemetryName);
             }
             else if (telemetryItem is ExceptionTelemetry)
             {
-                ExceptionTelemetry exceptionTelemetry = telemetryItem as ExceptionTelemetry;
-                SerializeExceptionTelemetry(exceptionTelemetry, jsonWriter);
+                ExceptionTelemetry exTelemetry = telemetryItem as ExceptionTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, exTelemetry.Data.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, exTelemetry.BaseType, ExceptionTelemetry.TelemetryName);
             }
             else if (telemetryItem is MetricTelemetry)
             {
-                MetricTelemetry metricTelemetry = telemetryItem as MetricTelemetry;
-                SerializeMetricTelemetry(metricTelemetry, jsonWriter);
+                MetricTelemetry mTelemetry = telemetryItem as MetricTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, mTelemetry.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, mTelemetry.BaseType, MetricTelemetry.TelemetryName);                
             }
             else if (telemetryItem is PageViewTelemetry)
             {
-                PageViewTelemetry pageViewTelemetry = telemetryItem as PageViewTelemetry;
-                SerializePageViewTelemetry(pageViewTelemetry, jsonWriter);
+                PageViewTelemetry pvTelemetry = telemetryItem as PageViewTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pvTelemetry.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, pvTelemetry.BaseType, PageViewTelemetry.TelemetryName);
+            }
+            else if (telemetryItem is PageViewPerformanceTelemetry)
+            {
+                PageViewPerformanceTelemetry pvptelemetry = telemetryItem as PageViewPerformanceTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pvptelemetry.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, PageViewPerformanceTelemetry.BaseType, PageViewPerformanceTelemetry.TelemetryName);
             }
             else if (telemetryItem is DependencyTelemetry)
             {
-                DependencyTelemetry remoteDependencyTelemetry = telemetryItem as DependencyTelemetry;
-                SerializeDependencyTelemetry(remoteDependencyTelemetry, jsonWriter);
+                DependencyTelemetry depTelemetry = telemetryItem as DependencyTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, depTelemetry.InternalData.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, depTelemetry.BaseType, DependencyTelemetry.TelemetryName);                
             }
             else if (telemetryItem is RequestTelemetry)
             {
-                RequestTelemetry requestTelemetry = telemetryItem as RequestTelemetry;
-                SerializeRequestTelemetry(requestTelemetry, jsonWriter);
-            }
-#pragma warning disable 618
-            else if (telemetryItem is SessionStateTelemetry)
-            {
-                EventTelemetry telemetry = (telemetryItem as SessionStateTelemetry).Data;
-                SerializeEventTelemetry(telemetry, jsonWriter);
-            }
-#pragma warning restore 618
-            else if (telemetryItem is TraceTelemetry)
-            {
-                TraceTelemetry traceTelemetry = telemetryItem as TraceTelemetry;
-                SerializeTraceTelemetry(traceTelemetry, jsonWriter);
+                RequestTelemetry reqTelemetry = telemetryItem as RequestTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, reqTelemetry.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, reqTelemetry.BaseType, RequestTelemetry.TelemetryName);                
             }
 #pragma warning disable 618
             else if (telemetryItem is PerformanceCounterTelemetry)
             {
-                MetricTelemetry telemetry = (telemetryItem as PerformanceCounterTelemetry).Data;
-                SerializeMetricTelemetry(telemetry, jsonWriter);
+                PerformanceCounterTelemetry pcTelemetry = telemetryItem as PerformanceCounterTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pcTelemetry.Properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, pcTelemetry.Data.BaseType, MetricTelemetry.TelemetryName);
             }
+            else if (telemetryItem is SessionStateTelemetry)
+            {
+                SessionStateTelemetry ssTelemetry = telemetryItem as SessionStateTelemetry;
+                SerializeHelper(telemetryItem, jsonSerializationWriter, ssTelemetry.Data.BaseType, EventTelemetry.TelemetryName);
+            }
+#pragma warning restore 618
+        else if (telemetryItem is TraceTelemetry)
+            {
+                TraceTelemetry traceTelemetry = telemetryItem as TraceTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, traceTelemetry.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, traceTelemetry.BaseType, TraceTelemetry.TelemetryName);
+            }                
             else if (telemetryItem is AvailabilityTelemetry)
             {
                 AvailabilityTelemetry availabilityTelemetry = telemetryItem as AvailabilityTelemetry;
-                SerializeAvailability(availabilityTelemetry, jsonWriter);
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, availabilityTelemetry.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, availabilityTelemetry.BaseType, AvailabilityTelemetry.TelemetryName);
             }
             else
             {
-                string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemetry type: {0}", telemetryItem.GetType());                
+                string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemetry type: {0}", telemetryItem.GetType());
                 CoreEventSource.Log.LogVerbose(msg);
             }
+
+            jsonSerializationWriter.WriteEndObject();
+        }
+
+        private static void SerializeHelper(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter, string baseType, string telemetryName)
+        {
+            jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(telemetryName));
+            telemetryItem.WriteEnvelopeProperties(jsonSerializationWriter);
+            jsonSerializationWriter.WriteStartObject("data");
+            jsonSerializationWriter.WriteProperty("baseType", baseType);
+            jsonSerializationWriter.WriteStartObject("baseData");
+            telemetryItem.SerializeData(jsonSerializationWriter);
+            jsonSerializationWriter.WriteEndObject(); // baseData
+            jsonSerializationWriter.WriteProperty("extension", telemetryItem.Extension);
+            jsonSerializationWriter.WriteEndObject(); // data
         }
 
         /// <summary>
@@ -302,7 +262,8 @@
         /// </summary>
         private static void SeializeToStream(IEnumerable<ITelemetry> telemetryItems, TextWriter streamWriter)
         {
-            JsonWriter jsonWriter = new JsonWriter(streamWriter);
+            // JsonWriter jsonWriter = new JsonWriter(streamWriter);
+            JsonSerializationWriter jsonSerializationWriter = new JsonSerializationWriter(streamWriter);
 
             int telemetryCount = 0;
             foreach (ITelemetry telemetryItem in telemetryItems)
@@ -314,314 +275,8 @@
 
                 telemetryItem.Context.SanitizeGlobalProperties();
                 telemetryItem.Sanitize();
-                SerializeTelemetryItem(telemetryItem, jsonWriter);
+                SerializeTelemetryItem(telemetryItem, jsonSerializationWriter);
             }
         }
-
-        #region Serialize methods for each ITelemetry implementation
-
-        private static void SerializeEventTelemetry(EventTelemetry eventTelemetry, JsonWriter writer)
-        {
-            writer.WriteStartObject();
-
-            eventTelemetry.WriteTelemetryName(writer, EventTelemetry.TelemetryName);
-            eventTelemetry.WriteEnvelopeProperties(writer);
-            writer.WritePropertyName("data");
-            {
-                writer.WriteStartObject();
-
-                writer.WriteProperty("baseType", eventTelemetry.BaseType);
-                writer.WritePropertyName("baseData");
-                {
-                    writer.WriteStartObject();
-
-                    writer.WriteProperty("ver", eventTelemetry.Data.ver);
-                    writer.WriteProperty("name", eventTelemetry.Data.name);
-                    writer.WriteProperty("measurements", eventTelemetry.Data.measurements);
-                    Utils.CopyDictionary(eventTelemetry.Context.GlobalProperties, eventTelemetry.Data.properties);
-                    writer.WriteProperty("properties", eventTelemetry.Data.properties);                    
-                    writer.WriteEndObject();
-                }
-
-                writer.WriteEndObject();
-            }
-
-            writer.WriteEndObject();
-        }
-
-        private static void SerializeExceptionTelemetry(ExceptionTelemetry exceptionTelemetry, JsonWriter writer)
-        {
-            writer.WriteStartObject();
-
-            exceptionTelemetry.WriteTelemetryName(writer, ExceptionTelemetry.TelemetryName);
-            exceptionTelemetry.WriteEnvelopeProperties(writer);
-            writer.WritePropertyName("data");
-            {
-                writer.WriteStartObject();
-
-                writer.WriteProperty("baseType", exceptionTelemetry.BaseType);
-                writer.WritePropertyName("baseData");
-                {
-                    writer.WriteStartObject();
-
-                    writer.WriteProperty("ver", exceptionTelemetry.Data.ver);
-                    writer.WriteProperty("problemId", exceptionTelemetry.Data.problemId);
-                    Utils.CopyDictionary(exceptionTelemetry.Context.GlobalProperties, exceptionTelemetry.Data.properties);
-                    writer.WriteProperty("properties", exceptionTelemetry.Data.properties);
-                    writer.WriteProperty("measurements", exceptionTelemetry.Data.measurements);
-                    writer.WritePropertyName("exceptions");
-                    {
-                        writer.WriteStartArray();
-
-                        SerializeExceptions(exceptionTelemetry.Exceptions, writer);
-
-                        writer.WriteEndArray();
-                    }
-
-                    if (exceptionTelemetry.Data.severityLevel.HasValue)
-                    {
-                        writer.WriteProperty("severityLevel", exceptionTelemetry.Data.severityLevel.Value.ToString());
-                    }
-
-                    writer.WriteEndObject();
-                }
-
-                writer.WriteEndObject();
-            }
-
-            writer.WriteEndObject();
-        }
-
-        private static void SerializeMetricTelemetry(MetricTelemetry metricTelemetry, JsonWriter writer)
-        {
-            writer.WriteStartObject();
-
-            metricTelemetry.WriteTelemetryName(writer, MetricTelemetry.TelemetryName);
-            metricTelemetry.WriteEnvelopeProperties(writer);
-            writer.WritePropertyName("data");
-            {
-                writer.WriteStartObject();
-
-                // TODO: MetricTelemetry should write type as this.data.baseType once Common Schema 2.0 compliant.
-                writer.WriteProperty("baseType", metricTelemetry.BaseType);
-                writer.WritePropertyName("baseData");
-                {
-                    writer.WriteStartObject();
-
-                    writer.WriteProperty("ver", metricTelemetry.Data.ver);
-                    writer.WritePropertyName("metrics");
-                    {
-                        writer.WriteStartArray();
-                        writer.WriteStartObject();
-
-                        string metricNamespace = metricTelemetry.Metric.ns;
-                        if (false == String.IsNullOrEmpty(metricNamespace))
-                        {
-                            writer.WriteProperty("ns", metricNamespace);
-                        }
-
-                        writer.WriteProperty("name", metricTelemetry.Metric.name);
-                        writer.WriteProperty("kind", metricTelemetry.Metric.kind.ToString());
-                        writer.WriteProperty("value", metricTelemetry.Metric.value);
-                        writer.WriteProperty("count", metricTelemetry.Metric.count);
-                        writer.WriteProperty("min", metricTelemetry.Metric.min);
-                        writer.WriteProperty("max", metricTelemetry.Metric.max);
-                        writer.WriteProperty("stdDev", metricTelemetry.Metric.stdDev);
-                        writer.WriteEndObject();
-                        writer.WriteEndArray();
-                    }
-
-                    Utils.CopyDictionary(metricTelemetry.Context.GlobalProperties, metricTelemetry.Data.properties);
-                    writer.WriteProperty("properties", metricTelemetry.Data.properties);
-
-                    writer.WriteEndObject();
-                }
-
-                writer.WriteEndObject();
-            }
-
-            writer.WriteEndObject();
-        }
-
-        private static void SerializePageViewTelemetry(PageViewTelemetry pageViewTelemetry, JsonWriter writer)
-        {
-            writer.WriteStartObject();
-
-            pageViewTelemetry.WriteTelemetryName(writer, PageViewTelemetry.TelemetryName);
-            pageViewTelemetry.WriteEnvelopeProperties(writer);
-            writer.WritePropertyName("data");
-            {
-                writer.WriteStartObject();
-
-                // TODO: MetricTelemetry should write type as this.data.baseType once Common Schema 2.0 compliant.
-                writer.WriteProperty("baseType", pageViewTelemetry.BaseType);
-                writer.WritePropertyName("baseData");
-                {
-                    writer.WriteStartObject();
-
-                    writer.WriteProperty("ver", pageViewTelemetry.Data.ver);
-                    writer.WriteProperty("name", pageViewTelemetry.Data.name);
-                    writer.WriteProperty("url", pageViewTelemetry.Data.url);
-                    writer.WriteProperty("duration", pageViewTelemetry.Data.duration);
-                    writer.WriteProperty("measurements", pageViewTelemetry.Data.measurements);
-                    Utils.CopyDictionary(pageViewTelemetry.Context.GlobalProperties, pageViewTelemetry.Data.properties);
-                    writer.WriteProperty("properties", pageViewTelemetry.Data.properties);
-
-                    writer.WriteEndObject();
-                }
-
-                writer.WriteEndObject();
-            }
-
-            writer.WriteEndObject();
-        }
-
-        private static void SerializeDependencyTelemetry(DependencyTelemetry dependencyTelemetry, JsonWriter writer)
-        {
-            writer.WriteStartObject();
-
-            dependencyTelemetry.WriteTelemetryName(writer, DependencyTelemetry.TelemetryName);
-            dependencyTelemetry.WriteEnvelopeProperties(writer);
-            writer.WritePropertyName("data");
-            {
-                writer.WriteStartObject();
-
-                writer.WriteProperty("baseType", dependencyTelemetry.BaseType);
-                writer.WritePropertyName("baseData");
-                {
-                    writer.WriteStartObject();
-
-                    writer.WriteProperty("ver", dependencyTelemetry.InternalData.ver);
-                    writer.WriteProperty("name", dependencyTelemetry.InternalData.name);
-                    writer.WriteProperty("id", dependencyTelemetry.InternalData.id);
-                    writer.WriteProperty("data", dependencyTelemetry.InternalData.data);
-                    writer.WriteProperty("duration", dependencyTelemetry.InternalData.duration);
-                    writer.WriteProperty("resultCode", dependencyTelemetry.InternalData.resultCode);
-                    writer.WriteProperty("success", dependencyTelemetry.InternalData.success);
-                    writer.WriteProperty("type", dependencyTelemetry.InternalData.type);
-                    writer.WriteProperty("target", dependencyTelemetry.InternalData.target);
-                    Utils.CopyDictionary(dependencyTelemetry.Context.GlobalProperties, dependencyTelemetry.InternalData.properties);
-                    writer.WriteProperty("properties", dependencyTelemetry.InternalData.properties);
-                    writer.WriteProperty("measurements", dependencyTelemetry.InternalData.measurements);
-                    writer.WriteEndObject();
-                }
-
-                writer.WriteEndObject();
-            }
-
-            writer.WriteEndObject();
-        }
-
-        private static void SerializeRequestTelemetry(RequestTelemetry requestTelemetry, JsonWriter jsonWriter)
-        {
-            jsonWriter.WriteStartObject();
-
-            requestTelemetry.WriteTelemetryName(jsonWriter, RequestTelemetry.TelemetryName);
-            requestTelemetry.WriteEnvelopeProperties(jsonWriter);
-            jsonWriter.WritePropertyName("data");
-            {
-                jsonWriter.WriteStartObject();
-
-                jsonWriter.WriteProperty("baseType", requestTelemetry.BaseType);
-                jsonWriter.WritePropertyName("baseData");
-                {
-                    jsonWriter.WriteStartObject();
-
-                    jsonWriter.WriteProperty("ver", requestTelemetry.Data.ver);
-                    jsonWriter.WriteProperty("id", requestTelemetry.Data.id);
-                    jsonWriter.WriteProperty("source", requestTelemetry.Data.source);
-                    jsonWriter.WriteProperty("name", requestTelemetry.Data.name);
-                    jsonWriter.WriteProperty("duration", requestTelemetry.Duration);
-                    jsonWriter.WriteProperty("success", requestTelemetry.Data.success);
-                    jsonWriter.WriteProperty("responseCode", requestTelemetry.Data.responseCode);
-                    jsonWriter.WriteProperty("url", requestTelemetry.Data.url);
-                    jsonWriter.WriteProperty("measurements", requestTelemetry.Data.measurements);
-                    Utils.CopyDictionary(requestTelemetry.Context.GlobalProperties, requestTelemetry.Data.properties);
-                    jsonWriter.WriteProperty("properties", requestTelemetry.Data.properties);
-
-                    jsonWriter.WriteEndObject();
-                }
-
-                jsonWriter.WriteEndObject();
-            }
-
-            jsonWriter.WriteEndObject();
-        }
-
-        private static void SerializeTraceTelemetry(TraceTelemetry traceTelemetry, JsonWriter writer)
-        {
-            writer.WriteStartObject();
-
-            traceTelemetry.WriteTelemetryName(writer, TraceTelemetry.TelemetryName);
-            traceTelemetry.WriteEnvelopeProperties(writer);
-            writer.WritePropertyName("data");
-            {
-                writer.WriteStartObject();
-
-                // TODO: MetricTelemetry should write type as this.data.baseType once Common Schema 2.0 compliant.
-                writer.WriteProperty("baseType", traceTelemetry.BaseType);
-                writer.WritePropertyName("baseData");
-                {
-                    writer.WriteStartObject();
-
-                    writer.WriteProperty("ver", traceTelemetry.Data.ver);
-                    writer.WriteProperty("message", traceTelemetry.Message);
-
-                    if (traceTelemetry.SeverityLevel.HasValue)
-                    {
-                        writer.WriteProperty("severityLevel", traceTelemetry.SeverityLevel.Value.ToString());
-                    }
-
-                    Utils.CopyDictionary(traceTelemetry.Context.GlobalProperties, traceTelemetry.Data.properties);
-                    writer.WriteProperty("properties", traceTelemetry.Properties); // TODO: handle case where the property dictionary doesn't need to be instantiated.
-
-                    writer.WriteEndObject();
-                }
-
-                writer.WriteEndObject();
-            }
-
-            writer.WriteEndObject();
-        }
-
-        /// <summary>
-        /// Serializes this object in JSON format.
-        /// </summary>
-        private static void SerializeAvailability(AvailabilityTelemetry availabilityTelemetry, JsonWriter writer)
-        {
-            writer.WriteStartObject();
-
-            availabilityTelemetry.WriteTelemetryName(writer, AvailabilityTelemetry.TelemetryName);
-            availabilityTelemetry.WriteEnvelopeProperties(writer);
-            writer.WritePropertyName("data");
-            {
-                writer.WriteStartObject();
-
-                writer.WriteProperty("baseType", availabilityTelemetry.BaseType);
-                writer.WritePropertyName("baseData");
-                {
-                    writer.WriteStartObject();
-
-                    writer.WriteProperty("ver", availabilityTelemetry.Data.ver);
-                    writer.WriteProperty("id", availabilityTelemetry.Data.id);
-                    writer.WriteProperty("name", availabilityTelemetry.Data.name);
-                    writer.WriteProperty("duration", availabilityTelemetry.Duration);
-                    writer.WriteProperty("success", availabilityTelemetry.Data.success);
-                    writer.WriteProperty("runLocation", availabilityTelemetry.Data.runLocation);
-                    writer.WriteProperty("message", availabilityTelemetry.Data.message);
-                    Utils.CopyDictionary(availabilityTelemetry.Context.GlobalProperties, availabilityTelemetry.Data.properties);
-                    writer.WriteProperty("properties", availabilityTelemetry.Data.properties);
-                    writer.WriteProperty("measurements", availabilityTelemetry.Data.measurements);
-
-                    writer.WriteEndObject();
-                }
-
-                writer.WriteEndObject();
-            }
-
-            writer.WriteEndObject();
-        }
-
-        #endregion Serialize methods for each ITelemetry implementation
     }
 }

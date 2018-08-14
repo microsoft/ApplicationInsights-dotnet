@@ -251,6 +251,14 @@
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
 
+        [TestMethod]
+        public void RequestTelemetryDeepCloneWithNullExtensionDoesNotThrow()
+        {
+            var telemetry = new RequestTelemetry();
+            // Extension is not set, means it'll be null.
+            // Validate that cloning with null Extension does not throw.
+            var other = telemetry.DeepClone();
+        }
         private RequestTelemetry CreateTestTelemetry()
         {
             var request = new RequestTelemetry();
@@ -264,6 +272,7 @@
             request.Metrics.Add("Metric1", 30);
             request.Properties.Add("itempropkey", "::1");
             request.Context.GlobalProperties.Add("contextpropkey", "contextpropvalue");
+            request.Extension = new MyTestExtension();
             return request;
         }
     }

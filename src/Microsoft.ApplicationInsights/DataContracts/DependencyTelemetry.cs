@@ -4,6 +4,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -23,6 +24,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         internal readonly RemoteDependencyData InternalData;
         private readonly TelemetryContext context;
+        private IExtension extension;
         private IDictionary<string, object> operationDetails;
 
         private double? samplingPercentage;
@@ -98,6 +100,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
             this.successFieldSet = source.successFieldSet;
+            this.extension = source.extension?.DeepClone();
 
             // Only clone the details if the source has had details initialized
             if (source.operationDetails != null)
@@ -122,6 +125,15 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public override TelemetryContext Context
         {
             get { return this.context; }
+        }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strongly typed object.
+        /// </summary>
+        public override IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
         }
 
         /// <summary>
@@ -327,6 +339,12 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public void SetOperationDetail(string key, object detail)
         {
             this.OperationDetails[key] = detail;
+        }
+
+        /// <inheritdoc/>
+        public override void SerializeData(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty(this.InternalData);            
         }
 
         /// <summary>

@@ -99,6 +99,14 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
 Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt.Platform = 2 -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
 Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt.Unhandled = 0 -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
 Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt.UserCode = 1 -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
+Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo
+Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.ExceptionDetailsInfo(int id, int outerId, string typeName, string message, bool hasFullStack, string stack, System.Collections.Generic.IEnumerable<Microsoft.ApplicationInsights.DataContracts.StackFrame> parsedStack) -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.TypeName.get -> string
+Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.TypeName.set -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.Message.get -> string
+Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo.Message.set -> void
+Microsoft.ApplicationInsights.DataContracts.StackFrame
+Microsoft.ApplicationInsights.DataContracts.StackFrame.StackFrame(string assembly, string fileName, int level, int line, string method) -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
@@ -106,8 +114,10 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Exception.get -> 
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Exception.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetry() -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetry(System.Exception exception) -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionTelemetry(System.Collections.Generic.IEnumerable<Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo> exceptionDetailsInfoList, Microsoft.ApplicationInsights.DataContracts.SeverityLevel? severityLevel, string problemId, System.Collections.Generic.IDictionary<string, string> properties, System.Collections.Generic.IDictionary<string, double> measurements) -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.HandledAt.get -> Microsoft.ApplicationInsights.DataContracts.ExceptionHandledAt
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.HandledAt.set -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ExceptionDetailsInfoList.get -> System.Collections.Generic.IReadOnlyList<Microsoft.ApplicationInsights.DataContracts.ExceptionDetailsInfo>
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Message.get -> string
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Message.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
@@ -244,6 +254,7 @@ Microsoft.ApplicationInsights.DataContracts.TelemetryContext.InstrumentationKey.
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Location.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.LocationContext
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Operation.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.OperationContext
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Properties.get -> System.Collections.Generic.IDictionary<string, string>
+Microsoft.ApplicationInsights.DataContracts.TelemetryContext.GlobalProperties.get -> System.Collections.Generic.IDictionary<string, string>
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Session.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.SessionContext
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TelemetryContext() -> void
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.User.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext

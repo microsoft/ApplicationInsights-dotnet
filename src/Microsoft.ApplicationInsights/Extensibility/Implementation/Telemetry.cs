@@ -7,7 +7,7 @@
 
     internal static class Telemetry
     {
-        public static void WriteEnvelopeProperties(this ITelemetry telemetry, IJsonWriter json)
+        public static void WriteEnvelopeProperties(this ITelemetry telemetry, ISerializationWriter json)
         {
             json.WriteProperty("time", telemetry.Timestamp.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));
 
@@ -25,7 +25,7 @@
             WriteTelemetryContext(json, telemetry.Context);
         }
 
-        public static void WriteTelemetryName(this ITelemetry telemetry, IJsonWriter json, string telemetryName)
+        public static string WriteTelemetryName(this ITelemetry telemetry, string telemetryName)
         {
             // A different event name prefix is sent for normal mode and developer mode.
             bool isDevMode = false;
@@ -44,10 +44,11 @@
                 isDevMode ? Constants.DevModeTelemetryNamePrefix : Constants.TelemetryNamePrefix,
                 NormalizeInstrumentationKey(telemetry.Context.InstrumentationKey),
                 telemetryName);
-            json.WriteProperty("name", eventName);
+
+            return eventName;
         }
 
-        public static void WriteTelemetryContext(IJsonWriter json, TelemetryContext context)
+        public static void WriteTelemetryContext(ISerializationWriter json, TelemetryContext context)
         {
             if (context != null)
             {

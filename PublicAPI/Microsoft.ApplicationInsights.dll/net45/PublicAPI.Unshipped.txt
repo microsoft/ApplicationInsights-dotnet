@@ -1,3 +1,32 @@
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Id.get -> string
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Id.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.DomProcessing.get -> System.TimeSpan
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.DomProcessing.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Duration.get -> System.TimeSpan
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Duration.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Metrics.get -> System.Collections.Generic.IDictionary<string, double>
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Name.get -> string
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Name.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.NetworkConnect.get -> System.TimeSpan
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.NetworkConnect.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.PageViewPerformanceTelemetry() -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.PageViewPerformanceTelemetry(string pageName) -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.PerfTotal.get -> System.TimeSpan
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.PerfTotal.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Properties.get -> System.Collections.Generic.IDictionary<string, string>
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.ReceivedResponse.get -> System.TimeSpan
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.ReceivedResponse.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.SentRequest.get -> System.TimeSpan
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.SentRequest.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Sequence.get -> string
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Sequence.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Timestamp.get -> System.DateTimeOffset
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Timestamp.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Url.get -> System.Uri
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Url.set -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricNamespace.get -> string
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricNamespace.set -> void
 Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.MetricTelemetry(string metricNamespace, string name, int count, double sum, double min, double max, double standardDeviation) -> void
@@ -265,3 +294,62 @@ virtual Microsoft.ApplicationInsights.Metrics.MetricConfiguration.Equals(Microso
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Flags.get -> long
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Flags.set -> void
 const Microsoft.ApplicationInsights.DataContracts.TelemetryContext.FlagDropIdentifiers = 2097152 -> long
+Microsoft.ApplicationInsights.Channel.ITelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.Channel.ITelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.Channel.ITelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+Microsoft.ApplicationInsights.DataContracts.SessionStateTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.SessionStateTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.SessionStateTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Extension.set -> void
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.Extension.set -> void
+override Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.Extension.set -> void
+override Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Extension.get -> Microsoft.ApplicationInsights.Extensibility.IExtension
+abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.Extension.set -> void
+abstract Microsoft.ApplicationInsights.Extensibility.Implementation.OperationTelemetry.SerializeData(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializableWithWriter
+Microsoft.ApplicationInsights.Extensibility.ISerializableWithWriter.Serialize(Microsoft.ApplicationInsights.Extensibility.ISerializationWriter serializationWriter) -> void
+Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.Extensibility.IExtension.DeepClone() -> Microsoft.ApplicationInsights.Extensibility.IExtension
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, string value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, double? value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, int? value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, bool? value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.TimeSpan? value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.DateTimeOffset? value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, Microsoft.ApplicationInsights.Extensibility.ISerializableWithWriter value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(Microsoft.ApplicationInsights.Extensibility.ISerializableWithWriter value) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.Collections.Generic.IList<string> items) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.Collections.Generic.IList<Microsoft.ApplicationInsights.Extensibility.ISerializableWithWriter> items) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.Collections.Generic.IDictionary<string, string> items) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteProperty(string name, System.Collections.Generic.IDictionary<string, double> items) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteStartObject(string name) -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteStartObject() -> void
+Microsoft.ApplicationInsights.Extensibility.ISerializationWriter.WriteEndObject() -> void

@@ -2,6 +2,20 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.8.0-beta1
+- [Add a new distict properties collection, GlobalProperties, on TelemetryContext, and obsolete the Properties on TelemetryContext.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/820)
+- [Added support for strongly typed extensibility for Telemetry types using IExtension.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/871)
+- [New method SerializeData(ISerializationWriter writer) defined in ITelemetry. All existing types implement this method to emit information about it's fields to channels who can serialize this data]
+   (continuation of https://github.com/Microsoft/ApplicationInsights-dotnet/issues/871)
+- [Allow to track PageViewPerformance data type](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/673).
+- Added method `ExceptionDetailsInfoList` on `ExceptionTelemetry` class that gives control to user to update exception
+message and exception type of underlying `System.Exception` object that user wants to send to telemetry. Related discussion is [here](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/498).
+- Added an option of creating ExceptionTelemetry object off of custom exception information rather than a System.Exception object.
+- [Add support for hex values in config](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/551)
+
+## Version 2.7.0
+- Metrics: Renamed TryTrackValue(..) into TrackValue(..).
+- Metrics: Removed some superfluous public constants.
 
 ## Version 2.7.0
 - Metrics: Renamed TryTrackValue(..) into TrackValue(..).
@@ -10,7 +24,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 ## Version 2.7.0-beta3
 - [Allow to set flags on event](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/844). It will be used in conjunction with the feature that will allow to keep IP addresses.
 - [Fix: SerializationException resolving Activity in cross app-domain calls](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/613)
-- [Make HttpClient instance static to avoid re-creating with every transmission. This had caused connection/memory leaks in .net core 2.1] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/594)
+- [Make HttpClient instance static to avoid re-creating with every transmission. This had caused connection/memory leaks in .net core 2.1](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/594)
   Related: (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/690)
 
 ## Version 2.7.0-beta2
@@ -57,7 +71,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 - Remove calculation of sampling-score based on Context.User.Id [Issue #625](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/625)
 - New sdk-driven "heartbeat" functionality added which sends health status at pre-configured intervals. See [extending heartbeat properties doc for more information](./docs/ExtendingHeartbeatProperties.md)
 - Fixes a bug in ServerTelemetryChannel which caused application to crash on non-windows platforms. 
-			[Details on fix and workaround #654] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/654)
+			[Details on fix and workaround #654](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/654)
 			Original issue (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/551)
 - [Fixed a bug with the `AdaptiveSamplingTelemetryProcessor` that would cause starvation over time. Issue #756 (dotnet-server)](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/756)
 - Updated solution to build on Mac!
@@ -101,7 +115,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 - [Fixed a bug which caused SDK to stop sending telemetry.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/480)
 
 ## Version 2.3.0-beta3
-- [Added overloads of TelemetryClientExtensions.StartOperation.] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/163)
+- [Added overloads of TelemetryClientExtensions.StartOperation.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/163)
 - Fire new ETW events for Operation Start/Stop.
 
 ## Version 2.3.0-beta2

@@ -20,7 +20,7 @@ steps:
   inputs:
     command: "test"
     projects: "Test/**/*netcoreapp20*.csproj"
-    arguments: "--configuration Release --filter TestCategory!=WindowsOnly"
+    arguments: "--configuration Release -l trx --filter TestCategory!=WindowsOnly"
 
 - task: DotNetCoreInstaller@0
   inputs:
@@ -30,9 +30,12 @@ steps:
   inputs:
     command: "test"
     projects: "Test/**/*netcoreapp11*.csproj"
-    arguments: "--configuration Release --filter TestCategory!=WindowsOnly"
+    arguments: "--configuration Release -l trx --filter TestCategory!=WindowsOnly"
 
 - task: PublishTestResults@2
+  inputs:
+    testRunner: "VSTest"
+    testResultsFiles: "**/*.trx"
 
 - task: DotNetCoreCLI@1
   inputs:

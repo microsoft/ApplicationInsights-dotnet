@@ -97,6 +97,23 @@
         }
 
         [TestMethod]
+        public void SerializePopulatesRequiredFieldsOfPageViewTelemetry()
+        {
+            using (StringWriter stringWriter = new StringWriter(CultureInfo.InvariantCulture))
+            {
+                var pvTelemetry = new PageViewTelemetry();
+                pvTelemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
+                ((ITelemetry)pvTelemetry).Sanitize();
+                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.PageViewData>(pvTelemetry);
+
+                Assert.AreEqual(2, item.data.baseData.ver);
+                Assert.IsNotNull(item.data.baseData.id);
+                Assert.IsNotNull(item.time);
+                Assert.AreEqual(new TimeSpan(), TimeSpan.Parse(item.data.baseData.duration));
+            }
+        }
+
+        [TestMethod]
         public void SanitizeWillTrimAppropriateFields()
         {
             PageViewTelemetry telemetry = new PageViewTelemetry();
@@ -164,12 +181,21 @@
             pageView.Duration = TimeSpan.FromSeconds(123);
             pageView.Metrics.Add("Metric1", 30);
             pageView.Properties.Add("Property1", "Value1");
-
+            pageView.Extension = new MyTestExtension();
             PageViewTelemetry other = (PageViewTelemetry)pageView.DeepClone();
 
             CompareLogic deepComparator = new CompareLogic();
             var result = deepComparator.Compare(pageView, other);
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
+        }
+
+        [TestMethod]
+        public void PageViewTelemetryDeepCloneWithNullExtensionDoesNotThrow()
+        {
+            var telemetry = new PageViewTelemetry();
+            // Extension is not set, means it'll be null.
+            // Validate that cloning with null Extension does not throw.
+            var other = telemetry.DeepClone();
         }
     }
 }

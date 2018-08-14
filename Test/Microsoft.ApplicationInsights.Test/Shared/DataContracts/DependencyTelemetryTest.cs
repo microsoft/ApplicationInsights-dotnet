@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
     using System.Linq;
     using KellermanSoftware.CompareNetObjects;
     using Microsoft.ApplicationInsights.Channel;
@@ -21,6 +23,12 @@
         {
             var defaultDependencyTelemetry = new DependencyTelemetry();
             Assert.AreEqual(true, defaultDependencyTelemetry.Success, "Success is expected to be true");
+        }
+
+        [TestMethod]
+        public void DependencyTelemetryITelemetryContractConsistentlyWithOtherTelemetryTypes()
+        {
+            new ITelemetryTest<DependencyTelemetry, AI.RemoteDependencyData>().Run();
         }
 
         [TestMethod]
@@ -78,6 +86,24 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RemoteDependencyData>(original);
 
             Assert.AreEqual(2, item.data.baseData.ver);
+        }
+
+        [TestMethod]
+        public void SerializePopulatesRequiredFieldsOfDependencyTelemetry()
+        {
+            using (StringWriter stringWriter = new StringWriter(CultureInfo.InvariantCulture))
+            {
+                var depTelemetry = new DependencyTelemetry();
+                depTelemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
+                ((ITelemetry)depTelemetry).Sanitize();
+                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RemoteDependencyData>(depTelemetry);
+
+                Assert.AreEqual(2, item.data.baseData.ver);
+                Assert.IsNotNull(item.data.baseData.id);
+                Assert.IsNotNull(item.time);
+                Assert.AreEqual(new TimeSpan(), TimeSpan.Parse(item.data.baseData.duration));
+                Assert.IsTrue(item.data.baseData.success);
+            }
         }
 
         [TestMethod]
@@ -218,7 +244,6 @@
             telemetry.ClearOperationDetails();
         }
 
-#if !NETCOREAPP1_1
         [TestMethod]
         public void DependencyTelemetryDeepCloneCopiesAllProperties()
         {
@@ -231,7 +256,15 @@
             ComparisonResult result = deepComparator.Compare(telemetry, other);
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
-#endif
+
+        [TestMethod]
+        public void DependencyTelemetryDeepCloneWithNullExtensionDoesNotThrow()
+        {
+            var telemetry = new DependencyTelemetry();
+            // Extension is not set, means it'll be null.
+            // Validate that cloning with null Extension does not throw.
+            var other = telemetry.DeepClone();
+        }
 
         private DependencyTelemetry CreateRemoteDependencyTelemetry()
         {
@@ -249,7 +282,7 @@
             item.Context.InstrumentationKey = Guid.NewGuid().ToString();
             item.Properties.Add("TestProperty", "TestValue");
             item.Context.GlobalProperties.Add("TestPropertyGlobal", "TestValue");
-
+            item.Extension = new MyTestExtension();
             return item;
         }
 
