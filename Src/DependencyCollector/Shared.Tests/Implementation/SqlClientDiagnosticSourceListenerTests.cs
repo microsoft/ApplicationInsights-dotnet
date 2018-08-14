@@ -96,7 +96,7 @@ namespace Microsoft.ApplicationInsights.Tests
 
                 Assert.AreEqual(activity.RootId, dependencyTelemetry.Context.Operation.Id);
                 Assert.AreEqual(parentActivity.Id, dependencyTelemetry.Context.Operation.ParentId);
-                Assert.AreEqual("123", dependencyTelemetry.Context.Properties["Stuff"]);
+                Assert.AreEqual("123", dependencyTelemetry.Properties["Stuff"]);
             }
             finally
             {
