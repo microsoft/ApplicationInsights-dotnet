@@ -155,63 +155,106 @@
         }
 
         private static void SerializeTelemetryItem(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter)
-        {                        
-                if (telemetryItem is EventTelemetry)
-                {
-                    EventTelemetry eventTelemetry = telemetryItem as EventTelemetry;
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, eventTelemetry.Data.properties);
-                }
-                else if (telemetryItem is ExceptionTelemetry)
-                {
-                    ExceptionTelemetry exTelemetry = telemetryItem as ExceptionTelemetry;
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, exTelemetry.Data.Data.properties);
-                }
-                else if (telemetryItem is MetricTelemetry)
-                {
-                    MetricTelemetry mTelemetry = telemetryItem as MetricTelemetry;
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, mTelemetry.Data.properties);
-                }
-                else if (telemetryItem is PageViewTelemetry)
-                {
-                    PageViewTelemetry pvTelemetry = telemetryItem as PageViewTelemetry;
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pvTelemetry.Data.properties);
-                }
-                else if (telemetryItem is PageViewPerformanceTelemetry)
-                {
-                    PageViewPerformanceTelemetry pvptelemetry = telemetryItem as PageViewPerformanceTelemetry;
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pvptelemetry.Data.properties);
-                }
-                else if (telemetryItem is DependencyTelemetry)
-                {
-                    DependencyTelemetry depTelemetry = telemetryItem as DependencyTelemetry;
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, depTelemetry.InternalData.properties);
-                }
-                else if (telemetryItem is RequestTelemetry)
-                {
-                    RequestTelemetry reqTelemetry = telemetryItem as RequestTelemetry;
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, reqTelemetry.Data.properties);
-                }
+        {
+            jsonSerializationWriter.WriteStartObject();
+
+            if (telemetryItem is EventTelemetry)
+            {
+                EventTelemetry eventTelemetry = telemetryItem as EventTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, eventTelemetry.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, eventTelemetry.BaseType, EventTelemetry.TelemetryName);
+            }
+            else if (telemetryItem is ExceptionTelemetry)
+            {
+                ExceptionTelemetry exTelemetry = telemetryItem as ExceptionTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, exTelemetry.Data.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, exTelemetry.BaseType, ExceptionTelemetry.TelemetryName);
+            }
+            else if (telemetryItem is MetricTelemetry)
+            {
+                MetricTelemetry mTelemetry = telemetryItem as MetricTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, mTelemetry.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, mTelemetry.BaseType, MetricTelemetry.TelemetryName);                
+            }
+            else if (telemetryItem is PageViewTelemetry)
+            {
+                PageViewTelemetry pvTelemetry = telemetryItem as PageViewTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pvTelemetry.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, pvTelemetry.BaseType, PageViewTelemetry.TelemetryName);
+            }
+            else if (telemetryItem is PageViewPerformanceTelemetry)
+            {
+                PageViewPerformanceTelemetry pvptelemetry = telemetryItem as PageViewPerformanceTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pvptelemetry.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, PageViewPerformanceTelemetry.BaseType, PageViewPerformanceTelemetry.TelemetryName);
+            }
+            else if (telemetryItem is DependencyTelemetry)
+            {
+                DependencyTelemetry depTelemetry = telemetryItem as DependencyTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, depTelemetry.InternalData.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, depTelemetry.BaseType, DependencyTelemetry.TelemetryName);                
+            }
+            else if (telemetryItem is RequestTelemetry)
+            {
+                RequestTelemetry reqTelemetry = telemetryItem as RequestTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, reqTelemetry.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, reqTelemetry.BaseType, RequestTelemetry.TelemetryName);                
+            }
 #pragma warning disable 618
-                else if (telemetryItem is PerformanceCounterTelemetry)
-                {
-                    PerformanceCounterTelemetry pcTelemetry = telemetryItem as PerformanceCounterTelemetry;
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pcTelemetry.Properties);
-                }
+            else if (telemetryItem is PerformanceCounterTelemetry)
+            {
+                PerformanceCounterTelemetry pcTelemetry = telemetryItem as PerformanceCounterTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, pcTelemetry.Properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, pcTelemetry.Data.BaseType, MetricTelemetry.TelemetryName);
+            }
+            else if (telemetryItem is SessionStateTelemetry)
+            {
+                SessionStateTelemetry ssTelemetry = telemetryItem as SessionStateTelemetry;
+                SerializeHelper(telemetryItem, jsonSerializationWriter, ssTelemetry.Data.BaseType, EventTelemetry.TelemetryName);
+            }
 #pragma warning restore 618
-                else if (telemetryItem is TraceTelemetry)
-                {
-                    TraceTelemetry traceTelemetry = telemetryItem as TraceTelemetry;
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, traceTelemetry.Data.properties);
-                }                
-                else if (telemetryItem is AvailabilityTelemetry)
-                {
-                    AvailabilityTelemetry availabilityTelemetry = telemetryItem as AvailabilityTelemetry;
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, availabilityTelemetry.Data.properties);
-                }
-                
-                jsonSerializationWriter.WriteStartObject();
-                telemetryItem.Serialize(jsonSerializationWriter);
-                jsonSerializationWriter.WriteEndObject();
+        else if (telemetryItem is TraceTelemetry)
+            {
+                TraceTelemetry traceTelemetry = telemetryItem as TraceTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, traceTelemetry.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, traceTelemetry.BaseType, TraceTelemetry.TelemetryName);
+            }                
+            else if (telemetryItem is AvailabilityTelemetry)
+            {
+                AvailabilityTelemetry availabilityTelemetry = telemetryItem as AvailabilityTelemetry;
+                Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, availabilityTelemetry.Data.properties);
+
+                SerializeHelper(telemetryItem, jsonSerializationWriter, availabilityTelemetry.BaseType, AvailabilityTelemetry.TelemetryName);
+            }
+            else
+            {
+                string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemetry type: {0}", telemetryItem.GetType());
+                CoreEventSource.Log.LogVerbose(msg);
+            }
+
+            jsonSerializationWriter.WriteEndObject();
+        }
+
+        private static void SerializeHelper(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter, string baseType, string telemetryName)
+        {
+            jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(telemetryName));
+            telemetryItem.WriteEnvelopeProperties(jsonSerializationWriter);
+            jsonSerializationWriter.WriteStartObject("data");
+            jsonSerializationWriter.WriteProperty("baseType", baseType);
+            jsonSerializationWriter.WriteStartObject("baseData");
+            telemetryItem.SerializeData(jsonSerializationWriter);
+            jsonSerializationWriter.WriteEndObject(); // baseData
+            jsonSerializationWriter.WriteProperty("extension", telemetryItem.Extension);
+            jsonSerializationWriter.WriteEndObject(); // data
         }
 
         /// <summary>

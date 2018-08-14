@@ -100,7 +100,7 @@
         public abstract ITelemetry DeepClone();
 
         /// <inheritdoc/>
-        public abstract void Serialize(ISerializationWriter serializationWriter);
+        public abstract void SerializeData(ISerializationWriter serializationWriter);
 
         /// <summary>
         /// Sets operation Id.

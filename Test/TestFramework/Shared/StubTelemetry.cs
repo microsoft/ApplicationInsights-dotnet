@@ -51,5 +51,10 @@
         {
             
         }
+
+        public void SerializeData(ISerializationWriter serializationWriter)
+        {
+
+        }
     }
 }
