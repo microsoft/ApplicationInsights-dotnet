@@ -411,6 +411,32 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
             }
         }
 
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void DisablesAppInsightsDataByDefault()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                Assert.AreEqual(1, module.DisabledSources.Count);
+                Assert.AreEqual(new DisableEventSourceRequest { Name = "Microsoft-ApplicationInsights-Data" }, module.DisabledSources[0]);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void DoesNotDisableAppInsightsDataIfExplicitlyEnabled()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                module.Sources.Add(new EventSourceListeningRequest { Name = "Microsoft-ApplicationInsights-Data" });
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                Assert.AreEqual(0, module.DisabledSources.Count);
+            }
+        }
+
         private Task PerformActivityAsync(int requestId)
         {
             return Task.Run(async () =>
