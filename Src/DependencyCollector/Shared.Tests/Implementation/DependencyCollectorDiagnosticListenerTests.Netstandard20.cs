@@ -103,7 +103,7 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual(activity.RootId, telemetry.Context.Operation.Id);
             Assert.AreEqual(activity.ParentId, telemetry.Context.Operation.ParentId);
             Assert.AreEqual(activity.Id, telemetry.Id);
-            Assert.AreEqual("v", telemetry.Context.Properties["k"]);
+            Assert.AreEqual("v", telemetry.Properties["k"]);
 
             string expectedVersion =
                 SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), prefix: "rdddsc:");
@@ -206,7 +206,7 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual(parent.RootId, telemetry.Context.Operation.Id);
             Assert.AreEqual(parent.Id, telemetry.Context.Operation.ParentId);
             Assert.AreEqual(activity.Id, telemetry.Id);
-            Assert.AreEqual("v", telemetry.Context.Properties["k"]);
+            Assert.AreEqual("v", telemetry.Properties["k"]);
 
             string expectedVersion =
                 SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), prefix: "rdddsc:");
@@ -285,7 +285,7 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual(exception, exceptionTelemetry.Exception);
             Assert.AreEqual(exceptionTelemetry.Context.Operation.Id, dependencyTelemetry.Context.Operation.Id);
             Assert.AreEqual(exceptionTelemetry.Context.Operation.ParentId, dependencyTelemetry.Id);
-            Assert.AreEqual("The server name or address could not be resolved", dependencyTelemetry.Context.Properties["Error"]);
+            Assert.AreEqual("The server name or address could not be resolved", dependencyTelemetry.Properties["Error"]);
 
             // Check the operation details
             this.ValidateOperationDetails(dependencyTelemetry, responseExpected: false);
