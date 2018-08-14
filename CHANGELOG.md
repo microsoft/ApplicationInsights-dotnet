@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.4.1
+- Patch release to update Web/Base SDK version dependency to 2.7.2 which fixed a bug (https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/970)
+
 ## Version 2.4.0
 - Updated Web/Base SDK version dependency to 2.7.1
 
