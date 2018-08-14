@@ -361,23 +361,23 @@
             { 
                 if (Math.Round(timeout.TotalMilliseconds) >= (double)Int32.MaxValue)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(timeout), $"{nameof(timeout)} must be smaller than {Int32.MaxValue} msec, but it is {timeout}.");
+                    throw new ArgumentOutOfRangeException(nameof(timeout), Invariant($"{nameof(timeout)} must be smaller than {Int32.MaxValue} msec, but it is {timeout}."));
                 }
 
                 if (Math.Round(timeout.TotalMilliseconds) < 1)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(timeout), $"{nameof(timeout)} must be zero, positive or Infinite, but it is {timeout}.");
+                    throw new ArgumentOutOfRangeException(nameof(timeout), Invariant($"{nameof(timeout)} must be zero, positive or Infinite, but it is {timeout}."));
                 }
             }
 
             if (Math.Round(sleepDuration.TotalMilliseconds) > (double)Int32.MaxValue)
             {
-                throw new ArgumentOutOfRangeException(nameof(sleepDuration), $"{nameof(sleepDuration)} must be smaller than {Int32.MaxValue} msec, but it is {sleepDuration}.");
+                throw new ArgumentOutOfRangeException(nameof(sleepDuration), Invariant($"{nameof(sleepDuration)} must be smaller than {Int32.MaxValue} msec, but it is {sleepDuration}."));
             }
 
             if (Math.Round(sleepDuration.TotalMilliseconds) < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(sleepDuration), $"{nameof(sleepDuration)} must be non-negative, but it is {sleepDuration}.");
+                throw new ArgumentOutOfRangeException(nameof(sleepDuration), Invariant($"{nameof(sleepDuration)} must be non-negative, but it is {sleepDuration}."));
             }
 
             int timeoutMillis = (int)Math.Round(timeout.TotalMilliseconds);
