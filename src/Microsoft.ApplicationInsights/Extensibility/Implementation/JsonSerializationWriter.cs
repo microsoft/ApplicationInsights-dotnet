@@ -154,10 +154,8 @@
         public void WriteProperty(ISerializableWithWriter value)
         {
             if (value != null)
-            {
-                this.WriteStartObject();
-                value.Serialize(this);
-                this.WriteEndObject();
+            {                
+                value.Serialize(this);                
             }
         }
 
