@@ -100,9 +100,6 @@
         public abstract ITelemetry DeepClone();
 
         /// <inheritdoc/>
-        public abstract void Serialize(ISerializationWriter serializationWriter);
-
-        /// <inheritdoc/>
         public abstract void SerializeData(ISerializationWriter serializationWriter);
 
         /// <summary>

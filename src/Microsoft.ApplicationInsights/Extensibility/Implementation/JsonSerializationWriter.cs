@@ -151,6 +151,17 @@
         }
 
         /// <inheritdoc/>
+        public void WriteProperty(ISerializableWithWriter value)
+        {
+            if (value != null)
+            {
+                this.WriteStartObject();
+                value.Serialize(this);
+                this.WriteEndObject();
+            }
+        }
+
+        /// <inheritdoc/>
         public void WriteProperty(string name, IDictionary<string, double> values)
         {
             if (values != null && values.Count > 0)

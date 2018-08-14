@@ -342,21 +342,9 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <inheritdoc/>
-        public override void Serialize(ISerializationWriter serializationWriter)
-        {            
-            serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
-            this.WriteEnvelopeProperties(serializationWriter);                      
-            serializationWriter.WriteStartObject("data");
-            serializationWriter.WriteProperty("baseType", this.BaseType);
-            this.SerializeData(serializationWriter);
-            serializationWriter.WriteEndObject(); // data            
-        }
-
-        /// <inheritdoc/>
         public override void SerializeData(ISerializationWriter serializationWriter)
         {
-            serializationWriter.WriteProperty("baseData", this.InternalData);
-            serializationWriter.WriteProperty("extension", this.Extension);
+            serializationWriter.WriteProperty(this.InternalData);            
         }
 
         /// <summary>

@@ -141,12 +141,6 @@
         }
 
         /// <inheritdoc/>
-        public void Serialize(ISerializationWriter serializationWriter)
-        {
-            this.Data.Serialize(serializationWriter);
-        }
-
-        /// <inheritdoc/>
         public void SerializeData(ISerializationWriter serializationWriter)
         {
             this.Data.SerializeData(serializationWriter);

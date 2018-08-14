@@ -44,6 +44,11 @@
         void WriteProperty(string name, ISerializableWithWriter value);
 
         /// <summary>
+        /// Writes value ISerializableWithWriter field
+        /// </summary>
+        void WriteProperty(ISerializableWithWriter value);
+
+        /// <summary>
         /// Writes name and values for a IList field of strings
         /// </summary>
         void WriteProperty(string name, IList<string> items);
