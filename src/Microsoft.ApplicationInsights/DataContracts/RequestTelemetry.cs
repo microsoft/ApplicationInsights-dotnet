@@ -236,15 +236,9 @@
         }
 
         /// <inheritdoc/>
-        public override void Serialize(ISerializationWriter serializationWriter)
-        {
-            serializationWriter.WriteProperty("name", this.WriteTelemetryName(TelemetryName));
-            this.WriteEnvelopeProperties(serializationWriter);
-            serializationWriter.WriteStartObject("data");
-            serializationWriter.WriteProperty("baseType", this.BaseType);
-            serializationWriter.WriteProperty("baseData", this.Data);
-            serializationWriter.WriteProperty("extension", this.Extension);
-            serializationWriter.WriteEndObject(); // data
+        public override void SerializeData(ISerializationWriter serializationWriter)
+        {            
+            serializationWriter.WriteProperty(this.Data);                        
         }
 
         /// <summary>
