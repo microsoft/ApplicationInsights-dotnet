@@ -20,7 +20,7 @@
         internal readonly MetricConfiguration configuration;
 #pragma warning restore SA1307, SA1304, SA1401
 
-        private const string NullMetricObjectId = "null";
+        // private const string NullMetricObjectId = "null";
 
         private readonly MetricSeries zeroDimSeries;
         private readonly IReadOnlyList<KeyValuePair<string[], MetricSeries>> zeroDimSeriesList;

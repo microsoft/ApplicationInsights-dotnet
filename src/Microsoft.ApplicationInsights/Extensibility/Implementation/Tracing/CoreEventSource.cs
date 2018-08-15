@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
+#pragma warning disable CA1801 // Parameter appDomainName of method _ is never used. Remove the parameter or use it in the method body.
+
     using System.Diagnostics.Tracing;
 
     [EventSource(Name = "Microsoft-ApplicationInsights-Core")]
@@ -9,7 +11,7 @@
 
         private readonly ApplicationNameProvider nameProvider = new ApplicationNameProvider();
 
-        public bool IsVerboseEnabled
+        public static bool IsVerboseEnabled
         {
             [NonEvent]
             get
@@ -548,4 +550,6 @@
             public const EventKeywords ErrorFailure = (EventKeywords)EventSourceKeywords.ErrorFailure;
         }
     }
+
+#pragma warning restore CA1801
 }

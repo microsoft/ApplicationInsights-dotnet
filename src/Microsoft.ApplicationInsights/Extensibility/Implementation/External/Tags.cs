@@ -68,7 +68,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             if (tagValue.HasValue)
             {
-                tags.Add(tagKey, tagValue.Value.ToString());
+                tags.Add(tagKey, tagValue.Value.ToString(CultureInfo.InvariantCulture));
             }
         }
 

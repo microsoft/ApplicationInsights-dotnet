@@ -135,7 +135,7 @@
 
             if (string.IsNullOrEmpty(item.Context.InstrumentationKey))
             {
-                if (CoreEventSource.Log.IsVerboseEnabled)
+                if (CoreEventSource.IsVerboseEnabled)
                 {
                     CoreEventSource.Log.ItemRejectedNoInstrumentationKey(item.ToString());
                 }
