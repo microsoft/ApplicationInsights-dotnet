@@ -41,6 +41,10 @@
         [TestCleanup]
         public void Cleanup()
         {
+            while (Activity.Current != null)
+            {
+                Activity.Current.Stop();
+            }
         }
 
 #region ExecuteReader

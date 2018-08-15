@@ -9,6 +9,7 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlClientDiagnostics;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.W3C;
 #if NETSTANDARD1_6
     using System.Reflection;
     using System.Runtime.Versioning;
@@ -42,9 +43,6 @@
         private TelemetryConfiguration telemetryConfiguration;
         private bool isInitialized = false;
         private bool disposed = false;
-        private bool correlationHeadersEnabled = true;
-        private ICollection<string> excludedCorrelationDomains = new SanitizedHostList();
-        private ICollection<string> includeDiagnosticSourceActivities = new List<string>();
 
         /// <summary>
         /// Gets or sets a value indicating whether to disable runtime instrumentation.
@@ -62,42 +60,24 @@
         public bool EnableLegacyCorrelationHeadersInjection { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to enable W3C distributed tracing headers injection.
+        /// </summary>
+        public bool EnableW3CHeadersInjection { get; set; } = false;
+
+        /// <summary>
         /// Gets the component correlation configuration.
         /// </summary>
-        public ICollection<string> ExcludeComponentCorrelationHttpHeadersOnDomains
-        {
-            get
-            {
-                return this.excludedCorrelationDomains;
-            }
-        }
+        public ICollection<string> ExcludeComponentCorrelationHttpHeadersOnDomains { get; } = new SanitizedHostList();
 
         /// <summary>
         /// Gets the list of diagnostic sources and activities to exclude from collection.
         /// </summary>
-        public ICollection<string> IncludeDiagnosticSourceActivities
-        {
-            get
-            {
-                return this.includeDiagnosticSourceActivities;
-            }
-        }
+        public ICollection<string> IncludeDiagnosticSourceActivities { get; } = new List<string>();
 
         /// <summary>
         /// Gets or sets a value indicating whether the correlation headers would be set on outgoing http requests.
         /// </summary>
-        public bool SetComponentCorrelationHttpHeaders
-        {
-            get
-            {
-                return this.correlationHeadersEnabled;
-            }
-
-            set
-            {
-                this.correlationHeadersEnabled = value;
-            }
-        }
+        public bool SetComponentCorrelationHttpHeaders { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the endpoint that is to be used to get the application insights resource's profile (appId etc.).
@@ -130,8 +110,12 @@
                     if (!this.isInitialized)
                     {
                         try
-                        {                            
+                        {
                             this.telemetryConfiguration = configuration;
+
+#if NET45
+                            ClientServerDependencyTracker.IsW3CEnabled = this.EnableW3CHeadersInjection;
+#endif
 
 #if !NETSTANDARD1_6
                             // Net40 only supports runtime instrumentation
@@ -144,7 +128,8 @@
                                 configuration,
                                 this.SetComponentCorrelationHttpHeaders,
                                 this.ExcludeComponentCorrelationHttpHeadersOnDomains,
-                                this.EnableLegacyCorrelationHeadersInjection);
+                                this.EnableLegacyCorrelationHeadersInjection,
+                                this.EnableW3CHeadersInjection);
 
                             if (this.IncludeDiagnosticSourceActivities != null && this.IncludeDiagnosticSourceActivities.Count > 0)
                             {
@@ -198,7 +183,8 @@
                 DependencyTableStore.Instance.WebRequestConditionalHolder,
                 this.SetComponentCorrelationHttpHeaders,
                 this.ExcludeComponentCorrelationHttpHeadersOnDomains,
-                this.EnableLegacyCorrelationHeadersInjection);
+                this.EnableLegacyCorrelationHeadersInjection,
+                this.EnableW3CHeadersInjection);
             this.sqlCommandProcessing = new ProfilerSqlCommandProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
             this.sqlConnectionProcessing = new ProfilerSqlConnectionProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
 
@@ -274,7 +260,8 @@
                     DependencyTableStore.Instance.WebRequestCacheHolder,
                     this.SetComponentCorrelationHttpHeaders,
                     this.ExcludeComponentCorrelationHttpHeadersOnDomains,
-                    this.EnableLegacyCorrelationHeadersInjection);
+                    this.EnableLegacyCorrelationHeadersInjection,
+                    this.EnableW3CHeadersInjection);
                 this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(desktopHttpProcessing, new ApplicationInsightsUrlFilter(this.telemetryConfiguration));
             }
 

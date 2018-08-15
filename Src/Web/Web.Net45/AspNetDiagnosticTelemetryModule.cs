@@ -5,12 +5,13 @@
     using System.Diagnostics;
     using System.Web;
     using Microsoft.ApplicationInsights.Common;
-    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.W3C;
     using Microsoft.ApplicationInsights.Web.Implementation;
 
+#pragma warning disable 612, 618
     /// <summary>
     /// Listens to ASP.NET DiagnosticSource and enables instrumentation with Activity: let ASP.NET create root Activity for the request.
     /// </summary>
@@ -142,30 +143,36 @@
                     {
                         var context = HttpContext.Current;
                         var request = context.Request;
-                        string rootId = null;
-                        if (ActivityHelpers.RootOperationIdHeaderName != null)
-                        {
-                            rootId = request.UnvalidatedGetHeader(ActivityHelpers.RootOperationIdHeaderName);
-                        }
 
-                        if (!string.IsNullOrEmpty(rootId))
+                        if (ActivityHelpers.IsW3CTracingEnabled)
                         {
-                            // Got legacy headers from older AppInsights version or some custom header.
-                            // Let's set activity ParentId with custom root id
-                            activity.SetParentId(rootId);
+                            ActivityHelpers.ExtractW3CContext(request, activity);
                         }
-                        else
+                        
+                        if (activity.ParentId == null)
                         {
+                            string rootId = null;
+                            if (ActivityHelpers.RootOperationIdHeaderName != null)
+                            {
+                                rootId = request.UnvalidatedGetHeader(ActivityHelpers.RootOperationIdHeaderName);
+                            }
+
+                            string traceId = ActivityHelpers.IsW3CTracingEnabled
+                                ? activity.GetTraceId()
+                                : StringUtilities.GenerateTraceId();
+
                             // As a first step in supporting W3C protocol in ApplicationInsights,
                             // we want to generate Activity Ids in the W3C compatible format.
                             // While .NET changes to Activity are pending, we want to ensure trace starts with W3C compatible Id
                             // as early as possible, so that everyone has a chance to upgrade and have compatibility with W3C systems once they arrive.
                             // So if there is no current Activity (i.e. there were no Request-Id header in the incoming request), we'll override ParentId on 
                             // the current Activity by the properly formatted one. This workaround should go away
-                            // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331 (TODO)
-                            activity.SetParentId(StringUtilities.GenerateTraceId());
-
-                            // end of workaround
+                            // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
+                            // So, if there were no headers we generate W3C compatible Id,
+                            // otherwise use legacy/custom headers that were provided
+                            activity.SetParentId(!string.IsNullOrEmpty(rootId)
+                                ? rootId // legacy or custom headers
+                                : traceId);
                         }
                     }
                 }
@@ -240,4 +247,5 @@
             }
         }
     }
+#pragma warning restore 612, 618
 }

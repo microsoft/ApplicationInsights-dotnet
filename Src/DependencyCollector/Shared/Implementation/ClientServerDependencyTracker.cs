@@ -2,16 +2,17 @@
 {
     using System;
     using System.Data.SqlClient;
-#if NET45
     using System.Diagnostics;
-#endif
     using System.Net;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.W3C;
 
     internal static class ClientServerDependencyTracker
     {
-        private const string DependencyActivityName = "Microsoft.AppInsights.Web.Dependency";
+        internal const string DependencyActivityName = "Microsoft.ApplivationInsights.Web.Dependency";
+
+        internal static bool IsW3CEnabled { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether pretending the profiler is attached or not.
@@ -57,7 +58,7 @@
                 telemetryClient.Initialize(telemetry);
 
                 // Every operation must have its own Activity
-                // if dependency is tracked with profiler of event source, we need to generate a proper hierarchical Id for it
+                // if dependency is tracked with profiler of event source, we need to generate a proper Id for it
                 // in case of HTTP it will be propagated into the requert header.
                 // So, we will create a new Activity for the dependency, just to generate an Id.
                 activity = new Activity(DependencyActivityName);
@@ -77,7 +78,6 @@
                 // end of workaround
 
                 activity.Start();
-                activity.Stop();
             }
 
             // telemetry is initialized from current Activity (root and parent Id, but not the Id)
@@ -88,6 +88,13 @@
             {
                 telemetry.Context.Operation.Id = activity.RootId;
             }
+
+#pragma warning disable 612, 618
+            if (IsW3CEnabled)
+            {
+                W3COperationCorrelationTelemetryInitializer.UpdateTelemetry(telemetry, activity, true);
+            }
+#pragma warning restore 612, 618
 
             PretendProfilerIsAttached = false;
             return telemetry;

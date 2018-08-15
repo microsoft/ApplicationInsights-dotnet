@@ -16,6 +16,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.W3C;
 
     internal class HttpCoreDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
     {
@@ -56,8 +57,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         private readonly bool isNetCore20HttpClient;
         private readonly bool injectLegacyHeaders = false;
+        private readonly bool injectW3CHeaders = false;
 
-        public HttpCoreDiagnosticSourceListener(TelemetryConfiguration configuration, bool setComponentCorrelationHttpHeaders, IEnumerable<string> correlationDomainExclusionList, bool injectLegacyHeaders)
+        public HttpCoreDiagnosticSourceListener(
+            TelemetryConfiguration configuration, 
+            bool setComponentCorrelationHttpHeaders, 
+            IEnumerable<string> correlationDomainExclusionList,
+            bool injectLegacyHeaders,
+            bool injectW3CHeaders)
         {
             this.client = new TelemetryClient(configuration);
             this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceCore + ":");
@@ -70,6 +77,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.setComponentCorrelationHttpHeaders = setComponentCorrelationHttpHeaders;
             this.correlationDomainExclusionList = correlationDomainExclusionList ?? Enumerable.Empty<string>();
             this.injectLegacyHeaders = injectLegacyHeaders;
+            this.injectW3CHeaders = injectW3CHeaders;
 
             this.subscriber = new HttpCoreDiagnosticSourceSubscriber(this, this.applicationInsightsUrlFilter, this.isNetCore20HttpClient);
         }
@@ -336,12 +344,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 return;
             }
 
-            // If we started auxiliary Activity before to override the Id with W3C compatible one, now it's time to stop it
-            if (currentActivity.Duration == TimeSpan.Zero)
-            {
-                currentActivity.Stop();
-            }
-
             DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStop(currentActivity.Id);
 
             Uri requestUri = request.RequestUri;
@@ -364,6 +366,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             
             this.client.Initialize(telemetry);
 
+            // If we started auxiliary Activity before to override the Id with W3C compatible one, now it's time to stop it
+            if (currentActivity.Duration == TimeSpan.Zero)
+            {
+                currentActivity.Stop();
+            }
+
             telemetry.Timestamp = currentActivity.StartTimeUtc;
             telemetry.Name = resourceName;
             telemetry.Target = requestUri.Host;
@@ -384,6 +392,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                 telemetry.ResultCode = requestTaskStatus.ToString();
                 telemetry.Success = false;
+            }
+
+            if (this.injectW3CHeaders)
+            {
+                // this.SetLegacyId(telemetry, request);
             }
 
             this.client.TrackDependency(telemetry);
@@ -444,18 +457,17 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
         }
 
+#pragma warning disable 612, 618
         private void InjectRequestHeaders(HttpRequestMessage request, string instrumentationKey, bool isLegacyEvent = false)
         {
             try
             {
-                var currentActivity = Activity.Current;
-
                 HttpRequestHeaders requestHeaders = request.Headers;
                 if (requestHeaders != null && this.setComponentCorrelationHttpHeaders && !this.correlationDomainExclusionList.Contains(request.RequestUri.Host))
                 {
+                    string sourceApplicationId = null;
                     try
                     {
-                        string sourceApplicationId = null;
                         if (!string.IsNullOrEmpty(instrumentationKey)
                             && !HttpHeadersUtilities.ContainsRequestContextKeyValue(requestHeaders, RequestResponseHeaders.RequestContextCorrelationSourceKey)
                             && (this.configuration.ApplicationIdProvider?.TryGetApplicationId(instrumentationKey, out sourceApplicationId) ?? false))
@@ -468,6 +480,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         AppMapCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
                     }
 
+                    var currentActivity = Activity.Current;
                     if (isLegacyEvent)
                     {
                         if (!requestHeaders.Contains(RequestResponseHeaders.RequestIdHeader))
@@ -475,25 +488,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             requestHeaders.Add(RequestResponseHeaders.RequestIdHeader, currentActivity.Id);
                         }
 
-                        if (!requestHeaders.Contains(RequestResponseHeaders.CorrelationContextHeader))
-                        {
-                            // we expect baggage to be empty or contain a few items
-                            using (IEnumerator<KeyValuePair<string, string>> e = currentActivity.Baggage.GetEnumerator())
-                            {
-                                if (e.MoveNext())
-                                {
-                                    var baggage = new List<string>();
-                                    do
-                                    {
-                                        KeyValuePair<string, string> item = e.Current;
-                                        baggage.Add(new NameValueHeaderValue(item.Key, item.Value).ToString());
-                                    }
-                                    while (e.MoveNext());
-
-                                    requestHeaders.Add(RequestResponseHeaders.CorrelationContextHeader, baggage);
-                                }
-                            }
-                        }
+                        this.InjectCorrelationContext(requestHeaders, currentActivity);
                     }
 
                     if (this.injectLegacyHeaders)
@@ -512,6 +507,40 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             requestHeaders.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
                         }
                     }
+
+                    if (this.injectW3CHeaders)
+                    {
+                        currentActivity.UpdateContextOnActivity();
+                        string traceParent = currentActivity.GetTraceparent();
+                        if (traceParent != null && !requestHeaders.Contains(W3CConstants.TraceParentHeader))
+                        {
+                            requestHeaders.Add(W3CConstants.TraceParentHeader, traceParent);
+                        }
+
+                        string traceState = currentActivity.GetTracestate();
+                        if (!requestHeaders.Contains(W3CConstants.TraceStateHeader))
+                        {
+                            if (sourceApplicationId != null)
+                            {
+                                // TODO: there could be another az in the state.
+                                // last updated state should appear first in the tracestate
+                                string appIdPair = StringUtilities.FormatAzureTracestate(sourceApplicationId);
+                                if (traceState == null)
+                                {
+                                    traceState = appIdPair;
+                                }
+                                else
+                                {
+                                    traceState = appIdPair + "," + traceState;
+                                }
+                            }
+
+                            if (traceState != null)
+                            {
+                                requestHeaders.Add(W3CConstants.TraceStateHeader, traceState);
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception e)
@@ -519,6 +548,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 AppMapCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
             }
         }
+#pragma warning restore 612, 618
 
         private void ParseResponse(HttpResponseMessage response, DependencyTelemetry telemetry)
         {
@@ -547,6 +577,29 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             int statusCode = (int)response.StatusCode;
             telemetry.ResultCode = (statusCode > 0) ? statusCode.ToString(CultureInfo.InvariantCulture) : string.Empty;
             telemetry.Success = (statusCode > 0) && (statusCode < 400);
+        }
+
+        private void InjectCorrelationContext(HttpRequestHeaders requestHeaders, Activity currentActivity)
+        {
+            if (!requestHeaders.Contains(RequestResponseHeaders.CorrelationContextHeader))
+            {
+                // we expect baggage to be empty or contain a few items
+                using (IEnumerator<KeyValuePair<string, string>> e = currentActivity.Baggage.GetEnumerator())
+                {
+                    if (e.MoveNext())
+                    {
+                        var baggage = new List<string>();
+                        do
+                        {
+                            KeyValuePair<string, string> item = e.Current;
+                            baggage.Add(new NameValueHeaderValue(item.Key, item.Value).ToString());
+                        }
+                        while (e.MoveNext());
+
+                        requestHeaders.Add(RequestResponseHeaders.CorrelationContextHeader, baggage);
+                    }
+                }
+            }
         }
 
         /// <summary>

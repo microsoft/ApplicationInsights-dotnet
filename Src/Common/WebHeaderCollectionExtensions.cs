@@ -25,7 +25,7 @@
             Debug.Assert(headerName != null, "headerName must not be null");
             Debug.Assert(keyName != null, "keyName must not be null");
 
-            IEnumerable<string> headerValue = GetHeaderValue(headers, headerName);
+            IEnumerable<string> headerValue = headers.GetHeaderValue(headerName);
             return HeadersUtilities.GetHeaderKeyValue(headerValue, keyName);
         }
 
@@ -39,7 +39,7 @@
         {
             Debug.Assert(headerName != null, "headerName must not be null");
 
-            IEnumerable<string> headerValue = GetHeaderValue(headers, headerName);
+            IEnumerable<string> headerValue = headers.GetHeaderValue(headerName);
             return HeadersUtilities.GetHeaderDictionary(headerValue);
         }
         
@@ -55,8 +55,8 @@
             Debug.Assert(headerName != null, "headerName must not be null");
             Debug.Assert(keyName != null, "keyName must not be null");
 
-            IEnumerable<string> headerValue = GetHeaderValue(headers, headerName);
-            headers[headerName] = string.Join(", ", HeadersUtilities.UpdateHeaderWithKeyValue(headerValue, keyName, value));
+            IEnumerable<string> headerValue = headers.GetHeaderValue(headerName);
+            headers[headerName] = string.Join(",", HeadersUtilities.UpdateHeaderWithKeyValue(headerValue, keyName, value));
         }
 
         /// <summary>
@@ -83,9 +83,45 @@
             }
         }
 
-        private static IEnumerable<string> GetHeaderValue(NameValueCollection headers, string headerName)
+        /// <summary>
+        /// For the given header collection, for a given header name, returns collection of header values.
+        /// </summary>
+        /// <param name="headers">Header collection.</param>
+        /// <param name="headerName">Name of the header in the collection.</param>
+        /// <param name="maxStringLength">Maximum allowed header length</param>
+        /// <param name="maxItems">Maximum allowed number comma separated values in the header</param>
+        /// <returns>List of comma separated values in the given header.</returns>
+        public static IEnumerable<string> GetHeaderValue(this NameValueCollection headers, string headerName, int maxStringLength = -1, int maxItems = -1)
         {
-            return headers[headerName]?.Split(',');
+            var headerValueStr = headers[headerName];
+            if (headerValueStr != null)
+            {
+                if (maxStringLength >= 0 && headerValueStr.Length > maxStringLength)
+                {
+                    int lastValidComma = maxStringLength;
+                    while (headerValueStr[lastValidComma] != ',' && lastValidComma > 0)
+                    {
+                        lastValidComma--;
+                    }
+
+                    if (lastValidComma <= 0)
+                    {
+                        return null;
+                    }
+
+                    headerValueStr = headerValueStr.Substring(0, lastValidComma);
+                }
+
+                var items = headerValueStr.Split(',');
+                if (maxItems > 0 && items.Length > maxItems)
+                {
+                    return items.Take(maxItems);
+                }
+
+                return items;
+            }
+
+            return null;
         }
 
         private static string FormatKeyValueHeader(string key, string value)

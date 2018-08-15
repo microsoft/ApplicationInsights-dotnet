@@ -484,11 +484,12 @@
             return telemetryId.Substring(1, telemetryId.IndexOf('.') - 1);
         }
 
-        private RequestTrackingTelemetryModule RequestTrackingTelemetryModuleFactory(TelemetryConfiguration config = null)
+        private RequestTrackingTelemetryModule RequestTrackingTelemetryModuleFactory(TelemetryConfiguration config = null, bool enableW3CTracing = false)
         {
             var module = new RequestTrackingTelemetryModule()
             {
-                EnableChildRequestTrackingSuppression = false
+                EnableChildRequestTrackingSuppression = false,
+                EnableW3CHeadersExtraction = enableW3CTracing
             };
 
             module.Initialize(config ?? this.CreateDefaultConfig(HttpModuleHelper.GetFakeHttpContext()));

@@ -36,8 +36,8 @@ namespace Microsoft.ApplicationInsights.Tests
 
         private TelemetryConfiguration configuration;
         private string testInstrumentationKey1 = nameof(testInstrumentationKey1);
-        private string testApplicationId1 = nameof(testApplicationId1);
-        private string testApplicationId2 = nameof(testApplicationId2);
+        private string testApplicationId1 = "cid-v1:" + nameof(testApplicationId1);
+        private string testApplicationId2 = "cid-v1:" + nameof(testApplicationId2);
         private StubTelemetryChannel telemetryChannel;
         private HttpCoreDiagnosticSourceListener listener;
 
@@ -84,7 +84,8 @@ namespace Microsoft.ApplicationInsights.Tests
                 this.configuration,
                 setComponentCorrelationHttpHeaders: true,
                 correlationDomainExclusionList: new string[] { "excluded.host.com" },
-                injectLegacyHeaders: false);
+                injectLegacyHeaders: false,
+                injectW3CHeaders: false);
         }
 
         /// <summary>
@@ -216,22 +217,29 @@ namespace Microsoft.ApplicationInsights.Tests
                 this.configuration,
                 setComponentCorrelationHttpHeaders: true,
                 correlationDomainExclusionList: new[] { "excluded.host.com" },
-                injectLegacyHeaders: true);
+                injectLegacyHeaders: true,
+                injectW3CHeaders: false);
 
-            Guid loggingRequestId = Guid.NewGuid();
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
-            listenerWithLegacyHeaders.OnRequest(request, loggingRequestId);
+            using (listenerWithLegacyHeaders)
+            {
+                Guid loggingRequestId = Guid.NewGuid();
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
+                listenerWithLegacyHeaders.OnRequest(request, loggingRequestId);
 
-            IOperationHolder<DependencyTelemetry> dependency;
-            Assert.IsTrue(listenerWithLegacyHeaders.PendingDependencyTelemetry.TryGetValue(request, out dependency));
-            Assert.AreEqual(0, this.sentTelemetry.Count);
+                IOperationHolder<DependencyTelemetry> dependency;
+                Assert.IsTrue(
+                    listenerWithLegacyHeaders.PendingDependencyTelemetry.TryGetValue(request, out dependency));
+                Assert.AreEqual(0, this.sentTelemetry.Count);
 
-            var legacyRootIdHeader = GetRequestHeaderValues(request, RequestResponseHeaders.StandardRootIdHeader).Single();
-            var legacyParentIdHeader = GetRequestHeaderValues(request, RequestResponseHeaders.StandardParentIdHeader).Single();
-            var requestIdHeader = GetRequestHeaderValues(request, RequestResponseHeaders.RequestIdHeader).Single();
-            Assert.AreEqual(dependency.Telemetry.Id, legacyParentIdHeader);
-            Assert.AreEqual(dependency.Telemetry.Context.Operation.Id, legacyRootIdHeader);
-            Assert.AreEqual(dependency.Telemetry.Id, requestIdHeader);
+                var legacyRootIdHeader = GetRequestHeaderValues(request, RequestResponseHeaders.StandardRootIdHeader)
+                    .Single();
+                var legacyParentIdHeader =
+                    GetRequestHeaderValues(request, RequestResponseHeaders.StandardParentIdHeader).Single();
+                var requestIdHeader = GetRequestHeaderValues(request, RequestResponseHeaders.RequestIdHeader).Single();
+                Assert.AreEqual(dependency.Telemetry.Id, legacyParentIdHeader);
+                Assert.AreEqual(dependency.Telemetry.Context.Operation.Id, legacyRootIdHeader);
+                Assert.AreEqual(dependency.Telemetry.Id, requestIdHeader);
+            }
         }
 
         /// <summary>
