@@ -183,7 +183,10 @@
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool disposing)
+        /// <summary>
+        /// Dispose the channel if not already disposed.
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
         {
             if (disposing && !this.isDisposed)
             {

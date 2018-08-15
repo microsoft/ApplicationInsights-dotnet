@@ -19,6 +19,7 @@ Microsoft.ApplicationInsights.Channel.InMemoryChannel.BacklogSize.set -> void
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.DeveloperMode.get -> bool?
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.DeveloperMode.set -> void
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.Dispose() -> void
+virtual Microsoft.ApplicationInsights.Channel.InMemoryChannel.Dispose(bool disposing) -> void
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.EndpointAddress.get -> string
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.EndpointAddress.set -> void
 Microsoft.ApplicationInsights.Channel.InMemoryChannel.Flush() -> void
@@ -361,6 +362,7 @@ Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.Cancel() ->
 Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.Delay.get -> System.TimeSpan
 Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.Delay.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.Dispose() -> void
+virtual Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.Dispose(bool disposing) -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.IsStarted.get -> bool
 Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.Start(System.Func<System.Threading.Tasks.Task> elapsed) -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryContextExtensions

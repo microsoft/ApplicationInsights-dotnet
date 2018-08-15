@@ -259,6 +259,7 @@
         public void Dispose()
         {
             this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -277,8 +278,6 @@
                 }
 
                 this.HeartbeatProvider.Dispose();
-
-                GC.SuppressFinalize(this);
             }
 
             this.disposed = true;

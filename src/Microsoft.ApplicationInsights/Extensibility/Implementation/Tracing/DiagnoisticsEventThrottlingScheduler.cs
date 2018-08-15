@@ -76,6 +76,7 @@
         public void Dispose()
         {
             this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         private static void DisposeTimer(IDisposable timer)
@@ -118,8 +119,6 @@
             if (managed && !this.disposed)
             {
                 this.DisposeAllTimers();
-
-                GC.SuppressFinalize(this);
             }
 
             this.disposed = true;
