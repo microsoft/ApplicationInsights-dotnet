@@ -97,11 +97,17 @@
                     return;
                 }
 
+                var telemetryWithProperties = telemetry as ISupportProperties;
+                if (telemetryWithProperties == null)
+                {
+                    return;
+                }
+
                 foreach (var item in activity.Baggage)
                 {
-                    if (!telemetry.Context.Properties.ContainsKey(item.Key))
+                    if (!telemetryWithProperties.Properties.ContainsKey(item.Key))
                     {
-                        telemetry.Context.Properties.Add(item);
+                        telemetryWithProperties.Properties.Add(item);
                     }
                 }
             }

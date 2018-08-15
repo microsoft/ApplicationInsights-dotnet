@@ -12,8 +12,9 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.W3C;
     using Microsoft.ApplicationInsights.Web.Implementation;
-
+    
     /// <summary>
     /// Telemetry module tracking requests using http module.
     /// </summary>
@@ -65,6 +66,11 @@
         /// Gets or sets a value indicating whether the component correlation headers would be set on http responses.
         /// </summary>
         public bool SetComponentCorrelationHttpHeaders { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to enable W3C distributed tracing headers support.
+        /// </summary>
+        public bool EnableW3CHeadersExtraction { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the endpoint that is to be used to get the application insights resource's profile (appId etc.).
@@ -173,7 +179,9 @@
 
                 try
                 {
-                    sourceAppId = context.Request.UnvalidatedGetHeaders().GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationSourceKey);
+                    sourceAppId = context.Request.UnvalidatedGetHeaders().GetNameValueHeaderValue(
+                        RequestResponseHeaders.RequestContextHeader, 
+                        RequestResponseHeaders.RequestContextCorrelationSourceKey);
                 }
                 catch (Exception ex)
                 {
@@ -238,7 +246,9 @@
             try
             {
                 if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)
-                    && context.Response.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationTargetKey) == null)
+                    && context.Response.Headers.GetNameValueHeaderValue(
+                        RequestResponseHeaders.RequestContextHeader, 
+                        RequestResponseHeaders.RequestContextCorrelationTargetKey) == null)
                 {
                     string applicationId = null;
                     if (this.telemetryConfiguration.ApplicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey, out applicationId) ?? false)
@@ -276,6 +286,8 @@
             {
                 this.childRequestTrackingSuppressionModule = new ChildRequestTrackingSuppressionModule(maxRequestsTracked: this.ChildRequestTrackingInternalDictionarySize);
             }
+
+            ActivityHelpers.IsW3CTracingEnabled = this.EnableW3CHeadersExtraction;
         }
 
         /// <summary>

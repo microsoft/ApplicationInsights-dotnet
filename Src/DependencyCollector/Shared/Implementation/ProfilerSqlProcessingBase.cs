@@ -2,6 +2,7 @@
 {
     using System;
     using System.Data.SqlClient;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Common;
@@ -254,6 +255,14 @@
             catch (Exception exception)
             {
                 DependencyCollectorEventSource.Log.CallbackError(thisObj == null ? 0 : thisObj.GetHashCode(), "OnBeginSql", exception);
+            }
+            finally
+            {
+                Activity current = Activity.Current;
+                if (current?.OperationName == ClientServerDependencyTracker.DependencyActivityName)
+                {
+                    current.Stop();
+                }
             }
 
             return null;

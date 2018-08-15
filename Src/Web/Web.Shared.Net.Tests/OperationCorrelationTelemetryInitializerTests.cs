@@ -75,11 +75,11 @@
             Assert.AreEqual(requestTelemetry.Context.Operation.Id, exceptionTelemetry.Context.Operation.Id);
             Assert.AreEqual(requestTelemetry.Id, exceptionTelemetry.Context.Operation.ParentId);
 
-            Assert.AreEqual(2, exceptionTelemetry.Context.Properties.Count);
+            Assert.AreEqual(2, exceptionTelemetry.Properties.Count);
 
             // undefined behavior for duplicates
-            Assert.IsTrue(exceptionTelemetry.Context.Properties["k1"] == "v3" || exceptionTelemetry.Context.Properties["k1"] == "v1");
-            Assert.AreEqual("v2", exceptionTelemetry.Context.Properties["k2"]);
+            Assert.IsTrue(exceptionTelemetry.Properties["k1"] == "v3" || exceptionTelemetry.Properties["k1"] == "v1");
+            Assert.AreEqual("v2", exceptionTelemetry.Properties["k2"]);
         }
 
         [TestMethod]
@@ -103,7 +103,7 @@
 
             Assert.IsNull(exceptionTelemetry.Context.Operation.ParentId);
 
-            Assert.AreEqual(0, exceptionTelemetry.Context.Properties.Count);
+            Assert.AreEqual(0, exceptionTelemetry.Properties.Count);
         }
 
         private class TestableOperationCorrelationTelemetryInitializer : OperationCorrelationTelemetryInitializer

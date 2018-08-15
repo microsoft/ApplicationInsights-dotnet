@@ -127,7 +127,7 @@
                 {
                     if (this.requestModule.SetComponentCorrelationHttpHeaders)
                     {
-                        this.AddCorreleationHeaderOnSendRequestHeaders(httpApplication);
+                        this.AddCorrelationHeaderOnSendRequestHeaders(httpApplication);
                     }
                 }
             }
@@ -137,7 +137,7 @@
         /// When sending the response headers, allow request module to add the IKey's target hash.
         /// </summary>
         /// <param name="httpApplication">HttpApplication instance.</param>
-        private void AddCorreleationHeaderOnSendRequestHeaders(HttpApplication httpApplication)
+        private void AddCorrelationHeaderOnSendRequestHeaders(HttpApplication httpApplication)
         {
             try
             {

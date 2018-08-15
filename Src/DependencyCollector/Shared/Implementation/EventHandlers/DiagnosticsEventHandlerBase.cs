@@ -47,17 +47,17 @@
 
             foreach (var item in activity.Baggage)
             {
-                if (!telemetry.Context.Properties.ContainsKey(item.Key))
+                if (!telemetry.Properties.ContainsKey(item.Key))
                 {
-                    telemetry.Context.Properties[item.Key] = item.Value;
+                    telemetry.Properties[item.Key] = item.Value;
                 }
             }
 
             foreach (var item in activity.Tags)
             {
-                if (!telemetry.Context.Properties.ContainsKey(item.Key))
+                if (!telemetry.Properties.ContainsKey(item.Key))
                 {
-                    telemetry.Context.Properties[item.Key] = item.Value;
+                    telemetry.Properties[item.Key] = item.Value;
                 }
             }
 

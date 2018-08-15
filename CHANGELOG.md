@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.8.0-beta1
+- [Adds opt-in support for W3C distributed tracing standard](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/945)
+- Update Base SDK to version 2.8.0-beta1
+
 ## Version 2.7.2
 - [Fix ServiceBus requests correlation](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/970)
 

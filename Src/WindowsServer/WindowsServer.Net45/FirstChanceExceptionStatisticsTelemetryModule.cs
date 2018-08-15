@@ -197,10 +197,10 @@
             {
                 Exception exception;
                 string exceptionType;
-                StackFrame exceptionStackFrame;
+                System.Diagnostics.StackFrame exceptionStackFrame;
                 string problemId;
                 string methodName = "UnknownMethod";
-                int methodOffset = StackFrame.OFFSET_UNKNOWN;
+                int methodOffset = System.Diagnostics.StackFrame.OFFSET_UNKNOWN;
                 bool getOperationName = false;
 
                 executionSyncObject = LOCKED;
@@ -245,7 +245,7 @@
 
                 exceptionType = exception.GetType().FullName;
 
-                exceptionStackFrame = new StackFrame(1);
+                exceptionStackFrame = new System.Diagnostics.StackFrame(1);
 
                 if (exceptionStackFrame != null)
                 {
@@ -258,7 +258,7 @@
                     }
                 }
 
-                if (methodOffset == StackFrame.OFFSET_UNKNOWN)
+                if (methodOffset == System.Diagnostics.StackFrame.OFFSET_UNKNOWN)
                 {
                     problemId = exceptionType + " at " + methodName;
                 }

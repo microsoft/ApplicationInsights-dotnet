@@ -55,8 +55,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             telemetry.Context.Operation.ParentId = currentActivity.ParentId;
             telemetry.Timestamp = currentActivity.StartTimeUtc;
 
-            telemetry.Context.Properties["DiagnosticSource"] = diagnosticListener.Name;
-            telemetry.Context.Properties["Activity"] = currentActivity.OperationName;
+            telemetry.Properties["DiagnosticSource"] = diagnosticListener.Name;
+            telemetry.Properties["Activity"] = currentActivity.OperationName;
 
             this.Client.TrackDependency(telemetry);
         }
@@ -167,9 +167,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                 // if more than one tag with the same name is specified, the first one wins
                 // TODO verify if still needed once https://github.com/Microsoft/ApplicationInsights-dotnet/issues/562 is resolved 
-                if (!telemetry.Context.Properties.ContainsKey(tag.Key))
+                if (!telemetry.Properties.ContainsKey(tag.Key))
                 {
-                    telemetry.Context.Properties.Add(tag);
+                    telemetry.Properties.Add(tag);
                 }
             }
 

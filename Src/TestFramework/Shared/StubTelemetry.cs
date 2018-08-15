@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     internal sealed class StubTelemetry : ITelemetry, ISupportProperties
@@ -26,6 +27,8 @@
 
         public IDictionary<string, string> Properties { get; set; }
 
+        public IExtension Extension { get; set; }
+
         public void Serialize(IJsonWriter writer)
         {
             this.OnSerialize(writer);
@@ -43,6 +46,10 @@
         public ITelemetry DeepClone()
         {
             return this;
+        }
+
+        public void SerializeData(ISerializationWriter serializationWriter)
+        {            
         }
     }
 }

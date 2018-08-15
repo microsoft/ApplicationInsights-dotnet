@@ -69,7 +69,13 @@ namespace Microsoft.ApplicationInsights.Tests
                 ApplicationIdProvider = new MockApplicationIdProvider(TestInstrumentationKey, TestApplicationId)
             };
 
-            this.httpDesktopProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(this.configuration, new CacheBasedOperationHolder("testCache", 100 * 1000), /*setCorrelationHeaders*/ true, new List<string>(), false);
+            this.httpDesktopProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(
+                this.configuration, 
+                new CacheBasedOperationHolder("testCache", 100 * 1000), 
+                setCorrelationHeaders: true,
+                correlationDomainExclusionList: new List<string>(),
+                injectLegacyHeaders: false,
+                enableW3CHeaders: false);
             DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 
@@ -185,7 +191,9 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
 
             this.httpDesktopProcessingFramework.OnBegin(request);
-            Assert.IsNotNull(request.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationSourceKey));
+            Assert.IsNotNull(request.Headers.GetNameValueHeaderValue(
+                RequestResponseHeaders.RequestContextHeader, 
+                RequestResponseHeaders.RequestContextCorrelationSourceKey));
         }
 
         /// <summary>
@@ -194,7 +202,13 @@ namespace Microsoft.ApplicationInsights.Tests
         [TestMethod]
         public void RddTestHttpDesktopProcessingFrameworkOnBeginAddsLegacyHeaders()
         {
-            var httpProcessingLegacyHeaders = new DesktopDiagnosticSourceHttpProcessing(this.configuration, new CacheBasedOperationHolder("testCache", 100 * 1000), /*setCorrelationHeaders*/ true, new List<string>(), true);
+            var httpProcessingLegacyHeaders = new DesktopDiagnosticSourceHttpProcessing(
+                this.configuration, 
+                new CacheBasedOperationHolder("testCache", 100 * 1000),
+                setCorrelationHeaders: true,
+                correlationDomainExclusionList: new List<string>(),
+                injectLegacyHeaders: true,
+                enableW3CHeaders: false);
             var request = WebRequest.Create(this.testUrl);
 
             Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
@@ -276,10 +290,11 @@ namespace Microsoft.ApplicationInsights.Tests
 
             var localHttpProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(
                 this.configuration, 
-                new CacheBasedOperationHolder("testCache", 100 * 1000),  
-                false, 
-                new List<string>(),
-                false);
+                new CacheBasedOperationHolder("testCache", 100 * 1000),
+                setCorrelationHeaders: false,
+                correlationDomainExclusionList: new List<string>(),
+                injectLegacyHeaders: false,
+                enableW3CHeaders: false);
 
             localHttpProcessingFramework.OnBegin(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
@@ -288,10 +303,11 @@ namespace Microsoft.ApplicationInsights.Tests
             ICollection<string> exclusionList = new SanitizedHostList() { "randomstringtoexclude", hostnamepart };
             localHttpProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(
                 this.configuration,
-                new CacheBasedOperationHolder("testCache", 100 * 1000), 
-                true, 
-                exclusionList,
-                false);
+                new CacheBasedOperationHolder("testCache", 100 * 1000),
+                setCorrelationHeaders: true,
+                correlationDomainExclusionList: exclusionList,
+                injectLegacyHeaders: false,
+                enableW3CHeaders: false);
 
             localHttpProcessingFramework.OnBegin(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);

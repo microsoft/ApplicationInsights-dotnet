@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Net;
     using Microsoft.ApplicationInsights.Common;
@@ -19,7 +20,7 @@
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
 
         internal FrameworkHttpProcessing(TelemetryConfiguration configuration, CacheBasedOperationHolder telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, bool injectLegacyHeaders)
-            : base(configuration, SdkVersionUtils.GetSdkVersion("rdd" + RddSource.Framework + ":"), null, setCorrelationHeaders, correlationDomainExclusionList, injectLegacyHeaders)
+            : base(configuration, SdkVersionUtils.GetSdkVersion("rdd" + RddSource.Framework + ":"), null, setCorrelationHeaders, correlationDomainExclusionList, injectLegacyHeaders, false)
         {
             if (telemetryTupleHolder == null)
             {
@@ -59,7 +60,8 @@
                 }
                 catch (UriFormatException)
                 {
-                    DependencyCollectorEventSource.Log.NotExpectedCallback(id, "OnBeginHttp", "resourceName is not a URL " + resourceName);
+                    DependencyCollectorEventSource.Log.NotExpectedCallback(id, "OnBeginHttp",
+                        "resourceName is not a URL " + resourceName);
                     return;
                 }
 
@@ -88,6 +90,14 @@
             catch (Exception exception)
             {
                 DependencyCollectorEventSource.Log.CallbackError(id, "OnBeginHttp", exception);
+            }
+            finally
+            {
+                Activity current = Activity.Current;
+                if (current?.OperationName == ClientServerDependencyTracker.DependencyActivityName)
+                {
+                    current.Stop();
+                }
             }
         }
         
