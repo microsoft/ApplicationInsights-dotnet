@@ -15,6 +15,7 @@
     <VersionPrefix>2.8.0-beta1</VersionPrefix>
     <TargetFramework>netstandard1.6</TargetFramework>
     <DelaySign>true</DelaySign>
+    <DefineConstants>DEPENDENCY_COLLECTOR</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Microsoft.AI.DependencyCollector</AssemblyName>
     <AssemblyOriginatorKeyFile>../../../Keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
@@ -22,6 +23,10 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>Microsoft.AI.DependencyCollector</PackageId>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD1_6;DEPENDENCY_COLLECTOR</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

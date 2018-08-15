@@ -20,6 +20,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
+    using Microsoft.ApplicationInsights.W3C;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -31,7 +32,7 @@
         #region Fields
         private const int TimeAccuracyMilliseconds = 150; // this may be big number when under debugger
         private const string TestInstrumentationKey = nameof(TestInstrumentationKey);
-        private const string TestApplicationId = nameof(TestApplicationId);
+        private const string TestApplicationId = "cid-v1:" + nameof(TestApplicationId);
         private TelemetryConfiguration configuration;
         private Uri testUrl = new Uri("http://www.microsoft.com/");
         private Uri testUrlNonStandardPort = new Uri("http://www.microsoft.com:911/");
@@ -83,7 +84,8 @@
                 new ObjectInstanceBasedOperationHolder(),
                 setCorrelationHeaders: true,
                 correlationDomainExclusionList: new List<string>(),
-                injectLegacyHeaders: false);
+                injectLegacyHeaders: false,
+                injectW3CHeaders: false);
         }
 
         [TestCleanup]
@@ -182,7 +184,9 @@
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
 
             this.httpProcessingProfiler.OnBeginForGetResponse(request);
-            Assert.IsNotNull(request.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationSourceKey));
+            Assert.IsNotNull(request.Headers.GetNameValueHeaderValue(
+                RequestResponseHeaders.RequestContextHeader, 
+                RequestResponseHeaders.RequestContextCorrelationSourceKey));
         }
 
         /// <summary>
@@ -200,7 +204,8 @@
                 new ObjectInstanceBasedOperationHolder(),
                 setCorrelationHeaders: true,
                 correlationDomainExclusionList: new List<string>(),
-                injectLegacyHeaders: true);
+                injectLegacyHeaders: true,
+                injectW3CHeaders: false);
 
             var client = new TelemetryClient(this.configuration);
             using (var op = client.StartOperation<RequestTelemetry>("request"))
@@ -278,6 +283,63 @@
             Assert.IsTrue(actualCorrelationContextHeader == "Key2=Value2,Key1=Value1" || actualCorrelationContextHeader == "Key1=Value1,Key2=Value2");
         }
 
+#pragma warning disable 612, 618
+        /// <summary>
+        /// Ensures that the source request header is added when request is sent.
+        /// </summary>
+        [TestMethod]
+        public void RddTestHttpProcessingProfilerOnBeginAddsW3CHeadersWhenEnabled()
+        {
+            var request = WebRequest.Create(this.testUrl);
+
+            this.configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
+            var httpProcessingW3C = new ProfilerHttpProcessing(
+                this.configuration,
+                null,
+                new ObjectInstanceBasedOperationHolder(),
+                setCorrelationHeaders: true,
+                correlationDomainExclusionList: new List<string>(),
+                injectLegacyHeaders: true,
+                injectW3CHeaders: true);
+            ClientServerDependencyTracker.IsW3CEnabled = true;
+
+            var client = new TelemetryClient(this.configuration);
+            RequestTelemetry requestTelemetry;
+
+            Activity dependencyActivity;
+            using (var op = client.StartOperation<RequestTelemetry>("request"))
+            {
+                Activity.Current.AddBaggage("k", "v");
+                Activity.Current.AddTag(W3CConstants.TracestateTag, "some=state");
+                httpProcessingW3C.OnBeginForGetResponse(request);
+
+                Assert.AreEqual("k=v", request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
+                Assert.AreEqual($"{W3CConstants.AzureTracestateNamespace}={TestApplicationId},some=state", request.Headers[W3CConstants.TraceStateHeader]);
+
+                requestTelemetry = op.Telemetry;
+
+                dependencyActivity = Activity.Current;
+
+                var returnObjectPassed = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK);
+                httpProcessingW3C.OnEndForEndGetResponse(null, returnObjectPassed, request, null);
+            }
+
+            Assert.AreEqual(2, this.sendItems.Count);
+            var dependencies = this.sendItems.OfType<DependencyTelemetry>().ToArray();
+
+            Assert.AreEqual(1, dependencies.Length);
+            var dependency = dependencies.Single();
+            Assert.IsNotNull(dependency);
+
+            var dependencyIdParts = dependency.Id.Split('.', '|');
+            Assert.AreEqual(4, dependencyIdParts.Length);
+
+            var traceParent = request.Headers[W3CConstants.TraceParentHeader];
+            Assert.AreEqual($"{W3CConstants.DefaultVersion}-{dependencyIdParts[1]}-{dependencyIdParts[2]}-{W3CConstants.TraceFlagRecordedAndNotRequested}",
+                traceParent);
+        }
+#pragma warning restore 612, 618
+
         /// <summary>
         /// Ensures that the source request header is not added, as per the config, when request is sent.
         /// </summary>
@@ -292,13 +354,27 @@
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
             Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());
 
-            var httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ false, new List<string>(), true);
+            var httpProcessingProfiler = new ProfilerHttpProcessing(
+                this.configuration, 
+                null, 
+                new ObjectInstanceBasedOperationHolder(), 
+                setCorrelationHeaders: false,
+                correlationDomainExclusionList: new List<string>(),
+                injectLegacyHeaders: true,
+                injectW3CHeaders: false);
             httpProcessingProfiler.OnBeginForGetResponse(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
             Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());
 
             ICollection<string> exclusionList = new SanitizedHostList() { "randomstringtoexclude", hostnamepart };
-            httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, exclusionList, true);
+            httpProcessingProfiler = new ProfilerHttpProcessing(
+                this.configuration, 
+                null, 
+                new ObjectInstanceBasedOperationHolder(), 
+                setCorrelationHeaders: true,
+                    correlationDomainExclusionList: exclusionList,
+                    injectLegacyHeaders: true,
+                    injectW3CHeaders: false);
             httpProcessingProfiler.OnBeginForGetResponse(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
             Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());
