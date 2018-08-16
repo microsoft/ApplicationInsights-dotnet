@@ -1,10 +1,10 @@
 namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
-    using Microsoft.ApplicationInsights.AspNetCore.Common;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using Microsoft.ApplicationInsights.Common;
 
     /// <summary>
     /// Generic functions that can be used to get and set Http headers.
