@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
     using System;
     using System.Diagnostics;
@@ -8,6 +6,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     using System.Linq;
     using System.Net.Http.Headers;
     using System.Reflection;
+    using System.Text;
     using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.Common;
@@ -135,8 +134,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                     newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                     newActivity.SetParentId(StringUtilities.GenerateTraceId());
                     // end of workaround
-
-                    httpContext.Response.Headers["w3cenabled2"] = "false2";
                 }
 
                 if (newActivity != null)
