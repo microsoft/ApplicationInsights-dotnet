@@ -88,7 +88,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                 var currentActivity = Activity.Current;
                 var isActivityCreatedFromRequestIdHeader = true;
                 string sourceAppId = null;
-                string originalParentId = currentActivity.Id;
+                string originalParentId = currentActivity.ParentId;
 
                 Activity newActivity = null;
                 // W3C
@@ -105,7 +105,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                 }
                 
                 // x-ms-*
-                if (currentActivity.ParentId == null &&
+                if (originalParentId == null &&
                          httpContext.Request.Headers.TryGetValue(RequestResponseHeaders.StandardRootIdHeader, out StringValues alternativeRootIdValues) &&
                          alternativeRootIdValues != StringValues.Empty)
                 {
@@ -116,16 +116,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
                     if (httpContext.Request.Headers.TryGetValue(RequestResponseHeaders.StandardParentIdHeader, out StringValues parentId))
                     {
-                        if (originalParentId == null)
-                        {
-                            originalParentId = StringUtilities.EnforceMaxLength(parentId.First(),
-                                InjectionGuardConstants.RequestHeaderMaxLength);
-                        }
+                        originalParentId = StringUtilities.EnforceMaxLength(parentId.First(),
+                            InjectionGuardConstants.RequestHeaderMaxLength);
                     }
                 }
 
                 // no headers
-                else if (currentActivity.ParentId == null)
+                else if (originalParentId == null)
                 {
                     // As a first step in supporting W3C protocol in ApplicationInsights,
                     // we want to generate Activity Ids in the W3C compatible format.

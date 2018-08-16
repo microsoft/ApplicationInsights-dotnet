@@ -194,6 +194,44 @@
         }
 
         [Fact]
+        public void TestW3CEnabledW3CHeadersOnly()
+        {
+            using (var server = new InProcessServer(assemblyName, this.output, builder =>
+            {
+                return builder.ConfigureServices(services =>
+                {
+                    services.AddApplicationInsightsTelemetry(o => o.RequestCollectionOptions.EnableW3CDistributedTracing = true);
+                    var depCollectorSd = services.Single(sd =>
+                        sd.ImplementationType == typeof(DependencyTrackingTelemetryModule));
+                    services.Remove(depCollectorSd);
+                });
+            }))
+            {
+                const string RequestPath = "/api/values";
+
+                var expectedRequestTelemetry = new RequestTelemetry();
+                expectedRequestTelemetry.Name = "GET Values/Get";
+                expectedRequestTelemetry.ResponseCode = "200";
+                expectedRequestTelemetry.Success = true;
+                expectedRequestTelemetry.Url = new Uri(server.BaseHost + RequestPath);
+
+                var headers = new Dictionary<string, string>
+                {
+                    ["traceparent"] = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+                    ["tracestate"] = "some=state,az=cid-v1:xyz",
+                    ["Correlation-Context"] = "k1=v1,k2=v2"
+                };
+
+                var actualRequest = this.ValidateRequestWithHeaders(server, RequestPath, headers, expectedRequestTelemetry);
+
+                Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", actualRequest.tags["ai.operation.id"]);
+                Assert.StartsWith("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.", actualRequest.tags["ai.operation.parentId"]);
+                Assert.Equal("v1", actualRequest.data.baseData.properties["k1"]);
+                Assert.Equal("v2", actualRequest.data.baseData.properties["k2"]);
+            }
+        }
+
+        [Fact]
         public void TestW3CEnabledRequestIdAndW3CHeaders()
         {
             using (var server = new InProcessServer(assemblyName, this.output, builder =>
@@ -231,6 +269,7 @@
                 Assert.StartsWith("|abc.123", actualRequest.data.baseData.properties["ai_legacyRequestId"]);
             }
         }
+
         [Fact]
         public void TestW3CEnabledRequestIdAndNoW3CHeaders()
         {
