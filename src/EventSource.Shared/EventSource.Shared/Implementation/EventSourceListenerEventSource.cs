@@ -19,6 +19,8 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation
         public const string ProviderName = "Microsoft-ApplicationInsights-Extensibility-EventSourceListener";
         public static readonly EventSourceListenerEventSource Log = new EventSourceListenerEventSource();
 
+        public readonly string ApplicationName;
+
         private const int NoEventSourcesConfiguredEventId = 1;
         private const int FailedToEnableProvidersEventId = 2;
         private const int ModuleInitializationFailedEventId = 3;
@@ -27,13 +29,7 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation
 
         private EventSourceListenerEventSource()
         {
-            this.ApplicationName = this.GetApplicationName();
-        }
-
-        public string ApplicationName
-        {
-            [NonEvent]
-            get;
+            this.ApplicationName = GetApplicationName();
         }
 
         [Event(NoEventSourcesConfiguredEventId, Level = EventLevel.Warning, Keywords = Keywords.Configuration, Message = "No Sources configured for the {1}")]
@@ -67,7 +63,7 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation
         }
 
         [NonEvent]
-        private string GetApplicationName()
+        private static string GetApplicationName()
         {
             string name;
             try

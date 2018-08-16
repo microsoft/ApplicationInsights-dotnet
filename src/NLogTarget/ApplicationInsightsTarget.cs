@@ -96,13 +96,13 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 if (!string.IsNullOrEmpty(contextProperty.Name))
                 {
                     string propertyValue = contextProperty.Layout?.Render(logEvent);
-                    this.PopulatePropertyBag(propertyBag, contextProperty.Name, propertyValue);
+                    PopulatePropertyBag(propertyBag, contextProperty.Name, propertyValue);
                 }
             }
 
             if (logEvent.HasProperties)
             {
-                this.LoadLogEventProperties(logEvent, propertyBag);
+                LoadLogEventProperties(logEvent, propertyBag);
             }
         }
 
@@ -174,34 +174,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             }
         }
 
-        private void SendException(LogEventInfo logEvent)
-        {
-            var exceptionTelemetry = new ExceptionTelemetry(logEvent.Exception)
-            {
-                SeverityLevel = this.GetSeverityLevel(logEvent.Level)
-            };
-
-            string logMessage = this.Layout.Render(logEvent);
-            exceptionTelemetry.Properties.Add("Message", logMessage);
-
-            this.BuildPropertyBag(logEvent, exceptionTelemetry);
-            this.telemetryClient.Track(exceptionTelemetry);
-        }
-
-        private void SendTrace(LogEventInfo logEvent)
-        {
-            string logMessage = this.Layout.Render(logEvent);
-
-            var trace = new TraceTelemetry(logMessage)
-            {
-                SeverityLevel = this.GetSeverityLevel(logEvent.Level)
-            };
-
-            this.BuildPropertyBag(logEvent, trace);
-            this.telemetryClient.Track(trace);
-        }
-
-        private void LoadLogEventProperties(LogEventInfo logEvent, IDictionary<string, string> propertyBag)
+        private static void LoadLogEventProperties(LogEventInfo logEvent, IDictionary<string, string> propertyBag)
         {
             if (logEvent.Properties?.Count > 0)
             {
@@ -209,12 +182,12 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 {
                     string key = keyValuePair.Key.ToString();
                     object valueObj = keyValuePair.Value;
-                    this.PopulatePropertyBag(propertyBag, key, valueObj);
+                    PopulatePropertyBag(propertyBag, key, valueObj);
                 }
             }
         }
 
-        private void PopulatePropertyBag(IDictionary<string, string> propertyBag, string key, object valueObj)
+        private static void PopulatePropertyBag(IDictionary<string, string> propertyBag, string key, object valueObj)
         {
             if (valueObj == null)
             {
@@ -235,7 +208,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             propertyBag.Add(key, value);
         }
 
-        private SeverityLevel? GetSeverityLevel(LogLevel logEventLevel)
+        private static SeverityLevel? GetSeverityLevel(LogLevel logEventLevel)
         {
             if (logEventLevel == null)
             {
@@ -270,6 +243,33 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
             // The only possible value left if OFF but we should never get here in this case
             return null;
+        }
+
+        private void SendException(LogEventInfo logEvent)
+        {
+            var exceptionTelemetry = new ExceptionTelemetry(logEvent.Exception)
+            {
+                SeverityLevel = GetSeverityLevel(logEvent.Level)
+            };
+
+            string logMessage = this.Layout.Render(logEvent);
+            exceptionTelemetry.Properties.Add("Message", logMessage);
+
+            this.BuildPropertyBag(logEvent, exceptionTelemetry);
+            this.telemetryClient.Track(exceptionTelemetry);
+        }
+
+        private void SendTrace(LogEventInfo logEvent)
+        {
+            string logMessage = this.Layout.Render(logEvent);
+
+            var trace = new TraceTelemetry(logMessage)
+            {
+                SeverityLevel = GetSeverityLevel(logEvent.Level)
+            };
+
+            this.BuildPropertyBag(logEvent, trace);
+            this.telemetryClient.Track(trace);
         }
     }
 }
