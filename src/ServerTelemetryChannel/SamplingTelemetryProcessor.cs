@@ -39,7 +39,7 @@
         {
             if (next == null)
             {
-                throw new ArgumentNullException("next");
+                throw new ArgumentNullException(nameof(next));
             }
 
             this.SamplingPercentage = 100.0;
@@ -61,12 +61,7 @@
 
         internal SamplingTelemetryProcessor(ITelemetryProcessor unsampledNext, ITelemetryProcessor sampledNext) : this(sampledNext)
         {
-            if (unsampledNext == null)
-            {
-                throw new ArgumentNullException("unsampledNext");
-            }
-
-            this.UnsampledNext = unsampledNext;
+            this.UnsampledNext = unsampledNext ?? throw new ArgumentNullException(nameof(unsampledNext));
         }
 
         /// <summary>
@@ -185,7 +180,7 @@
             //// If telemetry was excluded by type, do nothing:
             if (!this.IsSamplingApplicable(item.GetType()))
             {
-                if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                if (TelemetryChannelEventSource.IsVerboseEnabled)
                 {
                     TelemetryChannelEventSource.Log.SamplingSkippedByType(item.ToString());
                 }
@@ -213,7 +208,7 @@
             }
             else
             { 
-                if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                if (TelemetryChannelEventSource.IsVerboseEnabled)
                 {
                     TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
                 }

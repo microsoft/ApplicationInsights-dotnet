@@ -19,7 +19,7 @@
         {
             if (transmitter == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(transmitter));
             }
 
             this.backoffLogicManager = transmitter.BackoffLogicManager;
@@ -34,50 +34,14 @@
             GC.SuppressFinalize(this);
         }
 
-        private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs args)
-        {
-            if (args.Exception == null && (args.Response == null || args.Response.StatusCode == ResponseStatusCodes.Success))
-            {
-                // We successfully sent transmittion
-                this.backoffLogicManager.ResetConsecutiveErrors();
-                return;
-            }
-
-            if (args.Response != null && args.Response.StatusCode == ResponseStatusCodes.PartialSuccess)
-            {
-                int statusCode;
-                string newTransmissions = this.ParsePartialSuccessResponse(args.Transmission, args, out statusCode);
-
-                if (!string.IsNullOrEmpty(newTransmissions))
-                {
-                    this.DelayFutureProcessing(args.Response, statusCode);
-                    
-                    byte[] data = JsonSerializer.ConvertToByteArray(newTransmissions);
-                    Transmission newTransmission = new Transmission(
-                        args.Transmission.EndpointAddress,
-                        data,
-                        args.Transmission.ContentType,
-                        args.Transmission.ContentEncoding,
-                        args.Transmission.Timeout);
-
-                    this.Transmitter.Enqueue(newTransmission);
-                }
-                else
-                {
-                    // We got 206 but there is no indication in response that something was not accepted.
-                    this.backoffLogicManager.ResetConsecutiveErrors();
-                }
-            }
-        }
-
-        private string ParsePartialSuccessResponse(Transmission initialTransmission, TransmissionProcessedEventArgs args, out int lastStatusCode)
+        private static string ParsePartialSuccessResponse(Transmission initialTransmission, TransmissionProcessedEventArgs args, out int lastStatusCode)
         {
             BackendResponse backendResponse = null;
             lastStatusCode = 206;
 
             if (args != null && args.Response != null)
             {
-                backendResponse = this.backoffLogicManager.GetBackendResponse(args.Response.Content);
+                backendResponse = BackoffLogicManager.GetBackendResponse(args.Response.Content);
             }
 
             if (backendResponse == null)
@@ -127,6 +91,42 @@
             }
 
             return newTransmissions;
+        }
+
+        private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs args)
+        {
+            if (args.Exception == null && (args.Response == null || args.Response.StatusCode == ResponseStatusCodes.Success))
+            {
+                // We successfully sent transmittion
+                this.backoffLogicManager.ResetConsecutiveErrors();
+                return;
+            }
+
+            if (args.Response != null && args.Response.StatusCode == ResponseStatusCodes.PartialSuccess)
+            {
+                int statusCode;
+                string newTransmissions = ParsePartialSuccessResponse(args.Transmission, args, out statusCode);
+
+                if (!string.IsNullOrEmpty(newTransmissions))
+                {
+                    this.DelayFutureProcessing(args.Response, statusCode);
+                    
+                    byte[] data = JsonSerializer.ConvertToByteArray(newTransmissions);
+                    Transmission newTransmission = new Transmission(
+                        args.Transmission.EndpointAddress,
+                        data,
+                        args.Transmission.ContentType,
+                        args.Transmission.ContentEncoding,
+                        args.Transmission.Timeout);
+
+                    this.Transmitter.Enqueue(newTransmission);
+                }
+                else
+                {
+                    // We got 206 but there is no indication in response that something was not accepted.
+                    this.backoffLogicManager.ResetConsecutiveErrors();
+                }
+            }
         }
 
         private void DelayFutureProcessing(HttpWebResponseWrapper response, int statusCode)

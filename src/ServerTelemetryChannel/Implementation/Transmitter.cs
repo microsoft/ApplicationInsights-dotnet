@@ -181,18 +181,18 @@
             if (this.Sender.Capacity > 0 && this.Buffer.Size == 0)
             {
                 // Start sending immediately, no need to wait for the buffer to fill up
-                this.MoveTransmissions(this.Storage.Dequeue, this.Sender.Enqueue);
+                MoveTransmissions(this.Storage.Dequeue, this.Sender.Enqueue);
                 TelemetryChannelEventSource.Log.MovedFromStorageToSender();
             }
 
             if (this.Buffer.Capacity > 0)
             {
-                this.MoveTransmissions(this.Storage.Dequeue, this.Buffer.Enqueue);
+                MoveTransmissions(this.Storage.Dequeue, this.Buffer.Enqueue);
                 TelemetryChannelEventSource.Log.MovedFromStorageToBuffer();
             }
             else
             {
-                this.MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue);
+                MoveTransmissions(this.Buffer.Dequeue, this.Storage.Enqueue);
                 TelemetryChannelEventSource.Log.MovedFromBufferToStorage();
                 this.EmptyBuffer();
             }
@@ -204,7 +204,7 @@
 
             if (this.Sender.Capacity > 0)
             {
-                this.MoveTransmissions(this.Buffer.Dequeue, this.Sender.Enqueue);
+                MoveTransmissions(this.Buffer.Dequeue, this.Sender.Enqueue);
                 TelemetryChannelEventSource.Log.MovedFromBufferToSender();
             }
         }
@@ -227,11 +227,17 @@
 
         protected void OnTransmissionSent(TransmissionProcessedEventArgs e)
         {
-            EventHandler<TransmissionProcessedEventArgs> eventHandler = this.TransmissionSent;
-            if (eventHandler != null)
+            this.TransmissionSent?.Invoke(this, e);
+        }
+
+        private static void MoveTransmissions(Func<Transmission> dequeue, Func<Func<Transmission>, bool> enqueue)
+        {
+            bool transmissionMoved;
+            do
             {
-                eventHandler(this, e);
+                transmissionMoved = enqueue(dequeue);
             }
+            while (transmissionMoved);
         }
 
         private void ApplyPoliciesIfAlreadyApplied()
@@ -270,7 +276,7 @@
             
             try
             {
-                this.MoveTransmissions(this.Buffer.Dequeue, this.Sender.Enqueue);
+                MoveTransmissions(this.Buffer.Dequeue, this.Sender.Enqueue);
             }
             catch (Exception exp)
             {
@@ -282,22 +288,12 @@
         {
             try
             {
-                this.MoveTransmissions(this.Storage.Dequeue, this.Buffer.Enqueue);
+                MoveTransmissions(this.Storage.Dequeue, this.Buffer.Enqueue);
             }
             catch (Exception exp)
             {
                 TelemetryChannelEventSource.Log.ExceptionHandlerStartExceptionWarning(exp.ToString());
             }
-        }
-
-        private void MoveTransmissions(Func<Transmission> dequeue, Func<Func<Transmission>, bool> enqueue)
-        {
-            bool transmissionMoved;
-            do
-            {
-                transmissionMoved = enqueue(dequeue);
-            }
-            while (transmissionMoved);
         }
 
         private void UpdateComponentCapacitiesFromPolicies()

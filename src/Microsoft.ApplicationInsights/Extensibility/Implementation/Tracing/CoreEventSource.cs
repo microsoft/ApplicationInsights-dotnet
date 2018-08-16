@@ -1,10 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
-#pragma warning disable CA1801 // Parameter appDomainName of method _ is never used. Remove the parameter or use it in the method body.
-
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 
     [EventSource(Name = "Microsoft-ApplicationInsights-Core")]
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class CoreEventSource : EventSource
     {
         public static readonly CoreEventSource Log = new CoreEventSource();
@@ -550,6 +550,4 @@
             public const EventKeywords ErrorFailure = (EventKeywords)EventSourceKeywords.ErrorFailure;
         }
     }
-
-#pragma warning restore CA1801
 }
