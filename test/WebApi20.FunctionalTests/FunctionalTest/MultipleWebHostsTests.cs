@@ -147,6 +147,8 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
 
                 var message = listener.ReceiveItemsOfType<TelemetryItem<MessageData>>(1, TestListenerTimeoutInMs);
                 Assert.Single(message);
+
+                this.output.WriteLine(((TelemetryItem<MessageData>)message.Single()).data.baseData.message);
                 Assert.Equal("some message after web host is disposed", ((TelemetryItem<MessageData>)message.Single()).data.baseData.message);
             }
         }

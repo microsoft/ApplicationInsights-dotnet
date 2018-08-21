@@ -1,5 +1,3 @@
-﻿using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-
 namespace Microsoft.ApplicationInsights.AspNetCore
 {
     using System;
@@ -8,6 +6,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     using System.Diagnostics;
     using System.Threading;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
@@ -16,9 +15,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     public class RequestTrackingTelemetryModule : ITelemetryModule, IObserver<DiagnosticListener>, IDisposable
     {
         private TelemetryClient telemetryClient;
-        private IApplicationIdProvider applicationIdProvider;
+        private readonly IApplicationIdProvider applicationIdProvider;
         private ConcurrentBag<IDisposable> subscriptions;
-        private List<IApplicationInsightDiagnosticListener> diagnosticListeners;
+        private readonly List<IApplicationInsightDiagnosticListener> diagnosticListeners;
         private bool isInitialized = false;
         private readonly object lockObject = new object();
 
@@ -30,6 +29,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore
             this.CollectionOptions = new RequestCollectionOptions();
         }
 
+        /// <summary>
+        /// Creates RequestTrackingTelemetryModule.
+        /// </summary>
+        /// <param name="applicationIdProvider"></param>
         public RequestTrackingTelemetryModule(IApplicationIdProvider applicationIdProvider)
         {
             this.applicationIdProvider = applicationIdProvider;
@@ -37,6 +40,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore
             this.diagnosticListeners = new List<IApplicationInsightDiagnosticListener>();
         }
 
+        /// <summary>
+        /// Gets or sets request collection options.
+        /// </summary>
         public RequestCollectionOptions CollectionOptions { get; set; }
 
         /// <summary>
@@ -56,9 +62,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                         this.diagnosticListeners.Add
                             (new HostingDiagnosticListener(
                             this.telemetryClient,
-                            applicationIdProvider,
+                            this.applicationIdProvider,
                             this.CollectionOptions.InjectResponseHeaders,
-                            this.CollectionOptions.TrackExceptions));
+                            this.CollectionOptions.TrackExceptions,
+                            this.CollectionOptions.EnableW3CDistributedTracing));
 
                         this.diagnosticListeners.Add
                             (new MvcDiagnosticsListener());

@@ -19,6 +19,13 @@
             });
         }
 
+        public static TelemetryClient MockTelemetryClient(Action<ITelemetry> onSendCallback, TelemetryConfiguration configuration)
+        {
+            configuration.InstrumentationKey = InstrumentationKey;
+            configuration.TelemetryChannel = new FakeTelemetryChannel {OnSend = onSendCallback};
+            return new TelemetryClient(configuration);
+        }
+
         internal static IApplicationIdProvider GetMockApplicationIdProvider()
         {
             return new MockApplicationIdProvider(InstrumentationKey, TestApplicationId);
