@@ -307,9 +307,9 @@
 
             foreach (var prop in activity.Baggage)
             {
-                if (!requestTelemetry.Context.Properties.ContainsKey(prop.Key))
+                if (!requestTelemetry.Properties.ContainsKey(prop.Key))
                 {
-                    requestTelemetry.Context.Properties[prop.Key] = prop.Value;
+                    requestTelemetry.Properties[prop.Key] = prop.Value;
                 }
             }
 

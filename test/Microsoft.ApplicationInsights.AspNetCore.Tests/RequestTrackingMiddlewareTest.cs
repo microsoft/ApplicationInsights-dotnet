@@ -590,7 +590,7 @@
 
         #pragma warning disable 612, 618
         [Fact]
-        public void OnHttpRequestInStartWithW3CHeadersIsTrackedCorrectly()
+        public void OnBeginRequestWithW3CHeadersIsTrackedCorrectly()
         {
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
@@ -649,7 +649,7 @@
         }
 
         [Fact]
-        public void OnHttpRequestInStartWithW3CHeadersAndRequestIdIsTrackedCorrectly()
+        public void OnBeginRequestWithW3CHeadersAndRequestIdIsTrackedCorrectly()
         {
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
@@ -694,7 +694,7 @@
         }
 
         [Fact]
-        public void OnHttpRequestInStartWithNoW3CHeadersAndRequestIdIsTrackedCorrectly()
+        public void OnBeginRequestWithNoW3CHeadersAndRequestIdIsTrackedCorrectly()
         {
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
@@ -728,7 +728,7 @@
         }
 
         [Fact]
-        public void OnHttpRequestInStartWithW3CSupportAndNoHeadersIsTrackedCorrectly()
+        public void OnBeginRequestWithW3CSupportAndNoHeadersIsTrackedCorrectly()
         {
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
@@ -767,7 +767,7 @@
         }
 
         [Fact]
-        public void OnHttpRequestInStartWithW3CHeadersAndAppIdInState()
+        public void OnBeginRequestWithW3CHeadersAndAppIdInState()
         {
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
