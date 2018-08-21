@@ -25,6 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+    using Microsoft.ApplicationInsights.W3C;
     using Microsoft.ApplicationInsights.WindowsServer;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.AspNetCore.Hosting;
@@ -943,6 +944,51 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.NotNull(heartbeatModule);
                 Assert.False(heartbeatModule.IsHeartbeatEnabled);
             }
+
+#pragma warning disable 612, 618
+            [Fact]
+            public static void W3CIsDisabledByDefault()
+            {
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/");
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+                Assert.DoesNotContain(telemetryConfiguration.TelemetryInitializers, t => t is W3COperationCorrelationTelemetryInitializer);
+                Assert.DoesNotContain(TelemetryConfiguration.Active.TelemetryInitializers, t => t is W3COperationCorrelationTelemetryInitializer);
+
+                var modules = serviceProvider.GetServices<ITelemetryModule>().ToList();
+
+                var requestTracking = modules.OfType<RequestTrackingTelemetryModule>().ToList();
+                var dependencyTracking = modules.OfType<DependencyTrackingTelemetryModule>().ToList();
+                Assert.Single(requestTracking);
+                Assert.Single(dependencyTracking);
+
+                Assert.False(requestTracking.Single().CollectionOptions.EnableW3CDistributedTracing);
+                Assert.False(dependencyTracking.Single().EnableW3CHeadersInjection);
+            }
+
+            [Fact]
+            public static void W3CIsEnabledWhenConfiguredInOptions()
+            {
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, 
+                    "http://localhost:1234/v2/track/", 
+                    o => o.RequestCollectionOptions.EnableW3CDistributedTracing = true);
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+                Assert.Contains(telemetryConfiguration.TelemetryInitializers, t => t is W3COperationCorrelationTelemetryInitializer);
+
+                var modules = serviceProvider.GetServices<ITelemetryModule>().ToList();
+
+                var requestTracking = modules.OfType<RequestTrackingTelemetryModule>().ToList();
+                var dependencyTracking = modules.OfType<DependencyTrackingTelemetryModule>().ToList();
+                Assert.Single(requestTracking);
+                Assert.Single(dependencyTracking);
+
+                Assert.True(requestTracking.Single().CollectionOptions.EnableW3CDistributedTracing);
+                Assert.True(dependencyTracking.Single().EnableW3CHeadersInjection);
+            }
+#pragma warning restore 612, 618
 
             private static int GetTelemetryProcessorsCountInConfiguration<T>(TelemetryConfiguration telemetryConfiguration)
             {

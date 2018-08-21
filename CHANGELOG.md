@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.5.0-beta1
+- [Adds opt-in support for W3C distributed tracing standard](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/735)
+
 ## Version 2.4.1
 - Patch release to update Web/Base SDK version dependency to 2.7.2 which fixed a bug (https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/970)
 

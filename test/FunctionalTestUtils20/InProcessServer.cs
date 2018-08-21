@@ -99,10 +99,11 @@ namespace FunctionalTestUtils
 
             return true;
         }
+
         private string StartApplication(string assemblyName)
         {
             output.WriteLine(string.Format("{0}: Launching application at: {1}", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt"), this.url));
-            return this.Start(assemblyName); ;
+            return this.Start(assemblyName);
         }
 
         private void StopApplication()
@@ -149,11 +150,12 @@ namespace FunctionalTestUtils
                         Defined = new Dictionary<string, string> {[IKey] = AppId}
                     });
             });
-            if (configureHost != null)
+            
+            if (this.configureHost != null)
             {
-                builder = configureHost(builder);
+                builder = this.configureHost(builder);
             }
-
+            
             this.hostingEngine = builder.Build();
             this.hostingEngine.Start();
 

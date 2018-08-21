@@ -13,6 +13,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.Extensions.Options;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.W3C;
 
     /// <summary>
     /// Initializes TelemetryConfiguration based on values in <see cref="ApplicationInsightsServiceOptions"/>
@@ -88,7 +89,12 @@ namespace Microsoft.Extensions.DependencyInjection
             this.AddQuickPulse(configuration);
             this.AddSampling(configuration);
             this.DisableHeartBeatIfConfigured();
-            
+
+            if (applicationInsightsServiceOptions.RequestCollectionOptions.EnableW3CDistributedTracing)
+            {
+                this.EnableW3CHeaders(configuration);
+            }
+
             configuration.TelemetryProcessorChainBuilder.Build();            
 
             if (this.applicationInsightsServiceOptions.DeveloperMode != null)
@@ -177,5 +183,12 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
             }
         }
+
+#pragma warning disable 612, 618
+        private void EnableW3CHeaders(TelemetryConfiguration configuration)
+        {
+            configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
+        }
+#pragma warning restore 612, 618
     }
 }
