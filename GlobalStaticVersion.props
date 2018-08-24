@@ -17,12 +17,16 @@
     
     <PreReleaseVersionFileName>.PreReleaseVersion</PreReleaseVersionFileName>
     <PreReleaseVersionFilePath>$(MSBuildThisFileDirectory)$(PreReleaseVersionFileName)</PreReleaseVersionFilePath>
-
+    <!--
+      Pre-release version is used to distinguish internally built NuGet packages.
+      Pre-release version = Minutes since semantic version was set, divided by 5 (to make it fit in a UInt16 (max 65535 = ~7 months).
+    -->
     <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</PreReleaseVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(PackageVersion)'==''">
-    <PackageVersion>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch)-$(PreReleaseMilestone)</PackageVersion>
+    <PackageVersion>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch)</PackageVersion>
+    <PackageVersion Condition="'$(PreReleaseMilestone)' != ''">$(PackageVersion)-$(PreReleaseMilestone)</PackageVersion>
     <PackageVersion Condition="'$(StableRelease)' != 'True'">$(PackageVersion)-build$(PreReleaseVersion)</PackageVersion>
   </PropertyGroup>
 </Project>
