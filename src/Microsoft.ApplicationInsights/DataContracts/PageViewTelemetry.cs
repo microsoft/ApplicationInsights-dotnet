@@ -178,6 +178,12 @@
             return new PageViewTelemetry(this);
         }
 
+        /// <inheritdoc/>
+        public void SerializeData(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty(this.Data);
+        }
+
         /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>

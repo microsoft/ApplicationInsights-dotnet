@@ -99,6 +99,9 @@
         /// <returns>A cloned instance.</returns>
         public abstract ITelemetry DeepClone();
 
+        /// <inheritdoc/>
+        public abstract void SerializeData(ISerializationWriter serializationWriter);
+
         /// <summary>
         /// Sets operation Id.
         /// </summary>

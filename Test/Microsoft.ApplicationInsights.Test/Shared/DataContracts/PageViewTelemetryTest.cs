@@ -97,6 +97,23 @@
         }
 
         [TestMethod]
+        public void SerializePopulatesRequiredFieldsOfPageViewTelemetry()
+        {
+            using (StringWriter stringWriter = new StringWriter(CultureInfo.InvariantCulture))
+            {
+                var pvTelemetry = new PageViewTelemetry();
+                pvTelemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
+                ((ITelemetry)pvTelemetry).Sanitize();
+                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.PageViewData>(pvTelemetry);
+
+                Assert.AreEqual(2, item.data.baseData.ver);
+                Assert.IsNotNull(item.data.baseData.id);
+                Assert.IsNotNull(item.time);
+                Assert.AreEqual(new TimeSpan(), TimeSpan.Parse(item.data.baseData.duration));
+            }
+        }
+
+        [TestMethod]
         public void SanitizeWillTrimAppropriateFields()
         {
             PageViewTelemetry telemetry = new PageViewTelemetry();

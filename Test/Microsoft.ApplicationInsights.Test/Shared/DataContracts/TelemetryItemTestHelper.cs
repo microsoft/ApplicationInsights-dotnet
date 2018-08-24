@@ -1,14 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
-    using System.Globalization;
     using System.IO;
     using System.Text;
     using Microsoft.ApplicationInsights.Channel;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
-        
+
     using JsonSerializer = Microsoft.ApplicationInsights.Extensibility.Implementation.JsonSerializer;
-    using JsonWriter = Microsoft.ApplicationInsights.Extensibility.Implementation.JsonWriter;
 
     internal static class TelemetryItemTestHelper
     {

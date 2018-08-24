@@ -27,7 +27,7 @@
         }
 
         [TestMethod]
-        public void EventTelemetryReturnsNonNullContext()
+        public void MetricTelemetryReturnsNonNullContext()
         {
             MetricTelemetry item = new MetricTelemetry();
             Assert.IsNotNull(item.Context);

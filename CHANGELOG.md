@@ -5,13 +5,15 @@ This changelog will be used to generate documentation on [release notes page](ht
 ## Version 2.8.0-beta1
 - [Add a new distict properties collection, GlobalProperties, on TelemetryContext, and obsolete the Properties on TelemetryContext.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/820)
 - [Added support for strongly typed extensibility for Telemetry types using IExtension.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/871)
+- [New method SerializeData(ISerializationWriter writer) defined in ITelemetry. All existing types implement this method to emit information about it's fields to channels who can serialize this data]
+   (continuation of https://github.com/Microsoft/ApplicationInsights-dotnet/issues/871)
 - [Allow to track PageViewPerformance data type](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/673).
 - Added method `ExceptionDetailsInfoList` on `ExceptionTelemetry` class that gives control to user to update exception
 message and exception type of underlying `System.Exception` object that user wants to send to telemetry. Related discussion is [here](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/498).
 - Added an option of creating ExceptionTelemetry object off of custom exception information rather than a System.Exception object.
 - [Add support for hex values in config](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/551)
 
-## Version 2.7.0
+## Version 2.7.2
 - Metrics: Renamed TryTrackValue(..) into TrackValue(..).
 - Metrics: Removed some superfluous public constants.
 
