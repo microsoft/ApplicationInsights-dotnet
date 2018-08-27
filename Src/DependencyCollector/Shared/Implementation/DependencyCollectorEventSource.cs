@@ -14,7 +14,6 @@
     /// </summary>
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-DependencyCollector")]
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
-
     internal sealed class DependencyCollectorEventSource : EventSource
     {
         public static readonly DependencyCollectorEventSource Log = new DependencyCollectorEventSource();

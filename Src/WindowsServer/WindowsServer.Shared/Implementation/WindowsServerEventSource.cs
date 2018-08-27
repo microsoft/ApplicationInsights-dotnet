@@ -9,7 +9,6 @@
     /// </summary>
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-WindowsServer")]
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
-
     internal sealed class WindowsServerEventSource : EventSource
     {
         /// <summary>

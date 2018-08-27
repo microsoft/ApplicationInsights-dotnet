@@ -13,7 +13,6 @@
     /// </summary>
     //// [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation")] - EVERY COMPONENT SHOULD DEFINE IT"S OWN NAME
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
-
     internal sealed partial class AppMapCorrelationEventSource : EventSource
     {
         public static readonly AppMapCorrelationEventSource Log = new AppMapCorrelationEventSource();

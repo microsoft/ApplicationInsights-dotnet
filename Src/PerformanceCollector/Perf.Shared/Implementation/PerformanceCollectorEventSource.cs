@@ -7,7 +7,6 @@
 
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-PerformanceCollector")]
     [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
-
     internal sealed class PerformanceCollectorEventSource : EventSource
     {
         private static readonly PerformanceCollectorEventSource Logger = new PerformanceCollectorEventSource();
