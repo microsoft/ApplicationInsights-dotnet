@@ -13,7 +13,7 @@
         {
             if (holderInstance == null)
             {
-                throw new ArgumentNullException("holderInstance");
+                throw new ArgumentNullException(nameof(holderInstance));
             }
 
             Tuple<DependencyTelemetry, bool> result = null;
@@ -29,7 +29,7 @@
         {
             if (holderInstance == null)
             {
-                throw new ArgumentNullException("holderInstance");
+                throw new ArgumentNullException(nameof(holderInstance));
             }
 
             return this.weakTableForCorrelation.Remove(holderInstance);
@@ -39,12 +39,12 @@
         {
             if (holderInstance == null)
             {
-                throw new ArgumentNullException("holderInstance");
+                throw new ArgumentNullException(nameof(holderInstance));
             }
 
             if (telemetryTuple == null)
             {
-                throw new ArgumentNullException("telemetryTuple");
+                throw new ArgumentNullException(nameof(telemetryTuple));
             }
 
             this.weakTableForCorrelation.Add(holderInstance, telemetryTuple);

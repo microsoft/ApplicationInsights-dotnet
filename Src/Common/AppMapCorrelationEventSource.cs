@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Common
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 #if NETSTANDARD1_6
     using System.Reflection;
@@ -11,6 +12,8 @@
     /// ETW EventSource tracing class.
     /// </summary>
     //// [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation")] - EVERY COMPONENT SHOULD DEFINE IT"S OWN NAME
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
+
     internal sealed partial class AppMapCorrelationEventSource : EventSource
     {
         public static readonly AppMapCorrelationEventSource Log = new AppMapCorrelationEventSource();

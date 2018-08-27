@@ -100,7 +100,7 @@
         {
             if (string.IsNullOrEmpty(hostName))
             {
-                throw new ArgumentNullException("hostName");
+                throw new ArgumentNullException(nameof(hostName));
             }
 
             if (!this.Contains(hostName))

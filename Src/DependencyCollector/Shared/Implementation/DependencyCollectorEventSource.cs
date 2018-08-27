@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
     using System.Globalization;
 #if NETSTANDARD1_6
@@ -12,6 +13,8 @@
     /// ETW EventSource tracing class.
     /// </summary>
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-DependencyCollector")]
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
+
     internal sealed class DependencyCollectorEventSource : EventSource
     {
         public static readonly DependencyCollectorEventSource Log = new DependencyCollectorEventSource();

@@ -1,10 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
     using System.Reflection;
 
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-PerformanceCollector")]
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
+
     internal sealed class PerformanceCollectorEventSource : EventSource
     {
         private static readonly PerformanceCollectorEventSource Logger = new PerformanceCollectorEventSource();
