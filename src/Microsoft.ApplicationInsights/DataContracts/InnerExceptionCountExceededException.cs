@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
 #if !NETSTANDARD1_3
     [Serializable]
 #endif
-    public class InnerExceptionCountExceededException : Exception
+    internal class InnerExceptionCountExceededException : Exception
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="InnerExceptionCountExceededException"/> class.

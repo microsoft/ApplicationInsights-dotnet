@@ -132,11 +132,6 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SeverityLevel.get
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.SeverityLevel.set -> void
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Timestamp.get -> System.DateTimeOffset
 Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.Timestamp.set -> void
-Microsoft.ApplicationInsights.DataContracts.InnerExceptionCountExceededException
-Microsoft.ApplicationInsights.DataContracts.InnerExceptionCountExceededException.InnerExceptionCountExceededException() -> void
-Microsoft.ApplicationInsights.DataContracts.InnerExceptionCountExceededException.InnerExceptionCountExceededException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) -> void
-Microsoft.ApplicationInsights.DataContracts.InnerExceptionCountExceededException.InnerExceptionCountExceededException(string message) -> void
-Microsoft.ApplicationInsights.DataContracts.InnerExceptionCountExceededException.InnerExceptionCountExceededException(string message, System.Exception innerException) -> void
 Microsoft.ApplicationInsights.DataContracts.IJsonWriter
 Microsoft.ApplicationInsights.DataContracts.IJsonWriter.WriteComma() -> void
 Microsoft.ApplicationInsights.DataContracts.IJsonWriter.WriteEndArray() -> void
