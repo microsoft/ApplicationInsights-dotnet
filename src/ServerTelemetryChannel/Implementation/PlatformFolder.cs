@@ -13,7 +13,7 @@
         {
             if (folder == null)
             {
-                throw new ArgumentNullException("folder");
+                throw new ArgumentNullException(nameof(folder));
             }
 
             this.folder = folder;
@@ -57,12 +57,12 @@
             // Check argument manually for consistent behavior on both Silverlight and Windows runtimes
             if (fileName == null)
             {
-                throw new ArgumentNullException("fileName");
+                throw new ArgumentNullException(nameof(fileName));
             }
 
             if (string.IsNullOrWhiteSpace(fileName))
             {
-                throw new ArgumentException("fileName");
+                throw new ArgumentException(nameof(fileName) + " cannot be null or whitespace", nameof(fileName));
             }
 
             this.folder.Create();

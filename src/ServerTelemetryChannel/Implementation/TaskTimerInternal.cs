@@ -40,7 +40,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
             {
                 if ((value <= TimeSpan.Zero || value.TotalMilliseconds > int.MaxValue) && value != InfiniteTimeSpan)
                 {
-                    throw new ArgumentOutOfRangeException("value");
+                    throw new ArgumentOutOfRangeException(nameof(value));
                 }
 
                 this.delay = value;

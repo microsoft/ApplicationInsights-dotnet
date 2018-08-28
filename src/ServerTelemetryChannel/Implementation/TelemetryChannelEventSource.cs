@@ -1,21 +1,22 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 
     [EventSource(Name = "Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel")]
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class TelemetryChannelEventSource : EventSource
     {
         public static readonly TelemetryChannelEventSource Log = new TelemetryChannelEventSource();
+        public readonly string ApplicationName;
 
         private TelemetryChannelEventSource()
         {
-            this.ApplicationName = this.GetApplicationName();
+            this.ApplicationName = GetApplicationName();
         }
 
-        public string ApplicationName { [NonEvent]get; [NonEvent]private set; }
-
-        public bool IsVerboseEnabled
+        public static bool IsVerboseEnabled
         {
             [NonEvent]
             get
@@ -488,7 +489,7 @@
             this.WriteEvent(68, directory, error, this.ApplicationName);
         }
 
-        private string GetApplicationName()
+        private static string GetApplicationName()
         {
             //// We want to add application name to all events BUT
             //// It is prohibited by EventSource rules to have more parameters in WriteEvent that in event source method

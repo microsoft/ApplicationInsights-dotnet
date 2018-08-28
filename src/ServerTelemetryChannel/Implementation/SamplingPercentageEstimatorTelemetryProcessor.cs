@@ -91,12 +91,12 @@
         {
             if (settings == null)
             {
-                throw new ArgumentNullException("settings");
+                throw new ArgumentNullException(nameof(settings));
             }
 
             if (next == null)
             {
-                throw new ArgumentNullException("next");
+                throw new ArgumentNullException(nameof(next));
             }
 
             this.evaluationCallback = callback;
@@ -138,11 +138,8 @@
         /// </summary>
         public void Dispose()
         {
-            if (this.evaluationTimer != null)
-            {
-                this.evaluationTimer.Dispose();
-                this.evaluationTimer = null;
-            }
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -156,6 +153,15 @@
             const double Precision = 1E-12;
 
             return (running < current - Precision) || (running > current + Precision);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing && this.evaluationTimer != null)
+            {
+                this.evaluationTimer.Dispose();
+                this.evaluationTimer = null;
+            }
         }
 
         /// <summary>

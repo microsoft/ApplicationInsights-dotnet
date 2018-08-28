@@ -1,15 +1,17 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 
     [EventSource(Name = "Microsoft-ApplicationInsights-Core")]
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class CoreEventSource : EventSource
     {
         public static readonly CoreEventSource Log = new CoreEventSource();
 
         private readonly ApplicationNameProvider nameProvider = new ApplicationNameProvider();
 
-        public bool IsVerboseEnabled
+        public static bool IsVerboseEnabled
         {
             [NonEvent]
             get

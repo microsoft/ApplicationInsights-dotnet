@@ -124,7 +124,7 @@
         {
             if (item == null)
             {
-                throw new ArgumentNullException("item");
+                throw new ArgumentNullException(nameof(item));
             }
 
             if (this.isDisposed)
@@ -135,7 +135,7 @@
 
             if (string.IsNullOrEmpty(item.Context.InstrumentationKey))
             {
-                if (CoreEventSource.Log.IsVerboseEnabled)
+                if (CoreEventSource.IsVerboseEnabled)
                 {
                     CoreEventSource.Log.ItemRejectedNoInstrumentationKey(item.ToString());
                 }
@@ -183,7 +183,10 @@
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool disposing)
+        /// <summary>
+        /// Dispose the channel if not already disposed.
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
         {
             if (disposing && !this.isDisposed)
             {

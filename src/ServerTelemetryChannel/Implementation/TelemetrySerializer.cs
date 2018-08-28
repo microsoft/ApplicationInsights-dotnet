@@ -17,7 +17,7 @@
         {
             if (transmitter == null)
             {
-                throw new ArgumentNullException("transmitter");
+                throw new ArgumentNullException(nameof(transmitter));
             }
 
             this.Transmitter = transmitter;
@@ -43,12 +43,7 @@
 
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("EndpointAddress");
-                }
-
-                this.endpointAddress = value;
+                this.endpointAddress = value ?? throw new ArgumentNullException(nameof(value), nameof(this.EndpointAddress) + " cannot be Null");
             }
         }
 
@@ -56,12 +51,12 @@
         {
             if (items == null)
             {
-                throw new ArgumentNullException("items");
+                throw new ArgumentNullException(nameof(items));
             }
 
             if (!items.Any())
             {
-                throw new ArgumentException("One or more telemetry item is expected", "items");
+                throw new ArgumentException("One or more telemetry item is expected", nameof(items));
             }
 
             var transmission = new Transmission(this.endpointAddress, items);

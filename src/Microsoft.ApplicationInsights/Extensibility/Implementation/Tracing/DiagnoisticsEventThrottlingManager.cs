@@ -15,17 +15,17 @@
         {
             if (snapshotContainer == null)
             {
-                throw new ArgumentNullException("snapshotContainer");
+                throw new ArgumentNullException(nameof(snapshotContainer));
             }
 
             if (scheduler == null)
             {
-                throw new ArgumentNullException("scheduler");
+                throw new ArgumentNullException(nameof(scheduler));
             }
 
             if (!throttlingRecycleIntervalInMinutes.IsInRangeThrottlingRecycleInterval())
             {
-                throw new ArgumentOutOfRangeException("throttlingRecycleIntervalInMinutes");
+                throw new ArgumentOutOfRangeException(nameof(throttlingRecycleIntervalInMinutes));
             }
 
             this.snapshotContainer = snapshotContainer;

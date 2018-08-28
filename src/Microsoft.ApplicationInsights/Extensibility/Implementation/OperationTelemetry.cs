@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using DataContracts;
     using Microsoft.ApplicationInsights.Channel;
 
@@ -113,6 +114,7 @@
         /// <summary>
         /// Allow to call OperationTelemetry.Sanitize method from child classes.
         /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This method is expected to be overloaded")]
         protected void Sanitize()
         {
         }

@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights
 {
+#pragma warning disable CA1034 // "Do not nest type" - part of the public API and too late to change.
     using System;
     using Microsoft.ApplicationInsights.Metrics;
 
@@ -21,7 +22,7 @@
         /// </summary>
         public static class TelemetryContext
         {
-// Documentation in this file repeatedly refers to the description of the containing class. This will generate a style error. Disable.
+            // Documentation in this file repeatedly refers to the description of the containing class. This will generate a style error. Disable.
 #pragma warning disable SA1625  // Element Documentation Must Not Be Copied And Pasted
 
             /// <summary>See details about the static class <see cref="MetricDimensionNames.TelemetryContext"/> for information about this constant.</summary>
@@ -185,4 +186,5 @@
 #pragma warning restore SA1625  // Element Documentation Must Not Be Copied And Pasted
         }
     }
+#pragma warning restore CA1034 // "Do not nest type"
 }

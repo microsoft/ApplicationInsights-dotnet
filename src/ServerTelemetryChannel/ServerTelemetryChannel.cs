@@ -235,7 +235,7 @@
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
 
                 this.telemetryProcessor = value;
@@ -266,7 +266,7 @@
             {
                 if (string.IsNullOrEmpty(item.Context.InstrumentationKey))
                 {
-                    if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                    if (TelemetryChannelEventSource.IsVerboseEnabled)
                     {
                         TelemetryChannelEventSource.Log.ItemRejectedNoInstrumentationKey(item.ToString());
                     }
@@ -274,7 +274,7 @@
                     return;
                 }
 
-                if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                if (TelemetryChannelEventSource.IsVerboseEnabled)
                 {
                     TelemetryChannelEventSource.Log.TelemetryChannelSend(
                         item.ToString(),

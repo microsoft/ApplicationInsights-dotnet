@@ -50,19 +50,19 @@
                     switch (fieldName)
                     {
                         case "runtimeFramework":
-                            provider.AddHeartbeatProperty(fieldName, true, this.GetRuntimeFrameworkVer(), true);
+                            provider.AddHeartbeatProperty(fieldName, true, GetRuntimeFrameworkVer(), true);
                             hasSetValues = true;
                             break;
                         case "baseSdkTargetFramework":
-                            provider.AddHeartbeatProperty(fieldName, true, this.GetBaseSdkTargetFramework(), true);
+                            provider.AddHeartbeatProperty(fieldName, true, GetBaseSdkTargetFramework(), true);
                             hasSetValues = true;
                             break;
                         case "osType":
-                            provider.AddHeartbeatProperty(fieldName, true, this.GetRuntimeOsType(), true);
+                            provider.AddHeartbeatProperty(fieldName, true, GetRuntimeOsType(), true);
                             hasSetValues = true;
                             break;
                         case "processSessionId":
-                            provider.AddHeartbeatProperty(fieldName, true, this.GetProcessSessionId(), true);
+                            provider.AddHeartbeatProperty(fieldName, true, GetProcessSessionId(), true);
                             hasSetValues = true;
                             break;
                         default:
@@ -84,7 +84,7 @@
         /// the 'Object' type. The version number returned can be used to infer other things such as .NET Core / Standard.
         /// </summary>
         /// <returns>a string representing the version of the current .NET framework</returns>
-        private string GetRuntimeFrameworkVer()
+        private static string GetRuntimeFrameworkVer()
         {
 #if NET45 || NET46
             Assembly assembly = typeof(Object).GetTypeInfo().Assembly;
@@ -105,7 +105,7 @@
         /// Returns the current target framework that the assembly was built against.
         /// </summary>
         /// <returns>standard string representing the target framework</returns>
-        private string GetBaseSdkTargetFramework()
+        private static string GetBaseSdkTargetFramework()
         {
 #if NET45
             return "net45";
@@ -126,7 +126,7 @@
         /// the OS platform Windows/Linux/OSX.
         /// </summary>
         /// <returns>String representing the OS or 'unknown'.</returns>
-        private string GetRuntimeOsType()
+        private static string GetRuntimeOsType()
         {
             string osValue = "unknown";
 #if NET45 || NET46
@@ -163,7 +163,7 @@
         /// single executable session.
         /// </summary>
         /// <returns>string representation of a unique id</returns>
-        private string GetProcessSessionId()
+        private static string GetProcessSessionId()
         {
             if (BaseDefaultHeartbeatPropertyProvider.uniqueProcessSessionId == null)
             {

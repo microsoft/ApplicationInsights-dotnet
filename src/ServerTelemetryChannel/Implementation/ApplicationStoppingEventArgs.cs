@@ -17,12 +17,7 @@
         /// </summary>
         public ApplicationStoppingEventArgs(Func<Func<Task>, Task> asyncMethodRunner)
         {
-            if (asyncMethodRunner == null)
-            {
-                throw new ArgumentNullException("asyncMethodRunner");
-            }
-
-            this.asyncMethodRunner = asyncMethodRunner;
+            this.asyncMethodRunner = asyncMethodRunner ?? throw new ArgumentNullException(nameof(asyncMethodRunner));
         }
 
         /// <summary>

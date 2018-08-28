@@ -349,7 +349,7 @@
             }
             catch (Exception ex)
             {
-                if ((false == this.IsThrownByPointsFactoryKey(ex)) || (timeout == TimeSpan.Zero))
+                if ((false == IsThrownByPointsFactoryKey(ex)) || (timeout == TimeSpan.Zero))
                 {
                     ExceptionDispatchInfo.Capture(ex).Throw();
                 }
@@ -411,7 +411,7 @@
                 }
                 catch (Exception ex)
                 {
-                    if (false == this.IsThrownByPointsFactoryKey(ex))
+                    if (false == IsThrownByPointsFactoryKey(ex))
                     {
                         ExceptionDispatchInfo.Capture(ex).Throw();
                     }
@@ -465,7 +465,7 @@
             return newTotalPointsCount;
         }
 
-        private bool IsThrownByPointsFactoryKey(Exception exception)
+        private static bool IsThrownByPointsFactoryKey(Exception exception)
         {
             IDictionary exceptionData = exception?.Data;
             if (exceptionData == null)
