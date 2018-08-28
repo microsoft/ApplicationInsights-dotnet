@@ -70,7 +70,7 @@
         private void PopulateTelemetry(ITelemetry telemetry, IReadOnlyList<KeyValuePair<string, object>> stateDictionary, EventId eventId)
         {
             var telemetryWithProperties = telemetry as ISupportProperties;
-            if(telemetryWithProperties != null)
+            if (telemetryWithProperties != null)
             {
                 IDictionary<string, string> dict = telemetryWithProperties.Properties;
                 dict["CategoryName"] = this.categoryName;
