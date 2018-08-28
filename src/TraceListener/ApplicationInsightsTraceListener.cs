@@ -104,7 +104,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
             }
 
             var trace = new TraceTelemetry(message);
-            this.CreateTraceData(eventType, id, trace);
+            CreateTraceData(eventType, id, trace);
             this.TelemetryClient.Track(trace);
         }
 
@@ -145,7 +145,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
 
             string message = string.Join(", ", data.Select(d => d == null ? string.Empty : d.ToString()));
             var trace = new TraceTelemetry(message);
-            this.CreateTraceData(eventType, id, trace);                       
+            CreateTraceData(eventType, id, trace);                       
             this.TelemetryClient.Track(trace);
         }
 
@@ -167,7 +167,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
             }
 
             var trace = new TraceTelemetry(message);
-            this.CreateTraceData(TraceEventType.Verbose, null, trace);
+            CreateTraceData(TraceEventType.Verbose, null, trace);
             this.TelemetryClient.Track(trace);
         }
 
@@ -188,9 +188,9 @@ namespace Microsoft.ApplicationInsights.TraceListener
             this.TelemetryClient.Flush();
         }
 
-        private void CreateTraceData(TraceEventType eventType, int? id, TraceTelemetry trace)
+        private static void CreateTraceData(TraceEventType eventType, int? id, TraceTelemetry trace)
         {
-            trace.SeverityLevel = this.GetSeverityLevel(eventType);
+            trace.SeverityLevel = GetSeverityLevel(eventType);
             
             IDictionary<string, string> metaData = trace.Properties;
             
@@ -200,7 +200,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
             }
         }
 
-        private SeverityLevel GetSeverityLevel(TraceEventType eventType)
+        private static SeverityLevel GetSeverityLevel(TraceEventType eventType)
         {
             // TraceEventType.Resume, TraceEventType.Start, TraceEventType.Stop,
             // TraceEventType.Suspend, TraceEventType.Transfer, TraceEventType.Verbose

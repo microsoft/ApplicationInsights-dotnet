@@ -208,6 +208,28 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         }
 
         /// <summary>
+        /// Returns true when eventSource satisfied the rule; false otherwise. Returns false when either is null.
+        /// </summary>
+        /// <param name="eventSource">The target event source.</param>
+        /// <param name="rule">The naming rule to be used for matching.</param>
+        private static bool IsEventSourceNameMatch(EventSource eventSource, EventSourceListeningRequestBase rule)
+        {
+            if (string.IsNullOrEmpty(rule?.Name) || string.IsNullOrEmpty(eventSource?.Name))
+            {
+                return false;
+            }
+
+            if (!rule.PrefixMatch)
+            {
+                return string.Equals(eventSource.Name, rule.Name, StringComparison.Ordinal);
+            }
+            else
+            {
+                return eventSource.Name.StartsWith(rule.Name, StringComparison.Ordinal);
+            }
+        }
+
+        /// <summary>
         /// Process a new EventSource event when the event source is not disabled by request.
         /// </summary>
         /// <param name="eventData">Event to proces.</param>
@@ -240,7 +262,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             }
             else
             {
-                EventSourceListeningRequest listeningRequest = this.Sources?.FirstOrDefault(request => this.IsEventSourceNameMatch(eventSource, request));
+                EventSourceListeningRequest listeningRequest = this.Sources?.FirstOrDefault(request => IsEventSourceNameMatch(eventSource, request));
                 if (listeningRequest != null)
                 {
                     // LIMITATION: There is a known issue where if we listen to the FrameworkEventSource, the dataflow pipeline may hang when it
@@ -267,28 +289,6 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         }
 
         /// <summary>
-        /// Returns true when eventSource satisfied the rule; false otherwise. Returns false when either is null.
-        /// </summary>
-        /// <param name="eventSource">The target event source.</param>
-        /// <param name="rule">The naming rule to be used for matching.</param>
-        private bool IsEventSourceNameMatch(EventSource eventSource, EventSourceListeningRequestBase rule)
-        {
-            if (string.IsNullOrEmpty(rule?.Name) || string.IsNullOrEmpty(eventSource?.Name))
-            {
-                return false;
-            }
-
-            if (!rule.PrefixMatch)
-            {
-                return string.Equals(eventSource.Name, rule.Name, StringComparison.Ordinal);
-            }
-            else
-            {
-                return eventSource.Name.StartsWith(rule.Name, StringComparison.Ordinal);
-            }
-        }
-
-        /// <summary>
         /// When the event comes from a EventSource that matches the rule of DisabledSource, it should be dropped, unless the event source name matches one of the 
         /// name exactly in the enabling rule.
         /// </summary>
@@ -302,7 +302,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             {
                 if (!this.enabledOrDisabledEventSourceTestResultCache.TryGetValue(eventSourceName, out isDisabled))
                 {
-                    isDisabled = this.DisabledSources.Any(request => this.IsEventSourceNameMatch(eventData?.EventSource, request));
+                    isDisabled = this.DisabledSources.Any(request => IsEventSourceNameMatch(eventData?.EventSource, request));
                     this.enabledOrDisabledEventSourceTestResultCache[eventSourceName] = isDisabled;
                 }
             }

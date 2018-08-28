@@ -100,57 +100,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
             }
         }
 
-        private void SendException(LoggingEvent loggingEvent)
-        {
-            try
-            {
-                var exceptionTelemetry = new ExceptionTelemetry(loggingEvent.ExceptionObject)
-                {
-                    SeverityLevel = this.GetSeverityLevel(loggingEvent.Level)
-                };
-
-                string message = null;
-                if (loggingEvent.RenderedMessage != null)
-                {
-                    message = this.RenderLoggingEvent(loggingEvent);
-                }
-
-                if (!string.IsNullOrEmpty(message))
-                {
-                    exceptionTelemetry.Properties.Add("Message", message);
-                }
-
-                this.BuildCustomProperties(loggingEvent, exceptionTelemetry);
-                this.telemetryClient.Track(exceptionTelemetry);
-            }
-            catch (ArgumentNullException exception)
-            {
-                throw new LogException(exception.Message, exception);
-            }
-        }
-
-        private void SendTrace(LoggingEvent loggingEvent)
-        {
-            try
-            {
-                loggingEvent.GetProperties();
-                string message = loggingEvent.RenderedMessage != null ? this.RenderLoggingEvent(loggingEvent) : "Log4Net Trace";
-
-                var trace = new TraceTelemetry(message)
-                {
-                    SeverityLevel = this.GetSeverityLevel(loggingEvent.Level)
-                };
-
-                this.BuildCustomProperties(loggingEvent, trace);
-                this.telemetryClient.Track(trace);
-            }
-            catch (ArgumentNullException exception)
-            {
-                throw new LogException(exception.Message, exception);
-            }
-        }
-
-        private void BuildCustomProperties(LoggingEvent loggingEvent, ITelemetry trace)
+        private static void BuildCustomProperties(LoggingEvent loggingEvent, ITelemetry trace)
         {
             trace.Timestamp = loggingEvent.TimeStamp;
 
@@ -197,7 +147,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
             }
         }
 
-        private SeverityLevel? GetSeverityLevel(Level logginEventLevel)
+        private static SeverityLevel? GetSeverityLevel(Level logginEventLevel)
         {
             if (logginEventLevel == null)
             {
@@ -225,6 +175,56 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
             }
 
             return SeverityLevel.Critical;
+        }
+
+        private void SendException(LoggingEvent loggingEvent)
+        {
+            try
+            {
+                var exceptionTelemetry = new ExceptionTelemetry(loggingEvent.ExceptionObject)
+                {
+                    SeverityLevel = GetSeverityLevel(loggingEvent.Level)
+                };
+
+                string message = null;
+                if (loggingEvent.RenderedMessage != null)
+                {
+                    message = this.RenderLoggingEvent(loggingEvent);
+                }
+
+                if (!string.IsNullOrEmpty(message))
+                {
+                    exceptionTelemetry.Properties.Add("Message", message);
+                }
+
+                BuildCustomProperties(loggingEvent, exceptionTelemetry);
+                this.telemetryClient.Track(exceptionTelemetry);
+            }
+            catch (ArgumentNullException exception)
+            {
+                throw new LogException(exception.Message, exception);
+            }
+        }
+
+        private void SendTrace(LoggingEvent loggingEvent)
+        {
+            try
+            {
+                loggingEvent.GetProperties();
+                string message = loggingEvent.RenderedMessage != null ? this.RenderLoggingEvent(loggingEvent) : "Log4Net Trace";
+
+                var trace = new TraceTelemetry(message)
+                {
+                    SeverityLevel = GetSeverityLevel(loggingEvent.Level)
+                };
+
+                BuildCustomProperties(loggingEvent, trace);
+                this.telemetryClient.Track(trace);
+            }
+            catch (ArgumentNullException exception)
+            {
+                throw new LogException(exception.Message, exception);
+            }
         }
     }
 }
