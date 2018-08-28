@@ -22,7 +22,7 @@
             telemetry.Context.Properties.Add("AspNetCoreEnvironment", "Development");
             initializer.Initialize(telemetry);
 
-            Assert.Equal("Development", telemetry.Context.Properties["AspNetCoreEnvironment"]);
+            Assert.Equal("Development", telemetry.Context.GlobalProperties["AspNetCoreEnvironment"]);
         }
 
         [Fact]
@@ -32,7 +32,7 @@
             var telemetry = new RequestTelemetry();
             initializer.Initialize(telemetry);
 
-            Assert.Equal("Production", telemetry.Context.Properties["AspNetCoreEnvironment"]);
+            Assert.Equal("Production", telemetry.Context.GlobalProperties["AspNetCoreEnvironment"]);
         }
     }
 }
