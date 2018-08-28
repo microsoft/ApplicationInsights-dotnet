@@ -148,7 +148,7 @@
 
                         if (configuration == null)
                         {
-                            throw new ArgumentNullException("configuration");
+                            throw new ArgumentNullException(nameof(configuration));
                         }
 
                         if (!this.defaultCountersInitialized)

@@ -30,7 +30,7 @@
         {
             if (telemetry == null)
             {
-                throw new ArgumentNullException("telemetry");
+                throw new ArgumentNullException(nameof(telemetry));
             }
 
             if (telemetry.Context != null && telemetry.Context.Component != null)

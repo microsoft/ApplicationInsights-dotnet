@@ -1,12 +1,14 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 
     /// <summary>
     /// ETW EventSource tracing class.
     /// </summary>
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-WindowsServer")]
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class WindowsServerEventSource : EventSource
     {
         /// <summary>
