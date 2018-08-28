@@ -15,7 +15,7 @@
         {
             if (!throttleAfterCount.IsInRangeThrottleAfterCount())
             {
-                throw new ArgumentOutOfRangeException("throttleAfterCount");
+                throw new ArgumentOutOfRangeException(nameof(throttleAfterCount));
             }
 
             this.throttleAfterCount = throttleAfterCount;

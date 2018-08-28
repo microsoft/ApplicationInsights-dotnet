@@ -37,17 +37,17 @@
         {
             if (address == null)
             {
-                throw new ArgumentNullException("address");
+                throw new ArgumentNullException(nameof(address));
             }
 
             if (content == null)
             {
-                throw new ArgumentNullException("content");
+                throw new ArgumentNullException(nameof(content));
             }
 
             if (contentType == null)
             {
-                throw new ArgumentNullException("contentType");
+                throw new ArgumentNullException(nameof(contentType));
             }
 
             this.EndpointAddress = address;
@@ -92,6 +92,7 @@
             private set;
         }
 
+#pragma warning disable CA1819 // "Properties should not return arrays" - part of the public API and too late to change.
         /// <summary>
         /// Gets the content of the transmission.
         /// </summary>
@@ -100,6 +101,7 @@
             get;
             private set;
         }
+#pragma warning restore CA1819 // "Properties should not return arrays" - part of the public API and too late to change.
 
         /// <summary>
         /// Gets the content's type of the transmission.

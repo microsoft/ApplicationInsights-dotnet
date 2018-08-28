@@ -26,7 +26,7 @@
         /// </summary>
         public string Version
         {
-            get { return this.version == string.Empty ? null : this.version; }
+            get { return string.IsNullOrEmpty(this.version) ? null : this.version; }
             set { this.version = value; }
         }
 

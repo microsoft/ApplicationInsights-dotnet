@@ -458,7 +458,9 @@
 
             var timestamp = DateTimeOffset.Now;
 #pragma warning disable CS0612 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
             client.TrackDependency("name", "command name", timestamp, TimeSpan.FromSeconds(42), false);
+#pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning restore CS0612 // Type or member is obsolete
 
             var dependency = (DependencyTelemetry)sentTelemetry.Single();

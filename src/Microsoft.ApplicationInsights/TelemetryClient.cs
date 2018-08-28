@@ -51,7 +51,7 @@
 
             if (this.configuration.TelemetryChannel == null)
             {
-                throw new ArgumentException("The specified configuration does not have a telemetry channel.", "configuration");
+                throw new ArgumentException("The specified configuration does not have a telemetry channel.", nameof(configuration));
             }
         }
 
@@ -316,7 +316,7 @@
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
         /// </remarks>
-        [Obsolete]
+        [Obsolete("Please use a different overload of TrackDependency")]
         public void TrackDependency(string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
         {
 #pragma warning disable 618

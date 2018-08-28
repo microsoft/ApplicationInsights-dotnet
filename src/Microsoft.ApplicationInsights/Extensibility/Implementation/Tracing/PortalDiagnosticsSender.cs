@@ -34,12 +34,12 @@
         {
             if (configuration == null)
             {
-                throw new ArgumentNullException("configuration");
+                throw new ArgumentNullException(nameof(configuration));
             }
 
             if (throttlingManager == null)
             {
-                throw new ArgumentNullException("throttlingManager");
+                throw new ArgumentNullException(nameof(throttlingManager));
             }
 
             this.telemetryClient = new TelemetryClient(configuration);

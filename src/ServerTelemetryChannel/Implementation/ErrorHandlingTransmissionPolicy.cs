@@ -19,7 +19,7 @@
         {
             if (transmitter == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(transmitter));
             }
 
             this.backoffLogicManager = transmitter.BackoffLogicManager;
@@ -32,6 +32,45 @@
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        private static void AdditionalVerboseTracing(HttpWebResponse httpResponse)
+        {
+            // For perf reason deserialize only when verbose tracing is enabled 
+            if (TelemetryChannelEventSource.IsVerboseEnabled && httpResponse != null)
+            {
+                try
+                {
+                    var stream = httpResponse.GetResponseStream();
+                    if (stream != null)
+                    {
+                        using (StreamReader content = new StreamReader(stream))
+                        {
+                            string response = content.ReadToEnd();
+
+                            if (!string.IsNullOrEmpty(response))
+                            {
+                                BackendResponse backendResponse = BackoffLogicManager.GetBackendResponse(response);
+
+                                if (backendResponse != null && backendResponse.Errors != null)
+                                {
+                                    foreach (var error in backendResponse.Errors)
+                                    {
+                                        if (error != null)
+                                        {
+                                            TelemetryChannelEventSource.Log.ItemRejectedByEndpointWarning(error.Message);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    // This code is for tracing purposes only; it cannot not throw
+                }
+            }
         }
 
         private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs e)
@@ -48,7 +87,7 @@
                         (int)httpWebResponse.StatusCode,
                         httpWebResponse.StatusDescription);
 
-                    this.AdditionalVerboseTracing((HttpWebResponse)webException.Response);
+                    AdditionalVerboseTracing((HttpWebResponse)webException.Response);
 
                     switch (httpWebResponse.StatusCode)
                     {
@@ -94,45 +133,6 @@
                     // We are loosing data here (we did not upload failed transaction back).
                     // We got unknown exception. 
                     TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id, e.Exception.Message);
-                }
-            }
-        }
-
-        private void AdditionalVerboseTracing(HttpWebResponse httpResponse)
-        {
-            // For perf reason deserialize only when verbose tracing is enabled 
-            if (TelemetryChannelEventSource.Log.IsVerboseEnabled && httpResponse != null)
-            {
-                try
-                {
-                    var stream = httpResponse.GetResponseStream();
-                    if (stream != null)
-                    {
-                        using (StreamReader content = new StreamReader(stream))
-                        {
-                            string response = content.ReadToEnd();
-
-                            if (!string.IsNullOrEmpty(response))
-                            {
-                                BackendResponse backendResponse = this.backoffLogicManager.GetBackendResponse(response);
-
-                                if (backendResponse != null && backendResponse.Errors != null)
-                                {
-                                    foreach (var error in backendResponse.Errors)
-                                    {
-                                        if (error != null)
-                                        {
-                                            TelemetryChannelEventSource.Log.ItemRejectedByEndpointWarning(error.Message);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    // This code is for tracing purposes only; it cannot not throw
                 }
             }
         }

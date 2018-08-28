@@ -27,7 +27,7 @@
         /// </remarks>
         public string Id
         {
-            get { return this.id == string.Empty ? null : this.id; }
+            get { return string.IsNullOrEmpty(this.id) ? null : this.id; }
             set { this.id = value; }
         }
 
@@ -36,7 +36,7 @@
         /// </summary>
         public string AccountId
         {
-            get { return this.accountId == string.Empty ? null : this.accountId; }
+            get { return string.IsNullOrEmpty(this.accountId) ? null : this.accountId; }
             set { this.accountId = value; }
         }
 
@@ -45,7 +45,7 @@
         /// </summary>
         public string UserAgent
         {
-            get { return this.userAgent == string.Empty ? null : this.userAgent; }
+            get { return string.IsNullOrEmpty(this.userAgent) ? null : this.userAgent; }
             set { this.userAgent = value; }
         }
 
@@ -55,7 +55,7 @@
         /// </summary>
         public string AuthenticatedUserId
         {
-            get { return this.authenticatedUserId == string.Empty ? null : this.authenticatedUserId; }
+            get { return string.IsNullOrEmpty(this.authenticatedUserId) ? null : this.authenticatedUserId; }
             set { this.authenticatedUserId = value; }
         }
 

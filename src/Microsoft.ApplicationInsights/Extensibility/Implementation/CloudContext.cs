@@ -21,7 +21,7 @@
         /// </summary>
         public string RoleName
         {
-            get { return this.roleName == string.Empty ? null : this.roleName; }
+            get { return string.IsNullOrEmpty(this.roleName) ? null : this.roleName; }
             set { this.roleName = value; }
         }
 
@@ -30,7 +30,7 @@
         /// </summary>
         public string RoleInstance
         {
-            get { return this.roleInstance == string.Empty ? null : this.roleInstance; }
+            get { return string.IsNullOrEmpty(this.roleInstance) ? null : this.roleInstance; }
             set { this.roleInstance = value; }
         }
 

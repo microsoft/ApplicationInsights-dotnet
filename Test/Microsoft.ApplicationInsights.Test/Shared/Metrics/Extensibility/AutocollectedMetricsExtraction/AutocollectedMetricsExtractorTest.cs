@@ -258,7 +258,9 @@
                 
                 client.TrackRequest("Test Request", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "200", success: true);
 #pragma warning disable CS0612 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
                 client.TrackDependency("Test Dependency Call 1", "Test Command", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), success: true);
+#pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning restore CS0612 // Type or member is obsolete
                 client.TrackDependency("Test Dependency Type", "Test Dependency Call 2", "Test Command", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), true);
                 client.TrackDependency("Test Dependency Type", "Test Target", "Test Dependency Call 3", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(11), "201", success: true);
