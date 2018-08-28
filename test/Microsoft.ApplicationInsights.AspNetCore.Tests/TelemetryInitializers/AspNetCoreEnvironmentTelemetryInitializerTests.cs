@@ -19,7 +19,7 @@
         {
             var initializer = new AspNetCoreEnvironmentTelemetryInitializer(new HostingEnvironment() { EnvironmentName = "Production"});
             var telemetry = new RequestTelemetry();
-            telemetry.Context.Properties.Add("AspNetCoreEnvironment", "Development");
+            telemetry.Context.GlobalProperties.Add("AspNetCoreEnvironment", "Development");
             initializer.Initialize(telemetry);
 
             Assert.Equal("Development", telemetry.Context.GlobalProperties["AspNetCoreEnvironment"]);
