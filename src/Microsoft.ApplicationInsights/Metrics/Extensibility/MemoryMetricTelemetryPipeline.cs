@@ -104,7 +104,7 @@
         {
             Util.ValidateNotNull(metricAggregate, nameof(metricAggregate));
 
-            await this.updateLock.WaitAsync(cancelToken).ConfigureAwait(false);
+            await this.updateLock.WaitAsync(cancelToken);
             try
             {
                 while (this.metricAgregates.Count >= this.CountLimit)

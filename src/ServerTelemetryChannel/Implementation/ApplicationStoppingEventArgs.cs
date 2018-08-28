@@ -27,7 +27,7 @@
         {
             try
             {
-                await this.asyncMethodRunner(asyncMethod).ConfigureAwait(false);
+                await this.asyncMethodRunner(asyncMethod);
             }
             catch (Exception exception)
             {
