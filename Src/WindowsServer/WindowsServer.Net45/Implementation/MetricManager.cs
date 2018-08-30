@@ -953,43 +953,7 @@
             }
         }
     }
-
-    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
-    internal sealed class ApplicationNameProvider
-    {
-        public ApplicationNameProvider()
-        {
-            this.Name = this.GetApplicationName();
-        }
-
-        public string Name { get; private set; }
-
-        private string GetApplicationName()
-        {
-            //// We want to add application name to all events BUT
-            //// It is prohibited by EventSource rules to have more parameters in WriteEvent that in event source method
-            //// Parameter will be available in payload but in the next versions EventSource may 
-            //// start validating that number of parameters match
-            //// It is not allowed to call additional methods, only WriteEvent
-
-            string name;
-            try
-            {
-#if NETSTANDARD1_6
-                name = string.Empty;
-#else
-                name = AppDomain.CurrentDomain.FriendlyName;
-#endif
-            }
-            catch (Exception exp)
-            {
-                name = "Undefined " + exp.Message ?? exp.ToString();
-            }
-
-            return name;
-        }
-    }
-
+    
     [EventSource(Name = "Microsoft-ApplicationInsights-WindowsServer-Core")]
     [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
     internal sealed class WindowsServerCoreEventSource : EventSource

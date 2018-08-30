@@ -22,12 +22,12 @@
             if (this.returnJsonOne)
             {
                 this.returnJsonOne = false;
-                return CacheHelper.Instance.PerformanceCounterValue(name, this.jsonOne);
+                return CacheHelper.PerformanceCounterValue(name, this.jsonOne);
             }
             else
             {
                 this.returnJsonOne = true;
-                return CacheHelper.Instance.PerformanceCounterValue(name, this.jsonTwo);
+                return CacheHelper.PerformanceCounterValue(name, this.jsonTwo);
             }
         }
     }

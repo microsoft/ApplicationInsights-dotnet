@@ -9,7 +9,7 @@
     /// Obsolete. A telemetry context initializer that used to populate role instance name. Preserved for backward compatibility. 
     /// Note that role instance will still be populated with the machine name as in the previous versions.
     /// </summary>
-    [Obsolete]
+    [Obsolete("A telemetry context initializer that used to populate role instance name. Preserved for backward compatibility.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class DomainNameRoleInstanceTelemetryInitializer : ITelemetryInitializer
     {   

@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq;
     using System.Runtime.Serialization;
@@ -66,6 +67,7 @@
         [DataMember(Name = "vmSize", IsRequired = true)]
         internal string VmSize { get; set; }
 
+        [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase", Justification = "This compares string to known values. Is safe to use lowercase.")]
         internal string GetValueForField(string fieldName)
         {
             string aimsValue = null;

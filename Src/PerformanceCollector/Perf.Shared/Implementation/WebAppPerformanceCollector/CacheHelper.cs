@@ -47,7 +47,7 @@
         /// <param name="performanceCounterName"> The name of the performance counter.</param>
         /// <param name="json"> String containing the JSON.</param>
         /// <returns> Value of the performance counter.</returns>
-        public long PerformanceCounterValue(string performanceCounterName, string json)
+        public static long PerformanceCounterValue(string performanceCounterName, string json)
         {
             if (json.IndexOf(performanceCounterName, StringComparison.OrdinalIgnoreCase) == -1)
             {
@@ -99,7 +99,7 @@
             }
 
             string json = this.GetFromCache(name).ToString();
-            long value = this.PerformanceCounterValue(name, json);
+            long value = PerformanceCounterValue(name, json);
 
             return value;
         }

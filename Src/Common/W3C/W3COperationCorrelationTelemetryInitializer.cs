@@ -3,6 +3,7 @@
     using System;
     using System.ComponentModel;
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
@@ -35,6 +36,7 @@
             UpdateTelemetry(telemetry, currentActivity, false);
         }
 
+        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "This method has different code for Net45/NetCore")]
         internal static void UpdateTelemetry(ITelemetry telemetry, Activity activity, bool forceUpdate)
         {
             if (activity == null)
