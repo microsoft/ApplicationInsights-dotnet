@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using Microsoft.ApplicationInsights.Common;
 
     internal class WebAppPerformanceCollector : IPerformanceCollector
     {
@@ -37,7 +38,7 @@
                         {
                             onReadingFailure?.Invoke(counter.Item1.OriginalString, e);
 
-                            return new Tuple<PerformanceCounterData, double>[] { };
+                            return ArrayExtensions.Empty<Tuple<PerformanceCounterData, double>>();
                         }
 
                         return new[] { Tuple.Create(counter.Item1, value) };

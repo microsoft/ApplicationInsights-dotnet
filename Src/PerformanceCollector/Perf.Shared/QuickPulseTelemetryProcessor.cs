@@ -7,6 +7,7 @@
     using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -614,7 +615,7 @@
             out CollectionConfigurationError[] filteringErrors,
             ref string projectionError)
         {
-            filteringErrors = new CollectionConfigurationError[] { };
+            filteringErrors = ArrayExtensions.Empty<CollectionConfigurationError>();
 
             foreach (CalculatedMetric<TTelemetry> metric in metrics)
             {

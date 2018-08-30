@@ -5,6 +5,7 @@
     using System.Globalization;
     using System.Linq;
 
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
 
@@ -66,7 +67,7 @@
             this.CreateMetadata();
 
             // create document streams based on description in info
-            this.CreateDocumentStreams(out CollectionConfigurationError[] documentStreamErrors, timeProvider, previousDocumentStreams ?? new DocumentStream[0]);
+            this.CreateDocumentStreams(out CollectionConfigurationError[] documentStreamErrors, timeProvider, previousDocumentStreams ?? ArrayExtensions.Empty<DocumentStream>());
 
             // create performance counters
             this.CreatePerformanceCounters(out CollectionConfigurationError[] performanceCounterErrors);
@@ -114,7 +115,7 @@
           List<CalculatedMetric<TTelemetry>> metrics,
           out CollectionConfigurationError[] errors)
         {
-            errors = new CollectionConfigurationError[] { };
+            errors = ArrayExtensions.Empty<CollectionConfigurationError>();
 
             try
             {
@@ -141,7 +142,7 @@
             var errorList = new List<CollectionConfigurationError>();
 
             CalculatedMetricInfo[] performanceCounterMetrics =
-                (this.info.Metrics ?? new CalculatedMetricInfo[0]).Where(metric => metric.TelemetryType == TelemetryType.PerformanceCounter)
+                (this.info.Metrics ?? ArrayExtensions.Empty<CalculatedMetricInfo>()).Where(metric => metric.TelemetryType == TelemetryType.PerformanceCounter)
                     .ToArray();
 
             this.performanceCounters.AddRange(
@@ -186,58 +187,61 @@
                         documentStream.EventQuotaTracker.CurrentQuota,
                         documentStream.TraceQuotaTracker.CurrentQuota));
 
-            foreach (DocumentStreamInfo documentStreamInfo in this.info.DocumentStreams ?? new DocumentStreamInfo[0])
+            if (this.info.DocumentStreams != null)
             {
-                if (documentStreamIds.Contains(documentStreamInfo.Id))
+                foreach (DocumentStreamInfo documentStreamInfo in this.info.DocumentStreams)
                 {
-                    // there must not be streams with duplicate ids
-                    errorList.Add(
-                        CollectionConfigurationError.CreateError(
-                            CollectionConfigurationErrorType.DocumentStreamDuplicateIds,
-                            string.Format(CultureInfo.InvariantCulture, "Document stream with a duplicate id ignored: {0}", documentStreamInfo.Id),
-                            null,
-                            Tuple.Create("DocumentStreamId", documentStreamInfo.Id)));
-
-                    continue;
-                }
-
-                CollectionConfigurationError[] localErrors = null;
-                try
-                {
-                    Tuple<float, float, float, float, float> initialQuotas;
-                    previousQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out initialQuotas);
-
-                    var documentStream = new DocumentStream(
-                        documentStreamInfo,
-                        out localErrors,
-                        timeProvider,
-                        initialRequestQuota: initialQuotas?.Item1,
-                        initialDependencyQuota: initialQuotas?.Item2,
-                        initialExceptionQuota: initialQuotas?.Item3,
-                        initialEventQuota: initialQuotas?.Item4,
-                        initialTraceQuota: initialQuotas?.Item5);
-
-                    documentStreamIds.Add(documentStreamInfo.Id);
-                    this.documentStreams.Add(documentStream);
-                }
-                catch (Exception e)
-                {
-                    errorList.Add(
-                        CollectionConfigurationError.CreateError(
-                            CollectionConfigurationErrorType.DocumentStreamFailureToCreate,
-                            string.Format(CultureInfo.InvariantCulture, "Failed to create document stream {0}", documentStreamInfo),
-                            e,
-                            Tuple.Create("DocumentStreamId", documentStreamInfo.Id)));
-                }
-
-                if (localErrors != null)
-                {
-                    foreach (var error in localErrors)
+                    if (documentStreamIds.Contains(documentStreamInfo.Id))
                     {
-                        error.Data["DocumentStreamId"] = documentStreamInfo.Id;
+                        // there must not be streams with duplicate ids
+                        errorList.Add(
+                            CollectionConfigurationError.CreateError(
+                                CollectionConfigurationErrorType.DocumentStreamDuplicateIds,
+                                string.Format(CultureInfo.InvariantCulture, "Document stream with a duplicate id ignored: {0}", documentStreamInfo.Id),
+                                null,
+                                Tuple.Create("DocumentStreamId", documentStreamInfo.Id)));
+
+                        continue;
                     }
 
-                    errorList.AddRange(localErrors);
+                    CollectionConfigurationError[] localErrors = null;
+                    try
+                    {
+                        Tuple<float, float, float, float, float> initialQuotas;
+                        previousQuotasByStreamId.TryGetValue(documentStreamInfo.Id, out initialQuotas);
+
+                        var documentStream = new DocumentStream(
+                            documentStreamInfo,
+                            out localErrors,
+                            timeProvider,
+                            initialRequestQuota: initialQuotas?.Item1,
+                            initialDependencyQuota: initialQuotas?.Item2,
+                            initialExceptionQuota: initialQuotas?.Item3,
+                            initialEventQuota: initialQuotas?.Item4,
+                            initialTraceQuota: initialQuotas?.Item5);
+
+                        documentStreamIds.Add(documentStreamInfo.Id);
+                        this.documentStreams.Add(documentStream);
+                    }
+                    catch (Exception e)
+                    {
+                        errorList.Add(
+                            CollectionConfigurationError.CreateError(
+                                CollectionConfigurationErrorType.DocumentStreamFailureToCreate,
+                                string.Format(CultureInfo.InvariantCulture, "Failed to create document stream {0}", documentStreamInfo),
+                                e,
+                                Tuple.Create("DocumentStreamId", documentStreamInfo.Id)));
+                    }
+
+                    if (localErrors != null)
+                    {
+                        foreach (var error in localErrors)
+                        {
+                            error.Data["DocumentStreamId"] = documentStreamInfo.Id;
+                        }
+
+                        errorList.AddRange(localErrors);
+                    }
                 }
             }
 
@@ -249,7 +253,7 @@
             var errorList = new List<CollectionConfigurationError>();
             var metricIds = new HashSet<string>();
 
-            foreach (CalculatedMetricInfo metricInfo in info.Metrics ?? new CalculatedMetricInfo[0])
+            foreach (CalculatedMetricInfo metricInfo in info.Metrics ?? ArrayExtensions.Empty<CalculatedMetricInfo>())
             {
                 if (metricIds.Contains(metricInfo.Id))
                 {
@@ -297,7 +301,10 @@
                         break;
                 }
 
-                errorList.AddRange(localErrors ?? new CollectionConfigurationError[0]);
+                if (localErrors != null)
+                {
+                    errorList.AddRange(localErrors);
+                }
 
                 metricIds.Add(metricInfo.Id);
             }

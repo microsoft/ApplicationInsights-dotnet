@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ActivityExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ApplicationNameProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AppMapCorrelationEventSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ArrayExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConditionalWeakTableExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExceptionUtilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HeadersUtilities.cs" />
