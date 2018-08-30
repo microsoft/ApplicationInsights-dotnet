@@ -68,7 +68,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             if (tagValue.HasValue)
             {
-                tags.Add(tagKey, tagValue.Value.ToString());
+#if NET45 || NET46
+                string value = tagValue.Value.ToString(CultureInfo.InvariantCulture);
+#else
+                string value = tagValue.Value.ToString();
+#endif
+                tags.Add(tagKey, value);
             }
         }
 
