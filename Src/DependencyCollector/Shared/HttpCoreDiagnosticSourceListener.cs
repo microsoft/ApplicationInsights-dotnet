@@ -249,10 +249,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         public void Dispose()
         {
-            if (this.subscriber != null)
-            {
-                this.subscriber.Dispose();
-            }
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         //// netcoreapp 2.0 event
@@ -598,6 +596,17 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                         requestHeaders.Add(RequestResponseHeaders.CorrelationContextHeader, baggage);
                     }
+                }
+            }
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.subscriber != null)
+                {
+                    this.subscriber.Dispose();
                 }
             }
         }

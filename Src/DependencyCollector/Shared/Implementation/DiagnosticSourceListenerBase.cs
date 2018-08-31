@@ -102,18 +102,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         public void Dispose()
         {
-            if (this.individualSubscriptions != null)
-            {
-                foreach (var individualSubscription in this.individualSubscriptions)
-                {
-                    individualSubscription.Dispose();
-                }
-            }
-
-            if (this.listenerSubscription != null)
-            {
-                this.listenerSubscription.Dispose();
-            }
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -147,6 +137,25 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// <param name="diagnosticListenerName">The diagnostic source name.</param>
         /// <returns>Event handler.</returns>
         protected abstract IDiagnosticEventHandler GetEventHandler(string diagnosticListenerName);
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.individualSubscriptions != null)
+                {
+                    foreach (var individualSubscription in this.individualSubscriptions)
+                    {
+                        individualSubscription.Dispose();
+                    }
+                }
+
+                if (this.listenerSubscription != null)
+                {
+                    this.listenerSubscription.Dispose();
+                }
+            }
+        }
 
         /// <summary>
         /// Event listener for a single Diagnostic Source.
