@@ -24,9 +24,9 @@
         /// <inheritdoc />
         public void Initialize(ITelemetry telemetry)
         {
-            if (environment != null && !telemetry.Context.Properties.ContainsKey(AspNetCoreEnvironmentPropertyName))
+            if (environment != null && !telemetry.Context.GlobalProperties.ContainsKey(AspNetCoreEnvironmentPropertyName))
             {
-                telemetry.Context.Properties.Add(AspNetCoreEnvironmentPropertyName, environment.EnvironmentName);
+                telemetry.Context.GlobalProperties.Add(AspNetCoreEnvironmentPropertyName, environment.EnvironmentName);
             }
         }
     }
