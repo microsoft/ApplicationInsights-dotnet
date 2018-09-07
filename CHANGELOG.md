@@ -1,7 +1,11 @@
 # Changelog
 
 ## Version 2.5.0-beta2
-ComVisible attribute is set to false for the project for compliance reasons.
+- ComVisible attribute is set to false for the project for compliance reasons.
+Applicable if using additional Sinks to forward telemetry to:
+  - [Default TelemetryProcessors are added to the DefaultSink instead of common TelemetryProcessor pipeline.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/752)
+  - [TelemetryProcessors added via AddTelemetryProcesor extension method are added to the DefaultSink instead of common TelemetryProcessor pipeline.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/752)
+
 
 ## Version 2.5.0-beta1
 - [Adds opt-in support for W3C distributed tracing standard](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/735)

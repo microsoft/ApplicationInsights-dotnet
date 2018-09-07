@@ -539,7 +539,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                FakeTelemetryProcessor telemetryProcessor = telemetryConfiguration.TelemetryProcessors.OfType<FakeTelemetryProcessor>().FirstOrDefault();
+                // TP added via AddApplicationInsightsTelemetryProcessor is added to the default sink.
+                FakeTelemetryProcessor telemetryProcessor = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors.OfType<FakeTelemetryProcessor>().FirstOrDefault();
                 Assert.NotNull(telemetryProcessor);
                 Assert.True(telemetryProcessor.IsInitialized);
             }
@@ -567,7 +568,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                FakeTelemetryProcessorWithImportingConstructor telemetryProcessor = telemetryConfiguration.TelemetryProcessors.OfType<FakeTelemetryProcessorWithImportingConstructor>().FirstOrDefault();
+
+                // TP added via AddApplicationInsightsTelemetryProcessor is added to the default sink.
+                FakeTelemetryProcessorWithImportingConstructor telemetryProcessor = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors.OfType<FakeTelemetryProcessorWithImportingConstructor>().FirstOrDefault();
                 Assert.NotNull(telemetryProcessor);
                 Assert.Same(serviceProvider.GetService<IHostingEnvironment>(), telemetryProcessor.HostingEnvironment);
             }
@@ -742,7 +745,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var adaptiveSamplingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
+                var adaptiveSamplingProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
 
                 // There will be 2 separate SamplingTelemetryProcessors - one for Events, and other for everything else.
                 Assert.Equal(2, adaptiveSamplingProcessorCount);
@@ -755,7 +758,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var qpProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
+                var qpProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
                 Assert.Equal(0, qpProcessorCount);
             }
 
@@ -766,7 +769,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var adaptiveSamplingProcessorCount =  GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
+                var adaptiveSamplingProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
                 // There will be 2 separate SamplingTelemetryProcessors - one for Events, and other for everything else.
                 Assert.Equal(2, adaptiveSamplingProcessorCount);
             }
@@ -860,6 +863,33 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal(typeof(MockApplicationIdProvider), applicationIdProvider.GetType());
             }
 
+
+            [Fact]
+            public static void ValidatesThatOnlyPassThroughProcessorIsAddedToCommonPipeline()
+            {
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
+                services.AddSingleton<ITelemetryChannel, InMemoryChannel>();
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+                // All default TelemetryProcessors are expected to be on the default sink. There should be
+                // none on the main pipeline except the PassThrough.
+
+                var qpProcessorCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
+                Assert.Equal(0, qpProcessorCount);
+
+                var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfiguration<AutocollectedMetricsExtractor>(telemetryConfiguration);
+                Assert.Equal(0, metricExtractorProcessorCount);
+
+                var samplingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
+                Assert.Equal(0, samplingProcessorCount);
+
+                var passThroughProcessorCount = telemetryConfiguration.TelemetryProcessors.Count;
+                Assert.Equal(1, passThroughProcessorCount);
+                
+                Assert.Equal("PassThroughProcessor", telemetryConfiguration.TelemetryProcessors[0].GetType().Name);
+            }
+
             [Fact]
             public static void AddsQuickPulseProcessorToTheConfigurationByDefault()
             {                
@@ -867,7 +897,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 services.AddSingleton<ITelemetryChannel, InMemoryChannel>();
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var qpProcessorCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
+                var qpProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<QuickPulseTelemetryProcessor>(telemetryConfiguration);
                 Assert.Equal(1, qpProcessorCount);
             }
 
@@ -878,7 +908,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 services.AddSingleton<ITelemetryChannel, InMemoryChannel>();
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfiguration<AutocollectedMetricsExtractor>(telemetryConfiguration);
+                var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<AutocollectedMetricsExtractor>(telemetryConfiguration);
                 Assert.Equal(1, metricExtractorProcessorCount);
             }
 
@@ -893,7 +923,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfiguration<AutocollectedMetricsExtractor>(telemetryConfiguration);
+                var metricExtractorProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<AutocollectedMetricsExtractor>(telemetryConfiguration);
                 Assert.Equal(0, metricExtractorProcessorCount);
             }
 
@@ -904,7 +934,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var qpProcessorCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
+                var qpProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<QuickPulseTelemetryProcessor>(telemetryConfiguration);
                 Assert.Equal(0, qpProcessorCount);
             }
 
@@ -915,7 +945,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                var qpProcessorCount =  GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
+                var qpProcessorCount = GetTelemetryProcessorsCountInConfigurationDefaultSink<QuickPulseTelemetryProcessor>(telemetryConfiguration);
                 Assert.Equal(1, qpProcessorCount);
             }
 
@@ -993,6 +1023,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             private static int GetTelemetryProcessorsCountInConfiguration<T>(TelemetryConfiguration telemetryConfiguration)
             {
                 return telemetryConfiguration.TelemetryProcessors.Where(processor => processor.GetType() == typeof(T)).Count();
+            }
+
+            private static int GetTelemetryProcessorsCountInConfigurationDefaultSink<T>(TelemetryConfiguration telemetryConfiguration)
+            {
+                return telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessors.Where(processor => processor.GetType() == typeof(T)).Count();
             }
 
             [Fact]
