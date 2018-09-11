@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel
 {
+    using System.Diagnostics;
     using System.Linq;
     using System.Xml.Linq;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,6 +16,7 @@
 
             var typeToFind = typeof(AdaptiveSamplingTelemetryProcessor);
 
+            Trace.WriteLine(configAfterTransform.ToString());
             var processors = ConfigurationHelpers.GetTelemetryProcessors(configAfterTransform);
 
             Assert.AreEqual(3, processors.Count());
@@ -45,6 +47,7 @@
             XDocument configAfterInstall = ConfigurationHelpers.InstallTransform(emptyConfig);
 
             XDocument configAfterUninstall = ConfigurationHelpers.UninstallTransform(configAfterInstall.ToString());
+            Trace.WriteLine(configAfterUninstall.ToString());
 
             Assert.AreEqual(0, ConfigurationHelpers.GetTelemetryProcessors(configAfterUninstall).ToList().Count);
         }
@@ -59,6 +62,7 @@
             string customConfig = configAfterInstall.ToString().Replace("AdaptiveSamplingTelemetryProcessor", "blah");
 
             XDocument configAfterUninstall = ConfigurationHelpers.UninstallTransform(customConfig);
+            Trace.WriteLine(configAfterUninstall.ToString());
 
             Assert.AreEqual(2, ConfigurationHelpers.GetTelemetryProcessors(configAfterUninstall).ToList().Count); 
         }

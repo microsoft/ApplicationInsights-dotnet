@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel
 {
+    using System;
+    using System.Diagnostics;
     using System.Linq;
     using System.Xml.Linq;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -25,8 +27,7 @@
         public void UninstallRemovesTelemetryChannel()
         {
             string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
-            XDocument configAfterInstall = ConfigurationHelpers.InstallTransform(emptyConfig);
-
+            XDocument configAfterInstall = ConfigurationHelpers.InstallTransform(emptyConfig);            
             XDocument configAfterUninstall = ConfigurationHelpers.UninstallTransform(configAfterInstall.ToString());
 
             Assert.AreEqual(0, ConfigurationHelpers.GetTelemetryChannel(configAfterUninstall).ToList().Count);
