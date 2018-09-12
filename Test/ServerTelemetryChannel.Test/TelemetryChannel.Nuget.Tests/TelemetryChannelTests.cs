@@ -17,7 +17,7 @@
 
             var typeToFind = typeof(ServerTelemetryChannel);
 
-            var node = ConfigurationHelpers.GetTelemetryChannel(configAfterTransform)
+            var node = ConfigurationHelpers.GetTelemetryChannelFromDefaultSink(configAfterTransform)
                 .FirstOrDefault(element => element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind));
 
             Assert.IsNotNull(node);
@@ -30,7 +30,7 @@
             XDocument configAfterInstall = ConfigurationHelpers.InstallTransform(emptyConfig);            
             XDocument configAfterUninstall = ConfigurationHelpers.UninstallTransform(configAfterInstall.ToString());
 
-            Assert.AreEqual(0, ConfigurationHelpers.GetTelemetryChannel(configAfterUninstall).ToList().Count);
+            Assert.AreEqual(0, ConfigurationHelpers.GetTelemetryChannelFromDefaultSink(configAfterUninstall).ToList().Count);
         }
     }
 }

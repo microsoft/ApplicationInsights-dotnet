@@ -1,4 +1,9 @@
 <ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+
+  <TelemetryChannel xdt:Transform="Remove" />
+  <TelemetryProcessors xdt:Transform="Remove"/>
+
+
   <TelemetrySinks xdt:Transform="InsertIfMissing">
   </TelemetrySinks>
 

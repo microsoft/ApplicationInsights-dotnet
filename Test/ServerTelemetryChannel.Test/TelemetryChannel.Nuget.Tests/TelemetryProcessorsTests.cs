@@ -17,7 +17,7 @@
             var typeToFind = typeof(AdaptiveSamplingTelemetryProcessor);
 
             Trace.WriteLine(configAfterTransform.ToString());
-            var processors = ConfigurationHelpers.GetTelemetryProcessors(configAfterTransform);
+            var processors = ConfigurationHelpers.GetTelemetryProcessorsFromDefaultSink(configAfterTransform);
 
             Assert.AreEqual(3, processors.Count());
 
@@ -49,7 +49,7 @@
             XDocument configAfterUninstall = ConfigurationHelpers.UninstallTransform(configAfterInstall.ToString());
             Trace.WriteLine(configAfterUninstall.ToString());
 
-            Assert.AreEqual(0, ConfigurationHelpers.GetTelemetryProcessors(configAfterUninstall).ToList().Count);
+            Assert.AreEqual(0, ConfigurationHelpers.GetTelemetryProcessorsFromDefaultSink(configAfterUninstall).ToList().Count);
         }
 
         [TestMethod]
@@ -64,7 +64,7 @@
             XDocument configAfterUninstall = ConfigurationHelpers.UninstallTransform(customConfig);
             Trace.WriteLine(configAfterUninstall.ToString());
 
-            Assert.AreEqual(2, ConfigurationHelpers.GetTelemetryProcessors(configAfterUninstall).ToList().Count); 
+            Assert.AreEqual(2, ConfigurationHelpers.GetTelemetryProcessorsFromDefaultSink(configAfterUninstall).ToList().Count); 
         }
     }
 }
