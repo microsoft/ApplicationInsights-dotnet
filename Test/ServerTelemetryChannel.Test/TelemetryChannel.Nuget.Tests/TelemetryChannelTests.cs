@@ -14,7 +14,7 @@
         {
             string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
             XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
-
+            Trace.WriteLine(configAfterTransform.ToString());
             var typeToFind = typeof(ServerTelemetryChannel);
 
             var node = ConfigurationHelpers.GetTelemetryChannelFromDefaultSink(configAfterTransform)
@@ -29,7 +29,7 @@
             string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
             XDocument configAfterInstall = ConfigurationHelpers.InstallTransform(emptyConfig);            
             XDocument configAfterUninstall = ConfigurationHelpers.UninstallTransform(configAfterInstall.ToString());
-
+            Trace.WriteLine(configAfterUninstall.ToString());
             Assert.AreEqual(0, ConfigurationHelpers.GetTelemetryChannelFromDefaultSink(configAfterUninstall).ToList().Count);
         }
     }
