@@ -425,7 +425,7 @@
                     }
                 }
 
-                await Task.Delay(delayMillis, cancelToken);
+                await Task.Delay(delayMillis, cancelToken).ConfigureAwait(true);
             }
         }
 
