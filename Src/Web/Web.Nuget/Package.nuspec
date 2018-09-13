@@ -14,7 +14,7 @@
     <description>Application Insights for .NET web applications. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</description>
     <copyright>$copyright$</copyright>
     <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
-    <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
+    <tags>Azure Monitoring Analytics ApplicationInsights Telemetry AppInsights</tags>
     <dependencies>
       <group targetFramework="net45">
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />

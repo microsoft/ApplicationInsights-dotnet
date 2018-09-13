@@ -14,7 +14,7 @@
     <description>Application Insights Windows Server nuget package provides automatic collection of application insights telemetry for .NET applications. This package can be used as a dependent package for Application Insights platform specific packages or as a standalone package for .NET applications that are not covered by platform specific packages (like for .NET worker roles). Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</description>
     <copyright>$copyright$</copyright>
     <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
-    <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
+    <tags>Azure Monitoring Analytics ApplicationInsights Telemetry AppInsights</tags>
     <dependencies>
       <group targetFramework="net45">
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
