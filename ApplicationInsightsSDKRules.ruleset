@@ -25,6 +25,8 @@
     <Rule Id="CA1403" Action="Warning" />
     <Rule Id="CA1405" Action="Warning" />
     <Rule Id="CA1410" Action="Warning" />
+    <!-- Suppressing Message "Identifiers should not match keywords" because class TplActivities is part of our public api and can't be changed -->
+    <Rule Id="CA1716" Action="None" />
     <Rule Id="CA1821" Action="Warning" />
     <Rule Id="CA1900" Action="Warning" />
     <Rule Id="CA2001" Action="Warning" />
