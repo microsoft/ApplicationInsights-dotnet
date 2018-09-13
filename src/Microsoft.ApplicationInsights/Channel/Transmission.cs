@@ -26,7 +26,6 @@
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
 #if NETSTANDARD1_3
         private static HttpClient client = new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
-        private CancellationTokenSource cancellationTokenSource;
 #endif
         private int isSending;
 
@@ -163,8 +162,11 @@
                 using (MemoryStream contentStream = new MemoryStream(this.Content))
                 {
                     HttpRequestMessage request = this.CreateRequestMessage(this.EndpointAddress, contentStream);
-                    this.cancellationTokenSource = new CancellationTokenSource(this.Timeout);             
-                    await client.SendAsync(request, this.cancellationTokenSource.Token).ConfigureAwait(false);
+
+                    using (var ct = new CancellationTokenSource(this.Timeout))
+                    {
+                        await client.SendAsync(request, ct.Token).ConfigureAwait(false);
+                    }
                     
                     return null;
                 }
