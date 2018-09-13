@@ -21,7 +21,7 @@
         {            
             if (null == request)
             {
-                throw new ArgumentNullException("request");
+                throw new ArgumentNullException(nameof(request));
             }
 
             if (true == string.IsNullOrWhiteSpace(request.Scheme))
