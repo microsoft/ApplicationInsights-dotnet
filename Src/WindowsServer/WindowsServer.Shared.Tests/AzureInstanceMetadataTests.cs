@@ -232,13 +232,14 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 Tags = "thisTag;thatTag",
                 Version = "10.8a",
                 VmId = Guid.NewGuid().ToString(),
-                VmSize = "A8"
+                VmSize = "A8",
+                VmScaleSetName = "ScaleName"
             };
 
             DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(AzureInstanceComputeMetadata));
 
             // use the expected JSON field name style, uses camelCase...
-            string jsonFormatString = 
+            string jsonFormatString =
 @"{{ 
   ""osType"": ""{0}"",
   ""location"": ""{1}"",
@@ -254,7 +255,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer
   ""vmSize"": ""{11}"",
   ""subscriptionId"": ""{12}"",
   ""tags"": ""{13}"",
-  ""resourceGroupName"": ""{14}""
+  ""resourceGroupName"": ""{14}"",
+  ""vmScaleSetName"": ""{15}""
 }}";
             string json = string.Format(
                 System.Globalization.CultureInfo.InvariantCulture,
@@ -273,7 +275,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 expectMetadata.VmSize,
                 expectMetadata.SubscriptionId,
                 expectMetadata.Tags,
-                expectMetadata.ResourceGroupName);
+                expectMetadata.ResourceGroupName,
+                expectMetadata.VmScaleSetName);
 
             var jsonBytes = Encoding.UTF8.GetBytes(json);
             MemoryStream jsonStream = new MemoryStream(jsonBytes, 0, jsonBytes.Length);

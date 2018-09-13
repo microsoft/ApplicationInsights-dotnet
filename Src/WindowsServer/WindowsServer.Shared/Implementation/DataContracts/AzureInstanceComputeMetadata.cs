@@ -67,6 +67,9 @@
         [DataMember(Name = "vmSize", IsRequired = true)]
         internal string VmSize { get; set; }
 
+        [DataMember(Name = "vmScaleSetName", IsRequired = true)]
+        internal string VmScaleSetName { get; set; }
+
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase", Justification = "This compares string to known values. Is safe to use lowercase.")]
         internal string GetValueForField(string fieldName)
         {
@@ -117,6 +120,9 @@
                     break;
                 case "tags":
                     aimsValue = this.Tags;
+                    break;
+                case "vmscalesetname":
+                    aimsValue = this.VmScaleSetName;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(string.Format(CultureInfo.InvariantCulture, "No field named '{0}' in AzureInstanceComputeMetadata.", fieldName));

@@ -15,7 +15,7 @@
         /// Azure Instance Metadata Service exists on a single non-routable IP on machines configured
         /// by the Azure Resource Manager. See <a href="https://go.microsoft.com/fwlink/?linkid=864683">to learn more.</a>
         /// </summary>
-        internal const string AzureImsApiVersion = "api-version=2017-08-01"; // this version has the format=text capability
+        internal const string AzureImsApiVersion = "api-version=2017-12-01"; // this version has the format=text capability
         internal const string AzureImsJsonFormat = "format=json";
         internal const int AzureImsMaxResponseBufferSize = 512;
 

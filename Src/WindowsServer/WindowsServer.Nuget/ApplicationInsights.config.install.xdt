@@ -28,9 +28,12 @@
           <Add>vmSize</Add>
           <Add>subscriptionId</Add>
           <Add>resourceGroupName</Add>
+          <Add>placementGroupId</Add>
+          <Add>tags</Add>
+          <Add>vmScaleSetName</Add>
         </ExcludedHeartbeatProperties>
       </Add>
-      
+            
       NOTE: exclusions will be lost upon upgrade.
       -->
     </Add>
