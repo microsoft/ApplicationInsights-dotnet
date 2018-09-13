@@ -5,8 +5,20 @@
   </TelemetryModules>
   <TelemetryModules xdt:Transform="Remove" xdt:Locator="Condition(count(*)=0)"/>
 
-  <TelemetryProcessors>
-    <Add xdt:Transform="Remove" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
-  </TelemetryProcessors>
-  <TelemetryProcessors xdt:Transform="Remove" xdt:Locator="Condition(count(*)=0)"/>
+  <TelemetrySinks>
+    <Add Name="default">
+      <TelemetryProcessors>
+        <Add xdt:Transform="Remove" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
+      </TelemetryProcessors>
+      <TelemetryProcessors xdt:Transform="Remove" xdt:Locator="Condition(count(*)=0)"/>
+    </Add>
+  </TelemetrySinks>
+
+  <TelemetrySinks>
+    <Add Name="default" xdt:Transform="Remove" xdt:Locator="Condition(count(*)=0)">
+    </Add>
+  </TelemetrySinks>
+
+  <TelemetrySinks xdt:Transform="Remove" xdt:Locator="Condition(count(*)=0)"/>
+  
 </ApplicationInsights>

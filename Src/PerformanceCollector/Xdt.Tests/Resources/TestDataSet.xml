@@ -37,9 +37,13 @@
           </Add>
           <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryModule, Microsoft.AI.PerfCounterCollector"/>
         </TelemetryModules>
-        <TelemetryProcessors>
-          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
-        </TelemetryProcessors>
+        <TelemetrySinks>
+          <Add Name="default">
+            <TelemetryProcessors>
+              <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
+            </TelemetryProcessors>
+          </Add>
+        </TelemetrySinks>
       </ApplicationInsights>
       
     </expectedPostTransform>
@@ -77,9 +81,13 @@
           </Add>
           <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryModule, Microsoft.AI.PerfCounterCollector"/>
         </TelemetryModules>
-        <TelemetryProcessors>
-          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
-        </TelemetryProcessors>
+        <TelemetrySinks>
+          <Add Name="default">
+            <TelemetryProcessors>
+              <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
+            </TelemetryProcessors>
+          </Add>
+        </TelemetrySinks>
       </ApplicationInsights>
 
     </expectedPostTransform>
@@ -138,9 +146,13 @@
           </Add>
           <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryModule, Microsoft.AI.PerfCounterCollector"/>
         </TelemetryModules>
-        <TelemetryProcessors>
-          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
-        </TelemetryProcessors>
+        <TelemetrySinks>
+          <Add Name="default">
+            <TelemetryProcessors>
+              <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
+            </TelemetryProcessors>
+          </Add>
+        </TelemetrySinks>
       </ApplicationInsights>
 
     </expectedPostTransform>
@@ -188,9 +200,13 @@
       -->
           </Add>
         </TelemetryModules>
-        <TelemetryProcessors>
-          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
-        </TelemetryProcessors>
+        <TelemetrySinks>
+          <Add Name="default">
+            <TelemetryProcessors>
+              <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
+            </TelemetryProcessors>
+          </Add>
+        </TelemetrySinks>
       </ApplicationInsights>
 
     </expectedPostTransform>
@@ -202,7 +218,7 @@
 
     </expectedPostUninstall>
   </item>
-  <!--Installing NuGet when QuickPulse telemetry processor is already present-->
+  <!--Installing NuGet when QuickPulse telemetry processor is already present in common pipeline-->
   <item>
     <original>
 
@@ -240,9 +256,13 @@
           </Add>
           <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryModule, Microsoft.AI.PerfCounterCollector"/>
         </TelemetryModules>
-        <TelemetryProcessors>
-          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
-        </TelemetryProcessors>
+        <TelemetrySinks>
+          <Add Name="default">
+            <TelemetryProcessors>
+              <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
+            </TelemetryProcessors>
+          </Add>
+        </TelemetrySinks>
       </ApplicationInsights>
 
     </expectedPostTransform>
@@ -254,6 +274,68 @@
 
     </expectedPostUninstall>
   </item>
+
+  <!--Installing NuGet when QuickPulse telemetry processor is already present in default sink-->
+  <item>
+    <original>
+
+      <ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" schemaVersion="2014-05-30">
+        <TelemetryModules>
+        </TelemetryModules>
+        <TelemetrySinks>
+          <Add Name="default">
+            <TelemetryProcessors>
+              <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
+            </TelemetryProcessors>
+          </Add>
+        </TelemetrySinks>
+      </ApplicationInsights>
+
+    </original>
+    <expectedPostTransform>
+
+      <ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" schemaVersion="2014-05-30">
+        <TelemetryModules>
+          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.PerformanceCollectorModule, Microsoft.AI.PerfCounterCollector">
+            <!--
+      Use the following syntax here to collect additional performance counters:
+      
+      <Counters>
+        <Add PerformanceCounter="\Process(??APP_WIN32_PROC??)\Handle Count" ReportAs="Process handle count" />
+        ...
+      </Counters>
+      
+      PerformanceCounter must be either \CategoryName(InstanceName)\CounterName or \CategoryName\CounterName
+      
+      NOTE: performance counters configuration will be lost upon NuGet upgrade.
+      
+      The following placeholders are supported as InstanceName:
+        ??APP_WIN32_PROC?? - instance name of the application process  for Win32 counters.
+        ??APP_W3SVC_PROC?? - instance name of the application IIS worker process for IIS/ASP.NET counters.
+        ??APP_CLR_PROC?? - instance name of the application CLR process for .NET counters.
+      -->
+          </Add>
+          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryModule, Microsoft.AI.PerfCounterCollector"/>
+        </TelemetryModules>
+        <TelemetrySinks>
+          <Add Name="default">
+            <TelemetryProcessors>
+              <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
+            </TelemetryProcessors>
+          </Add>
+        </TelemetrySinks>
+      </ApplicationInsights>
+
+    </expectedPostTransform>
+
+    <expectedPostUninstall>
+
+      <ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" schemaVersion="2014-05-30">
+      </ApplicationInsights>
+
+    </expectedPostUninstall>
+  </item>
+  
   <!--Installing NuGet when QuickPulse telemetry processor is not present, but others are. QuickPulse telemetry processor must always be first-->
   <item>
     <original>
@@ -261,9 +343,13 @@
       <ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" schemaVersion="2014-05-30">
         <TelemetryModules>
         </TelemetryModules>
-        <TelemetryProcessors>
-          <Add Type="SomeTelemetryProcessor, SomeAssembly" />
-        </TelemetryProcessors>
+        <TelemetrySinks>
+          <Add Name="default">
+            <TelemetryProcessors>
+              <Add Type="SomeTelemetryProcessor, SomeAssembly" />
+            </TelemetryProcessors>
+          </Add>
+        </TelemetrySinks>
       </ApplicationInsights>
 
     </original>
@@ -292,10 +378,14 @@
           </Add>
           <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryModule, Microsoft.AI.PerfCounterCollector"/>
         </TelemetryModules>
-        <TelemetryProcessors>
-          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
-          <Add Type="SomeTelemetryProcessor, SomeAssembly" />
-        </TelemetryProcessors>
+        <TelemetrySinks>
+          <Add Name="default">
+            <TelemetryProcessors>
+              <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
+              <Add Type="SomeTelemetryProcessor, SomeAssembly" />
+            </TelemetryProcessors>
+          </Add>
+        </TelemetrySinks>
       </ApplicationInsights>
 
     </expectedPostTransform>
@@ -303,9 +393,13 @@
     <expectedPostUninstall>
 
       <ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" schemaVersion="2014-05-30">
-        <TelemetryProcessors>
-          <Add Type="SomeTelemetryProcessor, SomeAssembly" />
-        </TelemetryProcessors>
+        <TelemetrySinks>
+          <Add Name="default">
+            <TelemetryProcessors>
+              <Add Type="SomeTelemetryProcessor, SomeAssembly" />
+            </TelemetryProcessors>
+          </Add>
+        </TelemetrySinks>
       </ApplicationInsights>
 
     </expectedPostUninstall>
@@ -317,11 +411,15 @@
       <ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" schemaVersion="2014-05-30">
         <TelemetryModules>
         </TelemetryModules>
-        <TelemetryProcessors>
-          <Add Type="SomeTelemetryProcessor, SomeAssembly" />
-          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
-          <Add Type="SomeOtherTelemetryProcessor, SomeOtherAssembly" />
-        </TelemetryProcessors>
+        <TelemetrySinks>
+          <Add Name="default">
+            <TelemetryProcessors>
+              <Add Type="SomeTelemetryProcessor, SomeAssembly" />
+              <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
+              <Add Type="SomeOtherTelemetryProcessor, SomeOtherAssembly" />
+            </TelemetryProcessors>
+          </Add>
+        </TelemetrySinks>
       </ApplicationInsights>
 
     </original>
@@ -350,11 +448,15 @@
           </Add>
           <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryModule, Microsoft.AI.PerfCounterCollector"/>
         </TelemetryModules>
-        <TelemetryProcessors>
-          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
-          <Add Type="SomeTelemetryProcessor, SomeAssembly" />
-          <Add Type="SomeOtherTelemetryProcessor, SomeOtherAssembly" />
-        </TelemetryProcessors>
+        <TelemetrySinks>
+          <Add Name="default">
+            <TelemetryProcessors>
+              <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
+              <Add Type="SomeTelemetryProcessor, SomeAssembly" />
+              <Add Type="SomeOtherTelemetryProcessor, SomeOtherAssembly" />
+            </TelemetryProcessors>
+          </Add>
+        </TelemetrySinks>
       </ApplicationInsights>
 
     </expectedPostTransform>
@@ -362,10 +464,14 @@
     <expectedPostUninstall>
 
       <ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" schemaVersion="2014-05-30">
-        <TelemetryProcessors>
-          <Add Type="SomeTelemetryProcessor, SomeAssembly" />
-          <Add Type="SomeOtherTelemetryProcessor, SomeOtherAssembly" />
-        </TelemetryProcessors>
+        <TelemetrySinks>
+          <Add Name="default">
+            <TelemetryProcessors>
+              <Add Type="SomeTelemetryProcessor, SomeAssembly" />
+              <Add Type="SomeOtherTelemetryProcessor, SomeOtherAssembly" />
+            </TelemetryProcessors>
+          </Add>
+        </TelemetrySinks>
       </ApplicationInsights>
 
     </expectedPostUninstall>
