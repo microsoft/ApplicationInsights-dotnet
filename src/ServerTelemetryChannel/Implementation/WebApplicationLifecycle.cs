@@ -2,6 +2,7 @@
 namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Web.Hosting;
@@ -27,6 +28,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
         /// The <see cref="Started "/> event is raised when the <see cref="WebApplicationLifecycle"/> instance is first created.
         /// This event is not raised for web applications.
         /// </summary>
+        [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Cannot rename because this implements an interface which is part of the public api.")]
         public event Action<object, object> Started
         {
             add { }
