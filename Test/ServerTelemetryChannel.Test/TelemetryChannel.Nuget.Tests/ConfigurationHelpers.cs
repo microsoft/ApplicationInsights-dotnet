@@ -25,15 +25,19 @@
             }
         }
 
-        public static IEnumerable<XElement> GetTelemetryChannel(XDocument config)
+        public static IEnumerable<XElement> GetTelemetryChannelFromDefaultSink(XDocument config)
         {
-            return config.Descendants(XmlNamespace + "TelemetryChannel");
+            var allSinks = config.Descendants(XmlNamespace + "TelemetrySinks").Descendants(XmlNamespace + "Add");
+            var defaultSink = allSinks?.FirstOrDefault(element => element.Attribute("Name").Value == "default");
+            return (defaultSink == null) ? Enumerable.Empty<XElement>() : defaultSink?.Descendants(XmlNamespace + "TelemetryChannel");
         }
 
-        public static IEnumerable<XElement> GetTelemetryProcessors(XDocument config)
+        public static IEnumerable<XElement> GetTelemetryProcessorsFromDefaultSink(XDocument config)
         {
-            var processors = config.Descendants(XmlNamespace + "TelemetryProcessors");
-            return processors?.Nodes().Cast<XElement>();
+            var allSinks = config.Descendants(XmlNamespace + "TelemetrySinks").Descendants(XmlNamespace + "Add");
+            var defaultSink = allSinks?.FirstOrDefault(element => element.Attribute("Name").Value == "default");
+            var processors = defaultSink?.Descendants(XmlNamespace + "TelemetryProcessors");
+            return (processors == null) ? Enumerable.Empty<XElement>() : processors.Nodes().Cast<XElement>();            
         }
 
         public static string GetPartialTypeName(Type typeToFind)
