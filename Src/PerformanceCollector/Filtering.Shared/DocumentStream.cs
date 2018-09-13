@@ -149,42 +149,45 @@
         private void CreateFilters(out CollectionConfigurationError[] errors)
         {
             var errorList = new List<CollectionConfigurationError>();
-            foreach (DocumentFilterConjunctionGroupInfo documentFilterConjunctionGroupInfo in this.info.DocumentFilterGroups ?? new DocumentFilterConjunctionGroupInfo[0])
+            if (this.info.DocumentFilterGroups != null)
             {
-                try
+                foreach (DocumentFilterConjunctionGroupInfo documentFilterConjunctionGroupInfo in this.info.DocumentFilterGroups)
                 {
-                    CollectionConfigurationError[] groupErrors;
-                    switch (documentFilterConjunctionGroupInfo.TelemetryType)
+                    try
                     {
-                        case TelemetryType.Request:
-                            this.requestFilterGroups.Add(new FilterConjunctionGroup<RequestTelemetry>(documentFilterConjunctionGroupInfo.Filters, out groupErrors));
-                            break;
-                        case TelemetryType.Dependency:
-                            this.dependencyFilterGroups.Add(new FilterConjunctionGroup<DependencyTelemetry>(documentFilterConjunctionGroupInfo.Filters, out groupErrors));
-                            break;
-                        case TelemetryType.Exception:
-                            this.exceptionFilterGroups.Add(new FilterConjunctionGroup<ExceptionTelemetry>(documentFilterConjunctionGroupInfo.Filters, out groupErrors));
-                            break;
-                        case TelemetryType.Event:
-                            this.eventFilterGroups.Add(new FilterConjunctionGroup<EventTelemetry>(documentFilterConjunctionGroupInfo.Filters, out groupErrors));
-                            break;
-                        case TelemetryType.Trace:
-                            this.traceFilterGroups.Add(new FilterConjunctionGroup<TraceTelemetry>(documentFilterConjunctionGroupInfo.Filters, out groupErrors));
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException(string.Format(CultureInfo.InvariantCulture, "Unsupported TelemetryType: '{0}'", documentFilterConjunctionGroupInfo.TelemetryType));
-                    }
+                        CollectionConfigurationError[] groupErrors;
+                        switch (documentFilterConjunctionGroupInfo.TelemetryType)
+                        {
+                            case TelemetryType.Request:
+                                this.requestFilterGroups.Add(new FilterConjunctionGroup<RequestTelemetry>(documentFilterConjunctionGroupInfo.Filters, out groupErrors));
+                                break;
+                            case TelemetryType.Dependency:
+                                this.dependencyFilterGroups.Add(new FilterConjunctionGroup<DependencyTelemetry>(documentFilterConjunctionGroupInfo.Filters, out groupErrors));
+                                break;
+                            case TelemetryType.Exception:
+                                this.exceptionFilterGroups.Add(new FilterConjunctionGroup<ExceptionTelemetry>(documentFilterConjunctionGroupInfo.Filters, out groupErrors));
+                                break;
+                            case TelemetryType.Event:
+                                this.eventFilterGroups.Add(new FilterConjunctionGroup<EventTelemetry>(documentFilterConjunctionGroupInfo.Filters, out groupErrors));
+                                break;
+                            case TelemetryType.Trace:
+                                this.traceFilterGroups.Add(new FilterConjunctionGroup<TraceTelemetry>(documentFilterConjunctionGroupInfo.Filters, out groupErrors));
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException(string.Format(CultureInfo.InvariantCulture, "Unsupported TelemetryType: '{0}'", documentFilterConjunctionGroupInfo.TelemetryType));
+                        }
 
-                    errorList.AddRange(groupErrors);
-                }
-                catch (Exception e)
-                {
-                    errorList.Add(
-                        CollectionConfigurationError.CreateError(
-                            CollectionConfigurationErrorType.DocumentStreamFailureToCreateFilterUnexpected,
-                            string.Format(CultureInfo.InvariantCulture, "Failed to create a document stream filter {0}.", documentFilterConjunctionGroupInfo),
-                            e,
-                            Tuple.Create("DocumentStreamId", this.info.Id)));
+                        errorList.AddRange(groupErrors);
+                    }
+                    catch (Exception e)
+                    {
+                        errorList.Add(
+                            CollectionConfigurationError.CreateError(
+                                CollectionConfigurationErrorType.DocumentStreamFailureToCreateFilterUnexpected,
+                                string.Format(CultureInfo.InvariantCulture, "Failed to create a document stream filter {0}.", documentFilterConjunctionGroupInfo),
+                                e,
+                                Tuple.Create("DocumentStreamId", this.info.Id)));
+                    }
                 }
             }
 

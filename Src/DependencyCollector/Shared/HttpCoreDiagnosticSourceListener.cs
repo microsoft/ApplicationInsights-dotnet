@@ -455,6 +455,29 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
         }
 
+        private static void InjectCorrelationContext(HttpRequestHeaders requestHeaders, Activity currentActivity)
+        {
+            if (!requestHeaders.Contains(RequestResponseHeaders.CorrelationContextHeader))
+            {
+                // we expect baggage to be empty or contain a few items
+                using (IEnumerator<KeyValuePair<string, string>> e = currentActivity.Baggage.GetEnumerator())
+                {
+                    if (e.MoveNext())
+                    {
+                        var baggage = new List<string>();
+                        do
+                        {
+                            KeyValuePair<string, string> item = e.Current;
+                            baggage.Add(new NameValueHeaderValue(item.Key, item.Value).ToString());
+                        }
+                        while (e.MoveNext());
+
+                        requestHeaders.Add(RequestResponseHeaders.CorrelationContextHeader, baggage);
+                    }
+                }
+            }
+        }
+
 #pragma warning disable 612, 618
         private void InjectRequestHeaders(HttpRequestMessage request, string instrumentationKey, bool isLegacyEvent = false)
         {
@@ -486,7 +509,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             requestHeaders.Add(RequestResponseHeaders.RequestIdHeader, currentActivity.Id);
                         }
 
-                        this.InjectCorrelationContext(requestHeaders, currentActivity);
+                        InjectCorrelationContext(requestHeaders, currentActivity);
                     }
 
                     if (this.injectLegacyHeaders)
@@ -575,29 +598,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             int statusCode = (int)response.StatusCode;
             telemetry.ResultCode = (statusCode > 0) ? statusCode.ToString(CultureInfo.InvariantCulture) : string.Empty;
             telemetry.Success = (statusCode > 0) && (statusCode < 400);
-        }
-
-        private void InjectCorrelationContext(HttpRequestHeaders requestHeaders, Activity currentActivity)
-        {
-            if (!requestHeaders.Contains(RequestResponseHeaders.CorrelationContextHeader))
-            {
-                // we expect baggage to be empty or contain a few items
-                using (IEnumerator<KeyValuePair<string, string>> e = currentActivity.Baggage.GetEnumerator())
-                {
-                    if (e.MoveNext())
-                    {
-                        var baggage = new List<string>();
-                        do
-                        {
-                            KeyValuePair<string, string> item = e.Current;
-                            baggage.Add(new NameValueHeaderValue(item.Key, item.Value).ToString());
-                        }
-                        while (e.MoveNext());
-
-                        requestHeaders.Add(RequestResponseHeaders.CorrelationContextHeader, baggage);
-                    }
-                }
-            }
         }
 
         private void Dispose(bool disposing)

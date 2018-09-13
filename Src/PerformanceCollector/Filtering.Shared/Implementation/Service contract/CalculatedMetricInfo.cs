@@ -77,7 +77,19 @@
                 this.TelemetryType,
                 this.Projection,
                 this.Aggregation,
-                string.Join(", ", (this.FilterGroups ?? new FilterConjunctionGroupInfo[0]).Select(filterGroup => filterGroup.ToString())));
+                this.FilterGroupsToString());
+        }
+
+        private string FilterGroupsToString()
+        {
+            if (this.FilterGroups == null)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return string.Join(", ", this.FilterGroups.Select(filterGroup => filterGroup.ToString()));
+            }
         }
     }
 }

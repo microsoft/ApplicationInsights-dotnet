@@ -93,7 +93,7 @@
                 azureImsClient.DefaultRequestHeaders.Add("Metadata", "True");
                 azureImsClient.Timeout = this.AzureImsRequestTimeout;
 
-                Stream content = await azureImsClient.GetStreamAsync(requestUrl).ConfigureAwait(false);
+                Stream content = await azureImsClient.GetStreamAsync(new Uri(requestUrl)).ConfigureAwait(false);
                 azureIms = (AzureInstanceComputeMetadata)deserializer.ReadObject(content);
                 content.Dispose();
 

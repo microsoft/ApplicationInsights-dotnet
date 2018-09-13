@@ -64,7 +64,7 @@
 
             // wait for the delay set into the monitor, plus one second to ensure we got updated
             Task.Delay(
-                AppServiceEnvironmentVariableMonitor.Instance.MonitorInterval + TimeSpan.FromSeconds(1))
+                AppServiceEnvironmentVariableMonitor.MonitorInterval + TimeSpan.FromSeconds(1))
                 .ConfigureAwait(false).GetAwaiter().GetResult();
 
             var updatedEnvVars = this.GetEnvVarsAssociatedToModule(this.testAppServiceHbeatModule);

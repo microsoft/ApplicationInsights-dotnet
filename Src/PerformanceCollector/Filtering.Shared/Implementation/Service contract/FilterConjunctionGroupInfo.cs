@@ -14,7 +14,14 @@
 
         public override string ToString()
         {
-            return string.Join(", ", (this.Filters ?? new FilterInfo[0]).Select(filter => filter.ToString()));
+            if (this.Filters == null)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return string.Join(", ", this.Filters.Select(filter => filter.ToString()));
+            }
         }
     }
 }
