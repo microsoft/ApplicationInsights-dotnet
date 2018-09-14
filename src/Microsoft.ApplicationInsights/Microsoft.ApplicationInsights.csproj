@@ -62,6 +62,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28" Condition="$(OS) == 'Windows_NT'">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
