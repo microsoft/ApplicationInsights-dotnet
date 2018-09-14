@@ -73,11 +73,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
 
         private void OnStopping(ApplicationStoppingEventArgs eventArgs)
         {
-            EventHandler<ApplicationStoppingEventArgs> handler = this.Stopping;
-            if (handler != null)
-            {
-                handler(this, eventArgs);
-            }
+            this.Stopping?.Invoke(this, eventArgs);
         }
 
         private Task RunOnCurrentThread(Func<Task> asyncMethod)
