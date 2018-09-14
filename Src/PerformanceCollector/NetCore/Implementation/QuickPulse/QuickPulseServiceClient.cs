@@ -121,6 +121,12 @@
                 requestStream => this.WriteSamples(samples, instrumentationKey, requestStream, collectionConfigurationErrors));
         }
 
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         private bool? SendRequest(
             string requestUri,
             bool includeIdentityHeaders,
@@ -368,6 +374,14 @@
                 request.Headers.TryAddWithoutValidation(QuickPulseConstants.XMsQpsMachineNameHeaderName, this.machineName);
                 request.Headers.TryAddWithoutValidation(QuickPulseConstants.XMsQpsInvariantVersionHeaderName,
                     MonitoringDataPoint.CurrentInvariantVersion.ToString(CultureInfo.InvariantCulture));
+            }
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.httpClient.Dispose();
             }
         }
     }

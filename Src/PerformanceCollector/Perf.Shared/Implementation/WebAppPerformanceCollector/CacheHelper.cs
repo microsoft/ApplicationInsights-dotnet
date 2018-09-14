@@ -12,7 +12,7 @@
     /// <summary>
     /// Class to contain the one cache for all Gauges.
     /// </summary>
-    internal class CacheHelper : ICachedEnvironmentVariableAccess
+    internal class CacheHelper : ICachedEnvironmentVariableAccess, IDisposable
     {
         /// <summary>
         /// Only instance of CacheHelper.
@@ -146,6 +146,22 @@
 #else
             return MemoryCache.Default[cacheKey] != null;
 #endif            
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+#if NETSTANDARD1_6
+                cache.Dispose();
+#endif
+            }
         }
     }
 }

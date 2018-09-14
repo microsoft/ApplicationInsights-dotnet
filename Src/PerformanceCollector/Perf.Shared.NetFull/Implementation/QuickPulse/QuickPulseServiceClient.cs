@@ -117,6 +117,10 @@
                 requestStream => this.WriteSamples(samples, instrumentationKey, requestStream, collectionConfigurationErrors));
         }
 
+        public void Dispose()
+        {
+        }
+
         private bool? SendRequest(
             string requestUri,
             bool includeIdentityHeaders,

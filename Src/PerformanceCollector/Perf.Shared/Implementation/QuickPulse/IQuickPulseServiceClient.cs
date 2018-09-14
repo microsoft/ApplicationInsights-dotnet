@@ -5,7 +5,7 @@
 
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
 
-    internal interface IQuickPulseServiceClient
+    internal interface IQuickPulseServiceClient : IDisposable
     {
         /// <summary>
         /// Gets the QPS URI.

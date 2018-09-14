@@ -127,5 +127,9 @@
                 return this.ReturnValueFromSubmitSample;
             }
         }
+
+        public void Dispose()
+        {
+        }
     }
 }
