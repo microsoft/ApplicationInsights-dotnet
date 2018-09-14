@@ -164,7 +164,7 @@
                 string dependencyType = dependencyCall.Type;
 
                 //// If dependency type is not set, we use "Unknown":
-                if (dependencyType == null || dependencyType.Equals(String.Empty, StringComparison.OrdinalIgnoreCase))
+                if (string.IsNullOrEmpty(dependencyType))
                 {
                     dependencyType = MetricTerms.Autocollection.DependencyCall.TypeNames.Unknown;
                 }

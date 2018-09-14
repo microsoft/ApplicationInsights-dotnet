@@ -29,7 +29,8 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Need to disable WarningsAsErrors until all FxCop issues are fixed. -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
   </PropertyGroup>
 

@@ -20,7 +20,7 @@
         /// </summary>
         public string Ip
         {
-            get { return this.ip == string.Empty ? null : this.ip; }
+            get { return string.IsNullOrEmpty(this.ip) ? null : this.ip; }
             set { this.ip = value; }
         }
 

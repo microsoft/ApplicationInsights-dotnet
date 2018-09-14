@@ -38,12 +38,7 @@
 
         public virtual void Initialize(Transmitter transmitter)
         {
-            if (transmitter == null)
-            {
-                throw new ArgumentNullException("transmitter");
-            }
-
-            this.Transmitter = transmitter;
+            this.Transmitter = transmitter ?? throw new ArgumentNullException(nameof(transmitter));
         }
 
         protected void LogCapacityChanged()

@@ -299,12 +299,12 @@
                         object value = tag["Value"];
                         if (!string.IsNullOrWhiteSpace(key))
                         {
-                            if (key == "ai.user.id")
+                            if (string.Equals(key, "ai.user.id", StringComparison.Ordinal))
                             {
                                 Assert.AreEqual("testUserId", value);
                                 ++keysFound;
                             }
-                            else if (key == "ai.operation.id")
+                            else if (string.Equals(key, "ai.operation.id", StringComparison.Ordinal))
                             {
                                 Assert.AreEqual(item.Context.Operation.Id, value);
                                 ++keysFound;

@@ -28,7 +28,7 @@
         /// </summary>
         public string Type
         {
-            get { return this.type == string.Empty ? null : this.type; }
+            get { return string.IsNullOrEmpty(this.type) ? null : this.type; }
             set { this.type = value; }
         }
 
@@ -37,7 +37,7 @@
         /// </summary>
         public string Id
         {
-            get { return this.id == string.Empty ? null : this.id; }
+            get { return string.IsNullOrEmpty(this.id) ? null : this.id; }
             set { this.id = value; }
         }
 
@@ -46,7 +46,7 @@
         /// </summary>
         public string OperatingSystem
         {
-            get { return this.operatingSystem == string.Empty ? null : this.operatingSystem; }
+            get { return string.IsNullOrEmpty(this.operatingSystem) ? null : this.operatingSystem; }
             set { this.operatingSystem = value; }
         }
 
@@ -55,7 +55,7 @@
         /// </summary>
         public string OemName
         {
-            get { return this.oemName == string.Empty ? null : this.oemName; }
+            get { return string.IsNullOrEmpty(this.oemName) ? null : this.oemName; }
             set { this.oemName = value; }
         }
 
@@ -64,7 +64,7 @@
         /// </summary>
         public string Model
         {
-            get { return this.model == string.Empty ? null : this.model; }
+            get { return string.IsNullOrEmpty(this.model) ? null : this.model; }
             set { this.model = value; }
         }
 

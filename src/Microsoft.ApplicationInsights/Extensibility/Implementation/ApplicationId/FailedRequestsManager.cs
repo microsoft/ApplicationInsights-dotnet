@@ -62,7 +62,7 @@
                 this.failingInstrumentationKeys.TryAdd(instrumentationKey, new FailedResult(this.retryWaitTime));
             }
 
-            CoreEventSource.Log.ApplicationIdProviderFetchApplicationIdFailed(this.GetExceptionDetailString(ex));
+            CoreEventSource.Log.ApplicationIdProviderFetchApplicationIdFailed(GetExceptionDetailString(ex));
         }
 
         public bool CanRetry(string instrumentationKey)
@@ -83,7 +83,7 @@
             return true;
         }
 
-        private string GetExceptionDetailString(Exception ex)
+        private static string GetExceptionDetailString(Exception ex)
         {
             if (ex is AggregateException ae)
             {

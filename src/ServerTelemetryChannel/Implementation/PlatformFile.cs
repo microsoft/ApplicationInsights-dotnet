@@ -9,12 +9,7 @@
 
         public PlatformFile(FileInfo file)
         {
-            if (file == null)
-            {
-                throw new ArgumentNullException("file");
-            }
-
-            this.file = file;
+            this.file = file ?? throw new ArgumentNullException(nameof(file));
         }
 
         public string Name
@@ -57,12 +52,12 @@
             // Check argument manually for consistent behavior on both Silverlight and Windows runtimes
             if (newName == null)
             {
-                throw new ArgumentNullException("fileName");
+                throw new ArgumentNullException(nameof(newName));
             }
 
             if (string.IsNullOrWhiteSpace(newName))
             {
-                throw new ArgumentException("fileName");
+                throw new ArgumentException("cannot be null or whitespace", nameof(newName));
             }
 
             if (!File.Exists(this.file.FullName))

@@ -1,6 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
+#pragma warning disable CA1724 // "The type name conflicts with 'System.Web.SessionState'. This will go away in 3.0
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     /// Contains values that identify state of a user session.
@@ -18,4 +20,5 @@
         /// </summary>
         End
     }
+#pragma warning restore CA1724
 }
