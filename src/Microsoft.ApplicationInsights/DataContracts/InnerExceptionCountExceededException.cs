@@ -1,6 +1,7 @@
 namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 #if !NETSTANDARD1_3
     using System.Runtime.Serialization;
 #endif
@@ -11,6 +12,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
 #if !NETSTANDARD1_3
     [Serializable]
 #endif
+    [SuppressMessage("Microsoft.Design", "CA1064:ExceptionsShouldBePublic", Justification = "We expect that this exception will be caught within the internal scope and should never be exposed to an end user.")]
     internal class InnerExceptionCountExceededException : Exception
     {
         /// <summary>
