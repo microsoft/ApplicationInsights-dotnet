@@ -32,12 +32,12 @@
         {
             if (telemetry == null)
             {
-                throw new ArgumentNullException("telemetry");
+                throw new ArgumentNullException(nameof(telemetry));
             }
 
             if (telemetryClient == null)
             {
-                throw new ArgumentNullException("telemetryClient");
+                throw new ArgumentNullException(nameof(telemetryClient));
             }
 
             this.telemetryClient = telemetryClient;

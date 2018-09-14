@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Runtime.CompilerServices;
     using System.Text;
 
@@ -71,8 +72,8 @@
             }
         }
 
-        // These objectes may be created frequently.
-        // We want to avoid the allocation of an erray every tim ewe use an ID, so we unwind all loops and list all 10 names explicitly.
+        // These objects may be created frequently.
+        // We want to avoid the allocation of an array every time we use an ID, so we unwind all loops and list all 10 names explicitly.
         // There is no plan to support more dimension names any time soon.
 #pragma warning disable SA1201 // Elements must appear in the correct order: We want these fields after the above statics.
         private readonly string dimension1Name;
@@ -422,8 +423,7 @@
         {
             if (dimensionNames?.Count > MaxDimensionsCount)
             {
-                throw new ArgumentException(Invariant($"May not have more than {MaxDimensionsCount} dimensions,")
-                                          + Invariant($" but {nameof(dimensionNames)} has {dimensionNames.Count} elemets."));
+                throw new ArgumentException(Invariant($"May not have more than {MaxDimensionsCount} dimensions, but {nameof(dimensionNames)} has {dimensionNames.Count} elements."));
             }
         }
 
@@ -530,7 +530,7 @@
                 return false;
             }
 
-            return (this.hashCode == otherMetricIdentifier.hashCode) && this.identifierString.Equals(otherMetricIdentifier.identifierString);
+            return (this.hashCode == otherMetricIdentifier.hashCode) && this.identifierString.Equals(otherMetricIdentifier.identifierString, StringComparison.Ordinal);
         }
 
         internal static void ValidateDimensionNumberForGetter(int dimensionNumber, int thisDimensionsCount)
@@ -552,7 +552,7 @@
 
             if (thisDimensionsCount < 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(dimensionNumber), "Cannot access dimension becasue this metric has no dimensions.");
+                throw new ArgumentOutOfRangeException(nameof(dimensionNumber), "Cannot access dimension because this metric has no dimensions.");
             }
 
             if (dimensionNumber > thisDimensionsCount)

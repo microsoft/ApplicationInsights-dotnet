@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-
+    using System.Diagnostics.CodeAnalysis;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Metrics.ConcurrentDatastructures;
 
@@ -20,7 +20,7 @@
         internal readonly MetricConfiguration configuration;
 #pragma warning restore SA1307, SA1304, SA1401
 
-        private const string NullMetricObjectId = "null";
+        // private const string NullMetricObjectId = "null";
 
         private readonly MetricSeries zeroDimSeries;
         private readonly IReadOnlyList<KeyValuePair<string[], MetricSeries>> zeroDimSeriesList;
@@ -29,6 +29,7 @@
 
         private readonly MetricManager metricManager;
 
+        [SuppressMessage("Microsoft.Performance", "CA1825: Avoid unnecessary zero-length array allocations", Justification = "Array.Empty<string>() not supported in Net4.5")]
         internal Metric(MetricManager metricManager, MetricIdentifier metricIdentifier, MetricConfiguration configuration)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
@@ -100,10 +101,8 @@
         /// </summary>
         /// <returns>All metric series contained in this metric.
         /// Each metric contains a special zero-dimension series, plus one series per unique dimension-values combination.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage(
-                                                "Microsoft.Design",
-                                                "CA1024: Use properties where appropriate",
-                                                Justification = "Completes with non-trivial effort. Method is approproiate.")]
+        [SuppressMessage("Microsoft.Design", "CA1024: Use properties where appropriate", Justification = "Completes with non-trivial effort. Method is appropriate.")]
+        [SuppressMessage("Microsoft.Performance", "CA1825: Avoid unnecessary zero-length array allocations", Justification = "Array.Empty<string>() not supported in Net4.5")]
         public IReadOnlyList<KeyValuePair<string[], MetricSeries>> GetAllSeries()
         {
             if (this.Identifier.DimensionsCount == 0)

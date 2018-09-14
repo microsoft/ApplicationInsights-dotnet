@@ -138,6 +138,36 @@
             return true;
         }
 
+        private static List<MetricAggregate> GetNonpersistentAggregations(DateTimeOffset tactTimestamp, AggregatorCollection aggregators)
+        {
+            // Complete each non-persistent aggregator:
+            // (we snapshotted the entire collection, so Count is stable)
+
+            GrowingCollection<IMetricSeriesAggregator> actualAggregators = aggregators?.Aggregators;
+
+            if (null == actualAggregators || 0 == actualAggregators.Count)
+            {
+                return new List<MetricAggregate>(capacity: 0);
+            }
+
+            List<MetricAggregate> nonpersistentAggregations = new List<MetricAggregate>(capacity: actualAggregators.Count);
+
+            foreach (IMetricSeriesAggregator aggregator in actualAggregators)
+            {
+                if (aggregator != null)
+                {
+                    MetricAggregate aggregate = aggregator.CompleteAggregation(tactTimestamp);
+
+                    if (aggregate != null)
+                    {
+                        nonpersistentAggregations.Add(aggregate);
+                    }
+                }
+            }
+
+            return nonpersistentAggregations;
+        }
+
         private AggregationPeriodSummary CycleAggregators(
                                                 ref AggregatorCollection aggregators,
                                                 DateTimeOffset tactTimestamp,
@@ -167,7 +197,7 @@
             List<MetricAggregate> persistentValsAggregations = this.GetPersistentAggregations(tactTimestamp, prevAggregators?.Filter);
 
             // Get non-persistent aggregations:
-            List<MetricAggregate> nonpersistentAggregations = this.GetNonpersistentAggregations(tactTimestamp, prevAggregators);
+            List<MetricAggregate> nonpersistentAggregations = GetNonpersistentAggregations(tactTimestamp, prevAggregators);
 
             var summary = new AggregationPeriodSummary(persistentValsAggregations, nonpersistentAggregations);
             return summary;
@@ -212,36 +242,6 @@
             }
 
             return persistentValsAggregations;
-        }
-
-        private List<MetricAggregate> GetNonpersistentAggregations(DateTimeOffset tactTimestamp, AggregatorCollection aggregators)
-        {
-            // Complete each non-persistent aggregator:
-            // (we snapshotted the entire collection, so Count is stable)
-
-            GrowingCollection<IMetricSeriesAggregator> actualAggregators = aggregators?.Aggregators;
-
-            if (null == actualAggregators || 0 == actualAggregators.Count)
-            {
-                return new List<MetricAggregate>(capacity: 0);
-            }
-
-            List<MetricAggregate> nonpersistentAggregations = new List<MetricAggregate>(capacity: actualAggregators.Count);
-
-            foreach (IMetricSeriesAggregator aggregator in actualAggregators)
-            {
-                if (aggregator != null)
-                {
-                    MetricAggregate aggregate = aggregator.CompleteAggregation(tactTimestamp);
-
-                    if (aggregate != null)
-                    {
-                        nonpersistentAggregations.Add(aggregate);
-                    }
-                }
-            }
-
-            return nonpersistentAggregations;
         }
 
         #region class AggregatorCollection

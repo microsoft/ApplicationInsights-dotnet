@@ -94,7 +94,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
         {
             if (string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(name));
             }
 
             object resultObj = this.environmentVariables?[name];
