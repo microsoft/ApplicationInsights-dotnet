@@ -69,7 +69,7 @@
 
         internal TimeSpan CurrentDelay { get; private set; }
 
-        public BackendResponse GetBackendResponse(string responseContent)
+        public static BackendResponse GetBackendResponse(string responseContent)
         {
             BackendResponse backendResponse = null;
 
@@ -173,7 +173,7 @@
         // http://en.wikipedia.org/wiki/Exponential_backoff
         protected virtual TimeSpan GetBackOffTime(string headerValue)
         {
-            if (!this.TryParseRetryAfter(headerValue, out TimeSpan retryAfterTimeSpan))
+            if (!TryParseRetryAfter(headerValue, out TimeSpan retryAfterTimeSpan))
             {
                 double delayInSeconds;
 
@@ -196,7 +196,7 @@
             return retryAfterTimeSpan;
         }
 
-        private bool TryParseRetryAfter(string retryAfter, out TimeSpan retryAfterTimeSpan)
+        private static bool TryParseRetryAfter(string retryAfter, out TimeSpan retryAfterTimeSpan)
         {
             retryAfterTimeSpan = TimeSpan.FromSeconds(0);
 

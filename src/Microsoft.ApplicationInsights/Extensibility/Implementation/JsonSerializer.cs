@@ -75,7 +75,7 @@
         {
             if (string.IsNullOrEmpty(telemetryItems))
             {
-                throw new ArgumentNullException("telemetryItems");
+                throw new ArgumentNullException(nameof(telemetryItems));
             }
 
             var memoryStream = new MemoryStream();

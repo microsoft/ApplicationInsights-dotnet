@@ -14,7 +14,7 @@
         /// <summary>@ToDo: Complete documentation before stable release. {529}</summary>
         public const int CountLimitDefault = 1000;
 
-        private readonly Task completedTask = Task.FromResult(true);
+        // private readonly Task completedTask = Task.FromResult(true);
         private readonly SemaphoreSlim updateLock = new SemaphoreSlim(1);
 
         private readonly IList<MetricAggregate> metricAgregates = new List<MetricAggregate>();

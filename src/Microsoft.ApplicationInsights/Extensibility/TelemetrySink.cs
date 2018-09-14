@@ -33,12 +33,7 @@
         /// <param name="telemetryChannel">Telemetry channel to use for the new <see cref="TelemetrySink"/> instance.</param>
         public TelemetrySink(TelemetryConfiguration telemetryConfiguration, ITelemetryChannel telemetryChannel = null)
         {
-            if (telemetryConfiguration == null)
-            {
-                throw new ArgumentNullException(nameof(telemetryConfiguration));
-            }
-
-            this.telemetryConfiguration = telemetryConfiguration;
+            this.telemetryConfiguration = telemetryConfiguration ?? throw new ArgumentNullException(nameof(telemetryConfiguration));
 
             if (telemetryChannel != null)
             {

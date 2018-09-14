@@ -175,6 +175,7 @@
         public void Dispose()
         {
             this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public bool AddHeartbeatProperty(string propertyName, bool overrideDefaultField, string propertyValue, bool isHealthy)
@@ -286,7 +287,7 @@
                         }
                         catch (Exception)
                         {
-                            CoreEventSource.Log.LogError("Error occured when disposing heartbeat timer within HeartbeatProvider");
+                            CoreEventSource.Log.LogError("Error occurred when disposing heartbeat timer within HeartbeatProvider");
                         }
                     }
                 }
@@ -324,7 +325,7 @@
                 catch (ObjectDisposedException)
                 {
                     // swallow this exception but log it just the same.
-                    CoreEventSource.Log.LogError("Heartbeat timer change during dispose occured.");
+                    CoreEventSource.Log.LogError("Heartbeat timer change during dispose occurred.");
                 }
                 finally
                 {

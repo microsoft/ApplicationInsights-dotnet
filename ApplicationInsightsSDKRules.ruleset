@@ -29,6 +29,8 @@
     <Rule Id="CA1900" Action="Warning" />
     <Rule Id="CA2001" Action="Warning" />
     <Rule Id="CA2002" Action="Warning" />
+    <!-- Suppressing Message "Do not create tasks without passing a TaskScheduler" because framework manages this by default -->
+    <Rule Id="CA2008" Action="None" />
     <Rule Id="CA2100" Action="Warning" />
     <Rule Id="CA2102" Action="Warning" />
     <Rule Id="CA2103" Action="Warning" />

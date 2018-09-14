@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
 
     using Microsoft.ApplicationInsights.Channel;
@@ -28,20 +29,12 @@
         public static string WriteTelemetryName(this ITelemetry telemetry, string telemetryName)
         {
             // A different event name prefix is sent for normal mode and developer mode.
-            bool isDevMode = false;
-            string devModeProperty;
-            var telemetryWithProperties = telemetry as ISupportProperties;
-            if (telemetryWithProperties != null && telemetryWithProperties.Properties.TryGetValue("DeveloperMode", out devModeProperty))
-            {
-                bool.TryParse(devModeProperty, out isDevMode);
-            }
-
             // Format the event name using the following format:
             // Microsoft.ApplicationInsights[.Dev].<normalized-instrumentation-key>.<event-type>
             var eventName = string.Format(
-                System.Globalization.CultureInfo.InvariantCulture,
+                CultureInfo.InvariantCulture,
                 "{0}{1}{2}",
-                isDevMode ? Constants.DevModeTelemetryNamePrefix : Constants.TelemetryNamePrefix,
+                telemetry.IsDeveloperMode() ? Constants.DevModeTelemetryNamePrefix : Constants.TelemetryNamePrefix,
                 NormalizeInstrumentationKey(telemetry.Context.InstrumentationKey),
                 telemetryName);
 
@@ -63,11 +56,28 @@
         }
 
         /// <summary>
+        /// Inspect if <see cref="ITelemetry"/> Properties contains 'DeveloperMode' and return it's boolean value.
+        /// </summary>
+        private static bool IsDeveloperMode(this ITelemetry telemetry)
+        {
+            if (telemetry is ISupportProperties telemetryWithProperties
+                && telemetryWithProperties != null
+                && telemetryWithProperties.Properties.TryGetValue("DeveloperMode", out string devModeProperty)
+                && bool.TryParse(devModeProperty, out bool isDevMode))
+            {
+                return isDevMode;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Normalize instrumentation key by removing dashes ('-') and making string in the lowercase.
         /// In case no InstrumentationKey is available just return empty string.
         /// In case when InstrumentationKey is available return normalized key + dot ('.')
         /// as a separator between instrumentation key part and telemetry name part.
         /// </summary>
+        [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase", Justification = "Implementation expects lower case")]
         private static string NormalizeInstrumentationKey(string instrumentationKey)
         {
             if (instrumentationKey.IsNullOrWhiteSpace())

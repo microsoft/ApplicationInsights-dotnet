@@ -59,7 +59,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         {
             if (value == default(T))
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             property = value;

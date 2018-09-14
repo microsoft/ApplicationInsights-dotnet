@@ -145,13 +145,14 @@
         {
             get
             {
-                ExceptionHandledAt result = default(ExceptionHandledAt);
-                if (this.Properties.ContainsKey("handledAt"))
+                if (this.Properties.ContainsKey("handledAt") && Enum.TryParse(this.Properties["handledAt"], out ExceptionHandledAt result))
                 {
-                    Enum.TryParse<ExceptionHandledAt>(this.Properties["handledAt"], out result);
+                    return result;
                 }
-
-                return result;
+                else
+                {
+                    return default(ExceptionHandledAt);
+                }
             }
 
             set

@@ -30,7 +30,7 @@
         {
             if (environment == null)
             {
-                throw new ArgumentNullException("environment");
+                throw new ArgumentNullException(nameof(environment));
             }
 
             try

@@ -170,7 +170,7 @@ namespace Microsoft.ApplicationInsights.Channel
 
         private void Dispose(bool disposing)
         {
-            if (Interlocked.Increment(ref this.disposeCount) == 1)
+            if (disposing && Interlocked.Increment(ref this.disposeCount) == 1)
             {
                 // Stops the runner loop.
                 this.enabled = false;
