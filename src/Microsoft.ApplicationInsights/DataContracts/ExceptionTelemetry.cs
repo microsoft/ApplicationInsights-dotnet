@@ -169,8 +169,7 @@
             get
             {
                 return this.isCreatedFromExceptionInfo
-                    ? throw new InvalidOperationException(
-                        "The property is unavailable on an instance created from an ExceptionInfo object")
+                    ? this.ConstructExceptionFromDetailsInfo(this.Data.ExceptionDetailsInfoList ?? new List<ExceptionDetailsInfo>().AsReadOnly())
                     : this.exception;
             }
 
@@ -179,7 +178,7 @@
                 if (this.isCreatedFromExceptionInfo)
                 {
                     throw new InvalidOperationException(
-                        "The property is unavailable on an instance created from an ExceptionInfo object");
+                        "The property is unavailable to be set on an instance created with the ExceptionDetailsInfo-based constructor");
                 }
 
                 this.exception = value;
@@ -194,9 +193,10 @@
         {
             get
             {
+                const string ExceptionMessageSeparator = " <--- ";
+
                 return this.isCreatedFromExceptionInfo
-                    ? throw new InvalidOperationException(
-                        "The property is unavailable on an instance created from an ExceptionInfo object")
+                    ? (this.Data.ExceptionDetailsInfoList != null ? string.Join(ExceptionMessageSeparator, this.Data.ExceptionDetailsInfoList.Select(info => info.Message)) : string.Empty)
                     : this.message;
             }
 
@@ -205,7 +205,7 @@
                 if (this.isCreatedFromExceptionInfo)
                 {
                     throw new InvalidOperationException(
-                        "The property is unavailable on an instance created from an ExceptionInfo object");
+                        "The property is unavailable to be set on an instance created with the ExceptionDetailsInfo-based constructor");
                 }
 
                 this.message = value;
@@ -403,6 +403,37 @@
 
             this.Data = exceptionInfo ?? throw new ArgumentNullException(nameof(exceptionInfo));
             this.context = new TelemetryContext(this.Data.Properties);
+        }
+
+        private Exception ConstructExceptionFromDetailsInfo(IReadOnlyList<ExceptionDetailsInfo> exceptionInfos)
+        {
+            if (!this.isCreatedFromExceptionInfo)
+            {
+                throw new InvalidOperationException("Operation is not supported given the state of the object.");
+            }
+
+            // construct a fake Exception object based on provided information
+            if (!exceptionInfos.Any())
+            {
+                return new Exception(string.Empty);
+            }
+
+            return new Exception(exceptionInfos[0].Message, this.ConstructInnerException(exceptionInfos, 0));
+        }
+
+        private Exception ConstructInnerException(IReadOnlyList<ExceptionDetailsInfo> exceptionInfos, int parentExceptionIndex)
+        {
+            // inner exception is the next one after the parent
+            int index = parentExceptionIndex + 1;
+
+            if (index < exceptionInfos.Count)
+            {
+                // inner exception exists
+                return new Exception(exceptionInfos[index].Message, this.ConstructInnerException(exceptionInfos, index));
+            }
+
+            // inner exception doesn't exist
+            return null;
         }
     }
 }
