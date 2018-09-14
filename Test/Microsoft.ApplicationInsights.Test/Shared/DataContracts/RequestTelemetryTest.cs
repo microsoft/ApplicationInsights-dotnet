@@ -143,7 +143,7 @@
                 Assert.AreEqual(2, item.data.baseData.ver);
                 Assert.IsNotNull(item.data.baseData.id);
                 Assert.IsNotNull(item.time);
-                Assert.AreEqual("200", item.data.baseData.responseCode);
+                Assert.AreEqual("", item.data.baseData.responseCode);
                 Assert.AreEqual(new TimeSpan(), TimeSpan.Parse(item.data.baseData.duration));
                 Assert.IsTrue(item.data.baseData.success);
             }
@@ -190,7 +190,7 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.AreEqual("200", telemetry.ResponseCode);
+            Assert.AreEqual("", telemetry.ResponseCode);
         }
 
         [TestMethod]
