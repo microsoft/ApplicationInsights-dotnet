@@ -143,7 +143,7 @@
                 Assert.AreEqual(2, item.data.baseData.ver);
                 Assert.IsNotNull(item.data.baseData.id);
                 Assert.IsNotNull(item.time);
-                Assert.AreEqual("", item.data.baseData.responseCode);
+                Assert.AreEqual("200", item.data.baseData.responseCode);
                 Assert.AreEqual(new TimeSpan(), TimeSpan.Parse(item.data.baseData.duration));
                 Assert.IsTrue(item.data.baseData.success);
             }
@@ -187,6 +187,17 @@
         public void SanitizeWillInitializeStatusCode()
         {
             RequestTelemetry telemetry = new RequestTelemetry();
+
+            ((ITelemetry)telemetry).Sanitize();
+
+            Assert.AreEqual("200", telemetry.ResponseCode);
+        }
+
+        [TestMethod]
+        public void SanitizeWillInitializeStatusCodeIfSuccessIsFalse()
+        {
+            RequestTelemetry telemetry = new RequestTelemetry();
+            telemetry.Success = false;
 
             ((ITelemetry)telemetry).Sanitize();
 
