@@ -255,12 +255,16 @@
             this.Data.id = this.Data.id.SanitizeName();
             this.Data.id = Utils.PopulateRequiredStringValue(this.Data.id, "id", typeof(RequestTelemetry).FullName);
 
-            // Required field
-            if (string.IsNullOrEmpty(this.ResponseCode))
+            // Required fields
+            if (!this.Success.HasValue)
             {
-                this.ResponseCode = "200";
                 this.Success = true;
             }
+
+            if (string.IsNullOrEmpty(this.ResponseCode))
+            {
+                this.ResponseCode = this.Success.Value ? "200" : string.Empty;
+            }           
         }
     }
 }
