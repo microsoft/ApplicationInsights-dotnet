@@ -2496,6 +2496,87 @@
         }
 
         [TestMethod]
+        public void QuickPulseTelemetryProcessorCalculatesCalculatedMetricsForInfoBasedExceptions()
+        {
+            // ARRANGE
+            var filterInfoMessageGreaterThanOrEqualTo500 = new FilterInfo()
+            {
+                FieldName = "Message",
+                Predicate = Predicate.GreaterThanOrEqual,
+                Comparand = "500"
+            };
+            var filterInfoMessage200 = new FilterInfo() { FieldName = "Message", Predicate = Predicate.Equal, Comparand = "201" };
+            var filterInfoSuccessful = new FilterInfo() { FieldName = "Sequence", Predicate = Predicate.Equal, Comparand = "true" };
+            var filterInfoFailed = new FilterInfo() { FieldName = "Sequence", Predicate = Predicate.Equal, Comparand = "false" };
+
+            var metrics = new[]
+            {
+                new CalculatedMetricInfo()
+                {
+                    Id = "AverageIdOfFailedMessageGreaterThanOrEqualTo500",
+                    TelemetryType = TelemetryType.Exception,
+                    Projection = "Message",
+                    Aggregation = AggregationType.Avg,
+                    FilterGroups =
+                        new[] { new FilterConjunctionGroupInfo() { Filters = new[] { filterInfoMessageGreaterThanOrEqualTo500, filterInfoFailed } } }
+                },
+                new CalculatedMetricInfo()
+                {
+                    Id = "SumIdsOfSuccessfulMessageEqualTo201",
+                    TelemetryType = TelemetryType.Exception,
+                    Projection = "Message",
+                    Aggregation = AggregationType.Sum,
+                    FilterGroups = new[] { new FilterConjunctionGroupInfo() { Filters = new[] { filterInfoMessage200, filterInfoSuccessful } } }
+                }
+            };
+
+            var collectionConfiguration = new CollectionConfiguration(new CollectionConfigurationInfo() { Metrics = metrics }, out errors, new ClockMock());
+            var accumulatorManager = new QuickPulseDataAccumulatorManager(collectionConfiguration);
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var instrumentationKey = "some ikey";
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = instrumentationKey });
+
+            // ACT
+            var emptyProperties = new Dictionary<string, string>();
+            var emptyMeasurements = new Dictionary<string, double>();
+
+            var exceptions = new[]
+            {
+                new ExceptionTelemetry(new[] { new ExceptionDetailsInfo(1, -1, "SomeTypeException", "500", true, "stack", new[] { new StackFrame("assm", "fileName", 1, 1, "method") }) }, SeverityLevel.Information, "problemId", emptyProperties, emptyMeasurements) { Sequence = "true" },
+                new ExceptionTelemetry(new[] { new ExceptionDetailsInfo(1, -1, "SomeTypeException", "500", true, "stack", new[] { new StackFrame("assm", "fileName", 1, 1, "method") }) }, SeverityLevel.Information, "problemId", emptyProperties, emptyMeasurements) { Sequence = "false" },
+                new ExceptionTelemetry(new[] { new ExceptionDetailsInfo(1, -1, "SomeTypeException", "501", true, "stack", new[] { new StackFrame("assm", "fileName", 1, 1, "method") }) }, SeverityLevel.Information, "problemId", emptyProperties, emptyMeasurements) { Sequence = "true" },
+                new ExceptionTelemetry(new[] { new ExceptionDetailsInfo(1, -1, "SomeTypeException", "501", true, "stack", new[] { new StackFrame("assm", "fileName", 1, 1, "method") }) }, SeverityLevel.Information, "problemId", emptyProperties, emptyMeasurements) { Sequence = "false" },
+                new ExceptionTelemetry(new[] { new ExceptionDetailsInfo(1, -1, "SomeTypeException", "499", true, "stack", new[] { new StackFrame("assm", "fileName", 1, 1, "method") }) }, SeverityLevel.Information, "problemId", emptyProperties, emptyMeasurements) { Sequence = "true" },
+                new ExceptionTelemetry(new[] { new ExceptionDetailsInfo(1, -1, "SomeTypeException", "499", true, "stack", new[] { new StackFrame("assm", "fileName", 1, 1, "method") }) }, SeverityLevel.Information, "problemId", emptyProperties, emptyMeasurements) { Sequence = "false" },
+                new ExceptionTelemetry(new[] { new ExceptionDetailsInfo(1, -1, "SomeTypeException", "201", true, "stack", new[] { new StackFrame("assm", "fileName", 1, 1, "method") }) }, SeverityLevel.Information, "problemId", emptyProperties, emptyMeasurements) { Sequence = "true" },
+                new ExceptionTelemetry(new[] { new ExceptionDetailsInfo(1, -1, "SomeTypeException", "201", true, "stack", new[] { new StackFrame("assm", "fileName", 1, 1, "method") }) }, SeverityLevel.Information, "problemId", emptyProperties, emptyMeasurements) { Sequence = "false" },
+                new ExceptionTelemetry(new[] { new ExceptionDetailsInfo(1, -1, "SomeTypeException", "blah", true, "stack", new[] { new StackFrame("assm", "fileName", 1, 1, "method") }) }, SeverityLevel.Information, "problemId", emptyProperties, emptyMeasurements) { Sequence = "true" },
+                new ExceptionTelemetry(new[] { new ExceptionDetailsInfo(1, -1, "SomeTypeException", "blah", true, "stack", new[] { new StackFrame("assm", "fileName", 1, 1, "method") }) }, SeverityLevel.Information, "problemId", emptyProperties, emptyMeasurements) { Sequence = "false" }
+            };
+
+            ArrayHelpers.ForEach(exceptions, e => e.Context.InstrumentationKey = instrumentationKey);
+
+            ArrayHelpers.ForEach(exceptions, telemetryProcessor.Process);
+
+            // ASSERT
+            Dictionary<string, AccumulatedValues> calculatedMetrics =
+                accumulatorManager.CurrentDataAccumulator.CollectionConfigurationAccumulator.MetricAccumulators;
+
+            Assert.AreEqual(2, calculatedMetrics.Count);
+
+            // 500, 501
+            Assert.AreEqual(500.5d, calculatedMetrics["AverageIdOfFailedMessageGreaterThanOrEqualTo500"].CalculateAggregation(out long count));
+            Assert.AreEqual(2, count);
+
+            // 201
+            Assert.AreEqual(201d, calculatedMetrics["SumIdsOfSuccessfulMessageEqualTo201"].CalculateAggregation(out count));
+            Assert.AreEqual(1, count);
+        }
+
+        [TestMethod]
         public void QuickPulseTelemetryProcessorCalculatesCalculatedMetricsForEvents()
         {
             // ARRANGE
