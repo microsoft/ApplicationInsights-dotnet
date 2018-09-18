@@ -14,7 +14,7 @@
     <summary>Application Insights Dependency Collector for .NET applications provides platform specific automatic collection of dependency telemetry.</summary>
     <copyright>$copyright$</copyright>
     <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
-    <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
+    <tags>Azure Monitoring Analytics ApplicationInsights Telemetry AppInsights</tags>
     <dependencies>
       <group targetFramework="net45">
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />

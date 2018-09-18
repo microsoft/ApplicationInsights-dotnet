@@ -2,10 +2,11 @@
 {
     using System.Collections.Generic;
     using System.Net.Http.Headers;
+    using Microsoft.ApplicationInsights.Common;
 
     internal static class QuickPulseServiceClientHelpers
     {
-        private static readonly string[] emptyResult = new string[0];
+        private static readonly string[] emptyResult = ArrayExtensions.Empty<string>();
 
         public static IEnumerable<string> GetValuesSafe(this HttpResponseHeaders headers, string name)
         {

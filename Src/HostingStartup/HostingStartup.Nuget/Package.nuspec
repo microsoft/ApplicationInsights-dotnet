@@ -14,7 +14,7 @@
     <description>Application Insights Hosting Startup for .NET web applications. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</description>
     <copyright>$copyright$</copyright>
     <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
-    <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
+    <tags>Azure Monitoring Analytics ApplicationInsights Telemetry AppInsights</tags>
     <dependencies>
         <dependency id="Microsoft.ApplicationInsights.Web" version="$version$" />
         <dependency id="Microsoft.Web.Infrastructure" version="1.0.0.0"/>

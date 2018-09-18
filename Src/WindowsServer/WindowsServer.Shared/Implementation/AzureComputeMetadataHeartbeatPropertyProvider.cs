@@ -30,7 +30,8 @@
             "tags",
             "version",
             "vmId",
-            "vmSize"
+            "vmSize",
+            "vmScaleSetName"
         };
 
         /// <summary>

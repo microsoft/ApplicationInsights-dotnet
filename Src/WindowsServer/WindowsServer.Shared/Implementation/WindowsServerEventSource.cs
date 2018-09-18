@@ -1,42 +1,43 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
+    using Microsoft.ApplicationInsights.Common;
 
     /// <summary>
     /// ETW EventSource tracing class.
     /// </summary>
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-WindowsServer")]
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class WindowsServerEventSource : EventSource
     {
         /// <summary>
         /// Instance of the WindowsServerEventSource class.
         /// </summary>
         public static readonly WindowsServerEventSource Log = new WindowsServerEventSource();
+        private readonly ApplicationNameProvider applicationNameProvider = new ApplicationNameProvider();
 
         private WindowsServerEventSource()
         {
-            this.ApplicationName = this.GetApplicationName();
         }
-
-        public string ApplicationName { [NonEvent]get; [NonEvent]private set; }
 
         [Event(1, Message = "{0} loaded.", Level = EventLevel.Verbose)]
         public void TelemetryInitializerLoaded(string typeName, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(1, typeName ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(1, typeName ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(2, Message = "[msg=TypeNotFound;{0};]", Level = EventLevel.Verbose)]
         public void TypeExtensionsTypeNotLoaded(string typeName, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(2, typeName ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(2, typeName ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(3, Message = "[msg=AssemblyNotFound;{0};]", Level = EventLevel.Verbose)]
         public void TypeExtensionsAssemblyNotLoaded(string assemblyName, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(3, assemblyName ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(3, assemblyName ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -46,7 +47,7 @@
             Level = EventLevel.Error)]
         public void BuildInfoConfigBrokenXmlError(string msg, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(4, msg ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(4, msg ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -55,7 +56,7 @@
             Level = EventLevel.Verbose)]
         public void BuildInfoConfigLoaded(string path, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(5, path ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(5, path ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -64,7 +65,7 @@
             Level = EventLevel.Verbose)]
         public void BuildInfoConfigNotFound(string path, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(6, path ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(6, path ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -73,7 +74,7 @@
             Level = EventLevel.Warning)]
         public void DeviceContextWmiFailureWarning(string error, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(7, error ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(7, error ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -82,7 +83,7 @@
             Level = EventLevel.Verbose)]
         public void TaskSchedulerOnUnobservedTaskException(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(8, this.ApplicationName);
+            this.WriteEvent(8, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -91,7 +92,7 @@
             Level = EventLevel.Verbose)]
         public void CurrentDomainOnUnhandledException(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(9, this.ApplicationName);
+            this.WriteEvent(9, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -100,7 +101,7 @@
             Level = EventLevel.Verbose)]
         public void FirstChanceExceptionCallbackExeptionIsNull(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(10, this.ApplicationName);
+            this.WriteEvent(10, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -109,7 +110,7 @@
             Level = EventLevel.Verbose)]
         public void FirstChanceExceptionCallbackCalled(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(11, this.ApplicationName);
+            this.WriteEvent(11, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -118,7 +119,7 @@
             Level = EventLevel.Error)]
         public void FirstChanceExceptionCallbackException(string exception, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(12, exception, this.ApplicationName);
+            this.WriteEvent(12, exception, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -127,13 +128,13 @@
             Level = EventLevel.Error)]
         public void UnobservedTaskExceptionThrewUnhandledException(string exception, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(13, exception, this.ApplicationName);
+            this.WriteEvent(13, exception, this.applicationNameProvider.Name);
         }
 
         [Event(14, Message = "Unknown error occured in {0}. Exception: {0}", Level = EventLevel.Error)]
         public void UnknownErrorOccured(string source, string exception, string applicationName = "Incorrect")
         {
-            this.WriteEvent(14, source, exception, this.ApplicationName);
+            this.WriteEvent(14, source, exception, this.applicationNameProvider.Name);
         }
 
         [Event(15, Level = EventLevel.Warning, Message = @"Accessing environment variable - {0} failed with exception: {1}.")]
@@ -142,13 +143,13 @@
             string exceptionMessage,
             string applicationName = "Incorrect")
         {
-            this.WriteEvent(15, environmentVariable, exceptionMessage, this.ApplicationName);
+            this.WriteEvent(15, environmentVariable, exceptionMessage, this.applicationNameProvider.Name);
         }
 
         [Event(16, Message = "AzureRoleEnvironmentTelemetryInitializer will not be initialized as application is determined to be running in Azure WebApps.", Level = EventLevel.Informational)]
         public void AzureRoleEnvironmentTelemetryInitializerNotInitializedInWebApp(string applicationName = "Incorrect")
         {
-            this.WriteEvent(16, this.ApplicationName);
+            this.WriteEvent(16, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -157,7 +158,7 @@
             Level = EventLevel.Informational)]
         public void AssemblyLoadSuccess(string assembly, string location, string appDomain, string applicationName = "Incorrect")
         {
-            this.WriteEvent(17, assembly, location, appDomain, this.ApplicationName);
+            this.WriteEvent(17, assembly, location, appDomain, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -166,7 +167,7 @@
            Level = EventLevel.Informational)]
         public void AssemblyLoadAttemptFailed(string assembly, string exceptionMessage, string applicationName = "Incorrect")
         {
-            this.WriteEvent(18, assembly, exceptionMessage, this.ApplicationName);
+            this.WriteEvent(18, assembly, exceptionMessage, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -175,7 +176,7 @@
            Level = EventLevel.Informational)]
         public void AssemblyLoadFailedAllVersion(string assembly, string applicationName = "Incorrect")
         {
-            this.WriteEvent(19, assembly, this.ApplicationName);
+            this.WriteEvent(19, assembly, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -184,7 +185,7 @@
            Level = EventLevel.Informational)]
         public void AzureRoleEnvironmentContextReaderInitializedSuccess(string roleName, string roleInstanceName, string applicationName = "Incorrect")
         {
-            this.WriteEvent(20, roleName, roleInstanceName, this.ApplicationName);
+            this.WriteEvent(20, roleName, roleInstanceName, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -193,7 +194,7 @@
            Level = EventLevel.Informational)]
         public void AzureRoleEnvironmentContextReaderInitializationFailed(string applicationName = "Incorrect")
         {
-            this.WriteEvent(21, this.ApplicationName);
+            this.WriteEvent(21, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -202,7 +203,7 @@
            Level = EventLevel.Informational)]
         public void AzureRoleEnvironmentContextReaderAppDomainTroubleshoot(string domainName, string msg, string applicationName = "Incorrect")
         {
-            this.WriteEvent(22, domainName, msg, this.ApplicationName);
+            this.WriteEvent(22, domainName, msg, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -211,7 +212,7 @@
            Level = EventLevel.Informational)]
         public void AzureRoleEnvironmentContextReaderInitializationDuration(long durationMsec, string applicationName = "Incorrect")
         {
-            this.WriteEvent(23, durationMsec, this.ApplicationName);
+            this.WriteEvent(23, durationMsec, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -222,7 +223,7 @@
         {
             this.WriteEvent(
                 24,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -236,7 +237,7 @@
                 requestUrl,
                 ex ?? string.Empty,
                 innerEx ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -249,7 +250,7 @@
                 26,
                 expectedCount,
                 receivedCount,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -261,7 +262,7 @@
             this.WriteEvent(
                 27,
                 unexpectedFieldName,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -273,7 +274,7 @@
             this.WriteEvent(
                 28,
                 fieldWithInvalidValue,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -286,7 +287,7 @@
                 29,
                 azureImsFieldName,
                 azureImsFieldValue,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -297,7 +298,7 @@
         {
             this.WriteEvent(
                 30,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -310,7 +311,7 @@
                 31,
                 exception ?? string.Empty,
                 innerException ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -323,7 +324,7 @@
                 32,
                 exception ?? string.Empty,
                 innerException ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(33,
@@ -335,7 +336,7 @@
                 33,
                 envVarName ?? "unknown",
                 exceptionStr ?? "unknown-exception",
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(34,
@@ -346,7 +347,7 @@
             this.WriteEvent(
                 34,
                 exceptionStr ?? "unknown-exception",
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
         
         [Event(35,
@@ -356,7 +357,7 @@
         {
             this.WriteEvent(
                 35,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(36,
@@ -367,7 +368,7 @@
             this.WriteEvent(
                 36,
                 exceptionStr ?? "unknown-exception",
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(37,
@@ -377,7 +378,7 @@
         {
             this.WriteEvent(
                 37,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(38,
@@ -388,7 +389,7 @@
             this.WriteEvent(
                 38,
                 exceptionMsg ?? "unknown-exception",
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(39,
@@ -400,7 +401,7 @@
                 39,
                 environmentVariableName,
                 exceptionMsg ?? "unknown-exception",
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(40,
@@ -411,27 +412,7 @@
             this.WriteEvent(
                 40,
                 exceptionMsg ?? "unknown-exception",
-                this.ApplicationName);
-        }
-
-        [NonEvent]
-        private string GetApplicationName()
-        {
-            string name;
-            try
-            {
-#if NETSTANDARD1_6
-                name = System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
-#else
-                name = AppDomain.CurrentDomain.FriendlyName;
-#endif
-            }
-            catch (Exception exp)
-            {
-                name = "Undefined " + exp;
-            }
-
-            return name;
+                this.applicationNameProvider.Name);
         }
 
         /// <summary>

@@ -62,7 +62,7 @@
 
         public static AppServiceEnvironmentVariableMonitor Instance => AppServiceEnvironmentVariableMonitor.SingletonInstance;
 
-        internal TimeSpan MonitorInterval
+        internal static TimeSpan MonitorInterval
         {
             get => AppServiceEnvironmentVariableMonitor.Instance.checkInterval;
             set => AppServiceEnvironmentVariableMonitor.Instance.checkInterval = value;

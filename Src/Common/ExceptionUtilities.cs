@@ -15,8 +15,7 @@
         /// <returns>The detailed string version of the provided exception.</returns>
         internal static string GetExceptionDetailString(Exception ex)
         {
-            var ae = ex as AggregateException;
-            if (ae != null)
+            if (ex is AggregateException ae)
             {
                 return ae.Flatten().InnerException.ToInvariantString();
             }

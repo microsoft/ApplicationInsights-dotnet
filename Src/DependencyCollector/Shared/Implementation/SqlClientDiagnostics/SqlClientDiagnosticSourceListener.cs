@@ -58,12 +58,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
         public void Dispose()
         {
-            if (this.subscriber != null)
-            {
-                this.subscriber.Dispose();
-            }
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
-        
+
         void IObserver<KeyValuePair<string, object>>.OnCompleted()
         {
         }
@@ -464,6 +462,17 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
             if (sqlException != null)
             {
                 telemetry.ResultCode = sqlException.Number.ToString(CultureInfo.InvariantCulture);
+            }
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.subscriber != null)
+                {
+                    this.subscriber.Dispose();
+                }
             }
         }
 

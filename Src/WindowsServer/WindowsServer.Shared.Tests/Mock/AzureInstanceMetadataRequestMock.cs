@@ -35,7 +35,8 @@
                 Tags = "thisTag;thatTag",
                 Version = "0.0.0",
                 VmId = Guid.NewGuid().ToString(),
-                VmSize = "A01"
+                VmSize = "A01",
+                VmScaleSetName = "ScaleName"
             };
         }
         

@@ -4,12 +4,11 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using Microsoft.ApplicationInsights.Common;
 
     internal class WebAppPerformanceCollector : IPerformanceCollector
     {
         private readonly List<Tuple<PerformanceCounterData, ICounterValue>> performanceCounters = new List<Tuple<PerformanceCounterData, ICounterValue>>();
-
-        private CounterFactory factory = new CounterFactory();
 
         /// <summary>
         /// Gets a collection of registered performance counters.
@@ -39,7 +38,7 @@
                         {
                             onReadingFailure?.Invoke(counter.Item1.OriginalString, e);
 
-                            return new Tuple<PerformanceCounterData, double>[] { };
+                            return ArrayExtensions.Empty<Tuple<PerformanceCounterData, double>>();
                         }
 
                         return new[] { Tuple.Create(counter.Item1, value) };
@@ -82,12 +81,12 @@
                 
                 if (pc != null)
                 {
-                    this.RegisterPerformanceCounter(perfCounter, this.GetCounterReportAsName(perfCounter, reportAs), pc.CategoryName, pc.CounterName, pc.InstanceName, useInstancePlaceHolder, false);
+                    this.RegisterPerformanceCounter(perfCounter, GetCounterReportAsName(perfCounter, reportAs), pc.CategoryName, pc.CounterName, pc.InstanceName, useInstancePlaceHolder, false);
                 }
                 else
                 {
                     // Even if validation failed, we might still be able to collect perf counter in WebApp.
-                    this.RegisterPerformanceCounter(perfCounter, this.GetCounterReportAsName(perfCounter, reportAs), string.Empty, perfCounter, string.Empty, useInstancePlaceHolder, false);
+                    this.RegisterPerformanceCounter(perfCounter, GetCounterReportAsName(perfCounter, reportAs), string.Empty, perfCounter, string.Empty, useInstancePlaceHolder, false);
                 }                
             }
             catch (Exception e)
@@ -160,6 +159,17 @@
         }
 
         /// <summary>
+        /// Gets metric alias to be the value given by the user.
+        /// </summary>
+        /// <param name="counterName">Name of the counter to retrieve.</param>
+        /// <param name="reportAs">Alias to report the counter.</param>
+        /// <returns>Alias that will be used for the counter.</returns>
+        private static string GetCounterReportAsName(string counterName, string reportAs)
+        {
+            return reportAs ?? counterName;
+        }
+
+        /// <summary>
         /// Register a performance counter for collection.
         /// </summary>
         private void RegisterPerformanceCounter(string originalString, string reportAs, string categoryName, string counterName, string instanceName, bool usesInstanceNamePlaceholder, bool isCustomCounter)
@@ -168,7 +178,7 @@
 
             try
             {
-                counter = this.factory.GetCounter(originalString, reportAs);
+                counter = CounterFactory.GetCounter(originalString, reportAs);
             }
             catch
             {
@@ -207,24 +217,6 @@
                         instanceName);
 
                 this.performanceCounters.Add(new Tuple<PerformanceCounterData, ICounterValue>(perfData, counter));
-            }
-        }
-
-        /// <summary>
-        /// Gets metric alias to be the value given by the user.
-        /// </summary>
-        /// <param name="counterName">Name of the counter to retrieve.</param>
-        /// <param name="reportAs">Alias to report the counter.</param>
-        /// <returns>Alias that will be used for the counter.</returns>
-        private string GetCounterReportAsName(string counterName, string reportAs)
-        {
-            if (reportAs == null)
-            {
-                return counterName;
-            }
-            else
-            {
-                return reportAs;
             }
         }
     }

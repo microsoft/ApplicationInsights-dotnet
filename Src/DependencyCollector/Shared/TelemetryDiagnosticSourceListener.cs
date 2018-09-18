@@ -44,7 +44,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Activity currentActivity = Activity.Current;
 
             // extensibility point - can chain more telemetry extraction methods here
-            var telemetry = this.ExtractDependencyTelemetry(diagnosticListener, currentActivity);
+            var telemetry = ExtractDependencyTelemetry(diagnosticListener, currentActivity);
             if (telemetry == null)
             {
                 return;
@@ -61,23 +61,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.Client.TrackDependency(telemetry);
         }
 
-        internal void RegisterHandler(string diagnosticSourceName, IDiagnosticEventHandler eventHandler)
-        {
-            this.customEventHandlers[diagnosticSourceName] = eventHandler;
-        }
-
-        internal override bool IsSourceEnabled(DiagnosticListener value)
-        {
-            return this.includedDiagnosticSources.Contains(value.Name);
-        }
-
-        internal override bool IsActivityEnabled(string activityName, HashSet<string> includedActivities)
-        {
-            // if no list of included activities then all are included
-            return includedActivities == null || includedActivities.Contains(activityName);
-        }
-
-        internal DependencyTelemetry ExtractDependencyTelemetry(DiagnosticListener diagnosticListener, Activity currentActivity)
+        internal static DependencyTelemetry ExtractDependencyTelemetry(DiagnosticListener diagnosticListener, Activity currentActivity)
         {
             DependencyTelemetry telemetry = new DependencyTelemetry();
 
@@ -195,6 +179,22 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
 
             return telemetry;
+        }
+
+        internal void RegisterHandler(string diagnosticSourceName, IDiagnosticEventHandler eventHandler)
+        {
+            this.customEventHandlers[diagnosticSourceName] = eventHandler;
+        }
+
+        internal override bool IsSourceEnabled(DiagnosticListener value)
+        {
+            return this.includedDiagnosticSources.Contains(value.Name);
+        }
+
+        internal override bool IsActivityEnabled(string activityName, HashSet<string> includedActivities)
+        {
+            // if no list of included activities then all are included
+            return includedActivities == null || includedActivities.Contains(activityName);
         }
 
         protected override HashSet<string> GetListenerContext(DiagnosticListener diagnosticListener)

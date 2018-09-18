@@ -1,27 +1,28 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
     using System.Globalization;
 #if NETSTANDARD1_6
     using System.Reflection;
 #endif
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// ETW EventSource tracing class.
     /// </summary>
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-DependencyCollector")]
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class DependencyCollectorEventSource : EventSource
     {
         public static readonly DependencyCollectorEventSource Log = new DependencyCollectorEventSource();
+        private readonly ApplicationNameProvider applicationNameProvider = new ApplicationNameProvider();
 
         private DependencyCollectorEventSource()
         {
-            this.ApplicationName = this.GetApplicationName();
         }
-
-        public string ApplicationName { [NonEvent]get; [NonEvent]private set; }
 
         [Event(
             1,
@@ -30,7 +31,7 @@
             Level = EventLevel.Error)]
         public void RemoteDependencyModuleError(string msg, string frameworkVersion, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(1, msg ?? string.Empty, frameworkVersion ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(1, msg ?? string.Empty, frameworkVersion ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -40,7 +41,7 @@
             Level = EventLevel.Error)]
         public void DependencyOperationTelemetryInitializerError(string msg, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(2, msg, this.ApplicationName);
+            this.WriteEvent(2, msg, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -50,7 +51,7 @@
             Level = EventLevel.Warning)]
         public void DependencyOperationNameNullWarning(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(3, this.ApplicationName);
+            this.WriteEvent(3, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -60,7 +61,7 @@
             Level = EventLevel.Verbose)]
         public void RemoteDependencyDisabledApmcEnabled(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(4, this.ApplicationName);
+            this.WriteEvent(4, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -70,7 +71,7 @@
             Level = EventLevel.Warning)]
         public void RemoteDependencyModuleWarning(string msg, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(5, msg ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(5, msg ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -80,7 +81,7 @@
             Level = EventLevel.Verbose)]
         public void RemoteDependencyModuleVerbose(string msg, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(6, msg, this.ApplicationName);
+            this.WriteEvent(6, msg, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -90,7 +91,7 @@
             Level = EventLevel.Verbose)]
         public void RemoteDependencyTelemetryCollected(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(7, this.ApplicationName);
+            this.WriteEvent(7, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -100,7 +101,7 @@
             Level = EventLevel.Informational)]
         public void RemoteDependencyModuleInformation(string msg, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(8, msg ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(8, msg ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -110,7 +111,7 @@
             Level = EventLevel.Verbose)]
         public void RemoteDependencyModuleProfilerNotAttached(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(9, this.ApplicationName);
+            this.WriteEvent(9, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -120,7 +121,7 @@
             Level = EventLevel.Verbose)]
         public void BeginCallbackCalled(long id, string name, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(10, id, name ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(10, id, name ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -130,7 +131,7 @@
             Level = EventLevel.Verbose)]
         public void EndCallbackCalled(string id, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(11, id, this.ApplicationName);
+            this.WriteEvent(11, id, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -140,7 +141,7 @@
             Level = EventLevel.Warning)]
         public void EndCallbackWithNoBegin(string id, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(12, id, this.ApplicationName);
+            this.WriteEvent(12, id, this.applicationNameProvider.Name);
         }
 
         [NonEvent]
@@ -159,7 +160,7 @@
             Level = EventLevel.Error)]
         public void CallbackError(string id, string callbackName, string exceptionString, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(13, id, callbackName ?? string.Empty, exceptionString ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(13, id, callbackName ?? string.Empty, exceptionString ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -169,7 +170,7 @@
             Level = EventLevel.Warning)]
         public void NotExpectedCallback(long id, string callbackName, string reason, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(14, id, callbackName ?? string.Empty, reason ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(14, id, callbackName ?? string.Empty, reason ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -178,7 +179,7 @@
         [Event(15, Message = "Dependency telemetry item is null.", Level = EventLevel.Warning)]
         public void DependencyTelemetryItemIsNullWarning(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(15, this.ApplicationName);
+            this.WriteEvent(15, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -187,7 +188,7 @@
         [Event(16, Message = "WebRequest is null.", Level = EventLevel.Warning)]
         public void WebRequestIsNullWarning(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(16, this.ApplicationName);
+            this.WriteEvent(16, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -196,7 +197,7 @@
         [Event(17, Message = "Tracking an already existing item in the table.", Level = EventLevel.Verbose)]
         public void TrackingAnExistingTelemetryItemVerbose(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(17, this.ApplicationName);
+            this.WriteEvent(17, this.applicationNameProvider.Name);
         }
 
         /// <summary>
@@ -205,7 +206,7 @@
         [Event(18, Message = "Telemetry to track is null.", Level = EventLevel.Warning)]
         public void TelemetryToTrackIsNullWarning(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(18, this.ApplicationName);
+            this.WriteEvent(18, this.applicationNameProvider.Name);
         }
 
         [Event(19, 
@@ -213,7 +214,7 @@
             Level = EventLevel.Error)]
         public void ProfilerFailedToAttachError(string error, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(19, error ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(19, error ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -223,7 +224,7 @@
             Level = EventLevel.Warning)]
         public void UnexpectedCallbackParameter(string expectedType, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(20, expectedType ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(20, expectedType ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -233,7 +234,7 @@
             Level = EventLevel.Verbose)]
         public void EndAsyncCallbackCalled(string id, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(21, id, this.ApplicationName);
+            this.WriteEvent(21, id, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -243,7 +244,7 @@
            Level = EventLevel.Verbose)]
         public void EndAsyncExceptionCallbackCalled(string id, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(22, id, this.ApplicationName);
+            this.WriteEvent(22, id, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -252,7 +253,7 @@
             Level = EventLevel.Error)]
         public void CurrentActivityIsNull(string diagnosticsSourceEventName, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(23, diagnosticsSourceEventName, this.ApplicationName);
+            this.WriteEvent(23, diagnosticsSourceEventName, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -261,7 +262,7 @@
             Level = EventLevel.Verbose)]
         public void HttpDesktopDiagnosticSourceListenerIsActivated(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(24, this.ApplicationName);
+            this.WriteEvent(24, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -270,7 +271,7 @@
             Level = EventLevel.Verbose)]
         public void HttpDesktopDiagnosticSourceListenerIsDeactivated(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(25, this.ApplicationName);
+            this.WriteEvent(25, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -279,7 +280,7 @@
             Level = EventLevel.Verbose)]
         public void SkipTrackingTelemetryItemWithEventSource(long id, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(26, id, this.ApplicationName);
+            this.WriteEvent(26, id, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -289,7 +290,7 @@
             Level = EventLevel.Verbose)]
         public void HttpDesktopBeginCallbackCalled(long id, string name, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(27, id, name ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(27, id, name ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -299,7 +300,7 @@
             Level = EventLevel.Verbose)]
         public void HttpDesktopEndCallbackCalled(long id, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(28, id, this.ApplicationName);
+            this.WriteEvent(28, id, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -309,7 +310,7 @@
             Level = EventLevel.Verbose)]
         public void HttpCoreDiagnosticSourceListenerStart(string id, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(29, id, this.ApplicationName);
+            this.WriteEvent(29, id, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -319,7 +320,7 @@
             Level = EventLevel.Verbose)]
         public void HttpCoreDiagnosticSourceListenerStop(string id, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(30, id, this.ApplicationName);
+            this.WriteEvent(30, id, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -329,7 +330,7 @@
             Level = EventLevel.Verbose)]
         public void HttpCoreDiagnosticSourceListenerRequest(Guid id, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(31, id, this.ApplicationName);
+            this.WriteEvent(31, id, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -339,7 +340,7 @@
             Level = EventLevel.Verbose)]
         public void HttpCoreDiagnosticSourceListenerResponse(Guid id, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(32, id, this.ApplicationName);
+            this.WriteEvent(32, id, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -349,7 +350,7 @@
             Level = EventLevel.Verbose)]
         public void HttpCoreDiagnosticSourceListenerException(string id, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(33, id, this.ApplicationName);
+            this.WriteEvent(33, id, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -359,7 +360,7 @@
             Level = EventLevel.Error)]
         public void HttpCoreDiagnosticSubscriberFailedToSubscribe(string error, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(34, error, this.ApplicationName);
+            this.WriteEvent(34, error, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -369,7 +370,7 @@
             Level = EventLevel.Error)]
         public void HttpDesktopDiagnosticSubscriberFailedToSubscribe(string error, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(35, error, this.ApplicationName);
+            this.WriteEvent(35, error, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -379,7 +380,7 @@
             Level = EventLevel.Error)]
         public void HttpHandlerDiagnosticListenerFailedToInitialize(string error, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(36, error ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(36, error ?? string.Empty, this.applicationNameProvider.Name);
         }
         
         [Event(
@@ -389,7 +390,7 @@
             Level = EventLevel.Error)]
         public void HttpCoreDiagnosticSourceListenerOnNextFailed(string error, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(37, error, this.ApplicationName);
+            this.WriteEvent(37, error, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -399,7 +400,7 @@
             Level = EventLevel.Error)]
         public void SqlClientDiagnosticSubscriberFailedToSubscribe(string error, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(38, error, this.ApplicationName);
+            this.WriteEvent(38, error, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -409,7 +410,7 @@
             Level = EventLevel.Verbose)]
         public void SqlClientDiagnosticSubscriberCallbackCalled(Guid id, string name, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(39, id, name ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(39, id, name ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -419,7 +420,7 @@
             Level = EventLevel.Error)]
         public void SqlClientDiagnosticSourceListenerOnNextFailed(string error, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(40, error, this.ApplicationName);
+            this.WriteEvent(40, error, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -429,7 +430,7 @@
             Level = EventLevel.Error)]
         public void DiagnosticSourceListenerFailedToSubscribe(string listenerName, string error, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(41, listenerName, error, this.ApplicationName);
+            this.WriteEvent(41, listenerName, error, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -439,7 +440,7 @@
             Level = EventLevel.Verbose)]
         public void TelemetryDiagnosticSourceListenerEvent(string eventName, string id, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(42, eventName, id, this.ApplicationName);
+            this.WriteEvent(42, eventName, id, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -449,7 +450,7 @@
             Level = EventLevel.Error)]
         public void TelemetryDiagnosticSourceCallbackException(string eventName, string id, string error, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(43, eventName, id, error, this.ApplicationName);
+            this.WriteEvent(43, eventName, id, error, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -459,7 +460,7 @@
             Level = EventLevel.Verbose)]
         public void AutoTrackingDependencyItem(string depName, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(44, depName, this.ApplicationName);
+            this.WriteEvent(44, depName, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -469,29 +470,9 @@
             Level = EventLevel.Verbose)]
         public void EndOperationNoTracking(string depName, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(45, depName, this.ApplicationName);
+            this.WriteEvent(45, depName, this.applicationNameProvider.Name);
         }
-
-        [NonEvent]
-        private string GetApplicationName()
-        {
-            string name;
-            try
-            {
-#if NETSTANDARD1_6
-                name = Assembly.GetEntryAssembly().FullName;
-#else
-                name = AppDomain.CurrentDomain.FriendlyName;
-#endif
-            }
-            catch (Exception exp)
-            {
-                name = "Undefined " + exp;
-            }
-
-            return name;
-        }
-
+        
         /// <summary>
         /// Keywords for the <see cref="DependencyCollectorEventSource"/>.
         /// </summary>

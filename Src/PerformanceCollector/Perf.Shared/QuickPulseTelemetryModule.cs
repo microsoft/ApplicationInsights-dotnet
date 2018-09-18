@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq;
     using System.Threading;
@@ -159,7 +160,7 @@
                             this.AuthenticationApiKey);
 
                         QuickPulseEventSource.Log.TroubleshootingMessageEvent("Validating configuration...");
-                        this.ValidateConfiguration(configuration);
+                        ValidateConfiguration(configuration);
                         this.config = configuration;
 
                         QuickPulseEventSource.Log.TroubleshootingMessageEvent("Initializing members...");
@@ -226,6 +227,20 @@
                     QuickPulseEventSource.Log.ProcessorRegistered(this.telemetryProcessors.Count.ToString(CultureInfo.InvariantCulture));
                 }
             }
+        }
+
+        [SuppressMessage("Microsoft.Usage", "CA2208:InstantiateArgumentExceptionsCorrectly", Justification = "Argument exceptions are valid.")]
+        private static void ValidateConfiguration(TelemetryConfiguration configuration)
+        {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            if (configuration.TelemetryProcessors == null)
+            {
+                throw new ArgumentNullException(nameof(configuration.TelemetryProcessors));
+            }            
         }
 
         private void UpdatePerformanceCollector(IEnumerable<Tuple<string, string>> performanceCountersToCollect, out CollectionConfigurationError[] errors)
@@ -297,19 +312,6 @@
 
                 errors = errorsList.ToArray();
             }
-        }
-
-        private void ValidateConfiguration(TelemetryConfiguration configuration)
-        {
-            if (configuration == null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
-
-            if (configuration.TelemetryProcessors == null)
-            {
-                throw new ArgumentNullException(nameof(configuration.TelemetryProcessors));
-            }            
         }
 
         private void CreateStateThread()
@@ -395,6 +397,19 @@
         private static string GetStreamId()
         {
             return Guid.NewGuid().ToString("N");
+        }
+
+        private static QuickPulseDataSample CreateDataSample(
+            QuickPulseDataAccumulator accumulator,
+            IEnumerable<Tuple<PerformanceCounterData, double>> perfData,
+            IEnumerable<Tuple<string, int>> topCpuData,
+            bool topCpuDataAccessDenied)
+        {
+            return new QuickPulseDataSample(
+                accumulator,
+                perfData.ToDictionary(tuple => tuple.Item1.ReportAs, tuple => tuple),
+                topCpuData,
+                topCpuDataAccessDenied);
         }
 
         private void StateThreadWorker(CancellationToken cancellationToken)
@@ -560,20 +575,7 @@
                                                              ? Enumerable.Empty<Tuple<string, int>>()
                                                              : this.topCpuCollector.GetTopProcessesByCpu(TopCpuCount);
 
-            return this.CreateDataSample(completeAccumulator, perfData, topCpuData, this.topCpuCollector.AccessDenied);
-        }
-
-        private QuickPulseDataSample CreateDataSample(
-            QuickPulseDataAccumulator accumulator,
-            IEnumerable<Tuple<PerformanceCounterData, double>> perfData,
-            IEnumerable<Tuple<string, int>> topCpuData,
-            bool topCpuDataAccessDenied)
-        {
-            return new QuickPulseDataSample(
-                accumulator,
-                perfData.ToDictionary(tuple => tuple.Item1.ReportAs, tuple => tuple),
-                topCpuData,
-                topCpuDataAccessDenied);
+            return CreateDataSample(completeAccumulator, perfData, topCpuData, this.topCpuCollector.AccessDenied);
         }
 
 #region Callbacks from the state manager
@@ -695,6 +697,7 @@
             {
                 Interlocked.Exchange(ref this.stateThread, null)?.Stop(wait: true);
                 Interlocked.Exchange(ref this.collectionThread, null)?.Stop(wait: true);
+                this.serviceClient.Dispose();
             }
         }
     }

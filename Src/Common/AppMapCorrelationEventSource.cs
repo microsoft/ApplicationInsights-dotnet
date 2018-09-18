@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Common
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 #if NETSTANDARD1_6
     using System.Reflection;
@@ -11,16 +12,15 @@
     /// ETW EventSource tracing class.
     /// </summary>
     //// [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation")] - EVERY COMPONENT SHOULD DEFINE IT"S OWN NAME
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed partial class AppMapCorrelationEventSource : EventSource
     {
         public static readonly AppMapCorrelationEventSource Log = new AppMapCorrelationEventSource();
+        private readonly ApplicationNameProvider applicationNameProvider = new ApplicationNameProvider();
 
         private AppMapCorrelationEventSource()
         {
-            this.ApplicationName = this.GetApplicationName();
         }
-
-        public string ApplicationName { [NonEvent]get; [NonEvent]private set; }
 
         [Event(
             1,
@@ -29,7 +29,7 @@
             Level = EventLevel.Warning)]
         public void FetchAppIdFailed(string exception, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(1, exception, this.ApplicationName);
+            this.WriteEvent(1, exception, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -39,7 +39,7 @@
             Level = EventLevel.Warning)]
         public void SetCrossComponentCorrelationHeaderFailed(string exception, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(2, exception, this.ApplicationName);
+            this.WriteEvent(2, exception, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -49,7 +49,7 @@
             Level = EventLevel.Warning)]
         public void GetCrossComponentCorrelationHeaderFailed(string exception, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(3, exception, this.ApplicationName);
+            this.WriteEvent(3, exception, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -59,7 +59,7 @@
             Level = EventLevel.Warning)]
         public void GetComponentRoleNameHeaderFailed(string exception, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(4, exception, this.ApplicationName);
+            this.WriteEvent(4, exception, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -69,7 +69,7 @@
             Level = EventLevel.Warning)]
         public void UnknownError(string exception, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(5, exception, this.ApplicationName);
+            this.WriteEvent(5, exception, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -79,27 +79,7 @@
             Level = EventLevel.Warning)]
         public void FetchAppIdFailedWithResponseCode(string httpStatusCode, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(6, httpStatusCode, this.ApplicationName);
-        }
-
-        [NonEvent]
-        private string GetApplicationName()
-        {
-            string name;
-            try
-            {
-#if !NETSTANDARD1_6
-                name = AppDomain.CurrentDomain.FriendlyName;
-#else
-                name = Assembly.GetEntryAssembly().FullName;
-#endif
-            }
-            catch (Exception exp)
-            {
-                name = "Undefined " + exp;
-            }
-
-            return name;
+            this.WriteEvent(6, httpStatusCode, this.applicationNameProvider.Name);
         }
 
         /// <summary>

@@ -58,19 +58,8 @@
 
         public void Dispose()
         {
-            this.isEnabled = false;
-
-            if (this.environmentCheckTimer != null)
-            {
-                try
-                {
-                    this.environmentCheckTimer.Dispose();
-                }
-                catch (Exception e)
-                {
-                    WindowsServerEventSource.Log.EnvironmentVarMonitorFailedDispose(e.ToInvariantString());
-                }
-            }
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -128,6 +117,26 @@
             catch (Exception e)
             {
                 WindowsServerEventSource.Log.GeneralFailureOccursDuringCheckForEnvironmentVariables(e.ToInvariantString());
+            }
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.isEnabled = false;
+
+                if (this.environmentCheckTimer != null)
+                {
+                    try
+                    {
+                        this.environmentCheckTimer.Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        WindowsServerEventSource.Log.EnvironmentVarMonitorFailedDispose(e.ToInvariantString());
+                    }
+                }
             }
         }
     }

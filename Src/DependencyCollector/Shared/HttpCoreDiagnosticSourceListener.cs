@@ -249,10 +249,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         public void Dispose()
         {
-            if (this.subscriber != null)
-            {
-                this.subscriber.Dispose();
-            }
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         //// netcoreapp 2.0 event
@@ -457,6 +455,29 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
         }
 
+        private static void InjectCorrelationContext(HttpRequestHeaders requestHeaders, Activity currentActivity)
+        {
+            if (!requestHeaders.Contains(RequestResponseHeaders.CorrelationContextHeader))
+            {
+                // we expect baggage to be empty or contain a few items
+                using (IEnumerator<KeyValuePair<string, string>> e = currentActivity.Baggage.GetEnumerator())
+                {
+                    if (e.MoveNext())
+                    {
+                        var baggage = new List<string>();
+                        do
+                        {
+                            KeyValuePair<string, string> item = e.Current;
+                            baggage.Add(new NameValueHeaderValue(item.Key, item.Value).ToString());
+                        }
+                        while (e.MoveNext());
+
+                        requestHeaders.Add(RequestResponseHeaders.CorrelationContextHeader, baggage);
+                    }
+                }
+            }
+        }
+
 #pragma warning disable 612, 618
         private void InjectRequestHeaders(HttpRequestMessage request, string instrumentationKey, bool isLegacyEvent = false)
         {
@@ -488,7 +509,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             requestHeaders.Add(RequestResponseHeaders.RequestIdHeader, currentActivity.Id);
                         }
 
-                        this.InjectCorrelationContext(requestHeaders, currentActivity);
+                        InjectCorrelationContext(requestHeaders, currentActivity);
                     }
 
                     if (this.injectLegacyHeaders)
@@ -579,25 +600,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             telemetry.Success = (statusCode > 0) && (statusCode < 400);
         }
 
-        private void InjectCorrelationContext(HttpRequestHeaders requestHeaders, Activity currentActivity)
+        private void Dispose(bool disposing)
         {
-            if (!requestHeaders.Contains(RequestResponseHeaders.CorrelationContextHeader))
+            if (disposing)
             {
-                // we expect baggage to be empty or contain a few items
-                using (IEnumerator<KeyValuePair<string, string>> e = currentActivity.Baggage.GetEnumerator())
+                if (this.subscriber != null)
                 {
-                    if (e.MoveNext())
-                    {
-                        var baggage = new List<string>();
-                        do
-                        {
-                            KeyValuePair<string, string> item = e.Current;
-                            baggage.Add(new NameValueHeaderValue(item.Key, item.Value).ToString());
-                        }
-                        while (e.MoveNext());
-
-                        requestHeaders.Add(RequestResponseHeaders.CorrelationContextHeader, baggage);
-                    }
+                    this.subscriber.Dispose();
                 }
             }
         }

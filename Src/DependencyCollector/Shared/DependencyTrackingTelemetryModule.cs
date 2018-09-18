@@ -154,7 +154,7 @@
                             DependencyCollectorEventSource.Log.RemoteDependencyModuleError(exc.ToInvariantString(), clrVersion);
                         }
 
-                        this.PrepareActivity();
+                        PrepareFirstActivity();
 
                         this.isInitialized = true;
                     }
@@ -247,6 +247,19 @@
             }
         }
 
+        /// <summary>
+        /// When the first Activity is created in the process (on .NET Framework), it synchronizes DateTime.UtcNow 
+        /// in order to make it's StartTime and duration precise, it may take up to 16ms. 
+        /// Let's create the first Activity ever here, so we will not miss those 16ms on the first dependency tracking
+        /// </summary>
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
+        private static void PrepareFirstActivity()
+        {
+            var activity = new Activity("Microsoft.ApplicationInights.Init");
+            activity.Start();
+            activity.Stop();
+        }
+
 #if !NETSTANDARD1_6
         /// <summary>
         /// Initialize for framework event source (not supported for Net40).
@@ -323,15 +336,5 @@
         }
 #endif
 
-        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
-        private void PrepareActivity()
-        {
-            // when the first Activity is created in the process (on .NET Framework), it syncronizes DateTime.UtcNow 
-            // in order to make it's StartTime and duration precise, it may take up to 16ms. 
-            // Let's create the first Activity ever here, so we will not miss those 16ms on the first dependency tracking
-            var activity = new Activity("Microsoft.ApplicationInights.Init");
-            activity.Start();
-            activity.Stop();
-        }
     }
 }

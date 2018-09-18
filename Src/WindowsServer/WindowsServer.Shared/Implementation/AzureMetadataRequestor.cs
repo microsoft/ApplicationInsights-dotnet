@@ -15,7 +15,7 @@
         /// Azure Instance Metadata Service exists on a single non-routable IP on machines configured
         /// by the Azure Resource Manager. See <a href="https://go.microsoft.com/fwlink/?linkid=864683">to learn more.</a>
         /// </summary>
-        internal const string AzureImsApiVersion = "api-version=2017-08-01"; // this version has the format=text capability
+        internal const string AzureImsApiVersion = "api-version=2017-12-01"; // this version has the format=text capability
         internal const string AzureImsJsonFormat = "format=json";
         internal const int AzureImsMaxResponseBufferSize = 512;
 
@@ -39,6 +39,9 @@
         /// <summary>
         /// Gets or sets the base URI for the Azure Instance Metadata service. Internal to allow overriding in test.
         /// </summary>
+        /// <remarks>
+        /// At this time, this service does not support https. We should monitor their website for more information. https://docs.microsoft.com/azure/virtual-machines/windows/instance-metadata-service
+        /// </remarks>
         internal string BaseAimsUri { get; set; } = "http://169.254.169.254/metadata/instance/compute";
 
         public Task<AzureInstanceComputeMetadata> GetAzureComputeMetadataAsync()
@@ -93,7 +96,7 @@
                 azureImsClient.DefaultRequestHeaders.Add("Metadata", "True");
                 azureImsClient.Timeout = this.AzureImsRequestTimeout;
 
-                Stream content = await azureImsClient.GetStreamAsync(requestUrl).ConfigureAwait(false);
+                Stream content = await azureImsClient.GetStreamAsync(new Uri(requestUrl)).ConfigureAwait(false);
                 azureIms = (AzureInstanceComputeMetadata)deserializer.ReadObject(content);
                 content.Dispose();
 

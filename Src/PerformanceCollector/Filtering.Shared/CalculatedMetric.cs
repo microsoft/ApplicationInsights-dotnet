@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Microsoft.ApplicationInsights.Common;
 
     /// <summary>
     /// Represents a single configured metric that needs to be calculated and reported on top of the telemetry items 
@@ -56,7 +57,7 @@
         {
             if (this.filterGroups.Count < 1)
             {
-                errors = new CollectionConfigurationError[0];
+                errors = ArrayExtensions.Empty<CollectionConfigurationError>();
                 return true;
             }
 
@@ -105,32 +106,35 @@
         private void CreateFilters(out CollectionConfigurationError[] errors)
         {
             var errorList = new List<CollectionConfigurationError>();
-            foreach (FilterConjunctionGroupInfo filterConjunctionGroupInfo in this.info.FilterGroups ?? new FilterConjunctionGroupInfo[0])
+            if (this.info.FilterGroups != null)
             {
-                CollectionConfigurationError[] groupErrors = null;
-                try
+                foreach (FilterConjunctionGroupInfo filterConjunctionGroupInfo in this.info.FilterGroups)
                 {
-                    var conjunctionFilterGroup = new FilterConjunctionGroup<TTelemetry>(filterConjunctionGroupInfo, out groupErrors);
-                    this.filterGroups.Add(conjunctionFilterGroup);
-                }
-                catch (Exception e)
-                {
-                    errorList.Add(
-                        CollectionConfigurationError.CreateError(
-                            CollectionConfigurationErrorType.MetricFailureToCreateFilterUnexpected,
-                            string.Format(CultureInfo.InvariantCulture, "Failed to create a filter group {0}.", filterConjunctionGroupInfo),
-                            e,
-                            Tuple.Create("MetricId", this.info.Id)));
-                }
-
-                if (groupErrors != null)
-                {
-                    foreach (var error in groupErrors)
+                    CollectionConfigurationError[] groupErrors = null;
+                    try
                     {
-                        error.Data["MetricId"] = this.info.Id;
+                        var conjunctionFilterGroup = new FilterConjunctionGroup<TTelemetry>(filterConjunctionGroupInfo, out groupErrors);
+                        this.filterGroups.Add(conjunctionFilterGroup);
+                    }
+                    catch (Exception e)
+                    {
+                        errorList.Add(
+                            CollectionConfigurationError.CreateError(
+                                CollectionConfigurationErrorType.MetricFailureToCreateFilterUnexpected,
+                                string.Format(CultureInfo.InvariantCulture, "Failed to create a filter group {0}.", filterConjunctionGroupInfo),
+                                e,
+                                Tuple.Create("MetricId", this.info.Id)));
                     }
 
-                    errorList.AddRange(groupErrors);
+                    if (groupErrors != null)
+                    {
+                        foreach (var error in groupErrors)
+                        {
+                            error.Data["MetricId"] = this.info.Id;
+                        }
+
+                        errorList.AddRange(groupErrors);
+                    }
                 }
             }
 

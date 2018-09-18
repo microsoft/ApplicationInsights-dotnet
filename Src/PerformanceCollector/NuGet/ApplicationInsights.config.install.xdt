@@ -21,8 +21,19 @@
     </Add>
     <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryModule, Microsoft.AI.PerfCounterCollector" />
   </TelemetryModules>
- 
-  <!-- 
+
+  <TelemetryProcessors xdt:Transform="Remove"/>
+  <TelemetrySinks xdt:Transform="InsertIfMissing">
+  </TelemetrySinks>
+
+  <TelemetrySinks xdt:Transform="InsertIfMissing">
+    <Add Name="default" xdt:Transform="InsertIfMissing">
+    </Add>
+  </TelemetrySinks>
+
+  <TelemetrySinks>
+    <Add Name="default" xdt:Transform="InsertIfMissing">
+      <!-- 
     QuickPulse telemetry processor must always be the first telemetry processor.
     There is no syntax to allow insertion in the beginning of the list for when there are no siblings (we only have InsertBefore and InsertAfter), so do a trick:
     1. Remove all previously existing QuickPulse telemetry processors (if any)
@@ -33,12 +44,15 @@
     Note that we have a default namespace in ApplicationInsights.config, and since XDT won't allow us to specify the namespace map, we'll have to use local-name() in XPath expressions
   -->
 
-    <TelemetryProcessors xdt:Transform="InsertIfMissing">
-      <Add xdt:Transform="RemoveAll" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
-      <Add xdt:Transform="Insert" Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
-    </TelemetryProcessors>
+      <TelemetryProcessors xdt:Transform="InsertIfMissing">
+        <Add xdt:Transform="RemoveAll" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
+        <Add xdt:Transform="Insert" Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
+      </TelemetryProcessors>
 
-    <Add xdt:Transform="InsertBefore(/*[local-name()='ApplicationInsights']/*[local-name()='TelemetryProcessors']/*[local-name()='Add'][1])" Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
+      <Add xdt:Transform="InsertBefore(/*[local-name()='ApplicationInsights']/*[local-name()='TelemetrySinks']/*[local-name()='Add'][1]/*[local-name()='TelemetryProcessors']/*[local-name()='Add'][1])" Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor, Microsoft.AI.PerfCounterCollector" />
 
-    <Add xdt:Transform="Remove" xdt:Locator="XPath(/*[local-name()='ApplicationInsights']/*[local-name()='TelemetryProcessors']/*[local-name()='Add' and starts-with(./@Type,'Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor') and contains(./@Type,' Microsoft.AI.PerfCounterCollector')][last()])"/>
+      <Add xdt:Transform="Remove" xdt:Locator="XPath(/*[local-name()='ApplicationInsights']/*[local-name()='TelemetrySinks']/*[local-name()='Add'][1]/*[local-name()='TelemetryProcessors']/*[local-name()='Add' and starts-with(./@Type,'Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryProcessor') and contains(./@Type,' Microsoft.AI.PerfCounterCollector')][last()])"/>
+
+    </Add>
+  </TelemetrySinks>
 </ApplicationInsights>

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.Serialization;
 
     [DataContract]
@@ -59,6 +60,7 @@
         public string CloudRoleInstance { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "DataMember cannot be static")]
         public string DocumentType
         {
             get

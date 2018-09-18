@@ -5,12 +5,12 @@
 
     internal class StandardPerformanceCollector : IPerformanceCollector
     {
-        private static readonly Tuple<PerformanceCounterData, double>[] emptyCollectResult = new Tuple<PerformanceCounterData, double>[0];
+        private static readonly Tuple<PerformanceCounterData, double>[] emptyCollectResult = Array.Empty<Tuple<PerformanceCounterData, double>>();
 
         /// <summary>
         /// Gets a collection of registered performance counters.
         /// </summary>
-        public IEnumerable<PerformanceCounterData> PerformanceCounters { get; } = new PerformanceCounterData[0];
+        public IEnumerable<PerformanceCounterData> PerformanceCounters { get; } = Array.Empty<PerformanceCounterData>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StandardPerformanceCollector"/> class.

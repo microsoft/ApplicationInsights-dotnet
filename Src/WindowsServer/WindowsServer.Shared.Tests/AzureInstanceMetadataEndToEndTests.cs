@@ -245,7 +245,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer
                 Tags = "thisTag;thatTag",
                 Version = "10.8a",
                 VmId = Guid.NewGuid().ToString(),
-                VmSize = "A8"
+                VmSize = "A8",
+                VmScaleSetName = "ScaleName"
             };
         }
     }

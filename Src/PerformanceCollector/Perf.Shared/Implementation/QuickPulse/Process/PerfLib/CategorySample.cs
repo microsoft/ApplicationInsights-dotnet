@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Runtime.InteropServices;
+    using Microsoft.ApplicationInsights.Common;
 
     /// <summary>
     /// Represents performance data for a performance object (category).
@@ -222,7 +223,7 @@
 
                 if (!foundCategory)
                 {
-                    return new string[0];
+                    return ArrayExtensions.Empty<string>();
                 }
 
                 int counterNumber = perfObject.NumCounters;
@@ -232,7 +233,7 @@
 
                 if (instanceNumber == -1)
                 {
-                    return new string[0];
+                    return ArrayExtensions.Empty<string>();
                 }
 
                 CounterDefinitionSample[] samples = new CounterDefinitionSample[counterNumber];

@@ -2,15 +2,16 @@
 {
     using System;
     using System.Collections.Generic;
-
+    using System.Diagnostics.CodeAnalysis;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
 
     /// <summary>
     /// Top CPU collector.
     /// </summary>
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "Ignore Warning. This is a stub class for NetCore")]
     internal sealed class QuickPulseTopCpuCollector : IQuickPulseTopCpuCollector
     {
-        private static readonly Tuple<string, int>[] emptyResult = new Tuple<string, int>[0];
+        private static readonly Tuple<string, int>[] emptyResult = Array.Empty<Tuple<string, int>>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTopCpuCollector"/> class. 

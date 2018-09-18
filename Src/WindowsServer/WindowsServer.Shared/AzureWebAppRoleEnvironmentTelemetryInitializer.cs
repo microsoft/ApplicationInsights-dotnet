@@ -69,7 +69,7 @@
         private string GetRoleName()
         {
             var result = this.GetNodeName();
-            if (result.ToLowerInvariant().EndsWith(WebAppSuffix, StringComparison.OrdinalIgnoreCase))
+            if (result.EndsWith(WebAppSuffix, StringComparison.OrdinalIgnoreCase))
             {
                 result = result.Substring(0, result.Length - WebAppSuffix.Length);
             }

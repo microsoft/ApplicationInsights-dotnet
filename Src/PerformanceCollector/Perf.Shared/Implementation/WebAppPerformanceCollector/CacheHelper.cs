@@ -12,7 +12,7 @@
     /// <summary>
     /// Class to contain the one cache for all Gauges.
     /// </summary>
-    internal class CacheHelper : ICachedEnvironmentVariableAccess
+    internal class CacheHelper : ICachedEnvironmentVariableAccess, IDisposable
     {
         /// <summary>
         /// Only instance of CacheHelper.
@@ -47,7 +47,7 @@
         /// <param name="performanceCounterName"> The name of the performance counter.</param>
         /// <param name="json"> String containing the JSON.</param>
         /// <returns> Value of the performance counter.</returns>
-        public long PerformanceCounterValue(string performanceCounterName, string json)
+        public static long PerformanceCounterValue(string performanceCounterName, string json)
         {
             if (json.IndexOf(performanceCounterName, StringComparison.OrdinalIgnoreCase) == -1)
             {
@@ -99,7 +99,7 @@
             }
 
             string json = this.GetFromCache(name).ToString();
-            long value = this.PerformanceCounterValue(name, json);
+            long value = PerformanceCounterValue(name, json);
 
             return value;
         }
@@ -146,6 +146,22 @@
 #else
             return MemoryCache.Default[cacheKey] != null;
 #endif            
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+#if NETSTANDARD1_6
+                cache.Dispose();
+#endif
+            }
         }
     }
 }

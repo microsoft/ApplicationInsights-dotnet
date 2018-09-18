@@ -5,7 +5,7 @@
     /// <summary>
     /// Factory to create different counters.
     /// </summary>
-    internal class CounterFactory
+    internal static class CounterFactory
     {
         /// <summary>
         /// Gets a counter.
@@ -13,7 +13,7 @@
         /// <param name="counterName">Name of the counter to retrieve.</param>
         /// <param name="reportAs">Alias to report the counter under.</param>
         /// <returns>The counter identified by counter name.</returns>
-        public ICounterValue GetCounter(string counterName, string reportAs)
+        public static ICounterValue GetCounter(string counterName, string reportAs)
         {
             switch (counterName)
             {
@@ -40,9 +40,9 @@
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\Process(??APP_WIN32_PROC??)\Private Bytes":
                     return new RawCounterGauge(
-                    reportAs,
-                    "privateBytes",
-                    AzureWebApEnvironmentVariables.App);
+                        reportAs,
+                        "privateBytes",
+                        AzureWebApEnvironmentVariables.App);
                 case @"\Process(??APP_WIN32_PROC??)\IO Data Bytes/sec":
                     return new RateCounterGauge(
                         reportAs,
@@ -179,9 +179,9 @@
                         AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Errors Total / Sec":
                     return new RateCounterGauge(
-                    reportAs,
-                    "errorsTotal",
-                    AzureWebApEnvironmentVariables.AspDotNet);
+                        reportAs,
+                        "errorsTotal",
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Pipeline Instance Count":
                     return new RawCounterGauge(
                         reportAs,
