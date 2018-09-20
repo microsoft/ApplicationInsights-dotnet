@@ -55,7 +55,8 @@
     <IsNetStandardBuild Condition="'$(TargetFramework)' == 'netstandard2.0'">True</IsNetStandardBuild>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
+    <!--Analyzers and Build Infrastructure-->
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
@@ -84,7 +85,6 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-
 
   <ItemGroup>
     <Content Include="ApplicationInsights.config.install.xdt" />
