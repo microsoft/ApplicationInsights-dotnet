@@ -42,8 +42,8 @@
     <ContentTargetFolders>content</ContentTargetFolders>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-    <!-- Private Assets -->
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
+    <!--Analyzers and Build Infrastructure-->
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
@@ -62,10 +62,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28" Condition="$(OS) == 'Windows_NT'">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
