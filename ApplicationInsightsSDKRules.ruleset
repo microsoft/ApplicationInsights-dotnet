@@ -15,7 +15,9 @@
     <Rule Id="CA1049" Action="Warning" />
     <Rule Id="CA1060" Action="Warning" />
     <Rule Id="CA1061" Action="Warning" />
-    <Rule Id="CA1063" Action="Warning" />
+    <!-- Disabling this check "CA1063: Implement IDisposable correctly". 
+    This analyzer has a bug which fails the build, https://github.com/dotnet/roslyn-analyzers/issues/1815 -->
+    <Rule Id="CA1063" Action="None" />
     <Rule Id="CA1065" Action="Warning" />
     <Rule Id="CA1304" Action="Warning" />
     <Rule Id="CA1305" Action="Warning" />
