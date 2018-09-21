@@ -429,6 +429,32 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
         }
 
         /// <summary>
+        /// Tests that logging an exception with parameters results in tracking an <see cref="ExceptionTelemetry"/> instance with parameters.
+        /// </summary>
+        [Fact]
+        public void TestLoggerAdditionalExceptionDataIsAddedToTelemetry()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<ExceptionTelemetry>(t);
+                var exceptionTelemetry = (ExceptionTelemetry)t;
+                Assert.Equal(SeverityLevel.Error, exceptionTelemetry.SeverityLevel);
+                Assert.Equal("test-category", exceptionTelemetry.Properties["CategoryName"]);
+                Assert.Equal("System.Exception: This is an error", exceptionTelemetry.Properties["Exception"]);
+                Assert.Equal("Error: This is an error, Value: 123", exceptionTelemetry.Message);
+
+                Assert.Equal("test", exceptionTelemetry.Properties["AdditionalProperty1"]);
+                Assert.Equal("test2", exceptionTelemetry.Properties["AdditionalProperty2"]);
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test-category", client, (s, l) => { return true; }, defaultOptions);
+            var exception = new Exception("This is an error");
+            exception.Data.Add("AdditionalProperty1", "test");
+            exception.Data.Add("AdditionalProperty2", "test2");
+            logger.LogError(0, exception, "Error: {ex}, Value: {value}", exception.Message, 123);
+        }
+
+        /// <summary>
         /// Tests that an incorrectly constructed or uninitialized Application Insights ILogger does not throw exceptions.
         /// </summary>
         [Fact]
