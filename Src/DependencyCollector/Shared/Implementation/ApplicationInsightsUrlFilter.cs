@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.ApplicationInsights.Extensibility; 
+    using Microsoft.ApplicationInsights.Extensibility;
 
     internal sealed class ApplicationInsightsUrlFilter
     {
@@ -29,7 +29,7 @@
                 string currentEndpointAddressValue = null;
 
                 // Cache AI endpoint URI
-                if (this.telemetryConfiguration != null)
+                if (this.telemetryConfiguration != null && this.telemetryConfiguration.TelemetryChannel != null)
                 {
                     string endpoint = this.telemetryConfiguration.TelemetryChannel.EndpointAddress;
                     if (!string.IsNullOrEmpty(endpoint))

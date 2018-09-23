@@ -13,7 +13,7 @@
         public void IsApplicationInsightsUrlReturnsTrueForTelemetryServiceEndpoint()
         {
             using (TelemetryConfiguration configuration = this.CreateStubTelemetryConfiguration())
-            {               
+            {
                 string url = "https://dc.services.visualstudio.com/v2/track";
                 ApplicationInsightsUrlFilter urlFilter = new ApplicationInsightsUrlFilter(configuration);
                 Assert.IsTrue(urlFilter.IsApplicationInsightsUrl(url));
@@ -35,7 +35,7 @@
         public void IsApplicationInsightsUrlReturnsTrueForTelemetryChannelEndpointAddress()
         {
             using (TelemetryConfiguration configuration = this.CreateStubTelemetryConfiguration())
-            {    
+            {
                 string url = "https://endpointaddress";
                 ApplicationInsightsUrlFilter urlFilter = new ApplicationInsightsUrlFilter(configuration);
                 Assert.IsTrue(urlFilter.IsApplicationInsightsUrl(url));
@@ -52,6 +52,30 @@
                 Assert.IsFalse(urlFilter.IsApplicationInsightsUrl(url));
                 url = string.Empty;
                 Assert.IsFalse(urlFilter.IsApplicationInsightsUrl(url));
+            }
+        }
+
+        [TestMethod]
+        public void IsApplicationInsightsUrlReturnsFalseIfTelemetryChannelIsNull()
+        {
+            using (TelemetryConfiguration configuration = this.CreateStubTelemetryConfiguration())
+            {
+                configuration.TelemetryChannel = null;
+                string url = "https://something.local";
+                ApplicationInsightsUrlFilter urlFilter = new ApplicationInsightsUrlFilter(configuration);
+                Assert.IsFalse(urlFilter.IsApplicationInsightsUrl(url));
+            }
+        }
+
+        [TestMethod]
+        public void IsApplicationInsightsUrlReturnsTrueForTelemetryServiceEndpointIfTelemetryChannelIsNull()
+        {
+            using (TelemetryConfiguration configuration = this.CreateStubTelemetryConfiguration())
+            {
+                configuration.TelemetryChannel = null;
+                string url = "https://dc.services.visualstudio.com/v2/track";
+                ApplicationInsightsUrlFilter urlFilter = new ApplicationInsightsUrlFilter(configuration);
+                Assert.IsTrue(urlFilter.IsApplicationInsightsUrl(url));
             }
         }
 
