@@ -69,7 +69,7 @@
         <PackagesDir>$(EnlistmentRoot)\..\packages</PackagesDir>
         <PackagesDir>$([System.IO.Path]::GetFullPath( $(PackagesDir) ))</PackagesDir>
 
-		        <MyGetPackageSource>https://www.myget.org/F/applicationinsights/api/v2</MyGetPackageSource>
+		    <MyGetPackageSource>https://www.myget.org/F/applicationinsights/api/v2</MyGetPackageSource>
 
         <PowerShellExe Condition=" '$(PowerShellExe)'=='' ">%WINDIR%\System32\WindowsPowerShell\v1.0\powershell.exe</PowerShellExe>
         

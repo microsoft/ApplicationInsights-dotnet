@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!-- Including this file will generate both the *.nupkg and *.symbols.nupkg -->
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <IncludeSymbols>True</IncludeSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- These are the common properties used when generating the nupkg -->
+    <Company>Microsoft</Company>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <!-- <PackageVersion>Defined in GlobalStaticVersion.props</PackageVersion> -->
+    <Authors>Microsoft</Authors>
+    <Owners>Microsoft,AppInsightsSdk</Owners>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseUrl>https://go.microsoft.com/fwlink/?LinkID=510709</PackageLicenseUrl>
+    <PackageProjectUrl>https://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
+    <PackageIconUrl>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-dotnet-server</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageType>Dependency</PackageType>
+    <ContentTargetFolders>content</ContentTargetFolders>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- These Properties are unique to the project and need to be set in the csproj -->
+    <PackageId>UNDEFINED</PackageId>
+    <Title>UNDEFINED</Title>
+    <Description>UNDEFINED</Description>
+    <PackageTags>UNDEFINED</PackageTags>
+  </PropertyGroup>
+</Project>

@@ -13,7 +13,6 @@
     <!-- 
       Date when Semantic Version was changed. 
       Update for every public release.
-
       NOTE!!!!!! Do not update when updating PreReleaseMilestone update 
       as it will restart file versions so 2.4.0-beta1 may have higher 
       file version (like 2.4.0.2222) than 2.4.0-beta2 (like 2.4.0.1111)
@@ -21,5 +20,11 @@
     <SemanticVersionDate>2018-08-14</SemanticVersionDate>
 
     <PreReleaseVersion Condition="'$(PreReleaseVersion)'==''">$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</PreReleaseVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(PackageVersion)'==''">
+    <PackageVersion>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch)</PackageVersion>
+    <PackageVersion Condition="'$(PreReleaseMilestone)' != ''">$(PackageVersion)-$(PreReleaseMilestone)</PackageVersion>
+    <PackageVersion Condition="'$(StableRelease)' != 'True'">$(PackageVersion)-build$(PreReleaseVersion)</PackageVersion>
   </PropertyGroup>
 </Project>

@@ -24,14 +24,9 @@
         /// <param name="sender">Event listener that will be called on every new event.</param>
         internal DiagnosticsEventListener(EventLevel logLevel, EventKeywords keywords, IEventListener sender)
         {
-            if (sender == null)
-            {
-                throw new ArgumentNullException("sender");
-            }
-
             this.logLevel = logLevel;
             this.keywords = keywords;
-            this.sender = sender;
+            this.sender = sender ?? throw new ArgumentNullException(nameof(sender));
         }
 
         /// <summary>

@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\..\Common.props" />
+  <Import Project="..\..\..\Nupkg.props" />
+
+  <PropertyGroup>
+    <RootNamespace>Microsoft.ApplicationInsights.Extensibility.HostingStartup</RootNamespace>
+    <AssemblyName>Microsoft.AspNet.ApplicationInsights.HostingStartup</AssemblyName>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
+    <TargetFramework>net45</TargetFramework>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DefineConstants>$(DefineConstants);NET45;ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--Nupkg properties-->
+    <PackageId>Microsoft.AspNet.ApplicationInsights.HostingStartup</PackageId>
+    <Title>Application Insights Hosting Startup for Web Applications</Title>
+    <Description>Application Insights Hosting Startup for .NET web applications. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156 </Description>
+    <PackageTags>Azure Monitoring Analytics ApplicationInsights Telemetry AppInsights</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--TODO: Remove this as soon as all issues are resolved. Is true by default in Common.props-->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
+    <!--Analyzers and Build Infrastructure-->
+    <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.1">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--Common Dependencies-->
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.8.0-beta2" />
+    <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0.0" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(OS) == 'Windows_NT'">
+    <!--Windows Only-->
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--Nuget Install Transformations-->
+    <Content Include="web.config.install.xdt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--Framework References-->    
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+</Project>

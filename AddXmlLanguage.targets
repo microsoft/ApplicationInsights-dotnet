@@ -60,4 +60,10 @@
     <Target Name="FixXmlDocumentation" AfterTargets="AfterBuild" DependsOnTargets="AfterBuild">
         <InjectXmlLanguage InputFiles="$(DocumentationFile)" />
     </Target>
+
+    <Target Name="AddXmlDocToNugetPackage" Condition="$(OS) == 'Windows_NT'">
+        <ItemGroup>
+            <BuildOutputInPackage Include="$(OutputPath)$(TargetName).xml" />
+        </ItemGroup>
+    </Target>
 </Project>

@@ -1,12 +1,14 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.HostingStartup
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 
     /// <summary>
     /// ETW EventSource tracing class.
     /// </summary>
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-HostingStartup")]
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class HostingStartupEventSource : EventSource
     {
         /// <summary>
