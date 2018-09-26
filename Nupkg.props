@@ -24,6 +24,7 @@
     <ContentTargetFolders>content</ContentTargetFolders>
     <PackageReleaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</PackageReleaseNotes>
     <!-- <PackageOutputPath>Defined in Directory.Build.props</PackageOutputPath> -->
+    <PackageTags>Analytics Azure ApplicationInsights Telemetry Monitoring SDK</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -31,7 +32,7 @@
     <PackageId>UNDEFINED</PackageId>
     <Title>UNDEFINED</Title>
     <Description>UNDEFINED</Description>
-    <PackageTags>UNDEFINED</PackageTags>
+    <!-- <PackageTags>$(PackageTags) newTag1 newTag2</PackageTags> -->
   </PropertyGroup>
 
   <PropertyGroup>

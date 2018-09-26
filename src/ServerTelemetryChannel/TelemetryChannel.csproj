@@ -12,7 +12,6 @@
     <PackageId>Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel</PackageId>
     <Title>Application Insights Telemetry Channel for Windows Server Applications</Title>
     <Description>This nuget provides a telemetry channel to Application Insights Windows Server SDK that will preserve telemetry in offline scenarios. This is a dependent package, for the best experience please install the platform specific package. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
-    <PackageTags>Analytics Azure ApplicationInsights Telemetry Monitoring SDK</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
