@@ -1,42 +1,17 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
+  <Import Project="..\..\Nupkg.props" />
 
   <PropertyGroup>
-    <Company>Microsoft</Company>
-    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-
     <TargetFrameworks>net45;netstandard1.3;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.3;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
 
-    <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <IncludeSymbols>True</IncludeSymbols>
-    <!--PackageOutputPath>Defined in Directory.Build.props</PackageOutputPath-->
+  <PropertyGroup>
+    <!--Nupkg properties-->
     <PackageId>Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel</PackageId>
-    <!--PackageVersion is defined in GlobalStaticVersion.props-->
-    <!--PackageVersion></PackageVersion-->
-    <Authors>Microsoft</Authors>
-    <Owners>Microsoft,AppInsightsSdk</Owners>
     <Title>Application Insights Telemetry Channel for Windows Server Applications</Title>
     <Description>This nuget provides a telemetry channel to Application Insights Windows Server SDK that will preserve telemetry in offline scenarios. This is a dependent package, for the best experience please install the platform specific package. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
-    <!--Copyright defined above-->
-    <!--Copyright></Copyright-->
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageLicenseUrl>https://go.microsoft.com/fwlink/?LinkID=510709</PackageLicenseUrl>
-    <PackageProjectUrl>https://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
-    <PackageIconUrl>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageIconUrl>
-    <PackageTags>Analytics Azure ApplicationInsights Telemetry Monitoring SDK</PackageTags>
-    <PackageReleaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</PackageReleaseNotes>
-    <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-dotnet</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
-    <PackageType>Dependency</PackageType>
-    <ContentTargetFolders>content</ContentTargetFolders>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -45,14 +20,9 @@
     <DefineConstants Condition="'$(TargetFramework)' == 'net45'">TRACE;DEBUG;NET45</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard1.3'">$(DefineConstants);NETSTANDARD</DefineConstants>
-    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard2.0'">$(DefineConstants);NETSTANDARD</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <IsNetStandardBuild Condition="'$(TargetFramework)' == 'netstandard1.3'">True</IsNetStandardBuild>
-    <IsNetStandardBuild Condition="'$(TargetFramework)' == 'netstandard2.0'">True</IsNetStandardBuild>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0'" >
+    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
+    <IsNetStandardBuild>True</IsNetStandardBuild>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
