@@ -58,6 +58,7 @@
 
         <!-- Collect all NuGet packages in the same folder for convenience during testing -->
         <PackageOutputDir>$(BinRoot)\$(Configuration)\NuGet</PackageOutputDir>
+        <PackageOutputPath>$(PackageOutputDir)</PackageOutputPath>
 
         <AppxPackageDir>$(OutputPath)</AppxPackageDir>
 

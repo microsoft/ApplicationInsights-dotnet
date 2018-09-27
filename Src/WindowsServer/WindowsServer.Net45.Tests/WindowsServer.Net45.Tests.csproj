@@ -66,9 +66,9 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WindowsServer.Net45\WindowsServer.Net45.csproj">
-      <Project>{e7e874bd-609c-41ca-8594-f793da2fa0d0}</Project>
-      <Name>WindowsServer.Net45</Name>
+    <ProjectReference Include="..\WindowsServer\WindowsServer.csproj">
+      <Project>{94127fd9-e516-4891-98d4-ef7523117f32}</Project>
+      <Name>WindowsServer</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

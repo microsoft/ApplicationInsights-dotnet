@@ -8,17 +8,12 @@
 
   <PropertyGroup>
     <!-- These are the common properties used when generating the nupkg -->
+    <!-- https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets -->
     <Company>Microsoft</Company>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <!-- <PackageVersion>Defined in GlobalStaticVersion.props</PackageVersion> -->
     <Authors>Microsoft</Authors>
     <Owners>Microsoft,AppInsightsSdk</Owners>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseUrl>https://go.microsoft.com/fwlink/?LinkID=510709</PackageLicenseUrl>
     <PackageProjectUrl>https://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
@@ -30,10 +25,21 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <!-- These Properties are unique to the project and need to be set in the csproj -->
+    <!-- These Properties are unique to the project and must be set in the csproj -->
     <PackageId>UNDEFINED</PackageId>
     <Title>UNDEFINED</Title>
     <Description>UNDEFINED</Description>
     <PackageTags>UNDEFINED</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Disable auto generation of package attributes. This resolves the 'Duplicate attribute' error. 
+         Common cause is a hidden AssemblyInfo.cs file in a project -->
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
   </PropertyGroup>
 </Project>
