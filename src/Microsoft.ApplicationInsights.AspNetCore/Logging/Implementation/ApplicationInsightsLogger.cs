@@ -1,8 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.Logging
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -60,7 +62,8 @@
                     var exceptionTelemetry = new ExceptionTelemetry(exception);
                     exceptionTelemetry.Message = formatter(state, exception);
                     exceptionTelemetry.SeverityLevel = this.GetSeverityLevel(logLevel);
-                    exceptionTelemetry.Context.Properties["Exception"] = exception.ToString();
+                    exceptionTelemetry.Properties["Exception"] = exception.ToString();
+                    exception.Data.Cast<DictionaryEntry>().ToList().ForEach((item) => exceptionTelemetry.Properties[item.Key.ToString()] = item.Value.ToString());
                     PopulateTelemetry(exceptionTelemetry, stateDictionary, eventId);
                     this.telemetryClient.TrackException(exceptionTelemetry);
                 }
@@ -69,30 +72,34 @@
 
         private void PopulateTelemetry(ITelemetry telemetry, IReadOnlyList<KeyValuePair<string, object>> stateDictionary, EventId eventId)
         {
-            IDictionary<string, string> dict = telemetry.Context.Properties;
-            dict["CategoryName"] = this.categoryName;
-
-            if (this.options?.IncludeEventId ?? false)
+            var telemetryWithProperties = telemetry as ISupportProperties;
+            if (telemetryWithProperties != null)
             {
-                if (eventId.Id != 0)
+                IDictionary<string, string> dict = telemetryWithProperties.Properties;
+                dict["CategoryName"] = this.categoryName;
+
+                if (this.options?.IncludeEventId ?? false)
                 {
-                    dict["EventId"] = eventId.Id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    if (eventId.Id != 0)
+                    {
+                        dict["EventId"] = eventId.Id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    }
+
+                    if (!string.IsNullOrEmpty(eventId.Name))
+                    {
+                        dict["EventName"] = eventId.Name;
+                    }
                 }
 
-                if (!string.IsNullOrEmpty(eventId.Name))
+                if (stateDictionary != null)
                 {
-                    dict["EventName"] = eventId.Name;
+                    foreach (KeyValuePair<string, object> item in stateDictionary)
+                    {
+                        dict[item.Key] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
+                    }
                 }
             }
-
-            if (stateDictionary != null)
-            {
-                foreach (KeyValuePair<string, object> item in stateDictionary)
-                {
-                    dict[item.Key] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
-                }
-            }
-
+            
             telemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
         }
 

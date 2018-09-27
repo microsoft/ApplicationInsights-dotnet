@@ -76,8 +76,8 @@ namespace Microsoft.Extensions.DependencyInjection
             if (this.telemetryProcessorFactories.Any())
             {
                 foreach (ITelemetryProcessorFactory processorFactory in this.telemetryProcessorFactories)
-                {
-                    configuration.TelemetryProcessorChainBuilder.Use(processorFactory.Create);
+                {                    
+                    configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Use(processorFactory.Create);
                 }                
             }
 
@@ -95,6 +95,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 this.EnableW3CHeaders(configuration);
             }
 
+            configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Build();
             configuration.TelemetryProcessorChainBuilder.Build();            
 
             if (this.applicationInsightsServiceOptions.DeveloperMode != null)
@@ -138,7 +139,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 if (quickPulseModule != null)
                 {                    
                     QuickPulseTelemetryProcessor processor = null;
-                    configuration.TelemetryProcessorChainBuilder.Use((next) =>
+                    configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Use((next) =>
                     {
                         processor = new QuickPulseTelemetryProcessor(next);
                         quickPulseModule.RegisterTelemetryProcessor(processor);
@@ -156,8 +157,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             if (this.applicationInsightsServiceOptions.EnableAdaptiveSampling)
             {
-                configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling(5, excludedTypes: "Event");
-                configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling(5, includedTypes: "Event");
+                configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.UseAdaptiveSampling(5, excludedTypes: "Event");
+                configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.UseAdaptiveSampling(5, includedTypes: "Event");
             }
         }
 
@@ -165,7 +166,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             if (this.applicationInsightsServiceOptions.AddAutoCollectedMetricExtractor)
             {
-                configuration.TelemetryProcessorChainBuilder.Use(next => new AutocollectedMetricsExtractor(next));
+                configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Use(next => new AutocollectedMetricsExtractor(next));
             }
         }
 

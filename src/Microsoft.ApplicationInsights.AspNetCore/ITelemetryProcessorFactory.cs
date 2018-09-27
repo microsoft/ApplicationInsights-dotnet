@@ -12,6 +12,6 @@
         /// Returns a <see cref="ITelemetryProcessor"/>,
         /// given the next <see cref="ITelemetryProcessor"/> in the call chain.
         /// </summary>
-        ITelemetryProcessor Create(ITelemetryProcessor next);
+        ITelemetryProcessor Create(ITelemetryProcessor nextProcessor);
     }
 }

@@ -11,16 +11,11 @@
 
     public abstract class TelemetryInitializerBase : ITelemetryInitializer
     {
-        private IHttpContextAccessor httpContextAccessor;
+        private readonly IHttpContextAccessor httpContextAccessor;
 
         public TelemetryInitializerBase(IHttpContextAccessor httpContextAccessor)
         {
-            if (httpContextAccessor == null)
-            {
-                throw new ArgumentNullException("httpContextAccessor");
-            }
-
-            this.httpContextAccessor = httpContextAccessor;
+            this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
         public void Initialize(ITelemetry telemetry)
