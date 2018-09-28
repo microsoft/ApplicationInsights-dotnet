@@ -3,8 +3,8 @@
   <Import Project="..\..\..\Nupkg.props" />
 
   <PropertyGroup>
-    <RootNamespace>Microsoft.ApplicationInsights.Extensibility.HostingStartup</RootNamespace>
-    <AssemblyName>Microsoft.AspNet.ApplicationInsights.HostingStartup</AssemblyName>
+    <RootNamespace>Microsoft.ApplicationInsights.Web</RootNamespace>
+    <AssemblyName>Microsoft.AI.Web</AssemblyName>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
     <TargetFramework>net45</TargetFramework>
     <Prefer32Bit>false</Prefer32Bit>
@@ -13,9 +13,9 @@
 
   <PropertyGroup>
     <!--Nupkg properties-->
-    <PackageId>Microsoft.AspNet.ApplicationInsights.HostingStartup</PackageId>
-    <Title>Application Insights Hosting Startup for Web Applications</Title>
-    <Description>Application Insights Hosting Startup for .NET web applications. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156 </Description>
+    <PackageId>Microsoft.ApplicationInsights.Web</PackageId>
+    <Title>Application Insights for Web Applications</Title>
+    <Description>Application Insights for .NET web applications. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
     <PackageTags>Azure Monitoring Analytics ApplicationInsights Telemetry AppInsights</PackageTags>
   </PropertyGroup>
 
@@ -40,27 +40,25 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
+ <ItemGroup>
     <!--Common Dependencies-->
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.8.0-beta2" />
-    <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0.0" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(OS) == 'Windows_NT'">
-    <!--Windows Only-->
-    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28" />
+    <PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.4" />
   </ItemGroup>
 
   <ItemGroup>
     <!--Nuget Transforms (install.xdt, uninstall.xdt, config.transform): "nupkg\content\<framework>\*.*-->
     <Content Include="net45\*" />
   </ItemGroup>
-
+  
   <ItemGroup>
-    <!--Framework References-->    
-    <Reference Include="System.Web" />
+    <!--Framework References-->  
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
+  <Import Project="..\Web.Shared.Net\Web.Shared.Net.projitems" Label="Shared" />
+  <Import Project="..\..\Common\Common.projitems" Label="Shared" />
+  
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>

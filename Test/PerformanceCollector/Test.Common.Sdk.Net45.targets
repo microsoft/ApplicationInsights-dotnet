@@ -3,10 +3,10 @@
 
 	<ItemGroup>
 		<Reference Include="Microsoft.ApplicationInsights">
-			<HintPath>$(BinRoot)\$(Configuration)\Src\Web\Web.Net45\Microsoft.ApplicationInsights.dll</HintPath>
+			<HintPath>$(BinRoot)\$(Configuration)\Src\Web\Web\Net45\Microsoft.ApplicationInsights.dll</HintPath>
 		</Reference>
 		<Reference Include="Microsoft.AI.Web">
-			<HintPath>$(BinRoot)\$(Configuration)\Src\Web\Web.Net45\Microsoft.AI.Web.dll</HintPath>
+			<HintPath>$(BinRoot)\$(Configuration)\Src\Web\Web\Net45\Microsoft.AI.Web.dll</HintPath>
 		</Reference>
 		<Reference Include="Microsoft.AI.WindowsServer">
 			<HintPath>$(BinRoot)\$(Configuration)\Src\WindowsServer\WindowsServer\Net45\Microsoft.AI.WindowsServer.dll</HintPath>
@@ -20,7 +20,7 @@
 		<ItemGroup>
 			<_CustomFiles Include="
 										$(BinRoot)\$(Configuration)\Src\WindowsServer\WindowsServer\Net45\*.dll;
-										$(BinRoot)\$(Configuration)\Src\Web\Web.Net45\*.dll;
+										$(BinRoot)\$(Configuration)\Src\Web\Web\Net45\*.dll;
                                         $(BinRoot)\$(Configuration)\Src\PerformanceCollector\Net45\*.dll;
 										" />
 			<FilesForPackagingFromProject Include="%(_CustomFiles.Identity)">
