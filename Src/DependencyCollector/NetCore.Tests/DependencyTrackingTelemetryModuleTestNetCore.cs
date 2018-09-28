@@ -36,14 +36,11 @@
         private const string localhostUrl = "http://localhost:5050";
         private const string expectedAppId = "cid-v1:someAppId";
 
+        private readonly OperationDetailsInitializer operationDetailsInitializer = new OperationDetailsInitializer();
         private readonly DictionaryApplicationIdProvider appIdProvider = new DictionaryApplicationIdProvider();
         private StubTelemetryChannel channel;
         private TelemetryConfiguration config;
         private List<DependencyTelemetry> sentTelemetry;
-
-        private object request;
-        private object response;
-        private object responseHeaders;
 
         /// <summary>
         /// Initialize.
@@ -52,10 +49,6 @@
         public void Initialize()
         {
             this.sentTelemetry = new List<DependencyTelemetry>();
-            this.request = null;
-            this.response = null;
-            this.responseHeaders = null;
-
             this.channel = new StubTelemetryChannel
             {
                 OnSend = telemetry =>
@@ -65,9 +58,6 @@
                     if (depTelemetry != null)
                     {
                         this.sentTelemetry.Add(depTelemetry);
-                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, out this.request);
-                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, out this.response);
-                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseHeadersOperationDetailName, out this.responseHeaders);
                     }
                 },
                 EndpointAddress = FakeProfileApiEndpoint
@@ -86,6 +76,7 @@
             };
 
             this.config.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+            this.config.TelemetryInitializers.Add(this.operationDetailsInitializer);
         }
 
         /// <summary>
@@ -408,17 +399,7 @@
             }
 
             // Validate the http request was captured
-            Assert.IsNotNull(this.request, "Http request was not found within the operation details.");
-            var webRequest = this.request as HttpRequestMessage;
-            Assert.IsNotNull(webRequest, "Http request was not the expected type.");
-
-            // Validate the http response was captured
-            Assert.IsNotNull(this.response, "Http response was not found within the operation details.");
-            var webResponse = this.response as HttpResponseMessage;
-            Assert.IsNotNull(webResponse, "Http response was not the expected type.");
-
-            // Validate the http response headers were not captured
-            Assert.IsNull(this.responseHeaders, "Http response headers were not found within the operation details.");
+            this.operationDetailsInitializer.ValidateOperationDetailsCore(item);
         }
 
         private sealed class LocalServer : IDisposable
