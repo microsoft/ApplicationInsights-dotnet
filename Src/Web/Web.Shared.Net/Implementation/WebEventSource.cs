@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 #if NET45
     using System.Diagnostics.Tracing;
 #endif
@@ -9,6 +10,7 @@
     /// ETW EventSource tracing class.
     /// </summary>
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-Web")]
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class WebEventSource : EventSource
     {
         /// <summary>

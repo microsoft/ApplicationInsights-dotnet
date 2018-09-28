@@ -27,6 +27,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ServiceBusDiagnosticListenerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SqlClientDiagnosticSourceListenerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryDiagnosticSourceListenerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OperationDetailsInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)W3C\W3CActiviityExtentionsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)W3C\W3COperationCorrelationTelemetryInitializerTests.cs" />
   </ItemGroup>

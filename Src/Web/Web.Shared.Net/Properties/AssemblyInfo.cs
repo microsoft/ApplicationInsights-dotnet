@@ -8,9 +8,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Microsoft.ApplicationInsights.Web")]
 [assembly: AssemblyDescription("Application Insights for Web Applications")]
-[assembly: AssemblyCompany("Microsoft")]
 [assembly: AssemblyProduct("Application Insights .NET SDK")]
-[assembly: AssemblyCopyright("© Microsoft Corporation. All rights reserved.")]
 
 [assembly: ComVisible(false)]
 
