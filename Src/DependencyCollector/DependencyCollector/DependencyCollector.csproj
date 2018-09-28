@@ -1,0 +1,125 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\..\Common.props" />
+  <Import Project="..\..\..\Nupkg.props" />
+
+  <PropertyGroup>
+    <RootNamespace>Microsoft.ApplicationInsights.DependencyCollector</RootNamespace>
+    <AssemblyName>Microsoft.AI.DependencyCollector</AssemblyName>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
+    <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
+    <Prefer32Bit>false</Prefer32Bit> <!-- net45 -->
+
+    <DefineConstants>DEPENDENCY_COLLECTOR</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--Nupkg properties-->
+    <PackageId>Microsoft.ApplicationInsights.DependencyCollector</PackageId>
+    <Title>Application Insights Dependency Collector</Title>
+    <Description>Application Insights Dependency Collector for .NET applications. This is a dependent package for Application Insights platform specific packages and provides automatic collection of dependency telemetry. Please install the platform specific packages directly for the best experience. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <PackageTags>Azure Monitoring Analytics ApplicationInsights Telemetry AppInsights</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--TODO: Remove this as soon as all issues are resolved. Is true by default in Common.props-->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+    <DefineConstants>$(DefineConstants);NET45;</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
+    <!--There is a bug affecting Code Analysis and NetStandard 1.6.
+        https://github.com/dotnet/core/issues/758
+        https://github.com/dotnet/roslyn-analyzers/issues/1313
+        Workaround is to disable Code Analysis.
+    -->
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <DefineConstants>$(DefineConstants);NETSTANDARD1_6;NETSTANDARD;</DefineConstants>
+  </PropertyGroup>
+
+<!-- 
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), NetCore.props))\NetCore.props" />  
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" Condition="'$(DoNotSign)' == ''" />
+
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DelaySign>true</DelaySign>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyOriginatorKeyFile>../../../Keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;</DefineConstants>
+  </PropertyGroup>
+-->
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
+    <!--Analyzers and Build Infrastructure-->
+    <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.1">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="MicroBuild.Core" Version="0.3.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+ <ItemGroup>
+    <!--Common Dependencies-->
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.8.0-beta2" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="Microsoft.AspNet.TelemetryCorrelation" Version="1.0.4" />
+    <PackageReference Include="Microsoft.ApplicationInsights.Agent.Intercept" Version="2.4.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
+    <PackageReference Include="Microsoft.Extensions.DiagnosticAdapter" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
+    <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.3.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <!--Framework References-->
+    <Reference Include="System.Runtime.Caching" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--Nuget Transforms (install.xdt, uninstall.xdt, config.transform): "nupkg\content\<framework>\*.*-->
+    <Content Include="ApplicationInsights.config.transform" />
+    <Content Include="ApplicationInsights.config.install.xdt" />
+    <Content Include="ApplicationInsights.config.uninstall.xdt" />
+  </ItemGroup>
+  
+  <Import Project="..\Shared\DependencyCollector.Shared.projitems" Label="Shared" />
+  <Import Project="..\..\Common\Common.projitems" Label="Shared" />
+  
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+</Project>

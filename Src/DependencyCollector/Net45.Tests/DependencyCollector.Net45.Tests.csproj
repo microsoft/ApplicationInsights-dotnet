@@ -72,18 +72,18 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Net45\DependencyCollector.Net45.csproj">
-      <Project>{ea2d14aa-ae1e-4982-9326-11d4dcbb9529}</Project>
-      <Name>DependencyCollector.Net45</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="DependencyTrackingTelemetryModuleHttpTest.cs" />
     <Compile Include="DependencyTrackingTelemetryModuleTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\..\..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\..\..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DependencyCollector\DependencyCollector.csproj">
+      <Project>{2c61ff6e-ac8e-429f-bcee-f38c129028d5}</Project>
+      <Name>DependencyCollector</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="..\Shared.Tests\DependencyCollector.Shared.Tests.projitems" Label="Shared" />
   <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />

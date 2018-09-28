@@ -6,7 +6,7 @@
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <DelaySign>true</DelaySign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>Microsoft.AI.DependencyCollector.Tests</AssemblyName>
+    <AssemblyName>Microsoft.ApplicationInsights.DependencyCollector.NetCore.Tests</AssemblyName>
 	<AssemblyOriginatorKeyFile>../../../Keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
 	<SignAssembly>true</SignAssembly>
 	<PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
@@ -27,10 +27,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetCore\DependencyCollector.NetCore.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.2" />
@@ -39,6 +35,10 @@
     <PackageReference Include="MSTest.TestFramework" Version="1.0.8-rc" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DependencyCollector\DependencyCollector.csproj" />
   </ItemGroup>
 
   <ItemGroup>
