@@ -21,11 +21,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <!--TODO: Remove this as soon as all issues are resolved. Is true by default in Common.props-->
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <DefineConstants>$(DefineConstants);ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
   </PropertyGroup>
 
