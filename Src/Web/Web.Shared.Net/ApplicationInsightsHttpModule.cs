@@ -77,7 +77,7 @@
                                 }
                             });
                     this.addOnSendingHeadersMethodParams = new object[] { this.addOnSendingHeadersMethodParam };
-                    this.openDelegateForInvokingAddOnSendingHeadersMethod = this.CreateOpenDelegate(this.addOnSendingHeadersMethod);
+                    this.openDelegateForInvokingAddOnSendingHeadersMethod = CreateOpenDelegate(this.addOnSendingHeadersMethod);
                 }
             }
             catch (Exception exc)
@@ -138,6 +138,21 @@
             }
         }
 
+        /// <summary>
+        /// Creates open delegate for faster invocation than regular Invoke.        
+        /// </summary>
+        /// <param name="mi">MethodInfo for which open delegate is to be created.</param>
+        private static Func<HttpResponse, Action<HttpContext>, ISubscriptionToken> CreateOpenDelegate(MethodInfo mi)
+        {
+            var openDelegate = Delegate.CreateDelegate(
+                typeof(Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>),
+                null,
+                mi,
+                true);
+
+            return (Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>)openDelegate;
+        }
+
         private void OnBeginRequest(object sender, EventArgs eventArgs)
         {
             if (this.isEnabled)
@@ -177,21 +192,6 @@
             {
                 WebEventSource.Log.HookAddOnSendingHeadersFailedWarning(ex.ToInvariantString());
             }
-        }
-
-        /// <summary>
-        /// Creates open delegate for faster invocation than regular Invoke.        
-        /// </summary>
-        /// <param name="mi">MethodInfo for which open delegate is to be created.</param>
-        private Func<HttpResponse, Action<HttpContext>, ISubscriptionToken> CreateOpenDelegate(MethodInfo mi)
-        {
-            var openDelegate = Delegate.CreateDelegate(
-                typeof(Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>),
-                null,
-                mi,
-                true);
-
-            return (Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>)openDelegate;
         }
     }
 }

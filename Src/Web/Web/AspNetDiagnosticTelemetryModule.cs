@@ -105,7 +105,10 @@
 
         #endregion
 
-        private void Dispose(bool dispose)
+        /// <summary>
+        /// Implements IDisposable pattern. Dispose() should call Dispose(true), and the finalizer should call Dispose(false).
+        /// </summary>
+        protected virtual void Dispose(bool dispose)
         {
             if (dispose)
             {
