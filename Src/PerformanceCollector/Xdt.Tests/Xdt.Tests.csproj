@@ -52,17 +52,19 @@
     <Compile Include="XdtTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+
   <ItemGroup>
-    <EmbeddedResource Include="..\NuGet\ApplicationInsights.config.install.xdt">
+    <EmbeddedResource Include="..\PerformanceCollector\ApplicationInsights.config.install.xdt">
       <Link>ApplicationInsights.config.install.xdt</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\NuGet\ApplicationInsights.config.uninstall.xdt">
+    <EmbeddedResource Include="..\PerformanceCollector\ApplicationInsights.config.uninstall.xdt">
       <Link>ApplicationInsights.config.uninstall.xdt</Link>
     </EmbeddedResource>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="Resources\TestDataSet.xml">
       <SubType>Designer</SubType>

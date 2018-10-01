@@ -62,5 +62,6 @@
     <Reference Include="System.Web" />
   </ItemGroup>
 
+  <Import Project="..\..\Common\Common.projitems" Label="Shared" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>
