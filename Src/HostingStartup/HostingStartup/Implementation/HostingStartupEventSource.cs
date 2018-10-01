@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
+    using Microsoft.ApplicationInsights.Common;
 
     /// <summary>
     /// ETW EventSource tracing class.
@@ -15,18 +16,16 @@
         /// Instance of the PlatformEventSource class.
         /// </summary>
         public static readonly HostingStartupEventSource Log = new HostingStartupEventSource();
+        private readonly ApplicationNameProvider applicationNameProvider = new ApplicationNameProvider();
 
         private HostingStartupEventSource()
         {
-            this.ApplicationName = this.GetApplicationName();
         }
-
-        public string ApplicationName { [NonEvent]get; [NonEvent]private set; }
 
         [Event(1, Message = "Logs file name: {0}.", Level = EventLevel.Verbose)]
         public void LogsFileName(string fileName, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(1, fileName ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(1, fileName ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -40,7 +39,7 @@
                 2,
                 error ?? string.Empty,
                 user ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -53,12 +52,12 @@
                 3,
                 assemblyName ?? string.Empty,
                 moduleName ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
            4,
-           Message = "Http module type from assembly: {0}, type name: {1} loaded sucessfully",
+           Message = "Http module type from assembly: {0}, type name: {1} loaded successfully",
            Level = EventLevel.Verbose)]
         public void HttpModuleLoadingEnd(string assemblyName, string moduleName, string appDomainName = "Incorrect")
         {
@@ -66,7 +65,7 @@
                 4,
                 assemblyName ?? string.Empty,
                 moduleName ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -81,7 +80,7 @@
                 assemblyName ?? string.Empty,
                 moduleName ?? string.Empty,
                 exception ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -93,25 +92,9 @@
             this.WriteEvent(
                 6,
                 error ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
-
-        [NonEvent]
-        private string GetApplicationName()
-        {
-            string name;
-            try
-            {
-                name = AppDomain.CurrentDomain.FriendlyName;
-            }
-            catch (Exception exp)
-            {
-                name = "Undefined " + exp.Message;
-            }
-
-            return name;
-        }
-
+        
         /// <summary>
         /// Keywords for the PlatformEventSource. Those keywords should match keywords in Core.
         /// </summary>

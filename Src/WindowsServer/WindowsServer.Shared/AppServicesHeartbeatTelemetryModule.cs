@@ -102,7 +102,7 @@
                 {
                     try
                     {
-                        string hbeatKey = kvp.Key.ToString();
+                        string hbeatKey = kvp.Key;
                         string hbeatValue = string.Empty;
                         AppServiceEnvironmentVariableMonitor.Instance.GetCurrentEnvironmentVariableValue(kvp.Value, ref hbeatValue);
                         if (isUpdateOperation)

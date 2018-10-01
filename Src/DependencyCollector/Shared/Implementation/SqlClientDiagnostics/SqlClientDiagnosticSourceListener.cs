@@ -109,7 +109,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             var telemetry = new DependencyTelemetry()
                             {
-                                Id = operationId.ToString("N"),
+                                Id = operationId.ToStringInvariant("N"),
                                 Name = dependencyName,
                                 Type = RemoteDependencyConstants.SQL,
                                 Target = target,
@@ -155,7 +155,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         }
                         else
                         {
-                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToString("N"));
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToStringInvariant("N"));
                         }
 
                         break;
@@ -188,7 +188,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         }
                         else
                         {
-                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToString("N"));
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToStringInvariant("N"));
                         }
 
                         break;
@@ -209,7 +209,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             var telemetry = new DependencyTelemetry()
                             {
-                                Id = operationId.ToString("N"),
+                                Id = operationId.ToStringInvariant("N"),
                                 Name = string.Join(" | ", connection.DataSource, connection.Database, operation),
                                 Type = RemoteDependencyConstants.SQL,
                                 Target = string.Join(" | ", connection.DataSource, connection.Database),
@@ -244,7 +244,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         }
                         else
                         {
-                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToString("N"));
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToStringInvariant("N"));
                         }
 
                         break;
@@ -277,7 +277,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         }
                         else
                         {
-                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToString("N"));
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToStringInvariant("N"));
                         }
 
                         break;
@@ -299,7 +299,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             var telemetry = new DependencyTelemetry()
                             {
-                                Id = operationId.ToString("N"),
+                                Id = operationId.ToStringInvariant("N"),
                                 Name = string.Join(" | ", connection.DataSource, connection.Database, operation, isolationLevel),
                                 Type = RemoteDependencyConstants.SQL,
                                 Target = string.Join(" | ", connection.DataSource, connection.Database),
@@ -335,7 +335,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             var telemetry = new DependencyTelemetry()
                             {
-                                Id = operationId.ToString("N"),
+                                Id = operationId.ToStringInvariant("N"),
                                 Name = string.Join(" | ", connection.DataSource, connection.Database, operation, isolationLevel),
                                 Type = RemoteDependencyConstants.SQL,
                                 Target = string.Join(" | ", connection.DataSource, connection.Database),
@@ -379,7 +379,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         }
                         else
                         {
-                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToString("N"));
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToStringInvariant("N"));
                         }
 
                         break;
@@ -413,7 +413,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         }
                         else
                         {
-                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToString("N"));
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToStringInvariant("N"));
                         }
 
                         break;
@@ -448,7 +448,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
             }
             else
             {
-                telemetry.Context.Operation.Id = operationId.ToString("N");
+                telemetry.Context.Operation.Id = operationId.ToStringInvariant("N");
             }
         }
 
