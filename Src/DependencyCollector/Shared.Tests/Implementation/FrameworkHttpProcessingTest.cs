@@ -88,7 +88,7 @@
             this.httpProcessingFramework.OnBeginHttpCallback(id, this.testUrl.OriginalString);  
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
-            this.httpProcessingFramework.OnEndHttpCallback(id, true, false, 200);
+            this.httpProcessingFramework.OnEndHttpCallback(id, 200);
             stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
@@ -107,7 +107,7 @@
             this.httpProcessingFramework.OnBeginHttpCallback(id, this.testUrl.OriginalString);
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
-            this.httpProcessingFramework.OnEndHttpCallback(id, false, false, 500);
+            this.httpProcessingFramework.OnEndHttpCallback(id, 500);
             stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
@@ -121,7 +121,7 @@
 
             this.httpProcessingFramework.OnBeginHttpCallback(100, this.testUrl.OriginalString);
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
-            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, statusCode);
+            this.httpProcessingFramework.OnEndHttpCallback(100, statusCode);
 
             Assert.AreEqual(0, this.sendItems.Count);
         }
@@ -133,7 +133,7 @@
 
             this.httpProcessingFramework.OnBeginHttpCallback(100, this.testUrl.OriginalString);
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
-            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, statusCode);
+            this.httpProcessingFramework.OnEndHttpCallback(100, statusCode);
 
             var dependency = this.sendItems[0] as DependencyTelemetry;
             Assert.IsFalse(dependency.Success.Value);
@@ -144,11 +144,10 @@
         public void ForCorrectStatusCodeSuccessIsSetOnBaseOfIt()
         {
             int? statusCode = 200;
-            bool success = false;
 
             this.httpProcessingFramework.OnBeginHttpCallback(100, this.testUrl.OriginalString);
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
-            this.httpProcessingFramework.OnEndHttpCallback(100, success, false, statusCode);
+            this.httpProcessingFramework.OnEndHttpCallback(100, statusCode);
 
             var dependency = this.sendItems[0] as DependencyTelemetry;
             Assert.IsTrue(dependency.Success.Value);
@@ -169,7 +168,7 @@
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
 
-            this.httpProcessingFramework.OnEndHttpCallback(id2, true, true, null);
+            this.httpProcessingFramework.OnEndHttpCallback(id2, null);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed as invalid id is passed");
         }
 
@@ -182,7 +181,7 @@
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.testUrl);
             var id = ClientServerDependencyTracker.GetIdForRequestObject(request);
             this.httpProcessingFramework.OnBeginHttpCallback(id, this.testUrl.ToString());  
-            this.httpProcessingFramework.OnEndHttpCallback(id, null, false, statusCode);
+            this.httpProcessingFramework.OnEndHttpCallback(id, statusCode);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             var actual = this.sendItems[0] as DependencyTelemetry;
@@ -198,7 +197,7 @@
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.testUrl);
             var id = ClientServerDependencyTracker.GetIdForRequestObject(request);
             this.httpProcessingFramework.OnBeginHttpCallback(id, this.testUrl.ToString());  
-            this.httpProcessingFramework.OnEndHttpCallback(id, null, false, statusCode);
+            this.httpProcessingFramework.OnEndHttpCallback(id, statusCode);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             var actual = this.sendItems[0] as DependencyTelemetry;
@@ -214,7 +213,7 @@
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.testUrl);
             var id = ClientServerDependencyTracker.GetIdForRequestObject(request);
             this.httpProcessingFramework.OnBeginHttpCallback(id, this.testUrl.ToString());
-            this.httpProcessingFramework.OnEndHttpCallback(id, null, false, 200);
+            this.httpProcessingFramework.OnEndHttpCallback(id, 200);
 
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be sent");
         }
@@ -225,7 +224,7 @@
             int statusCode = 400;
 
             this.httpProcessingFramework.OnBeginHttpCallback(100, this.testUrl.OriginalString);
-            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, statusCode);
+            this.httpProcessingFramework.OnEndHttpCallback(100, statusCode);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             var actual = this.sendItems[0] as DependencyTelemetry;
@@ -239,7 +238,7 @@
             this.httpProcessingFramework.OnBeginHttpCallback(100, this.testUrl.OriginalString);
             Assert.IsNotNull(this.cache.Get(100));
 
-            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, null);
+            this.httpProcessingFramework.OnEndHttpCallback(100, null);
 
             Assert.AreEqual(0, this.sendItems.Count, "Telemetry item should not be sent");
             Assert.IsNull(DependencyTableStore.Instance.WebRequestCacheHolder.Get(100));
@@ -252,7 +251,7 @@
             Assert.IsNotNull(this.cache.Get(100));
 
             DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = true;
-            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, null);
+            this.httpProcessingFramework.OnEndHttpCallback(100, null);
 
             Assert.AreEqual(0, this.sendItems.Count, "Telemetry item should not be sent");
             Assert.IsNotNull(this.cache.Get(100));
@@ -264,7 +263,7 @@
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.testUrlNonStandardPort);
             var id = ClientServerDependencyTracker.GetIdForRequestObject(request);
             this.httpProcessingFramework.OnBeginHttpCallback(id, this.testUrlNonStandardPort.ToString());  
-            this.httpProcessingFramework.OnEndHttpCallback(id, null, false, 500);
+            this.httpProcessingFramework.OnEndHttpCallback(id, 500);
 
             Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");
             DependencyTelemetry receivedItem = (DependencyTelemetry)this.sendItems[0];
@@ -296,7 +295,7 @@
             this.httpProcessingFramework.OnBeginHttpCallback(id1, this.testUrl.ToString());
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
-            this.httpProcessingFramework.OnEndHttpCallback(id1, true, false, 200);
+            this.httpProcessingFramework.OnEndHttpCallback(id1, 200);
             stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");

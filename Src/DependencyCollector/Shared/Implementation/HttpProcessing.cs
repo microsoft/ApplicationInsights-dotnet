@@ -295,7 +295,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             // on the second call to GetResponse() we cannot determine the statusCode.
                         }
 
-                        this.SetStatusCode(telemetry, statusCode);
+                        SetStatusCode(telemetry, statusCode);
                     }
 
                     ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
@@ -342,7 +342,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             // on the second call to GetResponse() we cannot determine the statusCode.
                         }
 
-                        this.SetStatusCode(telemetry, statusCode);
+                        SetStatusCode(telemetry, statusCode);
                     }
                     else if (exception != null)
                     {
@@ -377,7 +377,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 {
                     if (statusCode != null)
                     {
-                        this.SetStatusCode(telemetry, (int)statusCode);
+                        SetStatusCode(telemetry, (int)statusCode);
                     }
 
                     this.SetTarget(telemetry, (WebHeaderCollection)responseHeaders);
@@ -424,6 +424,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 requestHeaders.SetHeaderFromNameValueCollection(RequestResponseHeaders.CorrelationContextHeader, activity.Baggage);
             }
+        }
+
+        private static void SetStatusCode(DependencyTelemetry telemetry, int statusCode)
+        {
+            telemetry.ResultCode = statusCode > 0 ? statusCode.ToString(CultureInfo.InvariantCulture) : string.Empty;
+            telemetry.Success = (statusCode > 0) && (statusCode < 400);
         }
 
         private bool TryGetPendingTelemetry(object request, out DependencyTelemetry telemetry)
@@ -499,12 +505,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     }
                 }
             }
-        }
-
-        private void SetStatusCode(DependencyTelemetry telemetry, int statusCode)
-        {
-            telemetry.ResultCode = statusCode > 0 ? statusCode.ToString(CultureInfo.InvariantCulture) : string.Empty;
-            telemetry.Success = (statusCode > 0) && (statusCode < 400);
         }
     }
 }
