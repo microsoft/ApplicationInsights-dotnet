@@ -98,7 +98,7 @@
         /// <summary>
         /// On end async callback for methods with 1 parameter.
         /// </summary>
-        public object OnEndAsyncForOneParameter(object context, object returnValue, object thisObj)
+        public object OnEndAsyncForOneParameter(object returnValue, object thisObj)
         {
             this.OnEndAsync(returnValue, thisObj);
             return returnValue;
@@ -107,7 +107,7 @@
         /// <summary>
         /// On end async callback for methods with 1 parameter. Sends data only if returned task (returnValue) is faulted.
         /// </summary>
-        public object OnEndExceptionAsyncForOneParameter(object context, object returnValue, object thisObj)
+        public object OnEndExceptionAsyncForOneParameter(object returnValue, object thisObj)
         {
             this.OnEndExceptionAsync(returnValue, thisObj);
             return returnValue;
@@ -125,7 +125,7 @@
         /// <summary>
         /// On end async callback for methods with 2 parameter.
         /// </summary>
-        public object OnEndAsyncForTwoParameters(object context, object returnValue, object thisObj, object parameter1)
+        public object OnEndAsyncForTwoParameters(object returnValue, object thisObj)
         {
             this.OnEndAsync(returnValue, thisObj);
             return returnValue;
