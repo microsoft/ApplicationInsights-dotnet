@@ -27,7 +27,7 @@
         internal const double NewWeight = .3;
         internal const long TicksMovingAverage = 100000000; // 10 seconds
 
-        internal static readonly string OperationNameTag = "ai.operation.name";
+        internal const string OperationNameTag = "ai.operation.name";
 
         internal long MovingAverageTimeout;
         internal double TargetMovingAverage = 5000;
@@ -169,6 +169,34 @@
             ////}
         }
 
+        private static string GetDimCappedString(string dimensionValue, HashCache<string> hashCache, int cacheSize)
+        {
+            hashCache.RwLock.EnterReadLock();
+
+            if (hashCache.ValueCache.Contains(dimensionValue) == true)
+            {
+                hashCache.RwLock.ExitReadLock();
+
+                return dimensionValue;
+            }
+
+            if (hashCache.ValueCache.Count > cacheSize)
+            {
+                hashCache.RwLock.ExitReadLock();
+
+                return null;
+            }
+
+            hashCache.RwLock.ExitReadLock();
+            hashCache.RwLock.EnterWriteLock();
+
+            hashCache.ValueCache.Add(dimensionValue);
+
+            hashCache.RwLock.ExitWriteLock();
+
+            return dimensionValue;
+        }
+
         /// <summary>
         /// IDisposable implementation.
         /// </summary>
@@ -307,7 +335,7 @@
                 this.ResetDimCapCaches(this.operationNameValues, this.problemIdValues, this.exceptionKeyValues);
             }
 
-            refinedProblemId = this.GetDimCappedString(problemId, this.problemIdValues, ProblemIdCacheSize);
+            refinedProblemId = GetDimCappedString(problemId, this.problemIdValues, ProblemIdCacheSize);
 
             if (string.IsNullOrEmpty(refinedProblemId) == true)
             {
@@ -332,7 +360,7 @@
 
                 if (string.IsNullOrEmpty(operationName) == false)
                 {
-                    refinedOperationName = this.GetDimCappedString(operationName, this.operationNameValues, OperationNameCacheSize);
+                    refinedOperationName = GetDimCappedString(operationName, this.operationNameValues, OperationNameCacheSize);
 
                     dimensions.Add(OperationNameTag, refinedOperationName);
                 }
@@ -397,34 +425,6 @@
             {
                 this.exceptionKeyValues.RwLock.ExitWriteLock();
             }
-        }
-
-        private string GetDimCappedString(string dimensionValue, HashCache<string> hashCache, int cacheSize)
-        {
-            hashCache.RwLock.EnterReadLock();
-
-            if (hashCache.ValueCache.Contains(dimensionValue) == true)
-            {
-                hashCache.RwLock.ExitReadLock();
-
-                return dimensionValue;
-            }
-
-            if (hashCache.ValueCache.Count > cacheSize)
-            {
-                hashCache.RwLock.ExitReadLock();
-
-                return null;
-            }
-
-            hashCache.RwLock.ExitReadLock();
-            hashCache.RwLock.EnterWriteLock();
-
-            hashCache.ValueCache.Add(dimensionValue);
-
-            hashCache.RwLock.ExitWriteLock();
-
-            return dimensionValue;
         }
 
         private void ResetDimCapCaches(HashCache<string> cache1, HashCache<string> cache2, HashCache<string> cache3)

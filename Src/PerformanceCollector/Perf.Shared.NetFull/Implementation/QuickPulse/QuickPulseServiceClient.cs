@@ -131,7 +131,7 @@
         {
             try
             {
-                HttpWebRequest request = WebRequest.Create(requestUri) as HttpWebRequest;
+                HttpWebRequest request = WebRequest.Create(new Uri(requestUri)) as HttpWebRequest;
                 request.Method = "POST";
                 request.Timeout = (int)this.timeout.TotalMilliseconds;
 
