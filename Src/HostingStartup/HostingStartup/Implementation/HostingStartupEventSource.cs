@@ -98,6 +98,7 @@
         /// <summary>
         /// Keywords for the PlatformEventSource. Those keywords should match keywords in Core.
         /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "Required By ETW manifest")]
         public sealed class Keywords
         {
             /// <summary>
