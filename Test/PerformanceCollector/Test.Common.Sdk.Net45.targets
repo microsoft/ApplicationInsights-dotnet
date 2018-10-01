@@ -12,7 +12,7 @@
 			<HintPath>$(BinRoot)\$(Configuration)\Src\WindowsServer\WindowsServer\Net45\Microsoft.AI.WindowsServer.dll</HintPath>
 		</Reference>
         <Reference Include="Microsoft.AI.PerfCounterCollector">
-			<HintPath>$(BinRoot)\$(Configuration)\Src\PerformanceCollector\Net45\Microsoft.AI.PerfCounterCollector.dll</HintPath>
+			<HintPath>$(BinRoot)\$(Configuration)\Src\PerformanceCollector\PerformanceCollector\Net45\Microsoft.AI.PerfCounterCollector.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 
@@ -21,7 +21,7 @@
 			<_CustomFiles Include="
 										$(BinRoot)\$(Configuration)\Src\WindowsServer\WindowsServer\Net45\*.dll;
 										$(BinRoot)\$(Configuration)\Src\Web\Web\Net45\*.dll;
-                                        $(BinRoot)\$(Configuration)\Src\PerformanceCollector\Net45\*.dll;
+                                        $(BinRoot)\$(Configuration)\Src\PerformanceCollector\PerformanceCollector\Net45\*.dll;
 										" />
 			<FilesForPackagingFromProject Include="%(_CustomFiles.Identity)">
 				<DestinationRelativePath>%(RecursiveDir)bin\%(Filename)%(Extension)</DestinationRelativePath>

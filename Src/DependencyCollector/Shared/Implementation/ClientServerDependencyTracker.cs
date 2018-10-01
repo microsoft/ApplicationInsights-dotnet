@@ -130,7 +130,7 @@
         {
             if (webRequest == null)
             {
-                throw new ArgumentNullException("webRequest");
+                throw new ArgumentNullException(nameof(webRequest));
             }
 
             Tuple<DependencyTelemetry, bool> telemetryTuple = null;
@@ -157,12 +157,12 @@
         {
             if (webRequest == null)
             {
-                throw new ArgumentNullException("webRequest");
+                throw new ArgumentNullException(nameof(webRequest));
             }
 
             if (telemetry == null)
             {
-                throw new ArgumentNullException("telemetry");
+                throw new ArgumentNullException(nameof(telemetry));
             }
 
             var telemetryTuple = new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated);
@@ -185,7 +185,7 @@
         {
             if (sqlRequest == null)
             {
-                throw new ArgumentNullException("webRequest");
+                throw new ArgumentNullException(nameof(sqlRequest));
             }
 
             Tuple<DependencyTelemetry, bool> telemetryTuple = null;
@@ -212,12 +212,12 @@
         {
             if (sqlRequest == null)
             {
-                throw new ArgumentNullException("webRequest");
+                throw new ArgumentNullException(nameof(sqlRequest));
             }
 
             if (telemetry == null)
             {
-                throw new ArgumentNullException("telemetry");
+                throw new ArgumentNullException(nameof(telemetry));
             }
 
             var telemetryTuple = new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated);
@@ -235,7 +235,7 @@
         {
             if (obj == null)
             {
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException(nameof(obj));
             }
 
             return (long)obj.GetHashCode() + 9223372032559808512L;

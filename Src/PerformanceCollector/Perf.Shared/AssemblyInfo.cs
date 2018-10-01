@@ -5,9 +5,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyCopyright("© Microsoft Corporation. All rights reserved.")]
-
 [assembly: InternalsVisibleTo("TestApp40, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("TestApp45, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.AI.PerformanceCollector.NetFull.Tests, PublicKey=" + AssemblyInfo.PublicKey)]

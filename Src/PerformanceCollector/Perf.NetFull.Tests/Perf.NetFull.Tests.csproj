@@ -70,17 +70,17 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Net45\Perf.Net45.csproj">
-      <Project>{fbfcb985-bbfe-4954-a2ef-8124a42f56c7}</Project>
-      <Name>Perf.Net45</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="QuickPulse\PerfLib\PerfData.data" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\..\..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\..\..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PerformanceCollector\Perf.csproj">
+      <Project>{00bf736c-b562-4251-9836-ef80282956af}</Project>
+      <Name>Perf</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="..\Perf.Shared.Tests\Perf.Shared.Tests.projitems" Label="Shared" />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

@@ -20,15 +20,10 @@
         {
             if (configuration == null)
             {
-                throw new ArgumentNullException("configuration");
+                throw new ArgumentNullException(nameof(configuration));
             }
 
-            if (telemetryTupleHolder == null)
-            {
-                throw new ArgumentNullException("telemetryHolder");
-            }
-
-            this.TelemetryTable = telemetryTupleHolder;
+            this.TelemetryTable = telemetryTupleHolder ?? throw new ArgumentNullException(nameof(telemetryTupleHolder));
             this.telemetryClient = new TelemetryClient(configuration);
 
             // Since dependencySource is no longer set, sdk version is prepended with information which can identify whether RDD was collected by profiler/framework
