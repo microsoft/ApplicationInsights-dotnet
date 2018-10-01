@@ -121,7 +121,7 @@
             GC.SuppressFinalize(this);
         }
 
-        internal bool WasExceptionTracked(Exception exception)
+        internal static bool WasExceptionTracked(Exception exception)
         {
             // some exceptions like MemoryOverflow, ThreadAbort or ExecutionEngine are pre-instantiated 
             // so the .Data is not writable. Also it can be null in certain cases.
@@ -266,7 +266,7 @@
                     return;
                 }
 
-                if (this.WasExceptionTracked(exception) == true)
+                if (WasExceptionTracked(exception) == true)
                 {
                     return;
                 }

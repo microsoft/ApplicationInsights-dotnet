@@ -958,7 +958,7 @@
 
         private readonly ApplicationNameProvider nameProvider = new ApplicationNameProvider();
 
-        public bool IsVerboseEnabled
+        public static bool IsVerboseEnabled
         {
             [NonEvent]
             get
