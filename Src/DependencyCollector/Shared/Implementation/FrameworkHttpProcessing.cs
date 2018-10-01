@@ -24,7 +24,7 @@
         {
             if (telemetryTupleHolder == null)
             {
-                throw new ArgumentNullException("telemetryTupleHolder");
+                throw new ArgumentNullException(nameof(telemetryTupleHolder));
             }
 
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);

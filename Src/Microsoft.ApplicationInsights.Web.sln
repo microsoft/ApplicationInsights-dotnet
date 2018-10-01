@@ -4,32 +4,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{1A75535C-B8E5-4C31-BC6E-50456C8C4052}"
-	ProjectSection(SolutionItems) = preProject
-		Product.props = Product.props
-		readme.md = readme.md
-		Test.props = Test.props
-	EndProjectSection
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Web.Shared", "Web\Web.Shared.Net\Web.Shared.shproj", "{395E03BB-D061-4C9D-9D47-18676566444D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestFramework", "TestFramework", "{8CA9F9C9-DA39-4159-86F3-C52F1636715E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DependencyCollector", "DependencyCollector", "{DF56FBAD-8745-404B-94A1-E83BFC4AD7CB}"
-	ProjectSection(SolutionItems) = preProject
-		HostingStartup\HostingStartup.Nuget.Tests\DiagnosticsTelemetryModuleTest.cs = HostingStartup\HostingStartup.Nuget.Tests\DiagnosticsTelemetryModuleTest.cs
-		HostingStartup\HostingStartup.Nuget.Tests\InMemoryTraceListener.cs = HostingStartup\HostingStartup.Nuget.Tests\InMemoryTraceListener.cs
-		DependencyCollector\Test.props = DependencyCollector\Test.props
-		HostingStartup\HostingStartup.Nuget.Tests\TraceSourceForEventSourceTest.cs = HostingStartup\HostingStartup.Nuget.Tests\TraceSourceForEventSourceTest.cs
-		HostingStartup\HostingStartup.Nuget.Tests\WebConfigTransformTest.cs = HostingStartup\HostingStartup.Nuget.Tests\WebConfigTransformTest.cs
-	EndProjectSection
 	ProjectSection(FolderStartupServices) = postProject
 		{82A7F48D-3B50-4B1E-B82E-3ADA8210C358} = {82A7F48D-3B50-4B1E-B82E-3ADA8210C358}
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WindowsServer", "WindowsServer", "{D87119AF-CD35-46F2-84A6-ED54CC42027E}"
-	ProjectSection(SolutionItems) = preProject
-		WindowsServer\Product.props = WindowsServer\Product.props
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsServer.Net45.Tests", "WindowsServer\WindowsServer.Net45.Tests\WindowsServer.Net45.Tests.csproj", "{F05EB480-B209-47DD-90E3-1DDC47EFC579}"
 EndProject
