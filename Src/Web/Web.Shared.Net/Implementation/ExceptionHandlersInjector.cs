@@ -733,6 +733,7 @@
         /// </summary>
         [Serializable]
         [SuppressMessage("Microsoft.Design", "CA1064:ExceptionsShouldBePublic", Justification = "We expect that this exception will be caught within the internal scope and should never be exposed to an end user.")]
+        [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors", Justification = "Internal use only, additional constructors aren't necessary.")]
         private class ResolutionException : Exception
         {
             public ResolutionException(string message) : base(message)

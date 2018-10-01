@@ -17,7 +17,7 @@
         {
             if (platformContext == null)
             {
-                throw new ArgumentException("platformContext");
+                throw new ArgumentNullException(nameof(platformContext));
             }
 
             var result = new RequestTelemetry();
@@ -128,7 +128,7 @@
         {
             if (platformContext == null)
             {
-                throw new ArgumentException("platformContext");
+                throw new ArgumentNullException(nameof(platformContext));
             }
 
             var result = platformContext.GetRequestTelemetry() ??

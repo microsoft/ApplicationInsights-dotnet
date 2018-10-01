@@ -24,7 +24,7 @@
         {
         }
 
-        public bool IsVerboseEnabled 
+        public static bool IsVerboseEnabled 
         { 
             [NonEvent] 
              get 

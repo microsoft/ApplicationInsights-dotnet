@@ -115,13 +115,36 @@
         {
         }
 
+        private static void TraceCallback(string callback, HttpApplication application)
+        {
+            if (WebEventSource.IsVerboseEnabled)
+            {
+                try
+                {
+                    if (application.Context != null)
+                    {
+                        // Url.ToString internally builds local member once and then always returns it
+                        // During serialization we will anyway call same ToString() so we do not force unnecessary formatting just for tracing 
+                        var url = application.Context.Request.UnvalidatedGetUrl();
+                        string logUrl = (url != null) ? url.ToString() : string.Empty;
+
+                        WebEventSource.Log.WebModuleCallback(callback, logUrl);
+                    }
+                }
+                catch (Exception exc)
+                {
+                    WebEventSource.Log.TraceCallbackFailure(callback, exc.ToInvariantString());
+                }
+            }
+        }
+
         private void OnBeginRequest(object sender, EventArgs eventArgs)
         {
             if (this.isEnabled)
             {
                 HttpApplication httpApplication = (HttpApplication)sender;
 
-                this.TraceCallback("OnBegin", httpApplication);
+                TraceCallback("OnBegin", httpApplication);
 
                 if (this.requestModule != null)
                 {
@@ -169,29 +192,6 @@
                 true);
 
             return (Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>)openDelegate;
-        }
-
-        private void TraceCallback(string callback, HttpApplication application)
-        {
-            if (WebEventSource.Log.IsVerboseEnabled)
-            {
-                try
-                {
-                    if (application.Context != null)
-                    {
-                        // Url.ToString internally builds local member once and then always returns it
-                        // During serialization we will anyway call same ToString() so we do not force unnesesary formatting just for tracing 
-                        var url = application.Context.Request.UnvalidatedGetUrl();
-                        string logUrl = (url != null) ? url.ToString() : string.Empty;
-
-                        WebEventSource.Log.WebModuleCallback(callback, logUrl);
-                    }
-                }
-                catch (Exception exc)
-                {
-                    WebEventSource.Log.TraceCallbackFailure(callback, exc.ToInvariantString());
-                }
-            }
         }
     }
 }
