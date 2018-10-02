@@ -7,6 +7,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
 
     /// <summary>
     /// Encapsulates information about a web request handled by the application.
@@ -165,7 +166,15 @@
         /// </summary>
         public override IDictionary<string, string> Properties
         {
-            get { return this.Data.properties; }
+            get
+            {
+                if (!this.Data.properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
+                {
+                    this.Data.properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
+                }  
+                
+                return this.Data.properties;
+            }
         }
 
         /// <summary>
@@ -224,6 +233,15 @@
         {
             get { return this.Data.source; }
             set { this.Data.source = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the MetricExtractorInfo.
+        /// </summary>
+        internal string MetricExtractorInfo
+        {
+            get;
+            set;
         }
 
         /// <summary>
