@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.HostingStartup
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
 
     using Microsoft.Web.Infrastructure.DynamicModuleHelper;
@@ -8,6 +9,7 @@
     /// <summary>
     /// Class for registering WebRequestTrackingModule.
     /// </summary>
+    [SuppressMessage("Microsoft.Design", "CA1052:MarkMembersAsStatic", Justification = "Part of Public API and too late to change.")]
     public class WebRequestTrackingModuleRegister
     {
         /// <summary>ApplicationInsights web assembly name.</summary>

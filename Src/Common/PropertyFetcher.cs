@@ -1,11 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.Common
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
 
     /// <summary>
     /// Efficient implementation of fetching properties of anonymous types with reflection.
     /// </summary>
+    [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "This is used substantially")]
     internal class PropertyFetcher
     {
         private readonly string propertyName;
