@@ -61,6 +61,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.netcoreapp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryChannel.netcoreapp20.Tests", "Test\ServerTelemetryChannel.Test\NetCore20.Tests\TelemetryChannel.netcoreapp20.Tests.csproj", "{14FA551E-886A-4D1B-B716-567EB4954C8E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerfTest", "Test\PerfTest\PerfTest.csproj", "{F19C43B2-B12E-48D5-A955-69D5268A130F}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Test\Microsoft.ApplicationInsights.Test\Shared\Microsoft.ApplicationInsights.Shared.Tests.projitems*{0927e682-4a56-45b6-8125-94fa066b2f57}*SharedItemsImports = 4
@@ -306,6 +308,26 @@ Global
 		{14FA551E-886A-4D1B-B716-567EB4954C8E}.Release|x64.Build.0 = Release|Any CPU
 		{14FA551E-886A-4D1B-B716-567EB4954C8E}.Release|x86.ActiveCfg = Release|Any CPU
 		{14FA551E-886A-4D1B-B716-567EB4954C8E}.Release|x86.Build.0 = Release|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Debug|ARM.Build.0 = Debug|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Debug|x64.Build.0 = Debug|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Debug|x86.Build.0 = Debug|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Release|ARM.ActiveCfg = Release|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Release|ARM.Build.0 = Release|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Release|x64.ActiveCfg = Release|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Release|x64.Build.0 = Release|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Release|x86.ActiveCfg = Release|Any CPU
+		{F19C43B2-B12E-48D5-A955-69D5268A130F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
