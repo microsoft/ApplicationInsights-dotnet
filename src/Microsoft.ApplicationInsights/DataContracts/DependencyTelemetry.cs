@@ -261,6 +261,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
                 {
                     this.InternalData.properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
                 }
+
                 return this.InternalData.properties;
             }
         }

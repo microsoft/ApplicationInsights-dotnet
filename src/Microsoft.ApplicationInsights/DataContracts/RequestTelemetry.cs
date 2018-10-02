@@ -171,7 +171,8 @@
                 if (!this.Data.properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
                 {
                     this.Data.properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
-                }                
+                }  
+                
                 return this.Data.properties;
             }
         }

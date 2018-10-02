@@ -196,7 +196,7 @@
             {
                 var req = item as RequestTelemetry;
                 extractionPipelineInfo = req.MetricExtractorInfo;
-                if (extractionPipelineInfo.Length > 0)
+                if (extractionPipelineInfo?.Length > 0)
                 {
                     extractionPipelineInfo = extractionPipelineInfo + "; ";
                 }
@@ -212,7 +212,7 @@
             {
                 var dep = item as DependencyTelemetry;
                 extractionPipelineInfo = dep.MetricExtractorInfo;
-                if (extractionPipelineInfo.Length > 0)
+                if (extractionPipelineInfo?.Length > 0)
                 {
                     extractionPipelineInfo = extractionPipelineInfo + "; ";
                 }
