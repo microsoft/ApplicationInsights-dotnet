@@ -155,8 +155,8 @@
         /// </summary>
         public override TimeSpan Duration
         {
-            get { return Utils.ValidateDuration(this.Data.duration); }
-            set { this.Data.duration = value.ToString(); }
+            get { return this.Data.duration; }
+            set { this.Data.duration = value; }
         }
 
         /// <summary>
