@@ -85,12 +85,12 @@
         {
             get
             {
-                return Utils.ValidateDuration(this.Data.duration);
+                return this.Data.duration;
             }
 
             set
             {
-                this.Data.duration = value.ToString();
+                this.Data.duration = value;
             }
         }
 

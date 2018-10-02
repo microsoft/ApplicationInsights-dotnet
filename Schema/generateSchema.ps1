@@ -123,6 +123,9 @@ RegExReplace "$currentDir\obj\gbc\RemoteDependencyData_types.cs" "duration = """
 RegExReplace "$currentDir\obj\gbc\RequestData_types.cs" "string duration" "System.TimeSpan duration"
 RegExReplace "$currentDir\obj\gbc\RequestData_types.cs" "duration = """"" "duration = System.TimeSpan.Zero"
 
+RegExReplace "$currentDir\obj\gbc\AvailabilityData_types.cs" "string duration" "System.TimeSpan duration"
+RegExReplace "$currentDir\obj\gbc\AvailabilityData_types.cs" "duration = """"" "duration = System.TimeSpan.Zero"
+
 #####################################################################
 ## COPY GENERATED FILES TO THE REPOSITORY
 #####################################################################
