@@ -191,29 +191,39 @@
         /// <param name="extractorInfo">The string to be added to the item's properties.</param>
         private static void AddExtractorInfo(ITelemetry item, string extractorInfo)
         {
-            var itemWithProperties = item as ISupportProperties;
-            if (itemWithProperties == null)
+            string extractionPipelineInfo = String.Empty;
+            if (item is RequestTelemetry)
             {
-                return;
-            }
-
-            string extractionPipelineInfo;            
-            bool hasPrevInfo = itemWithProperties.Properties.TryGetValue(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key, out extractionPipelineInfo);
-
-            if (false == hasPrevInfo)
-            {
-                extractionPipelineInfo = String.Empty;
-            }
-            else
-            {
+                var req = item as RequestTelemetry;
+                extractionPipelineInfo = req.MetricExtractorInfo;
                 if (extractionPipelineInfo.Length > 0)
                 {
                     extractionPipelineInfo = extractionPipelineInfo + "; ";
                 }
-            }
+                else
+                {
+                    extractionPipelineInfo = String.Empty;
+                }
 
-            extractionPipelineInfo = extractionPipelineInfo + extractorInfo;
-            itemWithProperties.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = extractionPipelineInfo;
+                extractionPipelineInfo = extractionPipelineInfo + extractorInfo;
+                req.MetricExtractorInfo = extractorInfo;
+            }
+            else if (item is DependencyTelemetry)
+            {
+                var dep = item as DependencyTelemetry;
+                extractionPipelineInfo = dep.MetricExtractorInfo;
+                if (extractionPipelineInfo.Length > 0)
+                {
+                    extractionPipelineInfo = extractionPipelineInfo + "; ";
+                }
+                else
+                {
+                    extractionPipelineInfo = String.Empty;
+                }
+
+                extractionPipelineInfo = extractionPipelineInfo + extractorInfo;
+                dep.MetricExtractorInfo = extractorInfo;
+            }                                   
         }
 
         /// <summary>
