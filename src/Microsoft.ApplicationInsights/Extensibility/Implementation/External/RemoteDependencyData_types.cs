@@ -58,7 +58,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public string duration { get; set; }
+        public System.TimeSpan duration { get; set; }
 
         
         
@@ -100,7 +100,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             this.name = "";
             id = "";
             resultCode = "";
-            duration = "";
+            duration = System.TimeSpan.Zero;
             success = true;
             
             target = "";

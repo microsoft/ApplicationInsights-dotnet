@@ -215,8 +215,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override TimeSpan Duration
         {
-            get { return Utils.ValidateDuration(this.InternalData.duration); }
-            set { this.InternalData.duration = value.ToString(); }
+            get { return this.InternalData.duration; }
+            set { this.InternalData.duration = value; }
         }
 
         /// <summary>
