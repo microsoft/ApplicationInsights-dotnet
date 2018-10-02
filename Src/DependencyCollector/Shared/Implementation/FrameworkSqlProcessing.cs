@@ -79,9 +79,8 @@
         /// </summary>        
         /// <param name="id">Identifier of SQL connection object.</param>
         /// <param name="success">Indicate whether operation completed successfully.</param>
-        /// <param name="synchronous">Indicates whether operation was called synchronously or asynchronously.</param>
         /// <param name="sqlExceptionNumber">SQL exception number.</param>
-        public void OnEndExecuteCallback(long id, bool success, bool synchronous, int sqlExceptionNumber)
+        public void OnEndExecuteCallback(long id, bool success, int sqlExceptionNumber)
         {
             DependencyCollectorEventSource.Log.EndCallbackCalled(id.ToString(CultureInfo.InvariantCulture));
 

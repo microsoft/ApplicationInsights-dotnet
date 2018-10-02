@@ -127,7 +127,7 @@
 
                 if (this.SqlProcessingFramework != null)
                 {
-                    this.SqlProcessingFramework.OnEndExecuteCallback(id, success, synchronous, sqlExceptionNumber);
+                    this.SqlProcessingFramework.OnEndExecuteCallback(id, success, sqlExceptionNumber);
                 }
             }
         }

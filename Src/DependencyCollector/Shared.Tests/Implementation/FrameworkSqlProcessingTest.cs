@@ -65,7 +65,7 @@
                 commandText: string.Empty);
             Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
 
-            this.sqlProcessingFramework.OnEndExecuteCallback(id: 1111, success: true, synchronous: true, sqlExceptionNumber: 0);
+            this.sqlProcessingFramework.OnEndExecuteCallback(id: 1111, success: true, sqlExceptionNumber: 0);
             stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
@@ -94,7 +94,7 @@
                 commandText: string.Empty);
             Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
 
-            this.sqlProcessingFramework.OnEndExecuteCallback(id: 1111, success: true, synchronous: false, sqlExceptionNumber: 0);
+            this.sqlProcessingFramework.OnEndExecuteCallback(id: 1111, success: true, sqlExceptionNumber: 0);
             stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
@@ -123,7 +123,7 @@
                 commandText: string.Empty);
             Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
 
-            this.sqlProcessingFramework.OnEndExecuteCallback(id: 1111, success: false, synchronous: true, sqlExceptionNumber: 1);
+            this.sqlProcessingFramework.OnEndExecuteCallback(id: 1111, success: false, sqlExceptionNumber: 1);
             stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
@@ -152,11 +152,7 @@
                 commandText: "apm.MyFavouriteStoredProcedure");
             Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
 
-            this.sqlProcessingFramework.OnEndExecuteCallback(
-                id: 1111,
-                success: true,
-                synchronous: true, 
-                sqlExceptionNumber: 0);
+            this.sqlProcessingFramework.OnEndExecuteCallback(id: 1111, success: true, sqlExceptionNumber: 0);
 
             stopwatch.Stop();
 

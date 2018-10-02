@@ -34,9 +34,17 @@
 
         public void Dispose()
         {
-            this.WebRequestCacheHolder.Dispose();
-            this.SqlRequestCacheHolder.Dispose();
+            this.Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.WebRequestCacheHolder.Dispose();
+                this.SqlRequestCacheHolder.Dispose();
+            }
         }
     }
 }
