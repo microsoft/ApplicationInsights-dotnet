@@ -416,8 +416,9 @@
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            var returnTaskPassed = Task.Factory.StartNew(() => { });            
+            var returnTaskPassed = Task.Factory.StartNew(() => { });
 
+            this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
             var objectReturned = this.sqlCommandProcessingProfiler.OnEndAsyncForOneParameter(returnTaskPassed, command);
 
             stopwatch.Stop();
@@ -447,6 +448,7 @@
 
             var returnTaskPassed = Task.Factory.StartNew(() => { });
 
+            this.sqlCommandProcessingProfiler.OnBeginForTwoParameters(command, null);
             var objectReturned = this.sqlCommandProcessingProfiler.OnEndAsyncForTwoParameters(returnTaskPassed, command);
 
             stopwatch.Stop();
@@ -476,6 +478,7 @@
 
             var returnTaskPassed = Task.Factory.StartNew(() => { throw TestUtils.GenerateSqlException(10); });
 
+            this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
             var objectReturned = this.sqlCommandProcessingProfiler.OnEndAsyncForOneParameter(returnTaskPassed, command);
 
             stopwatch.Stop();
@@ -504,7 +507,8 @@
             stopwatch.Start();
 
             var returnTaskPassed = Task.Factory.StartNew(() => { throw TestUtils.GenerateSqlException(10); });
-            
+
+            this.sqlCommandProcessingProfiler.OnBeginForTwoParameters(command, null);
             var objectReturned = this.sqlCommandProcessingProfiler.OnEndAsyncForTwoParameters(returnTaskPassed, command);
 
             stopwatch.Stop();
@@ -554,6 +558,8 @@
             stopwatch.Start();
 
             var returnTaskPassed = Task.Factory.StartNew(() => { });
+
+            this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
 
             DependencyTelemetry operationCreated = this.sqlCommandProcessingProfiler.TelemetryTable.Get(command).Item1;
             Assert.AreEqual(TimeSpan.Zero, operationCreated.Duration, "Duration is zero as operation has not been stopped.");
@@ -621,6 +627,7 @@
 
             var returnTaskPassed = Task.Factory.StartNew(() => { throw TestUtils.GenerateSqlException(10); });
 
+            this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
             var objectReturned = this.sqlCommandProcessingProfiler.OnEndExceptionAsyncForOneParameter(returnTaskPassed, command);
 
             stopwatch.Stop();
