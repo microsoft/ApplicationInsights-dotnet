@@ -9,6 +9,7 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.DependencyCollector</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ActiveSubsciptionManagerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpDependenciesParsingTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpWebRequestUtils.cs" />

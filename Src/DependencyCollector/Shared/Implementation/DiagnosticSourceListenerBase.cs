@@ -1,8 +1,10 @@
 namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
@@ -13,11 +15,16 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     /// </summary>
     internal abstract class DiagnosticSourceListenerBase<TContext> : IObserver<DiagnosticListener>, IDisposable
     {
+        protected static readonly ConcurrentDictionary<string, ActiveSubsciptionManager> SubscriptionManagers =
+            new ConcurrentDictionary<string, ActiveSubsciptionManager>();
+    
         protected readonly TelemetryClient Client;
         protected readonly TelemetryConfiguration Configuration;
 
+        private readonly ConcurrentQueue<IDisposable> individualSubscriptions = new ConcurrentQueue<IDisposable>();
+        private readonly ConcurrentQueue<IndividualDiagnosticSourceListener> individualListeners = new ConcurrentQueue<IndividualDiagnosticSourceListener>();
+
         private IDisposable listenerSubscription;
-        private List<IDisposable> individualSubscriptions;
 
         /// <summary>
         /// Creates DiagnosticSourceListenerBase. To finish the initialization and subscribe to all enabled sources,
@@ -69,18 +76,24 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 return;
             }
 
-            IDiagnosticEventHandler eventHandler = this.GetEventHandler(value.Name);
-            var individualListener = new IndividualDiagnosticSourceListener(value, eventHandler, this, this.GetListenerContext(value));
+            var eventHandler = this.GetEventHandler(value.Name);
+            var manager = SubscriptionManagers.GetOrAdd(value.Name, k => new ActiveSubsciptionManager());
+
+            var individualListener = new IndividualDiagnosticSourceListener(
+                value, 
+                eventHandler, 
+                this, 
+                this.GetListenerContext(value),
+                manager);
+
+            manager.Attach(individualListener);
+
             IDisposable subscription = value.Subscribe(
                 individualListener,
                 (evnt, input1, input2) => this.IsActivityEnabled(evnt, individualListener.Context) && eventHandler.IsEventEnabled(evnt, input1, input2));
 
-            if (this.individualSubscriptions == null)
-            {
-                this.individualSubscriptions = new List<IDisposable>();
-            }
-
-            this.individualSubscriptions.Add(subscription);
+            this.individualSubscriptions.Enqueue(subscription);
+            this.individualListeners.Enqueue(individualListener);
         }
 
         /// <summary>
@@ -142,41 +155,57 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
             if (disposing)
             {
-                if (this.individualSubscriptions != null)
+                while (this.individualListeners.TryDequeue(out var individualListener))
                 {
-                    foreach (var individualSubscription in this.individualSubscriptions)
-                    {
-                        individualSubscription.Dispose();
-                    }
+                    individualListener.Dispose();
                 }
 
-                if (this.listenerSubscription != null)
+                while (this.individualSubscriptions.TryDequeue(out var individualSubscription))
                 {
-                    this.listenerSubscription.Dispose();
+                    individualSubscription.Dispose();
                 }
+
+                this.listenerSubscription?.Dispose();
             }
         }
 
         /// <summary>
         /// Event listener for a single Diagnostic Source.
         /// </summary>
-        internal sealed class IndividualDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>
+        internal sealed class IndividualDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
         {
             internal readonly TContext Context;
             private readonly DiagnosticListener diagnosticListener;
             private readonly IDiagnosticEventHandler eventHandler;
             private readonly DiagnosticSourceListenerBase<TContext> telemetryDiagnosticSourceListener;
+            private readonly ActiveSubsciptionManager subscriptionManager;
 
-            internal IndividualDiagnosticSourceListener(DiagnosticListener diagnosticListener, IDiagnosticEventHandler eventHandler, DiagnosticSourceListenerBase<TContext> telemetryDiagnosticSourceListener, TContext context)
+            internal IndividualDiagnosticSourceListener(
+                DiagnosticListener diagnosticListener,
+                IDiagnosticEventHandler eventHandler,
+                DiagnosticSourceListenerBase<TContext> telemetryDiagnosticSourceListener,
+                TContext context,
+                ActiveSubsciptionManager subscriptionManager)
             {
                 this.diagnosticListener = diagnosticListener;
                 this.eventHandler = eventHandler;
                 this.Context = context;
                 this.telemetryDiagnosticSourceListener = telemetryDiagnosticSourceListener;
+                this.subscriptionManager = subscriptionManager;
+                this.subscriptionManager.Attach(this);
             }
 
             public void OnNext(KeyValuePair<string, object> evnt)
             {
+                // It's possible to host multiple apps (ASP.NET Core or generic hosts) in the same process
+                // Each of this apps has it's own DependencyTrackingModule and corresponding listener for specific source.
+                // We should ignore events for all of them except one
+                if (!this.subscriptionManager.IsActive(this))
+                {
+                    DependencyCollectorEventSource.Log.NotActiveListenerNoTracking(evnt.Key, Activity.Current?.Id);
+                    return;
+                }
+
                 // while we provide IsEnabled callback during subscription, it does not gurantee events will not be fired
                 // In case of multiple subscribers, it's enough for one to reply true to IsEnabled.
                 // I.e. check for if activity is not disabled and particular handler wants to receive the event.
@@ -217,6 +246,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             /// <param name="error">An object that provides additional information about the error.</param>
             public void OnError(Exception error)
             {
+            }
+
+            public void Dispose()
+            {
+                this.subscriptionManager?.Detach(this);
             }
         }
     }

@@ -1,6 +1,7 @@
 namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Net;
@@ -439,6 +440,108 @@ namespace Microsoft.ApplicationInsights.Tests
             this.listener.OnActivityStop(responseMsg, requestMsg, TaskStatus.RanToCompletion);
 
             Assert.IsFalse(this.sentTelemetry.Any());
+        }
+
+        [TestMethod]
+        public void MultiHost_OnlyOneListnerTracksTelemetry()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
+
+            var startEvent =
+                new KeyValuePair<string, object>("System.Net.Http.HttpRequestOut.Start",
+                    new { Request = request });
+            var stopEvent =
+                new KeyValuePair<string, object>("System.Net.Http.HttpRequestOut.Stop",
+                    new { Request = request, Response = response, RequestTaskStatus = TaskStatus.RanToCompletion });
+
+            using (var secondListener = this.CreateHttpListener())
+            {
+                var activity = new Activity("System.Net.Http.HttpRequestOut").Start();
+
+                this.listener.OnNext(startEvent);
+                secondListener.OnNext(startEvent);
+
+                this.listener.OnNext(stopEvent);
+                secondListener.OnNext(stopEvent);
+
+                Assert.AreEqual(1, this.sentTelemetry.Count(t => t is DependencyTelemetry));
+            }
+        }
+
+        [TestMethod]
+        public void MultiHost_TwoActiveAndOneIsDisposedStillTracksTelemetry()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
+
+            var startEvent =
+                new KeyValuePair<string, object>("System.Net.Http.HttpRequestOut.Start",
+                    new { Request = request });
+            var stopEvent =
+                new KeyValuePair<string, object>("System.Net.Http.HttpRequestOut.Stop",
+                    new { Request = request, Response = response, RequestTaskStatus = TaskStatus.RanToCompletion });
+
+            using (var secondListener = this.CreateHttpListener())
+            {
+                var activity = new Activity("System.Net.Http.HttpRequestOut").Start();
+                this.listener.OnNext(startEvent);
+                secondListener.OnNext(startEvent);
+
+                this.listener.OnNext(stopEvent);
+                secondListener.OnNext(stopEvent);
+
+                Assert.AreEqual(1, this.sentTelemetry.Count(t => t is DependencyTelemetry));
+
+                this.listener.Dispose();
+
+                activity = new Activity("System.Net.Http.HttpRequestOut").Start();
+                secondListener.OnNext(startEvent);
+                secondListener.OnNext(stopEvent);
+
+                Assert.AreEqual(2, this.sentTelemetry.Count(t => t is DependencyTelemetry));
+            }
+        }
+
+        [TestMethod]
+        public void MultiHost_OneListnerThenAnotherTracksTelemetry()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
+
+            var startEvent =
+                new KeyValuePair<string, object>("System.Net.Http.HttpRequestOut.Start",
+                    new { Request = request });
+            var stopEvent =
+                new KeyValuePair<string, object>("System.Net.Http.HttpRequestOut.Stop",
+                    new { Request = request, Response = response, RequestTaskStatus = TaskStatus.RanToCompletion });
+
+            var activity = new Activity("System.Net.Http.HttpRequestOut").Start();
+            this.listener.OnNext(startEvent);
+            this.listener.OnNext(stopEvent);
+
+            Assert.AreEqual(1, this.sentTelemetry.Count(t => t is DependencyTelemetry));
+            
+            this.listener.Dispose();
+
+            using (var secondListener = this.CreateHttpListener())
+            {
+                activity = new Activity("System.Net.Http.HttpRequestOut").Start();
+                secondListener.OnNext(startEvent);
+                secondListener.OnNext(stopEvent);
+
+                Assert.AreEqual(2, this.sentTelemetry.Count(t => t is DependencyTelemetry));
+            }
+        }
+
+        private HttpCoreDiagnosticSourceListener CreateHttpListener()
+        {
+            return new HttpCoreDiagnosticSourceListener(
+                this.configuration,
+                setComponentCorrelationHttpHeaders: true,
+                correlationDomainExclusionList: new string[0],
+                injectLegacyHeaders: false,
+                injectW3CHeaders: false);
         }
     }
 }

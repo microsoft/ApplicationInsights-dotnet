@@ -42,6 +42,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
         private const string SqlClientPrefix = "System.Data.SqlClient.";
 
+        private static readonly ActiveSubsciptionManager SubscriptionManager = new ActiveSubsciptionManager();
         private readonly TelemetryClient client;
         private readonly SqlClientDiagnosticSourceSubscriber subscriber;
 
@@ -74,6 +75,15 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
         {
             try
             {
+                // It's possible to host multiple apps (ASP.NET Core or generic hosts) in the same process
+                // Each of this apps has it's own DependencyTrackingModule and corresponding SQL listener.
+                // We should ignore events for all of them except one
+                if (!SubscriptionManager.IsActive(this))
+                {
+                    DependencyCollectorEventSource.Log.NotActiveListenerNoTracking(evnt.Key, Activity.Current?.Id);
+                    return;
+                }
+
                 switch (evnt.Key)
                 {
                     case SqlBeforeExecuteCommand:
@@ -88,11 +98,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         {
                             var dependencyName = string.Empty;
                             var target = string.Empty;
-                            SqlConnection connection = null;
 
                             if (command.Connection != null)
                             {
-                                connection = command.Connection;
+                                var connection = command.Connection;
                                 target = string.Join(" | ", connection.DataSource, connection.Database);
 
                                 var commandName = command.CommandType == CommandType.StoredProcedure
@@ -457,9 +466,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
             telemetry.Success = false;
             telemetry.Properties["Exception"] = exception.ToInvariantString();
 
-            var sqlException = exception as SqlException;
-
-            if (sqlException != null)
+            if (exception is SqlException sqlException)
             {
                 telemetry.ResultCode = sqlException.Number.ToString(CultureInfo.InvariantCulture);
             }
@@ -495,6 +502,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                 {
                     DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberFailedToSubscribe(ex.ToInvariantString());
                 }
+
+                SubscriptionManager.Attach(this.sqlDiagnosticListener);
             }
 
             public void OnNext(DiagnosticListener value)
@@ -518,15 +527,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
             public void Dispose()
             {
-                if (this.eventSubscription != null)
-                {
-                    this.eventSubscription.Dispose();
-                }
+                SubscriptionManager.Detach(this.sqlDiagnosticListener);
+                this.eventSubscription?.Dispose();
 
-                if (this.listenerSubscription != null)
-                {
-                    this.listenerSubscription.Dispose();
-                }
+                this.listenerSubscription?.Dispose();
             }
         }
     }
