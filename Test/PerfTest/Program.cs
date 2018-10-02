@@ -30,9 +30,9 @@ namespace PerfTest
 
             var telemetryClient = new TelemetryClient(activeConfiguration);
 
-            int IterationMax = 20;
+            int IterationMax = 25;
 
-            long[] runs = new long[IterationMax];
+            long[] runs = new long[IterationMax-1];            
 
 
             Stopwatch sw;
@@ -63,8 +63,13 @@ namespace PerfTest
                 Task.WaitAll(tasks);
 
                 sw.Stop();
-                runs[iter] = sw.ElapsedMilliseconds;
                 Console.WriteLine(sw.ElapsedMilliseconds);
+
+                if (iter > 0)
+                {
+                    runs[iter-1] = sw.ElapsedMilliseconds;
+                }
+                
             }
 
             Console.WriteLine("Avge" + runs.Average());
