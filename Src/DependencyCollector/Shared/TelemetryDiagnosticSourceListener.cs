@@ -3,7 +3,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -63,16 +62,16 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         internal static DependencyTelemetry ExtractDependencyTelemetry(DiagnosticListener diagnosticListener, Activity currentActivity)
         {
-            DependencyTelemetry telemetry = new DependencyTelemetry();
-
-            telemetry.Id = currentActivity.Id;
-            telemetry.Duration = currentActivity.Duration;
-            telemetry.Name = currentActivity.OperationName;
+            DependencyTelemetry telemetry = new DependencyTelemetry
+            {
+                Id = currentActivity.Id,
+                Duration = currentActivity.Duration,
+                Name = currentActivity.OperationName
+            };
 
             Uri requestUri = null;
             string component = null;
             string queryStatement = null;
-            string httpMethodWithSpace = string.Empty;
             string httpUrl = null;
             string peerAddress = null;
             string peerService = null;
@@ -97,8 +96,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                     case "error":
                         {
-                            bool failed;
-                            if (bool.TryParse(tag.Value, out failed))
+                            if (bool.TryParse(tag.Value, out var failed))
                             {
                                 telemetry.Success = !failed;
                                 continue; // skip Properties
@@ -115,8 +113,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                     case "http.method":
                         {
-                            httpMethodWithSpace = tag.Value + " ";
-                            break;
+                            continue; // skip Properties
                         }
 
                     case "http.url":
@@ -199,8 +196,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         protected override HashSet<string> GetListenerContext(DiagnosticListener diagnosticListener)
         {
-            HashSet<string> includedActivities;
-            if (!this.includedDiagnosticSourceActivities.TryGetValue(diagnosticListener.Name, out includedActivities))
+            if (!this.includedDiagnosticSourceActivities.TryGetValue(diagnosticListener.Name, out var includedActivities))
             {
                 return null;
             }
@@ -210,8 +206,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         protected override IDiagnosticEventHandler GetEventHandler(string diagnosticListenerName)
         {
-            IDiagnosticEventHandler eventHandler;
-            if (this.customEventHandlers.TryGetValue(diagnosticListenerName, out eventHandler))
+            if (this.customEventHandlers.TryGetValue(diagnosticListenerName, out var eventHandler))
             {
                 return eventHandler;
             }
@@ -248,8 +243,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 if (tokens.Length > 1)
                 {
                     // only certain Activity from the Diagnostic Source is included
-                    HashSet<string> includedActivities;
-                    if (!this.includedDiagnosticSourceActivities.TryGetValue(tokens[0], out includedActivities))
+                    if (!this.includedDiagnosticSourceActivities.TryGetValue(tokens[0], out var includedActivities))
                     {
                         includedActivities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                         this.includedDiagnosticSourceActivities[tokens[0]] = includedActivities;

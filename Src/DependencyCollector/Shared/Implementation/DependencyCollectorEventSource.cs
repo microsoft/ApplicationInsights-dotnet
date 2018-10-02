@@ -472,7 +472,17 @@
         {
             this.WriteEvent(45, depName, this.applicationNameProvider.Name);
         }
-        
+
+        [Event(
+            46,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "Not tracking operation for event = '{0}', id = '{1}', lisener is not active.",
+            Level = EventLevel.Verbose)]
+        public void NotActiveListenerNoTracking(string evntName, string activityId, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(46, evntName, activityId, this.applicationNameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the <see cref="DependencyCollectorEventSource"/>.
         /// </summary>

@@ -28,12 +28,15 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private const string DeprecatedRequestEventName = "System.Net.Http.Request";
         private const string DeprecatedResponseEventName = "System.Net.Http.Response";
 
+        private static readonly ActiveSubsciptionManager SubscriptionManager = new ActiveSubsciptionManager();
+
         private readonly IEnumerable<string> correlationDomainExclusionList;
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
         private readonly bool setComponentCorrelationHttpHeaders;
         private readonly TelemetryClient client;
         private readonly TelemetryConfiguration configuration;
         private readonly HttpCoreDiagnosticSourceSubscriber subscriber;
+
         #region fetchers
 
         private readonly PropertyFetcher startRequestFetcher = new PropertyFetcher("Request");
@@ -79,7 +82,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.injectLegacyHeaders = injectLegacyHeaders;
             this.injectW3CHeaders = injectW3CHeaders;
 
-            this.subscriber = new HttpCoreDiagnosticSourceSubscriber(this, this.applicationInsightsUrlFilter, this.isNetCore20HttpClient);
+            this.subscriber = new HttpCoreDiagnosticSourceSubscriber(
+                this,
+                this.applicationInsightsUrlFilter,
+                this.isNetCore20HttpClient);
         }
 
         /// <summary>
@@ -111,11 +117,20 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// <param name="evnt">The current notification information.</param>
         public void OnNext(KeyValuePair<string, object> evnt)
         {
-            const string ErrorTemplateTypeCast = "Event {0}: cannot cast {1} to expected type {2}";
-            const string ErrorTemplateValueParse = "Event {0}: cannot parse '{1}' as type {2}";
-
             try
             {
+                // It's possible to host multiple apps (ASP.NET Core or generic hosts) in the same process
+                // Each of this apps has it's own DependencyTrackingModule and corresponding Http listener.
+                // We should ignore events for all of them except one
+                if (!SubscriptionManager.IsActive(this))
+                {
+                    DependencyCollectorEventSource.Log.NotActiveListenerNoTracking(evnt.Key, Activity.Current?.Id);
+                    return;
+                }
+
+                const string errorTemplateTypeCast = "Event {0}: cannot cast {1} to expected type {2}";
+                const string errorTemplateValueParse = "Event {0}: cannot parse '{1}' as type {2}";
+
                 switch (evnt.Key)
                 {
                     case HttpOutStartEventName:
@@ -124,7 +139,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                             if (request == null)
                             {
-                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "request", "HttpRequestMessage");
+                                var error = string.Format(CultureInfo.InvariantCulture, errorTemplateTypeCast, evnt.Key, "request", "HttpRequestMessage");
                                 DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
                             }
                             else
@@ -143,12 +158,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                             if (request == null)
                             {
-                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "request", "HttpRequestMessage");
+                                var error = string.Format(CultureInfo.InvariantCulture, errorTemplateTypeCast, evnt.Key, "request", "HttpRequestMessage");
                                 DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
                             }
                             else if (!Enum.TryParse(requestTaskStatusString, out TaskStatus requestTaskStatus))
                             {
-                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateValueParse, evnt.Key, requestTaskStatusString, "TaskStatus");
+                                var error = string.Format(CultureInfo.InvariantCulture, errorTemplateValueParse, evnt.Key, requestTaskStatusString, "TaskStatus");
                                 DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
                             }
                             else
@@ -166,12 +181,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                             if (exception == null)
                             {
-                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "exception", "Exception");
+                                var error = string.Format(CultureInfo.InvariantCulture, errorTemplateTypeCast, evnt.Key, "exception", "Exception");
                                 DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
                             }
                             else if (request == null)
                             {
-                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "request", "HttpRequestMessage");
+                                var error = string.Format(CultureInfo.InvariantCulture, errorTemplateTypeCast, evnt.Key, "request", "HttpRequestMessage");
                                 DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
                             }
                             else
@@ -195,12 +210,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                             if (request == null)
                             {
-                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "request", "HttpRequestMessage");
+                                var error = string.Format(CultureInfo.InvariantCulture, errorTemplateTypeCast, evnt.Key, "request", "HttpRequestMessage");
                                 DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
                             }
                             else if (!Guid.TryParse(loggingRequestIdString, out Guid loggingRequestId))
                             {
-                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateValueParse, evnt.Key, loggingRequestIdString, "Guid");
+                                var error = string.Format(CultureInfo.InvariantCulture, errorTemplateValueParse, evnt.Key, loggingRequestIdString, "Guid");
                                 DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
                             }
                             else
@@ -224,12 +239,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                             if (response == null)
                             {
-                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateTypeCast, evnt.Key, "response", "HttpResponseMessage");
+                                var error = string.Format(CultureInfo.InvariantCulture, errorTemplateTypeCast, evnt.Key, "response", "HttpResponseMessage");
                                 DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
                             }
                             else if (!Guid.TryParse(loggingRequestIdString, out Guid loggingRequestId))
                             {
-                                var error = string.Format(CultureInfo.InvariantCulture, ErrorTemplateValueParse, evnt.Key, loggingRequestIdString, "Guid");
+                                var error = string.Format(CultureInfo.InvariantCulture, errorTemplateValueParse, evnt.Key, loggingRequestIdString, "Guid");
                                 DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerOnNextFailed(error);
                             }
                             else
@@ -641,6 +656,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 {
                     DependencyCollectorEventSource.Log.HttpCoreDiagnosticSubscriberFailedToSubscribe(ex.ToInvariantString());
                 }
+
+                SubscriptionManager.Attach(this.httpDiagnosticListener);
             }
 
             /// <summary>
@@ -708,15 +725,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             public void Dispose()
             {
-                if (this.eventSubscription != null)
-                {
-                    this.eventSubscription.Dispose();
-                }
-
-                if (this.listenerSubscription != null)
-                {
-                    this.listenerSubscription.Dispose();
-                }
+                SubscriptionManager.Detach(this.httpDiagnosticListener);
+                this.eventSubscription?.Dispose();
+                this.listenerSubscription?.Dispose();
             }
         }
     }

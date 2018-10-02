@@ -45,12 +45,11 @@
         [TestMethod]
         public void DiagnosticEventWithoutActivityIsIgnored()
         {
+            using (var listener = new DiagnosticListener("Microsoft.Azure.EventHubs"))
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
                 module.Initialize(this.configuration);
-
-                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.EventHubs");
 
                 listener.Write(
                     "Microsoft.Azure.EventHubs.Send.Stop", 
@@ -69,12 +68,11 @@
         [TestMethod]
         public void EventHubsSuccessfulSendIsHandled()
         {
+            using (var listener = new DiagnosticListener("Microsoft.Azure.EventHubs"))
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
                 module.Initialize(this.configuration);
-
-                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.EventHubs");
 
                 Activity parentActivity = new Activity("parent").AddBaggage("k1", "v1").Start();
                 var telemetry = this.TrackOperation<DependencyTelemetry>(listener, "Microsoft.Azure.EventHubs.Send", TaskStatus.RanToCompletion);
@@ -98,12 +96,11 @@
         [TestMethod]
         public void EventHubsSuccessfulSendIsHandledWithoutParent()
         {
+            using (var listener = new DiagnosticListener("Microsoft.Azure.EventHubs"))
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
                 module.Initialize(this.configuration);
-
-                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.EventHubs");
 
                 var telemetry = this.TrackOperation<DependencyTelemetry>(listener, "Microsoft.Azure.EventHubs.Send", TaskStatus.RanToCompletion);
 
@@ -129,13 +126,12 @@
         public void EventHubsSuccessfulSendIsHandledWithExternalParent()
         {
             using (var module = new DependencyTrackingTelemetryModule())
+            using (DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.EventHubs"))
             {
                 module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
                 module.Initialize(this.configuration);
-
-                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.EventHubs");
-
-                var telemetry = this.TrackOperation<DependencyTelemetry>(listener, "Microsoft.Azure.EventHubs.Send", TaskStatus.RanToCompletion, "parent");
+                var telemetry = this.TrackOperation<DependencyTelemetry>(listener, "Microsoft.Azure.EventHubs.Send",
+                    TaskStatus.RanToCompletion, "parent");
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
@@ -157,14 +153,14 @@
         public void EventHubsFailedSendIsHandled()
         {
             using (var module = new DependencyTrackingTelemetryModule())
+            using (var listener = new DiagnosticListener("Microsoft.Azure.EventHubs"))
             {
                 module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
                 module.Initialize(this.configuration);
 
-                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.EventHubs");
-
                 Activity parentActivity = new Activity("parent").AddBaggage("k1", "v1").Start();
-                var telemetry = this.TrackOperation<DependencyTelemetry>(listener, "Microsoft.Azure.EventHubs.Send", TaskStatus.Faulted);
+                var telemetry = this.TrackOperation<DependencyTelemetry>(listener, "Microsoft.Azure.EventHubs.Send",
+                    TaskStatus.Faulted);
 
                 Assert.IsNotNull(telemetry);
                 Assert.AreEqual("Send", telemetry.Name);
@@ -186,12 +182,11 @@
         public void EventHubsSendExceptionsAreIgnored()
         {
             using (var module = new DependencyTrackingTelemetryModule())
+            using (var listener = new DiagnosticListener("Microsoft.Azure.EventHubs"))
             {
                 this.configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
                 module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.EventHubs");
                 module.Initialize(this.configuration);
-
-                DiagnosticListener listener = new DiagnosticListener("Microsoft.Azure.EventHubs");
 
                 Activity parentActivity = new Activity("parent").AddBaggage("k1", "v1").Start();
                 if (listener.IsEnabled("Microsoft.Azure.EventHubs.Send.Exception"))

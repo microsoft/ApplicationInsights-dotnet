@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.9.0-beta1
+- [Prevent duplicate dependency collection in multi-host apps](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/621)
+
 ## Version 2.8.0-beta2
 - [LiveMetrics (QuickPulse) TelemetryProcessor added automatically to the default ApplicationInsights.config are moved under the default telemetry sink.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/987)
 	If you are upgrading, and have added/modified TelemetryProcessors, make sure to copy them to the default sink section.
