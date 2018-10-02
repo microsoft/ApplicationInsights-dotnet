@@ -30,7 +30,7 @@
             try
             {
                 // As this is executed inside a separate AppDomain, it is safe to load assemblies here without interfering with user code.                
-                loadedAssembly = this.AttemptToLoadAssembly(this.AssemblyNameToLoad, this.VersionsToAttempt);
+                loadedAssembly = AttemptToLoadAssembly(this.AssemblyNameToLoad, this.VersionsToAttempt);
                 if (loadedAssembly != null)
                 {
                     ServiceRuntime serviceRuntime = new ServiceRuntime(loadedAssembly);
@@ -56,7 +56,7 @@
             return loadedAssembly != null;
         }
 
-        protected Assembly AttemptToLoadAssembly(AssemblyName assemblyNameToLoad, Version[] versionsToAttempt)
+        protected static Assembly AttemptToLoadAssembly(AssemblyName assemblyNameToLoad, Version[] versionsToAttempt)
         {
             Assembly loadedAssembly = null;                        
             foreach (Version version in versionsToAttempt)

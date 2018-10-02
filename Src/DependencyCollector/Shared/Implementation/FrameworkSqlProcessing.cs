@@ -46,7 +46,7 @@
         {
             try
             {
-                var resourceName = this.GetResourceName(dataSource, database, commandText);
+                var resourceName = GetResourceName(dataSource, database, commandText);
 
                 DependencyCollectorEventSource.Log.BeginCallbackCalled(id, resourceName);
 
@@ -113,12 +113,16 @@
         /// <param name="database">Database name.</param>
         /// <param name="commandText">CommandText name.</param>        
         /// <returns>The resource name if possible otherwise empty string.</returns>
-        private string GetResourceName(string dataSource, string database, string commandText)
+        private static string GetResourceName(string dataSource, string database, string commandText)
         {
-            string resource = string.IsNullOrEmpty(commandText)
-                ? string.Join(" | ", dataSource, database)
-                : commandText;
-            return resource;
+            if (!string.IsNullOrEmpty(commandText))
+            {
+                return commandText;
+            }
+            else
+            {
+                return string.Format(CultureInfo.InvariantCulture, "{0} | {1}", dataSource, database);
+            }
         }
     }
 }

@@ -54,7 +54,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         /// <param name="webRequest">Represents web request.</param>
         /// <returns>The url if possible otherwise empty string.</returns>
-        internal Uri GetUrl(WebRequest webRequest)
+        internal static Uri GetUrl(WebRequest webRequest)
         {
             Uri resource = null;
             if (webRequest != null && webRequest.RequestUri != null)
@@ -88,8 +88,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     DependencyCollectorEventSource.Log.UnexpectedCallbackParameter("WebRequest");
                 }
 
-                var url = this.GetUrl(webRequest);
-
+                var url = GetUrl(webRequest);
                 if (url == null)
                 {
                     DependencyCollectorEventSource.Log.NotExpectedCallback(thisObj.GetHashCode(), "OnBeginHttp",
@@ -207,7 +206,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                         if (currentActivity != null)
                         {
-                            this.InjectCorrelationContext(webRequest.Headers, currentActivity);
+                            InjectCorrelationContext(webRequest.Headers, currentActivity);
                         }
                     }
 
@@ -419,6 +418,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// <param name="webRequest">The request which acts as the key.</param>
         protected abstract void RemoveTupleForWebDependencies(WebRequest webRequest);
 
+        private static void InjectCorrelationContext(WebHeaderCollection requestHeaders, Activity activity)
+        {
+            if (requestHeaders[RequestResponseHeaders.CorrelationContextHeader] == null && activity.Baggage.Any())
+            {
+                requestHeaders.SetHeaderFromNameValueCollection(RequestResponseHeaders.CorrelationContextHeader, activity.Baggage);
+            }
+        }
+
         private bool TryGetPendingTelemetry(object request, out DependencyTelemetry telemetry)
         {
             telemetry = null;
@@ -498,14 +505,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
             telemetry.ResultCode = statusCode > 0 ? statusCode.ToString(CultureInfo.InvariantCulture) : string.Empty;
             telemetry.Success = (statusCode > 0) && (statusCode < 400);
-        }
-
-        private void InjectCorrelationContext(WebHeaderCollection requestHeaders, Activity activity)
-        {
-            if (requestHeaders[RequestResponseHeaders.CorrelationContextHeader] == null && activity.Baggage.Any())
-            {
-                requestHeaders.SetHeaderFromNameValueCollection(RequestResponseHeaders.CorrelationContextHeader, activity.Baggage);
-            }
         }
     }
 }

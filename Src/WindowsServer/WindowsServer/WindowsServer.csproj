@@ -45,11 +45,6 @@
     <DefineConstants>$(DefineConstants);NETSTANDARD1_6;NETSTANDARD</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <!--TODO: Remove this as soon as all issues are resolved. Is true by default in Common.props-->
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-  </PropertyGroup>
-
   <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
     <!--Analyzers and Build Infrastructure-->
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">

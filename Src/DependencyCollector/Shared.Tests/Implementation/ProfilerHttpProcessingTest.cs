@@ -850,10 +850,10 @@
         {
             var request = WebRequest.Create(this.testUrl);
             var expectedName = this.testUrl;
-            var actualResourceName = this.httpProcessingProfiler.GetUrl(request);
+            var actualResourceName = HttpProcessing.GetUrl(request);
             Assert.AreEqual(expectedName, actualResourceName, "HttpProcessingProfiler returned incorrect resource name");
 
-            Assert.AreEqual(null, this.httpProcessingProfiler.GetUrl(null));
+            Assert.AreEqual(null, HttpProcessing.GetUrl(null));
         }
 
         /// <summary>
@@ -869,7 +869,7 @@
             ub.Query = "querystring=1";
             var request = WebRequest.Create(ub.Uri);
             var expectedName = ub.Uri.ToString();
-            var actualResourceName = this.httpProcessingProfiler.GetUrl(request);
+            var actualResourceName = HttpProcessing.GetUrl(request);
             Assert.AreEqual(expectedName, actualResourceName.ToString(), "HttpProcessingProfiler returned incorrect resource name");
         }
 
@@ -886,7 +886,7 @@
             ub.Path = "/rewards";
             var request = WebRequest.Create(ub.Uri);
             var expectedName = ub.Uri.ToString();
-            var actualResourceName = this.httpProcessingProfiler.GetUrl(request);
+            var actualResourceName = HttpProcessing.GetUrl(request);
             Assert.AreEqual(expectedName, actualResourceName.ToString(), "HttpProcessingProfiler returned incorrect resource name");
         }
 

@@ -94,7 +94,7 @@
                 return this.deviceManufacturer;
             }
 
-            return this.deviceManufacturer = this.RunWmiQuery("Win32_ComputerSystem", "Manufacturer", string.Empty);
+            return this.deviceManufacturer = RunWmiQuery("Win32_ComputerSystem", "Manufacturer", string.Empty);
         }
 
         /// <summary>
@@ -108,7 +108,7 @@
                 return this.deviceName;
             }
 
-            return this.deviceName = this.RunWmiQuery("Win32_ComputerSystem", "Model", string.Empty);
+            return this.deviceName = RunWmiQuery("Win32_ComputerSystem", "Model", string.Empty);
         }
 
         /// <summary>
@@ -144,7 +144,7 @@
         /// <param name="property">The property.</param>
         /// <param name="defaultValue">The default value of the property if WMI fails.</param>
         /// <returns>The value if found, Unknown otherwise.</returns>
-        private string RunWmiQuery(string table, string property, string defaultValue)
+        private static string RunWmiQuery(string table, string property, string defaultValue)
         {
             try
             {

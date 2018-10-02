@@ -14,7 +14,7 @@
     {
         private const string WebUserCookieName = "ai_user";
 
-        internal void GetUserContextFromUserCookie(HttpCookie userCookie, RequestTelemetry requestTelemetry)
+        internal static void GetUserContextFromUserCookie(HttpCookie userCookie, RequestTelemetry requestTelemetry)
         {
             if (userCookie == null)
             {
@@ -54,7 +54,7 @@
             {
                 if (string.IsNullOrEmpty(requestTelemetry.Context.User.Id))
                 {
-                    this.GetUserContextFromUserCookie(platformContext.Request.UnvalidatedGetCookie(WebUserCookieName), requestTelemetry);
+                    GetUserContextFromUserCookie(platformContext.Request.UnvalidatedGetCookie(WebUserCookieName), requestTelemetry);
                 }
 
                 telemetry.Context.User.Id = requestTelemetry.Context.User.Id;

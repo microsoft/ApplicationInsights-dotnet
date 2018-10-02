@@ -73,7 +73,7 @@
             if (this.isEnabled && value.Name == AspNetListenerName)
             {
                 var eventListener = new AspNetEventObserver(this.requestModule, this.exceptionModule);
-                this.aspNetSubscription = value.Subscribe(eventListener, eventListener.IsEnabled);
+                this.aspNetSubscription = value.Subscribe(eventListener, AspNetEventObserver.IsEnabled);
             }
         }
 
@@ -105,7 +105,10 @@
 
         #endregion
 
-        private void Dispose(bool dispose)
+        /// <summary>
+        /// Implements IDisposable pattern. Dispose() should call Dispose(true), and the finalizer should call Dispose(false).
+        /// </summary>
+        protected virtual void Dispose(bool dispose)
         {
             if (dispose)
             {
@@ -127,7 +130,7 @@
                 this.exceptionModule = exceptionModule;
             }
 
-            public Func<string, object, object, bool> IsEnabled => (name, activityObj, _) =>
+            public static Func<string, object, object, bool> IsEnabled => (name, activityObj, _) =>
             {
                 if (name == IncomingRequestEventName)
                 {
@@ -190,7 +193,7 @@
                 }
                 else if (value.Key == IncomingRequestStopEventName || value.Key == IncomingRequestStopLostActivity)
                 {
-                    if (this.IsFirstRequest(context))
+                    if (IsFirstRequest(context))
                     {
                         // Asp.Net Http Module detected that activity was lost, it notifies about it with this event
                         // It means that Activity was previously reported in BeginRequest and we saved it in HttpContext.Current
@@ -224,7 +227,7 @@
 
             #endregion
 
-            private bool IsFirstRequest(HttpContext context)
+            private static bool IsFirstRequest(HttpContext context)
             {
                 var firstRequest = true;
                 try
