@@ -190,40 +190,31 @@
         /// <param name="item">The telemetry item to be tagged.</param>
         /// <param name="extractorInfo">The string to be added to the item's properties.</param>
         private static void AddExtractorInfo(ITelemetry item, string extractorInfo)
-        {
-            string extractionPipelineInfo = String.Empty;
+        {            
             if (item is RequestTelemetry)
             {
                 var req = item as RequestTelemetry;
-                extractionPipelineInfo = req.MetricExtractorInfo;
-                if (extractionPipelineInfo?.Length > 0)
-                {
-                    extractionPipelineInfo = extractionPipelineInfo + "; ";
-                }
-                else
-                {
-                    extractionPipelineInfo = String.Empty;
-                }
-
-                extractionPipelineInfo = extractionPipelineInfo + extractorInfo;
-                req.MetricExtractorInfo = extractorInfo;
+                req.MetricExtractorInfo = ExtractionPipelineInfo(req.MetricExtractorInfo, extractorInfo);
             }
             else if (item is DependencyTelemetry)
             {
                 var dep = item as DependencyTelemetry;
-                extractionPipelineInfo = dep.MetricExtractorInfo;
-                if (extractionPipelineInfo?.Length > 0)
-                {
-                    extractionPipelineInfo = extractionPipelineInfo + "; ";
-                }
-                else
-                {
-                    extractionPipelineInfo = String.Empty;
-                }
-
-                extractionPipelineInfo = extractionPipelineInfo + extractorInfo;
-                dep.MetricExtractorInfo = extractorInfo;
+                dep.MetricExtractorInfo = ExtractionPipelineInfo(dep.MetricExtractorInfo, extractorInfo);
             }                                   
+        }
+
+        private static string ExtractionPipelineInfo(string extractionPipelineInfo, string extractorInfo)
+        {
+            if (extractionPipelineInfo?.Length > 0)
+            {
+                extractionPipelineInfo = extractionPipelineInfo + "; ";
+            }
+            else
+            {
+                extractionPipelineInfo = String.Empty;
+            }
+            
+            return extractionPipelineInfo + extractorInfo;
         }
 
         /// <summary>

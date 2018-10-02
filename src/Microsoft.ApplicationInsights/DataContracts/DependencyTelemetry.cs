@@ -257,7 +257,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {            
             get
             {
-                if (!this.InternalData.properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
+                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.InternalData.properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
                 {
                     this.InternalData.properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
                 }
