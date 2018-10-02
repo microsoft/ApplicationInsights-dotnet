@@ -40,7 +40,7 @@
             : this()
         {
             this.Data.name = name;
-            this.Data.duration = duration.ToString(string.Empty, CultureInfo.InvariantCulture);
+            this.Data.duration = duration;
             this.Data.success = success;
             this.Data.runLocation = runLocation;
             this.Data.message = message;
