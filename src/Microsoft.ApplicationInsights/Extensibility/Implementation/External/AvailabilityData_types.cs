@@ -54,7 +54,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public string duration { get; set; }
+        public System.TimeSpan duration { get; set; }
 
         
         
@@ -91,7 +91,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             ver = 2;
             id = "";
             this.name = "";
-            duration = "";
+            duration = System.TimeSpan.Zero;
             runLocation = "";
             message = "";
             properties = new ConcurrentDictionary<string, string>();

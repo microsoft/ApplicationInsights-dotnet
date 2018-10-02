@@ -194,6 +194,17 @@
         }
 
         [TestMethod]
+        public void SanitizeWillInitializeStatusCodeIfSuccessIsFalse()
+        {
+            RequestTelemetry telemetry = new RequestTelemetry();
+            telemetry.Success = false;
+
+            ((ITelemetry)telemetry).Sanitize();
+
+            Assert.AreEqual("", telemetry.ResponseCode);
+        }
+
+        [TestMethod]
         public void SanitizeWillInitializeSucessIfStatusCodeNotProvided()
         {
             RequestTelemetry telemetry = new RequestTelemetry();
