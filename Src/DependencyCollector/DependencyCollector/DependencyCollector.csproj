@@ -9,7 +9,7 @@
     <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
     <Prefer32Bit>false</Prefer32Bit> <!-- net45 -->
 
-    <DefineConstants>DEPENDENCY_COLLECTOR</DefineConstants>
+    <DefineConstants>$(DefineConstants);DEPENDENCY_COLLECTOR;ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE;</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -20,12 +20,8 @@
     <PackageTags>Azure Monitoring Analytics ApplicationInsights Telemetry AppInsights</PackageTags>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <DefineConstants>$(DefineConstants);ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
-  </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG;CODE_ANALYSIS;</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
@@ -44,10 +40,9 @@
     <DefineConstants>$(DefineConstants);NETSTANDARD1_6;NETSTANDARD;</DefineConstants>
   </PropertyGroup>
 
-<!-- 
+<!--
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), NetCore.props))\NetCore.props" />  
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" Condition="'$(DoNotSign)' == ''" />
-
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DebugType>full</DebugType>
@@ -67,7 +62,7 @@
   </PropertyGroup>
 -->
 
-	<ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
     <!--Analyzers and Build Infrastructure-->
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
       <PrivateAssets>All</PrivateAssets>
@@ -83,7 +78,7 @@
     </PackageReference>
   </ItemGroup>
 
- <ItemGroup>
+  <ItemGroup>
     <!--Common Dependencies-->
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.8.0-beta2" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />

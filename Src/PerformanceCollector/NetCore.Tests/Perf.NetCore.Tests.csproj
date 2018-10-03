@@ -1,19 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), NetCore.props))\NetCore.props" />  
 
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
-    <DelaySign>true</DelaySign>
+    <!--<DelaySign>true</DelaySign>-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Microsoft.AI.PerformanceCollector.NetCore.Tests</AssemblyName>
-    <AssemblyOriginatorKeyFile>../../../Keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <!--<AssemblyOriginatorKeyFile>../../../Keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>-->
+    <!--<SignAssembly>true</SignAssembly>-->
+    <!--<PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>-->
     <PackageId>Microsoft.AI.DependencyCollector.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>
-    <DoNotSign>true</DoNotSign>
+    <!--<DoNotSign>true</DoNotSign>-->
     <RootNamespace>Microsoft.ApplicationInsights.Tests</RootNamespace>
   </PropertyGroup>
 
@@ -45,5 +45,4 @@
   </ItemGroup>
 
   <Import Project="..\Perf.Shared.Tests\Perf.Shared.Tests.projitems" Label="Shared" />
-
 </Project>

@@ -9,8 +9,17 @@
     <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
   </PropertyGroup>
 
+
+  <PropertyGroup>
+    <!--Nupkg properties-->
+    <PackageId>Microsoft.ApplicationInsights.PerfCounterCollector</PackageId>
+    <Title>Application Insights Performance Counters Collector</Title>
+    <Description>Application Insights Performance Counters Collector allows you to send data collected by Performance Counters to Application Insights. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <PackageTags>Azure Monitoring Analytics ApplicationInsights Telemetry ASP.NET ASMX Web Azure Server Services ASPX Websites Performance Counters Performance Collection</PackageTags>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-    <DefineConstants>$(DefineConstants);NET45</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET45;</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
@@ -25,9 +34,7 @@
     <DefineConstants>$(DefineConstants);NETSTANDARD1_6;NETSTANDARD;</DefineConstants>
   </PropertyGroup>
 
-
-
-  <!--
+<!--
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), NetCore.props))\NetCore.props" />  
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" Condition="'$(DoNotSign)' == ''" />
 
@@ -37,25 +44,14 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    
     <DelaySign>true</DelaySign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>../../../Keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    
   </PropertyGroup>
 
-  
-  -->
-
-  <PropertyGroup>
-    <!--Nupkg properties-->
-    <PackageId>Microsoft.ApplicationInsights.PerfCounterCollector</PackageId>
-    <Title>Application Insights Performance Counters Collector</Title>
-    <Description>Application Insights Performance Counters Collector allows you to send data collected by Performance Counters to Application Insights. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
-    <PackageTags>Azure Monitoring Analytics ApplicationInsights Telemetry ASP.NET ASMX Web Azure Server Services ASPX Websites Performance Counters Performance Collection</PackageTags>
-  </PropertyGroup>
+-->
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
     <!--Analyzers and Build Infrastructure-->
@@ -72,7 +68,7 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  
+
   <ItemGroup>
     <!--Common Dependencies-->
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.8.0-beta2" />

@@ -42,7 +42,7 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>
     
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
-    <DefineConstants>$(DefineConstants);NETSTANDARD1_6;NETSTANDARD</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETSTANDARD1_6;NETSTANDARD;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
