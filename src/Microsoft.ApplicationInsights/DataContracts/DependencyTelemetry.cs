@@ -9,7 +9,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
     using static System.Threading.LazyInitializer;
 
     /// <summary>
@@ -254,8 +254,16 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public override IDictionary<string, string> Properties
-        {
-            get { return this.InternalData.properties; }
+        {            
+            get
+            {
+                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.InternalData.properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
+                {
+                    this.InternalData.properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
+                }
+
+                return this.InternalData.properties;
+            }
         }
 
         /// <summary>
@@ -293,6 +301,15 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the MetricExtractorInfo.
+        /// </summary>
+        internal string MetricExtractorInfo
+        {
+            get;
+            set;
         }
 
         /// <summary>
