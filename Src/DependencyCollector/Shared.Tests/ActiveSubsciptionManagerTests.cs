@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
-    using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
