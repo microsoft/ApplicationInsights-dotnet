@@ -27,7 +27,7 @@
 
         private string instrumentationKey;
 
-        private IDictionary<string, Tuple<bool, object>> stateObjects;
+        private IDictionary<string, Tuple<bool, object>> rawObjects;
         private ComponentContext component;
         private DeviceContext device;
         private CloudContext cloud;
@@ -179,9 +179,9 @@
         }
 
         /// <summary>
-        /// Gets the StateObjects, instantiating if needed.
+        /// Gets the RawObjects, instantiating if needed.
         /// </summary>
-        private IDictionary<string, Tuple<bool, object>> StateObjects => LazyInitializer.EnsureInitialized(ref this.stateObjects, () => new ConcurrentDictionary<string, Tuple<bool, object>>());
+        private IDictionary<string, Tuple<bool, object>> RawObjects => LazyInitializer.EnsureInitialized(ref this.rawObjects, () => new ConcurrentDictionary<string, Tuple<bool, object>>());
 
         /// <summary>
         /// Returns the state object with the given key.
@@ -190,26 +190,26 @@
         /// They are shared (i.e not cloned) if multiple sinks are configured, so sinks should treat them as read-only.
         /// </summary>
         /// <param name="key">The key of the value to get.</param>
-        /// <param name="stateObject">When this method returns, contains the object that has the specified key, or the default value of the type if the operation failed.</param>
+        /// <param name="rawObject">When this method returns, contains the object that has the specified key, or the default value of the type if the operation failed.</param>
         /// <returns>true if the key was found; otherwise, false.</returns>
-        public bool TryGetRawObject(string key, out object stateObject)
+        public bool TryGetRawObject(string key, out object rawObject)
         {
             // Avoid initializing the dictionary if it has not been initialized
-            if (this.stateObjects == null)
+            if (this.rawObjects == null)
             {
-                stateObject = null;
+                rawObject = null;
                 return false;
             }
 
             Tuple<bool, object> tuple;
-            if (this.StateObjects.TryGetValue(key, out tuple))
+            if (this.RawObjects.TryGetValue(key, out tuple))
             {
-                stateObject = tuple.Item2;
+                rawObject = tuple.Item2;
                 return true;
             }
             else
             {
-                stateObject = null;
+                rawObject = null;
                 return false;
             }
         }
@@ -220,12 +220,12 @@
         /// They are shared (i.e not cloned) if multiple sinks are configured, so sinks should treat them as read-only.
         /// </summary>
         /// <param name="key">The key to store the detail against.</param>
-        /// <param name="stateObject">Object to be stored.</param>
+        /// <param name="rawObject">Object to be stored.</param>
         /// <param name="destoryAfterTelemetryInitializers">Boolean flag indicating if this state should be destroyed after TelemetryInitializers are run.
         /// If set to true, then the object will not accessible in TelemetryProcessors and TelemetryChannel.</param>        
-        public void StoreRawObject(string key, object stateObject, bool destoryAfterTelemetryInitializers = true)
+        public void StoreRawObject(string key, object rawObject, bool destoryAfterTelemetryInitializers = true)
         {
-            this.StateObjects[key] = new Tuple<bool, object>(destoryAfterTelemetryInitializers, stateObject);
+            this.RawObjects[key] = new Tuple<bool, object>(destoryAfterTelemetryInitializers, rawObject);
         }
 
         internal void SanitizeGlobalProperties()
@@ -233,16 +233,16 @@
             this.globalProperties.SanitizeProperties();
         }
 
-        internal void ClearTempStateObjects()
+        internal void ClearTempRawObjects()
         {
             // Avoid initializing the dictionary if it has not been initialized
-            if (this.stateObjects == null)
+            if (this.rawObjects == null)
             {
                 return;
             }
 
             List<string> keysToCleanup = new List<string>();
-            foreach (KeyValuePair<string, Tuple<bool, object>> kv in this.StateObjects)
+            foreach (KeyValuePair<string, Tuple<bool, object>> kv in this.RawObjects)
             {
                 if (kv.Value.Item1)
                 {
@@ -252,7 +252,7 @@
 
             foreach (var keytoCleanup in keysToCleanup)
             {
-                this.StateObjects.Remove(keytoCleanup);
+                this.RawObjects.Remove(keytoCleanup);
             }
         }
 
