@@ -375,8 +375,6 @@
             }
 
             this.Track(telemetry);
-
-            telemetry.ClearOperationDetails();
         }
 
         /// <summary>
