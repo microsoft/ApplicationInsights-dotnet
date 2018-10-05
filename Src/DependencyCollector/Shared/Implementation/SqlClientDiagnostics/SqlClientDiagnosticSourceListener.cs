@@ -365,13 +365,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                     }
 
                     case SqlAfterCommitTransaction:
-                    case SqlAfterRollbackTransaction:
                     {
-                        var operationId = (Guid)TransactionAfter.OperationId.Fetch(evnt.Value);
+                        var operationId = (Guid)TransactionCommitAfter.OperationId.Fetch(evnt.Value);
 
-                        DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId, evnt.Key);
+                        DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId,
+                            evnt.Key);
 
-                        var connection = (SqlConnection)TransactionAfter.Connection.Fetch(evnt.Value);
+                        var connection = (SqlConnection)TransactionCommitAfter.Connection.Fetch(evnt.Value);
                         var tuple = this.operationHolder.Get(connection);
 
                         if (tuple != null)
@@ -380,7 +380,36 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             var telemetry = tuple.Item1;
 
-                            var timestamp = (long)TransactionAfter.Timestamp.Fetch(evnt.Value);
+                            var timestamp = (long)TransactionCommitAfter.Timestamp.Fetch(evnt.Value);
+
+                            telemetry.Stop(timestamp);
+
+                            this.client.TrackDependency(telemetry);
+                        }
+                        else
+                        {
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(
+                                operationId.ToStringInvariant("N"));
+                        }
+
+                        break;
+                    }
+                    case SqlAfterRollbackTransaction:
+                    {
+                        var operationId = (Guid)TransactionRollbackAfter.OperationId.Fetch(evnt.Value);
+
+                        DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId, evnt.Key);
+
+                        var connection = (SqlConnection)TransactionRollbackAfter.Connection.Fetch(evnt.Value);
+                        var tuple = this.operationHolder.Get(connection);
+
+                        if (tuple != null)
+                        {
+                            this.operationHolder.Remove(connection);
+
+                            var telemetry = tuple.Item1;
+
+                            var timestamp = (long)TransactionRollbackAfter.Timestamp.Fetch(evnt.Value);
 
                             telemetry.Stop(timestamp);
 
@@ -395,13 +424,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                     }
 
                     case SqlErrorCommitTransaction:
-                    case SqlErrorRollbackTransaction:
                     {
-                        var operationId = (Guid)TransactionError.OperationId.Fetch(evnt.Value);
+                        var operationId = (Guid)TransactionCommitError.OperationId.Fetch(evnt.Value);
 
                         DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId, evnt.Key);
 
-                        var connection = (SqlConnection)TransactionError.Connection.Fetch(evnt.Value);
+                        var connection = (SqlConnection)TransactionCommitError.Connection.Fetch(evnt.Value);
                         var tuple = this.operationHolder.Get(connection);
 
                         if (tuple != null)
@@ -410,11 +438,43 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             var telemetry = tuple.Item1;
 
-                            var timestamp = (long)TransactionError.Timestamp.Fetch(evnt.Value);
+                            var timestamp = (long)TransactionCommitError.Timestamp.Fetch(evnt.Value);
 
                             telemetry.Stop(timestamp);
 
-                            var exception = (Exception)TransactionError.Exception.Fetch(evnt.Value);
+                            var exception = (Exception)TransactionCommitError.Exception.Fetch(evnt.Value);
+
+                            ConfigureExceptionTelemetry(telemetry, exception);
+
+                            this.client.TrackDependency(telemetry);
+                        }
+                        else
+                        {
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToStringInvariant("N"));
+                        }
+
+                        break;
+                    }
+                    case SqlErrorRollbackTransaction:
+                    {
+                        var operationId = (Guid)TransactionRollbackError.OperationId.Fetch(evnt.Value);
+
+                        DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId, evnt.Key);
+
+                        var connection = (SqlConnection)TransactionRollbackError.Connection.Fetch(evnt.Value);
+                        var tuple = this.operationHolder.Get(connection);
+
+                        if (tuple != null)
+                        {
+                            this.operationHolder.Remove(connection);
+
+                            var telemetry = tuple.Item1;
+
+                            var timestamp = (long)TransactionRollbackError.Timestamp.Fetch(evnt.Value);
+
+                            telemetry.Stop(timestamp);
+
+                            var exception = (Exception)TransactionRollbackError.Exception.Fetch(evnt.Value);
 
                             ConfigureExceptionTelemetry(telemetry, exception);
 
