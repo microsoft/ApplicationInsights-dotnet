@@ -27,7 +27,7 @@
 
         private string instrumentationKey;
 
-        private IDictionary<string, object> statesDictionary;
+        private IDictionary<string, Tuple<bool, object>> stateObjects;
         private ComponentContext component;
         private DeviceContext device;
         private CloudContext cloud;
@@ -35,12 +35,7 @@
         private UserContext user;
         private OperationContext operation;
         private LocationContext location;
-        
-        /// <summary>
-        /// Gets the states details, if any.
-        /// </summary>
-        private IDictionary<string, object> StatesDictionary => LazyInitializer.EnsureInitialized(ref this.statesDictionary, () => new ConcurrentDictionary<string, object>());
-
+               
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryContext"/> class.
         /// </summary>
@@ -61,7 +56,7 @@
             this.properties = properties;
             this.globalProperties = globalProperties;
         }
-
+    
         /// <summary>
         /// Gets or sets the default instrumentation key for all <see cref="ITelemetry"/> objects logged in this <see cref="TelemetryContext"/>.
         /// </summary>
@@ -159,50 +154,7 @@
         public IDictionary<string, string> GlobalProperties
         {
             get { return this.globalProperties; }
-        }
-
-        /// <summary>
-        /// In specific collectors, objects are added to the dependency telemetry which may be useful
-        /// to enhance DependencyTelemetry telemetry by <see cref="ITelemetryInitializer" /> implementations.
-        /// Objects retrieved here are not automatically serialized and sent to the backend.
-        /// </summary>
-        /// <param name="key">The key of the value to get.</param>
-        /// <param name="detail">When this method returns, contains the object that has the specified key, or the default value of the type if the operation failed.</param>
-        /// <returns>true if the key was found; otherwise, false.</returns>
-        public bool TryGetRawObject(string key, out object detail)
-        {
-            // Avoid initializing the dictionary if it has not been initialized
-            if (this.statesDictionary == null)
-            {
-                detail = null;
-                return false;
-            }
-
-            object returnedObject;
-            if (this.StatesDictionary.TryGetValue(key, out returnedObject))
-            {
-                detail = (returnedObject as RawObjectWithLifetime)?.State;
-                return true;
-            }
-            else
-            {
-                detail = null;
-                return false;
-            }            
-        }
-
-        /// <summary>
-        /// Sets the object against the key specified. Objects set through this method
-        /// are not automatically serialized and sent to the backend.
-        /// </summary>
-        /// <param name="key">The key to store the detail against.</param>
-        /// <param name="obj">Object to be stored.</param>
-        /// <param name="destoryAfterTelemetryInitializers">Boolean flag indicating if this state should be destroyed after TelemetryInitializers are run.</param>        
-        public void StoreRawObject(string key, object obj, bool destoryAfterTelemetryInitializers = true)
-        {
-            var objectWithLifetime = new RawObjectWithLifetime(obj, destoryAfterTelemetryInitializers);
-            this.StatesDictionary[key] = objectWithLifetime;            
-        }
+        }      
 
         internal InternalContext Internal => this.internalContext;
 
@@ -226,31 +178,81 @@
             }
         }
 
+        /// <summary>
+        /// Gets the StateObjects, instantiating if needed.
+        /// </summary>
+        private IDictionary<string, Tuple<bool, object>> StateObjects => LazyInitializer.EnsureInitialized(ref this.stateObjects, () => new ConcurrentDictionary<string, Tuple<bool, object>>());
+
+        /// <summary>
+        /// Returns the state object with the given key.
+        /// to enhance DependencyTelemetry telemetry by <see cref="ITelemetryInitializer" /> implementations.
+        /// Objects retrieved here are not automatically serialized and sent to the backend.
+        /// They are shared (i.e not cloned) if multiple sinks are configured, so sinks should treat them as read-only.
+        /// </summary>
+        /// <param name="key">The key of the value to get.</param>
+        /// <param name="stateObject">When this method returns, contains the object that has the specified key, or the default value of the type if the operation failed.</param>
+        /// <returns>true if the key was found; otherwise, false.</returns>
+        public bool TryGetRawObject(string key, out object stateObject)
+        {
+            // Avoid initializing the dictionary if it has not been initialized
+            if (this.stateObjects == null)
+            {
+                stateObject = null;
+                return false;
+            }
+
+            Tuple<bool, object> tuple;
+            if (this.StateObjects.TryGetValue(key, out tuple))
+            {
+                stateObject = tuple.Item2;
+                return true;
+            }
+            else
+            {
+                stateObject = null;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Sets the state object against the key specified.         
+        /// Objects stored through this method are not automatically serialized and sent to the backend.
+        /// They are shared (i.e not cloned) if multiple sinks are configured, so sinks should treat them as read-only.
+        /// </summary>
+        /// <param name="key">The key to store the detail against.</param>
+        /// <param name="stateObject">Object to be stored.</param>
+        /// <param name="destoryAfterTelemetryInitializers">Boolean flag indicating if this state should be destroyed after TelemetryInitializers are run.
+        /// If set to true, then the object will not accessible in TelemetryProcessors and TelemetryChannel.</param>        
+        public void StoreRawObject(string key, object stateObject, bool destoryAfterTelemetryInitializers = true)
+        {
+            this.StateObjects[key] = new Tuple<bool, object>(destoryAfterTelemetryInitializers, stateObject);
+        }
+
         internal void SanitizeGlobalProperties()
         {
             this.globalProperties.SanitizeProperties();
         }
 
-        internal void ClearTempStates()
+        internal void ClearTempStateObjects()
         {
             // Avoid initializing the dictionary if it has not been initialized
-            if (this.statesDictionary == null)
+            if (this.stateObjects == null)
             {
                 return;
             }
 
-            List<string> nukeList = new List<string>();
-            foreach (KeyValuePair<string,object> kv in this.StatesDictionary)
+            List<string> keysToCleanup = new List<string>();
+            foreach (KeyValuePair<string, Tuple<bool, object>> kv in this.StateObjects)
             {
-                if ((kv.Value as RawObjectWithLifetime).Cleanup)
+                if (kv.Value.Item1)
                 {
-                    nukeList.Add(kv.Key);
+                    keysToCleanup.Add(kv.Key);
                 }
             }
 
-            foreach (var nuke in nukeList)
+            foreach (var keytoCleanup in keysToCleanup)
             {
-                this.StatesDictionary.Remove(nuke);
+                this.StateObjects.Remove(keytoCleanup);
             }
         }
 
@@ -282,30 +284,6 @@
             source.operation?.CopyTo(this.Operation);
             source.location?.CopyTo(this.Location);
             source.Internal.CopyTo(this.Internal);
-        }
-    }
-
-    internal class RawObjectWithLifetime
-    {
-        private Object state;
-        private bool cleanup;
-        public RawObjectWithLifetime(Object state, bool cleanup)
-        {
-            this.state = state;
-            this.cleanup = cleanup;
-        }
-
-
-        public object State
-        {
-            get => state;
-            set => state = value;
-        }
-
-        public bool Cleanup
-        {
-            get => cleanup;
-            set => cleanup = value;
         }
     }
 }

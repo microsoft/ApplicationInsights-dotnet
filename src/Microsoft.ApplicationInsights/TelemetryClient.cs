@@ -440,7 +440,7 @@
             {
                 this.Initialize(telemetry);
 
-                telemetry.Context.ClearTempStates();
+                telemetry.Context.ClearTempStateObjects();
 
                 // invokes the Process in the first processor in the chain
                 this.configuration.TelemetryProcessorChain.Process(telemetry);
