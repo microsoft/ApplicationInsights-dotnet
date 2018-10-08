@@ -25,10 +25,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         internal readonly RemoteDependencyData InternalData;
         private readonly TelemetryContext context;
         private IExtension extension;
-        private IDictionary<string, object> operationDetails;
-
         private double? samplingPercentage;
-
         private bool successFieldSet;
 
         /// <summary>
@@ -101,12 +98,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.samplingPercentage = source.samplingPercentage;
             this.successFieldSet = source.successFieldSet;
             this.extension = source.extension?.DeepClone();
-
-            // Only clone the details if the source has had details initialized
-            if (source.operationDetails != null)
-            {
-                this.operationDetails = new ConcurrentDictionary<string, object>(source.operationDetails);
-            }
         }
 
         /// <summary>
@@ -311,12 +302,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             get;
             set;
         }
-
-        /// <summary>
-        /// Gets the dependency operation details, if any.
-        /// </summary>
-        private IDictionary<string, object> OperationDetails => EnsureInitialized(ref this.operationDetails, () => new ConcurrentDictionary<string, object>());
-
+        
         /// <summary>
         /// Deeply clones a <see cref="DependencyTelemetry"/> object.
         /// </summary>
@@ -336,14 +322,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <returns>true if the key was found; otherwise, false.</returns>
         public bool TryGetOperationDetail(string key, out object detail)
         {
-            // Avoid initializing the dictionary if it has not been initialized
-            if (this.operationDetails == null)
-            {
-                detail = null;
-                return false;
-            }
-
-            return this.OperationDetails.TryGetValue(key, out detail);
+            return this.Context.TryGetRawObject(key, out detail);
         }
 
         /// <summary>
@@ -355,7 +334,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void SetOperationDetail(string key, object detail)
         {
-            this.OperationDetails[key] = detail;
+            this.Context.StoreRawObject(key, detail, true);
         }
 
         /// <inheritdoc/>
@@ -376,20 +355,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Type = this.Type.SanitizeDependencyType();
             this.Data = this.Data.SanitizeData();
             this.Properties.SanitizeProperties();
-        }
-
-        /// <summary>
-        /// Clears any stored operational data for the dependency operation, if any.
-        /// </summary>
-        internal void ClearOperationDetails()
-        {
-            // Avoid initializing the dictionary if it has not been initialized
-            if (this.operationDetails == null)
-            {
-                return;
-            }
-
-            this.OperationDetails.Clear();
         }
     }
 }

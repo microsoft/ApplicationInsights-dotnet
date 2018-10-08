@@ -259,6 +259,8 @@ Microsoft.ApplicationInsights.DataContracts.TelemetryContext.GlobalProperties.ge
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.Session.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.SessionContext
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TelemetryContext() -> void
 Microsoft.ApplicationInsights.DataContracts.TelemetryContext.User.get -> Microsoft.ApplicationInsights.Extensibility.Implementation.UserContext
+Microsoft.ApplicationInsights.DataContracts.TelemetryContext.TryGetRawObject(string key, out object rawObject) -> bool
+Microsoft.ApplicationInsights.DataContracts.TelemetryContext.StoreRawObject(string key, object rawObject, bool keepForInitializationOnly = true) -> void
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.Context.get -> Microsoft.ApplicationInsights.DataContracts.TelemetryContext
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.DeepClone() -> Microsoft.ApplicationInsights.Channel.ITelemetry

@@ -82,7 +82,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public IDictionary<string, double> measurements { get; set; }
+        
 
         public RequestData()
             : this("AI.RequestData", "RequestData")
@@ -99,7 +99,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             success = true;
             url = "";
             properties = new ConcurrentDictionary<string, string>();
-            measurements = new ConcurrentDictionary<string, double>();
+            
         }
     }
 } // AI

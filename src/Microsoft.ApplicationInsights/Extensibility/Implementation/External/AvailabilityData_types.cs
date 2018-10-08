@@ -80,7 +80,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public IDictionary<string, double> measurements { get; set; }
+        
 
         public AvailabilityData()
             : this("AI.AvailabilityData", "AvailabilityData")
@@ -95,7 +95,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             runLocation = "";
             message = "";
             properties = new ConcurrentDictionary<string, string>();
-            measurements = new ConcurrentDictionary<string, double>();
+            
         }
     }
 } // AI
