@@ -243,6 +243,110 @@
             Assert.AreEqual(expectedValueWithSizeWithinLimit, value);
         }
 
+        [TestMethod]
+        public void TestStoresRawObject()
+        {
+            const string key = "foo";
+            const string detail = "bar";
+
+            var context = new TelemetryContext();
+            context.StoreRawObject(key, detail);
+            Assert.IsFalse(context.TryGetRawObject("keyDontExst", out object actualDontExist));
+            Assert.IsTrue(context.TryGetRawObject(key, out object actual));
+            Assert.AreEqual(detail, actual);
+        }
+
+        [TestMethod]
+        public void TestRawObjectIsOverwritten()
+        {
+            const string key = "foo";
+            const string detail = "bar";
+            const string detailNew = "barnew";
+
+            var context = new TelemetryContext();
+            context.StoreRawObject(key, detail);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actual));
+            Assert.AreEqual(detail, actual);
+
+            context.StoreRawObject(key, detailNew);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actualNew));
+            Assert.AreEqual(detailNew, actualNew);
+        }
+
+        [TestMethod]
+        public void TestRawObjectLastWrittenValueWins()
+        {
+            const string key = "foo";
+            const string detail = "bar";
+            const string detailNew = "barnew";
+            const string detailNewer = "barnewer";
+            const string detailNewest = "barnewest";
+            const string detailNewestFinal = "barnewestfinal";
+
+            var context = new TelemetryContext();
+
+            // Overwrite temp key value with new temp value
+            context.StoreRawObject(key, detail, true);            
+            context.StoreRawObject(key, detailNew, true);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actualNew));
+            Assert.AreEqual(detailNew, actualNew);
+
+            // Overwrite temp key value with new perm value
+            context.StoreRawObject(key, detailNewer, false);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actualNewer));
+            Assert.AreEqual(detailNewer, actualNewer);
+
+            // Overwrite perm key value with new perm value
+            context.StoreRawObject(key, detailNewest, false);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actualNewest));
+            Assert.AreEqual(detailNewest, actualNewest);
+
+            // Overwrite perm key value with new temp value
+            context.StoreRawObject(key, detailNewestFinal, true);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actualNewestFinal));
+            Assert.AreEqual(detailNewestFinal, actualNewestFinal);
+        }
+
+        [TestMethod]
+        public void TestStoreRawObjectTempByDefault()
+        {
+            const string keyTemp = "fooTemp";
+            const string detailTemp = "barTemp";
+            const string keyPerm = "fooPerm";
+            const string detailPerm = "barPerm";
+
+            var context = new TelemetryContext();
+            context.StoreRawObject(keyTemp, detailTemp);
+            context.StoreRawObject(keyPerm, detailPerm, false);
+
+            Assert.IsTrue(context.TryGetRawObject(keyTemp, out object temp));
+            Assert.IsTrue(context.TryGetRawObject(keyPerm, out object perm));
+
+            context.ClearTempRawObjects();
+            Assert.IsFalse(context.TryGetRawObject(keyTemp, out object tempAfterCleanup));
+            Assert.IsTrue(context.TryGetRawObject(keyPerm, out object permAfterCleanup));
+        }
+
+        [TestMethod]
+        public void TestClearsTempRawObjects()
+        {
+            const string keyTemp = "fooTemp";
+            const string detailTemp = "barTemp";
+            const string keyPerm = "fooPerm";
+            const string detailPerm = "barPerm";
+
+            var context = new TelemetryContext();
+            context.StoreRawObject(keyTemp, detailTemp, true);
+            context.StoreRawObject(keyPerm, detailPerm, false);
+            
+            Assert.IsTrue(context.TryGetRawObject(keyTemp, out object temp));
+            Assert.IsTrue(context.TryGetRawObject(keyPerm, out object perm));
+
+            context.ClearTempRawObjects();
+            Assert.IsFalse(context.TryGetRawObject(keyTemp, out object tempAfterCleanup));
+            Assert.IsTrue(context.TryGetRawObject(keyPerm, out object permAfterCleanup));
+        }
+
         private static string CopyAndSerialize(TelemetryContext source)
         {
             // Create a copy of the source context to verify that Serialize writes property values stored in tags 

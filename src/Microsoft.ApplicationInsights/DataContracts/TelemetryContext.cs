@@ -24,8 +24,8 @@
         private readonly InternalContext internalContext = new InternalContext();
         private string instrumentationKey;
 
-        private IDictionary<string, object> rawObjectsTemp;
-        private IDictionary<string, object> rawObjectsPerm;
+        private IDictionary<string, object> rawObjectsTemp = new Dictionary<string, object>();
+        private IDictionary<string, object> rawObjectsPerm = new Dictionary<string, object>();
         private ComponentContext component;
         private DeviceContext device;
         private CloudContext cloud;
