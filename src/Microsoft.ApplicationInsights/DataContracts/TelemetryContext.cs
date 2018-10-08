@@ -186,7 +186,13 @@
         /// This method is not thread-safe. Objects should be stored from Collectors or TelemetryInitializers that are run synchronously.
         /// </remarks>        
         public bool TryGetRawObject(string key, out object rawObject)
-        {            
+        {
+            if (key == null)
+            {
+                rawObject = null;
+                return false;
+            }
+
             if (this.rawObjectsTemp.TryGetValue(key, out rawObject))
             {                
                 return true;
@@ -213,6 +219,11 @@
         /// </remarks>
         public void StoreRawObject(string key, object rawObject, bool keepForInitializationOnly = true)
         {
+            if (key == null)
+            {
+                return;
+            }
+
             if (keepForInitializationOnly)
             {
                 this.rawObjectsTemp[key] = rawObject;

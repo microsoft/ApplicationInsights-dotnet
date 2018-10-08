@@ -257,6 +257,27 @@
         }
 
         [TestMethod]
+        public void TestTelemetryContextDoesNotThrowOnInvalidKeysForRawObjectStore()
+        {
+            const string key = "";
+            const string detail = "bar";
+            var context = new TelemetryContext();
+
+            // These shouldn't throw.
+            context.StoreRawObject(null, detail);
+            context.StoreRawObject(null, detail, false);
+            context.TryGetRawObject(null, out object actualDontExist);
+
+            context.StoreRawObject(key, detail);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actual));
+            Assert.AreEqual(detail, actual);
+
+            context.StoreRawObject(string.Empty, detail);
+            Assert.IsTrue(context.TryGetRawObject(string.Empty, out object actual1));
+            Assert.AreEqual(detail, actual1);
+        }
+
+        [TestMethod]
         public void TestRawObjectIsOverwritten()
         {
             const string key = "foo";
