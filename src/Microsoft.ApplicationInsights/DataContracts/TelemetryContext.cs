@@ -19,14 +19,10 @@
         /// Value for the flag that indicates that server should not store IP address from incoming events.
         /// </summary>
         public const long FlagDropIdentifiers = 0x200000;
-
-        private readonly IDictionary<string, string> properties;
-        private readonly IDictionary<string, string> globalProperties;
-
+        internal IDictionary<string, string> GlobalPropertiesValue;
+        internal IDictionary<string, string> PropertiesValue;
         private readonly InternalContext internalContext = new InternalContext();
-
         private string instrumentationKey;
-
         private ComponentContext component;
         private DeviceContext device;
         private CloudContext cloud;
@@ -39,21 +35,19 @@
         /// Initializes a new instance of the <see cref="TelemetryContext"/> class.
         /// </summary>
         public TelemetryContext()
-            : this(new ConcurrentDictionary<string, string>(), new ConcurrentDictionary<string, string>())
+            : this(null, null)
         {
         }
 
         internal TelemetryContext(IDictionary<string, string> properties)
-            : this(properties, new ConcurrentDictionary<string, string>())
-        {            
+            : this(properties, null)
+        {
         }
 
         internal TelemetryContext(IDictionary<string, string> properties, IDictionary<string, string> globalProperties)
         {
-            Debug.Assert(properties != null, nameof(properties));
-            Debug.Assert(globalProperties != null, nameof(globalProperties));
-            this.properties = properties;
-            this.globalProperties = globalProperties;
+            this.PropertiesValue = properties;
+            this.GlobalPropertiesValue = globalProperties;
         }
 
         /// <summary>
@@ -142,7 +136,7 @@
         [Obsolete("Use GlobalProperties to set global level properties. For properties at item level, use ISupportProperties.Properties.")]
         public IDictionary<string, string> Properties
         {
-            get { return this.properties; }
+            get { return LazyInitializer.EnsureInitialized(ref this.PropertiesValue, () => new ConcurrentDictionary<string, string>()); }
         }
 
         /// <summary>
@@ -152,7 +146,7 @@
         /// </summary>
         public IDictionary<string, string> GlobalProperties
         {
-            get { return this.globalProperties; }
+            get { return LazyInitializer.EnsureInitialized(ref this.GlobalPropertiesValue, () => new ConcurrentDictionary<string, string>()); }
         }
 
         internal InternalContext Internal => this.internalContext;
@@ -179,14 +173,20 @@
 
         internal void SanitizeGlobalProperties()
         {
-           this.globalProperties.SanitizeProperties();
+            this.GlobalPropertiesValue?.SanitizeProperties();
         }
 
         internal TelemetryContext DeepClone(IDictionary<string, string> properties)
         {
             Debug.Assert(properties != null, "properties parameter should not be null");
             var other = new TelemetryContext(properties);
-            Utils.CopyDictionary(this.globalProperties, other.globalProperties);
+            // This check avoids accessing the public accessor GlobalProperties
+            // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
+            if (this.GlobalPropertiesValue != null)
+            {
+                Utils.CopyDictionary(this.GlobalProperties, other.GlobalProperties);
+            }
+
             other.InstrumentationKey = this.InstrumentationKey;
             return other;
         }

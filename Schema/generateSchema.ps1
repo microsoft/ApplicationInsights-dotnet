@@ -1,5 +1,5 @@
-$generatorPath = "C:\repo\zMSAzure-AppInsights-Common"
-$schemasPath = "C:\repo\ApplicationInsights-Home\EndpointSpecs\Schemas"
+$generatorPath = "D:\repos\zMSAzure-AppInsights-Common"
+$schemasPath = "D:\repos\ApplicationInsights-home\EndpointSpecs\Schemas"
 $publicSchemaLocation = "https://raw.githubusercontent.com/Microsoft/ApplicationInsights-Home/master/EndpointSpecs/Schemas/Bond"
 $localPublicSchema = $false
 
@@ -111,6 +111,10 @@ dir "$currentDir\obj\gbc" | ForEach-Object {
     RegExReplace $_.FullName "(public enum)" "internal enum"
     # Change "= nothing" to "= null"
     RegExReplace $_.FullName "= nothing;" "= null;"
+
+	# Remove "measurements" field declaration as its is done lazy in a separate partial class
+    RegExReplace $_.FullName "public IDictionary<string, double> measurements { get; set; }"
+	RegExReplace $_.FullName "measurements = new ConcurrentDictionary<string, double>\(\);"
 }
 
 
