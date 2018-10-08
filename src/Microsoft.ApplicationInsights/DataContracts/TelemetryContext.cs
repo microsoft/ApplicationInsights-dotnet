@@ -24,7 +24,8 @@
         private readonly InternalContext internalContext = new InternalContext();
         private string instrumentationKey;
 
-        private IDictionary<string, Tuple<bool, object>> rawObjects;
+        private IDictionary<string, object> rawObjectsTemp;
+        private IDictionary<string, object> rawObjectsPerm;
         private ComponentContext component;
         private DeviceContext device;
         private CloudContext cloud;
@@ -172,15 +173,9 @@
                 return result;
             }
         }
-
+       
         /// <summary>
-        /// Gets the RawObjects, instantiating if needed.
-        /// </summary>
-        private IDictionary<string, Tuple<bool, object>> RawObjects => LazyInitializer.EnsureInitialized(ref this.rawObjects, () => new ConcurrentDictionary<string, Tuple<bool, object>>());
-
-        /// <summary>
-        /// Returns the state object with the given key.
-        /// to enhance DependencyTelemetry telemetry by <see cref="ITelemetryInitializer" /> implementations.
+        /// Returns the raw object with the given key.        
         /// Objects retrieved here are not automatically serialized and sent to the backend.
         /// They are shared (i.e not cloned) if multiple sinks are configured, so sinks should treat them as read-only.
         /// </summary>
@@ -188,39 +183,43 @@
         /// <param name="rawObject">When this method returns, contains the object that has the specified key, or the default value of the type if the operation failed.</param>
         /// <returns>true if the key was found; otherwise, false.</returns>
         public bool TryGetRawObject(string key, out object rawObject)
-        {
-            // Avoid initializing the dictionary if it has not been initialized
-            if (this.rawObjects == null)
-            {
-                rawObject = null;
-                return false;
-            }
-
-            Tuple<bool, object> tuple;
-            if (this.RawObjects.TryGetValue(key, out tuple))
-            {
-                rawObject = tuple.Item2;
+        {            
+            if (this.rawObjectsTemp.TryGetValue(key, out rawObject))
+            {                
                 return true;
             }
             else
             {
-                rawObject = null;
-                return false;
+                return this.rawObjectsPerm.TryGetValue(key, out rawObject);
             }
         }
 
         /// <summary>
-        /// Sets the state object against the key specified.         
+        /// Sets the raw object against the key specified.
+        /// Use this store to provide raw objects from data collectors so that TelemetryInitializers can
+        /// extract additional details.
         /// Objects stored through this method are not automatically serialized and sent to the backend.
         /// They are shared (i.e not cloned) if multiple sinks are configured, so sinks should treat them as read-only.
         /// </summary>
         /// <param name="key">The key to store the detail against.</param>
         /// <param name="rawObject">Object to be stored.</param>
         /// <param name="keepForInitializationOnly">Boolean flag indicating if this state should be made available only during TelemetryInitializers.
-        /// If set to true, then the object will not accessible in TelemetryProcessors and TelemetryChannel.</param>        
+        /// If set to true, then the object will not accessible in TelemetryProcessors and TelemetryChannel.</param>
+        /// <remarks>
+        /// This method is not thread-safe. Objects should be set from collectors or TelemetryInitializers that are run synchronously.
+        /// </remarks>
         public void StoreRawObject(string key, object rawObject, bool keepForInitializationOnly = true)
         {
-            this.RawObjects[key] = new Tuple<bool, object>(keepForInitializationOnly, rawObject);
+            if (keepForInitializationOnly)
+            {
+                this.rawObjectsTemp[key] = rawObject;
+                this.rawObjectsPerm.Remove(key);
+            }
+            else
+            {
+                this.rawObjectsPerm[key] = rawObject;
+                this.rawObjectsTemp.Remove(key);
+            }
         }
 
         internal void SanitizeGlobalProperties()
@@ -230,25 +229,7 @@
 
         internal void ClearTempRawObjects()
         {
-            // Avoid initializing the dictionary if it has not been initialized
-            if (this.rawObjects == null)
-            {
-                return;
-            }
-
-            List<string> keysToCleanup = new List<string>();
-            foreach (KeyValuePair<string, Tuple<bool, object>> kv in this.RawObjects)
-            {
-                if (kv.Value.Item1)
-                {
-                    keysToCleanup.Add(kv.Key);
-                }
-            }
-
-            foreach (var keytoCleanup in keysToCleanup)
-            {
-                this.RawObjects.Remove(keytoCleanup);
-            }
+          this.rawObjectsTemp.Clear();
         }
 
         internal TelemetryContext DeepClone(IDictionary<string, string> properties)
