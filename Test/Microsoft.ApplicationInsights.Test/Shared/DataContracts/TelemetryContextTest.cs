@@ -270,11 +270,11 @@
 
             context.StoreRawObject(key, detail);
             Assert.IsTrue(context.TryGetRawObject(key, out object actual));
-            Assert.AreEqual(detail, actual);
+            Assert.AreSame(detail, actual);
 
             context.StoreRawObject(string.Empty, detail);
             Assert.IsTrue(context.TryGetRawObject(string.Empty, out object actual1));
-            Assert.AreEqual(detail, actual1);
+            Assert.AreSame(detail, actual1);
         }
 
         [TestMethod]
@@ -287,11 +287,11 @@
             var context = new TelemetryContext();
             context.StoreRawObject(key, detail);
             Assert.IsTrue(context.TryGetRawObject(key, out object actual));
-            Assert.AreEqual(detail, actual);
+            Assert.AreSame(detail, actual);
 
             context.StoreRawObject(key, detailNew);
             Assert.IsTrue(context.TryGetRawObject(key, out object actualNew));
-            Assert.AreEqual(detailNew, actualNew);
+            Assert.AreSame(detailNew, actualNew);
         }
 
         [TestMethod]
@@ -310,22 +310,22 @@
             context.StoreRawObject(key, detail, true);            
             context.StoreRawObject(key, detailNew, true);
             Assert.IsTrue(context.TryGetRawObject(key, out object actualNew));
-            Assert.AreEqual(detailNew, actualNew);
+            Assert.AreSame(detailNew, actualNew);
 
             // Overwrite temp key value with new perm value
             context.StoreRawObject(key, detailNewer, false);
             Assert.IsTrue(context.TryGetRawObject(key, out object actualNewer));
-            Assert.AreEqual(detailNewer, actualNewer);
+            Assert.AreSame(detailNewer, actualNewer);
 
             // Overwrite perm key value with new perm value
             context.StoreRawObject(key, detailNewest, false);
             Assert.IsTrue(context.TryGetRawObject(key, out object actualNewest));
-            Assert.AreEqual(detailNewest, actualNewest);
+            Assert.AreSame(detailNewest, actualNewest);
 
             // Overwrite perm key value with new temp value
             context.StoreRawObject(key, detailNewestFinal, true);
             Assert.IsTrue(context.TryGetRawObject(key, out object actualNewestFinal));
-            Assert.AreEqual(detailNewestFinal, actualNewestFinal);
+            Assert.AreSame(detailNewestFinal, actualNewestFinal);
         }
 
         [TestMethod]
