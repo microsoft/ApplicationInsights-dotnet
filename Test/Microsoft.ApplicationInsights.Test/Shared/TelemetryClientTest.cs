@@ -992,6 +992,63 @@
             Assert.AreEqual("test", eventTelemetry.Context.Internal.SdkVersion);
         }
 
+        [TestMethod]
+        public void TrackClearsTelemetryContextRawStorageTempAfterInitializersAreRun()
+        {
+            const string keyTemp = "fooTemp";
+            const string detailTemp = "barTemp";
+            const string keyPerm = "fooPerm";
+            const string detailPerm = "barPerm";
+            var sentTelemetry = new List<ITelemetry>();
+            var channel = new StubTelemetryChannel
+            {
+                OnSend = t =>
+                {
+                    // Upon reaching TelemetryChannel temp object should not exist.
+                    Assert.IsFalse(t.Context.TryGetRawObject(keyTemp, out object detailTmp));
+
+                    // Upon reaching TelemetryChannel perm object should remain.
+                    Assert.IsTrue(t.Context.TryGetRawObject(keyPerm, out object detailPrm));
+                }
+            };           
+            var configuration = new TelemetryConfiguration(string.Empty, channel);
+
+            configuration.TelemetryProcessorChainBuilder.Use((next) => new StubTelemetryProcessor(next)
+            {
+                OnProcess = t =>
+                {
+                
+                // Upon reaching TelemetryProcessor temp object should not exist.
+                Assert.IsFalse(t.Context.TryGetRawObject(keyTemp, out object detailTmp));
+
+                // Upon reaching TelemetryProcessor perm object should remain.
+                Assert.IsTrue(t.Context.TryGetRawObject(keyPerm, out object detailPrm));
+                }
+            });
+
+            configuration.TelemetryProcessorChainBuilder.Build();
+            
+            var telemetryInitializer = new StubTelemetryInitializer();
+            telemetryInitializer.OnInitialize = item =>
+            {
+                // TelemetryInitializer should be able to access both temp and perm objects.
+                Assert.IsTrue(item.Context.TryGetRawObject(keyTemp, out object detailTmp));
+                Assert.IsTrue(item.Context.TryGetRawObject(keyPerm, out object detailPrm));
+            };
+
+            configuration.TelemetryInitializers.Add(telemetryInitializer);
+
+            var client = new TelemetryClient(configuration);
+            var telemetry = new StubTelemetry();
+            telemetry.Context.StoreRawObject(keyTemp, detailTemp, true);
+            telemetry.Context.StoreRawObject(keyPerm, detailPerm, false);
+            
+            // Calling Track will in turn call all TelemetryInitializers followed by TelemetryProcessors
+            // and Channel. Test here is to validate that temp RawObjects stored in TelemetryContext gets
+            // cleared after Initialiers are run.
+            client.Track(telemetry);
+        }
+
         #endregion
 
         #region Sampling

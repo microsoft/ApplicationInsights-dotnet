@@ -226,8 +226,8 @@
             Assert.IsNotNull(retrievedValue);
             Assert.AreEqual(detail, retrievedValue.ToString());
 
-            // Clear and verify the detail is no longer present
-            telemetry.ClearOperationDetails();
+            // Clear and verify the detail is no longer present            
+            new TelemetryClient().TrackDependency(telemetry);            
             Assert.IsFalse(telemetry.TryGetOperationDetail(key, out retrievedValue));
         }
 
@@ -240,8 +240,8 @@
             Assert.IsFalse(telemetry.TryGetOperationDetail(key, out object retrievedValue));
             Assert.IsNull(retrievedValue);
 
-            // should not throw
-            telemetry.ClearOperationDetails();
+            // should not throw                        
+            new TelemetryClient().TrackDependency(telemetry);
         }
 
         [TestMethod]

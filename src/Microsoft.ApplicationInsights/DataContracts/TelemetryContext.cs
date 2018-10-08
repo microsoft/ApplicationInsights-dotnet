@@ -23,6 +23,9 @@
         internal IDictionary<string, string> PropertiesValue;
         private readonly InternalContext internalContext = new InternalContext();
         private string instrumentationKey;
+
+        private IDictionary<string, object> rawObjectsTemp = new Dictionary<string, object>();
+        private IDictionary<string, object> rawObjectsPerm = new Dictionary<string, object>();
         private ComponentContext component;
         private DeviceContext device;
         private CloudContext cloud;
@@ -171,9 +174,76 @@
             }
         }
 
+        /// <summary>
+        /// Returns the raw object with the given key.        
+        /// Objects retrieved here are not automatically serialized and sent to the backend.
+        /// They are shared (i.e not cloned) if multiple sinks are configured, so sinks should treat them as read-only.
+        /// </summary>
+        /// <param name="key">The key of the value to get.</param>
+        /// <param name="rawObject">When this method returns, contains the object that has the specified key, or the default value of the type if the operation failed.</param>
+        /// <returns>true if the key was found; otherwise, false.</returns>
+        /// <remarks>
+        /// This method is not thread-safe. Objects should be stored from Collectors or TelemetryInitializers that are run synchronously.
+        /// </remarks>        
+        public bool TryGetRawObject(string key, out object rawObject)
+        {
+            if (key == null)
+            {
+                rawObject = null;
+                return false;
+            }
+
+            if (this.rawObjectsTemp.TryGetValue(key, out rawObject))
+            {                
+                return true;
+            }
+            else
+            {
+                return this.rawObjectsPerm.TryGetValue(key, out rawObject);
+            }
+        }
+
+        /// <summary>
+        /// Stores the raw object against the key specified.
+        /// Use this to store raw objects from data collectors so that TelemetryInitializers can access
+        /// them to extract additional details to enrich telemetry.
+        /// Objects stored through this method are not automatically serialized and sent to the backend.
+        /// They are shared (i.e not cloned) if multiple sinks are configured, so sinks should treat them as read-only.
+        /// </summary>
+        /// <param name="key">The key to store the object against.</param>
+        /// <param name="rawObject">Object to be stored.</param>
+        /// <param name="keepForInitializationOnly">Boolean flag indicating if this object should be made available only during TelemetryInitializers.
+        /// If set to true, then the object will not accessible in TelemetryProcessors and TelemetryChannel.</param>
+        /// <remarks>
+        /// This method is not thread-safe. Objects should be stored from Collectors or TelemetryInitializers that are run synchronously.
+        /// </remarks>
+        public void StoreRawObject(string key, object rawObject, bool keepForInitializationOnly = true)
+        {
+            if (key == null)
+            {
+                return;
+            }
+
+            if (keepForInitializationOnly)
+            {
+                this.rawObjectsTemp[key] = rawObject;
+                this.rawObjectsPerm.Remove(key);
+            }
+            else
+            {
+                this.rawObjectsPerm[key] = rawObject;
+                this.rawObjectsTemp.Remove(key);
+            }
+        }
+
         internal void SanitizeGlobalProperties()
         {
             this.GlobalPropertiesValue?.SanitizeProperties();
+        }
+
+        internal void ClearTempRawObjects()
+        {
+          this.rawObjectsTemp.Clear();
         }
 
         internal TelemetryContext DeepClone(IDictionary<string, string> properties)
