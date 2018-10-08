@@ -150,7 +150,7 @@ function Get-IsValidAuthors([xml]$nuspecXml) {
     $authors = $nuspecXml.package.metadata.authors;
 
     $message = "Authors: $authors";
-    $requirement = "Microsoft must be the only owner.";
+    $requirement = "Microsoft must be the only author.";
 
     Test-Condition ($authors -eq "Microsoft") $message $requirement;
 }
