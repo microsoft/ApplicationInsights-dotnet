@@ -7,7 +7,6 @@
     <AssemblyName>Microsoft.AI.WindowsServer</AssemblyName>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
     <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
-    <!--<Prefer32Bit>false</Prefer32Bit>-->  <!--net45 ?-->
   </PropertyGroup>
 
   <PropertyGroup>
@@ -18,17 +17,6 @@
     <PackageTags>Azure Monitoring Analytics ApplicationInsights Telemetry AppInsights</PackageTags>
   </PropertyGroup>
 
-<!--   
-  <PropertyGroup>
-    <DelaySign>true</DelaySign>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyOriginatorKeyFile>../../../Keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-  </PropertyGroup>
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" Condition="'$(DoNotSign)' == ''" />
--->
-  
   <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
     <DefineConstants>$(DefineConstants);NET45;</DefineConstants>
   </PropertyGroup>

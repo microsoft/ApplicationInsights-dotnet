@@ -394,6 +394,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                         break;
                     }
+
                     case SqlAfterRollbackTransaction:
                     {
                         var operationId = (Guid)TransactionRollbackAfter.OperationId.Fetch(evnt.Value);
@@ -455,6 +456,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                         break;
                     }
+
                     case SqlErrorRollbackTransaction:
                     {
                         var operationId = (Guid)TransactionRollbackError.OperationId.Fetch(evnt.Value);

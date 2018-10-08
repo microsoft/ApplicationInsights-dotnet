@@ -34,25 +34,6 @@
     <DefineConstants>$(DefineConstants);NETSTANDARD1_6;NETSTANDARD;</DefineConstants>
   </PropertyGroup>
 
-<!--
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), NetCore.props))\NetCore.props" />  
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" Condition="'$(DoNotSign)' == ''" />
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <DelaySign>true</DelaySign>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyOriginatorKeyFile>../../../Keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-  </PropertyGroup>
-
--->
-
   <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
     <!--Analyzers and Build Infrastructure-->
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">

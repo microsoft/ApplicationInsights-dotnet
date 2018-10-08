@@ -2,7 +2,6 @@ $directory = $PSScriptRoot;
 Write-Host "Scanning $directory";
 
 
-#$oldVersion = cat .\Directory.Build.props | Select-String -Pattern "CoreSdkVersion" | %{$_.Line.Split("<>")} | Select -skip 2 | Select -First 1
 $oldVersion = "2.8.0-beta1"
 Write-Host "Old Version: $oldVersion";
 

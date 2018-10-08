@@ -4,16 +4,11 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
-    <!--<DelaySign>true</DelaySign>-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Microsoft.AI.PerformanceCollector.NetCore.Tests</AssemblyName>
-    <!--<AssemblyOriginatorKeyFile>../../../Keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>-->
-    <!--<SignAssembly>true</SignAssembly>-->
-    <!--<PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>-->
     <PackageId>Microsoft.AI.DependencyCollector.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>
-    <!--<DoNotSign>true</DoNotSign>-->
     <RootNamespace>Microsoft.ApplicationInsights.Tests</RootNamespace>
   </PropertyGroup>
 

@@ -77,8 +77,6 @@
         <NugetVersionFilePath>$(MSBuildThisFileDirectory).nugetVersion</NugetVersionFilePath>
         <BuildNugetVersion Condition="Exists($(NugetVersionFilePath))">$([System.IO.File]::ReadAllText($(NugetVersionFilePath)))</BuildNugetVersion>
 
-        <CoreSdkVersion>2.8.0-beta2</CoreSdkVersion>
-
         <!-- Forces EventRegister target to generate ETW manifest file --> 
         <EtwManifestForceAll>true</EtwManifestForceAll>
         <EtwManifestOutDir>$(BinRoot)\$(Configuration)\ETW\</EtwManifestOutDir>

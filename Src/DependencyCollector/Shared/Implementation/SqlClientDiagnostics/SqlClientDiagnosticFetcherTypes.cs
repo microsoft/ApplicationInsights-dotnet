@@ -103,7 +103,6 @@
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
         }
 
-
         /// <summary> Fetchers for transaction commit error events. </summary>
         internal static class TransactionCommitError
         {
