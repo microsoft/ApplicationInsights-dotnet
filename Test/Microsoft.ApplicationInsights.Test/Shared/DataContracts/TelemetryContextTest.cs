@@ -257,7 +257,7 @@
         }
 
         [TestMethod]
-        public void TestTelemetryContextDoesNotThrowOnInvalidKeysForRawObjectStore()
+        public void TestTelemetryContextDoesNotThrowOnInvalidKeysValuesForRawObjectStore()
         {
             const string key = "";
             const string detail = "bar";
@@ -268,13 +268,21 @@
             context.StoreRawObject(null, detail, false);
             context.TryGetRawObject(null, out object actualDontExist);
 
+            context.StoreRawObject(null, null);
+            context.StoreRawObject(null, null, false);
+            context.TryGetRawObject(null, out object actualDontExist1);
+
+            context.StoreRawObject("key", null);
+            Assert.IsTrue(context.TryGetRawObject("key", out object actual));
+            Assert.AreSame(null, actual);
+
             context.StoreRawObject(key, detail);
-            Assert.IsTrue(context.TryGetRawObject(key, out object actual));
-            Assert.AreSame(detail, actual);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actual1));
+            Assert.AreSame(detail, actual1);
 
             context.StoreRawObject(string.Empty, detail);
-            Assert.IsTrue(context.TryGetRawObject(string.Empty, out object actual1));
-            Assert.AreSame(detail, actual1);
+            Assert.IsTrue(context.TryGetRawObject(string.Empty, out object actual2));
+            Assert.AreSame(detail, actual2);
         }
 
         [TestMethod]
