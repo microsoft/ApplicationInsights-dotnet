@@ -88,7 +88,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public IDictionary<string, double> measurements { get; set; }
+        
 
         public RemoteDependencyData()
             : this("AI.RemoteDependencyData", "RemoteDependencyData")
@@ -106,7 +106,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             target = "";
             type = "";
             properties = new ConcurrentDictionary<string, string>();
-            measurements = new ConcurrentDictionary<string, double>();
+            
         }
     }
 } // AI
