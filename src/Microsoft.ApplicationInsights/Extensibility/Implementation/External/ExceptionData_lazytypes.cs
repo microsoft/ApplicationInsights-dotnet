@@ -1,12 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
     using System.Collections.Concurrent;
-    using System.Collections.Generic;    
+    using System.Collections.Generic;
 
     /// <summary>
-    /// Partial class to implement ISerializableWithWriter
+    ///  Partial class to add the Lazy instantiation of ConcurrentDictionary.
     /// </summary>
-    internal partial class ExceptionData : ISerializableWithWriter
+    internal partial class ExceptionData
     {
         private IDictionary<string, double> measurementsInternal;
 

@@ -6,7 +6,7 @@
     /// <summary>
     /// Partial class to implement ISerializableWithWriter
     /// </summary>
-    internal partial class MessageData : ISerializableWithWriter
+    internal partial class MessageData
     {
         private IDictionary<string, double> measurementsInternal;
 

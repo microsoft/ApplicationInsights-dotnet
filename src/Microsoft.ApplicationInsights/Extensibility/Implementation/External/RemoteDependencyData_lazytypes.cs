@@ -6,7 +6,7 @@
     /// <summary>
     /// Partial class to implement ISerializableWithWriter
     /// </summary>
-    internal partial class RemoteDependencyData : ISerializableWithWriter
+    internal partial class RemoteDependencyData
     {
         private IDictionary<string, double> measurementsInternal;
 

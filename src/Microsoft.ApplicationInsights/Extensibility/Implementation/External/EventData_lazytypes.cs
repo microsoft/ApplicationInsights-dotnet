@@ -9,7 +9,7 @@
     /// <summary>
     /// Partial class to add the Lazy instantiation of ConcurrentDictionary.
     /// </summary>
-    internal partial class EventData : ISerializableWithWriter
+    internal partial class EventData
     {
         private IDictionary<string, double> measurementsInternal;
 
