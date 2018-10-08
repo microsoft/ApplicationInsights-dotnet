@@ -333,7 +333,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <param name="detail">Detailed information collected by the tracked operation.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void SetOperationDetail(string key, object detail)
-        {            
+        {
             this.Context.StoreRawObject(key, detail, true);
         }
 

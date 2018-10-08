@@ -32,7 +32,7 @@
         private UserContext user;
         private OperationContext operation;
         private LocationContext location;
-               
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryContext"/> class.
         /// </summary>
@@ -51,7 +51,7 @@
             this.PropertiesValue = properties;
             this.GlobalPropertiesValue = globalProperties;
         }
-    
+
         /// <summary>
         /// Gets or sets the default instrumentation key for all <see cref="ITelemetry"/> objects logged in this <see cref="TelemetryContext"/>.
         /// </summary>
@@ -216,11 +216,11 @@
         /// </summary>
         /// <param name="key">The key to store the detail against.</param>
         /// <param name="rawObject">Object to be stored.</param>
-        /// <param name="destoryAfterTelemetryInitializers">Boolean flag indicating if this state should be destroyed after TelemetryInitializers are run.
+        /// <param name="keepForInitializationOnly">Boolean flag indicating if this state should be made available only during TelemetryInitializers.
         /// If set to true, then the object will not accessible in TelemetryProcessors and TelemetryChannel.</param>        
-        public void StoreRawObject(string key, object rawObject, bool destoryAfterTelemetryInitializers = true)
+        public void StoreRawObject(string key, object rawObject, bool keepForInitializationOnly = true)
         {
-            this.RawObjects[key] = new Tuple<bool, object>(destoryAfterTelemetryInitializers, rawObject);
+            this.RawObjects[key] = new Tuple<bool, object>(keepForInitializationOnly, rawObject);
         }
 
         internal void SanitizeGlobalProperties()
