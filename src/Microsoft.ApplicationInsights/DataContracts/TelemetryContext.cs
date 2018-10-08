@@ -173,7 +173,7 @@
                 return result;
             }
         }
-       
+
         /// <summary>
         /// Returns the raw object with the given key.        
         /// Objects retrieved here are not automatically serialized and sent to the backend.
@@ -182,6 +182,9 @@
         /// <param name="key">The key of the value to get.</param>
         /// <param name="rawObject">When this method returns, contains the object that has the specified key, or the default value of the type if the operation failed.</param>
         /// <returns>true if the key was found; otherwise, false.</returns>
+        /// <remarks>
+        /// This method is not thread-safe. Objects should be stored from Collectors or TelemetryInitializers that are run synchronously.
+        /// </remarks>        
         public bool TryGetRawObject(string key, out object rawObject)
         {            
             if (this.rawObjectsTemp.TryGetValue(key, out rawObject))
@@ -195,18 +198,18 @@
         }
 
         /// <summary>
-        /// Sets the raw object against the key specified.
-        /// Use this store to provide raw objects from data collectors so that TelemetryInitializers can
-        /// extract additional details.
+        /// Stores the raw object against the key specified.
+        /// Use this to store raw objects from data collectors so that TelemetryInitializers can access
+        /// them to extract additional details to enrich telemetry.
         /// Objects stored through this method are not automatically serialized and sent to the backend.
         /// They are shared (i.e not cloned) if multiple sinks are configured, so sinks should treat them as read-only.
         /// </summary>
-        /// <param name="key">The key to store the detail against.</param>
+        /// <param name="key">The key to store the object against.</param>
         /// <param name="rawObject">Object to be stored.</param>
-        /// <param name="keepForInitializationOnly">Boolean flag indicating if this state should be made available only during TelemetryInitializers.
+        /// <param name="keepForInitializationOnly">Boolean flag indicating if this object should be made available only during TelemetryInitializers.
         /// If set to true, then the object will not accessible in TelemetryProcessors and TelemetryChannel.</param>
         /// <remarks>
-        /// This method is not thread-safe. Objects should be set from collectors or TelemetryInitializers that are run synchronously.
+        /// This method is not thread-safe. Objects should be stored from Collectors or TelemetryInitializers that are run synchronously.
         /// </remarks>
         public void StoreRawObject(string key, object rawObject, bool keepForInitializationOnly = true)
         {
