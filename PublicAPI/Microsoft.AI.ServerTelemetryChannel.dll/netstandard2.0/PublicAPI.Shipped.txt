@@ -1,4 +1,3 @@
-
 Microsoft.ApplicationInsights.Extensibility.TelemetryProcessorChainBuilderExtensions
 Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation.AdaptiveSamplingPercentageEvaluatedCallback
 Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation.SamplingPercentageEstimatorSettings

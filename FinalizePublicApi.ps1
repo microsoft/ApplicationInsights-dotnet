@@ -3,7 +3,8 @@ $path = "\PublicAPI";
 $directory = $PSScriptRoot;
 
 $searchPath = Join-Path -Path $directory -ChildPath $path;
-Write-Host $searchPath;
+Write-Host "Search Directory: $searchPath";
+Write-Host "";
 
 Get-ChildItem -Path $searchPath -Recurse -Filter *.Shipped.txt | 
     ForEach-Object {
@@ -15,13 +16,15 @@ Get-ChildItem -Path $searchPath -Recurse -Filter *.Shipped.txt |
         if (Test-Path $unshipped) {
             Write-Host $unshipped;
 
-            Get-Content $shipped, $unshipped |
-                Sort-Object |
-                Set-Content $shipped;
+            Get-Content $shipped, $unshipped |  # get contents of both text files
+                Where-Object {$_ -ne ""} |      # filter empty lines
+                Sort-Object |                   # sort lines
+                Get-Unique |                    # filter duplicates
+                Set-Content $shipped;           # write to shipped.txt
 
-            "" | Set-Content $unshipped;
+            Clear-Content $unshipped;           # empty unshipped.txt
 
-            Write-Host "merged and sorted.";
+            Write-Host "...MERGED and SORTED";
         }
 
         Write-Host "";
