@@ -61,7 +61,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public IDictionary<string, double> measurements { get; set; }
+        
 
         public ExceptionData()
             : this("AI.ExceptionData", "ExceptionData")
@@ -73,7 +73,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             exceptions = new List<ExceptionDetails>();
             problemId = "";
             properties = new ConcurrentDictionary<string, string>();
-            measurements = new ConcurrentDictionary<string, double>();
+            
         }
     }
 } // AI
