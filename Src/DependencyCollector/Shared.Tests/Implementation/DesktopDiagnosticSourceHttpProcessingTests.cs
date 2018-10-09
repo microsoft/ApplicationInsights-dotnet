@@ -54,20 +54,22 @@ namespace Microsoft.ApplicationInsights.Tests
                     OnSend = telemetry =>
                     {
                         this.sendItems.Add(telemetry);
-
-                        // The correlation id lookup service also makes http call, just make sure we skip that
-                        DependencyTelemetry depTelemetry = telemetry as DependencyTelemetry;
-                        if (depTelemetry != null)
-                        {
-                            depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, out this.request);
-                            depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, out this.response);
-                            depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseHeadersOperationDetailName, out this.responseHeaders);
-                        }
                     },
                 },
                 InstrumentationKey = TestInstrumentationKey,
                 ApplicationIdProvider = new MockApplicationIdProvider(TestInstrumentationKey, TestApplicationId)
             };
+
+            this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer
+            {
+                OnInitialize = telemetry =>
+                {
+                    var depTelemetry = telemetry as DependencyTelemetry;
+                    depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, out this.request);
+                    depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, out this.response);
+                    depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseHeadersOperationDetailName, out this.responseHeaders);
+                }
+            });
 
             this.httpDesktopProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(
                 this.configuration, 
