@@ -190,30 +190,31 @@
         /// <param name="item">The telemetry item to be tagged.</param>
         /// <param name="extractorInfo">The string to be added to the item's properties.</param>
         private static void AddExtractorInfo(ITelemetry item, string extractorInfo)
-        {
-            var itemWithProperties = item as ISupportProperties;
-            if (itemWithProperties == null)
+        {            
+            if (item is RequestTelemetry)
             {
-                return;
+                var req = item as RequestTelemetry;
+                req.MetricExtractorInfo = ExtractionPipelineInfo(req.MetricExtractorInfo, extractorInfo);
             }
-
-            string extractionPipelineInfo;            
-            bool hasPrevInfo = itemWithProperties.Properties.TryGetValue(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key, out extractionPipelineInfo);
-
-            if (false == hasPrevInfo)
+            else if (item is DependencyTelemetry)
             {
-                extractionPipelineInfo = String.Empty;
+                var dep = item as DependencyTelemetry;
+                dep.MetricExtractorInfo = ExtractionPipelineInfo(dep.MetricExtractorInfo, extractorInfo);
+            }                                   
+        }
+
+        private static string ExtractionPipelineInfo(string extractionPipelineInfo, string extractorInfo)
+        {
+            if (extractionPipelineInfo?.Length > 0)
+            {
+                extractionPipelineInfo = extractionPipelineInfo + "; ";
             }
             else
             {
-                if (extractionPipelineInfo.Length > 0)
-                {
-                    extractionPipelineInfo = extractionPipelineInfo + "; ";
-                }
+                extractionPipelineInfo = String.Empty;
             }
-
-            extractionPipelineInfo = extractionPipelineInfo + extractorInfo;
-            itemWithProperties.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = extractionPipelineInfo;
+            
+            return extractionPipelineInfo + extractorInfo;
         }
 
         /// <summary>
