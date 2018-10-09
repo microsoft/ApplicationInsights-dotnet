@@ -8,7 +8,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 	https://github.com/Microsoft/ApplicationInsights-dotnet/issues/927
 	https://github.com/Microsoft/ApplicationInsights-dotnet/issues/930
 	https://github.com/Microsoft/ApplicationInsights-dotnet/issues/934
-
+- Fix: [Response code shouldn't be overwritten to 200 if not set](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/918)
 
 ## Version 2.8.0-beta2
 - [TelemetryProcessors (sampling, autocollectedmetricaggregator), TelemetryChannel (ServerTelemetryChannel) added automatically to the default ApplicationInsights.config are moved under the default telemetry sink.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/907)
