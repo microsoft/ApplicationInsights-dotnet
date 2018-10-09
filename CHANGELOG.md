@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.5.0
+- Traces logged via ILogger is marked with SDK version prefix ilc (.net core) or ilf (.net framework).
+- Update Web/Base SDK version dependency to 2.8.0
+
 ## Version 2.5.0-beta2
 - ComVisible attribute is set to false for the project for compliance reasons.
 Applicable if using additional Sinks to forward telemetry to:
