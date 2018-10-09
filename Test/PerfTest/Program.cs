@@ -31,6 +31,7 @@ namespace PerfTest
             var telemetryClient = new TelemetryClient(activeConfiguration);
 
             int IterationMax = 25;
+            int TaskCount = Environment.ProcessorCount;
 
             long[] runs = new long[IterationMax-1];            
 
@@ -41,9 +42,9 @@ namespace PerfTest
             {
                 sw = new Stopwatch();
                 sw.Start();
-                Task[] tasks = new Task[20];
+                Task[] tasks = new Task[TaskCount];
 
-                for (int i = 0; i < 20; i++)
+                for (int i = 0; i < TaskCount; i++)
                 {
                     tasks[i] = new Task(() =>
                     {
@@ -55,7 +56,7 @@ namespace PerfTest
                     });
                 }
 
-                for (int i = 0; i < 20; i++)
+                for (int i = 0; i < TaskCount; i++)
                 {
                     tasks[i].Start();
                 }
