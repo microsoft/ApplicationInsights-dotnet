@@ -58,15 +58,6 @@ namespace Microsoft.ApplicationInsights.Tests
                 OnSend = telemetry =>
                 {
                     this.sentTelemetry.Add(telemetry);
-
-                    // The correlation id lookup service also makes http call, just make sure we skip that
-                    DependencyTelemetry depTelemetry = telemetry as DependencyTelemetry;
-                    if (depTelemetry != null)
-                    {
-                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, out this.request);
-                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, out this.response);
-                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseHeadersOperationDetailName, out this.responseHeaders);
-                    }
                 },
             };
 
@@ -80,6 +71,16 @@ namespace Microsoft.ApplicationInsights.Tests
             };
 
             this.configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+            this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer
+            {
+                OnInitialize = telemetry =>
+                {
+                    var depTelemetry = telemetry as DependencyTelemetry;
+                    depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, out this.request);
+                    depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, out this.response);
+                    depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseHeadersOperationDetailName, out this.responseHeaders);
+                }
+            });
             this.listener = new HttpCoreDiagnosticSourceListener(
                 this.configuration,
                 setComponentCorrelationHttpHeaders: true,

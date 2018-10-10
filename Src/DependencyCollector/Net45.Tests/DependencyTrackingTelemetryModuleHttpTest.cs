@@ -59,13 +59,6 @@
                 OnSend = telemetry =>
                 {
                     this.sentTelemetry.Add(telemetry);
-
-                    if (telemetry is DependencyTelemetry depTelemetry)
-                    {
-                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, out this.request);
-                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, out this.response);
-                        depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, out this.responseHeaders);
-                    }
                 },
                 EndpointAddress = FakeProfileApiEndpoint
             };
@@ -83,6 +76,16 @@
             };
 
             this.config.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+            this.config.TelemetryInitializers.Add(new StubTelemetryInitializer
+            {
+                OnInitialize = telemetry =>
+                {
+                    var depTelemetry = telemetry as DependencyTelemetry;
+                    depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, out this.request);
+                    depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, out this.response);
+                    depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseHeadersOperationDetailName, out this.responseHeaders);
+                }
+            });
             DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 
