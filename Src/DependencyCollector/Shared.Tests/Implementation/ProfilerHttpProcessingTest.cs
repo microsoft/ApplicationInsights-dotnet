@@ -33,13 +33,11 @@
         private const int TimeAccuracyMilliseconds = 150; // this may be big number when under debugger
         private const string TestInstrumentationKey = nameof(TestInstrumentationKey);
         private const string TestApplicationId = "cid-v1:" + nameof(TestApplicationId);
+        private readonly OperationDetailsInitializer operationDetailsInitializer = new OperationDetailsInitializer();
         private TelemetryConfiguration configuration;
         private Uri testUrl = new Uri("http://www.microsoft.com/");
         private Uri testUrlNonStandardPort = new Uri("http://www.microsoft.com:911/");
         private List<ITelemetry> sendItems;
-        private object request;
-        private object response;
-        private object responseHeaders;
         private int sleepTimeMsecBetweenBeginAndEnd = 100;
         private Exception ex = new Exception();
         private ProfilerHttpProcessing httpProcessingProfiler;
@@ -51,33 +49,20 @@
         public void TestInitialize()
         {
             this.sendItems = new List<ITelemetry>();
-            this.request = null;
-            this.response = null;
-            this.responseHeaders = null;
 
             this.configuration = new TelemetryConfiguration()
             {
                 TelemetryChannel = new StubTelemetryChannel
                 {
-                    OnSend = telemetry =>
-                    {
-                        this.sendItems.Add(telemetry);
-
-                        // The correlation id lookup service also makes http call, just make sure we skip that
-                        DependencyTelemetry depTelemetry = telemetry as DependencyTelemetry;
-                        if (depTelemetry != null)
-                        {
-                            depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, out this.request);
-                            depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, out this.response);
-                            depTelemetry.TryGetOperationDetail(RemoteDependencyConstants.HttpResponseHeadersOperationDetailName, out this.responseHeaders);
-                        }
-                    },
+                    OnSend = telemetry => this.sendItems.Add(telemetry)
                 },
                 InstrumentationKey = TestInstrumentationKey,
                 ApplicationIdProvider = new MockApplicationIdProvider(TestInstrumentationKey, TestApplicationId)
             };
 
             this.configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+            this.configuration.TelemetryInitializers.Add(this.operationDetailsInitializer);
+
             this.httpProcessingProfiler = new ProfilerHttpProcessing(
                 this.configuration,
                 null,
@@ -966,17 +951,7 @@
             Assert.AreEqual(success, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
             Assert.AreEqual(resultCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");
 
-            // Validate the http request is present
-            Assert.IsNotNull(this.request, "Http request was not found within the operation details.");
-            Assert.IsNotNull(this.request as WebRequest, "Http request was not the expected type.");
-
-            // If expected -- validate the response
-            if (responseExpected)
-            {
-                Assert.IsNotNull(this.response, "Http response was not found within the operation details.");
-                Assert.IsNotNull(this.response as HttpWebResponse, "Http response was not the expected type.");
-                Assert.IsNull(this.responseHeaders, "Http response headers were not found within the operation details.");
-            }
+            this.operationDetailsInitializer.ValidateOperationDetailsDesktop(remoteDependencyTelemetryActual, responseExpected, headersExpected: false);
 
             var valueMinRelaxed = expectedValue - TimeAccuracyMilliseconds;
             Assert.IsTrue(
