@@ -19,6 +19,14 @@
             return VersionPrefix + GetAssemblyVersion();
         }
 
+        /// <summary>
+        /// Get the Assembly Version with given SDK prefix.
+        /// </summary>
+        internal static string GetVersion(string versionPrefix)
+        {
+            return versionPrefix + GetAssemblyVersion();
+        }
+
         private static string GetAssemblyVersion()
         {
             return typeof(SdkVersionUtils).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyInformationalVersionAttribute>()
