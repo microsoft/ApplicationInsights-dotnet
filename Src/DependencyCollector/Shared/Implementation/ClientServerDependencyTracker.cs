@@ -10,7 +10,7 @@
 
     internal static class ClientServerDependencyTracker
     {
-        internal const string DependencyActivityName = "Microsoft.ApplivationInsights.Web.Dependency";
+        internal const string DependencyActivityName = "Microsoft.ApplicationInsights.Web.Dependency";
 
         internal static bool IsW3CEnabled { get; set; } = false;
 
