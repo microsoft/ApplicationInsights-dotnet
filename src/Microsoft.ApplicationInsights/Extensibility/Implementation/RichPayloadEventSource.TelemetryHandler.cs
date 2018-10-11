@@ -393,7 +393,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     item.Sanitize();
                     var telemetryItem = item as DependencyTelemetry;
-                    // var data = telemetryItem.InternalData;
+                    var data = telemetryItem.InternalData;
                     var extendedData = new
                     {
                         // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
@@ -401,17 +401,17 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         PartA_Tags = telemetryItem.Context.SanitizedTags,
                         PartB_RemoteDependencyData = new
                         {
-                            telemetryItem.Ver,
-                            telemetryItem.Name,
-                            telemetryItem.Id,
-                            telemetryItem.ResultCode,
-                            telemetryItem.Duration,
-                            telemetryItem.Success,
-                            telemetryItem.Data,
-                            telemetryItem.Target,
-                            telemetryItem.Type,
-                            telemetryItem.Properties,
-                            telemetryItem.Metrics
+                            data.ver,
+                            data.name,
+                            data.id,
+                            data.resultCode,
+                            data.duration,
+                            data.success,
+                            data.data,
+                            data.target,
+                            data.type,
+                            data.properties,
+                            data.measurements
                         },
                         PartA_flags = telemetryItem.Context.Flags,
                     };
