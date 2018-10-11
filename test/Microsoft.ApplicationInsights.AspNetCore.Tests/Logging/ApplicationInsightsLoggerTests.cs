@@ -24,7 +24,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
             bool isCorrectVersion = false;
             TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
             {
-                isCorrectVersion = t.Context.GetInternalContext().SdkVersion.StartsWith(SdkVersionUtils.VersionPrefix);
+                isCorrectVersion = t.Context.GetInternalContext().SdkVersion.StartsWith(ApplicationInsightsLogger.VersionPrefix);
             });
 
             ILogger logger = new ApplicationInsightsLogger("test", client, (s, l) => { return true; }, null);

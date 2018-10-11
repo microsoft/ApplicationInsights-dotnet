@@ -1,12 +1,17 @@
 # Changelog
 
+## Version 2.5.0
+- Traces logged via ILogger is marked with SDK version prefix ilc (.net core) or ilf (.net framework).
+- Update Web/Base SDK version dependency to 2.8.0
+
 ## Version 2.5.0-beta2
 - ComVisible attribute is set to false for the project for compliance reasons.
+- [Log exception.Data properties as additional telemetry data](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/754)
+- Update Web/Base SDK version dependency to 2.8.0-beta2
 Applicable if using additional Sinks to forward telemetry to:
   - [Default TelemetryProcessors are added to the DefaultSink instead of common TelemetryProcessor pipeline.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/752)
   - [TelemetryProcessors added via AddTelemetryProcesor extension method are added to the DefaultSink instead of common TelemetryProcessor pipeline.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/752)
-  - [Log exception.Data properties as additional telemetry data](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/754)
-  - Update Web/Base SDK version dependency to 2.8.0-beta2
+  
 
 ## Version 2.5.0-beta1
 - [Adds opt-in support for W3C distributed tracing standard](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/735)
