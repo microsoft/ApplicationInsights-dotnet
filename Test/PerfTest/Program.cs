@@ -15,6 +15,8 @@ namespace PerfTest
     {
         static void Main(string[] args)
         {
+            Stopwatch s1 = new Stopwatch();
+            s1.Start();
 
             var activeConfiguration = TelemetryConfiguration.Active;
             activeConfiguration.InstrumentationKey = "c351b2d8-10f5-45c9-902d-05100da0f8a6";
@@ -74,6 +76,8 @@ namespace PerfTest
             }
 
             Console.WriteLine("Avge" + runs.Average());
+
+            Console.WriteLine(s1.Elapsed.TotalSeconds);
         }
     }
 
