@@ -208,7 +208,7 @@
             else if (telemetryItem is DependencyTelemetry)
             {
                 DependencyTelemetry depTelemetry = telemetryItem as DependencyTelemetry;
-                CopyGlobalPropertiesIfExist(telemetryItem.Context, depTelemetry.InternalData.properties);
+                CopyGlobalPropertiesIfExist(telemetryItem.Context, depTelemetry.Properties);
 
                 SerializeHelper(telemetryItem, jsonSerializationWriter, depTelemetry.BaseType, DependencyTelemetry.TelemetryName);
             }

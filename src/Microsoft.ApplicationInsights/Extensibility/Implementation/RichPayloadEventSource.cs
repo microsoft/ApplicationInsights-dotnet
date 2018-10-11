@@ -115,7 +115,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     DependencyTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
-                    telemetryItem.InternalData,
+                    item,
                     telemetryItem.Context.Flags,
                     Keywords.Dependencies);
             }

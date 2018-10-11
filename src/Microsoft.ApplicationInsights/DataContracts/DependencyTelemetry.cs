@@ -22,20 +22,23 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         internal readonly string BaseType = typeof(RemoteDependencyData).Name;
 
-        internal readonly RemoteDependencyData InternalData;
+        // internal readonly RemoteDependencyData InternalData;
         private readonly TelemetryContext context;
         private IExtension extension;
         private double? samplingPercentage;
         private bool successFieldSet;
+        private bool success;
+        private IDictionary<string, string> properties;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class.
         /// </summary>
         public DependencyTelemetry()
         {
-            this.InternalData = new RemoteDependencyData();
+            // this.InternalData = new RemoteDependencyData();
+            this.properties = new ConcurrentDictionary<string, string>();
             this.successFieldSet = true;
-            this.context = new TelemetryContext(this.InternalData.properties);
+            this.context = new TelemetryContext(this.Properties);
             this.GenerateId();
         }
 
@@ -91,8 +94,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <param name="source">Source instance of <see cref="DependencyTelemetry"/> to clone from.</param>
         private DependencyTelemetry(DependencyTelemetry source)
         {
-            this.InternalData = source.InternalData.DeepClone();
-            this.context = source.context.DeepClone(this.InternalData.properties);
+            // this.InternalData = source.InternalData.DeepClone();
+            this.context = source.context.DeepClone(this.Properties);
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
@@ -132,8 +135,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override string Id
         {
-            get { return this.InternalData.id; }
-            set { this.InternalData.id = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -141,8 +144,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public string ResultCode
         {
-            get { return this.InternalData.resultCode; }
-            set { this.InternalData.resultCode = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -150,8 +153,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override string Name
         {
-            get { return this.InternalData.name; }
-            set { this.InternalData.name = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -160,8 +163,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         [Obsolete("Renamed to Data")]
         public string CommandName
         {
-            get { return this.InternalData.data; }
-            set { this.InternalData.data = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -169,8 +172,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public string Data
         {
-            get { return this.InternalData.data; }
-            set { this.InternalData.data = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -178,9 +181,15 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public string Target
         {
-            get { return this.InternalData.target; }
-            set { this.InternalData.target = value; }
+            get;
+            set;
         }
+
+#pragma warning disable RS0016 // Add public types and members to the declared API
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        public int Ver { get; set; }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning restore RS0016 // Add public types and members to the declared API
 
         /// <summary>
         /// Gets or sets the dependency type name.
@@ -188,8 +197,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         [Obsolete("Renamed to Type")]
         public string DependencyTypeName
         {
-            get { return this.Type;  }
-            set { this.Type = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -197,8 +206,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public string Type
         {
-            get { return this.InternalData.type; }
-            set { this.InternalData.type = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -206,8 +215,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override TimeSpan Duration
         {
-            get { return this.InternalData.duration; }
-            set { this.InternalData.duration = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -219,7 +228,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             {
                 if (this.successFieldSet)
                 {
-                    return this.InternalData.success;
+                    return this.success;
                 }
 
                 return null;
@@ -229,12 +238,12 @@ namespace Microsoft.ApplicationInsights.DataContracts
             {
                 if (value != null && value.HasValue)
                 {
-                    this.InternalData.success = value.Value;
+                    this.success = value.Value;
                     this.successFieldSet = true;
                 }
                 else
                 {
-                    this.InternalData.success = true;
+                    this.success = true;
                     this.successFieldSet = false;
                 }
             }
@@ -245,15 +254,15 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public override IDictionary<string, string> Properties
-        {            
+        {
             get
             {
-                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.InternalData.properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
+                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
                 {
-                    this.InternalData.properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
+                    this.properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
                 }
 
-                return this.InternalData.properties;
+                return this.properties;
             }
         }
 
@@ -263,7 +272,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override IDictionary<string, double> Metrics
         {
-            get { return this.InternalData.measurements; }
+            get { return null; }
         }
 
         /// <summary>
@@ -302,7 +311,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             get;
             set;
         }
-        
+
         /// <summary>
         /// Deeply clones a <see cref="DependencyTelemetry"/> object.
         /// </summary>
@@ -340,7 +349,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <inheritdoc/>
         public override void SerializeData(ISerializationWriter serializationWriter)
         {
-            serializationWriter.WriteProperty(this.InternalData);            
+            // serializationWriter.WriteProperty(this.InternalData);            
         }
 
         /// <summary>
