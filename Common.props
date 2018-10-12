@@ -5,7 +5,10 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="'$(EnlistmentRoot)' == '' and Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <!-- If $(EnlistmentRoot) is still not set, then import Directory.Build.props directly. This can happen when gitlink tries to build (because it uses MSBuild tools version 4.0 and we can't find Microsoft.Common.props) -->
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Directory.Build.props'))\Directory.Build.props" Condition="'$(EnlistmentRoot)' == ''"/>
-  
+
+  <!-- Local file to add custom output to builds. Use as needed. -->
+  <!--<Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'BuildLogs.props'))\BuildLogs.props" />-->
+
   <PropertyGroup>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
