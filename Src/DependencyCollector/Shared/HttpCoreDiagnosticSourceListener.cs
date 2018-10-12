@@ -379,10 +379,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             
             this.client.Initialize(telemetry);
 
-            // If we started auxiliary Activity before to override the Id with W3C compatible one, now it's time to stop it
+            // If we started auxiliary Activity before to override the Id with W3C compatible one,
+            // now it's time to set end time on it
             if (currentActivity.Duration == TimeSpan.Zero)
             {
-                currentActivity.Stop();
+                currentActivity.SetEndTime(DateTime.UtcNow);
             }
 
             telemetry.Timestamp = currentActivity.StartTimeUtc;
