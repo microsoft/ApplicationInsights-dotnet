@@ -34,10 +34,11 @@
             {
                 case "Microsoft.Azure.ServiceBus.ProcessSession.Stop":
                 case "Microsoft.Azure.ServiceBus.Process.Stop":
-                    // If we started auxiliary Activity before to override the Id with W3C compatible one, now it's time to stop it
+                    // If we started auxiliary Activity before to override the Id with W3C compatible one,
+                    // now it's time to set end time on it
                     if (currentActivity.Duration == TimeSpan.Zero)
                     {
-                        currentActivity.Stop();
+                        currentActivity.SetEndTime(DateTime.UtcNow);
                     }
 
                     this.OnRequest(evnt.Key, evnt.Value, currentActivity);
@@ -61,10 +62,11 @@
                     }
                     else if (evnt.Key.EndsWith(TelemetryDiagnosticSourceListener.ActivityStopNameSuffix, StringComparison.Ordinal))
                     {
-                        // If we started auxiliary Activity before to override the Id with W3C compatible one, now it's time to stop it
+                        // If we started auxiliary Activity before to override the Id with W3C compatible one,
+                        // now it's time to set end time on it
                         if (currentActivity.Duration == TimeSpan.Zero)
                         {
-                            currentActivity.Stop();
+                            currentActivity.SetEndTime(DateTime.UtcNow);
                         }
 
                         this.OnDependency(evnt.Key, evnt.Value, currentActivity);
