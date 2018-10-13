@@ -1,4 +1,7 @@
-﻿#if !NETSTANDARD1_3 // netstandard1.3 has it's own implementation
+﻿using System.Security;
+using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+
+#if !NETSTANDARD1_3 // netstandard1.3 has it's own implementation
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 {
     using System;
@@ -181,6 +184,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
             catch (SecurityException e)
             {
                 CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
+                throw e;
             }
         }
 
@@ -197,6 +201,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
             catch (SecurityException e)
             {
                 CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
+                throw e;
             }
         }
     }
