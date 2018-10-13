@@ -22,12 +22,21 @@
         private readonly IIdentityProvider identityProvider;
 
         public ApplicationFolderProvider(string folderName = null)
-            : this(Environment.GetEnvironmentVariables(), folderName)
+            : this(null, folderName)
         {
         }
 
         internal ApplicationFolderProvider(IDictionary environment, string folderName = null)
         {
+            try
+            {
+                environment = Environment.GetEnvironmentVariables();
+            }
+            catch (SecurityException e)
+            {
+                throw new ArgumentNullException(nameof(environment), e);
+            }
+
             if (environment == null)
             {
                 throw new ArgumentNullException(nameof(environment));

@@ -174,7 +174,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 
         public string GetEnvironmentVariable(string name)
         {
-            return Environment.GetEnvironmentVariable(name);
+            try
+            {
+                return Environment.GetEnvironmentVariable(name);
+            }
+            catch (SecurityException e)
+            {
+                CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
+            }
         }
 
         /// <summary>
@@ -183,7 +190,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
         /// <returns>The machine name.</returns>
         public string GetMachineName()
         {
-            return Environment.GetEnvironmentVariable("COMPUTERNAME");
+            try
+            {
+                return Environment.GetEnvironmentVariable("COMPUTERNAME");
+            }
+            catch (SecurityException e)
+            {
+                CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
+            }
         }
     }
 }
