@@ -17,12 +17,7 @@
         /// </summary>
         public ApplicationStoppingEventArgs(Func<Func<Task>, Task> asyncMethodRunner)
         {
-            if (asyncMethodRunner == null)
-            {
-                throw new ArgumentNullException("asyncMethodRunner");
-            }
-
-            this.asyncMethodRunner = asyncMethodRunner;
+            this.asyncMethodRunner = asyncMethodRunner ?? throw new ArgumentNullException(nameof(asyncMethodRunner));
         }
 
         /// <summary>
@@ -32,7 +27,7 @@
         {
             try
             {
-                await this.asyncMethodRunner(asyncMethod);
+                await this.asyncMethodRunner(asyncMethod).ConfigureAwait(false);
             }
             catch (Exception exception)
             {

@@ -43,7 +43,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             var telemetryProps = item as ISupportProperties;
             if (telemetryProps != null)
             {
-                Utils.CopyDictionary(item.Context.GlobalProperties, telemetryProps.Properties);
+                // This check avoids accessing the public accessor GlobalProperties
+                // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
+                if (item.Context.GlobalPropertiesValue != null)
+                {
+                    Utils.CopyDictionary(item.Context.GlobalProperties, telemetryProps.Properties);
+                }
             }
 
             if (item is RequestTelemetry)
@@ -405,7 +410,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             var telemetryProps = item as ISupportProperties;
             if (telemetryProps != null)
             {
-                Utils.CopyDictionary(item.Context.GlobalProperties, telemetryProps.Properties);
+                // This check avoids accessing the public accessor GlobalProperties
+                // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
+                if (item.Context.GlobalPropertiesValue != null)
+                {
+                    Utils.CopyDictionary(item.Context.GlobalProperties, telemetryProps.Properties);
+                }
             }
 
             handler(item);

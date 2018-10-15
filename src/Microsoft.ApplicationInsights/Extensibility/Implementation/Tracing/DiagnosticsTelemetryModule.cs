@@ -168,7 +168,7 @@
         {
             if (configuration == null)
             {
-                throw new ArgumentNullException("configuration");
+                throw new ArgumentNullException(nameof(configuration));
             }
 
             // Temporary fix to make sure that we initialize module once.
@@ -259,6 +259,7 @@
         public void Dispose()
         {
             this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -277,8 +278,6 @@
                 }
 
                 this.HeartbeatProvider.Dispose();
-
-                GC.SuppressFinalize(this);
             }
 
             this.disposed = true;

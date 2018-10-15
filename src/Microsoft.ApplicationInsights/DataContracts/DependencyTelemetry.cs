@@ -4,11 +4,12 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
     using static System.Threading.LazyInitializer;
 
     /// <summary>
@@ -24,10 +25,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         internal readonly RemoteDependencyData InternalData;
         private readonly TelemetryContext context;
         private IExtension extension;
-        private IDictionary<string, object> operationDetails;
-
         private double? samplingPercentage;
-
         private bool successFieldSet;
 
         /// <summary>
@@ -100,12 +98,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.samplingPercentage = source.samplingPercentage;
             this.successFieldSet = source.successFieldSet;
             this.extension = source.extension?.DeepClone();
-
-            // Only clone the details if the source has had details initialized
-            if (source.operationDetails != null)
-            {
-                this.operationDetails = new ConcurrentDictionary<string, object>(source.operationDetails);
-            }
         }
 
         /// <summary>
@@ -127,7 +119,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strongly typed object.
         /// </summary>
         public override IExtension Extension
         {
@@ -214,8 +206,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override TimeSpan Duration
         {
-            get { return Utils.ValidateDuration(this.InternalData.duration); }
-            set { this.InternalData.duration = value.ToString(); }
+            get { return this.InternalData.duration; }
+            set { this.InternalData.duration = value; }
         }
 
         /// <summary>
@@ -253,8 +245,16 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public override IDictionary<string, string> Properties
-        {
-            get { return this.InternalData.properties; }
+        {            
+            get
+            {
+                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.InternalData.properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
+                {
+                    this.InternalData.properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
+                }
+
+                return this.InternalData.properties;
+            }
         }
 
         /// <summary>
@@ -295,10 +295,14 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Gets the dependency operation details, if any.
+        /// Gets or sets the MetricExtractorInfo.
         /// </summary>
-        private IDictionary<string, object> OperationDetails => EnsureInitialized(ref this.operationDetails, () => new ConcurrentDictionary<string, object>());
-
+        internal string MetricExtractorInfo
+        {
+            get;
+            set;
+        }
+        
         /// <summary>
         /// Deeply clones a <see cref="DependencyTelemetry"/> object.
         /// </summary>
@@ -318,14 +322,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <returns>true if the key was found; otherwise, false.</returns>
         public bool TryGetOperationDetail(string key, out object detail)
         {
-            // Avoid initializing the dictionary if it has not been initialized
-            if (this.operationDetails == null)
-            {
-                detail = null;
-                return false;
-            }
-
-            return this.OperationDetails.TryGetValue(key, out detail);
+            return this.Context.TryGetRawObject(key, out detail);
         }
 
         /// <summary>
@@ -337,7 +334,13 @@ namespace Microsoft.ApplicationInsights.DataContracts
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void SetOperationDetail(string key, object detail)
         {
-            this.OperationDetails[key] = detail;
+            this.Context.StoreRawObject(key, detail, true);
+        }
+
+        /// <inheritdoc/>
+        public override void SerializeData(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty(this.InternalData);            
         }
 
         /// <summary>
@@ -352,20 +355,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Type = this.Type.SanitizeDependencyType();
             this.Data = this.Data.SanitizeData();
             this.Properties.SanitizeProperties();
-        }
-
-        /// <summary>
-        /// Clears any stored operational data for the dependency operation, if any.
-        /// </summary>
-        internal void ClearOperationDetails()
-        {
-            // Avoid initializing the dictionary if it has not been initialized
-            if (this.operationDetails == null)
-            {
-                return;
-            }
-
-            this.OperationDetails.Clear();
         }
     }
 }

@@ -64,7 +64,7 @@
         {
             if (instrumentationKey == null)
             {
-                throw new ArgumentNullException("instrumentationKey");
+                throw new ArgumentNullException(nameof(instrumentationKey));
             }
 
             this.instrumentationKey = instrumentationKey;
@@ -126,7 +126,7 @@
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
 
                 this.instrumentationKey = value;
@@ -263,7 +263,7 @@
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
 
                 this.telemetryProcessorChain = value;
@@ -292,7 +292,7 @@
         {
             if (string.IsNullOrWhiteSpace(config))
             {
-                throw new ArgumentNullException("config");
+                throw new ArgumentNullException(nameof(config));
             }
 
             var configuration = new TelemetryConfiguration();

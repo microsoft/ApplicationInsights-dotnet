@@ -69,6 +69,8 @@
 
             // ASSERT
             // use internal fields to validate
+            Assert.AreEqual("Top level exception <--- Inner exception modified", item.Message);
+
             Assert.AreEqual(item.Data.Data.ver, 2);
             Assert.AreEqual(item.Data.Data.problemId, "ProblemId modified");
             Assert.AreEqual(item.Data.Data.severityLevel, Extensibility.Implementation.External.SeverityLevel.Error);
@@ -132,6 +134,75 @@
             Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[1].level, 1);
             Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[1].line, 11);
             Assert.AreEqual(item.Data.Data.exceptions.Last().parsedStack[1].method, "DeeperInnerMethod");
+        }
+
+        [TestMethod]
+        public void ExceptionTelemetryCreatedBasedOnCustomDataConstructsFakeExceptionCorrectly()
+        {
+            // ARRANGE
+            var topLevelexceptionDetails = new ExceptionDetailsInfo(1, -1, "TopLevelException", "Top level exception",
+                true, "Top level exception stack", new[]
+                {
+                    new StackFrame("Some.Assembly", "SomeFile.dll", 3, 33, "TopLevelMethod"),
+                    new StackFrame("Some.Assembly", "SomeOtherFile.dll", 2, 22, "LowerLevelMethod"),
+                    new StackFrame("Some.Assembly", "YetAnotherFile.dll", 1, 11, "LowLevelMethod")
+                });
+
+            var innerExceptionDetails = new ExceptionDetailsInfo(2, 1, "InnerException", "Inner exception", false,
+                "Inner exception stack", new[]
+                {
+                    new StackFrame("Some.Assembly", "ImportantFile.dll", 2, 22, "InnerMethod"),
+                    new StackFrame("Some.Assembly", "LessImportantFile.dll", 1, 11, "DeeperInnerMethod")
+                });
+
+            var innerInnerExceptionDetails = new ExceptionDetailsInfo(3, 1, "InnerInnerException", "Inner inner exception", false,
+                "Inner inner exception stack", new[]
+                {
+                    new StackFrame("Some.Assembly", "ImportantInnerFile.dll", 2, 22, "InnerInnerMethod"),
+                    new StackFrame("Some.Assembly", "LessImportantInnerFile.dll", 1, 11, "DeeperInnerInnerMethod")
+                });
+
+            ExceptionTelemetry item1 = new ExceptionTelemetry(new[] { topLevelexceptionDetails, innerExceptionDetails, innerInnerExceptionDetails },
+                SeverityLevel.Error, "ProblemId",
+                new Dictionary<string, string>() { ["property1"] = "value1", ["property2"] = "value2" },
+                new Dictionary<string, double>() { ["property1"] = 1, ["property2"] = 2 });
+
+            ExceptionTelemetry item2 = new ExceptionTelemetry(new[] { topLevelexceptionDetails, innerExceptionDetails },
+                SeverityLevel.Error, "ProblemId",
+                new Dictionary<string, string>() { ["property1"] = "value1", ["property2"] = "value2" },
+                new Dictionary<string, double>() { ["property1"] = 1, ["property2"] = 2 });
+
+            ExceptionTelemetry item3 = new ExceptionTelemetry(new[] { topLevelexceptionDetails },
+                SeverityLevel.Error, "ProblemId",
+                new Dictionary<string, string>() { ["property1"] = "value1", ["property2"] = "value2" },
+                new Dictionary<string, double>() { ["property1"] = 1, ["property2"] = 2 });
+
+            ExceptionTelemetry item4 = new ExceptionTelemetry(new ExceptionDetailsInfo[] { },
+                SeverityLevel.Error, "ProblemId",
+                new Dictionary<string, string>() { ["property1"] = "value1", ["property2"] = "value2" },
+                new Dictionary<string, double>() { ["property1"] = 1, ["property2"] = 2 });
+
+            // ACT
+            Exception exception1 = item1.Exception;
+            Exception exception2 = item2.Exception;
+            Exception exception3 = item3.Exception;
+            Exception exception4 = item4.Exception;
+
+            // ASSERT
+            Assert.AreEqual("Top level exception", exception1.Message);
+            Assert.AreEqual("Inner exception", exception1.InnerException.Message);
+            Assert.AreEqual("Inner inner exception", exception1.InnerException.InnerException.Message);
+            Assert.IsNull(exception1.InnerException.InnerException.InnerException);
+
+            Assert.AreEqual("Top level exception", exception2.Message);
+            Assert.AreEqual("Inner exception", exception2.InnerException.Message);
+            Assert.IsNull(exception2.InnerException.InnerException);
+
+            Assert.AreEqual("Top level exception", exception3.Message);
+            Assert.IsNull(exception3.InnerException);
+
+            Assert.AreEqual(string.Empty, exception4.Message);
+            Assert.IsNull(exception4.InnerException);
         }
 
         [TestMethod]

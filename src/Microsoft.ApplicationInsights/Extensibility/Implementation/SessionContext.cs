@@ -21,7 +21,7 @@
         /// </summary>
         public string Id
         {
-            get { return this.id == string.Empty ? null : this.id; }
+            get { return string.IsNullOrEmpty(this.id) ? null : this.id; }
             set { this.id = value; }
         }
 

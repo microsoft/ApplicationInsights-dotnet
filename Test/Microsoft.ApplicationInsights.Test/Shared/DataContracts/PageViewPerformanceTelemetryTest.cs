@@ -97,6 +97,29 @@
         }
 
         [TestMethod]
+        public void SerializePopulatesRequiredFieldsOfPageViewPerfTelemetry()
+        {
+            using (StringWriter stringWriter = new StringWriter(CultureInfo.InvariantCulture))
+            {
+                var pvTelemetry = new PageViewPerformanceTelemetry();
+                pvTelemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
+                ((ITelemetry)pvTelemetry).Sanitize();
+                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.PageViewPerfData>(pvTelemetry);
+
+                Assert.AreEqual(2, item.data.baseData.ver);
+                Assert.IsNotNull(item.data.baseData.id);
+                Assert.IsNotNull(item.time);
+                Assert.AreEqual(new TimeSpan(), TimeSpan.Parse(item.data.baseData.duration));
+                Assert.AreEqual(new TimeSpan(), TimeSpan.Parse(item.data.baseData.domProcessing));
+                Assert.AreEqual(new TimeSpan(), TimeSpan.Parse(item.data.baseData.networkConnect));
+                Assert.AreEqual(new TimeSpan(), TimeSpan.Parse(item.data.baseData.perfTotal));
+                Assert.AreEqual(new TimeSpan(), TimeSpan.Parse(item.data.baseData.receivedResponse));
+                Assert.AreEqual(new TimeSpan(), TimeSpan.Parse(item.data.baseData.sentRequest));
+            }
+        }
+
+
+        [TestMethod]
         public void SanitizeWillTrimAppropriateFields()
         {
             PageViewPerformanceTelemetry telemetry = new PageViewPerformanceTelemetry();

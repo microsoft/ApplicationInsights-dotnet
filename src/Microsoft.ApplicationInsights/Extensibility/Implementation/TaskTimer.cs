@@ -67,7 +67,19 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// </summary>
         public void Dispose()
         {
-            this.internalTimer.Dispose();
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Disposes the timer.
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.internalTimer.Dispose();
+            }
         }
     }
 }

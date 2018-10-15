@@ -51,7 +51,7 @@
 
             if (this.configuration.TelemetryChannel == null)
             {
-                throw new ArgumentException("The specified configuration does not have a telemetry channel.", "configuration");
+                throw new ArgumentException("The specified configuration does not have a telemetry channel.", nameof(configuration));
             }
         }
 
@@ -316,7 +316,7 @@
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
         /// </remarks>
-        [Obsolete]
+        [Obsolete("Please use a different overload of TrackDependency")]
         public void TrackDependency(string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
         {
 #pragma warning disable 618
@@ -375,8 +375,6 @@
             }
 
             this.Track(telemetry);
-
-            telemetry.ClearOperationDetails();
         }
 
         /// <summary>
@@ -440,6 +438,8 @@
             {
                 this.Initialize(telemetry);
 
+                telemetry.Context.ClearTempRawObjects();
+
                 // invokes the Process in the first processor in the chain
                 this.configuration.TelemetryProcessorChain.Process(telemetry);
 
@@ -471,14 +471,21 @@
                     {
                         telemetryWithProperties.Properties.Add("DeveloperMode", "true");
                     }
-                }                
+                }
             }
 
             // Properties set of TelemetryClient's Context are copied over to that of ITelemetry's Context
 #pragma warning disable CS0618 // Type or member is obsolete
             Utils.CopyDictionary(this.Context.Properties, telemetry.Context.Properties);
+            
 #pragma warning restore CS0618 // Type or member is obsolete
-            Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
+
+            // This check avoids accessing the public accessor GlobalProperties
+            // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
+            if (this.Context.GlobalPropertiesValue != null)
+            {
+                Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
+            }
 
             telemetry.Context.Initialize(this.Context, instrumentationKey);
             foreach (ITelemetryInitializer initializer in this.configuration.TelemetryInitializers)

@@ -40,7 +40,7 @@
         {
             if (telemetryClient == null)
             {
-                throw new ArgumentNullException("Telemetry client cannot be null.");
+                throw new ArgumentNullException(nameof(telemetryClient));
             }
 
             var operationTelemetry = new T();
@@ -74,12 +74,12 @@
         {
             if (telemetryClient == null)
             {
-                throw new ArgumentNullException("Telemetry client cannot be null.");
+                throw new ArgumentNullException(nameof(telemetryClient));
             }
 
             if (operationTelemetry == null)
             {
-                throw new ArgumentNullException("operationTelemetry cannot be null.");
+                throw new ArgumentNullException(nameof(operationTelemetry));
             }
 
             // We initialize telemetry here AND in Track method because of RichPayloadEventSource.
@@ -174,7 +174,7 @@
         {
             if (telemetryClient == null)
             {
-                throw new ArgumentNullException("telemetryClient");
+                throw new ArgumentNullException(nameof(telemetryClient));
             }
 
             if (operation == null)

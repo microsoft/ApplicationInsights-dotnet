@@ -2,16 +2,30 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.8.0
+- [New API to store/retrieve any raw objects on TelemetryContext to enable AutoCollectors to pass additional information for use by TelemetryInitializers.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/937)
+- Perf Improvements
+	https://github.com/Microsoft/ApplicationInsights-dotnet/issues/927
+	https://github.com/Microsoft/ApplicationInsights-dotnet/issues/930
+	https://github.com/Microsoft/ApplicationInsights-dotnet/issues/934
+- Fix: [Response code shouldn't be overwritten to 200 if not set](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/918)
+
+## Version 2.8.0-beta2
+- [TelemetryProcessors (sampling, autocollectedmetricaggregator), TelemetryChannel (ServerTelemetryChannel) added automatically to the default ApplicationInsights.config are moved under the default telemetry sink.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/907)
+	If you are upgrading, and have added/modified TelemetryProcessors/TelemetryChannel, make sure to copy them to the default sink section.
+
 ## Version 2.8.0-beta1
 - [Add a new distict properties collection, GlobalProperties, on TelemetryContext, and obsolete the Properties on TelemetryContext.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/820)
 - [Added support for strongly typed extensibility for Telemetry types using IExtension.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/871)
+- [New method SerializeData(ISerializationWriter writer) defined in ITelemetry. All existing types implement this method to emit information about it's fields to channels who can serialize this data]
+   (continuation of https://github.com/Microsoft/ApplicationInsights-dotnet/issues/871)
 - [Allow to track PageViewPerformance data type](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/673).
 - Added method `ExceptionDetailsInfoList` on `ExceptionTelemetry` class that gives control to user to update exception
 message and exception type of underlying `System.Exception` object that user wants to send to telemetry. Related discussion is [here](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/498).
 - Added an option of creating ExceptionTelemetry object off of custom exception information rather than a System.Exception object.
 - [Add support for hex values in config](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/551)
 
-## Version 2.7.0
+## Version 2.7.2
 - Metrics: Renamed TryTrackValue(..) into TrackValue(..).
 - Metrics: Removed some superfluous public constants.
 

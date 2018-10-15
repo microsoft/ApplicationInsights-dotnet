@@ -29,14 +29,14 @@
         {
             if (serializer == null)
             {
-                throw new ArgumentNullException("serializer");
+                throw new ArgumentNullException(nameof(serializer));
             }
 
 #if !NETSTANDARD
             // We don't have implementation for IApplicationLifecycle for .NET Core
             if (applicationLifecycle == null)
             {
-                throw new ArgumentNullException("applicationLifecycle");
+                throw new ArgumentNullException(nameof(applicationLifecycle));
             }
 #endif
 
@@ -70,12 +70,12 @@
             {
                 if (value < 1)
                 {
-                    throw new ArgumentOutOfRangeException("Capacity must be greater than 0");
+                    throw new ArgumentOutOfRangeException(nameof(value), "Capacity must be greater than 0");
                 }
 
                 if (value > this.backlogSize)
                 {
-                    throw new ArgumentException("Capacity cannot be greater than MaximumBacklogSize", "Capacity");
+                    throw new ArgumentException("Capacity cannot be greater than MaximumBacklogSize", nameof(value));
                 }
 
                 this.capacity = value;
@@ -99,12 +99,12 @@
             {
                 if (value < this.minimumBacklogSize)
                 {
-                    throw new ArgumentOutOfRangeException("value");
+                    throw new ArgumentOutOfRangeException(nameof(value));
                 }
 
                 if (value < this.capacity)
                 {
-                    throw new ArgumentException("MaximumBacklogSize cannot be lower than capacity", "MaximumBacklogSize");
+                    throw new ArgumentException(nameof(this.BacklogSize) + " cannot be lower than capacity", nameof(value));
                 }
 
                 this.backlogSize = value;
@@ -134,7 +134,7 @@
         {
             if (item == null)
             {
-                throw new ArgumentNullException("item");
+                throw new ArgumentNullException(nameof(item));
             }
 
             if (!this.flushTimer.IsStarted)

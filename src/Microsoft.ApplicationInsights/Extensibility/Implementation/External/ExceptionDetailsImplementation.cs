@@ -14,7 +14,7 @@
         {
             if (exception == null)
             {
-                throw new ArgumentNullException("exception");
+                throw new ArgumentNullException(nameof(exception));
             }
 
             var exceptionDetails = new External.ExceptionDetails()
