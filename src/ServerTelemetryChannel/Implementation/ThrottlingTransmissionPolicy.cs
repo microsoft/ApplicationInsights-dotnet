@@ -17,7 +17,7 @@
         {
             if (transmitter == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(transmitter));
             }
 
             this.backoffLogicManager = transmitter.BackoffLogicManager;

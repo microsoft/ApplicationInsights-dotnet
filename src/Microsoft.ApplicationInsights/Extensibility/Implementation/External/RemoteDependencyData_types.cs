@@ -58,7 +58,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public string duration { get; set; }
+        public System.TimeSpan duration { get; set; }
 
         
         
@@ -88,7 +88,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public IDictionary<string, double> measurements { get; set; }
+        
 
         public RemoteDependencyData()
             : this("AI.RemoteDependencyData", "RemoteDependencyData")
@@ -100,13 +100,13 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             this.name = "";
             id = "";
             resultCode = "";
-            duration = "";
+            duration = System.TimeSpan.Zero;
             success = true;
             
             target = "";
             type = "";
             properties = new ConcurrentDictionary<string, string>();
-            measurements = new ConcurrentDictionary<string, double>();
+            
         }
     }
 } // AI

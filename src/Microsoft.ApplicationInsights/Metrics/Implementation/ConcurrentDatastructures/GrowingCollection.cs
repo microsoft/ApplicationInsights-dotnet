@@ -126,6 +126,8 @@
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Dispose()
             {
+                Dispose(true);
+                GC.SuppressFinalize(this);
             }
 
             /// <summary>@ToDo: Complete documentation before stable release. {168}</summary>
@@ -157,6 +159,13 @@
             {
                 this.currentSegment = this.head;
                 this.currentSegmentOffset = this.headOffset;
+            }
+
+            private static void Dispose(bool disposing)
+            {
+                if (disposing)
+                {
+                }
             }
         }
         #endregion class Enumerator 

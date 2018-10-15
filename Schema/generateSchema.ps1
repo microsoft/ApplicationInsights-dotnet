@@ -1,5 +1,5 @@
-$generatorPath = "C:\src\mseng\AppInsights-Common"
-$schemasPath = "C:\src\mseng\DataCollectionSchemas"
+$generatorPath = "D:\repos\zMSAzure-AppInsights-Common"
+$schemasPath = "D:\repos\ApplicationInsights-home\EndpointSpecs\Schemas"
 $publicSchemaLocation = "https://raw.githubusercontent.com/Microsoft/ApplicationInsights-Home/master/EndpointSpecs/Schemas/Bond"
 $localPublicSchema = $false
 
@@ -7,7 +7,7 @@ $localPublicSchema = $false
 $currentDir = $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 #fix path
 $generatorPath = "$generatorPath\..\bin\Debug\BondSchemaGenerator\BondSchemaGenerator"
-$schemasPath = "$schemasPath\v2\Bond\"
+$schemasPath = "$schemasPath\Bond\"
 
 
 
@@ -111,8 +111,24 @@ dir "$currentDir\obj\gbc" | ForEach-Object {
     RegExReplace $_.FullName "(public enum)" "internal enum"
     # Change "= nothing" to "= null"
     RegExReplace $_.FullName "= nothing;" "= null;"
+
+	# Remove "measurements" field declaration as its is done lazy in a separate partial class
+    RegExReplace $_.FullName "public IDictionary<string, double> measurements { get; set; }"
+	RegExReplace $_.FullName "measurements = new ConcurrentDictionary<string, double>\(\);"
 }
 
+
+#################################################################################################
+## Use TimeSpan instead of String for duration to improve performance by avoiding conversions.
+#################################################################################################
+RegExReplace "$currentDir\obj\gbc\RemoteDependencyData_types.cs" "string duration" "System.TimeSpan duration"
+RegExReplace "$currentDir\obj\gbc\RemoteDependencyData_types.cs" "duration = """"" "duration = System.TimeSpan.Zero"
+
+RegExReplace "$currentDir\obj\gbc\RequestData_types.cs" "string duration" "System.TimeSpan duration"
+RegExReplace "$currentDir\obj\gbc\RequestData_types.cs" "duration = """"" "duration = System.TimeSpan.Zero"
+
+RegExReplace "$currentDir\obj\gbc\AvailabilityData_types.cs" "string duration" "System.TimeSpan duration"
+RegExReplace "$currentDir\obj\gbc\AvailabilityData_types.cs" "duration = """"" "duration = System.TimeSpan.Zero"
 
 #####################################################################
 ## COPY GENERATED FILES TO THE REPOSITORY

@@ -101,7 +101,7 @@
                 Assert.AreEqual(serializer.EndpointAddress, transmission.EndpointAddress);
                 Assert.AreEqual("application/x-json-stream", transmission.ContentType);
                 Assert.AreEqual("gzip", transmission.ContentEncoding);
-                Assert.AreEqual(string.Empty, Unzip(transmission.Content));
+                Assert.AreEqual("{}", Unzip(transmission.Content));
             }
 
             [TestMethod]

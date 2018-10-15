@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Net.Http;
     using System.Threading.Tasks;
@@ -46,11 +47,21 @@
 
         public void Dispose()
         {
-            this.httpClient.Dispose();
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.httpClient.Dispose();
+            }
         }
 
         /// <summary>Send HttpRequest to get config id.</summary>
         /// <remarks>This method is internal virtual so it can be moq-ed in a unit test.</remarks>
+        [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase", Justification = "Implementation expects lower case. GUID is safe for lower case.")]
         internal virtual Task<HttpResponseMessage> GetAsync(string instrumentationKey)
         {
             Uri applicationIdEndpoint = this.GetApplicationIdEndPointUri(instrumentationKey.ToLowerInvariant());

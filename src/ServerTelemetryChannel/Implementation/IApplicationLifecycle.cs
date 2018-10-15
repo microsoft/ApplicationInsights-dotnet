@@ -12,6 +12,7 @@
         /// Occurs when a new instance of the application is started or an existing instance is activated.
         /// </summary>
         [SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "EventArgs is not available on Windows Runtime")]
+        [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Cannot rename because this is part of the public api.")]
         event Action<object, object> Started;
 
         /// <summary>

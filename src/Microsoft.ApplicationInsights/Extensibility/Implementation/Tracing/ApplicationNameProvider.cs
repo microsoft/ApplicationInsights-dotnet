@@ -6,12 +6,12 @@
     {
         public ApplicationNameProvider()
         {
-            this.Name = this.GetApplicationName();
+            this.Name = GetApplicationName();
         }
 
         public string Name { get; private set; }
 
-        private string GetApplicationName()
+        private static string GetApplicationName()
         {
             //// We want to add application name to all events BUT
             //// It is prohibited by EventSource rules to have more parameters in WriteEvent that in event source method

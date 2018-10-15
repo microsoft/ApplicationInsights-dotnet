@@ -7,6 +7,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
 
     /// <summary>
     /// Encapsulates information about a web request handled by the application.
@@ -155,8 +156,8 @@
         /// </summary>
         public override TimeSpan Duration
         {
-            get { return Utils.ValidateDuration(this.Data.duration); }
-            set { this.Data.duration = value.ToString(); }
+            get { return this.Data.duration; }
+            set { this.Data.duration = value; }
         }
 
         /// <summary>
@@ -165,7 +166,15 @@
         /// </summary>
         public override IDictionary<string, string> Properties
         {
-            get { return this.Data.properties; }
+            get
+            {
+                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.Data.properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
+                {
+                    this.Data.properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
+                }  
+                
+                return this.Data.properties;
+            }
         }
 
         /// <summary>
@@ -227,12 +236,27 @@
         }
 
         /// <summary>
+        /// Gets or sets the MetricExtractorInfo.
+        /// </summary>
+        internal string MetricExtractorInfo
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Deeply clones a <see cref="RequestTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
         public override ITelemetry DeepClone()
         {
             return new RequestTelemetry(this);
+        }
+
+        /// <inheritdoc/>
+        public override void SerializeData(ISerializationWriter serializationWriter)
+        {            
+            serializationWriter.WriteProperty(this.Data);                        
         }
 
         /// <summary>
@@ -249,12 +273,16 @@
             this.Data.id = this.Data.id.SanitizeName();
             this.Data.id = Utils.PopulateRequiredStringValue(this.Data.id, "id", typeof(RequestTelemetry).FullName);
 
-            // Required field
-            if (string.IsNullOrEmpty(this.ResponseCode))
+            // Required fields
+            if (!this.Success.HasValue)
             {
-                this.ResponseCode = "200";
                 this.Success = true;
             }
+
+            if (string.IsNullOrEmpty(this.ResponseCode))
+            {
+                this.ResponseCode = this.Success.Value ? "200" : string.Empty;
+            }           
         }
     }
 }

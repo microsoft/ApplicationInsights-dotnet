@@ -40,7 +40,7 @@
             : this()
         {
             this.Data.name = name;
-            this.Data.duration = duration.ToString(string.Empty, CultureInfo.InvariantCulture);
+            this.Data.duration = duration;
             this.Data.success = success;
             this.Data.runLocation = runLocation;
             this.Data.message = message;
@@ -85,12 +85,12 @@
         {
             get
             {
-                return Utils.ValidateDuration(this.Data.duration);
+                return this.Data.duration;
             }
 
             set
             {
-                this.Data.duration = value.ToString();
+                this.Data.duration = value;
             }
         }
 
@@ -176,6 +176,12 @@
         public ITelemetry DeepClone()
         {
             return new AvailabilityTelemetry(this);
+        }
+
+        /// <inheritdoc/>
+        public void SerializeData(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty(this.Data);            
         }
 
         /// <summary>

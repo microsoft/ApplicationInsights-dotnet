@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Threading;
@@ -51,7 +52,7 @@
             {
                 if (value < 0)
                 {
-                    throw new ArgumentOutOfRangeException("value");
+                    throw new ArgumentOutOfRangeException(nameof(value));
                 }
 
                 this.capacity = value;
@@ -60,18 +61,15 @@
 
         public void Dispose()
         {
-            if (this.clearBadFiles != null)
-            {
-                this.clearBadFiles.Dispose();
-                this.clearBadFiles = null;
-            }
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
-
+        
         public virtual void Initialize(IApplicationFolderProvider applicationFolderProvider)
         {
             if (applicationFolderProvider == null)
             {
-                throw new ArgumentNullException("applicationFolderProvider");
+                throw new ArgumentNullException(nameof(applicationFolderProvider));
             }
 
             this.folder = applicationFolderProvider.GetApplicationFolder();
@@ -184,7 +182,11 @@
 
         private static string GetUniqueFileName(string extension)
         {
+#if NETSTANDARD1_3
             string fileName = Guid.NewGuid().ToString("N");
+#else
+            string fileName = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+#endif
             return Path.ChangeExtension(fileName, extension);
         }
 
@@ -202,7 +204,7 @@
                 }
                 else
                 {
-                    TelemetryChannelEventSource.Log.TransmissionStorageFileExpired(file.Name, file.DateCreated.ToString());
+                    TelemetryChannelEventSource.Log.TransmissionStorageFileExpired(file.Name, file.DateCreated.ToString(CultureInfo.InvariantCulture));
                 }
 
                 file.Delete();
@@ -329,6 +331,15 @@
                         TelemetryChannelEventSource.Log.StorageSize(this.size);
                     }
                 }
+            }
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing && this.clearBadFiles != null)
+            {
+                this.clearBadFiles.Dispose();
+                this.clearBadFiles = null;
             }
         }
     }

@@ -317,7 +317,13 @@
 #pragma warning disable CS0618 // Type or member is obsolete
             Utils.CopyDictionary(source.Properties, target.Properties);
 #pragma warning restore CS0618 // Type or member is obsolete
-            Utils.CopyDictionary(source.GlobalProperties, target.GlobalProperties);
+
+            // This check avoids accessing the public accessor GlobalProperties
+            // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
+            if (source.GlobalPropertiesValue != null)
+            {
+                Utils.CopyDictionary(source.GlobalProperties, target.GlobalProperties);
+            }
 
             // Copy iKey:
 

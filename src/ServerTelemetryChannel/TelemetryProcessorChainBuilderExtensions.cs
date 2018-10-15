@@ -27,7 +27,7 @@
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
             return builder.Use(next => new SamplingTelemetryProcessor(next)
@@ -49,7 +49,7 @@
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
             return builder.Use(next => new AdaptiveSamplingTelemetryProcessor(next)
@@ -71,7 +71,7 @@
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
             return builder.Use(next => new AdaptiveSamplingTelemetryProcessor(next)
@@ -100,12 +100,12 @@
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
             if (settings == null)
             {
-                throw new ArgumentNullException("settings");
+                throw new ArgumentNullException(nameof(settings));
             }
 
             return builder.Use(next => new AdaptiveSamplingTelemetryProcessor(settings, callback, next)

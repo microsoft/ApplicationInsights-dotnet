@@ -6,8 +6,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     public class MyTestExtension : IExtension
     {
-        int myIntField;
-        string myStringField;
+        public int myIntField;
+        public string myStringField;
 
         public IExtension DeepClone()
         {

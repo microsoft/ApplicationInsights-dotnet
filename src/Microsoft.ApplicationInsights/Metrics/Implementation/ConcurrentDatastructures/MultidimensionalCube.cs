@@ -349,7 +349,7 @@
             }
             catch (Exception ex)
             {
-                if ((false == this.IsThrownByPointsFactoryKey(ex)) || (timeout == TimeSpan.Zero))
+                if ((false == IsThrownByPointsFactoryKey(ex)) || (timeout == TimeSpan.Zero))
                 {
                     ExceptionDispatchInfo.Capture(ex).Throw();
                 }
@@ -361,23 +361,23 @@
             { 
                 if (Math.Round(timeout.TotalMilliseconds) >= (double)Int32.MaxValue)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(timeout), $"{nameof(timeout)} must be smaller than {Int32.MaxValue} msec, but it is {timeout}.");
+                    throw new ArgumentOutOfRangeException(nameof(timeout), Invariant($"{nameof(timeout)} must be smaller than {Int32.MaxValue} msec, but it is {timeout}."));
                 }
 
                 if (Math.Round(timeout.TotalMilliseconds) < 1)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(timeout), $"{nameof(timeout)} must be zero, positive or Infinite, but it is {timeout}.");
+                    throw new ArgumentOutOfRangeException(nameof(timeout), Invariant($"{nameof(timeout)} must be zero, positive or Infinite, but it is {timeout}."));
                 }
             }
 
             if (Math.Round(sleepDuration.TotalMilliseconds) > (double)Int32.MaxValue)
             {
-                throw new ArgumentOutOfRangeException(nameof(sleepDuration), $"{nameof(sleepDuration)} must be smaller than {Int32.MaxValue} msec, but it is {sleepDuration}.");
+                throw new ArgumentOutOfRangeException(nameof(sleepDuration), Invariant($"{nameof(sleepDuration)} must be smaller than {Int32.MaxValue} msec, but it is {sleepDuration}."));
             }
 
             if (Math.Round(sleepDuration.TotalMilliseconds) < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(sleepDuration), $"{nameof(sleepDuration)} must be non-negative, but it is {sleepDuration}.");
+                throw new ArgumentOutOfRangeException(nameof(sleepDuration), Invariant($"{nameof(sleepDuration)} must be non-negative, but it is {sleepDuration}."));
             }
 
             int timeoutMillis = (int)Math.Round(timeout.TotalMilliseconds);
@@ -411,7 +411,7 @@
                 }
                 catch (Exception ex)
                 {
-                    if (false == this.IsThrownByPointsFactoryKey(ex))
+                    if (false == IsThrownByPointsFactoryKey(ex))
                     {
                         ExceptionDispatchInfo.Capture(ex).Throw();
                     }
@@ -425,7 +425,7 @@
                     }
                 }
 
-                await Task.Delay(delayMillis, cancelToken);
+                await Task.Delay(delayMillis, cancelToken).ConfigureAwait(true);
             }
         }
 
@@ -465,7 +465,7 @@
             return newTotalPointsCount;
         }
 
-        private bool IsThrownByPointsFactoryKey(Exception exception)
+        private static bool IsThrownByPointsFactoryKey(Exception exception)
         {
             IDictionary exceptionData = exception?.Data;
             if (exceptionData == null)

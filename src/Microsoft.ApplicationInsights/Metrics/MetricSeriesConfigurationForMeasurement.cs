@@ -2,8 +2,11 @@
 {
     using System;
     using System.ComponentModel;
+    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.CompilerServices;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
+
+#pragma warning disable CA1034 // "Do not nest type" - part of the public API and too late to change.
 
     /// <summary>@ToDo: Complete documentation before stable release. {023}</summary>
     public class MetricSeriesConfigurationForMeasurement : IMetricSeriesConfiguration
@@ -110,6 +113,7 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public sealed class AggregateKindConstants
         {
+#pragma warning disable CA1822 // "Member does not access instance data and can be marked as static
             internal static readonly AggregateKindConstants Instance = new AggregateKindConstants();
 
             private AggregateKindConstants()
@@ -120,6 +124,7 @@
             /// Gets the kind moniker for aggregates produced by aggregators that are configured by metric configurations represented
             /// through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>.
             /// </summary>
+            [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Part of Public API and too late to change.")]
             public string AggregateKindMoniker
             {
                 get { return Constants.AggregateKindMoniker; }
@@ -129,6 +134,7 @@
             /// Gets constants used to refer to data fields contained within aggregates produced by aggregators that are configured
             /// by metric configurations represented through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>.
             /// </summary>
+            [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Part of Public API and too late to change.")]
             public DataKeysConstants AggregateKindDataKeys
             {
                 get { return DataKeysConstants.Instance; }
@@ -150,6 +156,7 @@
                 /// <summary>
                 /// Gets the name of the Count field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
                 /// </summary>
+                [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Part of Public API and too late to change.")]
                 public string Count
                 {
                     get { return Constants.AggregateKindDataKeys.Count; }
@@ -158,6 +165,7 @@
                 /// <summary>
                 /// Gets the name of the Sum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
                 /// </summary>
+                [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Part of Public API and too late to change.")]
                 public string Sum
                 {
                     get { return Constants.AggregateKindDataKeys.Sum; }
@@ -166,6 +174,7 @@
                 /// <summary>
                 /// Gets the name of the Minimum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
                 /// </summary>
+                [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Part of Public API and too late to change.")]
                 public string Min
                 {
                     get { return Constants.AggregateKindDataKeys.Min; }
@@ -174,6 +183,7 @@
                 /// <summary>
                 /// Gets the name of the Maximum field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
                 /// </summary>
+                [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Part of Public API and too late to change.")]
                 public string Max
                 {
                     get { return Constants.AggregateKindDataKeys.Max; }
@@ -182,6 +192,7 @@
                 /// <summary>
                 /// Gets the name of the Standard Deviation field in <see cref="MetricAggregate"/> objects produced by measurement aggregators.
                 /// </summary>
+                [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Part of Public API and too late to change.")]
                 public string StdDev
                 {
                     get { return Constants.AggregateKindDataKeys.StdDev; }
@@ -234,4 +245,5 @@
             }
         }
     }
+#pragma warning restore CA1034 // "Do not nest type" - part of the public API and too late to change.
 }

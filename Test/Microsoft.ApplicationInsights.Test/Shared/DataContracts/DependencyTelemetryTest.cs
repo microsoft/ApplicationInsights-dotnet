@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
     using System.Linq;
     using KellermanSoftware.CompareNetObjects;
     using Microsoft.ApplicationInsights.Channel;
@@ -84,6 +86,24 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RemoteDependencyData>(original);
 
             Assert.AreEqual(2, item.data.baseData.ver);
+        }
+
+        [TestMethod]
+        public void SerializePopulatesRequiredFieldsOfDependencyTelemetry()
+        {
+            using (StringWriter stringWriter = new StringWriter(CultureInfo.InvariantCulture))
+            {
+                var depTelemetry = new DependencyTelemetry();
+                depTelemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
+                ((ITelemetry)depTelemetry).Sanitize();
+                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RemoteDependencyData>(depTelemetry);
+
+                Assert.AreEqual(2, item.data.baseData.ver);
+                Assert.IsNotNull(item.data.baseData.id);
+                Assert.IsNotNull(item.time);
+                Assert.AreEqual(new TimeSpan(), TimeSpan.Parse(item.data.baseData.duration));
+                Assert.IsTrue(item.data.baseData.success);
+            }
         }
 
         [TestMethod]
@@ -206,8 +226,8 @@
             Assert.IsNotNull(retrievedValue);
             Assert.AreEqual(detail, retrievedValue.ToString());
 
-            // Clear and verify the detail is no longer present
-            telemetry.ClearOperationDetails();
+            // Clear and verify the detail is no longer present            
+            new TelemetryClient().TrackDependency(telemetry);            
             Assert.IsFalse(telemetry.TryGetOperationDetail(key, out retrievedValue));
         }
 
@@ -220,8 +240,8 @@
             Assert.IsFalse(telemetry.TryGetOperationDetail(key, out object retrievedValue));
             Assert.IsNull(retrievedValue);
 
-            // should not throw
-            telemetry.ClearOperationDetails();
+            // should not throw                        
+            new TelemetryClient().TrackDependency(telemetry);
         }
 
         [TestMethod]
