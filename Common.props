@@ -48,6 +48,10 @@
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
     <DefineConstants>$(DefineConstants);NETSTANDARD1_6;NETSTANDARD;</DefineConstants>
   </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG;CODE_ANALYSIS;</DefineConstants>
+  </PropertyGroup>
 
   <PropertyGroup>
     <PartitionPropertiesFile>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Partition.props'))\Partition.props</PartitionPropertiesFile>
