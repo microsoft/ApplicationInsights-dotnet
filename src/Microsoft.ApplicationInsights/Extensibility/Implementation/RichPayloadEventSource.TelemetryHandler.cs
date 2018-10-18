@@ -232,10 +232,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
                     var telemetryItem = item as RequestTelemetry;
                     CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -291,10 +291,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
                     var telemetryItem = item as TraceTelemetry;
                     CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -344,10 +344,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
                     var telemetryItem = item as EventTelemetry;
                     CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -403,10 +403,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
                     var telemetryItem = item as DependencyTelemetry;
                     CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.InternalData;
                     var extendedData = new
                     {
@@ -476,10 +476,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                  
                     var telemetryItem = item as MetricTelemetry;
                     CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -565,10 +565,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
                     var telemetryItem = item as ExceptionTelemetry;
                     CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.Data.Data;
                     var extendedData = new
                     {
@@ -649,12 +649,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
 #pragma warning disable 618
                     var telemetryItem = (item as PerformanceCounterTelemetry).Data;
                     CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
 #pragma warning restore 618
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -715,10 +715,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
                     var telemetryItem = item as PageViewTelemetry;
                     CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -776,10 +776,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
                     var telemetryItem = item as PageViewTelemetry;
                     CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -829,12 +829,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
 #pragma warning disable 618
                     var telemetryItem = (item as SessionStateTelemetry).Data;
 #pragma warning restore 618
                     CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {

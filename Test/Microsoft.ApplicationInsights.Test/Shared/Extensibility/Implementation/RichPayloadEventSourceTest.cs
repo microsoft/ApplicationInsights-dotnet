@@ -344,6 +344,19 @@
                     ResponseCode = "200"
                 };
 
+                string propKeyNameToBeTrimmed = new String('a', Property.MaxDictionaryNameLength) + 1;
+                string propValueToBeTrimmed = new String('b', Property.MaxValueLength) + 1;
+                string globalPropKeyNameToBeTrimmed = new String('c', Property.MaxDictionaryNameLength) + 1;
+                string globalPropValueToBeTrimmed = new String('d', Property.MaxValueLength) + 1;
+
+                string propKeyNameAfterTrimmed = new String('a', Property.MaxDictionaryNameLength);
+                string propValueAfterTrimmed = new String('b', Property.MaxValueLength);
+                string globalPropKeyNameAfterTrimmed = new String('c', Property.MaxDictionaryNameLength);
+                string globalPropValueAfterTrimmed = new String('d', Property.MaxValueLength);
+
+                request.Properties.Add(propKeyNameToBeTrimmed, propValueToBeTrimmed);
+                request.Properties.Add(globalPropKeyNameToBeTrimmed, globalPropValueToBeTrimmed);
+
                 var client = CreateTelemetryClient();
 
                 using (var listener = new Microsoft.ApplicationInsights.TestFramework.TestEventListener())
@@ -357,10 +370,25 @@
                     Assert.AreEqual(Property.MaxNameLength, richPayload["name"].ToString().Length);
                     Assert.AreEqual(Property.MaxUrlLength, richPayload["url"].ToString().Length);
                     Assert.AreEqual(true, richPayload["success"]);
+
+                    // Validates sanitize is done on Properties and GlobalProperties.
+                    var prop = ((object[])richPayload["properties"])[0];
+                    var gblProp = ((object[])richPayload["properties"])[1];
+                    ValidatePropertyDictionary((IDictionary<string, object>)prop, propKeyNameAfterTrimmed.Length, propValueAfterTrimmed.Length);
+                    ValidatePropertyDictionary((IDictionary<string, object>)gblProp, propKeyNameAfterTrimmed.Length, propValueAfterTrimmed.Length);
                 };
             }
         }
 
+        private void ValidatePropertyDictionary(IDictionary<string, object> props, int keyMax, int valuemax)
+        {
+            var dic = (IDictionary<string, object>)(props);
+            var propKeyActual = (string)dic["Key"];
+            var propValueActual = (string)dic["Value"];
+
+            Assert.AreEqual(keyMax, propKeyActual.Length);
+            Assert.AreEqual(valuemax, propValueActual.Length);
+        }
 
         private TelemetryClient CreateTelemetryClient()
         {
