@@ -4,7 +4,6 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)\..', 'Common.props'))\Common.props" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)\..', 'Nupkg.props'))\Nupkg.props" />
 
-
   <!--
       Example of how to do logs:
       Conditions are supported.
@@ -13,17 +12,5 @@
         <Message Text="Hello World!" Importance="high" />
     </Target>
     -->
-  
-    <Target Name="BuildLogs_Conditions" AfterTargets="CopyFilesToOutputDirectory" >
-        <Message Text="Analyzers and Build Dependencies are applied." Importance="high" Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'"/>
-        <!--Condition=" '$(MicroBuild_NuPkgSigningEnabled)' != 'false' and '$(MicroBuild_SigningEnabled)' == 'true' and '$(IsPackable)' == 'true' and '$(NonShipping)' != 'true' and '$(ESRPSigning)' == 'true' "-->
-        <Message Text="MicroBuild_NuPkgSigningEnabled: '$(MicroBuild_NuPkgSigningEnabled)'" Importance="high" />
-        <Message Text="MicroBuild_SigningEnabled: '$(MicroBuild_SigningEnabled)'" Importance="high" />
-        <Message Text="IsPackable: '$(IsPackable)'" Importance="high" />
-        <Message Text="NonShipping: '$(NonShipping)'" Importance="high" />
-        <Message Text="ESRPSigning: '$(ESRPSigning)'" Importance="high" />
-
-        <Message Text="SignNuGetPackageDependsOn: '@(SignNuGetPackageDependsOn)'" Importance="high" />
-    </Target>
 
 </Project>
