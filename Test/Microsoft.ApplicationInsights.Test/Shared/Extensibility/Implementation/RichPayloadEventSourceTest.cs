@@ -31,6 +31,18 @@
         }
 
         /// <summary>
+        /// RichPayloadEventSource does not copy GlobalProperties unless it is enabled.
+        /// </summary>
+        [TestMethod]
+        [Ignore("Fails when run in parallel with other tests which enables RichPayloadEventSource for testing." +
+                "Even though the listener is disposed by tests, the EventSource itself is not disposed, and IsEnabled is" +
+                "only an approximation as per MSDN. Will disable this until we find a better way to test this. ")]
+        public void A_RichPayloadEventSourceDoesNotCopyGlobalPropertiesInRequestUnlessEnabled()
+        {
+            ValidateGlobalTelemetryIsNotCopiedIfNotEnabled(new RequestTelemetry());
+        }
+
+        /// <summary>
         /// Tests tracking trace telemetry.
         /// </summary>
         [TestMethod]
@@ -41,6 +53,19 @@
                 new TraceTelemetry("TestTrace", SeverityLevel.Information),
                 typeof(External.MessageData),
                 (client, item) => { client.TrackTrace((TraceTelemetry)item); });
+        }
+
+
+        /// <summary>
+        /// RichPayloadEventSource does not copy GlobalProperties unless it is enabled.
+        /// </summary>
+        [TestMethod]
+        [Ignore("Fails when run in parallel with other tests which enables RichPayloadEventSource for testing." +
+                "Even though the listener is disposed by tests, the EventSource itself is not disposed, and IsEnabled is" +
+                "only an approximation as per MSDN. Will disable this until we find a better way to test this. ")]
+        public void A_RichPayloadEventSourceDoesNotCopyGlobalPropertiesInTraceUnlessEnabled()
+        {
+            ValidateGlobalTelemetryIsNotCopiedIfNotEnabled(new TraceTelemetry());
         }
 
         /// <summary>
@@ -54,6 +79,18 @@
                 new EventTelemetry("TestEvent"),
                 typeof(External.EventData),
                 (client, item) => { client.TrackEvent((EventTelemetry)item); });
+        }
+
+        /// <summary>
+        /// RichPayloadEventSource does not copy GlobalProperties unless it is enabled.
+        /// </summary>
+        [TestMethod]
+        [Ignore("Fails when run in parallel with other tests which enables RichPayloadEventSource for testing." +
+                "Even though the listener is disposed by tests, the EventSource itself is not disposed, and IsEnabled is" +
+                "only an approximation as per MSDN. Will disable this until we find a better way to test this. ")]
+        public void A_RichPayloadEventSourceDoesNotCopyGlobalPropertiesInEventUnlessEnabled()
+        {
+            ValidateGlobalTelemetryIsNotCopiedIfNotEnabled(new EventTelemetry());
         }
 
         /// <summary>
@@ -73,6 +110,18 @@
         }
 
         /// <summary>
+        /// RichPayloadEventSource does not copy GlobalProperties unless it is enabled.
+        /// </summary>
+        [TestMethod]
+        [Ignore("Fails when run in parallel with other tests which enables RichPayloadEventSource for testing." +
+                "Even though the listener is disposed by tests, the EventSource itself is not disposed, and IsEnabled is" +
+                "only an approximation as per MSDN. Will disable this until we find a better way to test this. ")]
+        public void A_RichPayloadEventSourceDoesNotCopyGlobalPropertiesInExceptionUnlessEnabled()
+        {
+            ValidateGlobalTelemetryIsNotCopiedIfNotEnabled(new ExceptionTelemetry());
+        }
+
+        /// <summary>
         /// Tests tracking metric telemetry.
         /// </summary>
         [TestMethod]
@@ -86,16 +135,41 @@
         }
 
         /// <summary>
+        /// RichPayloadEventSource does not copy GlobalProperties unless it is enabled.
+        /// </summary>
+        [TestMethod]
+        [Ignore("Fails when run in parallel with other tests which enables RichPayloadEventSource for testing." +
+                "Even though the listener is disposed by tests, the EventSource itself is not disposed, and IsEnabled is" +
+                "only an approximation as per MSDN. Will disable this until we find a better way to test this. ")]
+        public void A_RichPayloadEventSourceDoesNotCopyGlobalPropertiesInMetricUnlessEnabled()
+        {
+            ValidateGlobalTelemetryIsNotCopiedIfNotEnabled(new MetricTelemetry());
+        }
+
+        /// <summary>
         /// Tests tracking dependency telemetry.
         /// </summary>
         [TestMethod]
         public void RichPayloadEventSourceDependencySentTest()
         {
+            
             this.DoTracking(
                 RichPayloadEventSource.Keywords.Dependencies,
                 new DependencyTelemetry("Custom", "Target", "TestDependency", "TestCommand", DateTimeOffset.Now, TimeSpan.Zero, "200", true),
                 typeof(External.RemoteDependencyData),
                 (client, item) => { client.TrackDependency((DependencyTelemetry)item); });
+        }
+
+        /// <summary>
+        /// RichPayloadEventSource does not copy GlobalProperties unless it is enabled.
+        /// </summary>
+        [TestMethod]
+        [Ignore("Fails when run in parallel with other tests which enables RichPayloadEventSource for testing." +
+                "Even though the listener is disposed by tests, the EventSource itself is not disposed, and IsEnabled is" +
+                "only an approximation as per MSDN. Will disable this until we find a better way to test this. ")]
+        public void A_RichPayloadEventSourceDoesNotCopyGlobalPropertiesInDependencyUnlessEnabled()
+        {
+            ValidateGlobalTelemetryIsNotCopiedIfNotEnabled(new DependencyTelemetry());
         }
 
         /// <summary>
@@ -109,6 +183,18 @@
                 new PageViewTelemetry("TestPage"),
                 typeof(External.PageViewData),
                 (client, item) => { client.TrackPageView((PageViewTelemetry)item); });
+        }
+
+        /// <summary>
+        /// RichPayloadEventSource does not copy GlobalProperties unless it is enabled.
+        /// </summary>
+        [TestMethod]
+        [Ignore("Fails when run in parallel with other tests which enables RichPayloadEventSource for testing." +
+                "Even though the listener is disposed by tests, the EventSource itself is not disposed, and IsEnabled is" +
+                "only an approximation as per MSDN. Will disable this until we find a better way to test this. ")]
+        public void A_RichPayloadEventSourceDoesNotCopyGlobalPropertiesInPageviewUnlessEnabled()
+        {
+            ValidateGlobalTelemetryIsNotCopiedIfNotEnabled(new PageViewTelemetry());
         }
 
         /// <summary>
@@ -127,6 +213,20 @@
         }
 
         /// <summary>
+        /// RichPayloadEventSource does not copy GlobalProperties unless it is enabled.
+        /// </summary>
+        [TestMethod]
+        [Ignore("Fails when run in parallel with other tests which enables RichPayloadEventSource for testing." +
+                "Even though the listener is disposed by tests, the EventSource itself is not disposed, and IsEnabled is" +
+                "only an approximation as per MSDN. Will disable this until we find a better way to test this. ")]
+        public void A_RichPayloadEventSourceDoesNotCopyGlobalPropertiesInSessionStateUnlessEnabled()
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            ValidateGlobalTelemetryIsNotCopiedIfNotEnabled(new SessionStateTelemetry());
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+        /// <summary>
         /// Tests tracking session state telemetry.
         /// </summary>
         [TestMethod]
@@ -139,6 +239,20 @@
                 typeof(External.MetricData),
                 (client, item) => { client.Track((PerformanceCounterTelemetry)item); });
 #pragma warning restore 618
+        }
+
+        /// <summary>
+        /// RichPayloadEventSource does not copy GlobalProperties unless it is enabled.
+        /// </summary>
+        [TestMethod]
+        [Ignore("Fails when run in parallel with other tests which enables RichPayloadEventSource for testing." +
+                "Even though the listener is disposed by tests, the EventSource itself is not disposed, and IsEnabled is" +
+                "only an approximation as per MSDN. Will disable this until we find a better way to test this. ")]
+        public void A_RichPayloadEventSourceDoesNotCopyGlobalPropertiesInPerformanceCounterUnlessEnabled()
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            ValidateGlobalTelemetryIsNotCopiedIfNotEnabled(new PerformanceCounterTelemetry());
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>
@@ -284,6 +398,10 @@
 
                     track(client, item);
 
+#pragma warning disable CS0618 // Type or member is obsolete
+                    Assert.IsTrue(item.Context.Properties.ContainsKey("globalproperty1"), "Item Properties should contain the globalproperties as its copied before serialization");
+#pragma warning restore CS0618 // Type or member is obsolete
+
                     var actualEvent = listener.Messages.FirstOrDefault();
 
                     Assert.IsNotNull(actualEvent);
@@ -345,6 +463,34 @@
             {
                 // 4.5 doesn't have RichPayload events
                 Assert.IsNull(RichPayloadEventSource.Log.EventSourceInternal);
+            }
+        }
+
+        private void ValidateGlobalTelemetryIsNotCopiedIfNotEnabled(ITelemetry item)
+        {
+            if (IsRunningOnEnvironmentSupportingRichPayloadEventSource())
+            {
+                var client = new TelemetryClient();
+
+#pragma warning disable CS0618 // Type or member is obsolete
+                item.Context.Properties.Add("property1", "value1");
+#pragma warning restore CS0618 // Type or member is obsolete
+                (item as ISupportProperties)?.Properties.Add("itemprop1", "itemvalue1");
+                item.Context.GlobalProperties.Add("globalproperty1", "globalvalue1");
+                
+                client.Track(item);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+                Assert.IsFalse(item.Context.Properties.ContainsKey("globalproperty1"),
+                    "Item Properties should not contain the globalproperties as its copied before serialization which is done only if RichPayloadEventSource is enabled.");
+                Assert.IsTrue(item.Context.Properties.ContainsKey("property1"),
+                    "Item Properties should contain the values set.");
+                if (item is ISupportProperties)
+                {
+                    Assert.IsTrue(item.Context.Properties.ContainsKey("itemprop1"),
+                        "Item Properties should contain the values set via ISupportProperties.");
+                }
+#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 

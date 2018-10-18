@@ -40,17 +40,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// <param name="item">A collected Telemetry item.</param>
         public void Process(ITelemetry item)
         {
-            var telemetryProps = item as ISupportProperties;
-            if (telemetryProps != null)
-            {
-                // This check avoids accessing the public accessor GlobalProperties
-                // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
-                if (item.Context.GlobalPropertiesValue != null)
-                {
-                    Utils.CopyDictionary(item.Context.GlobalProperties, telemetryProps.Properties);
-                }
-            }
-
             if (item is RequestTelemetry)
             {
                 if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Requests))
@@ -60,6 +49,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 item.Sanitize();
                 var telemetryItem = item as RequestTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 this.WriteEvent(
                     RequestTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
@@ -77,6 +67,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 item.Sanitize();
                 var telemetryItem = item as TraceTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 this.WriteEvent(
                     TraceTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
@@ -94,6 +85,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 item.Sanitize();
                 var telemetryItem = item as EventTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 this.WriteEvent(
                     EventTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
@@ -111,6 +103,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 item.Sanitize();
                 var telemetryItem = item as DependencyTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 this.WriteEvent(
                     DependencyTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
@@ -128,6 +121,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 item.Sanitize();
                 var telemetryItem = item as MetricTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 this.WriteEvent(
                     MetricTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
@@ -145,6 +139,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 item.Sanitize();
                 var telemetryItem = item as ExceptionTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 this.WriteEvent(
                     ExceptionTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
@@ -163,6 +158,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 item.Sanitize();
                 var telemetryItem = (item as PerformanceCounterTelemetry).Data;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 this.WriteEvent(
                     MetricTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
@@ -181,6 +177,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 item.Sanitize();
                 var telemetryItem = item as PageViewTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 this.WriteEvent(
                     PageViewTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
@@ -198,6 +195,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 item.Sanitize();
                 var telemetryItem = item as PageViewPerformanceTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 this.WriteEvent(
                     PageViewPerformanceTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
@@ -216,6 +214,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 item.Sanitize();
                 var telemetryItem = (item as SessionStateTelemetry).Data;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 this.WriteEvent(
                     EventTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
@@ -233,6 +232,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 item.Sanitize();
                 var telemetryItem = item as AvailabilityTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 this.WriteEvent(
                     AvailabilityTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
@@ -279,6 +279,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        private static void CopyGlobalPropertiesIfRequired(ITelemetry telemetry, IDictionary<string, string> itemProperties)
+        {
+            // This check avoids accessing the public accessor GlobalProperties
+            // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
+            if (telemetry.Context.GlobalPropertiesValue != null)
+            {
+                Utils.CopyDictionary(telemetry.Context.GlobalProperties, itemProperties);
+            }
         }
 
         /// <summary>
@@ -405,17 +415,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CoreEventSource.Log.LogVerbose(msg);
 
                 return;
-            }
-
-            var telemetryProps = item as ISupportProperties;
-            if (telemetryProps != null)
-            {
-                // This check avoids accessing the public accessor GlobalProperties
-                // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
-                if (item.Context.GlobalPropertiesValue != null)
-                {
-                    Utils.CopyDictionary(item.Context.GlobalProperties, telemetryProps.Properties);
-                }
             }
 
             handler(item);

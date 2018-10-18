@@ -22,6 +22,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         private readonly long dummyPartAFlagsValue = 0;
         private readonly IDictionary<string, string> dummyPartATagsValue = new Dictionary<string, string>();
 
+        private static void CopyGlobalPropertiesIfRequired(ITelemetry telemetry, IDictionary<string, string> itemProperties)
+        {
+            // This check avoids accessing the public accessor GlobalProperties
+            // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
+            if (telemetry.Context.GlobalPropertiesValue != null)
+            {
+                Utils.CopyDictionary(telemetry.Context.GlobalProperties, itemProperties);
+            }
+        }
+
         /// <summary>
         /// Create handlers for all AI telemetry types.
         /// </summary>
@@ -225,6 +235,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     item.Sanitize();
                     var telemetryItem = item as RequestTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -283,6 +294,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     item.Sanitize();
                     var telemetryItem = item as TraceTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -335,6 +347,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     item.Sanitize();
                     var telemetryItem = item as EventTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -393,6 +406,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     item.Sanitize();
                     var telemetryItem = item as DependencyTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                     var data = telemetryItem.InternalData;
                     var extendedData = new
                     {
@@ -465,6 +479,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     item.Sanitize();
                     var telemetryItem = item as MetricTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -553,6 +568,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     item.Sanitize();
                     var telemetryItem = item as ExceptionTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                     var data = telemetryItem.Data.Data;
                     var extendedData = new
                     {
@@ -637,6 +653,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     item.Sanitize();
 #pragma warning disable 618
                     var telemetryItem = (item as PerformanceCounterTelemetry).Data;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
 #pragma warning restore 618
                     var data = telemetryItem.Data;
                     var extendedData = new
@@ -701,6 +718,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     item.Sanitize();
                     var telemetryItem = item as PageViewTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -761,6 +779,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     item.Sanitize();
                     var telemetryItem = item as PageViewTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -815,6 +834,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 #pragma warning disable 618
                     var telemetryItem = (item as SessionStateTelemetry).Data;
 #pragma warning restore 618
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
