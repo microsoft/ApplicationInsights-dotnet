@@ -1,6 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props" />
-
   <Import Project="..\..\Product.props" />
 
   <PropertyGroup>
@@ -56,6 +54,4 @@
   <Import Project="..\Web.Shared.Net\Web.Shared.Net.projitems" Label="Shared" />
   <Import Project="..\..\Common\Common.projitems" Label="Shared" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
-  
-  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets" />
 </Project>
