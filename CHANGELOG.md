@@ -2,6 +2,8 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.9.0-beta1
+- [Remove unused reference to System.Web.Extesions]()
 ## Version 2.8.0
 - [New API to store/retrieve any raw objects on TelemetryContext to enable AutoCollectors to pass additional information for use by TelemetryInitializers.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/937)
 - Perf Improvements
