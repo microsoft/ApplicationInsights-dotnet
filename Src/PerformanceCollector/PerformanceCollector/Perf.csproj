@@ -1,4 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <!--<Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props" />-->
+  <Import Project="$(MicroBuildPluginDirectory)\MicroBuild.Plugins.Signing.1.1.16\build\MicroBuild.Plugins.Signing.props" Condition="Exists('$(MicroBuildPluginDirectory)\MicroBuild.Plugins.Signing.1.1.16\build\MicroBuild.Plugins.Signing.props')" />
+
   <Import Project="..\..\Product.props" />
 
   <PropertyGroup>
@@ -65,4 +68,7 @@
   <Import Project="..\Perf.Shared.NetCore\Perf.Shared.NetCore.projitems" Label="Shared" Condition="'$(TargetFramework)' == 'netstandard1.6'" />
   <Import Project="..\Perf.Shared.NetCore.Stubs\Perf.Shared.NetCore.Stubs.projitems" Label="Shared" Condition="'$(TargetFramework)' == 'netstandard1.6'" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+
+  <!--<Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets" />-->
+  <Import Project="$(MicroBuildPluginDirectory)\MicroBuild.Plugins.Signing.1.1.16\buildCrossTargeting\MicroBuild.Plugins.Signing.targets" Condition="Exists('$(MicroBuildPluginDirectory)\MicroBuild.Plugins.Signing.1.1.16\buildCrossTargeting\MicroBuild.Plugins.Signing.targets')" />
 </Project>
