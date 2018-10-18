@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\Common.props" />
-  <Import Project="..\..\..\Nupkg.props" />
+  <Import Project="..\..\Product.props" />
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.Extensibility.HostingStartup</RootNamespace>
