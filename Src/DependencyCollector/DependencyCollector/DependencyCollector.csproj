@@ -1,9 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props" />
   <Import Project="$(MicroBuildPluginDirectory)\MicroBuild.Plugins.Signing.1.1.16\build\MicroBuild.Plugins.Signing.props" Condition="Exists('$(MicroBuildPluginDirectory)\MicroBuild.Plugins.Signing.1.1.16\build\MicroBuild.Plugins.Signing.props')" />
   
-  <Import Project="..\..\..\Common.props" />
-  <Import Project="..\..\..\Nupkg.props" />
+  <Import Project="..\..\Product.props" />
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.DependencyCollector</RootNamespace>
@@ -25,22 +24,6 @@
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DefineConstants>$(DefineConstants);TRACE;DEBUG;CODE_ANALYSIS;</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-    <DefineConstants>$(DefineConstants);NET45;</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
-    <!--There is a bug affecting Code Analysis and NetStandard 1.6.
-        https://github.com/dotnet/core/issues/758
-        https://github.com/dotnet/roslyn-analyzers/issues/1313
-        Workaround is to disable Code Analysis.
-    -->
-    <RunCodeAnalysis>false</RunCodeAnalysis>
-
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
-    <DefineConstants>$(DefineConstants);NETSTANDARD1_6;NETSTANDARD;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
@@ -91,7 +74,6 @@
   
   <Import Project="..\Shared\DependencyCollector.Shared.projitems" Label="Shared" />
   <Import Project="..\..\Common\Common.projitems" Label="Shared" />
-  
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
   
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets" />
