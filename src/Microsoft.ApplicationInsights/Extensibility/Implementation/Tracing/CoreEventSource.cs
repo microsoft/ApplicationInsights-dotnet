@@ -533,7 +533,6 @@
             this.WriteEvent(44, details, this.nameProvider.Name);
         }
 
-
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
