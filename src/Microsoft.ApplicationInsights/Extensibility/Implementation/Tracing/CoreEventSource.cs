@@ -32,10 +32,10 @@
         /// <summary>
         /// Logs the information when there operation to stop does not match the current operation.
         /// </summary>
-        [Event(2, Message = "Operation to stop does not match the current operation. Details: {0}", Level = EventLevel.Error)]
-        public void InvalidOperationToStopError(string details, string appDomainName = "Incorrect")
+        [Event(2, Message = "Operation to stop does not match the current operation. Telemetry is not tracked.", Level = EventLevel.Error)]
+        public void InvalidOperationToStopError(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(2, details, this.nameProvider.Name);
+            this.WriteEvent(2, this.nameProvider.Name);
         }
 
         [Event(
@@ -523,6 +523,16 @@
         {
             this.WriteEvent(43, this.nameProvider.Name);
         }
+
+        /// <summary>
+        /// Logs the detais when there operation to stop does not match the current operation.
+        /// </summary>
+        [Event(44, Message = "Operation to stop does not match the current operation. Details {0}.", Level = EventLevel.Warning)]
+        public void InvalidOperationToStopDetails(string details, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(44, details, this.nameProvider.Name);
+        }
+
 
         /// <summary>
         /// Keywords for the PlatformEventSource.
