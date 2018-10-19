@@ -40,7 +40,7 @@
         }
 
         /// <summary>
-        /// Checks if current Actuvuty has W3C properties on it.
+        /// Checks if current Activity has W3C properties on it.
         /// </summary>
         /// <param name="activity">Activity to check.</param>
         /// <returns>True if Activity has W3C properties, false otherwise.</returns>
