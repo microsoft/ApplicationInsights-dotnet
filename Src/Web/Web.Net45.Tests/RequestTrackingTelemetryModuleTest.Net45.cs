@@ -396,6 +396,129 @@
             Assert.Equal("v", trace.Properties["k"]);
         }
 
+        [TestMethod]
+        public void TelemetryTrackedBeforeOnBegin()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>());
+            var config = this.CreateDefaultConfig(context);
+            config.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+            var module = this.RequestTrackingTelemetryModuleFactory(config);
+            var client = new TelemetryClient(config);
+
+            client.TrackTrace("test1");
+
+            module.OnBeginRequest(context);
+
+            client.TrackTrace("test2");
+
+            // initialize telemetry
+            module.OnEndRequest(context);
+
+            var trace1 = (TraceTelemetry)this.sentTelemetry.Single(t => t is TraceTelemetry tt && tt.Message == "test1");
+            var trace2 = (TraceTelemetry)this.sentTelemetry.Single(t => t is TraceTelemetry tt && tt.Message == "test2");
+
+            var request = (RequestTelemetry)this.sentTelemetry.Single(t => t is RequestTelemetry);
+            Assert.Equal(trace1.Context.Operation.Id, request.Context.Operation.Id);
+            Assert.Equal(trace2.Context.Operation.Id, request.Context.Operation.Id);
+
+            Assert.Equal(trace2.Context.Operation.ParentId, request.Id);
+            Assert.Equal(trace1.Context.Operation.ParentId, request.Id);
+        }
+
+        [TestMethod]
+        public void TelemetryTrackedBeforeOnBeginWithHeaders()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
+            {
+                ["Request-Id"] = "|guid1.1"
+            });
+
+            var config = this.CreateDefaultConfig(context);
+            var module = this.RequestTrackingTelemetryModuleFactory(config);
+            var client = new TelemetryClient(config);
+
+            client.TrackTrace("test1");
+
+            module.OnBeginRequest(context);
+
+            client.TrackTrace("test2");
+
+            // initialize telemetry
+            module.OnEndRequest(context);
+
+            var trace1 = (TraceTelemetry)this.sentTelemetry.Single(t => t is TraceTelemetry tt && tt.Message == "test1");
+            var trace2 = (TraceTelemetry)this.sentTelemetry.Single(t => t is TraceTelemetry tt && tt.Message == "test2");
+
+            var request = (RequestTelemetry)this.sentTelemetry.Single(t => t is RequestTelemetry);
+            Assert.Equal(trace1.Context.Operation.Id, request.Context.Operation.Id);
+            Assert.Equal(trace2.Context.Operation.Id, request.Context.Operation.Id);
+
+            Assert.Equal(trace1.Context.Operation.ParentId, request.Id);
+            Assert.Equal(trace2.Context.Operation.ParentId, request.Id);
+        }
+
+        [TestMethod]
+        public void TelemetryTrackedBeforeOnBeginW3CEnabled()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
+            {
+                ["traceparent"] = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
+            });
+            var config = this.CreateDefaultConfig(context);
+            var module = this.RequestTrackingTelemetryModuleFactory(config, enableW3CTracing: true);
+            var client = new TelemetryClient(config);
+
+            client.TrackTrace("test1");
+
+            module.OnBeginRequest(context);
+
+            client.TrackTrace("test2");
+
+            // initialize telemetry
+            module.OnEndRequest(context);
+
+            var trace1 = (TraceTelemetry)this.sentTelemetry.Single(t => t is TraceTelemetry tt && tt.Message == "test1");
+            var trace2 = (TraceTelemetry)this.sentTelemetry.Single(t => t is TraceTelemetry tt && tt.Message == "test2");
+
+            var request = (RequestTelemetry)this.sentTelemetry.Single(t => t is RequestTelemetry);
+            Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", request.Context.Operation.Id);
+            Assert.Equal("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.", request.Context.Operation.ParentId);
+
+            Assert.Equal(trace1.Context.Operation.Id, request.Context.Operation.Id);
+            Assert.Equal(trace2.Context.Operation.Id, request.Context.Operation.Id);
+
+            Assert.Equal(trace1.Context.Operation.ParentId, request.Id);
+            Assert.Equal(trace2.Context.Operation.ParentId, request.Id);
+        }
+
+        [TestMethod]
+        public void TelemetryTrackedBeforeOnBeginW3CEnabledWithHeaders()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>());
+            var config = this.CreateDefaultConfig(context);
+            var module = this.RequestTrackingTelemetryModuleFactory(config, enableW3CTracing: true);
+            var client = new TelemetryClient(config);
+
+            client.TrackTrace("test1");
+
+            module.OnBeginRequest(context);
+
+            client.TrackTrace("test2");
+
+            // initialize telemetry
+            module.OnEndRequest(context);
+
+            var trace1 = (TraceTelemetry)this.sentTelemetry.Single(t => t is TraceTelemetry tt && tt.Message == "test1");
+            var trace2 = (TraceTelemetry)this.sentTelemetry.Single(t => t is TraceTelemetry tt && tt.Message == "test2");
+
+            var request = (RequestTelemetry)this.sentTelemetry.Single(t => t is RequestTelemetry);
+            Assert.Equal(trace1.Context.Operation.Id, request.Context.Operation.Id);
+            Assert.Equal(trace2.Context.Operation.Id, request.Context.Operation.Id);
+
+            Assert.Equal(trace2.Context.Operation.ParentId, request.Id);
+            Assert.Equal(trace1.Context.Operation.ParentId, request.Id);
+        }
+
         private void TestRequestTrackingWithW3CSupportEnabled(bool startActivity, bool addRequestId)
         {
             var headers = new Dictionary<string, string>
