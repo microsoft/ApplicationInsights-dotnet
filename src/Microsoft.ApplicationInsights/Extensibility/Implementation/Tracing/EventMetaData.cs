@@ -7,6 +7,8 @@
     /// </summary>
     internal class EventMetaData
     {
+        public string EventSourceName { get; set; }
+
         public int EventId { get; set; }
 
         public string MessageFormat { get; set; }
