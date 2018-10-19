@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
+    using System.Linq;
     using System.Web;
 
     using Microsoft.ApplicationInsights.Channel;
@@ -13,6 +14,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
+    using Microsoft.ApplicationInsights.W3C;
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.ApplicationInsights.Web.Implementation;
     using Microsoft.ApplicationInsights.Web.TestFramework;
@@ -30,7 +32,7 @@
         private const string TestInstrumentationKey2 = nameof(TestInstrumentationKey2);
         private const string TestApplicationId1 = nameof(TestApplicationId1);
         private const string TestApplicationId2 = nameof(TestApplicationId2);
-        private readonly ConcurrentQueue<RequestTelemetry> sentTelemetry = new ConcurrentQueue<RequestTelemetry>();
+        private readonly ConcurrentQueue<ITelemetry> sentTelemetry = new ConcurrentQueue<ITelemetry>();
 
         [TestCleanup]
         public void Cleanup()
@@ -39,14 +41,10 @@
             {
             }
 
-#if NET45
             while (Activity.Current != null)
             {
                 Activity.Current.Stop();
             }
-#else
-            ActivityHelpers.CleanOperationContext();
-#endif
         }
 
         [TestMethod]
@@ -431,7 +429,8 @@
             module.TrackIntermediateRequest(context, restoredActivity);
             module.OnEndRequest(context);
             Assert.Equal(2, this.sentTelemetry.Count);
-            Assert.True(this.sentTelemetry.TryDequeue(out RequestTelemetry intermediateRequest));
+
+            var intermediateRequest = this.sentTelemetry.OfType<RequestTelemetry>().First();
 
             Assert.Equal(originalRequest.Id, intermediateRequest.Context.Operation.ParentId);
             Assert.Equal(originalRequest.Context.Operation.Id, intermediateRequest.Context.Operation.Id);
@@ -445,13 +444,7 @@
             var telemetryChannel = new StubTelemetryChannel()
             {
                 EndpointAddress = "https://endpointaddress",
-                OnSend = item =>
-                {
-                    if (item is RequestTelemetry request)
-                    {
-                        this.sentTelemetry.Enqueue(request);
-                    }
-                }
+                OnSend = item => this.sentTelemetry.Enqueue(item)
             };
 
             var configuration = new TelemetryConfiguration
@@ -492,7 +485,20 @@
                 EnableW3CHeadersExtraction = enableW3CTracing
             };
 
-            module.Initialize(config ?? this.CreateDefaultConfig(HttpModuleHelper.GetFakeHttpContext()));
+            if (config == null)
+            {
+                config = this.CreateDefaultConfig(HttpModuleHelper.GetFakeHttpContext());
+            }
+
+#pragma warning disable 612, 618
+            if (enableW3CTracing)
+            {
+                config.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
+            }
+#pragma warning restore 612, 618
+
+            module.Initialize(config);
+
             return module;
         }
 

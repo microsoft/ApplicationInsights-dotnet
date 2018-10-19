@@ -74,7 +74,7 @@
                         // on .NET Fx Activities are not always reliable, this code prevents update
                         // of the telemetry that was forcibly updated during Activity lifetime
                         // ON .NET Core there is no such problem 
-                        if (telemetry.Context.Operation.Id == tag.Value && !forceUpdate)
+                        if (telemetry.Context.Operation.Id == tag.Value && initializeFromCurrent && !forceUpdate)
                         {
                             return;
                         }
