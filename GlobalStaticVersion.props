@@ -6,14 +6,14 @@
       Update for every public release. 
     -->
     <SemanticVersionMajor>2</SemanticVersionMajor>
-    <SemanticVersionMinor>7</SemanticVersionMinor>
-    <SemanticVersionPatch>2</SemanticVersionPatch>
+    <SemanticVersionMinor>8</SemanticVersionMinor>
+    <SemanticVersionPatch>1</SemanticVersionPatch>
     <PreReleaseMilestone></PreReleaseMilestone>
     <!-- 
       Date when Semantic Version was changed. 
       Update for every public release.
     -->
-    <SemanticVersionDate>2018-05-21</SemanticVersionDate>
+    <SemanticVersionDate>2018-08-01</SemanticVersionDate>
     
     <PreReleaseVersionFileName>.PreReleaseVersion</PreReleaseVersionFileName>
     <PreReleaseVersionFilePath>$(MSBuildThisFileDirectory)$(PreReleaseVersionFileName)</PreReleaseVersionFilePath>
