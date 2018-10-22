@@ -25,7 +25,7 @@
     <PackageLicenseUrl>https://go.microsoft.com/fwlink/?LinkID=510709</PackageLicenseUrl>
     <PackageProjectUrl>https://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
     <PackageIconUrl>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageIconUrl>
-    <PackageTags>Analytics ApplicationInsights Telemetry</PackageTags>
+    <PackageTags>Azure Monitoring Analytics ApplicationInsights Telemetry</PackageTags>
     <PackageReleaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-dotnet-logging</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>

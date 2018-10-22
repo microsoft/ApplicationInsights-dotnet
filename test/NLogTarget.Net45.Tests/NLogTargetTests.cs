@@ -226,12 +226,11 @@
 
             var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
             Assert.IsNotNull(telemetry, "Didn't get the log event from the channel");
-
-            Assert.AreEqual("Value", telemetry.Context.Properties["Name"]);
+            Assert.AreEqual("Value", telemetry.Properties["Name"]); 
         }
 
 
-        [TestMethod]
+    [TestMethod]
         [TestCategory("NLogTarget")]
         public void GlobalDiagnosticContextPropertiesAreAddedToProperties()
         {
@@ -243,7 +242,7 @@
             aiLogger.Debug("Message");
 
             var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual("global_value", telemetry.Context.Properties["global_prop"]);
+            Assert.AreEqual("global_value", telemetry.Properties["global_prop"]);
         }
 
         [TestMethod]
@@ -261,8 +260,8 @@
             aiLogger.Log(eventInfo);
 
             var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.AreEqual("global_value", telemetry.Context.Properties["global_prop"]);
-            Assert.AreEqual("Value", telemetry.Context.Properties["Name"]);
+            Assert.AreEqual("global_value", telemetry.Properties["global_prop"]); 
+            Assert.AreEqual("Value", telemetry.Properties["Name"]); 
         }
 
         [TestMethod]
@@ -281,9 +280,10 @@
             aiLogger.Log(eventInfo);
 
             var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
-            Assert.IsTrue(telemetry.Context.Properties.ContainsKey("Name_1"), "Key name altered");
-            Assert.AreEqual("Global Value", telemetry.Context.Properties["Name"]);
-            Assert.AreEqual("Value", telemetry.Context.Properties["Name_1"]);
+            Assert.IsTrue(telemetry.Properties.ContainsKey("Name")); 
+            Assert.AreEqual("Global Value", telemetry.Properties["Name"]); 
+            Assert.IsTrue(telemetry.Properties.ContainsKey("Name_1"), "Key name altered"); 
+            Assert.AreEqual("Value", telemetry.Properties["Name_1"]); 
         }
 
         [TestMethod]

@@ -1,5 +1,8 @@
 # Changelog 
 
+### Version 2.8.1
+- Update BaseSdk reference to 2.8.1. See [release notes](https://github.com/Microsoft/ApplicationInsights-dotnet/releases) for more information.
+
 ### Version 2.7.2
 - [NLog can perform Layout of InstrumentationKey](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/203)
 - Upgrade `System.Diagnostics.DiagnosticSource` to version 4.5.0
