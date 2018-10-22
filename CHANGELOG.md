@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.5.1
+- Update Web/Base SDK version dependency to 2.8.1
+
 ## Version 2.5.0
 - Traces logged via ILogger is marked with SDK version prefix ilc (.net core) or ilf (.net framework).
 - Update Web/Base SDK version dependency to 2.8.0
