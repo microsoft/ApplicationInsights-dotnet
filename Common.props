@@ -6,9 +6,6 @@
   <!-- If $(EnlistmentRoot) is still not set, then import Directory.Build.props directly. This can happen when gitlink tries to build (because it uses MSBuild tools version 4.0 and we can't find Microsoft.Common.props) -->
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Directory.Build.props'))\Directory.Build.props" Condition="'$(EnlistmentRoot)' == ''"/>
 
-  <!-- Local file to add custom output to builds. Use as needed. -->
-  <!--<Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'BuildLogs.props'))\BuildLogs.props" />-->
-
   <PropertyGroup>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -31,6 +28,26 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+   <DefineConstants>$(DefineConstants);NET45;</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
+    <!--There is a bug affecting Code Analysis and NetStandard 1.6.
+        https://github.com/dotnet/core/issues/758
+        https://github.com/dotnet/roslyn-analyzers/issues/1313
+        Workaround is to disable Code Analysis.
+    -->
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <DefineConstants>$(DefineConstants);NETSTANDARD1_6;NETSTANDARD;</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG;CODE_ANALYSIS;</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>

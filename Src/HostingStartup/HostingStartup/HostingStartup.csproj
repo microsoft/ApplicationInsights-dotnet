@@ -1,7 +1,5 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props" />
-  <Import Project="..\..\..\Common.props" />
-  <Import Project="..\..\..\Nupkg.props" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Product.props" />
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.Extensibility.HostingStartup</RootNamespace>
@@ -9,7 +7,7 @@
     <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
     <TargetFramework>net45</TargetFramework>
     <Prefer32Bit>false</Prefer32Bit>
-    <DefineConstants>$(DefineConstants);NET45;ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
+    <DefineConstants>$(DefineConstants);ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -60,5 +58,4 @@
 
   <Import Project="..\..\Common\Common.projitems" Label="Shared" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
-  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets" />
 </Project>

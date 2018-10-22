@@ -141,8 +141,9 @@
                         return true;
                     }
 
-                    if (HttpContext.Current == null) // should not happen
+                    if (HttpContext.Current == null) 
                     {
+                        // should not happen
                         WebEventSource.Log.NoHttpContextWarning();
                         return false;
                     }

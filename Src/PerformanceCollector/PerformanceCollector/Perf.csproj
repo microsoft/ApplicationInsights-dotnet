@@ -1,9 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props" />
-  <Import Project="$(MicroBuildPluginDirectory)\MicroBuild.Plugins.Signing.1.1.16\build\MicroBuild.Plugins.Signing.props" Condition="Exists('$(MicroBuildPluginDirectory)\MicroBuild.Plugins.Signing.1.1.16\build\MicroBuild.Plugins.Signing.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props" /> <!--manual workaround: needed for net45 dll-->
+  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\buildCrossTargeting\MicroBuild.Core.props" /> <!--manual workaround: needed for nupkg-->
 
-  <Import Project="..\..\..\Common.props" />
-  <Import Project="..\..\..\Nupkg.props" />
+  <Import Project="..\..\Product.props" />
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector</RootNamespace>
@@ -12,29 +11,12 @@
     <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
   </PropertyGroup>
 
-
   <PropertyGroup>
     <!--Nupkg properties-->
     <PackageId>Microsoft.ApplicationInsights.PerfCounterCollector</PackageId>
     <Title>Application Insights Performance Counters Collector</Title>
     <Description>Application Insights Performance Counters Collector allows you to send data collected by Performance Counters to Application Insights. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
     <PackageTags>Azure Monitoring Analytics ApplicationInsights Telemetry ASP.NET ASMX Web Azure Server Services ASPX Websites Performance Counters Performance Collection</PackageTags>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-    <DefineConstants>$(DefineConstants);NET45;</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
-    <!--There is a bug affecting Code Analysis and NetStandard 1.6.
-        https://github.com/dotnet/core/issues/758
-        https://github.com/dotnet/roslyn-analyzers/issues/1313
-        Workaround is to disable Code Analysis.
-    -->
-    <RunCodeAnalysis>false</RunCodeAnalysis>
-
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
-    <DefineConstants>$(DefineConstants);NETSTANDARD1_6;NETSTANDARD;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
@@ -85,9 +67,8 @@
   <Import Project="..\Perf.Shared.NetFull\Perf.Shared.NetFull.projitems" Label="Shared" Condition="'$(TargetFramework)' == 'net45'" />
   <Import Project="..\Perf.Shared.NetCore\Perf.Shared.NetCore.projitems" Label="Shared" Condition="'$(TargetFramework)' == 'netstandard1.6'" />
   <Import Project="..\Perf.Shared.NetCore.Stubs\Perf.Shared.NetCore.Stubs.projitems" Label="Shared" Condition="'$(TargetFramework)' == 'netstandard1.6'" />
-
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 
-  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets" />
-  <Import Project="$(MicroBuildPluginDirectory)\MicroBuild.Plugins.Signing.1.1.16\buildCrossTargeting\MicroBuild.Plugins.Signing.targets" Condition="Exists('$(MicroBuildPluginDirectory)\MicroBuild.Plugins.Signing.1.1.16\buildCrossTargeting\MicroBuild.Plugins.Signing.targets')" />
+  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets" /> <!--manual workaround: needed for net45 dll-->
+  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\buildCrossTargeting\MicroBuild.Core.targets" /> <!--manual workaround: needed for nupkg-->
 </Project>
