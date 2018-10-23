@@ -80,12 +80,17 @@
                             var currentActivity = Activity.Current;
                             if (currentActivity == null || operationTelemetry.Id != currentActivity.Id)
                             {
-                                CoreEventSource.Log.InvalidOperationToStopError(
+                                // this is for internal error reporting
+                                CoreEventSource.Log.InvalidOperationToStopError();
+
+                                // this are details with unique ids for debugging
+                                CoreEventSource.Log.InvalidOperationToStopDetails(
                                     string.Format(
                                         CultureInfo.InvariantCulture,
-                                        "Telemetry Id '{0}' does not match current Activity '{1}'", 
+                                        "Telemetry Id '{0}' does not match current Activity '{1}'",
                                         operationTelemetry.Id,
                                         currentActivity?.Id));
+
                                 return;
                             }
 
@@ -99,10 +104,14 @@
                             var currentOperationContext = CallContextHelpers.GetCurrentOperationContext();
                             if (currentOperationContext == null || operationTelemetry.Id != currentOperationContext.ParentOperationId)
                             {
-                                CoreEventSource.Log.InvalidOperationToStopError(
+                                // this is for internal error reporting
+                                CoreEventSource.Log.InvalidOperationToStopError();
+
+                                // this are details with unique ids for debugging
+                                CoreEventSource.Log.InvalidOperationToStopDetails(
                                     string.Format(
                                         CultureInfo.InvariantCulture,
-                                        "Telemetry Id '{0}' does not match current context '{1}'",
+                                        "Telemetry Id '{0}' does not match current Activity '{1}'",
                                         operationTelemetry.Id,
                                         currentOperationContext?.ParentOperationId));
                                 return;
