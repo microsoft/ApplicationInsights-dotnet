@@ -14,6 +14,21 @@
 
         private static readonly string[] AzureSearchSupportedVerbs = { "GET", "POST", "PUT", "HEAD", "DELETE" };
 
+        private static readonly Dictionary<string, string> OperationNames = new Dictionary<string, string>
+        {
+            // Index operations
+            ["POST /indexes"] = "Create index",
+            ["PUT /indexes/*"] = "Update index",
+            ["GET /indexes"] = "List indexes",
+            ["GET /indexes/*"] = "Get index",
+            ["DELETE /indexes/*"] = "Delete index",
+            ["GET /indexes/*/stats"] = "Get index statistics",
+            ["POST /indexes/*/analyze"] = "Analyze text",
+
+            // Document operations
+            ["POST /indexes"] = "Add/update/delete documents",
+        };
+
         internal static bool TryParse(ref DependencyTelemetry httpDependency)
         {
             var name = httpDependency.Name;
@@ -30,16 +45,33 @@
                 return false;
             }
 
+            ////
+            //// Azure Search REST API: https://docs.microsoft.com/en-us/rest/api/searchservice/
+            ////
+
             var account = host.Substring(0, host.IndexOf('.'));
 
-            HttpParsingHelper.ExtractVerb(name, out var verb, out var nameWithotVerb, AzureSearchSupportedVerbs);
+            HttpParsingHelper.ExtractVerb(name, out var verb, out var nameWithoutVerb, AzureSearchSupportedVerbs);
 
-            var pathTokens = HttpParsingHelper.TokenizeRequestPath(nameWithotVerb);
+            var resourcePath = HttpParsingHelper.ParseResourcePath(nameWithoutVerb);
+
+            var operation = HttpParsingHelper.BuildOperationMoniker(verb, resourcePath);
+            var operationName = GetOperationName(httpDependency, operation);
 
             httpDependency.Type = RemoteDependencyConstants.AzureSearch;
-            httpDependency.Name = "";
+            httpDependency.Name = operationName;
 
             return true;
+        }
+
+        private static string GetOperationName(DependencyTelemetry httpDependency, string operation)
+        {
+            if (!OperationNames.TryGetValue(operation, out var operationName))
+            {
+                return operation;
+            }
+
+            return operationName;
         }
     }
 }
