@@ -193,7 +193,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
             Assert.AreEqual(1, sentItems.Length);
 
             var telemetry = (TraceTelemetry)sentItems[0];
-            Assert.AreEqual("Value1", telemetry.Context.Properties["CustomProperty1"]);
+            Assert.AreEqual("Value1", telemetry.Properties["CustomProperty1"]);
         }
 
         [TestMethod]
@@ -207,7 +207,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
 
             var telemetry = (TraceTelemetry)sentItems[0];
 
-            foreach (var key in telemetry.Context.Properties.Keys)
+            foreach (var key in telemetry.Properties.Keys)
             {
                 Assert.IsFalse(key.StartsWith("log4net", StringComparison.OrdinalIgnoreCase));
             }
