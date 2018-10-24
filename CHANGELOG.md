@@ -2,6 +2,9 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.9.0-beta1
+- [Remove unused reference to System.Web.Extesions](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/956)
+
 ## Version 2.8.1
 [Patch release addressing perf regression.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/952)
 
