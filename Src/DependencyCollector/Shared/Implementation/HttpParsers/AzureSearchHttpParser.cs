@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.HttpParsers
 {
     using System.Collections.Generic;
-
+    using System.Linq;
     using DataContracts;
     using Implementation;
 
@@ -13,6 +13,7 @@
         };
 
         private static readonly string[] AzureSearchSupportedVerbs = { "GET", "POST", "PUT", "HEAD", "DELETE" };
+        private static readonly string[] DocumentOperationNotMonikerActions = { "search.index", "index", "search", "suggest", "autocomplete", "$count" };
 
         private static readonly Dictionary<string, string> OperationNames = new Dictionary<string, string>
         {
@@ -27,13 +28,14 @@
 
             // Document operations
             ["POST /indexes/*/docs/index"] = "Add/update/delete documents",
+            ["POST /indexes/*/docs/search.index"] = "Add/update/delete documents",
             ["GET /indexes/*/docs"] = "Search documents",
             ["POST /indexes/*/docs/search"] = "Search documents",
             ["GET /indexes/*/docs/suggest"] = "Suggestions",
             ["POST /indexes/*/docs/suggest"] = "Suggestions",
             ["GET /indexes/*/docs/autocomplete"] = "Autocomplete",
             ["POST /indexes/*/docs/autocomplete"] = "Autocomplete",
-            ["GET /indexes/*/docs/key"] = "Lookup document",
+            ["GET /indexes/*/docs/*"] = "Lookup document",
             ["GET /indexes/*/docs/$count"] = "Count documents",
 
             // Indexer operations
@@ -96,7 +98,7 @@
 
             HttpParsingHelper.ExtractVerb(name, out var verb, out var nameWithoutVerb, AzureSearchSupportedVerbs);
 
-            var resourcePath = HttpParsingHelper.ParseResourcePath(nameWithoutVerb);
+            var resourcePath = ParseResourcePath(nameWithoutVerb);
 
             // populate properties
             foreach (var resource in resourcePath)
@@ -120,12 +122,48 @@
             return true;
         }
 
+        internal static List<KeyValuePair<string, string>> ParseResourcePath(string requestPath)
+        {
+            if (!requestPath.Contains("("))
+            {
+                return HttpParsingHelper.ParseResourcePath(requestPath);
+            }
+
+            // Parse OData v4 url format
+            List<string> tokens = HttpParsingHelper.TokenizeRequestPath(requestPath);
+
+            int pairCount = (tokens.Count + 1);
+            var results = new List<KeyValuePair<string, string>>(pairCount);
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                var current = tokens[i];
+
+                var valueStart = current.IndexOf('(');
+                var valueEnd = current.IndexOf(')');
+
+                if (valueStart == -1)
+                {
+                    var next = tokens.Count < (i + 1) ? tokens[++i] : null;
+                    results.Add(new KeyValuePair<string, string>(current, next));
+                }
+                else
+                {
+                    var key = current.Substring(0, valueStart);
+                    var value = current.Substring(valueStart + 2, valueEnd - valueStart - 3);
+
+                    results.Add(new KeyValuePair<string, string>(key, value));
+                }
+            }
+
+            return results;
+        }
+
         internal static string BuildOperationMoniker(string verb, List<KeyValuePair<string, string>> resourcePath)
         {
             var operation = HttpParsingHelper.BuildOperationMoniker(verb, resourcePath);
 
             // Do not generate asterisk for docs path
-            if (resourcePath.Count > 1 && resourcePath[1].Key == "docs" && resourcePath[1].Value != null)
+            if (resourcePath.Count > 1 && resourcePath[1].Key == "docs" && DocumentOperationNotMonikerActions.Contains(resourcePath[1].Value))
             {
                 operation = operation.Remove(operation.Length - 1) + resourcePath[1].Value;
             }

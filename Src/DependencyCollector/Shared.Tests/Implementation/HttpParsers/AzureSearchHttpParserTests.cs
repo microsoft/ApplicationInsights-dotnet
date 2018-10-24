@@ -39,8 +39,16 @@
                 Tuple.Create("Suggestions", "POST", "https://myaccount.search.windows.net/indexes/myindex/docs/suggest?api-version=2017-11-11", indexProperties),
                 Tuple.Create("Autocomplete", "GET", "https://myaccount.search.windows.net/indexes/myindex/docs/autocomplete?search=abc", indexProperties),
                 Tuple.Create("Autocomplete", "POST", "https://myaccount.search.windows.net/indexes/myindex/docs/autocomplete?api-version=2017-11-11", indexProperties),
-                Tuple.Create("Lookup document", "GET", "https://myaccount.search.windows.net/indexes/myindex/docs/key?$select=*", indexProperties),
+                Tuple.Create("Lookup document", "GET", "https://myaccount.search.windows.net/indexes/myindex/docs/abc?api-version=2017-11-11", indexProperties),
                 Tuple.Create("Count documents", "GET", "https://myaccount.search.windows.net/indexes/myindex/docs/$count?api-version=2017-11-11", indexProperties),
+                
+                // Document operations (OData)
+                Tuple.Create("Add/update/delete documents", "POST", "https://myaccount.search.windows.net/indexes('myindex')/docs/index?api-version=2017-11-11", indexProperties),
+                Tuple.Create("Add/update/delete documents", "POST", "https://myaccount.search.windows.net/indexes('myindex')/docs/search.index?api-version=2017-11-11", indexProperties),
+                Tuple.Create("Search documents", "GET", "https://myaccount.search.windows.net/indexes('myindex')/docs?search=abc", indexProperties),
+                Tuple.Create("Suggestions", "GET", "https://myaccount.search.windows.net/indexes('myindex')/docs/suggest?search=abc", indexProperties),
+                Tuple.Create("Lookup document", "GET", "https://myaccount.search.windows.net/indexes('myindex')/docs('abc')?api-version=2017-11-11", indexProperties),
+                Tuple.Create("Count documents", "GET", "https://myaccount.search.windows.net/indexes('myindex')/docs/$count?api-version=2017-11-11", indexProperties),
 
                 // Indexer operations
                 Tuple.Create("Create data source", "POST", "https://myaccount.search.windows.net/datasources?api-version=2017-11-11", defaultProperties),
@@ -128,7 +136,7 @@
             Assert.IsTrue(success, operation);
             Assert.AreEqual(RemoteDependencyConstants.AzureSearch, d.Type, operation);
             Assert.AreEqual(parsedUrl.Host, d.Target, operation);
-            string moniker = AzureSearchHttpParser.BuildOperationMoniker(null, HttpParsingHelper.ParseResourcePath(parsedUrl.AbsolutePath));
+            string moniker = AzureSearchHttpParser.BuildOperationMoniker(null, AzureSearchHttpParser.ParseResourcePath(parsedUrl.AbsolutePath));
             Assert.AreEqual(moniker, d.Name, operation);
 
             if (properties != null)
