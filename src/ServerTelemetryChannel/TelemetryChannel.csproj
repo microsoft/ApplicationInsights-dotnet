@@ -20,7 +20,7 @@
     <DefineConstants Condition="'$(TargetFramework)' == 'net45'">TRACE;DEBUG;NET45</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0'" >
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3' OR '$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
     <IsNetStandardBuild>True</IsNetStandardBuild>
   </PropertyGroup>
@@ -47,7 +47,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <Reference Include="System.Web" Condition="'$(TargetFramework)' == 'net45'" />
-    <Reference Include="System.Web.Extensions" Condition="'$(TargetFramework)' == 'net45'" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
