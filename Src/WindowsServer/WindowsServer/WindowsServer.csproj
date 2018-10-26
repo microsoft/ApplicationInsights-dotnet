@@ -1,9 +1,5 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props" />
-  <Import Project="$(MicroBuildPluginDirectory)\MicroBuild.Plugins.Signing.1.1.16\build\MicroBuild.Plugins.Signing.props" Condition="Exists('$(MicroBuildPluginDirectory)\MicroBuild.Plugins.Signing.1.1.16\build\MicroBuild.Plugins.Signing.props')" />
-
-  <Import Project="..\..\..\Common.props" />
-  <Import Project="..\..\..\Nupkg.props" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Product.props" />
 
   <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.WindowsServer</RootNamespace>
@@ -18,22 +14,6 @@
     <Title>Application Insights Windows Server</Title>
     <Description>Application Insights Windows Server nuget package provides automatic collection of application insights telemetry for .NET applications. This package can be used as a dependent package for Application Insights platform specific packages or as a standalone package for .NET applications that are not covered by platform specific packages (like for .NET worker roles). Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
     <PackageTags>Azure Monitoring Analytics ApplicationInsights Telemetry AppInsights</PackageTags>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-    <DefineConstants>$(DefineConstants);NET45;</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
-    <!--There is a bug affecting Code Analysis and NetStandard 1.6.
-        https://github.com/dotnet/core/issues/758
-        https://github.com/dotnet/roslyn-analyzers/issues/1313
-        Workaround is to disable Code Analysis.
-    -->
-    <RunCodeAnalysis>false</RunCodeAnalysis>
-    
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
-    <DefineConstants>$(DefineConstants);NETSTANDARD1_6;NETSTANDARD;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release' And $(OS) == 'Windows_NT'">
@@ -54,7 +34,7 @@
   
   <ItemGroup>
     <!--Common Dependencies-->
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.8.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.8.1" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
   </ItemGroup>
 
@@ -78,8 +58,5 @@
   
   <Import Project="..\WindowsServer.Shared\WindowsServer.Shared.projitems" Label="Shared" />
   <Import Project="..\..\Common\Common.projitems" Label="Shared" />
-
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
-  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets" />
-  <Import Project="$(MicroBuildPluginDirectory)\MicroBuild.Plugins.Signing.1.1.16\buildCrossTargeting\MicroBuild.Plugins.Signing.targets" Condition="Exists('$(MicroBuildPluginDirectory)\MicroBuild.Plugins.Signing.1.1.16\buildCrossTargeting\MicroBuild.Plugins.Signing.targets')" />
 </Project>

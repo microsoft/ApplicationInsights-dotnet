@@ -141,6 +141,13 @@
                         return true;
                     }
 
+                    if (HttpContext.Current == null) 
+                    {
+                        // should not happen
+                        WebEventSource.Log.NoHttpContextWarning();
+                        return false;
+                    }
+
                     // ParentId is null, means that there was no Request-Id header, which means we have to look for AppInsights/custom headers
                     if (Activity.Current == null && activity.ParentId == null)
                     {
