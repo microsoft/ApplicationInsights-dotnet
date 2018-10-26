@@ -132,7 +132,7 @@
             // Parse OData v4 url format
             List<string> tokens = HttpParsingHelper.TokenizeRequestPath(requestPath);
 
-            int pairCount = (tokens.Count + 1);
+            int pairCount = tokens.Count + 1;
             var results = new List<KeyValuePair<string, string>>(pairCount);
             for (int i = 0; i < tokens.Count; i++)
             {
