@@ -268,7 +268,7 @@
         /// </summary>
         internal void Initialize(TelemetryContext source, string instrumentationKey)
         {
-            InitializeInstrumentationkey(instrumentationKey);
+            this.InitializeInstrumentationkey(instrumentationKey);
 
             this.Flags |= source.Flags;
 
