@@ -43,6 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CallBackInvokerTelemetryProcessor.cs" />
+    <Compile Include="MyCallbackSupportingInitializers.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
   <ItemGroup>

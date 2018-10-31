@@ -37,6 +37,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.successFieldSet = true;
             this.context = new TelemetryContext(this.InternalData.properties);
             this.GenerateId();
+            this.Callbacks = new List<Action>();
         }
 
         /// <summary>
@@ -283,6 +284,16 @@ namespace Microsoft.ApplicationInsights.DataContracts
                 this.DependencyTypeName = value;
             }
         }
+
+
+        /// <summary>
+        /// Gets the call backs telemetry instance.
+        /// </summary>
+        public List<Action> Callbacks
+        {
+            get; 
+        }
+
 
         /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100).
