@@ -116,6 +116,17 @@
         }
 
         [TestMethod]
+        public void InitializeInstrumentationKeySetsTelemetryInstrumentationKey()
+        {
+            var sourceInstrumentationKey = "TestValue";
+            var target = new TelemetryContext();
+
+            target.InitializeInstrumentationkey(sourceInstrumentationKey);
+
+            Assert.AreEqual("TestValue", target.InstrumentationKey);
+        }
+
+        [TestMethod]
         public void InitializeSetsTelemetryInstrumentationKeyFromArgument()
         {
             var source = new TelemetryContext { InstrumentationKey = "TestValue" };
@@ -133,6 +144,17 @@
             var target = new TelemetryContext { InstrumentationKey = "TargetValue" };
 
             target.Initialize(source, source.InstrumentationKey);
+
+            Assert.AreEqual("TargetValue", target.InstrumentationKey);
+        }
+
+        [TestMethod]
+        public void InitializeInstrumentationKeyDoesNotOverrideTelemetryInstrumentationKey()
+        {
+            var sourceInstrumentationKey = "SourceValue";
+            var target = new TelemetryContext { InstrumentationKey = "TargetValue" };
+
+            target.InitializeInstrumentationkey(sourceInstrumentationKey);
 
             Assert.AreEqual("TargetValue", target.InstrumentationKey);
         }
