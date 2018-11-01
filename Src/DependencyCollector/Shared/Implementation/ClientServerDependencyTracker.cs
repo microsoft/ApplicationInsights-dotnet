@@ -51,11 +51,11 @@
                     }
                 }
 
-                telemetryClient.Initialize(telemetry);
+                telemetryClient.InitializeInstrumentationKey(telemetry);
             }
             else
             {
-                telemetryClient.Initialize(telemetry);
+                telemetryClient.InitializeInstrumentationKey(telemetry);
 
                 // Every operation must have its own Activity
                 // if dependency is tracked with profiler of event source, we need to generate a proper Id for it
