@@ -4,7 +4,10 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 2.9.0-beta1
 - [Remove unused reference to System.Web.Extesions](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/956)
-- [Added new method on TelemetryClient to initialize just instrumntation. This is to be used by autocollectors to avoid calling TelemetryInitializers twice.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/966)
+Perf Improvements
+- [Added new method on TelemetryClient to initialize just instrumentation key. This is to be used by autocollectors to avoid calling TelemetryInitializers twice.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/966)
+- [RequestTelemetry modified to lazily instantiate ConcurrentDictionary for Properties](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/969)
+- [RequestTelemetry modified to not service public fields with data class to avoid converting between types.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/965)
 
 ## Version 2.8.1
 [Patch release addressing perf regression.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/952)
