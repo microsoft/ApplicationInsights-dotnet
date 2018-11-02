@@ -51,7 +51,7 @@ namespace PerfTest
                 {
                     tasks[i] = new Task(() =>
                     {
-                        for (int j = 0; i < 50000; i++)
+                        for (int j = 0; j < 5000; j++)
                         {
                             telemetryClient.TrackDependency("Http", "myaccount.blob.core.windows.net", "Name", "https://myaccount.blob.core.windows.net/my/container/myblob",
                                 DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", (j % 2 == 0) ? true : false);
