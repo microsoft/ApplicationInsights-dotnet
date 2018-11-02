@@ -427,7 +427,7 @@
                     track(client, item);
 
 #pragma warning disable CS0618 // Type or member is obsolete
-                     Assert.IsTrue(item.Context.Properties.ContainsKey("globalproperty1"), "Item Properties should contain the globalproperties as its copied before serialization");
+                    Assert.IsTrue(item.Context.Properties.ContainsKey("globalproperty1"), "Item Properties should contain the globalproperties as its copied before serialization");
 #pragma warning restore CS0618 // Type or member is obsolete
 
                     var actualEvent = listener.Messages.FirstOrDefault();
