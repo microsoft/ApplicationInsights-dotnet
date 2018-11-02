@@ -233,8 +233,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
                 {                    
-                    var telemetryItem = item as RequestTelemetry;
-                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    var telemetryItem = item as RequestTelemetry;                    
+                    // This check avoids accessing the public accessor GlobalProperties
+                    // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
+                    if (item.Context.GlobalPropertiesValue != null)
+                    {
+                        Utils.CopyDictionary(item.Context.GlobalProperties, telemetryItem.Properties);
+                    }
+
                     item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new

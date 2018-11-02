@@ -118,7 +118,7 @@ dir "$currentDir\obj\gbc" | ForEach-Object {
 }
 
 	# Remove "properties" field declaration as its is done lazy in a separate partial class
-    RegExReplace "$currentDir\obj\gbc\RequestData_types.cs" "public IDictionary<string, string> properties { get; set; }"
+    
 	RegExReplace "$currentDir\obj\gbc\RequestData_types.cs" "properties = new ConcurrentDictionary<string, string>\(\);"
 
 #################################################################################################
