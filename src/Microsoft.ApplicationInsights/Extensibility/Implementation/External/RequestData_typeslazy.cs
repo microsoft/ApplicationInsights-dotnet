@@ -14,7 +14,6 @@
 
 #pragma warning disable SA1300 // Element must begin with upper-case letter
         public IDictionary<string, double> measurements
-#pragma warning restore SA1300 // Element must begin with upper-case letter
         {
             get { return LazyInitializer.EnsureInitialized(ref this.measurementsInternal, () => new ConcurrentDictionary<string, double>()); }
             set { this.measurementsInternal = value; }
@@ -25,5 +24,6 @@
             get { return LazyInitializer.EnsureInitialized(ref this.propertiesInternal, () => new ConcurrentDictionary<string, string>()); }
             set { this.propertiesInternal = value; }
         }
+#pragma warning restore SA1300 // Element must begin with upper-case letter
     }
 }

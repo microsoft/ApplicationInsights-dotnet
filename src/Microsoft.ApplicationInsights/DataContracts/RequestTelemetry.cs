@@ -72,8 +72,6 @@
             this.Source = source.Source;
             this.Success = source.Success;
             this.Url = source.Url;
-
-            
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.successFieldSet = source.successFieldSet;
