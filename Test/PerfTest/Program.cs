@@ -50,7 +50,7 @@ namespace PerfTest
                     {
                         for (int j = 0; i < 50000; i++)
                         {
-                            telemetryClient.TrackDependency("SQL", "MySqlDb", "Name", "Select name from details",
+                            telemetryClient.TrackRequest("Name",
                                 DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", (j % 2 == 0) ? true : false);
                         }
                     });
