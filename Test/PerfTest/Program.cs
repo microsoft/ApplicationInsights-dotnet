@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights.Channel;
+using Microsoft.ApplicationInsights.DataContracts;
 
 namespace PerfTest
 {
@@ -31,7 +32,7 @@ namespace PerfTest
 
             var telemetryClient = new TelemetryClient(activeConfiguration);
 
-            int IterationMax = 25;
+            int IterationMax = 50;
             int TaskCount = Environment.ProcessorCount;
 
             long[] runs = new long[IterationMax-1];            
@@ -51,7 +52,10 @@ namespace PerfTest
                     {
                         for (int j = 0; j < 5000; j++)
                         {
-                            telemetryClient.TrackRequest("Http",DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", (j % 2 == 0) ? true : false);
+                            var req = new RequestTelemetry("Http", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200),
+                                "200", (j % 2 == 0) ? true : false);
+                            req.Url = new Uri("http://www.google.com");
+                            telemetryClient.TrackRequest(req);
                         }
                     }); 
                 }
@@ -70,8 +74,6 @@ namespace PerfTest
                 {
                     runs[iter-1] = sw.ElapsedMilliseconds;
                 }
-               Console.WriteLine("Channel saw: " + MyChannel.count);
-               MyChannel.count = 0;
             }
 
             Console.WriteLine("Avge" + runs.Average());
@@ -96,7 +98,6 @@ namespace PerfTest
 
     internal class MyChannel : ITelemetryChannel
     {
-        public static int count = 0;
         public MyChannel()
         {
         }
@@ -116,7 +117,7 @@ namespace PerfTest
 
         public void Send(ITelemetry item)
         {
-            Interlocked.Increment(ref count);
+            
         }
     }
 }
