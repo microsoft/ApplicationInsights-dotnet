@@ -117,8 +117,7 @@ dir "$currentDir\obj\gbc" | ForEach-Object {
 	RegExReplace $_.FullName "measurements = new ConcurrentDictionary<string, double>\(\);"
 }
 
-	# Remove "properties" field declaration as its is done lazy in a separate partial class
-    
+	# Remove "properties" instantiation as its is done lazy in the public RequestTelemetry class.
 	RegExReplace "$currentDir\obj\gbc\RequestData_types.cs" "properties = new ConcurrentDictionary<string, string>\(\);"
 
 #################################################################################################
