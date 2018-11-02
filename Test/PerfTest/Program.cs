@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DependencyCollector;
 
 namespace PerfTest
 {
@@ -26,10 +25,8 @@ namespace PerfTest
             var builder = activeConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
             builder.Use((next) => { return new AutocollectedMetricsExtractor(next); });
             builder.UseSampling(5, excludedTypes: "Event");
-            builder.UseSampling(5, includedTypes: "Event");            
+            builder.UseSampling(5, includedTypes: "Event");
             builder.Build();
-
-            activeConfiguration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
 
             var telemetryClient = new TelemetryClient(activeConfiguration);
 
@@ -53,7 +50,7 @@ namespace PerfTest
                     {
                         for (int j = 0; i < 50000; i++)
                         {
-                            telemetryClient.TrackDependency("Http", "myaccount.blob.core.windows.net", "Name", "https://myaccount.blob.core.windows.net/my/container/myblob",
+                            telemetryClient.TrackDependency("SQL", "MySqlDb", "Name", "Select name from details",
                                 DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", (j % 2 == 0) ? true : false);
                         }
                     });
@@ -77,20 +74,6 @@ namespace PerfTest
             }
 
             Console.WriteLine("Avge" + runs.Average());
-        }
-    }
-
-    internal class MyTelemetryInitializer : ITelemetryInitializer
-    {
-        private string currentValue;
-
-        public void Initialize(ITelemetry telemetry)
-        {
-            currentValue = "mystring";
-            for (int i = 0; i < 100; i++)
-            {
-                telemetry.Context.Device.Id = currentValue;
-            }
         }
     }
 
