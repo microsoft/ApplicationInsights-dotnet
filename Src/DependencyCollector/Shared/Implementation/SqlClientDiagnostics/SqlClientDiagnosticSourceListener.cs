@@ -507,7 +507,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
             if (activity != null)
             {
                 telemetry.Context.Operation.Id = activity.RootId;
-                telemetry.Context.Operation.ParentId = activity.ParentId;
+
+                // SQL Client does NOT create and Activity, i.e. 
+                // we initialize SQL dependency using request Activity 
+                // and it is a parent of the SQL dependency
+                telemetry.Context.Operation.ParentId = activity.Id;
 
                 foreach (var item in activity.Baggage)
                 {
