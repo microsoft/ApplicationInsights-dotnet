@@ -25,8 +25,8 @@
         internal new const string TelemetryName = "Request";
 
         internal readonly string BaseType = typeof(RequestData).Name;
-        internal RequestData DataInternal;
         private readonly TelemetryContext context;
+        private RequestData dataPrivate;
         private bool successFieldSet;
         private IExtension extension;
         private double? samplingPercentage;
@@ -245,7 +245,7 @@
         {
             get
             {
-                return LazyInitializer.EnsureInitialized(ref this.DataInternal,
+                return LazyInitializer.EnsureInitialized(ref this.dataPrivate,
                      () =>
                          {
                              var req = new RequestData();
@@ -268,7 +268,7 @@
 
             private set
             {
-                 this.DataInternal = value;
+                 this.dataPrivate = value;
             }
         }
 
