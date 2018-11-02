@@ -31,7 +31,7 @@
         private IExtension extension;
         private double? samplingPercentage;
         private bool? success;
-        private IDictionary<string, double> measurements;
+        private IDictionary<string, double> measurementsValue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTelemetry"/> class.
@@ -64,10 +64,13 @@
         {
             this.Duration = source.Duration;
             this.Id = source.Id;
-            Utils.CopyDictionary(source.Metrics, this.Metrics);
+            if (source.measurementsValue != null)
+            {
+                Utils.CopyDictionary(source.Metrics, this.Metrics);
+            }
+
             this.Name = source.Name;
-            this.context = source.context.DeepClone(null);
-            Utils.CopyDictionary(source.Properties, this.Properties);
+            this.context = source.context.DeepClone();
             this.ResponseCode = source.ResponseCode;
             this.Source = source.Source;
             this.Success = source.Success;
@@ -201,7 +204,7 @@
         /// </summary>
         public override IDictionary<string, double> Metrics
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.measurements, () => new ConcurrentDictionary<string, double>()); }
+            get { return LazyInitializer.EnsureInitialized(ref this.measurementsValue, () => new ConcurrentDictionary<string, double>()); }
         }
 
         /// <summary>
@@ -251,9 +254,9 @@
                              var req = new RequestData();
                              req.duration = this.Duration;
                              req.id = this.Id;
-                             req.measurements = this.Metrics;
+                             req.measurements = this.measurementsValue;
                              req.name = this.Name;
-                             req.properties = this.Properties;
+                             req.properties = this.context.PropertiesValue;
                              req.responseCode = this.ResponseCode;
                              req.source = this.Source;
                              if (this.Success != null && this.Success.HasValue)

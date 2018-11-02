@@ -256,8 +256,20 @@
                 Utils.CopyDictionary(this.GlobalProperties, other.GlobalProperties);
             }
 
+            if (this.PropertiesValue != null)
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                Utils.CopyDictionary(this.Properties, other.Properties);
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
+
             other.InstrumentationKey = this.InstrumentationKey;
             return other;
+        }
+
+        internal TelemetryContext DeepClone()
+        {
+            return this.DeepClone(null);
         }
 
         /// <summary>
