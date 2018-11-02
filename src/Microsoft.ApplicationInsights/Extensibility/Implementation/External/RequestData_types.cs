@@ -39,7 +39,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         public int ver { get; set; }
 
-        
+            
         
         
         public string id { get; set; }
@@ -77,10 +77,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public IDictionary<string, string> properties { get; set; }
-
-        
-        
         
         
 
@@ -98,8 +94,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             responseCode = "";
             success = true;
             url = "";
-            properties = new ConcurrentDictionary<string, string>();
-            
         }
     }
 } // AI

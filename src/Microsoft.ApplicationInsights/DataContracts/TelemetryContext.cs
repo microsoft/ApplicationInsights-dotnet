@@ -248,7 +248,6 @@
 
         internal TelemetryContext DeepClone(IDictionary<string, string> properties)
         {
-            Debug.Assert(properties != null, "properties parameter should not be null");
             var other = new TelemetryContext(properties);
             // This check avoids accessing the public accessor GlobalProperties
             // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
