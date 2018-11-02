@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights.Channel;
 
@@ -24,7 +25,7 @@ namespace PerfTest
 
             var builder = activeConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
             builder.Use((next) => { return new AutocollectedMetricsExtractor(next); });
-            builder.UseSampling(5, excludedTypes: "Event");
+            builder.UseSampling(5, excludedTypes: "Event");            
             builder.UseSampling(5, includedTypes: "Event");            
             builder.Build();
 
@@ -69,10 +70,13 @@ namespace PerfTest
                 {
                     runs[iter-1] = sw.ElapsedMilliseconds;
                 }
-                
+               Console.WriteLine("Channel saw: " + MyChannel.count);
+               MyChannel.count = 0;
             }
 
             Console.WriteLine("Avge" + runs.Average());
+
+            
         }
     }
 
@@ -92,6 +96,7 @@ namespace PerfTest
 
     internal class MyChannel : ITelemetryChannel
     {
+        public static int count = 0;
         public MyChannel()
         {
         }
@@ -111,7 +116,7 @@ namespace PerfTest
 
         public void Send(ITelemetry item)
         {
-
+            Interlocked.Increment(ref count);
         }
     }
 }
