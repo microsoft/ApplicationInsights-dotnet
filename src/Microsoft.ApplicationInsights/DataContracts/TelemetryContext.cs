@@ -194,7 +194,7 @@
             }
 
             if (this.rawObjectsTemp.TryGetValue(key, out rawObject))
-            {                
+            {
                 return true;
             }
             else
@@ -243,7 +243,7 @@
 
         internal void ClearTempRawObjects()
         {
-          this.rawObjectsTemp.Clear();
+            this.rawObjectsTemp.Clear();
         }
 
         internal TelemetryContext DeepClone(IDictionary<string, string> properties)
@@ -268,7 +268,7 @@
         /// </summary>
         internal void Initialize(TelemetryContext source, string instrumentationKey)
         {
-            Property.Initialize(ref this.instrumentationKey, instrumentationKey);
+            this.InitializeInstrumentationkey(instrumentationKey);
 
             this.Flags |= source.Flags;
 
@@ -280,6 +280,14 @@
             source.operation?.CopyTo(this.Operation);
             source.location?.CopyTo(this.Location);
             source.Internal.CopyTo(this.Internal);
+        }
+
+        /// <summary>
+        /// Initialize this instance's instrumentation key.
+        /// </summary>
+        internal void InitializeInstrumentationkey(string instrumentationKey)
+        {
+            Property.Initialize(ref this.instrumentationKey, instrumentationKey);
         }
     }
 }
