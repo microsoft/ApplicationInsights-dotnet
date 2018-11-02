@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DependencyCollector;
 
 namespace PerfTest
 {
@@ -28,8 +27,6 @@ namespace PerfTest
             builder.UseSampling(5, excludedTypes: "Event");
             builder.UseSampling(5, includedTypes: "Event");            
             builder.Build();
-
-            activeConfiguration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
 
             var telemetryClient = new TelemetryClient(activeConfiguration);
 
@@ -53,10 +50,9 @@ namespace PerfTest
                     {
                         for (int j = 0; j < 5000; j++)
                         {
-                            telemetryClient.TrackDependency("Http", "myaccount.blob.core.windows.net", "Name", "https://myaccount.blob.core.windows.net/my/container/myblob",
-                                DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", (j % 2 == 0) ? true : false);
+                            telemetryClient.TrackRequest("Http",DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", (j % 2 == 0) ? true : false);
                         }
-                    });
+                    }); 
                 }
 
                 for (int i = 0; i < TaskCount; i++)
