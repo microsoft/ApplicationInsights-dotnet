@@ -1,8 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -23,19 +25,20 @@
         internal new const string TelemetryName = "Request";
 
         internal readonly string BaseType = typeof(RequestData).Name;
-        internal readonly RequestData Data;
         private readonly TelemetryContext context;
+        private RequestData dataPrivate;
         private bool successFieldSet;
         private IExtension extension;
         private double? samplingPercentage;
+        private bool? success;
+        private IDictionary<string, double> measurements;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTelemetry"/> class.
         /// </summary>
         public RequestTelemetry()
         {
-            this.Data = new RequestData();
-            this.context = new TelemetryContext(this.Data.properties);
+            this.context = new TelemetryContext();
             this.GenerateId();
         }
 
@@ -59,8 +62,16 @@
         /// <param name="source">Source instance of <see cref="RequestTelemetry"/> to clone from.</param>
         private RequestTelemetry(RequestTelemetry source)
         {
-            this.Data = source.Data.DeepClone();
-            this.context = source.context.DeepClone(this.Data.properties);
+            this.Duration = source.Duration;
+            this.Id = source.Id;
+            Utils.CopyDictionary(source.Metrics, this.Metrics);
+            this.Name = source.Name;
+            this.context = source.context.DeepClone(null);
+            Utils.CopyDictionary(source.Properties, this.Properties);
+            this.ResponseCode = source.ResponseCode;
+            this.Source = source.Source;
+            this.Success = source.Success;
+            this.Url = source.Url;
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.successFieldSet = source.successFieldSet;
@@ -99,8 +110,8 @@
         /// </summary>
         public override string Id
         {
-            get { return this.Data.id; }
-            set { this.Data.id = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -108,8 +119,8 @@
         /// </summary>
         public override string Name
         {
-            get { return this.Data.name; }
-            set { this.Data.name = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -117,8 +128,8 @@
         /// </summary>
         public string ResponseCode
         {
-            get { return this.Data.responseCode; }
-            set { this.Data.responseCode = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -130,7 +141,7 @@
             {
                 if (this.successFieldSet)
                 {
-                    return this.Data.success;
+                    return this.success;
                 }
 
                 return null;
@@ -140,12 +151,12 @@
             {
                 if (value != null && value.HasValue)
                 {
-                    this.Data.success = value.Value;
+                    this.success = value.Value;
                     this.successFieldSet = true;
                 }
                 else
                 {
-                    this.Data.success = true;
+                    this.success = true;
                     this.successFieldSet = false;
                 }
             }
@@ -156,8 +167,8 @@
         /// </summary>
         public override TimeSpan Duration
         {
-            get { return this.Data.duration; }
-            set { this.Data.duration = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -166,37 +177,23 @@
         /// </summary>
         public override IDictionary<string, string> Properties
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             get
             {
-                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.Data.properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
+                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.Context.Properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
                 {
-                    this.Data.properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
-                }  
-                
-                return this.Data.properties;
+                    this.Context.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
+                }
+
+                return this.Context.Properties;
+#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 
         /// <summary>
         /// Gets or sets request url (optional).
         /// </summary>
-        public Uri Url
-        {
-            get
-            {
-                if (this.Data.url.IsNullOrWhiteSpace())
-                {
-                    return null;
-                }
-
-                return new Uri(this.Data.url, UriKind.RelativeOrAbsolute);
-            }
-
-            set
-            {
-                this.Data.url = value?.ToString();
-            }
-        }
+        public Uri Url { get; set; }
 
         /// <summary>
         /// Gets a dictionary of application-defined request metrics.
@@ -204,7 +201,7 @@
         /// </summary>
         public override IDictionary<string, double> Metrics
         {
-            get { return this.Data.measurements; }
+            get { return LazyInitializer.EnsureInitialized(ref this.measurements, () => new ConcurrentDictionary<string, double>()); }
         }
 
         /// <summary>
@@ -231,8 +228,8 @@
         /// </summary>
         public string Source
         {
-            get { return this.Data.source; }
-            set { this.Data.source = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -242,6 +239,37 @@
         {
             get;
             set;
+        }
+
+        internal RequestData Data
+        {
+            get
+            {
+                return LazyInitializer.EnsureInitialized(ref this.dataPrivate,
+                     () =>
+                         {
+                             var req = new RequestData();
+                             req.duration = this.Duration;
+                             req.id = this.Id;
+                             req.measurements = this.Metrics;
+                             req.name = this.Name;
+                             req.properties = this.Properties;
+                             req.responseCode = this.ResponseCode;
+                             req.source = this.Source;
+                             if (this.Success != null && this.Success.HasValue)
+                             {
+                                 req.success = this.Success.Value;
+                             }
+
+                             req.url = this.Url?.ToString();
+                             return req;
+                         });
+            }
+
+            private set
+            {
+                 this.dataPrivate = value;
+            }
         }
 
         /// <summary>
@@ -270,8 +298,8 @@
             this.Url = this.Url.SanitizeUri();
 
             // Set for backward compatibility:
-            this.Data.id = this.Data.id.SanitizeName();
-            this.Data.id = Utils.PopulateRequiredStringValue(this.Data.id, "id", typeof(RequestTelemetry).FullName);
+            this.Id = this.Id.SanitizeName();
+            this.Id = Utils.PopulateRequiredStringValue(this.Id, "id", typeof(RequestTelemetry).FullName);
 
             // Required fields
             if (!this.Success.HasValue)
