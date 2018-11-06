@@ -18,11 +18,11 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
     /// </remarks>
-    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
     {
         internal const string TelemetryName = "PageView";
 
-        internal readonly string BaseType = typeof(PageViewData).Name;        
+        internal readonly string BaseType = typeof(PageViewData).Name;
         internal readonly PageViewData Data;
         private readonly TelemetryContext context;
         private IExtension extension;
