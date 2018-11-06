@@ -451,6 +451,23 @@
         /// <summary>
         /// This method is an internal part of Application Insights infrastructure. Do not call.
         /// </summary>
+        /// <param name="telemetry">Telemetry item to initialize instrumentation key.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void InitializeInstrumentationKey(ITelemetry telemetry)
+        {
+            string instrumentationKey = this.Context.InstrumentationKey;
+
+            if (string.IsNullOrEmpty(instrumentationKey))
+            {
+                instrumentationKey = this.configuration.InstrumentationKey;
+            }
+
+            telemetry.Context.InitializeInstrumentationkey(instrumentationKey);
+        }
+
+        /// <summary>
+        /// This method is an internal part of Application Insights infrastructure. Do not call.
+        /// </summary>
         /// <param name="telemetry">Telemetry item to initialize.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void Initialize(ITelemetry telemetry)

@@ -2,6 +2,14 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.9.0-beta1
+- [Remove unused reference to System.Web.Extensions](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/956)
+- [Added new method on TelemetryClient to initialize just instrumentation. This is to be used by autocollectors to avoid calling TelemetryInitializers twice.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/966)
+- [PageViewTelemetry](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/8673ed1d15005713755e0bb9594acfe0ee00b869/src/Microsoft.ApplicationInsights/DataContracts/PageViewTelemetry.cs) now supports [ISupportMetrics](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/39a5ef23d834777eefdd72149de705a016eb06b0/src/Microsoft.ApplicationInsights/DataContracts/ISupportMetrics.cs)
+
+## Version 2.8.1
+[Patch release addressing perf regression.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/952)
+
 ## Version 2.8.0
 - [New API to store/retrieve any raw objects on TelemetryContext to enable AutoCollectors to pass additional information for use by TelemetryInitializers.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/937)
 - Perf Improvements
@@ -15,7 +23,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 	If you are upgrading, and have added/modified TelemetryProcessors/TelemetryChannel, make sure to copy them to the default sink section.
 
 ## Version 2.8.0-beta1
-- [Add a new distict properties collection, GlobalProperties, on TelemetryContext, and obsolete the Properties on TelemetryContext.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/820)
+- [Add a new distinct properties collection, GlobalProperties, on TelemetryContext, and obsolete the Properties on TelemetryContext.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/820)
 - [Added support for strongly typed extensibility for Telemetry types using IExtension.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/871)
 - [New method SerializeData(ISerializationWriter writer) defined in ITelemetry. All existing types implement this method to emit information about it's fields to channels who can serialize this data]
    (continuation of https://github.com/Microsoft/ApplicationInsights-dotnet/issues/871)
@@ -36,7 +44,7 @@ message and exception type of underlying `System.Exception` object that user wan
   Related: (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/690)
 
 ## Version 2.7.0-beta2
-- [Fix: NullReferenceException if telemtery is tracked after TelemetryConfiguration is disposed](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/928)
+- [Fix: NullReferenceException if telemetry is tracked after TelemetryConfiguration is disposed](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/928)
 - [Move the implementation of the extraction of auto-collected (aka standard) metrics from internal legacy APIs to the recently shipped metric aggregation APIs.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/806)
 - [Fix: NullReferenceException in ExceptionConverter.GetStackFrame if StackFrame.GetMethod() is null](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/819)
 
