@@ -244,6 +244,13 @@
             set;
         }
 
+        /// <summary>
+        /// Gets the Data associated with this Telemetry instance.
+        /// This is being served by a singleton instance, so this will
+        /// not pickup changes made to the telemetry after first call to this.
+        /// It is recommended to make all changes (including sanitization)
+        /// to this telemetry before calling Data.
+        /// </summary>
         internal RequestData Data
         {
             get
@@ -286,7 +293,10 @@
 
         /// <inheritdoc/>
         public override void SerializeData(ISerializationWriter serializationWriter)
-        {            
+        {
+            // To ensure that all changes to telemetry are reflected in serialization,
+            // the underlying field is set to null, which forces it to be re-created.
+            this.dataPrivate = null;
             serializationWriter.WriteProperty(this.Data);                        
         }
 
