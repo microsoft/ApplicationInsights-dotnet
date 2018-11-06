@@ -40,7 +40,7 @@
         {
             if (telemetryClient == null)
             {
-                throw new ArgumentNullException("Telemetry client cannot be null.");
+                throw new ArgumentNullException(nameof(telemetryClient));
             }
 
             var operationTelemetry = new T();
@@ -74,14 +74,23 @@
         {
             if (telemetryClient == null)
             {
-                throw new ArgumentNullException("Telemetry client cannot be null.");
+                throw new ArgumentNullException(nameof(telemetryClient));
             }
 
             if (operationTelemetry == null)
             {
-                throw new ArgumentNullException("operationTelemetry cannot be null.");
+                throw new ArgumentNullException(nameof(operationTelemetry));
             }
 
+            // We initialize telemetry here AND in Track method because of RichPayloadEventSource.
+            // It sends Start and Stop events for OperationTelemetry. During Start event telemetry
+            // has to contain essential telemetry properties such as correlations ids and ikey.
+            // Also, examples in our documentation rely on the fact that correlation Ids are set
+            // after StartOperation call and before operation is stopped.
+            // Before removing this call (for optimization), make sure:
+            // 1) correlation ids are set before method leaves
+            // 2) RichPayloadEventSource is re-factored to work without ikey in Start event (or ikey is set)
+            //    and does not require other properties in telemetry
             telemetryClient.Initialize(operationTelemetry);
 
             var telemetryContext = operationTelemetry.Context.Operation;
@@ -165,7 +174,7 @@
         {
             if (telemetryClient == null)
             {
-                throw new ArgumentNullException("telemetryClient");
+                throw new ArgumentNullException(nameof(telemetryClient));
             }
 
             if (operation == null)
@@ -187,8 +196,8 @@
         /// 
         ///   // Extract tracing context from the message before processing it
         ///   // Note that some protocols may define how Activity should be serialized into the message,
-        ///   // and some client SDKs implemeting them may provide Extract method.
-        ///   // For other protocols/libraries, serialization has to be agreed between procuder and consumer
+        ///   // and some client SDKs implementing them may provide Extract method.
+        ///   // For other protocols/libraries, serialization has to be agreed between producer and consumer
         ///   // and Inject/Extract pattern to be implemented
         ///   var activity = message.ExtractActivity();
         /// 
@@ -203,7 +212,7 @@
         /// <remarks><para>Activity represents tracing context; it contains correlation identifiers and extended properties that are propagated to external calls.
         /// See <a href="https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/ActivityUserGuide.md"/> for more details.</para>
         /// <para>When Activity instance is passed to StartOperation, it is expected that Activity has ParentId (if it was provided by upstream service), but has not been started yet.
-        /// It may also have additional Tags and Baggage to augument telemetry.</para>
+        /// It may also have additional Tags and Baggage to augment telemetry.</para>
         /// </remarks>
         /// <typeparam name="T">Type of the telemetry item.</typeparam>
         /// <param name="telemetryClient">Telemetry client object.</param>
@@ -223,6 +232,17 @@
 
             activity.Start();
             T operationTelemetry = ActivityToTelemetry<T>(activity);
+
+            // We initialize telemetry here AND in Track method because of RichPayloadEventSource.
+            // It sends Start and Stop events for OperationTelemetry. During Start event telemetry
+            // has to contain essential telemetry properties such as correlations ids and ikey.
+            // Also, examples in our documentation rely on the fact that correlation Ids are set
+            // after StartOperation call and before operation is stopped.
+            // Before removing this call (for optimization), make sure:
+            // 1) correlation ids are set before method leaves
+            // 2) RichPayloadEventSource is re-factored to work without ikey in Start event (or ikey is set)
+            //    and does not require other properties in telemetry
+            telemetryClient.Initialize(operationTelemetry);
 
             operationTelemetry.Start();
 

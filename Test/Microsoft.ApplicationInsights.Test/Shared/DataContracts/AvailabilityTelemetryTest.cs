@@ -15,10 +15,31 @@
     public class AvailabilityTelemetryTest
     {
         [TestMethod]
+        public void AvailabilityTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
+        {
+            var expected = CreateAvailabilityTelemetry();
+
+            ((ITelemetry)expected).Sanitize();
+
+            Assert.AreEqual(1, expected.Properties.Count);
+            Assert.AreEqual(1, expected.Context.GlobalProperties.Count);
+
+            Assert.IsTrue(expected.Properties.ContainsKey("TestProperty"));
+            Assert.IsTrue(expected.Context.GlobalProperties.ContainsKey("TestPropertyGlobal"));
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.AvailabilityData>(expected);
+
+            // Items added to both availability.Properties, and availability.Context.GlobalProperties are serialized to properties.
+            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestPropertyGlobal"));
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
+        }
+
+        [TestMethod]
         public void AvailabilityTelemetrySerializesToJson()
         {
             AvailabilityTelemetry expected = this.CreateAvailabilityTelemetry();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AvailabilityTelemetry, AI.AvailabilityData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.AvailabilityData>(expected);
 
             Assert.AreEqual<DateTimeOffset>(expected.Timestamp, DateTimeOffset.Parse(item.time, null, System.Globalization.DateTimeStyles.AssumeUniversal));
             Assert.AreEqual(expected.Sequence, item.seq);
@@ -126,6 +147,15 @@
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
 
+        [TestMethod]
+        public void AvailabilityTelemetryDeepCloneWithNullExtensionDoesNotThrow()
+        {
+            var telemetry = new AvailabilityTelemetry();
+            // Extension is not set, means it'll be null.
+            // Validate that cloning with null Extension does not throw.
+            var other = telemetry.DeepClone();
+        }
+
         private AvailabilityTelemetry CreateAvailabilityTelemetry()
         {
             AvailabilityTelemetry item = new AvailabilityTelemetry
@@ -138,8 +168,9 @@
             };
             item.Context.InstrumentationKey = Guid.NewGuid().ToString();
             item.Properties.Add("TestProperty", "TestValue");
+            item.Context.GlobalProperties.Add("TestPropertyGlobal", "TestValue");
             item.Sequence = "12";
-
+            item.Extension = new MyTestExtension();
             return item;
         }
 

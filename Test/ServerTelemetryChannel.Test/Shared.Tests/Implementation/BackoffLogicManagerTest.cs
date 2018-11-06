@@ -38,29 +38,25 @@
             [TestMethod]
             public void ReturnNullIfArgumentIsNull()
             {
-                var manager = new BackoffLogicManager(TimeSpan.Zero);
-                Assert.IsNull(manager.GetBackendResponse(null));
+                Assert.IsNull(BackoffLogicManager.GetBackendResponse(null));
             }
 
             [TestMethod]
             public void ReturnNullIfArgumentEmpty()
             {
-                var manager = new BackoffLogicManager(TimeSpan.Zero);
-                Assert.IsNull(manager.GetBackendResponse(string.Empty));
+                Assert.IsNull(BackoffLogicManager.GetBackendResponse(string.Empty));
             }
 
             [TestMethod]
             public void IfContentCannotBeParsedNullIsReturned()
             {
-                var manager = new BackoffLogicManager(TimeSpan.Zero);
-                Assert.IsNull(manager.GetBackendResponse("ab}{"));
+                Assert.IsNull(BackoffLogicManager.GetBackendResponse("ab}{"));
             }
 
             [TestMethod]
             public void IfContentIsUnexpectedJsonNullIsReturned()
             {
-                var manager = new BackoffLogicManager(TimeSpan.Zero);
-                Assert.IsNull(manager.GetBackendResponse("[1,2]"));
+                Assert.IsNull(BackoffLogicManager.GetBackendResponse("[1,2]"));
             }
 
             [TestMethod]
@@ -68,8 +64,7 @@
             {
                 string content = BackendResponseHelper.CreateBackendResponse(itemsReceived: 100, itemsAccepted: 1, errorCodes: new[] {"206"}, indexStartWith: 84);
 
-                var manager = new BackoffLogicManager(TimeSpan.Zero);
-                var backendResponse = manager.GetBackendResponse(content);
+                var backendResponse = BackoffLogicManager.GetBackendResponse(content);
 
                 Assert.AreEqual(1, backendResponse.ItemsAccepted);
                 Assert.AreEqual(100, backendResponse.ItemsReceived);
@@ -103,7 +98,7 @@
             [TestMethod]
             public void UpperBoundOfDelayIsMaxDelay()
             {
-#if !NETCOREAPP1_1
+#if !NETCOREAPP
                 var manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.Zero);
 
                 PrivateObject wrapper = new PrivateObject(manager);

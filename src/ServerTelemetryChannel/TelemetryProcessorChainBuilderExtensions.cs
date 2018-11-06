@@ -4,6 +4,7 @@
     using System.ComponentModel;
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
@@ -26,7 +27,7 @@
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
             return builder.Use(next => new SamplingTelemetryProcessor(next)
@@ -48,7 +49,7 @@
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
             return builder.Use(next => new AdaptiveSamplingTelemetryProcessor(next)
@@ -70,7 +71,7 @@
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
             return builder.Use(next => new AdaptiveSamplingTelemetryProcessor(next)
@@ -92,19 +93,19 @@
         /// <return>Instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
         public static TelemetryProcessorChainBuilder UseAdaptiveSampling(
             this TelemetryProcessorChainBuilder builder,
-            SamplingPercentageEstimatorSettings settings,
-            AdaptiveSamplingPercentageEvaluatedCallback callback, 
+            WindowsServer.Channel.Implementation.SamplingPercentageEstimatorSettings settings,
+            WindowsServer.Channel.Implementation.AdaptiveSamplingPercentageEvaluatedCallback callback, 
             string excludedTypes = null,
             string includedTypes = null)
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
             if (settings == null)
             {
-                throw new ArgumentNullException("settings");
+                throw new ArgumentNullException(nameof(settings));
             }
 
             return builder.Use(next => new AdaptiveSamplingTelemetryProcessor(settings, callback, next)

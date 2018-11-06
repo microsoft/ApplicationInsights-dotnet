@@ -27,6 +27,11 @@
         public static readonly TimeSpan MinimumHeartbeatInterval = TimeSpan.FromSeconds(30.0);
 
         /// <summary>
+        /// Value for property indicating 'app insights version' related specifically to heartbeats.
+        /// </summary>
+        private static string sdkVersionPropertyValue = SdkVersionUtils.GetSdkVersion("hbnet:");
+
+        /// <summary>
         /// The name of the heartbeat metric item and operation context. 
         /// </summary>
         private static string heartbeatSyntheticMetricName = "HeartbeatState";
@@ -170,6 +175,7 @@
         public void Dispose()
         {
             this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public bool AddHeartbeatProperty(string propertyName, bool overrideDefaultField, string propertyValue, bool isHealthy)
@@ -281,7 +287,7 @@
                         }
                         catch (Exception)
                         {
-                            CoreEventSource.Log.LogError("Error occured when disposing heartbeat timer within HeartbeatProvider");
+                            CoreEventSource.Log.LogError("Error occurred when disposing heartbeat timer within HeartbeatProvider");
                         }
                     }
                 }
@@ -300,8 +306,9 @@
             var eventData = (MetricTelemetry)this.GatherData();
 
             eventData.Context.Operation.SyntheticSource = heartbeatSyntheticMetricName;
+            eventData.Context.GetInternalContext().SdkVersion = sdkVersionPropertyValue;
 
-            this.telemetryClient.TrackMetric(eventData);
+            this.telemetryClient.Track(eventData);
         }
 
         private void HeartbeatPulse(object state)
@@ -318,7 +325,7 @@
                 catch (ObjectDisposedException)
                 {
                     // swallow this exception but log it just the same.
-                    CoreEventSource.Log.LogError("Heartbeat timer change during dispose occured.");
+                    CoreEventSource.Log.LogError("Heartbeat timer change during dispose occurred.");
                 }
                 finally
                 {

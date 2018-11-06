@@ -1,21 +1,19 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
-    using System.Globalization;
     using System.IO;
     using System.Text;
     using Microsoft.ApplicationInsights.Channel;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
-        
+
     using JsonSerializer = Microsoft.ApplicationInsights.Extensibility.Implementation.JsonSerializer;
-    using JsonWriter = Microsoft.ApplicationInsights.Extensibility.Implementation.JsonWriter;
 
     internal static class TelemetryItemTestHelper
     {
         /// <summary>
         /// Serializes and deserializes the telemetry item and returns the results.
         /// </summary>
-        internal static AI.TelemetryItem<TelemetryDataType> SerializeDeserializeTelemetryItem<TODO_DELETEME, TelemetryDataType>(ITelemetry telemetry)
+        internal static AI.TelemetryItem<TelemetryDataType> SerializeDeserializeTelemetryItem<TelemetryDataType>(ITelemetry telemetry)
         {
             byte[] b = JsonSerializer.Serialize(telemetry, compress: false);
 

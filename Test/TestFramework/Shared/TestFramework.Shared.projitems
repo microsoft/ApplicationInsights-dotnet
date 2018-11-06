@@ -14,6 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)AsyncTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeterministicTaskScheduler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventSourceTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MockProcessorModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubSynchronizationContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetry.cs" />

@@ -6,10 +6,13 @@
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Metrics;
+    using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
     /// <summary>
     /// Encapsulates the global telemetry configuration typically loaded from the ApplicationInsights.config file.
@@ -29,7 +32,7 @@
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
         private TelemetryProcessorChainBuilder builder;
-        private SnapshottingList<IMetricProcessor> metricProcessors = new SnapshottingList<IMetricProcessor>();
+        private MetricManager metricManager = null;
 
         /// <summary>
         /// Indicates if this instance has been disposed of.
@@ -61,7 +64,7 @@
         {
             if (instrumentationKey == null)
             {
-                throw new ArgumentNullException("instrumentationKey");
+                throw new ArgumentNullException(nameof(instrumentationKey));
             }
 
             this.instrumentationKey = instrumentationKey;
@@ -123,7 +126,7 @@
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
 
                 this.instrumentationKey = value;
@@ -224,6 +227,14 @@
         }
 
         /// <summary>
+        /// Gets or sets the Application Id Provider.
+        /// </summary>
+        /// <remarks>
+        /// This feature is opt-in and must be configured to be enabled.
+        /// </remarks>
+        public IApplicationIdProvider ApplicationIdProvider { get; set; }
+
+        /// <summary>
         /// Gets a list of telemetry sinks associated with the configuration.
         /// </summary>
         public IList<TelemetrySink> TelemetrySinks => this.telemetrySinks;
@@ -232,15 +243,6 @@
         /// Gets the default telemetry sink.
         /// </summary>
         public TelemetrySink DefaultTelemetrySink => this.telemetrySinks.DefaultSink;
-
-        /// <summary>
-        /// Gets the list of <see cref="IMetricProcessor"/> objects used for custom metric data processing        
-        /// before client-side metric aggregation process.
-        /// </summary>
-        internal IList<IMetricProcessor> MetricProcessors
-        {
-            get { return this.metricProcessors; }
-        }
 
         /// <summary>
         /// Gets or sets the chain of processors.
@@ -261,7 +263,7 @@
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
 
                 this.telemetryProcessorChain = value;
@@ -290,7 +292,7 @@
         {
             if (string.IsNullOrWhiteSpace(config))
             {
-                throw new ArgumentNullException("config");
+                throw new ArgumentNullException(nameof(config));
             }
 
             var configuration = new TelemetryConfiguration();
@@ -307,6 +309,30 @@
             GC.SuppressFinalize(this);
         }
 
+        internal MetricManager GetMetricManager(bool createIfNotExists)
+        {
+            MetricManager manager = this.metricManager;
+            if (manager == null && createIfNotExists)
+            {
+                var pipelineAdapter = new ApplicationInsightsTelemetryPipeline(this);
+                MetricManager newManager = new MetricManager(pipelineAdapter);
+                MetricManager prevManager = Interlocked.CompareExchange(ref this.metricManager, newManager, null);
+
+                if (prevManager == null)
+                {
+                    manager = newManager;
+                }
+                else
+                {
+                    // We just created a new manager that we are not using. Stop is before discarding.
+                    Task fireAndForget = newManager.StopDefaultAggregationCycleAsync();
+                    manager = prevManager;
+                }
+            }
+
+            return manager;
+        }
+
         /// <summary>
         /// Disposes of resources.
         /// </summary>
@@ -317,6 +343,11 @@
             {
                 this.isDisposed = true;
                 Interlocked.CompareExchange(ref active, null, this);
+
+                // I think we should be flushing this.telemetrySinks.DefaultSink.TelemetryChannel at this point.
+                // Filed https://github.com/Microsoft/ApplicationInsights-dotnet/issues/823 to track.
+                // For now just flushing the metrics:
+                this.metricManager?.Flush();
 
                 if (this.telemetryProcessorChain != null)
                 {
@@ -332,14 +363,6 @@
                         this.telemetrySinks.Remove(sink);
                     }
                 }
-            }
-        }
-
-        private void EnsureNotDisposed()
-        {
-            if (this.isDisposed)
-            {
-                throw new ObjectDisposedException(nameof(TelemetryConfiguration));
             }
         }
     }

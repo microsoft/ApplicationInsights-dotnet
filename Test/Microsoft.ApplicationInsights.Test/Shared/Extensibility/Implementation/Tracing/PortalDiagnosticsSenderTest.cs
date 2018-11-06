@@ -44,6 +44,7 @@
             {
                 MetaData = new EventMetaData
                 {
+                    EventSourceName = "TelemetryCorrelation",
                     EventId = 10,
                     Keywords = 0x20,
                     Level = EventLevel.Warning,
@@ -58,7 +59,7 @@
             var trace = this.sendItems[0] as TraceTelemetry;
             Assert.IsNotNull(trace);
             Assert.AreEqual(
-                "AI (Internal): Error occurred at My function, some failure", 
+                "AI (Internal): [TelemetryCorrelation] Error occurred at My function, some failure", 
                 trace.Message);
         }
 
@@ -109,7 +110,7 @@
             var trace = this.sendItems[0] as TraceTelemetry;
             Assert.IsNotNull(trace);
             Assert.AreEqual(
-                "AI (Internal): Something failed",
+                "AI (Internal): [] Something failed",
                 trace.Message);
             Assert.AreEqual(0, trace.Properties.Count);
         }

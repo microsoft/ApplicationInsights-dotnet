@@ -2,6 +2,7 @@
 {
     using System;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
     /// Telemetry type used to track user sessions.
@@ -68,6 +69,15 @@
         }
 
         /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        public IExtension Extension
+        {
+            get { return this.Data.Extension; }
+            set { this.Data.Extension = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the value that defines absolute order of the telemetry item.
         /// </summary>
         public string Sequence
@@ -128,6 +138,12 @@
         void ITelemetry.Sanitize()
         {
             ((ITelemetry)this.Data).Sanitize();
+        }
+
+        /// <inheritdoc/>
+        public void SerializeData(ISerializationWriter serializationWriter)
+        {
+            this.Data.SerializeData(serializationWriter);
         }
     }
 }

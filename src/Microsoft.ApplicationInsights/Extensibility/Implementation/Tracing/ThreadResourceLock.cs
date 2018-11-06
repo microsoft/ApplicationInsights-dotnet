@@ -35,7 +35,16 @@
         /// </summary>
         public void Dispose()
         {
-            syncObject = null;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private static void Dispose(bool disponing)
+        {
+            if (disponing)
+            {
+                syncObject = null;
+            }
         }
     }
 }

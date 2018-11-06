@@ -9,6 +9,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.ApplicationInsights.TestFramework;
+    using System.Collections.Generic;
 
     [TestClass]
     public class TelemetryContextTest
@@ -38,7 +39,22 @@
             var context = new TelemetryContext();
             AssertEx.Throws<ArgumentNullException>(() => context.InstrumentationKey = null);
         }
-        
+
+        [TestMethod]
+        public void FlagsIsZeroByDefault()
+        {
+            var context = new TelemetryContext();
+            Assert.AreEqual(0, context.Flags);
+        }
+
+        [TestMethod]
+        public void FlagsCanBeSetAndGet()
+        {
+            var context = new TelemetryContext();
+            context.Flags |= 0x00100000;
+            Assert.AreEqual(0x00100000, context.Flags);
+        }
+
         [TestMethod]
         public void ComponentIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
@@ -100,6 +116,17 @@
         }
 
         [TestMethod]
+        public void InitializeInstrumentationKeySetsTelemetryInstrumentationKey()
+        {
+            var sourceInstrumentationKey = "TestValue";
+            var target = new TelemetryContext();
+
+            target.InitializeInstrumentationkey(sourceInstrumentationKey);
+
+            Assert.AreEqual("TestValue", target.InstrumentationKey);
+        }
+
+        [TestMethod]
         public void InitializeSetsTelemetryInstrumentationKeyFromArgument()
         {
             var source = new TelemetryContext { InstrumentationKey = "TestValue" };
@@ -119,6 +146,51 @@
             target.Initialize(source, source.InstrumentationKey);
 
             Assert.AreEqual("TargetValue", target.InstrumentationKey);
+        }
+
+        [TestMethod]
+        public void InitializeInstrumentationKeyDoesNotOverrideTelemetryInstrumentationKey()
+        {
+            var sourceInstrumentationKey = "SourceValue";
+            var target = new TelemetryContext { InstrumentationKey = "TargetValue" };
+
+            target.InitializeInstrumentationkey(sourceInstrumentationKey);
+
+            Assert.AreEqual("TargetValue", target.InstrumentationKey);
+        }
+
+        [TestMethod]
+        public void InitializeSetsFlagsFromSource()
+        {
+            var source = new TelemetryContext { Flags = 0x00100000 };
+            var target = new TelemetryContext();
+
+            target.Initialize(source, source.InstrumentationKey);
+
+            Assert.AreEqual(0x00100000, target.Flags);
+        }
+
+
+        [TestMethod]
+        public void InitializeSetsFlagsFromArgument()
+        {
+            var source = new TelemetryContext();
+            var target = new TelemetryContext { Flags = 0x00100000 };
+
+            target.Initialize(source, source.InstrumentationKey);
+
+            Assert.AreEqual(0x00100000, target.Flags);
+        }
+
+        [TestMethod]
+        public void InitializeSetsFlagsFromSourceAndArgument()
+        {
+            var source = new TelemetryContext { Flags = 0x00010000 };
+            var target = new TelemetryContext { Flags = 0x00100000 };
+
+            target.Initialize(source, source.InstrumentationKey);
+
+            Assert.AreEqual(0x00110000, target.Flags);
         }
 
         [TestMethod]
@@ -175,6 +247,157 @@
             AssertEx.Contains("\"" + ContextTagKeys.Keys.SessionId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
         }
 
+        [TestMethod]
+        public void TestSanitizeGlobalProperties()
+        {
+            var addedKeyWithSizeAboveLimit = new string('K', Property.MaxDictionaryNameLength + 1);
+            var addedValueWithSizeAboveLimit = new string('V', Property.MaxValueLength + 1);
+
+            var expectedKeyWithSizeWithinLimit = new string('K', Property.MaxDictionaryNameLength);
+            var expectedValueWithSizeWithinLimit = new string('V', Property.MaxValueLength);
+
+            var context = new TelemetryContext();
+            context.GlobalProperties.Add(addedKeyWithSizeAboveLimit, addedValueWithSizeAboveLimit);
+            context.SanitizeGlobalProperties();
+
+            Assert.IsTrue(context.GlobalProperties.ContainsKey(expectedKeyWithSizeWithinLimit));
+            var value = context.GlobalProperties[expectedKeyWithSizeWithinLimit];
+            Assert.AreEqual(expectedValueWithSizeWithinLimit, value);
+        }
+
+        [TestMethod]
+        public void TestStoresRawObject()
+        {
+            const string key = "foo";
+            const string detail = "bar";
+
+            var context = new TelemetryContext();
+            context.StoreRawObject(key, detail);
+            Assert.IsFalse(context.TryGetRawObject("keyDontExst", out object actualDontExist));
+            Assert.IsTrue(context.TryGetRawObject(key, out object actual));
+            Assert.AreEqual(detail, actual);
+        }
+
+        [TestMethod]
+        public void TestTelemetryContextDoesNotThrowOnInvalidKeysValuesForRawObjectStore()
+        {
+            const string key = "";
+            const string detail = "bar";
+            var context = new TelemetryContext();
+
+            // These shouldn't throw.
+            context.StoreRawObject(null, detail);
+            context.StoreRawObject(null, detail, false);
+            context.TryGetRawObject(null, out object actualDontExist);
+
+            context.StoreRawObject(null, null);
+            context.StoreRawObject(null, null, false);
+            context.TryGetRawObject(null, out object actualDontExist1);
+
+            context.StoreRawObject("key", null);
+            Assert.IsTrue(context.TryGetRawObject("key", out object actual));
+            Assert.AreSame(null, actual);
+
+            context.StoreRawObject(key, detail);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actual1));
+            Assert.AreSame(detail, actual1);
+
+            context.StoreRawObject(string.Empty, detail);
+            Assert.IsTrue(context.TryGetRawObject(string.Empty, out object actual2));
+            Assert.AreSame(detail, actual2);
+        }
+
+        [TestMethod]
+        public void TestRawObjectIsOverwritten()
+        {
+            const string key = "foo";
+            const string detail = "bar";
+            const string detailNew = "barnew";
+
+            var context = new TelemetryContext();
+            context.StoreRawObject(key, detail);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actual));
+            Assert.AreSame(detail, actual);
+
+            context.StoreRawObject(key, detailNew);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actualNew));
+            Assert.AreSame(detailNew, actualNew);
+        }
+
+        [TestMethod]
+        public void TestRawObjectLastWrittenValueWins()
+        {
+            const string key = "foo";
+            const string detail = "bar";
+            const string detailNew = "barnew";
+            const string detailNewer = "barnewer";
+            const string detailNewest = "barnewest";
+            const string detailNewestFinal = "barnewestfinal";
+
+            var context = new TelemetryContext();
+
+            // Overwrite temp key value with new temp value
+            context.StoreRawObject(key, detail, true);            
+            context.StoreRawObject(key, detailNew, true);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actualNew));
+            Assert.AreSame(detailNew, actualNew);
+
+            // Overwrite temp key value with new perm value
+            context.StoreRawObject(key, detailNewer, false);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actualNewer));
+            Assert.AreSame(detailNewer, actualNewer);
+
+            // Overwrite perm key value with new perm value
+            context.StoreRawObject(key, detailNewest, false);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actualNewest));
+            Assert.AreSame(detailNewest, actualNewest);
+
+            // Overwrite perm key value with new temp value
+            context.StoreRawObject(key, detailNewestFinal, true);
+            Assert.IsTrue(context.TryGetRawObject(key, out object actualNewestFinal));
+            Assert.AreSame(detailNewestFinal, actualNewestFinal);
+        }
+
+        [TestMethod]
+        public void TestStoreRawObjectTempByDefault()
+        {
+            const string keyTemp = "fooTemp";
+            const string detailTemp = "barTemp";
+            const string keyPerm = "fooPerm";
+            const string detailPerm = "barPerm";
+
+            var context = new TelemetryContext();
+            context.StoreRawObject(keyTemp, detailTemp);
+            context.StoreRawObject(keyPerm, detailPerm, false);
+
+            Assert.IsTrue(context.TryGetRawObject(keyTemp, out object temp));
+            Assert.IsTrue(context.TryGetRawObject(keyPerm, out object perm));
+
+            context.ClearTempRawObjects();
+            Assert.IsFalse(context.TryGetRawObject(keyTemp, out object tempAfterCleanup));
+            Assert.IsTrue(context.TryGetRawObject(keyPerm, out object permAfterCleanup));
+        }
+
+        [TestMethod]
+        public void TestClearsTempRawObjects()
+        {
+            const string keyTemp = "fooTemp";
+            const string detailTemp = "barTemp";
+            const string keyPerm = "fooPerm";
+            const string detailPerm = "barPerm";
+
+            var context = new TelemetryContext();
+            context.StoreRawObject(keyTemp, detailTemp, true);
+            context.StoreRawObject(keyPerm, detailPerm, false);
+            
+            Assert.IsTrue(context.TryGetRawObject(keyTemp, out object temp));
+            Assert.IsTrue(context.TryGetRawObject(keyPerm, out object perm));
+
+            context.ClearTempRawObjects();
+            Assert.IsFalse(context.TryGetRawObject(keyTemp, out object tempAfterCleanup));
+            Assert.IsTrue(context.TryGetRawObject(keyPerm, out object permAfterCleanup));
+        }
+
         private static string CopyAndSerialize(TelemetryContext source)
         {
             // Create a copy of the source context to verify that Serialize writes property values stored in tags 
@@ -184,7 +407,7 @@
 
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
-                Telemetry.WriteTelemetryContext(new JsonWriter(stringWriter), source);
+                Telemetry.WriteTelemetryContext(new JsonSerializationWriter(stringWriter), source);
                 return stringWriter.ToString();
             }
         }

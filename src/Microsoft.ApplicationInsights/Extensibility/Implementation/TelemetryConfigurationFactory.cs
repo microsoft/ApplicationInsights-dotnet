@@ -78,10 +78,10 @@
                 }
 
                 // If an environment variable exists with an instrumentation key then use it (instead) for the "blackfield" scenario.
-                string environmentIKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
-                if (!string.IsNullOrEmpty(environmentIKey))
+                string environmentInstrumentationKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
+                if (!string.IsNullOrEmpty(environmentInstrumentationKey))
                 {
-                    configuration.InstrumentationKey = environmentIKey;
+                    configuration.InstrumentationKey = environmentInstrumentationKey;
                 }
 
                 // Creating the processor chain with default processor (transmissionprocessor) if none configured
@@ -411,7 +411,16 @@
                 }
                 else
                 {
-                    instance = Convert.ChangeType(valueString, expectedType, CultureInfo.InvariantCulture);
+                    if (valueString.IndexOf("0x", StringComparison.OrdinalIgnoreCase) == 0)
+                    {
+                        CultureInfo provider = CultureInfo.InvariantCulture;
+
+                        instance = Int32.Parse(valueString.Remove(0, 2), NumberStyles.AllowHexSpecifier, provider);
+                    }
+                    else
+                    {
+                        instance = Convert.ChangeType(valueString, expectedType, CultureInfo.InvariantCulture);
+                    }
                 }
             }
             catch (InvalidCastException e)

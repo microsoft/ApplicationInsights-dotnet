@@ -26,7 +26,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerTelemetryChannel"/> class.
         /// </summary>
-#if !NETSTANDARD1_3
+#if !NETSTANDARD
         public ServerTelemetryChannel() : this(new Network(), new WebApplicationLifecycle())
 #else
         // TODO: IApplicationLifecycle implemenation for netcore need to be written instead of null here.
@@ -39,7 +39,7 @@
         {
             var policies = new TransmissionPolicy[] 
             { 
-#if !NETSTANDARD1_3
+#if !NETSTANDARD
                 // We don't have implementation for IApplicationLifecycle for .NET Core
                 new ApplicationLifecycleTransmissionPolicy(applicationLifecycle),
 #endif
@@ -235,7 +235,7 @@
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
 
                 this.telemetryProcessor = value;
@@ -266,7 +266,7 @@
             {
                 if (string.IsNullOrEmpty(item.Context.InstrumentationKey))
                 {
-                    if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                    if (TelemetryChannelEventSource.IsVerboseEnabled)
                     {
                         TelemetryChannelEventSource.Log.ItemRejectedNoInstrumentationKey(item.ToString());
                     }
@@ -274,7 +274,7 @@
                     return;
                 }
 
-                if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                if (TelemetryChannelEventSource.IsVerboseEnabled)
                 {
                     TelemetryChannelEventSource.Log.TelemetryChannelSend(
                         item.ToString(),

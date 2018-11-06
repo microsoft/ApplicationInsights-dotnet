@@ -3,7 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
@@ -15,10 +17,10 @@
     {
         internal const string TelemetryName = "Metric";
 
-        internal readonly string BaseType = typeof(MetricData).Name;
-
+        internal readonly string BaseType = typeof(MetricData).Name;        
         internal readonly MetricData Data;
         internal readonly DataPoint Metric;
+        private IExtension extension;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with empty
@@ -51,10 +53,14 @@
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with properties provided.
-        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
         /// </summary>
         /// <remarks>
-        /// To send metrics, collect your metric events over an aggregation interval of 1 minute.
+        /// Metrics should always be pre-aggregated across a time period before being sent.
+        /// Most applications do not need to explicitly create <c>MetricTelemetry</c> objects. Instead, use one of
+        /// the <c>GetMetric(..)</c> overloads on the <see cref="TelemetryClient" /> class to get a metric object
+        /// for accessing SDK pre-aggregation capabilities. <br />
+        /// However, you can use this ctor to create metric telemetry items if you have implemented your own metric
+        /// aggregation. In that case, use <see cref="TelemetryClient.Track(ITelemetry)"/> method to send your aggregates.
         /// </remarks>
         /// <param name="name">Metric name.</param>
         /// <param name="count">Count of values taken during aggregation interval.</param>
@@ -80,6 +86,43 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with properties provided.
+        /// </summary>
+        /// <remarks>
+        /// Metrics should always be pre-aggregated across a time period before being sent.
+        /// Most applications do not need to explicitly create <c>MetricTelemetry</c> objects. Instead, use one of
+        /// the <c>GetMetric(..)</c> overloads on the <see cref="TelemetryClient" /> class to get a metric object
+        /// for accessing SDK pre-aggregation capabilities. <br />
+        /// However, you can use this ctor to create metric telemetry items if you have implemented your own metric
+        /// aggregation. In that case, use <see cref="TelemetryClient.Track(ITelemetry)"/> method to send your aggregates.
+        /// </remarks>
+        /// <param name="metricNamespace">Metric namespace.</param>
+        /// <param name="name">Metric name.</param>
+        /// <param name="count">Count of values taken during aggregation interval.</param>
+        /// <param name="sum">Sum of values taken during aggregation interval.</param>
+        /// <param name="min">Minimum value taken during aggregation interval.</param>
+        /// <param name="max">Maximum of values taken during aggregation interval.</param>
+        /// <param name="standardDeviation">Standard deviation of values taken during aggregation interval.</param>
+        public MetricTelemetry(
+            string metricNamespace,
+            string name,
+            int count,
+            double sum,
+            double min,
+            double max,
+            double standardDeviation)
+            : this()
+        {
+            this.MetricNamespace = metricNamespace;
+            this.Name = name;
+            this.Count = count;
+            this.Sum = sum;
+            this.Min = min;
+            this.Max = max;
+            this.StandardDeviation = standardDeviation;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MetricTelemetry"/> class by cloning an existing instance.
         /// </summary>
         /// <param name="source">Source instance of <see cref="MetricTelemetry"/> to clone from.</param>
@@ -90,6 +133,7 @@
             this.Context = source.Context.DeepClone(this.Data.properties);
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
+            this.extension = source.extension?.DeepClone();
         }
 
         /// <summary>
@@ -106,6 +150,24 @@
         /// Gets the context associated with the current telemetry item.
         /// </summary>
         public TelemetryContext Context { get; }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        public IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the name of the metric.
+        /// </summary>
+        public string MetricNamespace
+        {
+            get { return this.Metric.ns; }
+            set { this.Metric.ns = value; }
+        }
 
         /// <summary>
         /// Gets or sets the name of the metric.
@@ -189,11 +251,18 @@
             return new MetricTelemetry(this);
         }
 
+        /// <inheritdoc/>
+        public void SerializeData(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty(this.Data);
+        }
+
         /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>
         void ITelemetry.Sanitize()
         {
+            this.MetricNamespace = Property.TrimAndTruncate(this.MetricNamespace, Property.MaxMetricNamespaceLength);
             this.Name = this.Name.SanitizeName();
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(MetricTelemetry).FullName);
             this.Properties.SanitizeProperties();

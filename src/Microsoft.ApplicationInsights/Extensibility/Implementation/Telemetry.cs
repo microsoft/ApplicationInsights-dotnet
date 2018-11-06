@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
 
     using Microsoft.ApplicationInsights.Channel;
@@ -7,7 +8,7 @@
 
     internal static class Telemetry
     {
-        public static void WriteEnvelopeProperties(this ITelemetry telemetry, IJsonWriter json)
+        public static void WriteEnvelopeProperties(this ITelemetry telemetry, ISerializationWriter json)
         {
             json.WriteProperty("time", telemetry.Timestamp.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));
 
@@ -25,35 +26,49 @@
             WriteTelemetryContext(json, telemetry.Context);
         }
 
-        public static void WriteTelemetryName(this ITelemetry telemetry, IJsonWriter json, string telemetryName)
+        public static string WriteTelemetryName(this ITelemetry telemetry, string telemetryName)
         {
             // A different event name prefix is sent for normal mode and developer mode.
-            bool isDevMode = false;
-            string devModeProperty;
-            var telemetryWithProperties = telemetry as ISupportProperties;
-            if (telemetryWithProperties != null && telemetryWithProperties.Properties.TryGetValue("DeveloperMode", out devModeProperty))
-            {
-                bool.TryParse(devModeProperty, out isDevMode);
-            }
-
             // Format the event name using the following format:
             // Microsoft.ApplicationInsights[.Dev].<normalized-instrumentation-key>.<event-type>
             var eventName = string.Format(
-                System.Globalization.CultureInfo.InvariantCulture,
+                CultureInfo.InvariantCulture,
                 "{0}{1}{2}",
-                isDevMode ? Constants.DevModeTelemetryNamePrefix : Constants.TelemetryNamePrefix,
+                telemetry.IsDeveloperMode() ? Constants.DevModeTelemetryNamePrefix : Constants.TelemetryNamePrefix,
                 NormalizeInstrumentationKey(telemetry.Context.InstrumentationKey),
                 telemetryName);
-            json.WriteProperty("name", eventName);
+
+            return eventName;
         }
 
-        public static void WriteTelemetryContext(IJsonWriter json, TelemetryContext context)
+        public static void WriteTelemetryContext(ISerializationWriter json, TelemetryContext context)
         {
             if (context != null)
             {
                 json.WriteProperty("iKey", context.InstrumentationKey);
+                if (context.Flags != 0)
+                {
+                    json.WriteProperty("flags", context.Flags);
+                }
+
                 json.WriteProperty("tags", context.SanitizedTags);
             }
+        }
+
+        /// <summary>
+        /// Inspect if <see cref="ITelemetry"/> Properties contains 'DeveloperMode' and return it's boolean value.
+        /// </summary>
+        private static bool IsDeveloperMode(this ITelemetry telemetry)
+        {
+            if (telemetry is ISupportProperties telemetryWithProperties
+                && telemetryWithProperties != null
+                && telemetryWithProperties.Properties.TryGetValue("DeveloperMode", out string devModeProperty)
+                && bool.TryParse(devModeProperty, out bool isDevMode))
+            {
+                return isDevMode;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -62,6 +77,7 @@
         /// In case when InstrumentationKey is available return normalized key + dot ('.')
         /// as a separator between instrumentation key part and telemetry name part.
         /// </summary>
+        [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase", Justification = "Implementation expects lower case")]
         private static string NormalizeInstrumentationKey(string instrumentationKey)
         {
             if (instrumentationKey.IsNullOrWhiteSpace())

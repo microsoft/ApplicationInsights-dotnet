@@ -53,6 +53,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
+        
         public string time { get; set; }
 
         
@@ -71,6 +72,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         public string iKey { get; set; }
+
+        
+        
+        
+        public long flags { get; set; }
 
         
         

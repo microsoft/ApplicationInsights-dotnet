@@ -50,8 +50,8 @@ Notes:
 * This policy handles failures with status codes 408, 500, 503
 * "Set timer to restore capacity using Retry-After or exponential backoff" means that
 	* We check that Retry-After header is present. In the header we expect to get TimeSpan. Timer is set to restore capacity after this interval. (Note that with current backend implementation Retry-After is never returned for 408, 500, 503). 
-	* If Retry-After header is not present we check how many consecutive errors occured so far and use exponential backoff algorythm to set a timer to restore capacity. Exponential backoff algorythm description: http://en.wikipedia.org/wiki/Exponential_backoff	
-* We do not update number of consecutive errors if it was recently updated because we have mupliple sender that most likely to fail at the same time for intermittent issues.
+	* If Retry-After header is not present we check how many y consecutive errors occurred so far and use exponential backoff algorythm to set a timer to restore capacity. Exponential backoff algorythm description: http://en.wikipedia.org/wiki/Exponential_backoff	
+* We do not update number of consecutive errors if it was recently updated because we have multiple sender that most likely to fail at the same time for intermittent issues.
 	
 ![Img](./images/ErrorHandlingPolicy.PNG)
 
@@ -72,7 +72,7 @@ Notes:
 
 ### [NetworkAvailabilityTransmissionPolicy](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/master/src/TelemetryChannels/ServerTelemetryChannel/Shared/Implementation/NetworkAvailabilityTransmissionPolicy.cs)
 
-This policy subscribes to the [network change event](https://msdn.microsoft.com/en-us/library/system.net.networkinformation.networkchange.networkaddresschanged%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396). When network becomes unavailable sender and buffer capacity are set to 0. Note that consecutive errors count that affects exponental backoff logic is not changed.
+This policy subscribes to the [network change event](https://msdn.microsoft.com/en-us/library/system.net.networkinformation.networkchange.networkaddresschanged%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396). When network becomes unavailable sender and buffer capacity are set to 0. Note that consecutive errors count that affects exponential backoff logic is not changed.
 
 ### [ApplicationLifecycleTransmissionPolicy](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/master/src/TelemetryChannels/ServerTelemetryChannel/Shared/Implementation/ApplicationLifecycleTransmissionPolicy.cs)
 

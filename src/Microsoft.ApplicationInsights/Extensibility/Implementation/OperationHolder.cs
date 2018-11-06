@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -14,8 +15,7 @@
         /// </summary>
         public OperationContextForCallContext ParentContext;
 
-        private TelemetryClient telemetryClient;
-        private T telemetry;
+        private readonly TelemetryClient telemetryClient;
 
         /// <summary>
         /// Indicates if this instance has been disposed of.
@@ -32,25 +32,22 @@
         {
             if (telemetry == null)
             {
-                throw new ArgumentNullException("telemetry");
+                throw new ArgumentNullException(nameof(telemetry));
             }
 
             if (telemetryClient == null)
             {
-                throw new ArgumentNullException("telemetryClient");
+                throw new ArgumentNullException(nameof(telemetryClient));
             }
 
             this.telemetryClient = telemetryClient;
-            this.telemetry = telemetry;
+            this.Telemetry = telemetry;
         }
 
         /// <summary>
         /// Gets Telemetry item of interest that is created when StartOperation function of ClientExtensions is invoked.
         /// </summary>
-        public T Telemetry
-        {
-            get { return this.telemetry; }
-        }
+        public T Telemetry { get; }
 
         /// <summary>
         /// Dispose method to clear the variables.
@@ -75,16 +72,29 @@
                     if (!this.isDisposed)
                     {
                         var operationTelemetry = this.Telemetry;
+                        operationTelemetry.Stop();
+
                         bool isActivityAvailable = false;
                         isActivityAvailable = ActivityExtensions.TryRun(() =>
                         {
                             var currentActivity = Activity.Current;
-                            if (currentActivity == null || operationTelemetry.Id != currentActivity.Id ||
-                            operationTelemetry.Context.Operation.Name != currentActivity.GetOperationName())
+                            if (currentActivity == null || operationTelemetry.Id != currentActivity.Id)
                             {
+                                // this is for internal error reporting
                                 CoreEventSource.Log.InvalidOperationToStopError();
+
+                                // this are details with unique ids for debugging
+                                CoreEventSource.Log.InvalidOperationToStopDetails(
+                                    string.Format(
+                                        CultureInfo.InvariantCulture,
+                                        "Telemetry Id '{0}' does not match current Activity '{1}'",
+                                        operationTelemetry.Id,
+                                        currentActivity?.Id));
+
                                 return;
                             }
+
+                            this.telemetryClient.Track(operationTelemetry);
 
                             currentActivity.Stop();
                         });
@@ -92,19 +102,25 @@
                         if (!isActivityAvailable)
                         {
                             var currentOperationContext = CallContextHelpers.GetCurrentOperationContext();
-                            if (currentOperationContext == null || operationTelemetry.Id != currentOperationContext.ParentOperationId ||
-                                operationTelemetry.Context.Operation.Name != currentOperationContext.RootOperationName)
+                            if (currentOperationContext == null || operationTelemetry.Id != currentOperationContext.ParentOperationId)
                             {
+                                // this is for internal error reporting
                                 CoreEventSource.Log.InvalidOperationToStopError();
+
+                                // this are details with unique ids for debugging
+                                CoreEventSource.Log.InvalidOperationToStopDetails(
+                                    string.Format(
+                                        CultureInfo.InvariantCulture,
+                                        "Telemetry Id '{0}' does not match current Activity '{1}'",
+                                        operationTelemetry.Id,
+                                        currentOperationContext?.ParentOperationId));
                                 return;
                             }
 
+                            this.telemetryClient.Track(operationTelemetry);
+
                             CallContextHelpers.RestoreOperationContext(this.ParentContext);
                         }
-
-                        operationTelemetry.Stop();
-
-                        this.telemetryClient.Track(operationTelemetry);
                     }
 
                     this.isDisposed = true;

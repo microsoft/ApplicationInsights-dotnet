@@ -1,10 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel.Implementation
 {
     using System;
+    using System.Runtime.Serialization;
 #if NETSTANDARD1_3
     using Newtonsoft.Json;
 #else
-    using System.Web.Script.Serialization;
+    using System.IO;
+    using System.Runtime.Serialization.Json;
+    using System.Text;
 #endif
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
@@ -17,8 +20,8 @@
 
         private static readonly Random Random = new Random();
 
-#if !NETSTANDARD1_3    
-        private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
+#if !NETSTANDARD1_3
+        private static readonly DataContractJsonSerializer Serializer = new DataContractJsonSerializer(typeof(BackendResponse));
 #endif  
 
         private readonly object lockConsecutiveErrors = new object();
@@ -66,7 +69,7 @@
 
         internal TimeSpan CurrentDelay { get; private set; }
 
-        public BackendResponse GetBackendResponse(string responseContent)
+        public static BackendResponse GetBackendResponse(string responseContent)
         {
             BackendResponse backendResponse = null;
 
@@ -77,7 +80,10 @@
 #if NETSTANDARD1_3
                     backendResponse = JsonConvert.DeserializeObject<BackendResponse>(responseContent);
 #else
-                    backendResponse = Serializer.Deserialize<BackendResponse>(responseContent);
+                    using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(responseContent)))
+                    {
+                        backendResponse = Serializer.ReadObject(ms) as BackendResponse;
+                    }
 #endif  
                 }
             }
@@ -87,6 +93,11 @@
                 backendResponse = null;
             }
             catch (InvalidOperationException exp)
+            {
+                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
+                backendResponse = null;
+            }
+            catch (SerializationException exp)
             {
                 TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
                 backendResponse = null;
@@ -103,7 +114,6 @@
                 backendResponse = null;
             }
 #endif
-
             return backendResponse;
         }
 
@@ -163,7 +173,7 @@
         // http://en.wikipedia.org/wiki/Exponential_backoff
         protected virtual TimeSpan GetBackOffTime(string headerValue)
         {
-            if (!this.TryParseRetryAfter(headerValue, out TimeSpan retryAfterTimeSpan))
+            if (!TryParseRetryAfter(headerValue, out TimeSpan retryAfterTimeSpan))
             {
                 double delayInSeconds;
 
@@ -186,7 +196,7 @@
             return retryAfterTimeSpan;
         }
 
-        private bool TryParseRetryAfter(string retryAfter, out TimeSpan retryAfterTimeSpan)
+        private static bool TryParseRetryAfter(string retryAfter, out TimeSpan retryAfterTimeSpan)
         {
             retryAfterTimeSpan = TimeSpan.FromSeconds(0);
 

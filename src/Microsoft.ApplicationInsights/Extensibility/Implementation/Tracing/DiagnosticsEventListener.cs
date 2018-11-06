@@ -25,6 +25,7 @@
 
             var metadata = new EventMetaData
             {                
+                EventSourceName = eventSourceEvent.EventSource?.Name,
                 Keywords = (long)eventSourceEvent.Keywords,
                 MessageFormat = eventSourceEvent.Message,
                 EventId = eventSourceEvent.EventId,
@@ -34,7 +35,7 @@
             var traceEvent = new TraceEvent
             {
                 MetaData = metadata,
-                Payload = eventSourceEvent.Payload != null ? eventSourceEvent.Payload.ToArray() : null
+                Payload = eventSourceEvent.Payload?.ToArray()
             };
 
             this.listener.WriteEvent(traceEvent);
@@ -42,7 +43,8 @@
 
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
-            if (eventSource.Name.StartsWith("Microsoft-ApplicationInsights-", StringComparison.Ordinal))
+            if (eventSource.Name.StartsWith("Microsoft-ApplicationInsights-", StringComparison.Ordinal) ||
+                eventSource.Name.Equals("Microsoft-AspNet-Telemetry-Correlation", StringComparison.Ordinal))
             {
                 this.EnableEvents(eventSource, this.logLevel, (EventKeywords)AllKeyword);
             }

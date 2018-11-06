@@ -52,6 +52,16 @@
         }
 
         [TestMethod]
+        public void PageViewTelemetryImplementsISupportMetrics()
+        {
+            PageViewTelemetry item = new PageViewTelemetry();
+            item.Metrics.Add("Test", 10);
+
+            Assert.IsNotNull(item as ISupportMetrics);
+            Assert.AreEqual(10, (item as ISupportMetrics).Metrics["Test"]);
+        }
+
+        [TestMethod]
         public void PageViewTelemetrySerializesToJsonCorrectly()
         {
             var expected = new PageViewTelemetry("My Page");
@@ -60,7 +70,7 @@
             expected.Metrics.Add("Metric1", 30);
             expected.Properties.Add("Property1", "Value1");
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PageViewTelemetry, AI.PageViewData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.PageViewData>(expected);
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
             Assert.AreEqual(item.name, AI.ItemType.PageView);
@@ -72,6 +82,45 @@
             Assert.AreEqual(expected.Url.ToString(), item.data.baseData.url);
 
             AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+        }
+
+        [TestMethod]
+        public void PageViewTelemetryTelemetryPropertiesFromContextAndItemSerializesToPropertiesInJson()
+        {
+            var expected = new PageViewTelemetry();
+            expected.Context.GlobalProperties.Add("TestPropertyGlobal", "contextpropvalue");
+            expected.Properties.Add("TestProperty", "TestPropertyValue");
+            ((ITelemetry)expected).Sanitize();
+
+            Assert.AreEqual(1, expected.Properties.Count);
+            Assert.AreEqual(1, expected.Context.GlobalProperties.Count);
+
+            Assert.IsTrue(expected.Properties.ContainsKey("TestProperty"));
+            Assert.IsTrue(expected.Context.GlobalProperties.ContainsKey("TestPropertyGlobal"));
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.PageViewData>(expected);
+
+            // Items added to both PageViewTelemetry.Properties, and PageViewTelemetry.Context.GlobalProperties are serialized to properties.
+            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestPropertyGlobal"));
+            Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
+        }
+
+        [TestMethod]
+        public void SerializePopulatesRequiredFieldsOfPageViewTelemetry()
+        {
+            using (StringWriter stringWriter = new StringWriter(CultureInfo.InvariantCulture))
+            {
+                var pvTelemetry = new PageViewTelemetry();
+                pvTelemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
+                ((ITelemetry)pvTelemetry).Sanitize();
+                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.PageViewData>(pvTelemetry);
+
+                Assert.AreEqual(2, item.data.baseData.ver);
+                Assert.IsNotNull(item.data.baseData.id);
+                Assert.IsNotNull(item.time);
+                Assert.AreEqual(new TimeSpan(), TimeSpan.Parse(item.data.baseData.duration));
+            }
         }
 
         [TestMethod]
@@ -129,7 +178,7 @@
             var telemetry = new PageViewTelemetry("my page view");
             ((ISupportSampling)telemetry).SamplingPercentage = 10;
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PageViewTelemetry, AI.PageViewData>(telemetry);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.PageViewData>(telemetry);
 
             Assert.AreEqual(10, item.sampleRate);
         }
@@ -142,12 +191,21 @@
             pageView.Duration = TimeSpan.FromSeconds(123);
             pageView.Metrics.Add("Metric1", 30);
             pageView.Properties.Add("Property1", "Value1");
-
+            pageView.Extension = new MyTestExtension();
             PageViewTelemetry other = (PageViewTelemetry)pageView.DeepClone();
 
             CompareLogic deepComparator = new CompareLogic();
             var result = deepComparator.Compare(pageView, other);
             Assert.IsTrue(result.AreEqual, result.DifferencesString);
+        }
+
+        [TestMethod]
+        public void PageViewTelemetryDeepCloneWithNullExtensionDoesNotThrow()
+        {
+            var telemetry = new PageViewTelemetry();
+            // Extension is not set, means it'll be null.
+            // Validate that cloning with null Extension does not throw.
+            var other = telemetry.DeepClone();
         }
     }
 }

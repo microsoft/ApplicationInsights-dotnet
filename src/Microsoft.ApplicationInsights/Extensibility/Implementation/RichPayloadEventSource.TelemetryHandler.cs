@@ -19,7 +19,18 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     internal sealed partial class RichPayloadEventSource
     {
         private readonly string dummyPartAiKeyValue = string.Empty;
+        private readonly long dummyPartAFlagsValue = 0;
         private readonly IDictionary<string, string> dummyPartATagsValue = new Dictionary<string, string>();
+
+        private static void CopyGlobalPropertiesIfRequired(ITelemetry telemetry, IDictionary<string, string> itemProperties)
+        {
+            // This check avoids accessing the public accessor GlobalProperties
+            // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
+            if (telemetry.Context.GlobalPropertiesValue != null)
+            {
+                Utils.CopyDictionary(telemetry.Context.GlobalProperties, itemProperties);
+            }
+        }
 
         /// <summary>
         /// Create handlers for all AI telemetry types.
@@ -71,6 +82,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 // PageView
                 telemetryHandlers.Add(typeof(PageViewTelemetry), this.CreateHandlerForPageViewTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
+
+                // PageView
+                telemetryHandlers.Add(typeof(PageViewPerformanceTelemetry), this.CreateHandlerForPageViewPerformanceTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
 
 #pragma warning disable 618
                 // SessionState
@@ -211,15 +225,17 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyRequestData.url,
                     dummyRequestData.properties,
                     dummyRequestData.measurements
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
                     var telemetryItem = item as RequestTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -238,7 +254,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.url,
                             data.properties,
                             data.measurements
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { RequestTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -265,16 +282,19 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyMessageData.ver,
                     dummyMessageData.message,
                     dummyMessageData.severityLevel,
-                    dummyMessageData.properties
-                }
+                    dummyMessageData.properties,
+                    dummyMessageData.measurements
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
                     var telemetryItem = item as TraceTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -286,8 +306,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.ver,
                             data.message,
                             data.severityLevel,
-                            data.properties
-                        }
+                            data.properties,
+                            data.measurements
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { TraceTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -315,15 +337,17 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyEventData.name,
                     dummyEventData.properties,
                     dummyEventData.measurements
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
                     var telemetryItem = item as EventTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -336,7 +360,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.name,
                             data.properties,
                             data.measurements
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { EventTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -371,15 +396,17 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyDependencyData.type,
                     dummyDependencyData.properties,
                     dummyDependencyData.measurements
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
                     var telemetryItem = item as DependencyTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.InternalData;
                     var extendedData = new
                     {
@@ -399,7 +426,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.type,
                             data.properties,
                             data.measurements
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { DependencyTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -430,6 +458,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         new
                         {
                             // The properties and layout should be the same as DataPoint_types.cs
+                            dummyDataPoint.ns,
                             dummyDataPoint.name,
                             dummyDataPoint.kind,
                             dummyDataPoint.value,
@@ -440,15 +469,17 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         }
                     }.AsEnumerable(),
                     dummyMetricData.properties
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                  
                     var telemetryItem = item as MetricTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -460,6 +491,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.ver,
                             metrics = data.metrics.Select(i => new
                             {
+                                i.ns,
                                 i.name,
                                 i.kind,
                                 i.value,
@@ -469,7 +501,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                                 i.stdDev
                             }),
                             data.properties
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { MetricTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -487,7 +520,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             eventSourceOptionsKeywordsProperty.SetValue(eventSourceOptions, keywords);
             var dummyExceptionData = new ExceptionData();
             var dummyExceptionDetails = new ExceptionDetails();
-            var dummyStackFrame = new StackFrame();
+            var dummyStackFrame = new External.StackFrame();
             var writeMethod = writeGenericMethod.MakeGenericMethod(new
             {
                 PartA_iKey = this.dummyPartAiKeyValue,
@@ -525,16 +558,18 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyExceptionData.problemId,
                     dummyExceptionData.properties,
                     dummyExceptionData.measurements,
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
                     var telemetryItem = item as ExceptionTelemetry;
-                    var data = telemetryItem.Data;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
+                    var data = telemetryItem.Data.Data;
                     var extendedData = new
                     {
                         // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
@@ -564,7 +599,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.problemId,
                             data.properties,
                             data.measurements
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { ExceptionTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -595,6 +631,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         new
                         {
                             // The properties and layout should be the same as DataPoint_types.cs
+                            dummyDataPoint.ns,
                             dummyDataPoint.name,
                             dummyDataPoint.kind,
                             dummyDataPoint.value,
@@ -605,17 +642,19 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         }
                     }.AsEnumerable(),
                     dummyMetricData.properties
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
 #pragma warning disable 618
                     var telemetryItem = (item as PerformanceCounterTelemetry).Data;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
 #pragma warning restore 618
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -627,6 +666,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.ver,
                             metrics = data.metrics.Select(i => new
                             {
+                                i.ns,
                                 i.name,
                                 i.kind,
                                 i.value,
@@ -636,7 +676,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                                 i.stdDev
                             }),
                             data.properties
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { MetricTelemetry.TelemetryName, eventSourceOptions, extendedData });
@@ -657,24 +698,88 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             {
                 PartA_iKey = this.dummyPartAiKeyValue,
                 PartA_Tags = this.dummyPartATagsValue,
-                PartB_PageViewPerfData = new
+                PartB_PageViewData = new
                 {
                     // The properties and layout should be the same as PageViewData_types.cs (EventData_types.cs)
                     dummyPageViewData.url,
                     dummyPageViewData.duration,
+                    dummyPageViewData.id,
                     dummyPageViewData.ver,
                     dummyPageViewData.name,
                     dummyPageViewData.properties,
                     dummyPageViewData.measurements,
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
+            }.GetType());
+
+            return (item) =>
+            {
+                if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
+                {                    
+                    var telemetryItem = item as PageViewTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
+                    var data = telemetryItem.Data;
+                    var extendedData = new
+                    {
+                        // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
+                        PartA_iKey = telemetryItem.Context.InstrumentationKey,
+                        PartA_Tags = telemetryItem.Context.SanitizedTags,
+                        PartB_PageViewData = new
+                        {
+                            data.url,
+                            data.duration,
+                            data.id,
+                            data.ver,
+                            data.name,
+                            data.properties,
+                            data.measurements,
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
+                    };
+
+                    writeMethod.Invoke(eventSource, new object[] { PageViewTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                }
+            };
+        }
+
+        /// <summary>
+        /// Create handler for page view performance telemetry.
+        /// </summary>
+        private Action<ITelemetry> CreateHandlerForPageViewPerformanceTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
+        {
+            var eventSourceOptions = Activator.CreateInstance(eventSourceOptionsType);
+            var keywords = Keywords.PageViews;
+            eventSourceOptionsKeywordsProperty.SetValue(eventSourceOptions, keywords);
+            var dummyPageViewPerfData = new PageViewPerfData();
+            var writeMethod = writeGenericMethod.MakeGenericMethod(new
+            {
+                PartA_iKey = this.dummyPartAiKeyValue,
+                PartA_Tags = this.dummyPartATagsValue,
+                PartB_PageViewPerfData = new
+                {
+                    // The properties and layout should be the same as PageViewPerfData_types.cs (EventData_types.cs)
+                    dummyPageViewPerfData.perfTotal,
+                    dummyPageViewPerfData.networkConnect,
+                    dummyPageViewPerfData.sentRequest,
+                    dummyPageViewPerfData.receivedResponse,
+                    dummyPageViewPerfData.domProcessing,
+                    dummyPageViewPerfData.url,
+                    dummyPageViewPerfData.duration,
+                    dummyPageViewPerfData.ver,
+                    dummyPageViewPerfData.name,
+                    dummyPageViewPerfData.properties,
+                    dummyPageViewPerfData.measurements,
                 }
             }.GetType());
 
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
                     var telemetryItem = item as PageViewTelemetry;
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -717,17 +822,19 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dummyEventData.name,
                     dummyEventData.properties,
                     dummyEventData.measurements
-                }
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
             }.GetType());
 
             return (item) =>
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
-                {
-                    item.Sanitize();
+                {                    
 #pragma warning disable 618
                     var telemetryItem = (item as SessionStateTelemetry).Data;
 #pragma warning restore 618
+                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    item.Sanitize();
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -740,7 +847,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             data.name,
                             data.properties,
                             data.measurements
-                        }
+                        },
+                        PartA_flags = telemetryItem.Context.Flags,
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { EventTelemetry.TelemetryName, eventSourceOptions, extendedData });

@@ -3,7 +3,7 @@ queue:
 steps:
 - task: DotNetCoreInstaller@0
   inputs:
-    version: "1.1.5"
+    version: "2.0.3"
 
 - task: DotNetCoreCLI@1
   inputs:
@@ -19,10 +19,23 @@ steps:
 - task: DotNetCoreCLI@1
   inputs:
     command: "test"
-    projects: "Test/**/*netcore*.csproj"
-    arguments: "--configuration Release --filter TestCategory!=WindowsOnly"
+    projects: "Test/**/*netcoreapp20*.csproj"
+    arguments: "--configuration Release -l trx --filter TestCategory!=WindowsOnly"
+
+- task: DotNetCoreInstaller@0
+  inputs:
+    version: "1.1.5"
+
+- task: DotNetCoreCLI@1
+  inputs:
+    command: "test"
+    projects: "Test/**/*netcoreapp11*.csproj"
+    arguments: "--configuration Release -l trx --filter TestCategory!=WindowsOnly"
 
 - task: PublishTestResults@2
+  inputs:
+    testRunner: "VSTest"
+    testResultsFiles: "**/*.trx"
 
 - task: DotNetCoreCLI@1
   inputs:

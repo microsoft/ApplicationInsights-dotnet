@@ -6,6 +6,8 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     internal class ITelemetryTest<TTelemetry, TEndpointData> 
         where TTelemetry : ITelemetry, new()
@@ -18,11 +20,28 @@
             this.ClassShouldHaveParameterizedConstructorToSimplifyCreationOfValidTelemetryInstancesInUserCode();
             this.ClassShouldImplementISupportCustomPropertiesIfItDefinesPropertiesProperty();
             this.TestProperties();
+            this.TestExtension();
             this.SerializeWritesTimestampAsExpectedByEndpoint();
             this.SerializeWritesSequenceAsExpectedByEndpoint();
             this.SerializeWritesInstrumentationKeyAsExpectedByEndpoint();
             this.SerializeWritesTelemetryNameAsExpectedByEndpoint();
             this.SerializeWritesDataBaseTypeAsExpectedByEndpoint();
+        }
+
+        private void TestExtension()
+        {
+            // Extention field exists
+            var extensionField = typeof(TTelemetry).GetRuntimeProperties().Any(p => p.Name == "Extension");
+            Assert.IsNotNull(extensionField);
+            
+            TTelemetry tel = new TTelemetry();
+            Assert.IsNull(tel.Extension, "Extension should be null by default");
+
+            // Set extension
+            var myExt = new MyTestExtension();
+            tel.Extension = myExt;
+
+            Assert.AreSame(myExt, tel.Extension, "Extension should be assignable.");            
         }
 
         private void TestProperties()
@@ -155,7 +174,7 @@
             var expected = new TTelemetry { Timestamp = DateTimeOffset.UtcNow };
             expected.Sanitize();
 
-            TelemetryItem<TEndpointData> actual = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TTelemetry, TEndpointData>(expected);
+            TelemetryItem<TEndpointData> actual = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TEndpointData>(expected);
 
 
             Assert.AreEqual<DateTimeOffset>(expected.Timestamp, DateTimeOffset.Parse(actual.time, null, System.Globalization.DateTimeStyles.AssumeUniversal));
@@ -166,7 +185,7 @@
             var expected = new TTelemetry { Sequence = "4:2" };
             expected.Sanitize();
             
-            TelemetryItem<TEndpointData> actual = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TTelemetry, TEndpointData>(expected);
+            TelemetryItem<TEndpointData> actual = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TEndpointData>(expected);
             
             Assert.AreEqual(expected.Sequence, actual.seq);
         }
@@ -177,7 +196,7 @@
             expected.Context.InstrumentationKey = Guid.NewGuid().ToString();
             expected.Sanitize();
 
-            TelemetryItem<TEndpointData> actual = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TTelemetry, TEndpointData>(expected);
+            TelemetryItem<TEndpointData> actual = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TEndpointData>(expected);
             
             Assert.AreEqual(expected.Context.InstrumentationKey, actual.iKey);
         }
@@ -187,7 +206,7 @@
             var telemetry = new TTelemetry();
             telemetry.Sanitize();
 
-            TelemetryItem<TEndpointData> envelope = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TTelemetry, TEndpointData>(telemetry);
+            TelemetryItem<TEndpointData> envelope = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TEndpointData>(telemetry);
 
             string expectedBaseType = ExtractTelemetryNameFromType(typeof(TTelemetry)) + "Data";
             Assert.AreEqual(expectedBaseType, envelope.data.baseType);
@@ -200,7 +219,7 @@
             expected.Sanitize();
 
             TelemetryItem<TEndpointData> actual = TelemetryItemTestHelper
-                .SerializeDeserializeTelemetryItem<TTelemetry, TEndpointData>(expected);
+                .SerializeDeserializeTelemetryItem<TEndpointData>(expected);
 
             Assert.AreEqual(
                 Constants.TelemetryNamePrefix + "312cbd799dbb4c48a7da3cc2a931cb71." + this.ExtractTelemetryNameFromType(typeof(TTelemetry)),
@@ -214,6 +233,11 @@
             {
                 // handle TraceTelemetry separately
                 result = "Message";
+            }
+            else if (telemetryType == typeof(DependencyTelemetry))
+            {
+                // handle DeppendencyTelemetry separately
+                result = "RemoteDependency";                
             }
 #pragma warning disable 618
             else if (telemetryType == typeof(SessionStateTelemetry))

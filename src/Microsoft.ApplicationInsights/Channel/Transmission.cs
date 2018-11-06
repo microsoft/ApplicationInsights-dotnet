@@ -25,7 +25,7 @@
 
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
 #if NETSTANDARD1_3
-        private readonly HttpClient client;
+        private static HttpClient client = new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
 #endif
         private int isSending;
 
@@ -36,17 +36,17 @@
         {
             if (address == null)
             {
-                throw new ArgumentNullException("address");
+                throw new ArgumentNullException(nameof(address));
             }
 
             if (content == null)
             {
-                throw new ArgumentNullException("content");
+                throw new ArgumentNullException(nameof(content));
             }
 
             if (contentType == null)
             {
-                throw new ArgumentNullException("contentType");
+                throw new ArgumentNullException(nameof(contentType));
             }
 
             this.EndpointAddress = address;
@@ -56,15 +56,12 @@
             this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
             this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
             this.TelemetryItems = null;
-#if NETSTANDARD1_3
-            this.client = new HttpClient() { Timeout = this.Timeout };
-#endif
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class.
         /// </summary>
-        public Transmission(Uri address, ICollection<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan)) 
+        public Transmission(Uri address, ICollection<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan))
             : this(address, JsonSerializer.Serialize(telemetryItems, true), JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout)
         {
             this.TelemetryItems = telemetryItems;
@@ -94,6 +91,7 @@
             private set;
         }
 
+#pragma warning disable CA1819 // "Properties should not return arrays" - part of the public API and too late to change.
         /// <summary>
         /// Gets the content of the transmission.
         /// </summary>
@@ -102,6 +100,7 @@
             get;
             private set;
         }
+#pragma warning restore CA1819 // "Properties should not return arrays" - part of the public API and too late to change.
 
         /// <summary>
         /// Gets the content's type of the transmission.
@@ -117,8 +116,8 @@
         /// </summary>
         public string ContentEncoding
         {
-            get; 
-            private set;            
+            get;
+            private set;
         }
 
         /// <summary>
@@ -163,7 +162,12 @@
                 using (MemoryStream contentStream = new MemoryStream(this.Content))
                 {
                     HttpRequestMessage request = this.CreateRequestMessage(this.EndpointAddress, contentStream);
-                    await this.client.SendAsync(request).ConfigureAwait(false);
+
+                    using (var ct = new CancellationTokenSource(this.Timeout))
+                    {
+                        await client.SendAsync(request, ct.Token).ConfigureAwait(false);
+                    }
+                    
                     return null;
                 }
 #else
@@ -188,7 +192,7 @@
             {
                 Interlocked.Exchange(ref this.isSending, 0);
             }
-    }
+        }
 
         /// <summary>
         /// Splits the Transmission object into two pieces using a method 

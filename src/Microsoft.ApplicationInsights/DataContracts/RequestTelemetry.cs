@@ -4,8 +4,10 @@
     using System.Collections.Generic;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
 
     /// <summary>
     /// Encapsulates information about a web request handled by the application.
@@ -24,7 +26,7 @@
         internal readonly RequestData Data;
         private readonly TelemetryContext context;
         private bool successFieldSet;
-
+        private IExtension extension;
         private double? samplingPercentage;
 
         /// <summary>
@@ -32,7 +34,7 @@
         /// </summary>
         public RequestTelemetry()
         {
-            this.Data = new RequestData() { success = true };
+            this.Data = new RequestData();
             this.context = new TelemetryContext(this.Data.properties);
             this.GenerateId();
         }
@@ -62,6 +64,7 @@
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.successFieldSet = source.successFieldSet;
+            this.extension = source.extension?.DeepClone();
         }
 
         /// <summary>
@@ -80,6 +83,15 @@
         public override TelemetryContext Context
         {
             get { return this.context; }
+        }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        public override IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
         }
 
         /// <summary>
@@ -144,8 +156,8 @@
         /// </summary>
         public override TimeSpan Duration
         {
-            get { return Utils.ValidateDuration(this.Data.duration); }
-            set { this.Data.duration = value.ToString(); }
+            get { return this.Data.duration; }
+            set { this.Data.duration = value; }
         }
 
         /// <summary>
@@ -154,7 +166,15 @@
         /// </summary>
         public override IDictionary<string, string> Properties
         {
-            get { return this.Data.properties; }
+            get
+            {
+                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.Data.properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
+                {
+                    this.Data.properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
+                }  
+                
+                return this.Data.properties;
+            }
         }
 
         /// <summary>
@@ -216,12 +236,27 @@
         }
 
         /// <summary>
+        /// Gets or sets the MetricExtractorInfo.
+        /// </summary>
+        internal string MetricExtractorInfo
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Deeply clones a <see cref="RequestTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
         public override ITelemetry DeepClone()
         {
             return new RequestTelemetry(this);
+        }
+
+        /// <inheritdoc/>
+        public override void SerializeData(ISerializationWriter serializationWriter)
+        {            
+            serializationWriter.WriteProperty(this.Data);                        
         }
 
         /// <summary>
@@ -238,12 +273,16 @@
             this.Data.id = this.Data.id.SanitizeName();
             this.Data.id = Utils.PopulateRequiredStringValue(this.Data.id, "id", typeof(RequestTelemetry).FullName);
 
-            // Required field
-            if (string.IsNullOrEmpty(this.ResponseCode))
+            // Required fields
+            if (!this.Success.HasValue)
             {
-                this.ResponseCode = "200";
                 this.Success = true;
             }
+
+            if (string.IsNullOrEmpty(this.ResponseCode))
+            {
+                this.ResponseCode = this.Success.Value ? "200" : string.Empty;
+            }           
         }
     }
 }

@@ -1,9 +1,80 @@
 ﻿# Changelog
 
-This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
+This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
-## Version 2.6.0-beta1
-- [Added overload of TelemetryClientExtensions.StartOperation(Activity activity).] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/644)
+## Version 2.9.0-beta1
+- [Remove unused reference to System.Web.Extensions](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/956)
+- [Added new method on TelemetryClient to initialize just instrumentation. This is to be used by autocollectors to avoid calling TelemetryInitializers twice.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/966)
+- [PageViewTelemetry](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/8673ed1d15005713755e0bb9594acfe0ee00b869/src/Microsoft.ApplicationInsights/DataContracts/PageViewTelemetry.cs) now supports [ISupportMetrics](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/39a5ef23d834777eefdd72149de705a016eb06b0/src/Microsoft.ApplicationInsights/DataContracts/ISupportMetrics.cs)
+
+## Version 2.8.1
+[Patch release addressing perf regression.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/952)
+
+## Version 2.8.0
+- [New API to store/retrieve any raw objects on TelemetryContext to enable AutoCollectors to pass additional information for use by TelemetryInitializers.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/937)
+- Perf Improvements
+	https://github.com/Microsoft/ApplicationInsights-dotnet/issues/927
+	https://github.com/Microsoft/ApplicationInsights-dotnet/issues/930
+	https://github.com/Microsoft/ApplicationInsights-dotnet/issues/934
+- Fix: [Response code shouldn't be overwritten to 200 if not set](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/918)
+
+## Version 2.8.0-beta2
+- [TelemetryProcessors (sampling, autocollectedmetricaggregator), TelemetryChannel (ServerTelemetryChannel) added automatically to the default ApplicationInsights.config are moved under the default telemetry sink.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/907)
+	If you are upgrading, and have added/modified TelemetryProcessors/TelemetryChannel, make sure to copy them to the default sink section.
+
+## Version 2.8.0-beta1
+- [Add a new distinct properties collection, GlobalProperties, on TelemetryContext, and obsolete the Properties on TelemetryContext.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/820)
+- [Added support for strongly typed extensibility for Telemetry types using IExtension.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/871)
+- [New method SerializeData(ISerializationWriter writer) defined in ITelemetry. All existing types implement this method to emit information about it's fields to channels who can serialize this data]
+   (continuation of https://github.com/Microsoft/ApplicationInsights-dotnet/issues/871)
+- [Allow to track PageViewPerformance data type](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/673).
+- Added method `ExceptionDetailsInfoList` on `ExceptionTelemetry` class that gives control to user to update exception
+message and exception type of underlying `System.Exception` object that user wants to send to telemetry. Related discussion is [here](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/498).
+- Added an option of creating ExceptionTelemetry object off of custom exception information rather than a System.Exception object.
+- [Add support for hex values in config](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/551)
+
+## Version 2.7.2
+- Metrics: Renamed TryTrackValue(..) into TrackValue(..).
+- Metrics: Removed some superfluous public constants.
+
+## Version 2.7.0-beta3
+- [Allow to set flags on event](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/844). It will be used in conjunction with the feature that will allow to keep IP addresses.
+- [Fix: SerializationException resolving Activity in cross app-domain calls](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/613)
+- [Make HttpClient instance static to avoid re-creating with every transmission. This had caused connection/memory leaks in .net core 2.1](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/594)
+  Related: (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/690)
+
+## Version 2.7.0-beta2
+- [Fix: NullReferenceException if telemetry is tracked after TelemetryConfiguration is disposed](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/928)
+- [Move the implementation of the extraction of auto-collected (aka standard) metrics from internal legacy APIs to the recently shipped metric aggregation APIs.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/806)
+- [Fix: NullReferenceException in ExceptionConverter.GetStackFrame if StackFrame.GetMethod() is null](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/819)
+
+## Version 2.7.0-beta1 
+- [Extend the Beta period for Metrics Pre-Aggregation features shipped in 2.6.0-beta3.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/785)
+- [New: Added TryGetOperationDetail to DependencyTelemetry to facilitate advanced ITelemetryInitializer scenarios.  Allows ITelemetryInitializer implementations to specify fields that would otherwise not be sent automatically to the backend.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/900)
+
+## version 2.6.4
+- [Revert changed namespace: `SamplingPercentageEstimatorSettings`, `AdaptiveSamplingPercentageEvaluatedCallback`](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/727)
+- [Add netstandard2.0 target for TelemetryChannel which doesn't have a dependency on Newtonsoft.Json ](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/800)
+
+## Version 2.6.1 
+- [Extend the Beta period for Metrics Pre-Aggregation features shipped in 2.6.0-beta3.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/785)
+- [Fix: changed namespace SamplingPercentageEstimatorSettings](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/727)
+
+## Version 2.6.0-beta4
+- [New: Enable ExceptionTelemetry.SetParsedStack for .Net Standard](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/763)
+- [Fix: TelemetryClient throws NullReferenceException on Flush if the underlying configuration was disposed](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/755)
+
+## Version 2.6.0-beta3
+- [Report internal errors from Microsoft.AspNet.TelemteryCorrelation module](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/744)
+- [Fix: Telemetry tracked with StartOperation is tracked outside of corresponding activity's scope](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/864)
+- [Fix: TelemetryProcessor chain building should also initialize Modules.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/549)
+- [Fix: Wrong error message in AutocollectedMetricsExtractor.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/611)
+- [NEW: Interface and Configuration: IApplicationIdProvider.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/739)
+- [NEW: Metrics Pre-Aggregation: New `TelemetryClient.GetMetric(..).TrackValue(..)` and related APIs always locally pre-aggregate metrics before sending. They are replacing the legacy `TelemetryClient.TrackMetric(..)` APIs.](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/735) ([More info](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/643).)
+
+## Version 2.6.0-beta2
+- [Changed signature of TelemetryClient.TrackDependency](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/684)
+- [Added overload of TelemetryClientExtensions.StartOperation(Activity activity).](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/644)
 - [Finalize the architecture for adding default heartbeat properties (supporting proposal from Issue #636).](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/666).
 
 ## Version 2.5.1
@@ -16,7 +87,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 - Remove calculation of sampling-score based on Context.User.Id [Issue #625](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/625)
 - New sdk-driven "heartbeat" functionality added which sends health status at pre-configured intervals. See [extending heartbeat properties doc for more information](./docs/ExtendingHeartbeatProperties.md)
 - Fixes a bug in ServerTelemetryChannel which caused application to crash on non-windows platforms. 
-			[Details on fix and workaround #654] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/654)
+			[Details on fix and workaround #654](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/654)
 			Original issue (https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/551)
 - [Fixed a bug with the `AdaptiveSamplingTelemetryProcessor` that would cause starvation over time. Issue #756 (dotnet-server)](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/756)
 - Updated solution to build on Mac!
@@ -60,7 +131,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 - [Fixed a bug which caused SDK to stop sending telemetry.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/480)
 
 ## Version 2.3.0-beta3
-- [Added overloads of TelemetryClientExtensions.StartOperation.] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/163)
+- [Added overloads of TelemetryClientExtensions.StartOperation.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/163)
 - Fire new ETW events for Operation Start/Stop.
 
 ## Version 2.3.0-beta2

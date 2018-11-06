@@ -14,8 +14,6 @@
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
-    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
-
     [TestClass]
     public class AdaptiveSamplingTelemetryProcessorTest
     {
@@ -32,7 +30,7 @@
                 // set up adaptive sampling that evaluates and changes sampling % frequently
                 chainBuilder
                     .UseAdaptiveSampling(
-                        new SamplingPercentageEstimatorSettings()
+                        new Channel.Implementation.SamplingPercentageEstimatorSettings()
                         {
                             EvaluationInterval = TimeSpan.FromSeconds(1),
                             SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(2),
@@ -45,14 +43,20 @@
 
                 const int productionFrequencyMs = 1000;
 
-                using (var productionTimer = new Timer(
-                            (state) => { tc.TelemetryProcessorChain.Process(new RequestTelemetry()); itemsProduced++; },
-                            null,
-                            productionFrequencyMs,
-                            productionFrequencyMs))
-                {
-                    Thread.Sleep(25000);
-                }
+                var productionTimer = new Timer(
+                    (state) =>
+                    {
+                        tc.TelemetryProcessorChain.Process(new RequestTelemetry());
+                        itemsProduced++;
+                    },
+                    null,
+                    productionFrequencyMs,
+                    productionFrequencyMs);
+
+                Thread.Sleep(25000);
+                
+                // dispose timer and wait for callbacks to complete
+                DisposeTimer(productionTimer);
             }
 
             Assert.AreEqual(itemsProduced, sentTelemetry.Count);
@@ -71,7 +75,7 @@
                 // set up adaptive sampling that evaluates and changes sampling % frequently
                 chainBuilder
                     .UseAdaptiveSampling(
-                        new SamplingPercentageEstimatorSettings()
+                        new Channel.Implementation.SamplingPercentageEstimatorSettings()
                         {
                             EvaluationInterval = TimeSpan.FromSeconds(1),
                             SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(2),
@@ -84,21 +88,23 @@
 
                 const int productionFrequencyMs = 100;
 
-                using (var productionTimer = new Timer(
-                            (state) =>
-                            {
-                                for (int i = 0; i < 2; i++)
-                                {
-                                    tc.TelemetryProcessorChain.Process(new RequestTelemetry());
-                                    itemsProduced++;
-                                }
-                            },
-                            null,
-                            0,
-                            productionFrequencyMs))
-                {
-                    Thread.Sleep(25000);
-                }
+                var productionTimer = new Timer(
+                    (state) =>
+                    {
+                        for (int i = 0; i < 2; i++)
+                        {
+                            tc.TelemetryProcessorChain.Process(new RequestTelemetry());
+                            itemsProduced++;
+                        }
+                    },
+                    null,
+                    0,
+                    productionFrequencyMs);
+
+                Thread.Sleep(25000);
+                
+                // dispose timer and wait for callbacks to complete
+                DisposeTimer(productionTimer);
             }
 
             // number of items produced should be close to target of 5/second
@@ -134,7 +140,7 @@
                 // set up adaptive sampling that evaluates and changes sampling % frequently
                 chainBuilder
                     .UseAdaptiveSampling(
-                        new SamplingPercentageEstimatorSettings()
+                        new Channel.Implementation.SamplingPercentageEstimatorSettings()
                         {
                             InitialSamplingPercentage = 5.0,
                             EvaluationInterval = TimeSpan.FromSeconds(1),
@@ -149,33 +155,37 @@
                 const int regularProductionFrequencyMs = 100;
                 const int spikeProductionFrequencyMs = 3000;
 
-                using (var regularProductionTimer = new Timer(
-                            (state) =>
-                            {
-                                for (int i = 0; i < 2; i++)
-                                {
-                                    tc.TelemetryProcessorChain.Process(new RequestTelemetry());
-                                    Interlocked.Increment(ref itemsProduced);
-                                }
-                            },
-                            null,
-                            0,
-                            regularProductionFrequencyMs))
-                using (var spikeProductionTimer = new Timer(
-                            (state) =>
-                            {
-                                for (int i = 0; i < 200; i++)
-                                {
-                                    tc.TelemetryProcessorChain.Process(new RequestTelemetry());
-                                    Interlocked.Increment(ref itemsProduced);
-                                }
-                            },
-                            null,
-                            0,
-                            spikeProductionFrequencyMs))
-                {
-                    Thread.Sleep(30000);
-                }
+                var regularProductionTimer = new Timer(
+                    (state) =>
+                    {
+                        for (int i = 0; i < 2; i++)
+                        {
+                            tc.TelemetryProcessorChain.Process(new RequestTelemetry());
+                            Interlocked.Increment(ref itemsProduced);
+                        }
+                    },
+                    null,
+                    0,
+                    regularProductionFrequencyMs);
+
+                var spikeProductionTimer = new Timer(
+                    (state) =>
+                    {
+                        for (int i = 0; i < 200; i++)
+                        {
+                            tc.TelemetryProcessorChain.Process(new RequestTelemetry());
+                            Interlocked.Increment(ref itemsProduced);
+                        }
+                    },
+                    null,
+                    0,
+                    spikeProductionFrequencyMs);
+
+                Thread.Sleep(30000);
+
+                // dispose timers and wait for callbacks to complete
+                DisposeTimer(regularProductionTimer);
+                DisposeTimer(spikeProductionTimer);
             }
 
             // number of items produced should be close to target of 5/second
@@ -290,7 +300,7 @@
             double currentSamplingPercentage,
             double newSamplingPercentage,
             bool isSamplingPercentageChanged,
-            SamplingPercentageEstimatorSettings settings)
+            Channel.Implementation.SamplingPercentageEstimatorSettings settings)
         {
             Trace.WriteLine(string.Format(
                 "[Sampling% evaluation] {0}, Eps: {1}, Current %: {2}, New %: {3}, Changed: {4}",
@@ -299,6 +309,24 @@
                 currentSamplingPercentage,
                 newSamplingPercentage,
                 isSamplingPercentageChanged));
+        }
+
+
+        private void DisposeTimer(Timer timer)
+        {
+            // Regular Dispose() does not wait for all callbacks to complete
+            // so TelemetryConfiguration could be disposed while callback still runs
+
+#if NETCOREAPP1_1
+            timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            timer.Dispose();
+            Thread.Sleep(1000);
+#else
+            AutoResetEvent allDone = new AutoResetEvent(false);
+            timer.Dispose(allDone);
+            // this will wait for all callbacks to complete
+            allDone.WaitOne();
+#endif
         }
     }
 }

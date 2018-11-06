@@ -5,6 +5,7 @@
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Represents a destination for telemetry, consisting of a set of telemetry processors and a channel.
@@ -32,12 +33,7 @@
         /// <param name="telemetryChannel">Telemetry channel to use for the new <see cref="TelemetrySink"/> instance.</param>
         public TelemetrySink(TelemetryConfiguration telemetryConfiguration, ITelemetryChannel telemetryChannel = null)
         {
-            if (telemetryConfiguration == null)
-            {
-                throw new ArgumentNullException(nameof(telemetryConfiguration));
-            }
-
-            this.telemetryConfiguration = telemetryConfiguration;
+            this.telemetryConfiguration = telemetryConfiguration ?? throw new ArgumentNullException(nameof(telemetryConfiguration));
 
             if (telemetryChannel != null)
             {
@@ -205,6 +201,12 @@
         /// <param name="item">Item to process.</param>
         public void Process(ITelemetry item)
         {
+            if (this.isDisposed)
+            {
+                CoreEventSource.Log.TelemetrySinkCalledAfterBeingDisposed();
+                return;
+            }
+
             this.TelemetryProcessorChain.Process(item);
         }
 

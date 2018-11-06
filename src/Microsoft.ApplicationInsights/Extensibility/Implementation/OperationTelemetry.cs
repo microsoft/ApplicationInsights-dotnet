@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using DataContracts;
     using Microsoft.ApplicationInsights.Channel;
 
@@ -74,6 +75,11 @@
         /// </summary>
         public abstract string Sequence { get; set; }
 
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        public abstract IExtension Extension { get; set; }
+
         /// <summary>  
         /// Gets or sets Time in StopWatch ticks representing begin time of the operation. Used internally
         /// for calculating duration between begin and end.
@@ -94,6 +100,9 @@
         /// <returns>A cloned instance.</returns>
         public abstract ITelemetry DeepClone();
 
+        /// <inheritdoc/>
+        public abstract void SerializeData(ISerializationWriter serializationWriter);
+
         /// <summary>
         /// Sets operation Id.
         /// </summary>
@@ -105,6 +114,7 @@
         /// <summary>
         /// Allow to call OperationTelemetry.Sanitize method from child classes.
         /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This method is expected to be overloaded")]
         protected void Sanitize()
         {
         }

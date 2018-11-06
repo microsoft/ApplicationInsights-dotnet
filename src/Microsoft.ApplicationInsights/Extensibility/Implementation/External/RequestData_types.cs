@@ -57,7 +57,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public string duration { get; set; }
+        public System.TimeSpan duration { get; set; }
 
         
         
@@ -82,7 +82,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public IDictionary<string, double> measurements { get; set; }
+        
 
         public RequestData()
             : this("AI.RequestData", "RequestData")
@@ -94,11 +94,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             id = "";
             source = "";
             this.name = "";
-            duration = "";
+            duration = System.TimeSpan.Zero;
             responseCode = "";
+            success = true;
             url = "";
             properties = new ConcurrentDictionary<string, string>();
-            measurements = new ConcurrentDictionary<string, double>();
+            
         }
     }
 } // AI

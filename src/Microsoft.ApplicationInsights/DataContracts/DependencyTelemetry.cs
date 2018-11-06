@@ -1,11 +1,16 @@
 namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
+    using static System.Threading.LazyInitializer;
 
     /// <summary>
     /// The class that represents information about the collected dependency.
@@ -19,8 +24,9 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         internal readonly RemoteDependencyData InternalData;
         private readonly TelemetryContext context;
-
+        private IExtension extension;
         private double? samplingPercentage;
+        private bool successFieldSet;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class.
@@ -28,6 +34,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public DependencyTelemetry()
         {
             this.InternalData = new RemoteDependencyData();
+            this.successFieldSet = true;
             this.context = new TelemetryContext(this.InternalData.properties);
             this.GenerateId();
         }
@@ -48,7 +55,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="target"/>,
+        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyTypeName"/>, <paramref name="target"/>,
         /// <paramref name="dependencyName"/>, <paramref name="data"/> property values.
         /// </summary>
         public DependencyTelemetry(string dependencyTypeName, string target, string dependencyName, string data)
@@ -61,7 +68,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="target"/>,
+        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyTypeName"/>, <paramref name="target"/>,
         /// <paramref name="dependencyName"/>, <paramref name="data"/>, <paramref name="startTime"/>, <paramref name="duration"/>, <paramref name="resultCode"/>
         /// and <paramref name="success"/> and  property values.
         /// </summary>
@@ -89,6 +96,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
+            this.successFieldSet = source.successFieldSet;
+            this.extension = source.extension?.DeepClone();
         }
 
         /// <summary>
@@ -107,6 +116,15 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public override TelemetryContext Context
         {
             get { return this.context; }
+        }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strongly typed object.
+        /// </summary>
+        public override IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
         }
 
         /// <summary>
@@ -188,8 +206,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override TimeSpan Duration
         {
-            get { return Utils.ValidateDuration(this.InternalData.duration); }
-            set { this.InternalData.duration = value.ToString(); }
+            get { return this.InternalData.duration; }
+            set { this.InternalData.duration = value; }
         }
 
         /// <summary>
@@ -197,8 +215,29 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override bool? Success
         {
-            get { return this.InternalData.success; }
-            set { this.InternalData.success = value; }
+            get
+            {
+                if (this.successFieldSet)
+                {
+                    return this.InternalData.success;
+                }
+
+                return null;
+            }
+
+            set
+            {
+                if (value != null && value.HasValue)
+                {
+                    this.InternalData.success = value.Value;
+                    this.successFieldSet = true;
+                }
+                else
+                {
+                    this.InternalData.success = true;
+                    this.successFieldSet = false;
+                }
+            }
         }
 
         /// <summary>
@@ -206,8 +245,16 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public override IDictionary<string, string> Properties
-        {
-            get { return this.InternalData.properties; }
+        {            
+            get
+            {
+                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.InternalData.properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
+                {
+                    this.InternalData.properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
+                }
+
+                return this.InternalData.properties;
+            }
         }
 
         /// <summary>
@@ -248,12 +295,52 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
+        /// Gets or sets the MetricExtractorInfo.
+        /// </summary>
+        internal string MetricExtractorInfo
+        {
+            get;
+            set;
+        }
+        
+        /// <summary>
         /// Deeply clones a <see cref="DependencyTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
         public override ITelemetry DeepClone()
         {
             return new DependencyTelemetry(this);
+        }
+
+        /// <summary>
+        /// In specific collectors, objects are added to the dependency telemetry which may be useful
+        /// to enhance DependencyTelemetry telemetry by <see cref="ITelemetryInitializer" /> implementations.
+        /// Objects retrieved here are not automatically serialized and sent to the backend.
+        /// </summary>
+        /// <param name="key">The key of the value to get.</param>
+        /// <param name="detail">When this method returns, contains the object that has the specified key, or the default value of the type if the operation failed.</param>
+        /// <returns>true if the key was found; otherwise, false.</returns>
+        public bool TryGetOperationDetail(string key, out object detail)
+        {
+            return this.Context.TryGetRawObject(key, out detail);
+        }
+
+        /// <summary>
+        /// Sets the operation detail specific against the key specified. Objects set through this method
+        /// are not automatically serialized and sent to the backend.
+        /// </summary>
+        /// <param name="key">The key to store the detail against.</param>
+        /// <param name="detail">Detailed information collected by the tracked operation.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void SetOperationDetail(string key, object detail)
+        {
+            this.Context.StoreRawObject(key, detail, true);
+        }
+
+        /// <inheritdoc/>
+        public override void SerializeData(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty(this.InternalData);            
         }
 
         /// <summary>

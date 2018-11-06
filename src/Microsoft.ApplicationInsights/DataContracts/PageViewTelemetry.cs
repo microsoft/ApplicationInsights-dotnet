@@ -5,6 +5,7 @@
     using System.Globalization;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
@@ -17,14 +18,14 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
     /// </remarks>
-    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
     {
         internal const string TelemetryName = "PageView";
 
         internal readonly string BaseType = typeof(PageViewData).Name;
-
         internal readonly PageViewData Data;
         private readonly TelemetryContext context;
+        private IExtension extension;
 
         private double? samplingPercentage;
 
@@ -55,6 +56,7 @@
         {
             this.Data = source.Data.DeepClone();
             this.context = source.context.DeepClone(this.Data.properties);
+            this.extension = source.extension?.DeepClone();
         }
 
         /// <summary>
@@ -73,6 +75,24 @@
         public TelemetryContext Context
         {
             get { return this.context; }
+        }
+
+        /// <summary>
+        /// Gets or sets gets the extension used to extend this telemetry instance using new strong typed object.
+        /// </summary>
+        public IExtension Extension
+        {
+            get { return this.extension; }
+            set { this.extension = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets page view ID.
+        /// </summary>
+        public string Id
+        {
+            get { return this.Data.id; }
+            set { this.Data.id = value; }
         }
 
         /// <summary>
@@ -158,6 +178,12 @@
             return new PageViewTelemetry(this);
         }
 
+        /// <inheritdoc/>
+        public void SerializeData(ISerializationWriter serializationWriter)
+        {
+            serializationWriter.WriteProperty(this.Data);
+        }
+
         /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>
@@ -168,6 +194,7 @@
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
             this.Url = this.Url.SanitizeUri();
+            this.Id.SanitizeName();
         }
     }
 }

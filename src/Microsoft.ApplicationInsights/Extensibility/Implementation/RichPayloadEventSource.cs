@@ -46,14 +46,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
-                item.Sanitize();
+                
                 var telemetryItem = item as RequestTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                item.Sanitize();
                 this.WriteEvent(
                     RequestTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Requests);
             }
             else if (item is TraceTelemetry)
@@ -63,13 +65,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     return;
                 }
 
-                item.Sanitize();
                 var telemetryItem = item as TraceTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                item.Sanitize();
                 this.WriteEvent(
                     TraceTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Traces);
             }
             else if (item is EventTelemetry)
@@ -79,13 +83,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     return;
                 }
 
-                item.Sanitize();
                 var telemetryItem = item as EventTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                item.Sanitize();
                 this.WriteEvent(
                     EventTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Events);
             }
             else if (item is DependencyTelemetry)
@@ -95,13 +101,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     return;
                 }
 
-                item.Sanitize();
                 var telemetryItem = item as DependencyTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                item.Sanitize();
                 this.WriteEvent(
                     DependencyTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.InternalData,
+                    telemetryItem.Context.Flags,
                     Keywords.Dependencies);
             }
             else if (item is MetricTelemetry)
@@ -110,14 +118,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
-                item.Sanitize();
+                
                 var telemetryItem = item as MetricTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                item.Sanitize();
                 this.WriteEvent(
                     MetricTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Metrics);
             }
             else if (item is ExceptionTelemetry)
@@ -126,14 +136,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
-                item.Sanitize();
+                
                 var telemetryItem = item as ExceptionTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                item.Sanitize();
                 this.WriteEvent(
                     ExceptionTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
+                    telemetryItem.Data.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Exceptions);
             }
 #pragma warning disable 618
@@ -143,14 +155,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
-                item.Sanitize();
+                
                 var telemetryItem = (item as PerformanceCounterTelemetry).Data;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                item.Sanitize();
                 this.WriteEvent(
                     MetricTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Metrics);
             }
 #pragma warning restore 618
@@ -160,15 +174,35 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
-                item.Sanitize();
+                
                 var telemetryItem = item as PageViewTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                item.Sanitize();
                 this.WriteEvent(
                     PageViewTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.PageViews);
+            }
+            else if (item is PageViewPerformanceTelemetry)
+            {
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.PageViewPerformance))
+                {
+                    return;
+                }
+                
+                var telemetryItem = item as PageViewPerformanceTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                item.Sanitize();
+                this.WriteEvent(
+                    PageViewPerformanceTelemetry.TelemetryName,
+                    telemetryItem.Context.InstrumentationKey,
+                    telemetryItem.Context.SanitizedTags,
+                    telemetryItem.Data,
+                    telemetryItem.Context.Flags,
+                    Keywords.PageViewPerformance);
             }
 #pragma warning disable 618
             else if (item is SessionStateTelemetry)
@@ -177,14 +211,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
-                item.Sanitize();
+                
                 var telemetryItem = (item as SessionStateTelemetry).Data;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                item.Sanitize();
                 this.WriteEvent(
                     EventTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Events);
             }
             else if (item is AvailabilityTelemetry)
@@ -193,14 +229,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
-                item.Sanitize();
+                
                 var telemetryItem = item as AvailabilityTelemetry;
+                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                item.Sanitize();
                 this.WriteEvent(
                     AvailabilityTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
+                    telemetryItem.Context.Flags,
                     Keywords.Availability);
             }
             else
@@ -243,6 +281,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             GC.SuppressFinalize(this);
         }
 
+        private static void CopyGlobalPropertiesIfRequired(ITelemetry telemetry, IDictionary<string, string> itemProperties)
+        {
+            // This check avoids accessing the public accessor GlobalProperties
+            // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
+            if (telemetry.Context.GlobalPropertiesValue != null)
+            {
+                Utils.CopyDictionary(telemetry.Context.GlobalProperties, itemProperties);
+            }
+        }
+
         /// <summary>
         /// Disposes the object.
         /// </summary>
@@ -258,12 +306,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
         }
 
-        private void WriteEvent<T>(string eventName, string instrumentationKey, IDictionary<string, string> tags, T data, EventKeywords keywords)
+        private void WriteEvent<T>(string eventName, string instrumentationKey, IDictionary<string, string> tags, T data, long flags, EventKeywords keywords)
         {
             this.EventSourceInternal.Write(
                 eventName,
                 new EventSourceOptions() { Keywords = keywords },
-                new { PartA_iKey = instrumentationKey, PartA_Tags = tags, _B = data });
+                new { PartA_iKey = instrumentationKey, PartA_Tags = tags, _B = data, PartA_flags = flags });
         }
 
         private void WriteEvent(OperationTelemetry item, EventOpcode eventOpCode)

@@ -30,7 +30,7 @@
         {
             if (environment == null)
             {
-                throw new ArgumentNullException("environment");
+                throw new ArgumentNullException(nameof(environment));
             }
 
             try
@@ -134,7 +134,7 @@
 
         private static SHA256 CreateSHA256()
         {
-#if NETSTANDARD1_3
+#if NETSTANDARD
             return SHA256.Create();
 #else
             return new SHA256CryptoServiceProvider();
@@ -208,7 +208,7 @@
         {
             string baseDirectory = string.Empty;
 
-#if !NETSTANDARD1_3
+#if !NETSTANDARD
             baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 #else
             baseDirectory = AppContext.BaseDirectory;
