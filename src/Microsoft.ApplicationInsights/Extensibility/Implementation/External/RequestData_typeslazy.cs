@@ -3,7 +3,8 @@
     using System.Collections.Generic;
 
     /// <summary>
-    /// Partial class to implement ISerializableWithWriter. TODO: Remove this
+    /// Partial class to declare measurements.( This is to be removed once
+    /// every telemetry type gets rid of internal Data classes)
     /// </summary>
     internal partial class RequestData
     {

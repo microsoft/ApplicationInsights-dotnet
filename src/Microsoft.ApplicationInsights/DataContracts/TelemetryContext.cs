@@ -264,6 +264,10 @@
             }
 
             other.InstrumentationKey = this.InstrumentationKey;
+
+            // RawObject collection is not cloned by design, they share the same collection.
+            other.rawObjectsTemp = this.rawObjectsTemp;
+            other.rawObjectsPerm = this.rawObjectsPerm;
             return other;
         }
 

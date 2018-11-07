@@ -6,10 +6,10 @@ IF DEFINED MSBUILD (
   IF EXIST "%MSBUILD%" GOTO :eof
 )
 
-SET VSWHERE=..\packages\vswhere\tools\vswhere.exe
+SET VSWHERE=vswhere\tools\vswhere.exe
 IF NOT EXIST "%VSWHERE%" nuget.exe install vswhere -NonInteractive -ExcludeVersion -Source https://www.nuget.org/api/v2 > nul
 
-FOR /f "usebackq tokens=*" %%i in (`"%VSWHERE%" -version %VSVERSION% -products * -requires Microsoft.Component.MSBuild -property installationPath`) DO (
+FOR /f "usebackq tokens=*" %%i in (`"%VSWHERE%" -version %VSVERSION% -products * -requires Microsoft.Component.MSBuild -property installationPath -prerelease`) DO (
   SET MSBUILD=%%i\MSBuild\%VSVERSION%\Bin\MSBuild.exe
 )
 

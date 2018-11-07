@@ -242,6 +242,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     }
 
                     item.Sanitize();
+                    // Sanitize, Copying global properties is to be done before calling .Data here,
+                    // as Data returns a singleton instance, which won't be updated with changes made
+                    // after .Data is called.
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
