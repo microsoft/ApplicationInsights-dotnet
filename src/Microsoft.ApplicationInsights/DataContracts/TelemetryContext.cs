@@ -264,6 +264,8 @@
             }
 
             other.InstrumentationKey = this.InstrumentationKey;
+            other.rawObjectsTemp = this.rawObjectsTemp;
+            other.rawObjectsPerm = this.rawObjectsPerm;
             return other;
         }
 
