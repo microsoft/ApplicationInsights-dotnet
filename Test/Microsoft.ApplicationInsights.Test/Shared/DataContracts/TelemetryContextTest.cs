@@ -398,6 +398,40 @@
             Assert.IsTrue(context.TryGetRawObject(keyPerm, out object permAfterCleanup));
         }
 
+        [TestMethod]
+        public void TestRawObjectIsSharedOnDeepCopy()
+        {
+            string keyTemp = "keyTemp";
+            string detailTemp = "valueTemp";
+            var detailTempObj = new MyCustomObject(detailTemp);
+            string keyPerm = "keyPerm";
+            string detailPerm = "valuePerm";
+            var detailPermObj = new MyCustomObject(detailPerm);
+
+            var context = new TelemetryContext();
+            context.StoreRawObject(keyTemp, detailTempObj);
+            context.StoreRawObject(keyPerm, detailPermObj, false);
+            Assert.IsTrue(context.TryGetRawObject(keyTemp, out object actualTemp));
+            Assert.AreEqual(detailTempObj, actualTemp);
+            Assert.IsTrue(context.TryGetRawObject(keyPerm, out object actualPerm));
+            Assert.AreEqual(detailPermObj, actualPerm);
+
+            var clonedContext = context.DeepClone();
+            Assert.IsTrue(clonedContext.TryGetRawObject(keyTemp, out object actualTempFromClone));
+            Assert.AreEqual(detailTempObj, actualTempFromClone);
+            Assert.IsTrue(clonedContext.TryGetRawObject(keyPerm, out object actualPermFromClone));
+            Assert.AreEqual(detailPermObj, actualPermFromClone);
+
+            // Modify the object in original context
+            context.TryGetRawObject(keyTemp, out object tempObjFromOriginal);
+            ((MyCustomObject)tempObjFromOriginal).v = "new temp value";
+
+            clonedContext.TryGetRawObject(keyTemp, out object tempObjFromClone);
+
+            // validate that modifying original context affects the clone.
+            Assert.AreEqual(((MyCustomObject)tempObjFromOriginal).v, ((MyCustomObject)tempObjFromClone).v);
+        }
+
         private static string CopyAndSerialize(TelemetryContext source)
         {
             // Create a copy of the source context to verify that Serialize writes property values stored in tags 
@@ -410,6 +444,16 @@
                 Telemetry.WriteTelemetryContext(new JsonSerializationWriter(stringWriter), source);
                 return stringWriter.ToString();
             }
+        }
+    }
+
+    internal class MyCustomObject
+    {
+        public string v;
+
+        public MyCustomObject(string v)
+        {
+            this.v = v;
         }
     }
 }
