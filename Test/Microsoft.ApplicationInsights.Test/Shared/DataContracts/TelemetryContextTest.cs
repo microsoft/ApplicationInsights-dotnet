@@ -430,7 +430,6 @@
 
             // validate that modifying original context affects the clone.
             Assert.AreEqual(((MyCustomObject)tempObjFromOriginal).v, ((MyCustomObject)tempObjFromClone).v);
-
         }
 
         private static string CopyAndSerialize(TelemetryContext source)
