@@ -248,7 +248,6 @@
 
         internal TelemetryContext DeepClone(IDictionary<string, string> properties)
         {
-            Debug.Assert(properties != null, "properties parameter should not be null");
             var other = new TelemetryContext(properties);
             // This check avoids accessing the public accessor GlobalProperties
             // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
@@ -257,8 +256,20 @@
                 Utils.CopyDictionary(this.GlobalProperties, other.GlobalProperties);
             }
 
+            if (this.PropertiesValue != null)
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                Utils.CopyDictionary(this.Properties, other.Properties);
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
+
             other.InstrumentationKey = this.InstrumentationKey;
             return other;
+        }
+
+        internal TelemetryContext DeepClone()
+        {
+            return this.DeepClone(null);
         }
 
         /// <summary>
