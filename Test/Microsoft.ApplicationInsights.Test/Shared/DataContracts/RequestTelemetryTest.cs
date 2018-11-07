@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.DataContracts
+﻿using System.Threading;
+
+namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
     using System.Collections.Generic;
@@ -110,6 +112,43 @@
 
             ((ITelemetry)expected).Sanitize();
 
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RequestData>(expected);
+
+            // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
+            Assert.AreEqual(item.name, AI.ItemType.Request);
+
+            Assert.AreEqual(typeof(AI.RequestData).Name, item.data.baseType);
+
+            Assert.AreEqual(2, item.data.baseData.ver);
+            Assert.AreEqual(expected.Id, item.data.baseData.id);
+            Assert.AreEqual(expected.Name, item.data.baseData.name);
+            Assert.AreEqual(expected.Timestamp, DateTimeOffset.Parse(item.time));
+            Assert.AreEqual(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
+            Assert.AreEqual(expected.Success, item.data.baseData.success);
+            Assert.AreEqual(expected.ResponseCode, item.data.baseData.responseCode);
+            Assert.AreEqual(expected.Url.ToString(), item.data.baseData.url.ToString());
+
+            Assert.AreEqual(1, item.data.baseData.measurements.Count);
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+        }
+
+        [TestMethod]
+        /// Test validates that if Serialize is called multiple times, and telemetry is modified
+        /// in between, serialize always gives the latest state.
+        /// 
+        public void RequestTelemetrySerializationPicksUpCorrectState()
+        {
+            var expected = CreateTestTelemetry();
+
+            ((ITelemetry)expected).Sanitize();
+
+            byte[] buf = new byte[1000000];
+            expected.SerializeData(new JsonSerializationWriter(new StreamWriter(new MemoryStream(buf))));
+
+            // Change the telemetry after serialization.
+            expected.Url = new Uri(expected.Url.ToString() + "new");
+
+            // Validate that the newly updated URL is picked up.
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RequestData>(expected);
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.

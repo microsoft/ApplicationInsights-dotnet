@@ -48,6 +48,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
                 
                 var telemetryItem = item as RequestTelemetry;
+                // Sanitize, Copying global properties is to be done before calling .Data,
+                // as Data returns a singleton instance, which won't be updated with changes made
+                // after .Data is called.
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
