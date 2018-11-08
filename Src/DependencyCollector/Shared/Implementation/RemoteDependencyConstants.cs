@@ -13,6 +13,7 @@
         public const string AzureEventHubs = "Azure Event Hubs";
         public const string AzureServiceBus = "Azure Service Bus";
         public const string AzureIotHub = "Azure IoT Hub";
+        public const string AzureSearch = "Azure Search";
 
         public const string WcfService = "WCF Service";
         public const string WebService = "Web Service";

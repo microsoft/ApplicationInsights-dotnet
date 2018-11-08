@@ -5,6 +5,7 @@
 - [Fix missing transactions Sql dependencies](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/1031)
 - [Fix: Do not stop Activity in the Stop events, set end time instead](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1038)
 - [Fix: Add appSrv_ResourceGroup field to heartbeat properties from App Service](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1046)
+- [Add Azure Search dependency telemetry](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1048)
 - [Fix: Sql dependency tracking broken in 2.8.0+. Dependency operation is not stopped and becomes parent of subsequent operations](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1090)
 - [Fix: Wrong parentId reported on the SqlClient dependency on .NET Core](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/778)
 - [Perf Fix - Replace TelemetryClient.Initialize() with TelemetryClient.InitializeInstrumentationKey() to avoid calling initializers more than once. ](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1094)
