@@ -38,7 +38,9 @@ namespace Microsoft.ApplicationInsights.Web.TestFramework
                 }
                 catch (Exception e)
                 {
-                    throw new Exception(eventMethod.Name + " is implemented incorrectly: " + e.Message, e);
+                    var name = eventMethod.DeclaringType.Name + "." + eventMethod.Name;
+
+                    throw new Exception("Method '" + name + "' is implemented incorrectly.", e);
                 }
             }
         }
@@ -67,19 +69,19 @@ namespace Microsoft.ApplicationInsights.Web.TestFramework
                 return Activator.CreateInstance(parameter.ParameterType);
             }
 
-            throw new NotSupportedException("Complex types are not suppored");
+            throw new NotSupportedException("Complex types are not supported");
         }
 
         private static void VerifyEventId(MethodInfo eventMethod, EventWrittenEventArgs actualEvent)
         {
             int expectedEventId = GetEventAttribute(eventMethod).EventId;
-            AssertEqual(expectedEventId, actualEvent.EventId, "EventId");
+            AssertEqual(nameof(VerifyEventId), expectedEventId, actualEvent.EventId);
         }
 
         private static void VerifyEventLevel(MethodInfo eventMethod, EventWrittenEventArgs actualEvent)
         {
             EventLevel expectedLevel = GetEventAttribute(eventMethod).Level;
-            AssertEqual(expectedLevel, actualEvent.Level, "Level");
+            AssertEqual(nameof(VerifyEventLevel), expectedLevel, actualEvent.Level);
         }
 
         private static void VerifyEventMessage(MethodInfo eventMethod, EventWrittenEventArgs actualEvent, object[] eventArguments)
@@ -88,25 +90,25 @@ namespace Microsoft.ApplicationInsights.Web.TestFramework
                 ? GetEventAttribute(eventMethod).Message
                 : string.Format(CultureInfo.InvariantCulture, GetEventAttribute(eventMethod).Message, eventArguments);
             string actualMessage = string.Format(CultureInfo.InvariantCulture, actualEvent.Message, actualEvent.Payload.ToArray());
-            AssertEqual(expectedMessage, actualMessage, "Message");
+            AssertEqual(nameof(VerifyEventMessage), expectedMessage, actualMessage);
         }
 
         private static void VerifyEventApplicationName(MethodInfo eventMethod, EventWrittenEventArgs actualEvent)
         {
             string expectedApplicationName = AppDomain.CurrentDomain.FriendlyName;
             string actualApplicationName = actualEvent.Payload.Last().ToString();
-            AssertEqual(expectedApplicationName, actualApplicationName, "Application Name");
+            AssertEqual(nameof(VerifyEventApplicationName), expectedApplicationName, actualApplicationName);
         }
 
-        private static void AssertEqual<T>(T expected, T actual, string message)
+        private static void AssertEqual<T>(string methodName, T expected, T actual)
         {
             if (!expected.Equals(actual))
             {
-                string errorMessage = string.Format(
-                    CultureInfo.InvariantCulture,
-                    "{0}. expected: '{1}', actual: '{2}'",
-                    message,
-                    expected,
+                var errorMessage = string.Format(
+                    CultureInfo.InvariantCulture, 
+                    "{0} Failed: expected: '{1}' actual: '{2}'", 
+                    methodName, 
+                    expected, 
                     actual);
                 throw new Exception(errorMessage);
             }
