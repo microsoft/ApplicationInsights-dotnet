@@ -17,7 +17,7 @@
     {
         internal const string TelemetryName = "Message";
 
-        internal readonly string BaseType = typeof(MessageData).Name;
+        internal readonly string BaseType = nameof(MessageData);
         internal readonly MessageData Data;
         private readonly TelemetryContext context;
         private IExtension extension;

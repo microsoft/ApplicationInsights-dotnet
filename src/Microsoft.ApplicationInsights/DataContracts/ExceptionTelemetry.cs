@@ -16,7 +16,7 @@
     public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
     {
         internal const string TelemetryName = "Exception";
-        internal readonly string BaseType = typeof(ExceptionData).Name;
+        internal readonly string BaseType = nameof(ExceptionData);
         internal ExceptionInfo Data = null;
 
         private readonly bool isCreatedFromExceptionInfo = false;

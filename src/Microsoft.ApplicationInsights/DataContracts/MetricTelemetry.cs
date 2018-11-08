@@ -17,7 +17,7 @@
     {
         internal const string TelemetryName = "Metric";
 
-        internal readonly string BaseType = typeof(MetricData).Name;        
+        internal readonly string BaseType = nameof(MetricData);
         internal readonly MetricData Data;
         internal readonly DataPoint Metric;
         private IExtension extension;

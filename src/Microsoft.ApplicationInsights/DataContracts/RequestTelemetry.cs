@@ -24,7 +24,7 @@
     {
         internal new const string TelemetryName = "Request";
 
-        internal readonly string BaseType = typeof(RequestData).Name;
+        internal readonly string BaseType = nameof(RequestData);
         private readonly TelemetryContext context;
         private RequestData dataPrivate;
         private bool successFieldSet;
@@ -297,7 +297,7 @@
             // To ensure that all changes to telemetry are reflected in serialization,
             // the underlying field is set to null, which forces it to be re-created.
             this.dataPrivate = null;
-            serializationWriter.WriteProperty(this.Data);                        
+            serializationWriter.WriteProperty(this.Data);
         }
 
         /// <summary>

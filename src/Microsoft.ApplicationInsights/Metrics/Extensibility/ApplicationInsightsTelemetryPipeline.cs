@@ -52,7 +52,7 @@
                 throw new ArgumentException(Invariant($"Cannot track the specified {metricAggregate}, because there is no {nameof(IMetricAggregateToTelemetryPipelineConverter)}")
                                           + Invariant($" registered for it. A converter must be added to {nameof(MetricAggregateToTelemetryPipelineConverters)}")
                                           + Invariant($".{nameof(MetricAggregateToTelemetryPipelineConverters.Registry)} for the pipeline type")
-                                          + Invariant($" '{typeof(ApplicationInsightsTelemetryPipeline).Name}' and {nameof(metricAggregate.AggregationKindMoniker)}")
+                                          + Invariant($" '{nameof(ApplicationInsightsTelemetryPipeline)}' and {nameof(metricAggregate.AggregationKindMoniker)}")
                                           + Invariant($" '{metricAggregate.AggregationKindMoniker}'."));
             }
 
