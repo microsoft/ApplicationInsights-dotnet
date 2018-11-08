@@ -40,6 +40,11 @@
         {
             this.context = new TelemetryContext();
             this.GenerateId();
+            this.Source = string.Empty;
+            this.Name = string.Empty;
+            this.ResponseCode = string.Empty;
+            this.Success = true;
+            this.Duration = System.TimeSpan.Zero;
         }
 
         /// <summary>

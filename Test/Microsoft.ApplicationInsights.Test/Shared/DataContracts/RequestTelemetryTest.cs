@@ -29,6 +29,13 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             var request = new RequestTelemetry();
             Assert.IsFalse(string.IsNullOrEmpty(request.Id));
+
+            // Validate that fields are not null.       
+            Assert.IsFalse(request.Source == null);
+            Assert.IsFalse(request.Name == null);            
+            Assert.IsFalse(request.ResponseCode == null);
+            Assert.IsFalse(request.Success == null);                        
+            Assert.IsFalse(request.Duration == null);
         }
 
         [TestMethod]
