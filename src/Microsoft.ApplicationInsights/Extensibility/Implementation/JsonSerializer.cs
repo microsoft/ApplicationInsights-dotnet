@@ -19,9 +19,9 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class JsonSerializer
     {
-        private static readonly UTF8Encoding TransmissionEncoding = new UTF8Encoding(false);
-
         internal const string EventNameForUnknownTelemetry = "ConvertedTelemetry";
+
+        private static readonly UTF8Encoding TransmissionEncoding = new UTF8Encoding(false);
 
         /// <summary>
         /// Gets the compression type used by the serializer. 
