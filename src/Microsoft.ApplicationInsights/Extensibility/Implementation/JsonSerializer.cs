@@ -10,7 +10,7 @@
     using System.Text;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
     /// Serializes and compress the telemetry items into a JSON string. Compression will be done using GZIP, for Windows Phone 8 compression will be disabled because there
@@ -20,6 +20,8 @@
     public static class JsonSerializer
     {
         private static readonly UTF8Encoding TransmissionEncoding = new UTF8Encoding(false);
+
+        internal const string EventNameForUnknownTelemetry = "ConvertedTelemetry";
 
         /// <summary>
         /// Gets the compression type used by the serializer. 
@@ -249,8 +251,7 @@
             }
             else
             {
-                string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemetry type: {0}", telemetryItem.GetType());
-                CoreEventSource.Log.LogVerbose(msg);
+                SerializeUnknownTelemetryHelper(telemetryItem, jsonSerializationWriter);
             }
 
             jsonSerializationWriter.WriteEndObject();
@@ -264,6 +265,30 @@
             jsonSerializationWriter.WriteProperty("baseType", baseType);
             jsonSerializationWriter.WriteStartObject("baseData");
             telemetryItem.SerializeData(jsonSerializationWriter);
+            jsonSerializationWriter.WriteEndObject(); // baseData
+            jsonSerializationWriter.WriteProperty("extension", telemetryItem.Extension);
+            jsonSerializationWriter.WriteEndObject(); // data
+        }
+
+        private static void SerializeUnknownTelemetryHelper(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter)
+        {
+            DictionarySerializationWriter dictionarySerializationWriter = new DictionarySerializationWriter();
+            telemetryItem.SerializeData(dictionarySerializationWriter); // Properties and Measurements are covered as part of Data if present
+            CopyGlobalPropertiesIfExist(telemetryItem.Context, dictionarySerializationWriter.AccumulatedDictionary); // Copies context into the Properties
+
+            jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(EventTelemetry.TelemetryName));
+            telemetryItem.WriteEnvelopeProperties(jsonSerializationWriter); // No need to copy Context - it's serialized here from the original item
+
+            jsonSerializationWriter.WriteStartObject("data");
+            jsonSerializationWriter.WriteProperty("baseType", typeof(EventData).Name);
+            jsonSerializationWriter.WriteStartObject("baseData");
+
+            jsonSerializationWriter.WriteProperty("ver", 2);
+            jsonSerializationWriter.WriteProperty("name", EventNameForUnknownTelemetry);
+
+            jsonSerializationWriter.WriteProperty("properties", dictionarySerializationWriter.AccumulatedDictionary);
+            jsonSerializationWriter.WriteProperty("measurements", dictionarySerializationWriter.AccumulatedMeasurements);
+
             jsonSerializationWriter.WriteEndObject(); // baseData
             jsonSerializationWriter.WriteProperty("extension", telemetryItem.Extension);
             jsonSerializationWriter.WriteEndObject(); // data
