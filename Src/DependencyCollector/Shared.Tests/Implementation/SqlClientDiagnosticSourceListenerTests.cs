@@ -62,10 +62,7 @@ namespace Microsoft.ApplicationInsights.Tests
         [TestMethod]
         public void InitializesTelemetryFromParentActivity()
         {
-            var parentActivity = new Activity("Parent");
             var activity = new Activity("Current").AddBaggage("Stuff", "123");
-
-            parentActivity.Start();
             activity.Start();
 
             var operationId = Guid.NewGuid();
@@ -98,7 +95,7 @@ namespace Microsoft.ApplicationInsights.Tests
             var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
 
             Assert.AreEqual(activity.RootId, dependencyTelemetry.Context.Operation.Id);
-            Assert.AreEqual(parentActivity.Id, dependencyTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual(activity.Id, dependencyTelemetry.Context.Operation.ParentId);
             Assert.AreEqual("123", dependencyTelemetry.Properties["Stuff"]);
         }
 

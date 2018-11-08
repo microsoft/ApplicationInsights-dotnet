@@ -139,7 +139,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     {
                         // Instrumentation key is probably empty, because the context has not yet had a chance to associate the requestTelemetry to the telemetry client yet.
                         // and get they instrumentation key from all possible sources in the process. Let's do that now.
-                        this.telemetryClient.Initialize(telemetry);
+                        this.telemetryClient.InitializeInstrumentationKey(telemetry);
                     }
                 }
 

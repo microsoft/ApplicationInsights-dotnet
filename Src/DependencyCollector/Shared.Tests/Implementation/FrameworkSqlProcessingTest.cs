@@ -4,8 +4,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
-    using System.Linq;
-    using System.Reflection;
     using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
@@ -31,10 +29,11 @@
         [TestInitialize]
         public void TestInitialize()
         {
-             this.configuration = new TelemetryConfiguration();
+            this.configuration = new TelemetryConfiguration();
             this.sendItems = new List<ITelemetry>(); 
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
+            this.configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.sqlProcessingFramework = new FrameworkSqlProcessing(this.configuration, new CacheBasedOperationHolder("testCache", 100 * 1000));
         }
 
@@ -68,6 +67,7 @@
             this.sqlProcessingFramework.OnEndExecuteCallback(id: 1111, success: true, sqlExceptionNumber: 0);
             stopwatch.Stop();
 
+            Assert.IsNull(Activity.Current);
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
@@ -77,6 +77,47 @@
                 true,
                 stopwatch.Elapsed.TotalMilliseconds,
                 string.Empty);
+        }
+
+        /// <summary>
+        /// Validates SQLProcessingFramework sends correct telemetry for non stored procedure in async call.
+        /// </summary>
+        [TestMethod]
+        [Description("Validates SQLProcessingFramework sends correct telemetry for non stored procedure in async call.")]
+        public void RddTestSqlProcessingFrameworkSendsCorrectTelemetryMultipleItems()
+        {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            var parent = new Activity("parent").Start();
+
+            for (int i = 0; i < 10; i++)
+            {
+                this.sqlProcessingFramework.OnBeginExecuteCallback(
+                    id: i,
+                    database: "mydatabase",
+                    dataSource: "ourdatabase.database.windows.net",
+                    commandText: string.Empty);
+                Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
+
+                this.sqlProcessingFramework.OnEndExecuteCallback(id: i, success: true, sqlExceptionNumber: 0);
+                stopwatch.Stop();
+
+                Assert.AreEqual(parent, Activity.Current);
+                Assert.AreEqual(i + 1, this.sendItems.Count, "Only one telemetry item should be sent");
+
+                var dependencyTelemetry = this.sendItems[0] as DependencyTelemetry;
+                ValidateTelemetryPacket(
+                    dependencyTelemetry,
+                    "ourdatabase.database.windows.net | mydatabase",
+                    "ourdatabase.database.windows.net | mydatabase",
+                    RemoteDependencyConstants.SQL,
+                    true,
+                    stopwatch.Elapsed.TotalMilliseconds,
+                    string.Empty);
+
+                Assert.AreEqual(parent.Id, dependencyTelemetry.Context.Operation.ParentId);
+                Assert.AreEqual(parent.RootId, dependencyTelemetry.Context.Operation.Id);
+            }
         }
 
         /// <summary>
@@ -96,7 +137,7 @@
 
             this.sqlProcessingFramework.OnEndExecuteCallback(id: 1111, success: true, sqlExceptionNumber: 0);
             stopwatch.Stop();
-
+            Assert.IsNull(Activity.Current);
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
@@ -126,6 +167,7 @@
             this.sqlProcessingFramework.OnEndExecuteCallback(id: 1111, success: false, sqlExceptionNumber: 1);
             stopwatch.Stop();
 
+            Assert.IsNull(Activity.Current);
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
@@ -155,7 +197,7 @@
             this.sqlProcessingFramework.OnEndExecuteCallback(id: 1111, success: true, sqlExceptionNumber: 0);
 
             stopwatch.Stop();
-
+            Assert.IsNull(Activity.Current);
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
