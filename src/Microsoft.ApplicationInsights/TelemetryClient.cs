@@ -534,7 +534,6 @@
             if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
             {
                 var version = this.sdkVersion ?? (this.sdkVersion = SdkVersionUtils.GetSdkVersion(VersionPrefix));
-                // var version = LazyInitializer.EnsureInitialized(ref this.sdkVersion, () => SdkVersionUtils.GetSdkVersion(VersionPrefix));
                 telemetry.Context.Internal.SdkVersion = version;
             }
 
