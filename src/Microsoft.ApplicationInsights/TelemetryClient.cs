@@ -451,6 +451,23 @@
         /// <summary>
         /// This method is an internal part of Application Insights infrastructure. Do not call.
         /// </summary>
+        /// <param name="telemetry">Telemetry item to initialize instrumentation key.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void InitializeInstrumentationKey(ITelemetry telemetry)
+        {
+            string instrumentationKey = this.Context.InstrumentationKey;
+
+            if (string.IsNullOrEmpty(instrumentationKey))
+            {
+                instrumentationKey = this.configuration.InstrumentationKey;
+            }
+
+            telemetry.Context.InitializeInstrumentationkey(instrumentationKey);
+        }
+
+        /// <summary>
+        /// This method is an internal part of Application Insights infrastructure. Do not call.
+        /// </summary>
         /// <param name="telemetry">Telemetry item to initialize.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void Initialize(ITelemetry telemetry)
@@ -476,8 +493,11 @@
 
             // Properties set of TelemetryClient's Context are copied over to that of ITelemetry's Context
 #pragma warning disable CS0618 // Type or member is obsolete
-            Utils.CopyDictionary(this.Context.Properties, telemetry.Context.Properties);
-            
+            if (this.Context.PropertiesValue != null)
+            {
+                Utils.CopyDictionary(this.Context.Properties, telemetry.Context.Properties);
+            }
+
 #pragma warning restore CS0618 // Type or member is obsolete
 
             // This check avoids accessing the public accessor GlobalProperties

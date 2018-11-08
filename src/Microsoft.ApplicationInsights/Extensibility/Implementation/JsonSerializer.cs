@@ -217,7 +217,12 @@
             else if (telemetryItem is RequestTelemetry)
             {
                 RequestTelemetry reqTelemetry = telemetryItem as RequestTelemetry;
-                CopyGlobalPropertiesIfExist(telemetryItem.Context, reqTelemetry.Data.properties);
+                if (telemetryItem.Context.GlobalPropertiesValue != null)
+                {
+                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, reqTelemetry.Properties);
+                }
+
+                // CopyGlobalPropertiesIfExist(telemetryItem.Context, reqTelemetry.Data.properties);
 
                 SerializeHelper(telemetryItem, jsonSerializationWriter, reqTelemetry.BaseType, RequestTelemetry.TelemetryName);
             }

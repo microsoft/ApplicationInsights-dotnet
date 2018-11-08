@@ -194,7 +194,7 @@
             }
 
             if (this.rawObjectsTemp.TryGetValue(key, out rawObject))
-            {                
+            {
                 return true;
             }
             else
@@ -243,12 +243,11 @@
 
         internal void ClearTempRawObjects()
         {
-          this.rawObjectsTemp.Clear();
+            this.rawObjectsTemp.Clear();
         }
 
         internal TelemetryContext DeepClone(IDictionary<string, string> properties)
         {
-            Debug.Assert(properties != null, "properties parameter should not be null");
             var other = new TelemetryContext(properties);
             // This check avoids accessing the public accessor GlobalProperties
             // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
@@ -257,8 +256,24 @@
                 Utils.CopyDictionary(this.GlobalProperties, other.GlobalProperties);
             }
 
+            if (this.PropertiesValue != null)
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                Utils.CopyDictionary(this.Properties, other.Properties);
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
+
             other.InstrumentationKey = this.InstrumentationKey;
+
+            // RawObject collection is not cloned by design, they share the same collection.
+            other.rawObjectsTemp = this.rawObjectsTemp;
+            other.rawObjectsPerm = this.rawObjectsPerm;
             return other;
+        }
+
+        internal TelemetryContext DeepClone()
+        {
+            return this.DeepClone(null);
         }
 
         /// <summary>
@@ -268,7 +283,7 @@
         /// </summary>
         internal void Initialize(TelemetryContext source, string instrumentationKey)
         {
-            Property.Initialize(ref this.instrumentationKey, instrumentationKey);
+            this.InitializeInstrumentationkey(instrumentationKey);
 
             this.Flags |= source.Flags;
 
@@ -280,6 +295,14 @@
             source.operation?.CopyTo(this.Operation);
             source.location?.CopyTo(this.Location);
             source.Internal.CopyTo(this.Internal);
+        }
+
+        /// <summary>
+        /// Initialize this instance's instrumentation key.
+        /// </summary>
+        internal void InitializeInstrumentationkey(string instrumentationKey)
+        {
+            Property.Initialize(ref this.instrumentationKey, instrumentationKey);
         }
     }
 }

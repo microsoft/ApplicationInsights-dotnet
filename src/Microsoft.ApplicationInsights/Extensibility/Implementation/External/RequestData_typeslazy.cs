@@ -1,21 +1,19 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     /// <summary>
-    /// Partial class to implement ISerializableWithWriter
+    /// Partial class to declare measurements.( This is to be removed once
+    /// every telemetry type gets rid of internal Data classes)
     /// </summary>
     internal partial class RequestData
     {
-        private IDictionary<string, double> measurementsInternal;
-
 #pragma warning disable SA1300 // Element must begin with upper-case letter
         public IDictionary<string, double> measurements
-#pragma warning restore SA1300 // Element must begin with upper-case letter
         {
-            get { return System.Threading.LazyInitializer.EnsureInitialized(ref this.measurementsInternal, () => new ConcurrentDictionary<string, double>()); }
-            set { this.measurementsInternal = value; }
+            get;
+            set;
         }
+#pragma warning restore SA1300 // Element must begin with upper-case letter
     }
 }

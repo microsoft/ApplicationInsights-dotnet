@@ -98,7 +98,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             responseCode = "";
             success = true;
             url = "";
-            properties = new ConcurrentDictionary<string, string>();
+            
             
         }
     }

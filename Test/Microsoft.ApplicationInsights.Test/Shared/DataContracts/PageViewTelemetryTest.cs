@@ -52,6 +52,16 @@
         }
 
         [TestMethod]
+        public void PageViewTelemetryImplementsISupportMetrics()
+        {
+            PageViewTelemetry item = new PageViewTelemetry();
+            item.Metrics.Add("Test", 10);
+
+            Assert.IsNotNull(item as ISupportMetrics);
+            Assert.AreEqual(10, (item as ISupportMetrics).Metrics["Test"]);
+        }
+
+        [TestMethod]
         public void PageViewTelemetrySerializesToJsonCorrectly()
         {
             var expected = new PageViewTelemetry("My Page");
