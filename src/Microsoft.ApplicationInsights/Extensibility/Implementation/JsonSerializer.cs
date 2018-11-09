@@ -279,7 +279,7 @@
         {
             DictionarySerializationWriter dictionarySerializationWriter = new DictionarySerializationWriter();
             telemetryItem.SerializeData(dictionarySerializationWriter); // Properties and Measurements are covered as part of Data if present
-            CopyGlobalPropertiesIfExist(telemetryItem.Context, dictionarySerializationWriter.AccumulatedDictionary); // Copies context into the Properties
+            CopyGlobalPropertiesIfExist(telemetryItem.Context, dictionarySerializationWriter.AccumulatedDictionary);
 
             jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(EventTelemetry.TelemetryName));
             telemetryItem.WriteEnvelopeProperties(jsonSerializationWriter); // No need to copy Context - it's serialized here from the original item

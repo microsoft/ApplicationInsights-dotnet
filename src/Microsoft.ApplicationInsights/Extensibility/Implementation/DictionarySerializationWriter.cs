@@ -11,8 +11,8 @@
 
         private readonly Stack<string> lastPrefix = new Stack<string>(); // Stores previous prefix for the property Key
         private readonly Stack<long> lastIndex = new Stack<long>(); // Stores previous index for unnamed property
-        private string currentPrefix = string.Empty; // Prefix is prepended before property name to distinguish depth and sequences in the flat list
-        private long currentIndex = 1; // Index is appended to "Key" to provide a property name for objects with no names
+        private string currentPrefix = string.Empty; // Prefix for the property name to distinguish names in depth
+        private long currentIndex = 1; // Index for DefaultKey or DefaultObj to provide a property name for properties or objects with no names
 
         internal DictionarySerializationWriter()
         {
@@ -39,7 +39,7 @@
             }
         }
 
-        public void WriteProperty(string name, double? value) // Should this be measurement? What if it's empty? What if it's indeed property?
+        public void WriteProperty(string name, double? value)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -181,7 +181,7 @@
                 this.currentPrefix = this.GenerateSequencialPrefix();
                 value.Serialize(this);
                 this.currentPrefix = this.lastPrefix.Pop();
-            } // Generated name would not indicate which object is missing, hence useless, no entry in accumulated dictionary 
+            } // Generated name would not indicate which object is missing value. No entry is added to accumulated dictionary 
         }
 
         public void WriteProperty(string name, IList<string> items)
@@ -279,7 +279,7 @@
                         this.AccumulatedMeasurements[key] = pair.Value;
                     }
                 }
-            } // We'd typically like to store Property name with no value, however storing metric name with no value has less benefits
+            } // It is common to store property name without value; however, storing metric name without value has less benefits.
         }
 
         public void WriteStartObject(string name)
