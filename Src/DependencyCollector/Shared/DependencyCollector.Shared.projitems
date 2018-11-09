@@ -28,6 +28,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureBlobHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureIotHubHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureQueueHttpParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureSearchHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureServiceBusHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureTableHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\DocumentDbHttpParser.cs" />

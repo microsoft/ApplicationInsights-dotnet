@@ -226,7 +226,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     }
                     catch (Exception ex)
                     {
-                        DependencyCollectorEventSource.Log.TelemetryDiagnosticSourceCallbackException(evnt.Key, currentActivity.Id, ex.ToInvariantString());
+                        DependencyCollectorEventSource.Log.TelemetryDiagnosticSourceCallbackException(evnt.Key, ex.ToInvariantString());
                     }
                 }
             }
