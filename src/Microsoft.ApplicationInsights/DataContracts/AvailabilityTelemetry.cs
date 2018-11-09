@@ -17,7 +17,7 @@
     {
         internal const string TelemetryName = "Availability";
 
-        internal readonly string BaseType = nameof(AvailabilityData);
+        internal const string BaseType = nameof(AvailabilityData);
         internal readonly AvailabilityData Data;
         private readonly TelemetryContext context;
         private IExtension extension;

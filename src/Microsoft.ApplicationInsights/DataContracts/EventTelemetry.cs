@@ -17,7 +17,7 @@
     {
         internal const string TelemetryName = "Event";
 
-        internal readonly string BaseType = nameof(EventData);
+        internal const string BaseType = nameof(EventData);
         internal readonly EventData Data;
         private readonly TelemetryContext context;
         private IExtension extension;

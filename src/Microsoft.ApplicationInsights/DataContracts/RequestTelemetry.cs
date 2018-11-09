@@ -24,7 +24,7 @@
     {
         internal new const string TelemetryName = "Request";
 
-        internal readonly string BaseType = nameof(RequestData);
+        internal const string BaseType = nameof(RequestData);
         private readonly TelemetryContext context;
         private RequestData dataPrivate;
         private bool successFieldSet;

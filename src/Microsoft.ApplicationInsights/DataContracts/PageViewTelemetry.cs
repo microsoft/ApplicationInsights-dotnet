@@ -22,7 +22,7 @@
     {
         internal const string TelemetryName = "PageView";
 
-        internal readonly string BaseType = nameof(PageViewData);
+        internal const string BaseType = nameof(PageViewData);
         internal readonly PageViewData Data;
         private readonly TelemetryContext context;
         private IExtension extension;
