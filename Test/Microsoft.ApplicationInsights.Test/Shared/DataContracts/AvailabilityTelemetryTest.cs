@@ -45,7 +45,7 @@
             Assert.AreEqual(expected.Sequence, item.seq);
             Assert.AreEqual(expected.Context.InstrumentationKey, item.iKey);
             AssertEx.AreEqual(expected.Context.SanitizedTags.ToArray(), item.tags.ToArray());
-            Assert.AreEqual(typeof(AI.AvailabilityData).Name, item.data.baseType);
+            Assert.AreEqual(nameof(AI.AvailabilityData), item.data.baseType);
 
             Assert.AreEqual(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
             Assert.AreEqual(expected.Message, item.data.baseData.message);
