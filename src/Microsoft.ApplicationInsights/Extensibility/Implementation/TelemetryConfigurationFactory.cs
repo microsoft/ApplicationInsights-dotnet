@@ -57,7 +57,7 @@
 
                 if (modules != null)
                 {
-                    // Create diagnostics module so configuration loading errors are reported to the portal    
+                    // Create diagnostics module so configuration loading errors are reported to the portal
                     modules.Modules.Add(new DiagnosticsTelemetryModule());
                 }
 
