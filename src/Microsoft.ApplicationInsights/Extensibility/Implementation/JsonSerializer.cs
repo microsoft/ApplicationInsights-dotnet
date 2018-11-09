@@ -156,7 +156,7 @@
 
         /// <summary>
         /// Copies GlobalProperties to the target, avoiding accessing the public accessor GlobalProperties
-        /// unless needed, to avoid the penality of ConcurrentDictionary instantiation. 
+        /// unless needed, to avoid the penalty of ConcurrentDictionary instantiation. 
         /// </summary>        
         private static void CopyGlobalPropertiesIfExist(TelemetryContext context, IDictionary<string, string> target)
         {
@@ -261,12 +261,12 @@
             jsonSerializationWriter.WriteEndObject();
         }
 
-        private static void SerializeHelper(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter, string baseType, string telemetryName)
+        private static void SerializeHelper(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter)
         {
-            jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(telemetryName));
+            jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(telemetryItem.TelemetryName));
             telemetryItem.WriteEnvelopeProperties(jsonSerializationWriter);
             jsonSerializationWriter.WriteStartObject("data");
-            jsonSerializationWriter.WriteProperty("baseType", baseType);
+            jsonSerializationWriter.WriteProperty("baseType", telemetryItem.BaseType);
             jsonSerializationWriter.WriteStartObject("baseData");
             telemetryItem.SerializeData(jsonSerializationWriter);
             jsonSerializationWriter.WriteEndObject(); // baseData

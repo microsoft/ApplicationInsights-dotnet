@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
+    using System.Collections.Generic;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -9,6 +10,22 @@
     /// </summary>
     public interface ITelemetry
     {
+        /// <summary>
+        /// Gets the name of the Telemetry. Used internally for serialization.
+        /// </summary>
+        string TelemetryName { get; }
+
+        /// <summary>
+        /// Gets the name of the TelemetryType. Used internally for serialization.
+        /// </summary>
+        string BaseType { get; }
+
+        /// <summary>
+        /// Gets the internal collection of properties. Used internally for serialization.
+        /// </summary>
+        /// <returns></returns>
+        IDictionary<string, string> GetInternalDataProperties();
+
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
