@@ -172,98 +172,19 @@
             {
                 jsonSerializationWriter.WriteStartObject();
 
-            if (telemetryItem is EventTelemetry)
-            {
-                EventTelemetry eventTelemetry = telemetryItem as EventTelemetry;
-                CopyGlobalPropertiesIfExist(telemetryItem.Context, eventTelemetry.Data.properties);
+                CopyGlobalPropertiesIfExist(telemetryItem.Context, target: serializeableTelemetry.GetInternalDataProperties());
+                SerializeHelper(telemetryItem, jsonSerializationWriter, telemetryName: serializeableTelemetry.TelemetryName, baseType: serializeableTelemetry.BaseType);
 
-                SerializeHelper(telemetryItem, jsonSerializationWriter, EventTelemetry.BaseType, EventTelemetry.TelemetryName);
-            }
-            else if (telemetryItem is ExceptionTelemetry)
-            {
-                ExceptionTelemetry exTelemetry = telemetryItem as ExceptionTelemetry;
-                CopyGlobalPropertiesIfExist(telemetryItem.Context, exTelemetry.Data.Data.properties);
-
-                SerializeHelper(telemetryItem, jsonSerializationWriter, ExceptionTelemetry.BaseType, ExceptionTelemetry.TelemetryName);
-            }
-            else if (telemetryItem is MetricTelemetry)
-            {
-                MetricTelemetry mTelemetry = telemetryItem as MetricTelemetry;
-                CopyGlobalPropertiesIfExist(telemetryItem.Context, mTelemetry.Data.properties);
-
-                SerializeHelper(telemetryItem, jsonSerializationWriter, MetricTelemetry.BaseType, MetricTelemetry.TelemetryName);
-            }
-            else if (telemetryItem is PageViewTelemetry)
-            {
-                PageViewTelemetry pvTelemetry = telemetryItem as PageViewTelemetry;
-                CopyGlobalPropertiesIfExist(telemetryItem.Context, pvTelemetry.Data.properties);
-
-                SerializeHelper(telemetryItem, jsonSerializationWriter, PageViewTelemetry.BaseType, PageViewTelemetry.TelemetryName);
-            }
-            else if (telemetryItem is PageViewPerformanceTelemetry)
-            {
-                PageViewPerformanceTelemetry pvptelemetry = telemetryItem as PageViewPerformanceTelemetry;
-                CopyGlobalPropertiesIfExist(telemetryItem.Context, pvptelemetry.Data.properties);
-
-                SerializeHelper(telemetryItem, jsonSerializationWriter, PageViewPerformanceTelemetry.BaseType, PageViewPerformanceTelemetry.TelemetryName);
-            }
-            else if (telemetryItem is DependencyTelemetry)
-            {
-                DependencyTelemetry depTelemetry = telemetryItem as DependencyTelemetry;
-                CopyGlobalPropertiesIfExist(telemetryItem.Context, depTelemetry.InternalData.properties);
-
-                SerializeHelper(telemetryItem, jsonSerializationWriter, DependencyTelemetry.BaseType, DependencyTelemetry.TelemetryName);
-            }
-            else if (telemetryItem is RequestTelemetry)
-            {
-                RequestTelemetry reqTelemetry = telemetryItem as RequestTelemetry;
-                if (telemetryItem.Context.GlobalPropertiesValue != null)
-                {
-                    Utils.CopyDictionary(telemetryItem.Context.GlobalProperties, reqTelemetry.Properties);
-                }
-
-                // CopyGlobalPropertiesIfExist(telemetryItem.Context, reqTelemetry.Data.properties);
-
-                SerializeHelper(telemetryItem, jsonSerializationWriter, RequestTelemetry.BaseType, RequestTelemetry.TelemetryName);
-            }
-#pragma warning disable 618
-            else if (telemetryItem is PerformanceCounterTelemetry)
-            {
-                PerformanceCounterTelemetry pcTelemetry = telemetryItem as PerformanceCounterTelemetry;
-                CopyGlobalPropertiesIfExist(telemetryItem.Context, pcTelemetry.Data.Properties);
-
-                SerializeHelper(telemetryItem, jsonSerializationWriter, MetricTelemetry.BaseType, MetricTelemetry.TelemetryName);
-            }
-            else if (telemetryItem is SessionStateTelemetry)
-            {
-                SessionStateTelemetry ssTelemetry = telemetryItem as SessionStateTelemetry;
-                SerializeHelper(telemetryItem, jsonSerializationWriter, EventTelemetry.BaseType, EventTelemetry.TelemetryName);
-            }
-#pragma warning restore 618
-            else if (telemetryItem is TraceTelemetry)
-            {
-                TraceTelemetry traceTelemetry = telemetryItem as TraceTelemetry;
-                CopyGlobalPropertiesIfExist(telemetryItem.Context, traceTelemetry.Data.properties);
-
-                SerializeHelper(telemetryItem, jsonSerializationWriter, TraceTelemetry.BaseType, TraceTelemetry.TelemetryName);
-            }
-            else if (telemetryItem is AvailabilityTelemetry)
-            {
-                AvailabilityTelemetry availabilityTelemetry = telemetryItem as AvailabilityTelemetry;
-                CopyGlobalPropertiesIfExist(telemetryItem.Context, availabilityTelemetry.Data.properties);
-
-                SerializeHelper(telemetryItem, jsonSerializationWriter, AvailabilityTelemetry.BaseType, AvailabilityTelemetry.TelemetryName);
+                jsonSerializationWriter.WriteEndObject();
             }
             else
             {
                 string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemetry type: {0}", telemetryItem.GetType());
                 CoreEventSource.Log.LogVerbose(msg);
             }
-
-            jsonSerializationWriter.WriteEndObject();
         }
 
-        private static void SerializeHelper(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter, string telemetryName, string baseType)
+        private static void SerializeHelper(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter, string baseType, string telemetryName)
         {
             jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(telemetryName));
             telemetryItem.WriteEnvelopeProperties(jsonSerializationWriter);
