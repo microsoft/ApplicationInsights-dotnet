@@ -157,7 +157,7 @@
         /// <summary>
         /// Copies GlobalProperties to the target, avoiding accessing the public accessor GlobalProperties
         /// unless needed, to avoid the penalty of ConcurrentDictionary instantiation. 
-        /// </summary>        
+        /// </summary> 
         private static void CopyGlobalPropertiesIfExist(TelemetryContext context, IDictionary<string, string> target)
         {
             if (context.GlobalPropertiesValue != null)
@@ -168,7 +168,9 @@
 
         private static void SerializeTelemetryItem(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter)
         {
-            jsonSerializationWriter.WriteStartObject();
+            if (telemetryItem is IAiSerializeableTelemetry serializeableTelemetry)
+            {
+                jsonSerializationWriter.WriteStartObject();
 
             if (telemetryItem is EventTelemetry)
             {
@@ -261,12 +263,12 @@
             jsonSerializationWriter.WriteEndObject();
         }
 
-        private static void SerializeHelper(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter)
+        private static void SerializeHelper(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter, string telemetryName, string baseType)
         {
-            jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(telemetryItem.TelemetryName));
+            jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(telemetryName));
             telemetryItem.WriteEnvelopeProperties(jsonSerializationWriter);
             jsonSerializationWriter.WriteStartObject("data");
-            jsonSerializationWriter.WriteProperty("baseType", telemetryItem.BaseType);
+            jsonSerializationWriter.WriteProperty("baseType", baseType);
             jsonSerializationWriter.WriteStartObject("baseData");
             telemetryItem.SerializeData(jsonSerializationWriter);
             jsonSerializationWriter.WriteEndObject(); // baseData
