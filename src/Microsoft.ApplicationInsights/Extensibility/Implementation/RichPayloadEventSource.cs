@@ -108,7 +108,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
-                    DependencyTelemetry.TelemetryName,
+                    telemetryItem.TelemetryName, // TODO: THIS METHOD SHOULD BE REFACTORED AS WELL
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.SanitizedTags,
                     telemetryItem.InternalData,

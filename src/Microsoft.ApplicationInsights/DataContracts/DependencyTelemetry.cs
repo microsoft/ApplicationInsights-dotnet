@@ -16,7 +16,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// The class that represents information about the collected dependency.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=839889">Learn more.</a>
     /// </summary>
-    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
+    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializeableTelemetry
     {
         internal readonly RemoteDependencyData InternalData;
         private readonly TelemetryContext context;
@@ -97,11 +97,10 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <inheritdoc />
-        public override string TelemetryName => "RemoteDependency";
+        public string TelemetryName => "RemoteDependency";
 
         /// <inheritdoc />
-        public override string BaseType => nameof(RemoteDependencyData);
-
+        public string BaseType => nameof(RemoteDependencyData);
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
