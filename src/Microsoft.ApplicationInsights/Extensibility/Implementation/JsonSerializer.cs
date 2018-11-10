@@ -168,7 +168,7 @@
 
         private static void SerializeTelemetryItem(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter)
         {
-            if (telemetryItem is IAiSerializeableTelemetry serializeableTelemetry)
+            if (telemetryItem is IAiSerializableTelemetry serializeableTelemetry)
             {
                 jsonSerializationWriter.WriteStartObject();
 

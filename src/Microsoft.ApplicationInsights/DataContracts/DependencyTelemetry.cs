@@ -16,7 +16,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// The class that represents information about the collected dependency.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=839889">Learn more.</a>
     /// </summary>
-    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializeableTelemetry
+    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
     {
         internal readonly RemoteDependencyData InternalData;
         private readonly TelemetryContext context;

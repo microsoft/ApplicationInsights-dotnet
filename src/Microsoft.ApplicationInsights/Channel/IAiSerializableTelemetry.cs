@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public interface IAiSerializeableTelemetry
+    public interface IAiSerializableTelemetry
     {
         /// <summary>
         /// Gets the name of the Telemetry. Used internally for serialization.
