@@ -57,6 +57,7 @@
             this.Data = source.Data.DeepClone();
             this.context = source.context.DeepClone(this.Data.properties);
             this.extension = source.extension?.DeepClone();
+            this.Timestamp = source.Timestamp;
         }
 
         /// <summary>

@@ -5,6 +5,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -333,6 +334,107 @@
             telemetryClient.Context.User.Id = "userId";
 
             telemetryClient.TrackRequest("Request", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true);
+        }
+
+        /// <summary>
+        /// Ensures all telemetry sinks get the similar (objects with same values filled in them) telemetry items.
+        /// </summary>
+        [TestMethod]
+        public void EnsureAllTelemetrySinkItemsAreSimilarAcrossSinks()
+        {
+            var configuration = new TelemetryConfiguration();
+            var commonChainBuilder = new TelemetryProcessorChainBuilder(configuration);
+            configuration.TelemetryProcessorChainBuilder = commonChainBuilder;
+
+            string jsonFromFirstChannel = null;
+            string jsonFromSecondChannel = null;
+
+            ITelemetryChannel firstTelemetryChannel = new StubTelemetryChannel
+            {
+                OnSend = telemetry =>
+                {
+                    jsonFromFirstChannel = JsonConvert.SerializeObject(telemetry);
+                }
+            };
+
+            ITelemetryChannel secondTelemetryChannel = new StubTelemetryChannel
+            {
+                OnSend = telemetry =>
+                {
+                    jsonFromSecondChannel = JsonConvert.SerializeObject(telemetry);
+                }
+            };
+
+            configuration.DefaultTelemetrySink.TelemetryChannel = firstTelemetryChannel;
+            configuration.TelemetrySinks.Add(new TelemetrySink(configuration, secondTelemetryChannel));
+
+            configuration.TelemetryProcessorChainBuilder.Build();
+
+            TelemetryClient telemetryClient = new TelemetryClient(configuration);
+
+            // Setup TelemetryContext in a way that it is filledup.
+            telemetryClient.Context.Operation.Id = "OpId";
+            telemetryClient.Context.Cloud.RoleName = "UnitTest";
+            telemetryClient.Context.Component.Version = "TestVersion";
+            telemetryClient.Context.Device.Id = "TestDeviceId";
+            telemetryClient.Context.Flags = 1234;
+            telemetryClient.Context.InstrumentationKey = Guid.Empty.ToString();
+            telemetryClient.Context.Location.Ip = "127.0.0.1";
+            telemetryClient.Context.Session.Id = "SessionId";
+            telemetryClient.Context.User.Id = "userId";
+
+            telemetryClient.TrackAvailability(
+                "Availability",
+                DateTimeOffset.Now,
+                TimeSpan.FromMilliseconds(200),
+                "Local",
+                true,
+                "Message",
+                new Dictionary<string, string>() { { "Key", "Value" } },
+                new Dictionary<string, double>() { { "Dimension1", 0.9865 } });
+            Assert.AreEqual(jsonFromFirstChannel, jsonFromSecondChannel);
+
+            telemetryClient.TrackDependency(
+                "HTTP",
+                "Target",
+                "Test",
+                "https://azure",
+                DateTimeOffset.Now,
+                TimeSpan.FromMilliseconds(100),
+                "200",
+                true);
+            Assert.AreEqual(jsonFromFirstChannel, jsonFromSecondChannel);
+
+            telemetryClient.TrackEvent(
+                "Event",
+                new Dictionary<string, string>() { { "Key", "Value" } },
+                new Dictionary<string, double>() { { "Dimension1", 0.9865 } });
+            Assert.AreEqual(jsonFromFirstChannel, jsonFromSecondChannel);
+
+            telemetryClient.TrackException(
+                new Exception("Test"),
+                new Dictionary<string, string>() { { "Key", "Value" } },
+                new Dictionary<string, double>() { { "Dimension1", 0.9865 } });
+            Assert.AreEqual(jsonFromFirstChannel, jsonFromSecondChannel);
+
+            telemetryClient.TrackMetric("Metric", 0.1, new Dictionary<string, string>() { { "Key", "Value" } });
+            Assert.AreEqual(jsonFromFirstChannel, jsonFromSecondChannel);
+
+            telemetryClient.TrackPageView("PageView");
+            Assert.AreEqual(jsonFromFirstChannel, jsonFromSecondChannel);
+
+            telemetryClient.TrackRequest(
+                new RequestTelemetry("GET https://azure.com", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true)
+                {
+                    HttpMethod = "GET"
+                });
+            Assert.AreEqual(jsonFromFirstChannel, jsonFromSecondChannel);
+
+            telemetryClient.TrackTrace(
+                "Message",
+                SeverityLevel.Critical,
+                new Dictionary<string, string>() { { "Key", "Value" } });
+            Assert.AreEqual(jsonFromFirstChannel, jsonFromSecondChannel);
         }
     }
 }
