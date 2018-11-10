@@ -68,7 +68,7 @@
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
             Assert.AreEqual(item.name, AI.ItemType.Message);
-            Assert.AreEqual(typeof(AI.MessageData).Name, item.data.baseType);
+            Assert.AreEqual(nameof(AI.MessageData), item.data.baseType);
             Assert.AreEqual(2, item.data.baseData.ver);
             Assert.AreEqual(expected.Message, item.data.baseData.message);
             AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
