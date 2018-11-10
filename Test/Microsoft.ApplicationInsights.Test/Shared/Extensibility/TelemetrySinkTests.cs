@@ -1,19 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Concurrent;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Shared.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
-    using TaskEx = System.Threading.Tasks.Task;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     [TestClass]
     public class TelemetrySinkTests
@@ -294,6 +288,51 @@
             {
                 Assert.Fail(ex.ToString());
             }
+        }
+
+        /// <summary>
+        /// Ensures that all the sinks get the full copy of the telemetry context.
+        /// This is a test to ensure DeepClone is copying over all the properties.
+        /// </summary>
+        [TestMethod]
+        public void EnsureAllSinksGetFullTelemetryContext()
+        {
+            var configuration = new TelemetryConfiguration();
+            var commonChainBuilder = new TelemetryProcessorChainBuilder(configuration);
+            configuration.TelemetryProcessorChainBuilder = commonChainBuilder;
+
+            ITelemetryChannel secondTelemetryChannel = new StubTelemetryChannel
+            {
+                OnSend = telemetry =>
+                {
+                    Assert.AreEqual("UnitTest", telemetry.Context.Cloud.RoleName);
+                    Assert.AreEqual("TestVersion", telemetry.Context.Component.Version);
+                    Assert.AreEqual("TestDeviceId", telemetry.Context.Device.Id);
+                    Assert.AreEqual(1234, telemetry.Context.Flags);
+                    Assert.AreEqual(Guid.Empty.ToString(), telemetry.Context.InstrumentationKey);
+                    Assert.AreEqual("127.0.0.1", telemetry.Context.Location.Ip);
+                    Assert.AreEqual("SessionId", telemetry.Context.Session.Id);
+                    Assert.AreEqual("userId", telemetry.Context.User.Id);
+                    Assert.AreEqual("OpId", telemetry.Context.Operation.Id);
+                }
+            };
+
+            configuration.TelemetrySinks.Add(new TelemetrySink(configuration, secondTelemetryChannel));
+            configuration.TelemetryProcessorChainBuilder.Build();
+
+            TelemetryClient telemetryClient = new TelemetryClient(configuration);
+
+            telemetryClient.Context.Operation.Id = "OpId";
+            telemetryClient.Context.Cloud.RoleName = "UnitTest";
+            telemetryClient.Context.Component.Version = "TestVersion";
+            telemetryClient.Context.Device.Id = "TestDeviceId";
+            telemetryClient.Context.Flags = 1234;
+            telemetryClient.Context.InstrumentationKey = Guid.Empty.ToString();
+            telemetryClient.Context.Location.Ip = "127.0.0.1";
+            telemetryClient.Context.Session.Id = "SessionId";
+            telemetryClient.Context.User.Id = "userId";
+
+            telemetryClient.TrackRequest("Request", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true);
         }
     }
 }
