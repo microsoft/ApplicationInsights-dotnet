@@ -124,7 +124,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
             Assert.AreEqual(item.name, AI.ItemType.Request);
 
-            Assert.AreEqual(typeof(AI.RequestData).Name, item.data.baseType);
+            Assert.AreEqual(nameof(AI.RequestData), item.data.baseType);
 
             Assert.AreEqual(2, item.data.baseData.ver);
             Assert.AreEqual(expected.Id, item.data.baseData.id);
@@ -161,7 +161,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
             Assert.AreEqual(item.name, AI.ItemType.Request);
 
-            Assert.AreEqual(typeof(AI.RequestData).Name, item.data.baseType);
+            Assert.AreEqual(nameof(AI.RequestData), item.data.baseType);
 
             Assert.AreEqual(2, item.data.baseData.ver);
             Assert.AreEqual(expected.Id, item.data.baseData.id);

@@ -62,7 +62,7 @@
             Assert.AreEqual(expected.Sequence, item.seq);
             Assert.AreEqual(expected.Context.InstrumentationKey, item.iKey);
             AssertEx.AreEqual(expected.Context.SanitizedTags.ToArray(), item.tags.ToArray());
-            Assert.AreEqual(typeof(AI.RemoteDependencyData).Name, item.data.baseType);
+            Assert.AreEqual(nameof(AI.RemoteDependencyData), item.data.baseType);
 
             Assert.AreEqual(expected.Id, item.data.baseData.id);
             Assert.AreEqual(expected.ResultCode, item.data.baseData.resultCode);

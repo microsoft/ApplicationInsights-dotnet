@@ -107,10 +107,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
         /// <returns>The machine name.</returns>
         public string GetMachineName()
         {
-            return LazyInitializer.EnsureInitialized(ref this.hostName, this.GetHostName);
+            return this.hostName ?? (this.hostName = GetHostName());
         }
 
-        private string GetHostName()
+        private static string GetHostName()
         {
             try
             {
