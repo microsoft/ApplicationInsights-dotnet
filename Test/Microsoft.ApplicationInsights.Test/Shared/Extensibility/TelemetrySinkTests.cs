@@ -295,5 +295,112 @@
                 Assert.Fail(ex.ToString());
             }
         }
+
+        /// <summary>
+        /// Ensure broadcast processor does not drop telemetry items.
+        /// </summary>
+        [TestMethod]
+        public void EnsureEventsAreNotDroppedByBroadcastProcessor()
+        {
+            var configuration = new TelemetryConfiguration();
+            var commonChainBuilder = new TelemetryProcessorChainBuilder(configuration);
+            configuration.TelemetryProcessorChainBuilder = commonChainBuilder;
+
+            ConcurrentBag<ITelemetry> itemsReceivedBySink1 = new ConcurrentBag<ITelemetry>();
+            ConcurrentBag<ITelemetry> itemsReceivedBySink2 = new ConcurrentBag<ITelemetry>();
+
+            ITelemetryChannel firstTelemetryChannel = new StubTelemetryChannel
+            {
+                OnSend = telemetry =>
+                {
+                    itemsReceivedBySink1.Add(telemetry);
+                }
+            };
+
+            ITelemetryChannel secondTelemetryChannel = new StubTelemetryChannel
+            {
+                OnSend = telemetry =>
+                {
+                    itemsReceivedBySink2.Add(telemetry);
+                }
+            };
+
+            configuration.DefaultTelemetrySink.TelemetryChannel = firstTelemetryChannel;
+            configuration.TelemetrySinks.Add(new TelemetrySink(configuration, secondTelemetryChannel));
+
+            configuration.TelemetryProcessorChainBuilder.Build();
+
+            TelemetryClient telemetryClient = new TelemetryClient(configuration);
+
+            // Setup TelemetryContext in a way that it is filledup.
+            telemetryClient.Context.Operation.Id = "OpId";
+            telemetryClient.Context.Cloud.RoleName = "UnitTest";
+            telemetryClient.Context.Component.Version = "TestVersion";
+            telemetryClient.Context.Device.Id = "TestDeviceId";
+            telemetryClient.Context.Flags = 1234;
+            telemetryClient.Context.InstrumentationKey = Guid.Empty.ToString();
+            telemetryClient.Context.Location.Ip = "127.0.0.1";
+            telemetryClient.Context.Session.Id = "SessionId";
+            telemetryClient.Context.User.Id = "userId";
+
+            Parallel.ForEach(
+                new int[100],
+                new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = 100
+                },
+                (value) =>
+                {
+                    telemetryClient.TrackAvailability(
+                        "Availability",
+                        DateTimeOffset.Now,
+                        TimeSpan.FromMilliseconds(200),
+                        "Local",
+                        true,
+                        "Message",
+                        new Dictionary<string, string>() { { "Key", "Value" } },
+                        new Dictionary<string, double>() { { "Dimension1", 0.9865 } });
+
+                    telemetryClient.TrackDependency(
+                        "HTTP",
+                        "Target",
+                        "Test",
+                        "https://azure",
+                        DateTimeOffset.Now,
+                        TimeSpan.FromMilliseconds(100),
+                        "200",
+                        true);
+
+                    telemetryClient.TrackEvent(
+                        "Event",
+                        new Dictionary<string, string>() { { "Key", "Value" } },
+                        new Dictionary<string, double>() { { "Dimension1", 0.9865 } });
+
+                    telemetryClient.TrackException(
+                        new Exception("Test"),
+                        new Dictionary<string, string>() { { "Key", "Value" } },
+                        new Dictionary<string, double>() { { "Dimension1", 0.9865 } });
+
+                    telemetryClient.TrackMetric("Metric", 0.1, new Dictionary<string, string>() { { "Key", "Value" } });
+
+                    telemetryClient.TrackPageView("PageView");
+
+                    telemetryClient.TrackRequest(
+                        new RequestTelemetry("GET https://azure.com", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true)
+                        {
+                            HttpMethod = "GET"
+                        });
+
+                    telemetryClient.TrackTrace(
+                        "Message",
+                        SeverityLevel.Critical,
+                        new Dictionary<string, string>() { { "Key", "Value" } });
+
+                });
+
+            Assert.AreEqual(itemsReceivedBySink1.Count, itemsReceivedBySink2.Count);
+            Assert.AreEqual(8 * 100, itemsReceivedBySink1.Count);
+            Assert.AreEqual(8 * 100, itemsReceivedBySink2.Count);
+        }
     }
 }
