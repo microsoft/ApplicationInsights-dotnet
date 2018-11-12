@@ -17,6 +17,9 @@
     [TestClass]
     public class RichPayloadEventSourceTest
     {
+        private const string requestTelemetryName = "Request";
+        private const string operationTelemetryName = "Operation";
+
         /// <summary>
         /// Tests tracking request telemetry.
         /// </summary>
@@ -278,8 +281,8 @@
                     // Expect exactly two events (start and stop)
                     var actualEvents = listener.Messages.Where(m => m.Keywords.HasFlag(RichPayloadEventSource.Keywords.Operations)).Take(2).ToArray();
 
-                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Start, actualEvents[0]);
-                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Stop, actualEvents[1]);
+                    VerifyOperationEvent(requestTelemetry, requestTelemetryName, EventOpcode.Start, actualEvents[0]);
+                    VerifyOperationEvent(requestTelemetry, requestTelemetryName, EventOpcode.Stop, actualEvents[1]);
                 }
             }
             else
@@ -316,10 +319,10 @@
                     // Expect exactly four events (start, start, stop, stop)
                     var actualEvents = listener.Messages.Where(m=>m.Keywords.HasFlag(RichPayloadEventSource.Keywords.Operations)).Take(4).ToArray();
 
-                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Start, actualEvents[0]);
-                    VerifyOperationEvent(nestedOperation, OperationTelemetry.TelemetryName, EventOpcode.Start, actualEvents[1]);
-                    VerifyOperationEvent(nestedOperation, OperationTelemetry.TelemetryName, EventOpcode.Stop, actualEvents[2]);
-                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Stop, actualEvents[3]);
+                    VerifyOperationEvent(requestTelemetry, requestTelemetryName, EventOpcode.Start, actualEvents[0]);
+                    VerifyOperationEvent(nestedOperation, operationTelemetryName, EventOpcode.Start, actualEvents[1]);
+                    VerifyOperationEvent(nestedOperation, operationTelemetryName, EventOpcode.Stop, actualEvents[2]);
+                    VerifyOperationEvent(requestTelemetry, requestTelemetryName, EventOpcode.Stop, actualEvents[3]);
                 }
             }
             else

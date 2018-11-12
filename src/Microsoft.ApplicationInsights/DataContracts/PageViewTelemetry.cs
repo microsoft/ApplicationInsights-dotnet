@@ -18,11 +18,8 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
     /// </remarks>
-    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
+    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
     {
-        internal const string TelemetryName = "PageView";
-
-        internal const string BaseType = nameof(PageViewData);
         internal readonly PageViewData Data;
         private readonly TelemetryContext context;
         private IExtension extension;
@@ -58,6 +55,12 @@
             this.context = source.context.DeepClone(this.Data.properties);
             this.extension = source.extension?.DeepClone();
         }
+
+        /// <inheritdoc />
+        public string TelemetryName => "PageView";
+
+        /// <inheritdoc />
+        public string BaseType => nameof(PageViewData);
 
         /// <summary>
         /// Gets or sets date and time when event was recorded.

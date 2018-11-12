@@ -11,12 +11,8 @@
     /// <summary>
     /// Telemetry type used to track page load performance.
     /// </summary>
-    public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IAiSerializableTelemetry
     {
-        internal const string TelemetryName = "PageViewPerformance";
-
-        internal const string BaseType = "PageViewPerformanceData";
-
         internal readonly PageViewPerfData Data;
         private IExtension extension;
         private double? samplingPercentage;
@@ -50,6 +46,12 @@
             this.Context = source.Context.DeepClone(this.Data.properties);
             this.extension = source.extension?.DeepClone();
         }
+
+        /// <inheritdoc />
+        public string TelemetryName => "PageViewPerformance";
+
+        /// <inheritdoc />
+        public string BaseType => "PageViewPerformanceData";
 
         /// <summary>
         /// Gets or sets date and time when event was recorded.

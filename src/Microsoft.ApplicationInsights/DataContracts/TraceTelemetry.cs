@@ -13,11 +13,8 @@
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
     /// </summary>
-    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IAiSerializableTelemetry
     {
-        internal const string TelemetryName = "Message";
-
-        internal const string BaseType = nameof(MessageData);
         internal readonly MessageData Data;
         private readonly TelemetryContext context;
         private IExtension extension;
@@ -62,6 +59,12 @@
             this.samplingPercentage = source.samplingPercentage;
             this.extension = source.extension?.DeepClone();
         }
+
+        /// <inheritdoc />
+        public string TelemetryName => "Message";
+
+        /// <inheritdoc />
+        public string BaseType => nameof(MessageData);
 
         /// <summary>
         /// Gets or sets date and time when event was recorded.

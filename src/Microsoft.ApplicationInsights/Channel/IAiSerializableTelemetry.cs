@@ -1,8 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel
 {
-    using System.Collections.Generic;
-
-    public interface IAiSerializableTelemetry
+    /// <summary>
+    /// This interface defines Telemetry objects that are intended to be serialized for the Application Insights Breeze ingestion endpoint.
+    /// </summary>
+    internal interface IAiSerializableTelemetry
     {
         /// <summary>
         /// Gets the name of the Telemetry. Used internally for serialization.
@@ -13,12 +14,5 @@
         /// Gets the name of the TelemetryType. Used internally for serialization.
         /// </summary>
         string BaseType { get; }
-
-        /// <summary>
-        /// Gets the internal collection of properties. Used internally for serialization.
-        /// </summary>
-        /// <returns></returns>
-        IDictionary<string, string> GetInternalDataProperties();
-
     }
 }

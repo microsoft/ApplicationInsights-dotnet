@@ -56,6 +56,21 @@
         }
 
         /// <summary>
+        /// Copies GlobalProperties to the target's Properties. 
+        /// This avoids accessing the public accessor GlobalProperties to avoid the penalty of ConcurrentDictionary instantiation.
+        /// </summary> 
+        internal static void CopyGlobalPropertiesIfExist(this ITelemetry telemetry)
+        {
+            if (telemetry.Context.GlobalPropertiesValue != null)
+            {
+                if (telemetry is ISupportProperties telemetryWithProperties)
+                {
+                    Utils.CopyDictionary(source: telemetry.Context.GlobalProperties, target: telemetryWithProperties.Properties);
+                }
+            }
+        }
+
+        /// <summary>
         /// Inspect if <see cref="ITelemetry"/> Properties contains 'DeveloperMode' and return it's boolean value.
         /// </summary>
         private static bool IsDeveloperMode(this ITelemetry telemetry)
@@ -87,5 +102,6 @@
 
             return instrumentationKey.Replace("-", string.Empty).ToLowerInvariant() + ".";
         }
+
     }
 }

@@ -154,28 +154,12 @@
             return new GZipStream(stream, CompressionMode.Compress);
         }
 
-        /// <summary>
-        /// Copies GlobalProperties to the target, avoiding accessing the public accessor GlobalProperties
-        /// unless needed, to avoid the penalty of ConcurrentDictionary instantiation. 
-        /// </summary> 
-        private static void CopyGlobalPropertiesIfExist(TelemetryContext context, IDictionary<string, string> target)
-        {
-            if (context.GlobalPropertiesValue != null)
-            {
-                Utils.CopyDictionary(context.GlobalProperties, target);
-            }
-        }
-
         private static void SerializeTelemetryItem(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter)
         {
             if (telemetryItem is IAiSerializableTelemetry serializeableTelemetry)
             {
-                jsonSerializationWriter.WriteStartObject();
-
-                CopyGlobalPropertiesIfExist(telemetryItem.Context, target: serializeableTelemetry.GetInternalDataProperties());
+                telemetryItem.CopyGlobalPropertiesIfExist();
                 SerializeHelper(telemetryItem, jsonSerializationWriter, telemetryName: serializeableTelemetry.TelemetryName, baseType: serializeableTelemetry.BaseType);
-
-                jsonSerializationWriter.WriteEndObject();
             }
             else
             {
@@ -186,6 +170,8 @@
 
         private static void SerializeHelper(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter, string baseType, string telemetryName)
         {
+            jsonSerializationWriter.WriteStartObject();
+
             jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(telemetryName));
             telemetryItem.WriteEnvelopeProperties(jsonSerializationWriter);
             jsonSerializationWriter.WriteStartObject("data");
@@ -195,6 +181,8 @@
             jsonSerializationWriter.WriteEndObject(); // baseData
             jsonSerializationWriter.WriteProperty("extension", telemetryItem.Extension);
             jsonSerializationWriter.WriteEndObject(); // data
+
+            jsonSerializationWriter.WriteEndObject();
         }
 
         /// <summary>
