@@ -45,10 +45,10 @@
         }
 
         /// <inheritdoc />
-        public string TelemetryName => Data.TelemetryName;
+        public string TelemetryName => this.Data.TelemetryName;
 
         /// <inheritdoc />
-        public string BaseType => Data.BaseType;
+        public string BaseType => this.Data.BaseType;
 
         /// <summary>
         /// Gets or sets the date and time the session state was recorded.

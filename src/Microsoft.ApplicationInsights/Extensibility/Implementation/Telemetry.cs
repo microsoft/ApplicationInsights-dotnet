@@ -102,6 +102,5 @@
 
             return instrumentationKey.Replace("-", string.Empty).ToLowerInvariant() + ".";
         }
-
     }
 }

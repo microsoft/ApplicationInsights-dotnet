@@ -22,7 +22,7 @@
     /// </remarks>
     public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling, IAiSerializableTelemetry
     {
-        internal const string TelemetryNameConst = "Request";
+        internal new const string TelemetryNameConst = "Request";
 
         private readonly TelemetryContext context;
         private RequestData dataPrivate;

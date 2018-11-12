@@ -324,14 +324,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             if (item is RequestTelemetry)
             {
                 this.EventSourceInternal.Write(
-                    OperationTelemetry.TelemetryName,
+                    OperationTelemetry.TelemetryNameConst,
                     new EventSourceOptions { Keywords = Keywords.Operations, Opcode = eventOpCode, Level = EventLevel.Informational },
                     payload);
             }
             else
             {
                 this.EventSourceInternal.Write(
-                    OperationTelemetry.TelemetryName,
+                    OperationTelemetry.TelemetryNameConst,
                     new EventSourceOptions { ActivityOptions = EventActivityOptions.Recursive, Keywords = Keywords.Operations, Opcode = eventOpCode, Level = EventLevel.Informational },
                     payload);
             }

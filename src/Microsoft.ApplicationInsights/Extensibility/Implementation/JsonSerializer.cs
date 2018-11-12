@@ -156,6 +156,8 @@
 
         private static void SerializeTelemetryItem(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter)
         {
+            jsonSerializationWriter.WriteStartObject();
+
             if (telemetryItem is IAiSerializableTelemetry serializeableTelemetry)
             {
                 telemetryItem.CopyGlobalPropertiesIfExist();
@@ -166,12 +168,12 @@
                 string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemetry type: {0}", telemetryItem.GetType());
                 CoreEventSource.Log.LogVerbose(msg);
             }
+
+            jsonSerializationWriter.WriteEndObject();
         }
 
         private static void SerializeHelper(ITelemetry telemetryItem, JsonSerializationWriter jsonSerializationWriter, string baseType, string telemetryName)
         {
-            jsonSerializationWriter.WriteStartObject();
-
             jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(telemetryName));
             telemetryItem.WriteEnvelopeProperties(jsonSerializationWriter);
             jsonSerializationWriter.WriteStartObject("data");
@@ -181,8 +183,6 @@
             jsonSerializationWriter.WriteEndObject(); // baseData
             jsonSerializationWriter.WriteProperty("extension", telemetryItem.Extension);
             jsonSerializationWriter.WriteEndObject(); // data
-
-            jsonSerializationWriter.WriteEndObject();
         }
 
         /// <summary>

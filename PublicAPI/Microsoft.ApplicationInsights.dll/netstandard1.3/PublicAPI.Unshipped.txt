@@ -1,1 +1,24 @@
 Microsoft.ApplicationInsights.TelemetryClient.InitializeInstrumentationKey(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
+
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.TelemetryName.get -> string
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.BaseType.get -> string
+Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.TelemetryName.get -> string
+Microsoft.ApplicationInsights.DataContracts.AvailabilityTelemetry.BaseType.get -> string
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.TelemetryName.get -> string
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.BaseType.get -> string
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.TelemetryName.get -> string
+Microsoft.ApplicationInsights.DataContracts.MetricTelemetry.BaseType.get -> string
+Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.TelemetryName.get -> string
+Microsoft.ApplicationInsights.DataContracts.PerformanceCounterTelemetry.BaseType.get -> string
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.TelemetryName.get -> string
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.BaseType.get -> string
+Microsoft.ApplicationInsights.DataContracts.SessionStateTelemetry.TelemetryName.get -> string
+Microsoft.ApplicationInsights.DataContracts.SessionStateTelemetry.BaseType.get -> string
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.TelemetryName.get -> string
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.BaseType.get -> string
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.TelemetryName.get -> string
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.BaseType.get -> string
+Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.TelemetryName.get -> string
+Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.BaseType.get -> string
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.TelemetryName.get -> string
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.BaseType.get -> string
