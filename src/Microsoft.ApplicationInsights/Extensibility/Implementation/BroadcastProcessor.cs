@@ -46,7 +46,13 @@
             //   2. Channels are reliable and process data asynchronously (ITelemetryChannel.Send() just queues up the telemetry and returns quickly).
             // As a result of these assumptions we can just let each sink process the data synchronously, with acceptable performance.
             // But it is also true that a misbehaving telemetry processor or channel in one of the sinks will affect other sinks.
-            for (int i = 0; i < this.childrenDispatchers.Length; i++)
+
+            // Why the reverse traversal? As a perf optimization we want to avoid unecessary .DeepClone(). So we send the
+            // original item to the very first TelemetrySink, however first telemetry sink can choose to modify this object.
+            // In this case all the telemetry sinks will get the modified object. Hence as a protection against this, we are going to
+            // send the object through the first telemetry sink at the very last. At this point the first telemetry sink is free to
+            // modify the object as we have no further use of it.
+            for (int i = this.childrenDispatchers.Length - 1; i >= 0; i--)
             {
                 this.childrenDispatchers[i].SendItemToSink(item);
             }
