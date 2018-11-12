@@ -20,7 +20,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     {
         internal new const string TelemetryName = "RemoteDependency";
 
-        internal readonly string BaseType = typeof(RemoteDependencyData).Name;
+        internal const string BaseType = nameof(RemoteDependencyData);
 
         internal readonly RemoteDependencyData InternalData;
         private readonly TelemetryContext context;

@@ -55,7 +55,7 @@
 
             ////if (false == typeof(IMetricTelemetryPipeline).IsAssignableFrom(pipelineType))
             ////{
-            ////    throw new ArgumentException($"{nameof(pipelineType)} must specify a type that implements the interface '{typeof(IMetricTelemetryPipeline).Name}'"
+            ////    throw new ArgumentException($"{nameof(pipelineType)} must specify a type that implements the interface '{nameof(IMetricTelemetryPipeline)}'"
             ////                              + $", but it specifies the type '{pipelineType.Name}' that does not implement that interface.");
             ////}
 
