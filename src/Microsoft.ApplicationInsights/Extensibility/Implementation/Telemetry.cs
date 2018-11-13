@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
 
@@ -67,6 +68,18 @@
                 {
                     Utils.CopyDictionary(source: telemetry.Context.GlobalProperties, target: telemetryWithProperties.Properties);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Copies GlobalProperties to the target, avoiding accessing the public accessor GlobalProperties
+        /// unless needed, to avoid the penality of ConcurrentDictionary instantiation.
+        /// </summary>
+        internal static void CopyGlobalPropertiesIfExist(this ITelemetry telemetry, IDictionary<string, string> target)
+        {
+            if (telemetry.Context.GlobalPropertiesValue != null)
+            {
+                Utils.CopyDictionary(telemetry.Context.GlobalProperties, target);
             }
         }
 
