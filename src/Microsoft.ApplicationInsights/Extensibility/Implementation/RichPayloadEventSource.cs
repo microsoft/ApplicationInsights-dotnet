@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
+                
                 var telemetryItem = item as RequestTelemetry;
                 // Sanitize, Copying global properties is to be done before calling .Data,
                 // as Data returns a singleton instance, which won't be updated with changes made
@@ -121,7 +121,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
+                
                 var telemetryItem = item as MetricTelemetry;
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
@@ -139,7 +139,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
+                
                 var telemetryItem = item as ExceptionTelemetry;
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
@@ -158,7 +158,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
+                
                 var telemetryItem = (item as PerformanceCounterTelemetry).Data;
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
@@ -177,7 +177,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
+                
                 var telemetryItem = item as PageViewTelemetry;
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
@@ -195,7 +195,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
+                
                 var telemetryItem = item as PageViewPerformanceTelemetry;
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
@@ -214,7 +214,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
+                
                 var telemetryItem = (item as SessionStateTelemetry).Data;
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
@@ -232,7 +232,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     return;
                 }
-
+                
                 var telemetryItem = item as AvailabilityTelemetry;
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
