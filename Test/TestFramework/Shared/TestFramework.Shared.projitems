@@ -32,5 +32,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryAction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryContextAction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TestEventListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UnknownTelemetry.cs" />
   </ItemGroup>
 </Project>
