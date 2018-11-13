@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.Globalization;
 
+    // This writer produces Dictionary<string, string> properties and Dictionary<string, double> metrics from the given ISerializableWithWriter implementation.
+    // Typical usage of this class is to flatten IExtension or unknown ITelemetry into the set of properties and metrics.
     internal class DictionarySerializationWriter : ISerializationWriter
     {   
         internal const string DefaultKey = "Key";
