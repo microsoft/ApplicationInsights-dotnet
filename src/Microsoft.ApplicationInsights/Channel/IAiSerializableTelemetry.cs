@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel
 {
     /// <summary>
-    /// This interface defines Telemetry objects that are intended to be serialized for the Application Insights Breeze ingestion endpoint.
+    /// This interface defines Telemetry objects that are intended to be serialized for the Application Insights Ingestion Endpoint.
     /// </summary>
     internal interface IAiSerializableTelemetry
     {
@@ -11,7 +11,7 @@
         string TelemetryName { get; }
 
         /// <summary>
-        /// Gets the name of the TelemetryType. Used internally for serialization.
+        /// Gets the name of the TelemetryType. Typically the datatype of the internal Data property. Used internally for serialization.
         /// </summary>
         string BaseType { get; }
     }
