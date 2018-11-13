@@ -15,6 +15,8 @@
     /// </summary>
     public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
     {
+        internal const string TelemetryName = "Exception";
+
         internal ExceptionInfo Data = null;
 
         private readonly bool isCreatedFromExceptionInfo = false;

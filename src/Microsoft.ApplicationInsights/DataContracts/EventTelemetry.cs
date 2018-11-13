@@ -15,6 +15,8 @@
     /// </summary>
     public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
     {
+        internal const string TelemetryName = "Event";
+
         internal readonly EventData Data;
         private readonly TelemetryContext context;
         private IExtension extension;
@@ -49,7 +51,7 @@
         }
 
         /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName => "Event";
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => nameof(EventData);

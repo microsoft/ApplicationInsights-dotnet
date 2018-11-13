@@ -15,6 +15,8 @@
     /// </summary>
     public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IAiSerializableTelemetry
     {
+        internal const string TelemetryName = "Message";
+
         internal readonly MessageData Data;
         private readonly TelemetryContext context;
         private IExtension extension;
@@ -61,7 +63,7 @@
         }
 
         /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName => "Message";
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => nameof(MessageData);

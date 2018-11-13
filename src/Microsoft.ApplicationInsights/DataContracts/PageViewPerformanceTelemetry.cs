@@ -13,6 +13,8 @@
     /// </summary>
     public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IAiSerializableTelemetry
     {
+        internal const string TelemetryName = "PageViewPerformance";
+
         internal readonly PageViewPerfData Data;
         private IExtension extension;
         private double? samplingPercentage;
@@ -48,7 +50,7 @@
         }
 
         /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName => "PageViewPerformance";
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => "PageViewPerformanceData";

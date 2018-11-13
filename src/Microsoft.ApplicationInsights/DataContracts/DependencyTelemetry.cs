@@ -18,6 +18,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// </summary>
     public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
     {
+        internal new const string TelemetryName = "RemoteDependency";
+
         internal readonly RemoteDependencyData InternalData;
         private readonly TelemetryContext context;
         private IExtension extension;
@@ -97,7 +99,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName => "RemoteDependency";
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => nameof(RemoteDependencyData);

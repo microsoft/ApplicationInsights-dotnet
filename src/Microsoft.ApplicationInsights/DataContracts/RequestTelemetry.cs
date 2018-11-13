@@ -22,7 +22,7 @@
     /// </remarks>
     public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling, IAiSerializableTelemetry
     {
-        internal new const string TelemetryNameConst = "Request";
+        internal new const string TelemetryName = "Request";
 
         private readonly TelemetryContext context;
         private RequestData dataPrivate;
@@ -86,7 +86,7 @@
         }
 
         /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName => TelemetryNameConst;
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => nameof(RequestData);

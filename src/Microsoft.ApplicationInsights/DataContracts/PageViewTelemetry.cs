@@ -20,6 +20,8 @@
     /// </remarks>
     public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
     {
+        internal const string TelemetryName = "PageView";
+
         internal readonly PageViewData Data;
         private readonly TelemetryContext context;
         private IExtension extension;
@@ -57,7 +59,7 @@
         }
 
         /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName => "PageView";
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => nameof(PageViewData);
