@@ -139,12 +139,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
             Assert.AreEqual(1, item.data.baseData.measurements.Count);
 
-            // Extension is serialized as a flat list into properties
-            var serializedExtension = new Dictionary<string, string>
-            {
-                { "myIntField", ((MyTestExtension)expected.Extension).myIntField.ToString()},
-                { "myStringField", ((MyTestExtension)expected.Extension).myStringField}
-            };
+            // IExtension is currently flattened into the properties by serialization
+            Utils.CopyDictionary(((MyTestExtension)expected.Extension).SerializeIntoDictionary(), expected.Properties);
 
             AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
