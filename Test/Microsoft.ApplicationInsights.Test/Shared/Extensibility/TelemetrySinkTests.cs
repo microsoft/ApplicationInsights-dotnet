@@ -426,7 +426,9 @@
             telemetryClient.TrackRequest(
                 new RequestTelemetry("GET https://azure.com", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200), "200", true)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete. Using for testing all cases.
                     HttpMethod = "GET"
+#pragma warning restore CS0618 // Type or member is obsolete. Using for testing all cases.
                 });
             Assert.AreEqual(jsonFromFirstChannel, jsonFromSecondChannel);
 
