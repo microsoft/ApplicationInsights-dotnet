@@ -40,209 +40,25 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// <param name="item">A collected Telemetry item.</param>
         public void Process(ITelemetry item)
         {
-            if (item is RequestTelemetry)
+            if (item is ISupportRichPayloadEventSource richPayloadTelemetryItem)
             {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Requests))
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, richPayloadTelemetryItem.EventSourceKeyword))
                 {
                     return;
                 }
-                
-                var telemetryItem = item as RequestTelemetry;
+
                 // Sanitize, Copying global properties is to be done before calling .Data,
                 // as Data returns a singleton instance, which won't be updated with changes made
                 // after .Data is called.
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                item.CopyGlobalPropertiesIfExist();
                 item.Sanitize();
                 this.WriteEvent(
                     RequestTelemetry.TelemetryName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.Requests);
-            }
-            else if (item is TraceTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Traces))
-                {
-                    return;
-                }
-
-                var telemetryItem = item as TraceTelemetry;
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    TraceTelemetry.TelemetryName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.Traces);
-            }
-            else if (item is EventTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Events))
-                {
-                    return;
-                }
-
-                var telemetryItem = item as EventTelemetry;
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    EventTelemetry.TelemetryName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.Events);
-            }
-            else if (item is DependencyTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Dependencies))
-                {
-                    return;
-                }
-
-                var telemetryItem = item as DependencyTelemetry;
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    DependencyTelemetry.TelemetryName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.InternalData,
-                    telemetryItem.Context.Flags,
-                    Keywords.Dependencies);
-            }
-            else if (item is MetricTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Metrics))
-                {
-                    return;
-                }
-                
-                var telemetryItem = item as MetricTelemetry;
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    MetricTelemetry.TelemetryName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.Metrics);
-            }
-            else if (item is ExceptionTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Exceptions))
-                {
-                    return;
-                }
-                
-                var telemetryItem = item as ExceptionTelemetry;
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    ExceptionTelemetry.TelemetryName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.Exceptions);
-            }
-#pragma warning disable 618
-            else if (item is PerformanceCounterTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Metrics))
-                {
-                    return;
-                }
-                
-                var telemetryItem = (item as PerformanceCounterTelemetry).Data;
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    MetricTelemetry.TelemetryName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.Metrics);
-            }
-#pragma warning restore 618
-            else if (item is PageViewTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.PageViews))
-                {
-                    return;
-                }
-                
-                var telemetryItem = item as PageViewTelemetry;
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    PageViewTelemetry.TelemetryName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.PageViews);
-            }
-            else if (item is PageViewPerformanceTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.PageViewPerformance))
-                {
-                    return;
-                }
-                
-                var telemetryItem = item as PageViewPerformanceTelemetry;
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    PageViewPerformanceTelemetry.TelemetryName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.PageViewPerformance);
-            }
-#pragma warning disable 618
-            else if (item is SessionStateTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Events))
-                {
-                    return;
-                }
-                
-                var telemetryItem = (item as SessionStateTelemetry).Data;
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    EventTelemetry.TelemetryName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.Events);
-            }
-            else if (item is AvailabilityTelemetry)
-            {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Availability))
-                {
-                    return;
-                }
-                
-                var telemetryItem = item as AvailabilityTelemetry;
-                CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
-                item.Sanitize();
-                this.WriteEvent(
-                    AvailabilityTelemetry.TelemetryName,
-                    telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.SanitizedTags,
-                    telemetryItem.Data,
-                    telemetryItem.Context.Flags,
-                    Keywords.Availability);
+                    item.Context.InstrumentationKey,
+                    item.Context.SanitizedTags,
+                    richPayloadTelemetryItem.Data,
+                    item.Context.Flags,
+                    richPayloadTelemetryItem.EventSourceKeyword);
             }
             else
             {
@@ -309,7 +125,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
         }
 
-        private void WriteEvent<T>(string eventName, string instrumentationKey, IDictionary<string, string> tags, T data, long flags, EventKeywords keywords)
+        private void WriteEvent(string eventName, string instrumentationKey, IDictionary<string, string> tags, object data, long flags, EventKeywords keywords)
         {
             this.EventSourceInternal.Write(
                 eventName,
