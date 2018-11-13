@@ -53,7 +53,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 item.CopyGlobalPropertiesIfExist();
                 item.Sanitize();
                 this.WriteEvent(
-                    eventName: RequestTelemetry.TelemetryName,
+                    eventName: richPayloadTelemetryItem.TelemetryName,
                     instrumentationKey: item.Context.InstrumentationKey,
                     tags: item.Context.SanitizedTags,
                     data: richPayloadTelemetryItem.Data,
