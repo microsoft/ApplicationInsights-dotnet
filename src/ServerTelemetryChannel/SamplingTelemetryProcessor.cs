@@ -161,7 +161,7 @@
             double samplingPercentage = this.SamplingPercentage;
 
             //// If sampling rate is 100% and we aren't distinguishing between evaluated/unevaluated items, there is nothing to do:
-            if (this.SampledNext.Equals(this.UnsampledNext) && samplingPercentage >= 100.0 - 1.0E-12)
+            if (samplingPercentage >= 100.0 - 1.0E-12 && this.SampledNext.Equals(this.UnsampledNext))
             {
                 this.SampledNext.Process(item);
                 return;

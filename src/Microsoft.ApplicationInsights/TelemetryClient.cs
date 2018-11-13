@@ -24,7 +24,6 @@
     {
         private const string VersionPrefix = "dotnet:";
         private readonly TelemetryConfiguration configuration;
-        private TelemetryContext context;
         private string sdkVersion;
 
         /// <summary>
@@ -60,9 +59,11 @@
         /// </summary>
         public TelemetryContext Context
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.context, () => new TelemetryContext()); }
-            internal set { this.context = value; }
+            get;
+            internal set;
         }
+
+        = new TelemetryContext();
 
         /// <summary>
         /// Gets or sets the default instrumentation key for all <see cref="ITelemetry"/> objects logged in this <see cref="TelemetryClient"/>.
@@ -532,7 +533,7 @@
             // Currently backend requires SDK version to comply "name: version"
             if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
             {
-                var version = LazyInitializer.EnsureInitialized(ref this.sdkVersion, () => SdkVersionUtils.GetSdkVersion(VersionPrefix));
+                var version = this.sdkVersion ?? (this.sdkVersion = SdkVersionUtils.GetSdkVersion(VersionPrefix));
                 telemetry.Context.Internal.SdkVersion = version;
             }
 

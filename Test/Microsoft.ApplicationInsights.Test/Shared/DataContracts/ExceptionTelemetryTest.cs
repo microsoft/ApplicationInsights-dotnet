@@ -386,7 +386,7 @@
         {
             ExceptionTelemetry original = CreateExceptionTelemetry();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(original);
-            Assert.AreEqual(typeof(AI.ExceptionData).Name, item.data.baseType);
+            Assert.AreEqual(nameof(AI.ExceptionData), item.data.baseType);
         }
 
         [TestMethod]
