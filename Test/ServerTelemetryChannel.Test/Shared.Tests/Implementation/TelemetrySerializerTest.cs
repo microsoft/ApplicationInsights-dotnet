@@ -86,7 +86,7 @@
             }
 
             [TestMethod]
-            public void EnqueuesTransmissionWithExpectedProperties()
+            public void EnqueuesTransmissionWithExpectedPropertiesForUnknownTelemetry()
             {
                 Transmission transmission = null;
                 var transmitter = new StubTransmitter();
@@ -94,14 +94,48 @@
                 {
                     transmission = t;
                 };
-        
+
                 var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
                 serializer.Serialize(new[] { new StubTelemetry() });
-        
+
                 Assert.AreEqual(serializer.EndpointAddress, transmission.EndpointAddress);
                 Assert.AreEqual("application/x-json-stream", transmission.ContentType);
                 Assert.AreEqual("gzip", transmission.ContentEncoding);
-                Assert.AreEqual("{}", Unzip(transmission.Content));
+                Assert.AreEqual("{" +
+                    "\"name\":\"Microsoft.ApplicationInsights.Event\"," +
+                    "\"time\":\"0001-01-01T00:00:00.0000000Z\"," +
+                    "\"data\":{\"baseType\":\"EventData\"," +
+                        "\"baseData\":{\"ver\":2," +
+                            "\"name\":\"ConvertedTelemetry\"}" +
+                        "}" +
+                    "}", Unzip(transmission.Content));
+            }
+
+            [TestMethod]
+            public void EnqueuesTransmissionWithExpectedPropertiesForKnownTelemetry()
+            {
+                Transmission transmission = null;
+                var transmitter = new StubTransmitter();
+                transmitter.OnEnqueue = t =>
+                {
+                    transmission = t;
+                };
+
+                var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
+                serializer.Serialize(new[] { new StubSerializableTelemetry() });
+
+                Assert.AreEqual(serializer.EndpointAddress, transmission.EndpointAddress);
+                Assert.AreEqual("application/x-json-stream", transmission.ContentType);
+                Assert.AreEqual("gzip", transmission.ContentEncoding);
+
+                var expectedContent = "{" +
+                    "\"name\":\"Microsoft.ApplicationInsights.StubTelemetryName\"," +
+                    "\"time\":\"0001-01-01T00:00:00.0000000Z\"," +
+                    "\"data\":{\"baseType\":\"StubTelemetryBaseType\"," +
+                        "\"baseData\":{}" +
+                        "}" +
+                    "}";
+                Assert.AreEqual(expectedContent, Unzip(transmission.Content));
             }
 
             [TestMethod]

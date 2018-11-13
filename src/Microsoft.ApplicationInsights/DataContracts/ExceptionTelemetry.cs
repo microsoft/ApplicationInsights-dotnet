@@ -13,10 +13,10 @@
     /// Telemetry type used to track exceptions.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=723596">Learn more</a>
     /// </summary>
-    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
+    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
     {
         internal const string TelemetryName = "Exception";
-        internal const string BaseType = nameof(ExceptionData);
+
         internal ExceptionInfo Data = null;
 
         private readonly bool isCreatedFromExceptionInfo = false;
@@ -93,6 +93,12 @@
             
             this.extension = source.extension?.DeepClone();
         }
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.BaseType => nameof(ExceptionData);
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
