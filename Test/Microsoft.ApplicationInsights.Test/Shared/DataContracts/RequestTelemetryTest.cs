@@ -33,9 +33,10 @@ namespace Microsoft.ApplicationInsights.DataContracts
             // Validate that fields are not null.       
             Assert.IsFalse(request.Source == null);
             Assert.IsFalse(request.Name == null);            
-            Assert.IsFalse(request.ResponseCode == null);
-            Assert.IsFalse(request.Success == null);                        
+            Assert.IsFalse(request.ResponseCode == null);                                   
             Assert.IsFalse(request.Duration == null);
+            Assert.IsTrue(request.Success == null);
+            Assert.IsTrue(request.Data.success);
         }
 
         [TestMethod]
