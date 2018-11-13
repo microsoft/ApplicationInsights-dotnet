@@ -72,8 +72,8 @@
         }
 
         /// <summary>
-        /// Copies GlobalProperties to the target, avoiding accessing the public accessor GlobalProperties
-        /// unless needed, to avoid the penality of ConcurrentDictionary instantiation.
+        /// Copies GlobalProperties to the target dictionary.
+        /// This avoids accessing the public accessor GlobalProperties to avoid the penalty of ConcurrentDictionary instantiation.
         /// </summary>
         internal static void CopyGlobalPropertiesIfExist(this ITelemetry telemetry, IDictionary<string, string> target)
         {
