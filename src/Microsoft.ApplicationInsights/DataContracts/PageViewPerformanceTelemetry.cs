@@ -48,10 +48,10 @@
         }
 
         /// <inheritdoc />
-        public string TelemetryName => "PageViewPerformance";
+        string IAiSerializableTelemetry.TelemetryName => "PageViewPerformance";
 
         /// <inheritdoc />
-        public string BaseType => "PageViewPerformanceData";
+        string IAiSerializableTelemetry.BaseType => "PageViewPerformanceData";
 
         /// <summary>
         /// Gets or sets date and time when event was recorded.

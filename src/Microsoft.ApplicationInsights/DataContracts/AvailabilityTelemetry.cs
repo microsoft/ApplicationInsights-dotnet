@@ -58,10 +58,10 @@
         }
 
         /// <inheritdoc />
-        public string TelemetryName => "Availability";
+        string IAiSerializableTelemetry.TelemetryName => "Availability";
 
         /// <inheritdoc />
-        public string BaseType => nameof(AvailabilityData);
+        string IAiSerializableTelemetry.BaseType => nameof(AvailabilityData);
 
         /// <summary>
         /// Gets or sets the test run id.

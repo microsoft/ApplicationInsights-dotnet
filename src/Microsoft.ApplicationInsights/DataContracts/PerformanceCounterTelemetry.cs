@@ -52,10 +52,10 @@
         }
 
         /// <inheritdoc />
-        public string TelemetryName => this.Data.TelemetryName;
+        string IAiSerializableTelemetry.TelemetryName => ((IAiSerializableTelemetry)this.Data).TelemetryName;
 
         /// <inheritdoc />
-        public string BaseType => this.Data.BaseType;
+        string IAiSerializableTelemetry.BaseType => ((IAiSerializableTelemetry)this.Data).BaseType;
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.

@@ -93,10 +93,10 @@
         }
 
         /// <inheritdoc />
-        public string TelemetryName => "Exception";
+        string IAiSerializableTelemetry.TelemetryName => "Exception";
 
         /// <inheritdoc />
-        public string BaseType => nameof(ExceptionData);
+        string IAiSerializableTelemetry.BaseType => nameof(ExceptionData);
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.

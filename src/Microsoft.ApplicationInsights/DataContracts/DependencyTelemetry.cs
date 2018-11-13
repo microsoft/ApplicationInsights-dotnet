@@ -97,10 +97,10 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <inheritdoc />
-        public string TelemetryName => "RemoteDependency";
+        string IAiSerializableTelemetry.TelemetryName => "RemoteDependency";
 
         /// <inheritdoc />
-        public string BaseType => nameof(RemoteDependencyData);
+        string IAiSerializableTelemetry.BaseType => nameof(RemoteDependencyData);
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.

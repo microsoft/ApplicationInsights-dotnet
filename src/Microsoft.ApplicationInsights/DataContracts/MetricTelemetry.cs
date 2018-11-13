@@ -134,10 +134,10 @@
         }
 
         /// <inheritdoc />
-        public string TelemetryName => "Metric";
+        string IAiSerializableTelemetry.TelemetryName => "Metric";
 
         /// <inheritdoc />
-        public string BaseType => nameof(MetricData);
+        string IAiSerializableTelemetry.BaseType => nameof(MetricData);
 
         /// <summary>
         /// Gets or sets date and time when event was recorded.
