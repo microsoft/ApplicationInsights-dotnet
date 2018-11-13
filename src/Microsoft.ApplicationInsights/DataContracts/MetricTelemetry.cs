@@ -13,11 +13,10 @@
     /// Telemetry type used to track metrics. Represents a sample set of values with a specified count, sum, max, min, and standard deviation.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackmetric">Learn more</a>
     /// </summary>
-    public sealed class MetricTelemetry : ITelemetry, ISupportProperties
+    public sealed class MetricTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
     {
         internal const string TelemetryName = "Metric";
 
-        internal const string BaseType = nameof(MetricData);
         internal readonly MetricData Data;
         internal readonly DataPoint Metric;
         private IExtension extension;
@@ -135,6 +134,12 @@
             this.Timestamp = source.Timestamp;
             this.extension = source.extension?.DeepClone();
         }
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.BaseType => nameof(MetricData);
 
         /// <summary>
         /// Gets or sets date and time when event was recorded.

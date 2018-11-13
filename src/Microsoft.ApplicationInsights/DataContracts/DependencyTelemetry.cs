@@ -16,11 +16,9 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// The class that represents information about the collected dependency.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=839889">Learn more.</a>
     /// </summary>
-    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
+    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
     {
         internal new const string TelemetryName = "RemoteDependency";
-
-        internal const string BaseType = nameof(RemoteDependencyData);
 
         internal readonly RemoteDependencyData InternalData;
         private readonly TelemetryContext context;
@@ -99,6 +97,12 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.successFieldSet = source.successFieldSet;
             this.extension = source.extension?.DeepClone();
         }
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.BaseType => nameof(RemoteDependencyData);
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
