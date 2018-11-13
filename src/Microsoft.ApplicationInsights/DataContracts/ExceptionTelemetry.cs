@@ -95,7 +95,7 @@
         }
 
         /// <inheritdoc />
-        string IAiSerializableTelemetry.TelemetryName => "Exception";
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => nameof(ExceptionData);
