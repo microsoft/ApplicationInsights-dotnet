@@ -100,6 +100,9 @@
             unknownTelemetryType.Timestamp = testTime;
             unknownTelemetryType.Context.GlobalProperties.Add("GlobalName", "GlobalValue");
             unknownTelemetryType.Context.User.Id = "testUser";
+            int intField = 42;
+            string stringField = "value";
+            unknownTelemetryType.Extension = new MyTestExtension { myIntField = intField, myStringField = stringField };
 
             byte[] bytes = JsonSerializer.Serialize(unknownTelemetryType, compress: false);
 
@@ -121,7 +124,29 @@
             Assert.IsTrue(data.data.baseData.Properties["success"] == unknownTelemetryType.Success.ToString());
             Assert.IsTrue(data.data.baseData.Properties["id"] == unknownTelemetryType.Id);
             Assert.IsTrue(data.data.baseData.Properties["responseCode"] == unknownTelemetryType.ResponseCode);
-            Assert.IsTrue(data.data.baseData.Properties.Count == 6);
+            Assert.IsTrue(data.data.baseData.Properties["myIntField"] == intField.ToString());
+            Assert.IsTrue(data.data.baseData.Properties["myStringField"] == stringField);
+            Assert.IsTrue(data.data.baseData.Properties.Count == 8);
+        }
+
+        [TestMethod]
+        public void SerializesKnownTelemetryWithExtension()
+        {
+            RequestTelemetry request = new RequestTelemetry();
+            int intField = 42;
+            string stringField = "value";
+            request.Extension = new MyTestExtension { myIntField = intField, myStringField = stringField };
+
+            byte[] bytes = JsonSerializer.Serialize(request, compress: false);
+
+            JsonReader reader = new JsonTextReader(new StringReader(Encoding.UTF8.GetString(bytes, 0, bytes.Length)));
+            reader.DateParseHandling = DateParseHandling.None;
+            JObject obj = JObject.Load(reader);
+
+            TelemetryItem<RequestTelemetry> data = obj.ToObject<TelemetryItem<RequestTelemetry>>();
+
+            Assert.IsTrue(data.data.baseData.Properties["myIntField"] == intField.ToString());
+            Assert.IsTrue(data.data.baseData.Properties["myStringField"] == stringField);            
         }
     }
 }
