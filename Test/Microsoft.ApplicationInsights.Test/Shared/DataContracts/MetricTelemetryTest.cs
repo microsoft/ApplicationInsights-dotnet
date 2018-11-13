@@ -103,7 +103,7 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MetricData>(expected);
 
-            Assert.AreEqual(typeof(AI.MetricData).Name, item.data.baseType);
+            Assert.AreEqual(nameof(AI.MetricData), item.data.baseType);
 
             Assert.AreEqual(2, item.data.baseData.ver);
             Assert.AreEqual(1, item.data.baseData.metrics.Count);
@@ -138,7 +138,7 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.MetricData>(expected);
 
-            Assert.AreEqual(typeof(AI.MetricData).Name, item.data.baseType);
+            Assert.AreEqual(nameof(AI.MetricData), item.data.baseType);
 
             Assert.AreEqual(2, item.data.baseData.ver);
             Assert.AreEqual(1, item.data.baseData.metrics.Count);

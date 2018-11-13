@@ -82,11 +82,11 @@
             {
                 var instance = new TTelemetry();
                 var actualValue = property.GetValue(instance, null);
-                Assert.IsNotNull(actualValue, typeof(TTelemetry).Name + "." + property.Name + " should not be null by default to prevent NullReferenceException.");
+                Assert.IsNotNull(actualValue, nameof(TTelemetry) + "." + property.Name + " should not be null by default to prevent NullReferenceException.");
             }
             catch (TargetInvocationException e)
             {
-                Assert.Fail(typeof(TTelemetry).Name + "." + property.Name + " should not be null by default to prevent NullReferenceException." + e.InnerException.Message);
+                Assert.Fail(nameof(TTelemetry) + "." + property.Name + " should not be null by default to prevent NullReferenceException." + e.InnerException.Message);
             }
         }
 
@@ -98,11 +98,11 @@
                 try
                 {
                     property.SetValue(instance, null, null);
-                    Assert.Fail(typeof(TTelemetry).Name + "." + property.Name + " setter should throw " + expectedException.Name + " when value is " + (invalidValue ?? "null") + ".");
+                    Assert.Fail(nameof(TTelemetry) + "." + property.Name + " setter should throw " + expectedException.Name + " when value is " + (invalidValue ?? "null") + ".");
                 }
                 catch (TargetInvocationException e)
                 {
-                    Assert.AreEqual(expectedException, e.InnerException.GetType(), typeof(TTelemetry).Name + "." + property.Name + " setter should throw " + expectedException.Name + " when value is " + (invalidValue ?? "null") + ".");
+                    Assert.AreEqual(expectedException, e.InnerException.GetType(), nameof(TTelemetry) + "." + property.Name + " setter should throw " + expectedException.Name + " when value is " + (invalidValue ?? "null") + ".");
                 }
             }
         }
@@ -113,7 +113,7 @@
             {
                 var instance = new TTelemetry();
                 property.SetValue(instance, value, null);
-                Assert.AreEqual(value, property.GetValue(instance, null), typeof(TTelemetry).Name + "." + property.Name + " setter should change property value.");
+                Assert.AreEqual(value, property.GetValue(instance, null), nameof(TTelemetry) + "." + property.Name + " setter should change property value.");
             }
         }
 
@@ -144,21 +144,21 @@
 
         private void ClassShouldBePublic()
         {
-            Assert.IsTrue(typeof(TTelemetry).GetTypeInfo().IsPublic, typeof(TTelemetry).Name + " should be public to allow instantiation in user code.");
+            Assert.IsTrue(typeof(TTelemetry).GetTypeInfo().IsPublic, nameof(TTelemetry) + " should be public to allow instantiation in user code.");
         }
 
         private void ClassShouldHaveDefaultConstructorToSupportTelemetryContext()
         {
             Assert.IsNotNull(
                 typeof(TTelemetry).GetTypeInfo().DeclaredConstructors.SingleOrDefault(c => c.GetParameters().Length == 0),
-                typeof(TTelemetry).Name + " should have default constructor to support TelemetryContext.");
+                nameof(TTelemetry) + " should have default constructor to support TelemetryContext.");
         }
 
         private void ClassShouldHaveParameterizedConstructorToSimplifyCreationOfValidTelemetryInstancesInUserCode()
         {
             Assert.IsTrue(
                 typeof(TTelemetry).GetTypeInfo().DeclaredConstructors.Any(c => c.GetParameters().Length > 0),
-                typeof(TTelemetry).Name + " should have a parameterized constructor to simplify creation of valid telemetry in user code.");
+                nameof(TTelemetry) + " should have a parameterized constructor to simplify creation of valid telemetry in user code.");
         }
 
         private void ClassShouldImplementISupportCustomPropertiesIfItDefinesPropertiesProperty()
