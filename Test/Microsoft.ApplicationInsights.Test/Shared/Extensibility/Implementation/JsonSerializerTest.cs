@@ -148,5 +148,23 @@
             Assert.IsTrue(data.data.baseData.Properties["myIntField"] == intField.ToString());
             Assert.IsTrue(data.data.baseData.Properties["myStringField"] == stringField);            
         }
+
+        [TestMethod]
+        public void SerializesKnownTelemetryWithNullExtension()
+        {
+            RequestTelemetry request = new RequestTelemetry();
+            request.Extension = null;
+
+            byte[] bytes = JsonSerializer.Serialize(request, compress: false);
+
+            JsonReader reader = new JsonTextReader(new StringReader(Encoding.UTF8.GetString(bytes, 0, bytes.Length)));
+            reader.DateParseHandling = DateParseHandling.None;
+            JObject obj = JObject.Load(reader);
+
+            TelemetryItem<RequestTelemetry> data = obj.ToObject<TelemetryItem<RequestTelemetry>>();
+
+            Assert.IsTrue(!data.data.baseData.Properties.ContainsKey("myIntField"));
+            Assert.IsTrue(!data.data.baseData.Properties.ContainsKey("myStringField"));
+        }
     }
 }
