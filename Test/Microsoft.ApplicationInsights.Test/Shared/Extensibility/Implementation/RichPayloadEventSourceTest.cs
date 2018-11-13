@@ -17,9 +17,6 @@
     [TestClass]
     public class RichPayloadEventSourceTest
     {
-        private const string requestTelemetryName = "Request";
-        private const string operationTelemetryName = "Operation";
-
         /// <summary>
         /// Tests tracking request telemetry.
         /// </summary>
@@ -155,7 +152,7 @@
         [TestMethod]
         public void RichPayloadEventSourceDependencySentTest()
         {
-            
+
             this.DoTracking(
                 RichPayloadEventSource.Keywords.Dependencies,
                 new DependencyTelemetry("Custom", "Target", "TestDependency", "TestCommand", DateTimeOffset.Now, TimeSpan.Zero, "200", true),
@@ -281,8 +278,8 @@
                     // Expect exactly two events (start and stop)
                     var actualEvents = listener.Messages.Where(m => m.Keywords.HasFlag(RichPayloadEventSource.Keywords.Operations)).Take(2).ToArray();
 
-                    VerifyOperationEvent(requestTelemetry, requestTelemetryName, EventOpcode.Start, actualEvents[0]);
-                    VerifyOperationEvent(requestTelemetry, requestTelemetryName, EventOpcode.Stop, actualEvents[1]);
+                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Start, actualEvents[0]);
+                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Stop, actualEvents[1]);
                 }
             }
             else
@@ -317,12 +314,12 @@
                     }
 
                     // Expect exactly four events (start, start, stop, stop)
-                    var actualEvents = listener.Messages.Where(m=>m.Keywords.HasFlag(RichPayloadEventSource.Keywords.Operations)).Take(4).ToArray();
+                    var actualEvents = listener.Messages.Where(m => m.Keywords.HasFlag(RichPayloadEventSource.Keywords.Operations)).Take(4).ToArray();
 
-                    VerifyOperationEvent(requestTelemetry, requestTelemetryName, EventOpcode.Start, actualEvents[0]);
-                    VerifyOperationEvent(nestedOperation, operationTelemetryName, EventOpcode.Start, actualEvents[1]);
-                    VerifyOperationEvent(nestedOperation, operationTelemetryName, EventOpcode.Stop, actualEvents[2]);
-                    VerifyOperationEvent(requestTelemetry, requestTelemetryName, EventOpcode.Stop, actualEvents[3]);
+                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Start, actualEvents[0]);
+                    VerifyOperationEvent(nestedOperation, OperationTelemetry.TelemetryName, EventOpcode.Start, actualEvents[1]);
+                    VerifyOperationEvent(nestedOperation, OperationTelemetry.TelemetryName, EventOpcode.Stop, actualEvents[2]);
+                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Stop, actualEvents[3]);
                 }
             }
             else
@@ -422,7 +419,7 @@
 #pragma warning disable CS0618 // Type or member is obsolete
                     item.Context.Properties.Add("property1", "value1");
 #pragma warning restore CS0618 // Type or member is obsolete
-                    (item as ISupportProperties)?.Properties.Add("itemprop1","itemvalue1");
+                    (item as ISupportProperties)?.Properties.Add("itemprop1", "itemvalue1");
                     item.Context.GlobalProperties.Add("globalproperty1", "globalvalue1");
                     item.Context.User.Id = "testUserId";
                     item.Context.Operation.Id = Guid.NewGuid().ToString();
@@ -464,7 +461,7 @@
                     Assert.AreEqual(2, keysFound);
                     Assert.IsNotNull(actualEvent.Payload[2]);
 
-                    if(item is ISupportProperties)
+                    if (item is ISupportProperties)
                     {
                         object[] properties = (object[])((IDictionary<string, object>)actualEvent.Payload[2])["properties"];
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -475,7 +472,7 @@
                             // 1. from item's ISupportProperties.Properties
                             // 2. from item context.GlobalProperties
                             // 3. from item context.Properties                            
-                            Assert.AreEqual(3, properties.Length);                                                        
+                            Assert.AreEqual(3, properties.Length);
                         }
                         else
                         {
@@ -508,7 +505,7 @@
 #pragma warning restore CS0618 // Type or member is obsolete
                 (item as ISupportProperties)?.Properties.Add("itemprop1", "itemvalue1");
                 item.Context.GlobalProperties.Add("globalproperty1", "globalvalue1");
-                
+
                 client.Track(item);
 
 #pragma warning disable CS0618 // Type or member is obsolete
