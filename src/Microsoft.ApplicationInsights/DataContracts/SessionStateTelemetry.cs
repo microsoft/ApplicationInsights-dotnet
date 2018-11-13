@@ -8,7 +8,7 @@
     /// Telemetry type used to track user sessions.
     /// </summary>
     [Obsolete("Session state events are no longer used. This telemetry item will be sent as EventTelemetry.")]
-    public sealed class SessionStateTelemetry : ITelemetry
+    public sealed class SessionStateTelemetry : ITelemetry, IAiSerializableTelemetry
     {
         internal readonly EventTelemetry Data;
 
@@ -43,6 +43,12 @@
         {
             this.Data = (EventTelemetry)source.Data.DeepClone();
         }
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.TelemetryName => ((IAiSerializableTelemetry)this.Data).TelemetryName;
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.BaseType => ((IAiSerializableTelemetry)this.Data).BaseType;
 
         /// <summary>
         /// Gets or sets the date and time the session state was recorded.

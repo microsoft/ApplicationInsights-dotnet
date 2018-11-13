@@ -20,11 +20,10 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
     /// </remarks>
-    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling
+    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling, IAiSerializableTelemetry
     {
         internal new const string TelemetryName = "Request";
 
-        internal const string BaseType = nameof(RequestData);
         private readonly TelemetryContext context;
         private RequestData dataPrivate;
         private bool successFieldSet;
@@ -84,6 +83,12 @@
             this.successFieldSet = source.successFieldSet;
             this.extension = source.extension?.DeepClone();
         }
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.BaseType => nameof(RequestData);
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
