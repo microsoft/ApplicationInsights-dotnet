@@ -53,12 +53,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 item.CopyGlobalPropertiesIfExist();
                 item.Sanitize();
                 this.WriteEvent(
-                    RequestTelemetry.TelemetryName,
-                    item.Context.InstrumentationKey,
-                    item.Context.SanitizedTags,
-                    richPayloadTelemetryItem.Data,
-                    item.Context.Flags,
-                    richPayloadTelemetryItem.EventSourceKeyword);
+                    eventName: RequestTelemetry.TelemetryName,
+                    instrumentationKey: item.Context.InstrumentationKey,
+                    tags: item.Context.SanitizedTags,
+                    data: richPayloadTelemetryItem.Data,
+                    flags: item.Context.Flags,
+                    keywords: richPayloadTelemetryItem.EventSourceKeyword);
             }
             else
             {
@@ -98,16 +98,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
-        private static void CopyGlobalPropertiesIfRequired(ITelemetry telemetry, IDictionary<string, string> itemProperties)
-        {
-            // This check avoids accessing the public accessor GlobalProperties
-            // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
-            if (telemetry.Context.GlobalPropertiesValue != null)
-            {
-                Utils.CopyDictionary(telemetry.Context.GlobalProperties, itemProperties);
-            }
         }
 
         /// <summary>

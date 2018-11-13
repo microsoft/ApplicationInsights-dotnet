@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Tracing;
     using System.Globalization;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
@@ -13,7 +14,7 @@
     /// Telemetry type used to track custom events.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
     /// </summary>
-    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry, ISupportRichPayloadEventSource
     {
         internal const string TelemetryName = "Event";
 
@@ -55,6 +56,12 @@
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => nameof(EventData);
+
+        EventKeywords ISupportRichPayloadEventSource.EventSourceKeyword => RichPayloadEventSource.Keywords.Events;
+
+        object ISupportRichPayloadEventSource.Data => this.Data;
+
+        string ISupportRichPayloadEventSource.TelemetryName => TelemetryName;
 
         /// <summary>
         /// Gets or sets date and time when event was recorded.

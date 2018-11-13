@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Tracing;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -13,7 +14,7 @@
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
     /// </summary>
-    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics, IAiSerializableTelemetry, ISupportRichPayloadEventSource
     {
         internal const string TelemetryName = "Availability";
 
@@ -64,6 +65,12 @@
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => nameof(AvailabilityData);
+
+        EventKeywords ISupportRichPayloadEventSource.EventSourceKeyword => RichPayloadEventSource.Keywords.Availability;
+
+        object ISupportRichPayloadEventSource.Data => this.Data;
+
+        string ISupportRichPayloadEventSource.TelemetryName => TelemetryName;
 
         /// <summary>
         /// Gets or sets the test run id.

@@ -4,6 +4,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Diagnostics.Tracing;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -16,7 +17,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// The class that represents information about the collected dependency.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=839889">Learn more.</a>
     /// </summary>
-    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry, ISupportRichPayloadEventSource
     {
         internal new const string TelemetryName = "RemoteDependency";
 
@@ -103,6 +104,12 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => nameof(RemoteDependencyData);
+
+        EventKeywords ISupportRichPayloadEventSource.EventSourceKeyword => RichPayloadEventSource.Keywords.Dependencies;
+
+        object ISupportRichPayloadEventSource.Data => this.Data;
+
+        string ISupportRichPayloadEventSource.TelemetryName => TelemetryName;
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
@@ -306,7 +313,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             get;
             set;
         }
-        
+
         /// <summary>
         /// Deeply clones a <see cref="DependencyTelemetry"/> object.
         /// </summary>

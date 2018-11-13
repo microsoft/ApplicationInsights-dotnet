@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Diagnostics.Tracing;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -13,7 +14,7 @@
     /// Telemetry type used to track metrics. Represents a sample set of values with a specified count, sum, max, min, and standard deviation.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackmetric">Learn more</a>
     /// </summary>
-    public sealed class MetricTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
+    public sealed class MetricTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry, ISupportRichPayloadEventSource
     {
         internal const string TelemetryName = "Metric";
 
@@ -140,6 +141,12 @@
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => nameof(MetricData);
+
+        EventKeywords ISupportRichPayloadEventSource.EventSourceKeyword => RichPayloadEventSource.Keywords.Metrics;
+
+        object ISupportRichPayloadEventSource.Data => this.Data;
+
+        string ISupportRichPayloadEventSource.TelemetryName => TelemetryName;
 
         /// <summary>
         /// Gets or sets date and time when event was recorded.

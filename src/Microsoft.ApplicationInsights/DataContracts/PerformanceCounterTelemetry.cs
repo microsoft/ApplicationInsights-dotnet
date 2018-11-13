@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-
+    using System.Diagnostics.Tracing;
     using Channel;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -10,7 +10,7 @@
     /// The class that represents information about performance counters.
     /// </summary>
     [Obsolete("Use MetricTelemetry instead.")]
-    public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
+    public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry, ISupportRichPayloadEventSource
     {
         internal readonly MetricTelemetry Data;        
         private string categoryName = string.Empty;
@@ -56,6 +56,12 @@
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => ((IAiSerializableTelemetry)this.Data).BaseType;
+
+        EventKeywords ISupportRichPayloadEventSource.EventSourceKeyword => ((ISupportRichPayloadEventSource)this.Data).EventSourceKeyword;
+
+        object ISupportRichPayloadEventSource.Data => ((ISupportRichPayloadEventSource)this.Data).Data;
+
+        string ISupportRichPayloadEventSource.TelemetryName => ((ISupportRichPayloadEventSource)this.Data).TelemetryName;
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.

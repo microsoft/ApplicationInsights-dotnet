@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Tracing;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -11,7 +12,7 @@
     /// <summary>
     /// Telemetry type used to track page load performance.
     /// </summary>
-    public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IAiSerializableTelemetry
+    public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IAiSerializableTelemetry, ISupportRichPayloadEventSource
     {
         internal const string TelemetryName = "PageViewPerformance";
 
@@ -54,6 +55,12 @@
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => "PageViewPerformanceData";
+
+        EventKeywords ISupportRichPayloadEventSource.EventSourceKeyword => RichPayloadEventSource.Keywords.PageViewPerformance;
+
+        object ISupportRichPayloadEventSource.Data => this.Data;
+
+        string ISupportRichPayloadEventSource.TelemetryName => TelemetryName;
 
         /// <summary>
         /// Gets or sets date and time when event was recorded.

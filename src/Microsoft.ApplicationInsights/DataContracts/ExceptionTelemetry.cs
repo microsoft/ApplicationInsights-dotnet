@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Tracing;
     using System.Globalization;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
@@ -13,7 +14,7 @@
     /// Telemetry type used to track exceptions.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=723596">Learn more</a>
     /// </summary>
-    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry, ISupportRichPayloadEventSource
     {
         internal const string TelemetryName = "Exception";
 
@@ -99,6 +100,12 @@
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => nameof(ExceptionData);
+
+        EventKeywords ISupportRichPayloadEventSource.EventSourceKeyword => RichPayloadEventSource.Keywords.Exceptions;
+
+        object ISupportRichPayloadEventSource.Data => this.Data;
+
+        string ISupportRichPayloadEventSource.TelemetryName => TelemetryName;
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.

@@ -91,6 +91,12 @@
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => nameof(RequestData);
 
+        EventKeywords ISupportRichPayloadEventSource.EventSourceKeyword => RichPayloadEventSource.Keywords.Requests;
+
+        object ISupportRichPayloadEventSource.Data => this.Data;
+
+        string ISupportRichPayloadEventSource.TelemetryName => TelemetryName;
+
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
@@ -287,12 +293,6 @@
                  this.dataPrivate = value;
             }
         }
-
-        EventKeywords ISupportRichPayloadEventSource.EventSourceKeyword => RichPayloadEventSource.Keywords.Requests;
-
-        object ISupportRichPayloadEventSource.Data => this.Data;
-
-        string ISupportRichPayloadEventSource.TelemetryName => TelemetryName;
 
         /// <summary>
         /// Deeply clones a <see cref="RequestTelemetry"/> object.

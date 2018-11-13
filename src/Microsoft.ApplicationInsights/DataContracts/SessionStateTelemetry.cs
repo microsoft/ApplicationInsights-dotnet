@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
+    using System.Diagnostics.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -8,7 +9,7 @@
     /// Telemetry type used to track user sessions.
     /// </summary>
     [Obsolete("Session state events are no longer used. This telemetry item will be sent as EventTelemetry.")]
-    public sealed class SessionStateTelemetry : ITelemetry, IAiSerializableTelemetry
+    public sealed class SessionStateTelemetry : ITelemetry, IAiSerializableTelemetry, ISupportRichPayloadEventSource
     {
         internal readonly EventTelemetry Data;
 
@@ -49,6 +50,12 @@
 
         /// <inheritdoc />
         string IAiSerializableTelemetry.BaseType => ((IAiSerializableTelemetry)this.Data).BaseType;
+
+        EventKeywords ISupportRichPayloadEventSource.EventSourceKeyword => ((ISupportRichPayloadEventSource)this.Data).EventSourceKeyword;
+
+        object ISupportRichPayloadEventSource.Data => ((ISupportRichPayloadEventSource)this.Data).Data;
+
+        string ISupportRichPayloadEventSource.TelemetryName => ((ISupportRichPayloadEventSource)this.Data).TelemetryName;
 
         /// <summary>
         /// Gets or sets the date and time the session state was recorded.
