@@ -50,12 +50,17 @@ namespace PerfTest
                 {
                     tasks[i] = new Task(() =>
                     {
-                        for (int j = 0; j < 5000; j++)
+                        for (int j = 0; j < 2500; j++)
                         {
                             var req = new RequestTelemetry("Http", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200),
                                 "200", (j % 2 == 0) ? true : false);
                             req.Url = new Uri("http://www.google.com");
+
+                            var dep = new DependencyTelemetry("Http", "MyTarget", "bing.com", "bing.com?url=true", DateTimeOffset.Now, TimeSpan.FromMilliseconds(200),
+                                "200", (j % 2 == 0) ? true : false);
+
                             telemetryClient.TrackRequest(req);
+                            telemetryClient.TrackDependency(dep);
                         }
                     }); 
                 }
