@@ -46,14 +46,15 @@
             //   2. Channels are reliable and process data asynchronously (ITelemetryChannel.Send() just queues up the telemetry and returns quickly).
             // As a result of these assumptions we can just let each sink process the data synchronously, with acceptable performance.
             // But it is also true that a misbehaving telemetry processor or channel in one of the sinks will affect other sinks.
-            for (int i = 0; i < this.childrenDispatchers.Length; i++)
-            {
-                this.childrenDispatchers[i].Offer(item);
-            }
 
-            for (int i = 0; i < this.childrenDispatchers.Length; i++)
+            // Why the reverse traversal? As a perf optimization we want to avoid unecessary .DeepClone(). So we send the
+            // original item to the very first TelemetrySink, however first telemetry sink can choose to modify this object.
+            // In this case all the telemetry sinks will get the modified object. Hence as a protection against this, we are going to
+            // send the object through the first telemetry sink at the very last. At this point the first telemetry sink is free to
+            // modify the object as we have no further use of it.
+            for (int i = this.childrenDispatchers.Length - 1; i >= 0; i--)
             {
-                this.childrenDispatchers[i].ProcessOffered();
+                this.childrenDispatchers[i].SendItemToSink(item);
             }
         }
 
@@ -65,31 +66,29 @@
         {
             private bool cloneBeforeDispatch;
             private TelemetrySink sink;
-            private ITelemetry nextTelemetryToProcess;
 
             public TelemetryDispatcher(TelemetrySink sink, bool cloneBeforeDispatch)
             {
                 Debug.Assert(sink != null, "Telemetry sink should not be null");
                 this.sink = sink;
                 this.cloneBeforeDispatch = cloneBeforeDispatch;
-                this.nextTelemetryToProcess = null;
             }
 
-            public void Offer(ITelemetry telemetry)
+            /// <summary>
+            /// Sends the item to sink. If cloning of item is required, clones the item before sending it to <see cref="TelemetrySink"/>
+            /// </summary>
+            /// <param name="telemetry">The telemetry item to send to sink.</param>
+            public void SendItemToSink(ITelemetry telemetry)
             {
-                this.nextTelemetryToProcess = this.cloneBeforeDispatch ? telemetry.DeepClone() : telemetry;
-            }
+                ITelemetry itemToSendToSink = this.cloneBeforeDispatch ? telemetry.DeepClone() : telemetry;
 
-            public void ProcessOffered()
-            {
-                if (this.nextTelemetryToProcess != null)
+                if (itemToSendToSink != null)
                 {
-                    this.sink.Process(this.nextTelemetryToProcess);
-                    this.nextTelemetryToProcess = null;
+                    this.sink.Process(itemToSendToSink);
                 }
                 else
                 {
-                    Debug.Fail("We should not be asked to process a telemetry item if none was offered");
+                    Debug.Fail("Telemetry item should not be null");
                 }
             }
         }
