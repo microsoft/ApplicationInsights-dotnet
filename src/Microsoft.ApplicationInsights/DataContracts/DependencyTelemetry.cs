@@ -108,22 +108,15 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.samplingPercentage = source.samplingPercentage;
             this.successFieldSet = source.successFieldSet;
             this.extension = source.extension?.DeepClone();
-
-            var other = new RemoteDependencyData();
-            other.ver = this.ver;
-            other.name = this.name;
-            other.id = this.id;
-            other.resultCode = this.resultCode;
-            other.duration = this.duration;
-            other.success = this.success;
-            other.data = this.data;
-            other.target = this.target;
-            other.type = this.type;
-            Debug.Assert(other.properties != null, "The constructor should have allocated properties dictionary");
-            Debug.Assert(other.measurements != null, "The constructor should have allocated the measurements dictionary");
-            Utils.CopyDictionary(this.properties, other.properties);
-            Utils.CopyDictionary(this.measurements, other.measurements);
-            return other;
+            this.Name = source.Name;
+            this.Id = source.Id;
+            this.ResultCode = source.ResultCode;
+            this.Duration = source.Duration;
+            this.Success = source.Success;
+            this.Data = source.Data;
+            this.Target = source.Target;
+            this.Type = source.Type;
+            // other.ver = this.ver;
         }
 
         /// <inheritdoc />
