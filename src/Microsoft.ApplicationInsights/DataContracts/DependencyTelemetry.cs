@@ -43,6 +43,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Duration = TimeSpan.Zero;
             this.Target = string.Empty;
             this.Type = string.Empty;
+            this.Data = string.Empty;
         }
 
         /// <summary>
@@ -401,6 +402,9 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <inheritdoc/>
         public override void SerializeData(ISerializationWriter serializationWriter)
         {
+            // To ensure that all changes to telemetry are reflected in serialization,
+            // the underlying field is set to null, which forces it to be re-created.
+            this.internalDataPrivate = null;
             serializationWriter.WriteProperty(this.InternalData);            
         }
 
