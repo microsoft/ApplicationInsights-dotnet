@@ -13,23 +13,5 @@
 #endif
     internal partial class RemoteDependencyData
     {
-        public RemoteDependencyData DeepClone()
-        {
-            var other = new RemoteDependencyData();
-            other.ver = this.ver;
-            other.name = this.name;
-            other.id = this.id;
-            other.resultCode = this.resultCode;
-            other.duration = this.duration;
-            other.success = this.success;
-            other.data = this.data;
-            other.target = this.target;
-            other.type = this.type;
-            Debug.Assert(other.properties != null, "The constructor should have allocated properties dictionary");
-            Debug.Assert(other.measurements != null, "The constructor should have allocated the measurements dictionary");
-            Utils.CopyDictionary(this.properties, other.properties);
-            Utils.CopyDictionary(this.measurements, other.measurements);
-            return other;
-        }
     }
 }

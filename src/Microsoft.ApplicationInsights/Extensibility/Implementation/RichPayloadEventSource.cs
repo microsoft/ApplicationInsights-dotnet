@@ -105,6 +105,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
 
                 var telemetryItem = item as DependencyTelemetry;
+                // Sanitize, Copying global properties is to be done before calling .InternalData,
+                // as InternalData returns a singleton instance, which won't be updated with changes made
+                // after .InternalData is called.
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(

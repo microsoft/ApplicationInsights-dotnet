@@ -5,6 +5,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Globalization;
+    using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -19,22 +20,30 @@ namespace Microsoft.ApplicationInsights.DataContracts
     public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
     {
         internal new const string TelemetryName = "RemoteDependency";
-
-        internal readonly RemoteDependencyData InternalData;
+        
         private readonly TelemetryContext context;
         private IExtension extension;
         private double? samplingPercentage;
         private bool successFieldSet;
+        private bool success = true;
+        private IDictionary<string, double> measurementsValue;
+        private RemoteDependencyData internalDataPrivate;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class.
         /// </summary>
         public DependencyTelemetry()
-        {
-            this.InternalData = new RemoteDependencyData();
+        {            
             this.successFieldSet = true;
-            this.context = new TelemetryContext(this.InternalData.properties);
+            this.context = new TelemetryContext();
             this.GenerateId();
+            this.Name = string.Empty;
+            this.Id = string.Empty;
+            this.ResultCode = string.Empty;
+            this.Duration = TimeSpan.Zero;
+            this.Target = string.Empty;
+            this.Type = string.Empty;
+            this.Data = string.Empty;
         }
 
         /// <summary>
@@ -88,14 +97,26 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         /// <param name="source">Source instance of <see cref="DependencyTelemetry"/> to clone from.</param>
         private DependencyTelemetry(DependencyTelemetry source)
-        {
-            this.InternalData = source.InternalData.DeepClone();
-            this.context = source.context.DeepClone(this.InternalData.properties);
+        {            
+            if (source.measurementsValue != null)
+            {
+                Utils.CopyDictionary(source.Metrics, this.Metrics);
+            }
+
+            this.context = source.context.DeepClone();
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
             this.successFieldSet = source.successFieldSet;
             this.extension = source.extension?.DeepClone();
+            this.Name = source.Name;
+            this.Id = source.Id;
+            this.ResultCode = source.ResultCode;
+            this.Duration = source.Duration;
+            this.Success = source.Success;
+            this.Data = source.Data;
+            this.Target = source.Target;
+            this.Type = source.Type;            
         }
 
         /// <inheritdoc />
@@ -136,8 +157,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override string Id
         {
-            get { return this.InternalData.id; }
-            set { this.InternalData.id = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -145,8 +166,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public string ResultCode
         {
-            get { return this.InternalData.resultCode; }
-            set { this.InternalData.resultCode = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -154,8 +175,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override string Name
         {
-            get { return this.InternalData.name; }
-            set { this.InternalData.name = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -164,8 +185,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         [Obsolete("Renamed to Data")]
         public string CommandName
         {
-            get { return this.InternalData.data; }
-            set { this.InternalData.data = value; }
+            get { return this.Data; }
+            set { this.Data = value; }
         }
 
         /// <summary>
@@ -173,8 +194,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public string Data
         {
-            get { return this.InternalData.data; }
-            set { this.InternalData.data = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -182,8 +203,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public string Target
         {
-            get { return this.InternalData.target; }
-            set { this.InternalData.target = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -201,8 +222,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public string Type
         {
-            get { return this.InternalData.type; }
-            set { this.InternalData.type = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -210,8 +231,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override TimeSpan Duration
         {
-            get { return this.InternalData.duration; }
-            set { this.InternalData.duration = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -223,7 +244,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             {
                 if (this.successFieldSet)
                 {
-                    return this.InternalData.success;
+                    return this.success;
                 }
 
                 return null;
@@ -233,12 +254,12 @@ namespace Microsoft.ApplicationInsights.DataContracts
             {
                 if (value != null && value.HasValue)
                 {
-                    this.InternalData.success = value.Value;
+                    this.success = value.Value;
                     this.successFieldSet = true;
                 }
                 else
                 {
-                    this.InternalData.success = true;
+                    this.success = true;
                     this.successFieldSet = false;
                 }
             }
@@ -252,12 +273,14 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {            
             get
             {
-                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.InternalData.properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
+#pragma warning disable CS0618 // Type or member is obsolete
+                if (!string.IsNullOrEmpty(this.MetricExtractorInfo) && !this.Context.Properties.ContainsKey(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key))
                 {
-                    this.InternalData.properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
+                    this.Context.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = this.MetricExtractorInfo;
                 }
 
-                return this.InternalData.properties;
+                return this.Context.Properties;
+#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 
@@ -267,7 +290,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override IDictionary<string, double> Metrics
         {
-            get { return this.InternalData.measurements; }
+            get { return LazyInitializer.EnsureInitialized(ref this.measurementsValue, () => new ConcurrentDictionary<string, double>()); }
         }
 
         /// <summary>
@@ -306,7 +329,42 @@ namespace Microsoft.ApplicationInsights.DataContracts
             get;
             set;
         }
-        
+
+        /// <summary>
+        /// Gets the InternalData associated with this Telemetry instance.
+        /// This is being served by a singleton instance, so this will
+        /// not pickup changes made to the telemetry after first call to this.
+        /// It is recommended to make all changes (including sanitization)
+        /// to this telemetry before calling InternalData.
+        /// </summary>
+        internal RemoteDependencyData InternalData
+        {
+            get
+            {
+                return LazyInitializer.EnsureInitialized(ref this.internalDataPrivate,
+                    () =>
+                    {
+                        var req = new RemoteDependencyData();
+                        req.duration = this.Duration;
+                        req.id = this.Id;
+                        req.measurements = this.measurementsValue;
+                        req.name = this.Name;
+                        req.properties = this.context.PropertiesValue;
+                        req.resultCode = this.ResultCode;
+                        req.target = this.Target;
+                        req.success = this.success;
+                        req.data = this.Data;
+                        req.type = this.Type;
+                        return req;
+                    });
+            }
+
+            private set
+            {
+                this.internalDataPrivate = value;
+            }
+        }
+
         /// <summary>
         /// Deeply clones a <see cref="DependencyTelemetry"/> object.
         /// </summary>
@@ -344,6 +402,9 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <inheritdoc/>
         public override void SerializeData(ISerializationWriter serializationWriter)
         {
+            // To ensure that all changes to telemetry are reflected in serialization,
+            // the underlying field is set to null, which forces it to be re-created.
+            this.internalDataPrivate = null;
             serializationWriter.WriteProperty(this.InternalData);            
         }
 
@@ -359,6 +420,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Type = this.Type.SanitizeDependencyType();
             this.Data = this.Data.SanitizeData();
             this.Properties.SanitizeProperties();
+            this.Metrics.SanitizeMeasurements();
         }
     }
 }

@@ -414,7 +414,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
                 {                    
                     var telemetryItem = item as DependencyTelemetry;
-                    CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
+                    if (item.Context.GlobalPropertiesValue != null)
+                    {
+                        Utils.CopyDictionary(item.Context.GlobalProperties, telemetryItem.Properties);
+                    }
+
                     item.Sanitize();
                     var data = telemetryItem.InternalData;
                     var extendedData = new
