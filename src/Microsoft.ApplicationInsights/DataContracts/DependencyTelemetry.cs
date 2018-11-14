@@ -115,8 +115,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Success = source.Success;
             this.Data = source.Data;
             this.Target = source.Target;
-            this.Type = source.Type;
-            // other.ver = this.ver;
+            this.Type = source.Type;            
         }
 
         /// <inheritdoc />
@@ -354,6 +353,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
                         req.target = this.Target;
                         req.success = this.success;
                         req.data = this.Data;
+                        req.type = this.Type;
                         return req;
                     });
             }
