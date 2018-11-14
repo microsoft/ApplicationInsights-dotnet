@@ -420,6 +420,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Type = this.Type.SanitizeDependencyType();
             this.Data = this.Data.SanitizeData();
             this.Properties.SanitizeProperties();
+            this.Metrics.SanitizeMeasurements();
         }
     }
 }
