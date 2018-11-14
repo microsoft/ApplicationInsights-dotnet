@@ -84,6 +84,9 @@
             AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
+        [TestMethod]
+        /// Test validates that if Serialize is called multiple times, and telemetry is modified
+        /// in between, serialize always gives the latest state.
         public void RemoteDependencySerializationPicksUpCorrectState()
         {
             DependencyTelemetry expected = this.CreateRemoteDependencyTelemetry();
