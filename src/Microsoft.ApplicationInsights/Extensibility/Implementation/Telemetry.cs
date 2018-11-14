@@ -83,6 +83,32 @@
             }
         }
 
+        internal static void FlattenIExtensionIfExists(this ITelemetry telemetry)
+        {
+            if (telemetry.Extension != null)
+            {
+                ISupportProperties itemWithProperties = telemetry as ISupportProperties;
+                ISupportMetrics itemWithMetrics = telemetry as ISupportMetrics;
+
+                // Do not serialize if data cannot be stored on the item
+                if (itemWithProperties != null || itemWithMetrics != null)
+                {
+                    DictionarySerializationWriter extensionSerializationWriter = new DictionarySerializationWriter();
+                    telemetry.Extension.Serialize(extensionSerializationWriter);
+
+                    if (itemWithProperties != null)
+                    {
+                        Utils.CopyDictionary(extensionSerializationWriter.AccumulatedDictionary, itemWithProperties.Properties);
+                    }
+
+                    if (itemWithMetrics != null)
+                    {
+                        Utils.CopyDictionary(extensionSerializationWriter.AccumulatedMeasurements, itemWithMetrics.Metrics);
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Inspect if <see cref="ITelemetry"/> Properties contains 'DeveloperMode' and return it's boolean value.
         /// </summary>

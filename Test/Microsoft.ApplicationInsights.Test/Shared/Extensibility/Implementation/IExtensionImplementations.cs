@@ -23,6 +23,14 @@
             serializationWriter.WriteProperty("myIntField", myIntField);
             serializationWriter.WriteProperty("myStringField", myStringField);
         }
+
+        public Dictionary<string, string> SerializeIntoDictionary()
+        {
+            return new Dictionary<string, string>{
+                { "myIntField", this.myIntField.ToString()},
+                { "myStringField", this.myStringField}
+            };
+        }
     }
 
     public class ComplexExtension : ISerializableWithWriter

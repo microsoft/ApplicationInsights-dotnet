@@ -163,6 +163,7 @@
             if (telemetryItem is IAiSerializableTelemetry serializeableTelemetry)
             {
                 telemetryItem.CopyGlobalPropertiesIfExist();
+                telemetryItem.FlattenIExtensionIfExists();
                 SerializeHelper(telemetryItem, jsonSerializationWriter, telemetryName: serializeableTelemetry.TelemetryName, baseType: serializeableTelemetry.BaseType);
             }
             else
@@ -182,7 +183,6 @@
             jsonSerializationWriter.WriteStartObject("baseData");
             telemetryItem.SerializeData(jsonSerializationWriter);
             jsonSerializationWriter.WriteEndObject(); // baseData
-            jsonSerializationWriter.WriteProperty("extension", telemetryItem.Extension);
             jsonSerializationWriter.WriteEndObject(); // data
         }
 
@@ -191,6 +191,15 @@
             DictionarySerializationWriter dictionarySerializationWriter = new DictionarySerializationWriter();
             telemetryItem.SerializeData(dictionarySerializationWriter); // Properties and Measurements are covered as part of Data if present
             telemetryItem.CopyGlobalPropertiesIfExist(dictionarySerializationWriter.AccumulatedDictionary);
+
+            if (telemetryItem.Extension != null)
+            {
+                DictionarySerializationWriter extensionSerializationWriter = new DictionarySerializationWriter();
+                telemetryItem.Extension.Serialize(extensionSerializationWriter); // Extension is supposed to be flattened as well
+
+                Utils.CopyDictionary(extensionSerializationWriter.AccumulatedDictionary, dictionarySerializationWriter.AccumulatedDictionary);
+                Utils.CopyDictionary(extensionSerializationWriter.AccumulatedMeasurements, dictionarySerializationWriter.AccumulatedMeasurements);
+            }
 
             jsonSerializationWriter.WriteProperty("name", telemetryItem.WriteTelemetryName(EventTelemetry.TelemetryName));
             telemetryItem.WriteEnvelopeProperties(jsonSerializationWriter); // No need to copy Context - it's serialized here from the original item
@@ -205,8 +214,7 @@
             jsonSerializationWriter.WriteProperty("properties", dictionarySerializationWriter.AccumulatedDictionary);
             jsonSerializationWriter.WriteProperty("measurements", dictionarySerializationWriter.AccumulatedMeasurements);
 
-            jsonSerializationWriter.WriteEndObject(); // baseData
-            jsonSerializationWriter.WriteProperty("extension", telemetryItem.Extension);
+            jsonSerializationWriter.WriteEndObject(); // baseData            
             jsonSerializationWriter.WriteEndObject(); // data
         }
 

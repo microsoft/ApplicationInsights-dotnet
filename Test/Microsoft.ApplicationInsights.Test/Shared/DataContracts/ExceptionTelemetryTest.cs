@@ -482,6 +482,9 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
 
+            // IExtension is currently flattened into the properties by serialization
+            Utils.CopyDictionary(((MyTestExtension)expected.Extension).SerializeIntoDictionary(), expected.Properties);
+
             AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
@@ -682,7 +685,8 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
 
             // Items added to both Exception.Properties, and Exception.Context.Properties are serialized to properties.
-            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            // IExtension object in CreateExceptionTelemetry adds 2 more properties: myIntField and myStringField
+            Assert.AreEqual(4, item.data.baseData.properties.Count);            
             Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
             Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestPropertyGlobal"));
         }
@@ -710,7 +714,7 @@
             output.Context.GlobalProperties.Add("TestPropertyGlobal", "contextpropvalue");
             output.Context.InstrumentationKey = "required";
             output.Properties.Add("TestProperty", "TestPropertyValue");
-            output.Extension = new MyTestExtension();
+            output.Extension = new MyTestExtension() { myIntField = 42, myStringField = "value" };
             return output;
         }
     }

@@ -47,7 +47,8 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.AvailabilityData>(expected);
 
             // Items added to both dependency.Properties, and dependency.Context.GlobalProperties are serialized to properties.
-            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            // IExtension object in CreateDependencyTelemetry adds 2 more properties: myIntField and myStringField
+            Assert.AreEqual(4, item.data.baseData.properties.Count);            
             Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestPropertyGlobal"));
             Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
         }
@@ -69,8 +70,11 @@
             Assert.AreEqual(expected.Name, item.data.baseData.name);
             Assert.AreEqual(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
             Assert.AreEqual(expected.Type, item.data.baseData.type);
-
             Assert.AreEqual(expected.Success, item.data.baseData.success);
+
+            // IExtension is currently flattened into the properties by serialization
+            Utils.CopyDictionary(((MyTestExtension)expected.Extension).SerializeIntoDictionary(), expected.Properties);
+
             AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
@@ -282,7 +286,7 @@
             item.Context.InstrumentationKey = Guid.NewGuid().ToString();
             item.Properties.Add("TestProperty", "TestValue");
             item.Context.GlobalProperties.Add("TestPropertyGlobal", "TestValue");
-            item.Extension = new MyTestExtension();
+            item.Extension = new MyTestExtension() { myIntField = 42, myStringField = "value" };
             return item;
         }
 
