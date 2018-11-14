@@ -13,6 +13,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 - [Fixed race condition in BroadcastProcessor which caused it to drop TelemetryItems](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/995)
 - [Custom Telemetry Item that implements ITelemetry is no longer dropped, bur rather serialized as EventTelemetry and handled by the channels accordingly](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/988)
 - [Improved Perf of ITelemetry JsonSerialization](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/997)
+- [IExtension is now serialized into the Properties and Metrics](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1000)
 
 ## Version 2.8.1
 [Patch release addressing perf regression.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/952)
