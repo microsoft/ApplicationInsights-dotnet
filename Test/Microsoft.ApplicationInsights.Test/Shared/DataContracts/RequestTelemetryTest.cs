@@ -33,9 +33,10 @@ namespace Microsoft.ApplicationInsights.DataContracts
             // Validate that fields are not null.       
             Assert.IsFalse(request.Source == null);
             Assert.IsFalse(request.Name == null);            
-            Assert.IsFalse(request.ResponseCode == null);
-            Assert.IsFalse(request.Success == null);                        
+            Assert.IsFalse(request.ResponseCode == null);                                   
             Assert.IsFalse(request.Duration == null);
+            Assert.IsTrue(request.Success == null);
+            Assert.IsTrue(request.Data.success);
         }
 
         [TestMethod]
@@ -107,7 +108,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RequestData>(expected);
 
             // Items added to both request.Properties, and request.Context.GlobalProperties are serialized to properties.
-            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            // IExtension object in CreateTestTelemetry adds 2 more properties: myIntField and myStringField
+            Assert.AreEqual(4, item.data.baseData.properties.Count);
             Assert.IsTrue(item.data.baseData.properties.ContainsKey("contextpropkey"));
             Assert.IsTrue(item.data.baseData.properties.ContainsKey("itempropkey"));
         }
@@ -136,6 +138,10 @@ namespace Microsoft.ApplicationInsights.DataContracts
             Assert.AreEqual(expected.Url.ToString(), item.data.baseData.url.ToString());
 
             Assert.AreEqual(1, item.data.baseData.measurements.Count);
+
+            // IExtension is currently flattened into the properties by serialization
+            Utils.CopyDictionary(((MyTestExtension)expected.Extension).SerializeIntoDictionary(), expected.Properties);
+
             AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
@@ -173,6 +179,10 @@ namespace Microsoft.ApplicationInsights.DataContracts
             Assert.AreEqual(expected.Url.ToString(), item.data.baseData.url.ToString());
 
             Assert.AreEqual(1, item.data.baseData.measurements.Count);
+
+            // IExtension is currently flattened into the properties by serialization
+            Utils.CopyDictionary(((MyTestExtension)expected.Extension).SerializeIntoDictionary(), expected.Properties);
+
             AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
@@ -329,7 +339,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             request.Metrics.Add("Metric1", 30);
             request.Properties.Add("itempropkey", "::1");
             request.Context.GlobalProperties.Add("contextpropkey", "contextpropvalue");
-            request.Extension = new MyTestExtension();
+            request.Extension = new MyTestExtension() { myIntField = 42, myStringField = "value" };
             return request;
         }
     }

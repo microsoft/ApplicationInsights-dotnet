@@ -20,17 +20,16 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
     /// </remarks>
-    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling
+    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling, IAiSerializableTelemetry
     {
         internal new const string TelemetryName = "Request";
 
-        internal const string BaseType = nameof(RequestData);
         private readonly TelemetryContext context;
         private RequestData dataPrivate;
         private bool successFieldSet;
         private IExtension extension;
         private double? samplingPercentage;
-        private bool? success;
+        private bool success = true;
         private IDictionary<string, double> measurementsValue;
 
         /// <summary>
@@ -42,8 +41,7 @@
             this.GenerateId();
             this.Source = string.Empty;
             this.Name = string.Empty;
-            this.ResponseCode = string.Empty;
-            this.Success = true;
+            this.ResponseCode = string.Empty;            
             this.Duration = System.TimeSpan.Zero;
         }
 
@@ -85,6 +83,12 @@
             this.successFieldSet = source.successFieldSet;
             this.extension = source.extension?.DeepClone();
         }
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.BaseType => nameof(RequestData);
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
@@ -271,11 +275,7 @@
                              req.properties = this.context.PropertiesValue;
                              req.responseCode = this.ResponseCode;
                              req.source = this.Source;
-                             if (this.Success != null && this.Success.HasValue)
-                             {
-                                 req.success = this.Success.Value;
-                             }
-
+                             req.success = this.success;
                              req.url = this.Url?.ToString();
                              return req;
                          });

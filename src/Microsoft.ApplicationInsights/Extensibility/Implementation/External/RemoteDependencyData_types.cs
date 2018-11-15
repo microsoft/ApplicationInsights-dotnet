@@ -105,7 +105,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             
             target = "";
             type = "";
-            properties = new ConcurrentDictionary<string, string>();
+            
             
         }
     }
