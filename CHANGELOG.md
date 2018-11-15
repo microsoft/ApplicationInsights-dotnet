@@ -17,7 +17,6 @@ Perf Improvements.
 - [RequestTelemetry modified to lazily instantiate ConcurrentDictionary for Properties](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/969)
 - [RequestTelemetry modified to not service public fields with data class to avoid converting between types.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/965)
 - [Dependency Telemetry modified to lazily instantiate ConcurrentDictionary for Properties](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1002)
-- [Dependency Telemetry modified to lazily instantiate ConcurrentDictionary for Properties](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1002)
 - [Avoid string allocations in Metrics hot path](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1004)
 
 ## Version 2.8.1
