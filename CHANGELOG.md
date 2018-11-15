@@ -1,5 +1,8 @@
 # Changelog 
 
+### Version 2.9
+- Update log4net reference to [2.0.7](https://www.nuget.org/packages/log4net/2.0.7)
+
 ### Version 2.8.1
 - Update BaseSdk reference to 2.8.1. See [release notes](https://github.com/Microsoft/ApplicationInsights-dotnet/releases) for more information.
 
