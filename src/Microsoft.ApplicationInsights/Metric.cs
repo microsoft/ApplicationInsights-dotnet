@@ -210,10 +210,10 @@
         /// <c>False</c> if the indicated series could not be retrieved or created because a dimension cap or a metric series cap was reached.</returns>
         /// <exception cref="ArgumentException">If the number of specified dimension names does not match the dimensionality of this <c>Metric</c>.</exception>
         public bool TryGetDataSeries(
-                                out MetricSeries series, 
-                                string dimension1Value, 
-                                string dimension2Value, 
-                                string dimension3Value, 
+                                out MetricSeries series,
+                                string dimension1Value,
+                                string dimension2Value,
+                                string dimension3Value,
                                 string dimension4Value,
                                 string dimension5Value)
         {
@@ -276,11 +276,11 @@
             return this.TryGetDataSeries(
                             out series,
                             true,
-                            dimension1Value, 
-                            dimension2Value, 
-                            dimension3Value, 
-                            dimension4Value, 
-                            dimension5Value, 
+                            dimension1Value,
+                            dimension2Value,
+                            dimension3Value,
+                            dimension4Value,
+                            dimension5Value,
                             dimension6Value,
                             dimension7Value);
         }
@@ -447,7 +447,21 @@
 
             for (int d = 0; d < dimensionValues.Length; d++)
             {
-                Util.ValidateNotNullOrWhitespace(dimensionValues[d], Invariant($"{nameof(dimensionValues)}[{d}]"));
+                var value = dimensionValues[d];
+                if (value == null)
+                {
+                    throw new ArgumentNullException(Invariant($"{nameof(dimensionValues)}[{d}]"));
+                }
+
+                if (value.Length == 0)
+                {
+                    throw new ArgumentException(Invariant($"{nameof(dimensionValues)}[{d}]") + " may not be empty.");
+                }
+
+                if (String.IsNullOrWhiteSpace(value))
+                {
+                    throw new ArgumentException(Invariant($"{nameof(dimensionValues)}[{d}]") + " may not be whitespace only.");
+                }
             }
 
             MultidimensionalPointResult<MetricSeries> result = createIfNotExists
@@ -696,8 +710,8 @@
                                 double metricValue,
                                 string dimension1Value,
                                 string dimension2Value,
-                                string dimension3Value, 
-                                string dimension4Value, 
+                                string dimension3Value,
+                                string dimension4Value,
                                 string dimension5Value)
         {
             MetricSeries series;
@@ -838,12 +852,12 @@
         {
             MetricSeries series;
             bool canTrack = this.TryGetDataSeries(
-                                        out series, 
-                                        dimension1Value, 
-                                        dimension2Value, 
-                                        dimension3Value, 
-                                        dimension4Value, 
-                                        dimension5Value, 
+                                        out series,
+                                        dimension1Value,
+                                        dimension2Value,
+                                        dimension3Value,
+                                        dimension4Value,
+                                        dimension5Value,
                                         dimension6Value,
                                         dimension7Value);
             if (canTrack)
@@ -1197,7 +1211,7 @@
 
             return false;
         }
-       
+
         private static void EnsureConfigurationValid(
                                     int dimensionsCount,
                                     MetricConfiguration configuration)
@@ -1234,7 +1248,7 @@
         private MetricSeries CreateNewMetricSeries(string[] dimensionValues)
         {
             KeyValuePair<string, string>[] dimensionNamesAndValues = null;
-            
+
             if (dimensionValues != null)
             {
                 dimensionNamesAndValues = new KeyValuePair<string, string>[dimensionValues.Length];
