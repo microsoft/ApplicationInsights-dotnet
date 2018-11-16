@@ -1,5 +1,5 @@
-queue:
-  name: Hosted Linux
+pool:
+  vmImage: 'ubuntu-16.04'
 steps:
 - task: DotNetCoreInstaller@0
   inputs:

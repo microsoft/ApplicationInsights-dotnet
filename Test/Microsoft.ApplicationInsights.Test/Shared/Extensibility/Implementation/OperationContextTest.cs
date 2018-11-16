@@ -36,6 +36,15 @@
         }
 
         [TestMethod]
+        public void SyntheticSourceIsEmptyIfSetToEmpty()
+        {
+            var operation = new OperationContext();
+            operation.SyntheticSource = string.Empty;
+            Assert.IsNotNull(operation.SyntheticSource);
+            Assert.AreSame(string.Empty, operation.SyntheticSource);
+        }
+
+        [TestMethod]
         public void ParentIdIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var operation = new OperationContext();

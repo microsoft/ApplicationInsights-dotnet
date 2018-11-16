@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
 
@@ -52,6 +53,59 @@
                 }
 
                 json.WriteProperty("tags", context.SanitizedTags);
+            }
+        }
+
+        /// <summary>
+        /// Copies GlobalProperties to the target's Properties. 
+        /// This avoids accessing the public accessor GlobalProperties to avoid the penalty of ConcurrentDictionary instantiation.
+        /// </summary> 
+        internal static void CopyGlobalPropertiesIfExist(this ITelemetry telemetry)
+        {
+            if (telemetry.Context.GlobalPropertiesValue != null)
+            {
+                if (telemetry is ISupportProperties telemetryWithProperties)
+                {
+                    Utils.CopyDictionary(source: telemetry.Context.GlobalProperties, target: telemetryWithProperties.Properties);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Copies GlobalProperties to the target dictionary.
+        /// This avoids accessing the public accessor GlobalProperties to avoid the penalty of ConcurrentDictionary instantiation.
+        /// </summary>
+        internal static void CopyGlobalPropertiesIfExist(this ITelemetry telemetry, IDictionary<string, string> target)
+        {
+            if (telemetry.Context.GlobalPropertiesValue != null)
+            {
+                Utils.CopyDictionary(telemetry.Context.GlobalProperties, target);
+            }
+        }
+
+        internal static void FlattenIExtensionIfExists(this ITelemetry telemetry)
+        {
+            if (telemetry.Extension != null)
+            {
+                ISupportProperties itemWithProperties = telemetry as ISupportProperties;
+                ISupportMetrics itemWithMetrics = telemetry as ISupportMetrics;
+
+                // Do not serialize if data cannot be stored on the item
+                if (itemWithProperties != null || itemWithMetrics != null)
+                {
+                    DictionarySerializationWriter extensionSerializationWriter = new DictionarySerializationWriter();
+                    telemetry.Extension.Serialize(extensionSerializationWriter);
+
+                    if (itemWithProperties != null)
+                    {
+                        Utils.CopyDictionary(extensionSerializationWriter.AccumulatedDictionary, itemWithProperties.Properties);
+                    }
+
+                    if (itemWithMetrics != null)
+                    {
+                        Utils.CopyDictionary(extensionSerializationWriter.AccumulatedMeasurements, itemWithMetrics.Metrics);
+                    }
+                }
             }
         }
 

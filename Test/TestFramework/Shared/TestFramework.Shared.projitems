@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)MockProcessorModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubSynchronizationContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StubSerializableTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetryChannel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubDebugOutput.cs" />
@@ -31,5 +32,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryAction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryContextAction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TestEventListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UnknownTelemetry.cs" />
   </ItemGroup>
 </Project>

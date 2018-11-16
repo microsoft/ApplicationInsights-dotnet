@@ -154,6 +154,65 @@
 
         #endregion
 
+        #region InitializeIKey
+
+        [TestMethod]
+        public void InitializeIKeySetsIkeyFromContext()
+        {
+            EventTelemetry telemetry = new EventTelemetry("TestEvent");
+
+            var tc = new TelemetryClient();
+            // Set ikey on Context
+            tc.InstrumentationKey = "mykey";
+            tc.InitializeInstrumentationKey(telemetry);
+
+            Assert.AreEqual("mykey",telemetry.Context.InstrumentationKey);
+        }
+
+        [TestMethod]
+        public void InitializeIKeySetsIkeyFromCofig()
+        {
+            EventTelemetry telemetry = new EventTelemetry("TestEvent");
+
+            // Set ikey on config
+            var config = new TelemetryConfiguration("mykey");
+            var tc = new TelemetryClient(config);
+            tc.InitializeInstrumentationKey(telemetry);
+
+            Assert.AreEqual("mykey", telemetry.Context.InstrumentationKey);
+        }
+
+        [TestMethod]
+        public void InitializeIKeySetsIkeyFromContextOverConfig()
+        {
+            EventTelemetry telemetry = new EventTelemetry("TestEvent");
+
+            // Set ikey on config
+            var config = new TelemetryConfiguration("mykeyonconfig");
+            var tc = new TelemetryClient(config);
+            // Set ikey on Context as well.
+            tc.InstrumentationKey = "mykeyoncontext";
+            tc.InitializeInstrumentationKey(telemetry);
+
+            // ikey on Context takes priority.
+            Assert.AreEqual("mykeyoncontext", telemetry.Context.InstrumentationKey);
+        }
+
+        [TestMethod]
+        public void InitializeIKeyDoesNotOverrideIKey()
+        {
+            EventTelemetry telemetry = new EventTelemetry("TestEvent");
+            telemetry.Context.InstrumentationKey = "expectedIKey";
+
+            var tc = new TelemetryClient();
+            tc.InstrumentationKey = "mykey";
+            tc.InitializeInstrumentationKey(telemetry);
+
+            Assert.AreEqual("expectedIKey", telemetry.Context.InstrumentationKey);
+        }
+
+        #endregion
+
         #region TrackMetric
 
         [TestMethod]

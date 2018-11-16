@@ -30,7 +30,8 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.AvailabilityData>(expected);
 
             // Items added to both availability.Properties, and availability.Context.GlobalProperties are serialized to properties.
-            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            // IExtension object in CreateAvailabilityTelemetry adds 2 more properties: myIntField and myStringField
+            Assert.AreEqual(4, item.data.baseData.properties.Count);
             Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestPropertyGlobal"));
             Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
         }
@@ -45,7 +46,7 @@
             Assert.AreEqual(expected.Sequence, item.seq);
             Assert.AreEqual(expected.Context.InstrumentationKey, item.iKey);
             AssertEx.AreEqual(expected.Context.SanitizedTags.ToArray(), item.tags.ToArray());
-            Assert.AreEqual(typeof(AI.AvailabilityData).Name, item.data.baseType);
+            Assert.AreEqual(nameof(AI.AvailabilityData), item.data.baseType);
 
             Assert.AreEqual(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
             Assert.AreEqual(expected.Message, item.data.baseData.message);
@@ -53,6 +54,9 @@
             Assert.AreEqual(expected.RunLocation, item.data.baseData.runLocation);
             Assert.AreEqual(expected.Name, item.data.baseData.name);
             Assert.AreEqual(expected.Id.ToString(), item.data.baseData.id);
+
+            // IExtension is currently flattened into the properties by serialization
+            Utils.CopyDictionary(((MyTestExtension)expected.Extension).SerializeIntoDictionary(), expected.Properties);
 
             AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
@@ -170,7 +174,7 @@
             item.Properties.Add("TestProperty", "TestValue");
             item.Context.GlobalProperties.Add("TestPropertyGlobal", "TestValue");
             item.Sequence = "12";
-            item.Extension = new MyTestExtension();
+            item.Extension = new MyTestExtension() { myIntField = 42, myStringField = "value" };
             return item;
         }
 

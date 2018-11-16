@@ -23,7 +23,13 @@
         {
             var defaultDependencyTelemetry = new DependencyTelemetry();
             Assert.AreEqual(true, defaultDependencyTelemetry.Success, "Success is expected to be true");
-        }
+            Assert.IsNotNull(defaultDependencyTelemetry.Target);
+            Assert.IsNotNull(defaultDependencyTelemetry.Name);
+            Assert.IsNotNull(defaultDependencyTelemetry.Data);
+            Assert.IsNotNull(defaultDependencyTelemetry.ResultCode);
+            Assert.IsNotNull(defaultDependencyTelemetry.Id);
+            Assert.IsNotNull(defaultDependencyTelemetry.Type);
+    }
 
         [TestMethod]
         public void DependencyTelemetryITelemetryContractConsistentlyWithOtherTelemetryTypes()
@@ -47,7 +53,8 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.AvailabilityData>(expected);
 
             // Items added to both dependency.Properties, and dependency.Context.GlobalProperties are serialized to properties.
-            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            // IExtension object in CreateDependencyTelemetry adds 2 more properties: myIntField and myStringField
+            Assert.AreEqual(4, item.data.baseData.properties.Count);            
             Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestPropertyGlobal"));
             Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
         }
@@ -62,7 +69,42 @@
             Assert.AreEqual(expected.Sequence, item.seq);
             Assert.AreEqual(expected.Context.InstrumentationKey, item.iKey);
             AssertEx.AreEqual(expected.Context.SanitizedTags.ToArray(), item.tags.ToArray());
-            Assert.AreEqual(typeof(AI.RemoteDependencyData).Name, item.data.baseType);
+            Assert.AreEqual(nameof(AI.RemoteDependencyData), item.data.baseType);
+
+            Assert.AreEqual(expected.Id, item.data.baseData.id);
+            Assert.AreEqual(expected.ResultCode, item.data.baseData.resultCode);
+            Assert.AreEqual(expected.Name, item.data.baseData.name);
+            Assert.AreEqual(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
+            Assert.AreEqual(expected.Type, item.data.baseData.type);
+            Assert.AreEqual(expected.Success, item.data.baseData.success);
+
+            // IExtension is currently flattened into the properties by serialization
+            Utils.CopyDictionary(((MyTestExtension)expected.Extension).SerializeIntoDictionary(), expected.Properties);
+
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+        }
+
+        [TestMethod]
+        /// Test validates that if Serialize is called multiple times, and telemetry is modified
+        /// in between, serialize always gives the latest state.
+        public void RemoteDependencySerializationPicksUpCorrectState()
+        {
+            DependencyTelemetry expected = this.CreateRemoteDependencyTelemetry();
+            ((ITelemetry)expected).Sanitize();
+            byte[] buf = new byte[1000000];
+            expected.SerializeData(new JsonSerializationWriter(new StreamWriter(new MemoryStream(buf))));
+
+            // Change the telemetry after serialization.
+            expected.Name = expected.Name + "new";
+
+            // Validate that the newly updated Name is picked up.
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RemoteDependencyData>(expected);
+
+            Assert.AreEqual<DateTimeOffset>(expected.Timestamp, DateTimeOffset.Parse(item.time, null, System.Globalization.DateTimeStyles.AssumeUniversal));
+            Assert.AreEqual(expected.Sequence, item.seq);
+            Assert.AreEqual(expected.Context.InstrumentationKey, item.iKey);
+            AssertEx.AreEqual(expected.Context.SanitizedTags.ToArray(), item.tags.ToArray());
+            Assert.AreEqual(nameof(AI.RemoteDependencyData), item.data.baseType);
 
             Assert.AreEqual(expected.Id, item.data.baseData.id);
             Assert.AreEqual(expected.ResultCode, item.data.baseData.resultCode);
@@ -177,7 +219,9 @@
             telemetry.Type = new string('D', Property.MaxDependencyTypeLength + 1);
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'X', new string('X', Property.MaxValueLength + 1));
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'Y', new string('X', Property.MaxValueLength + 1));
-            
+            telemetry.Metrics.Add(new string('Y', Property.MaxDictionaryNameLength) + 'X', 42.0);
+            telemetry.Metrics.Add(new string('Y', Property.MaxDictionaryNameLength) + 'Y', 42.0);
+
             ((ITelemetry)telemetry).Sanitize();
 
             Assert.AreEqual(new string('Z', Property.MaxNameLength), telemetry.Name);
@@ -193,6 +237,11 @@
             Assert.AreEqual(new string('X', Property.MaxValueLength), t.Values.ToArray()[0]);
 
             Assert.AreSame(telemetry.Properties, telemetry.Properties);
+
+            Assert.AreEqual(2, telemetry.Metrics.Count);
+            var keys = telemetry.Metrics.Keys.OrderBy(s => s).ToArray();
+            Assert.AreEqual(new string('Y', Property.MaxDictionaryNameLength), keys[1]);
+            Assert.AreEqual(new string('Y', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
         }
 
         [TestMethod]
@@ -282,7 +331,7 @@
             item.Context.InstrumentationKey = Guid.NewGuid().ToString();
             item.Properties.Add("TestProperty", "TestValue");
             item.Context.GlobalProperties.Add("TestPropertyGlobal", "TestValue");
-            item.Extension = new MyTestExtension();
+            item.Extension = new MyTestExtension() { myIntField = 42, myStringField = "value" };
             return item;
         }
 

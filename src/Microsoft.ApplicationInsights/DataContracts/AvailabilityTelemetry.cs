@@ -13,11 +13,10 @@
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
     /// </summary>
-    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics
+    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics, IAiSerializableTelemetry
     {
         internal const string TelemetryName = "Availability";
 
-        internal readonly string BaseType = typeof(AvailabilityData).Name;
         internal readonly AvailabilityData Data;
         private readonly TelemetryContext context;
         private IExtension extension;
@@ -59,6 +58,12 @@
             this.Timestamp = source.Timestamp;
             this.extension = source.extension?.DeepClone();
         }
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.BaseType => nameof(AvailabilityData);
 
         /// <summary>
         /// Gets or sets the test run id.

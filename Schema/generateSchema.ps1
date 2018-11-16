@@ -117,6 +117,9 @@ dir "$currentDir\obj\gbc" | ForEach-Object {
 	RegExReplace $_.FullName "measurements = new ConcurrentDictionary<string, double>\(\);"
 }
 
+	# Remove "properties" instantiation as its is done lazy in the public RequestTelemetry,DependencyTelemetry classes.
+	RegExReplace "$currentDir\obj\gbc\RequestData_types.cs" "properties = new ConcurrentDictionary<string, string>\(\);"
+	RegExReplace "$currentDir\obj\gbc\RemoteDependencyData_types.cs" "properties = new ConcurrentDictionary<string, string>\(\);"
 
 #################################################################################################
 ## Use TimeSpan instead of String for duration to improve performance by avoiding conversions.

@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.DataContracts
+﻿using System.Threading;
+
+namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
     using System.Collections.Generic;
@@ -27,6 +29,14 @@
         {
             var request = new RequestTelemetry();
             Assert.IsFalse(string.IsNullOrEmpty(request.Id));
+
+            // Validate that fields are not null.       
+            Assert.IsFalse(request.Source == null);
+            Assert.IsFalse(request.Name == null);            
+            Assert.IsFalse(request.ResponseCode == null);                                   
+            Assert.IsFalse(request.Duration == null);
+            Assert.IsTrue(request.Success == null);
+            Assert.IsTrue(request.Data.success);
         }
 
         [TestMethod]
@@ -98,7 +108,8 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RequestData>(expected);
 
             // Items added to both request.Properties, and request.Context.GlobalProperties are serialized to properties.
-            Assert.AreEqual(2, item.data.baseData.properties.Count);
+            // IExtension object in CreateTestTelemetry adds 2 more properties: myIntField and myStringField
+            Assert.AreEqual(4, item.data.baseData.properties.Count);
             Assert.IsTrue(item.data.baseData.properties.ContainsKey("contextpropkey"));
             Assert.IsTrue(item.data.baseData.properties.ContainsKey("itempropkey"));
         }
@@ -115,7 +126,7 @@
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
             Assert.AreEqual(item.name, AI.ItemType.Request);
 
-            Assert.AreEqual(typeof(AI.RequestData).Name, item.data.baseType);
+            Assert.AreEqual(nameof(AI.RequestData), item.data.baseType);
 
             Assert.AreEqual(2, item.data.baseData.ver);
             Assert.AreEqual(expected.Id, item.data.baseData.id);
@@ -127,6 +138,51 @@
             Assert.AreEqual(expected.Url.ToString(), item.data.baseData.url.ToString());
 
             Assert.AreEqual(1, item.data.baseData.measurements.Count);
+
+            // IExtension is currently flattened into the properties by serialization
+            Utils.CopyDictionary(((MyTestExtension)expected.Extension).SerializeIntoDictionary(), expected.Properties);
+
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+        }
+
+        [TestMethod]
+        /// Test validates that if Serialize is called multiple times, and telemetry is modified
+        /// in between, serialize always gives the latest state.
+        /// 
+        public void RequestTelemetrySerializationPicksUpCorrectState()
+        {
+            var expected = CreateTestTelemetry();
+
+            ((ITelemetry)expected).Sanitize();
+
+            byte[] buf = new byte[1000000];
+            expected.SerializeData(new JsonSerializationWriter(new StreamWriter(new MemoryStream(buf))));
+
+            // Change the telemetry after serialization.
+            expected.Url = new Uri(expected.Url.ToString() + "new");
+
+            // Validate that the newly updated URL is picked up.
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.RequestData>(expected);
+
+            // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
+            Assert.AreEqual(item.name, AI.ItemType.Request);
+
+            Assert.AreEqual(nameof(AI.RequestData), item.data.baseType);
+
+            Assert.AreEqual(2, item.data.baseData.ver);
+            Assert.AreEqual(expected.Id, item.data.baseData.id);
+            Assert.AreEqual(expected.Name, item.data.baseData.name);
+            Assert.AreEqual(expected.Timestamp, DateTimeOffset.Parse(item.time));
+            Assert.AreEqual(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
+            Assert.AreEqual(expected.Success, item.data.baseData.success);
+            Assert.AreEqual(expected.ResponseCode, item.data.baseData.responseCode);
+            Assert.AreEqual(expected.Url.ToString(), item.data.baseData.url.ToString());
+
+            Assert.AreEqual(1, item.data.baseData.measurements.Count);
+
+            // IExtension is currently flattened into the properties by serialization
+            Utils.CopyDictionary(((MyTestExtension)expected.Extension).SerializeIntoDictionary(), expected.Properties);
+
             AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
@@ -283,7 +339,7 @@
             request.Metrics.Add("Metric1", 30);
             request.Properties.Add("itempropkey", "::1");
             request.Context.GlobalProperties.Add("contextpropkey", "contextpropvalue");
-            request.Extension = new MyTestExtension();
+            request.Extension = new MyTestExtension() { myIntField = 42, myStringField = "value" };
             return request;
         }
     }
