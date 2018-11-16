@@ -23,6 +23,15 @@
         }
 
         [TestMethod]
+        public void IpIsEmptyIfSetToEmpty()
+        {
+            var location = new LocationContext();
+            location.Ip = string.Empty;
+            Assert.IsNotNull(location.Ip);
+            Assert.AreSame(string.Empty, location.Ip);
+        }
+
+        [TestMethod]
         public void IpCanBeChangedByUserToSpecifyACustomValue()
         {
             var context = new LocationContext();
