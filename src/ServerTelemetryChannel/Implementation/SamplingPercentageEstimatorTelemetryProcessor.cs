@@ -121,6 +121,14 @@
         }
 
         /// <summary>
+        /// Sets current sampling rate.
+        /// </summary>
+        internal int CurrentSamplingRate
+        {
+            set => this.currenSamplingRate = value;
+        }
+
+        /// <summary>
         /// Processes telemetry item.
         /// </summary>
         /// <param name="item">Telemetry item to process.</param>

@@ -99,6 +99,7 @@
                 // note: 'initial' percentage will affect sampling even 
                 // if it was running for a while
                 this.estimatorSettings.InitialSamplingPercentage = value;
+                this.estimatorProcessor.CurrentSamplingRate = this.estimatorSettings.EffectiveInitialSamplingRate;
                 this.samplingProcessor.SamplingPercentage = value;
             }
         }
