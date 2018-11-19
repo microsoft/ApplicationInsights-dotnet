@@ -7,7 +7,7 @@
     -->
     <SemanticVersionMajor>2</SemanticVersionMajor>
     <SemanticVersionMinor>9</SemanticVersionMinor>
-    <SemanticVersionPatch>9</SemanticVersionPatch>
+    <SemanticVersionPatch>0</SemanticVersionPatch>
     <!--Valid values: beta1, beta2, EMPTY for stable -->
     <PreReleaseMilestone>beta1</PreReleaseMilestone>
     <!-- 
