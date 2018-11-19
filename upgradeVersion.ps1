@@ -2,7 +2,7 @@ $directory = $PSScriptRoot;
 Write-Host "Scanning $directory";
 
 
-$oldVersion = "2.9.0-beta1-build1608"
+$oldVersion = "2.9.0-beta1.0"
 Write-Host "Old Version: $oldVersion";
 
 
