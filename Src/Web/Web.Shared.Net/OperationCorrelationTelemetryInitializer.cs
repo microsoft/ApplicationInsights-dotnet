@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
     using System.Web;
     using Common;
     using Microsoft.ApplicationInsights.Channel;
@@ -24,6 +25,7 @@
         /// <summary>
         /// Gets or sets the name of the header to get parent operation Id from.
         /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Part of Public API and too late to change.")]
         public string ParentOperationIdHeaderName
         {
             get => ActivityHelpers.ParentOperationIdHeaderName;
@@ -40,6 +42,7 @@
         /// <summary>
         /// Gets or sets the name of the header to get root operation Id from.
         /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Part of Public API and too late to change.")]
         public string RootOperationIdHeaderName
         {
             get => ActivityHelpers.RootOperationIdHeaderName;

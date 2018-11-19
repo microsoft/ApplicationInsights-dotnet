@@ -2,8 +2,7 @@ $directory = $PSScriptRoot;
 Write-Host "Scanning $directory";
 
 
-#$oldVersion = cat .\Directory.Build.props | Select-String -Pattern "CoreSdkVersion" | %{$_.Line.Split("<>")} | Select -skip 2 | Select -First 1
-$oldVersion = "2.8.0"
+$oldVersion = "2.9.0-beta1.0"
 Write-Host "Old Version: $oldVersion";
 
 
@@ -11,7 +10,7 @@ Write-Host "Old Version: $oldVersion";
 #$newVersion = .\NuGet.exe list "Microsoft.ApplicationInsights" -Source https://www.myget.org/F/applicationinsights -Pre -NonInteractive | Select-String -Pattern "Microsoft.ApplicationInsights " | %{$_.Line.Split(" ")} | Select -skip 1
 
 ##Use this to manually set the new version##
-$newVersion = "2.8.1"
+$newVersion = "2.9.0-beta1"
 Write-Host "New Version: $newVersion";
 
 

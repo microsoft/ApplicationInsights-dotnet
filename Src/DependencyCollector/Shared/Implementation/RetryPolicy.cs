@@ -13,7 +13,7 @@
         {
             if (retryCount <= 0)
             {
-                throw new ArgumentOutOfRangeException("retryCount");
+                throw new ArgumentOutOfRangeException(nameof(retryCount));
             }
 
             for (int retry = 0; retry < retryCount; ++retry)

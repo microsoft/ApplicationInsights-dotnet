@@ -27,7 +27,8 @@
             "WEBSITE_SLOT_NAME",
             "WEBSITE_HOME_STAMPNAME",
             "WEBSITE_HOSTNAME",
-            "WEBSITE_OWNER_NAME"
+            "WEBSITE_OWNER_NAME",
+            "WEBSITE_RESOURCE_GROUP"
         };
 
         // singleton pattern, this is the one instance of this class allowed

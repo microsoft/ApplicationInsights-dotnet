@@ -77,7 +77,7 @@
                                 }
                             });
                     this.addOnSendingHeadersMethodParams = new object[] { this.addOnSendingHeadersMethodParam };
-                    this.openDelegateForInvokingAddOnSendingHeadersMethod = this.CreateOpenDelegate(this.addOnSendingHeadersMethod);
+                    this.openDelegateForInvokingAddOnSendingHeadersMethod = CreateOpenDelegate(this.addOnSendingHeadersMethod);
                 }
             }
             catch (Exception exc)
@@ -115,13 +115,51 @@
         {
         }
 
+        private static void TraceCallback(string callback, HttpApplication application)
+        {
+            if (WebEventSource.IsVerboseEnabled)
+            {
+                try
+                {
+                    if (application.Context != null)
+                    {
+                        // Url.ToString internally builds local member once and then always returns it
+                        // During serialization we will anyway call same ToString() so we do not force unnecessary formatting just for tracing 
+                        var url = application.Context.Request.UnvalidatedGetUrl();
+                        string logUrl = (url != null) ? url.ToString() : string.Empty;
+
+                        WebEventSource.Log.WebModuleCallback(callback, logUrl);
+                    }
+                }
+                catch (Exception exc)
+                {
+                    WebEventSource.Log.TraceCallbackFailure(callback, exc.ToInvariantString());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates open delegate for faster invocation than regular Invoke.        
+        /// </summary>
+        /// <param name="mi">MethodInfo for which open delegate is to be created.</param>
+        private static Func<HttpResponse, Action<HttpContext>, ISubscriptionToken> CreateOpenDelegate(MethodInfo mi)
+        {
+            var openDelegate = Delegate.CreateDelegate(
+                typeof(Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>),
+                null,
+                mi,
+                true);
+
+            return (Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>)openDelegate;
+        }
+
         private void OnBeginRequest(object sender, EventArgs eventArgs)
         {
             if (this.isEnabled)
             {
                 HttpApplication httpApplication = (HttpApplication)sender;
 
-                this.TraceCallback("OnBegin", httpApplication);
+                TraceCallback("OnBegin", httpApplication);
 
                 if (this.requestModule != null)
                 {
@@ -153,44 +191,6 @@
             catch (Exception ex)
             {
                 WebEventSource.Log.HookAddOnSendingHeadersFailedWarning(ex.ToInvariantString());
-            }
-        }
-
-        /// <summary>
-        /// Creates open delegate for faster invocation than regular Invoke.        
-        /// </summary>
-        /// <param name="mi">MethodInfo for which open delegate is to be created.</param>
-        private Func<HttpResponse, Action<HttpContext>, ISubscriptionToken> CreateOpenDelegate(MethodInfo mi)
-        {
-            var openDelegate = Delegate.CreateDelegate(
-                typeof(Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>),
-                null,
-                mi,
-                true);
-
-            return (Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>)openDelegate;
-        }
-
-        private void TraceCallback(string callback, HttpApplication application)
-        {
-            if (WebEventSource.Log.IsVerboseEnabled)
-            {
-                try
-                {
-                    if (application.Context != null)
-                    {
-                        // Url.ToString internally builds local member once and then always returns it
-                        // During serialization we will anyway call same ToString() so we do not force unnesesary formatting just for tracing 
-                        var url = application.Context.Request.UnvalidatedGetUrl();
-                        string logUrl = (url != null) ? url.ToString() : string.Empty;
-
-                        WebEventSource.Log.WebModuleCallback(callback, logUrl);
-                    }
-                }
-                catch (Exception exc)
-                {
-                    WebEventSource.Log.TraceCallbackFailure(callback, exc.ToInvariantString());
-                }
             }
         }
     }

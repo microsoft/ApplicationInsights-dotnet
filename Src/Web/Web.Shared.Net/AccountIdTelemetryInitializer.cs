@@ -11,7 +11,7 @@
     /// </summary>
     public class AccountIdTelemetryInitializer : WebTelemetryInitializerBase
     {
-        internal void GetAuthUserContextFromUserCookie(HttpCookie authUserCookie, RequestTelemetry requestTelemetry)
+        internal static void GetAuthUserContextFromUserCookie(HttpCookie authUserCookie, RequestTelemetry requestTelemetry)
         {
             if (authUserCookie == null)
             {
@@ -52,7 +52,7 @@
             {
                 if (string.IsNullOrEmpty(requestTelemetry.Context.User.AccountId))
                 {
-                    this.GetAuthUserContextFromUserCookie(platformContext.Request.UnvalidatedGetCookie(RequestTrackingConstants.WebAuthenticatedUserCookieName), requestTelemetry);
+                    GetAuthUserContextFromUserCookie(platformContext.Request.UnvalidatedGetCookie(RequestTrackingConstants.WebAuthenticatedUserCookieName), requestTelemetry);
                 }
 
                 telemetry.Context.User.AccountId = requestTelemetry.Context.User.AccountId;

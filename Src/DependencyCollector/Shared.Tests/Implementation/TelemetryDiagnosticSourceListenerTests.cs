@@ -39,8 +39,8 @@
         [TestMethod]
         public void TelemetryDiagnosticSourceListenerOnCreatedListener()
         {
-            DiagnosticListener listener = new DiagnosticListener("Test.A");
             var inclusionList = new[] { "Test.A" }.ToList();
+            using (DiagnosticListener listener = new DiagnosticListener("Test.A"))
             using (var dl = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
                 dl.Subscribe();
@@ -55,31 +55,36 @@
             using (var dl = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
                 dl.Subscribe();
-                DiagnosticListener listener = new DiagnosticListener("Test.A");
-                Activity activity = new Activity("Test.A.Client.Monitoring");
+                using (var listener = new DiagnosticListener("Test.A"))
+                {
+                    Activity activity = new Activity("Test.A.Client.Monitoring");
 
-                Assert.IsTrue(listener.IsEnabled(), "There is a subscriber for a new diagnostic source");
-                Assert.IsTrue(listener.IsEnabled(activity.OperationName), "There is a subscriber for a new activity");
-                Assert.IsTrue(
-                    listener.IsEnabled(
-                        activity.OperationName + TelemetryDiagnosticSourceListener.ActivityStopNameSuffix),
-                    "There is a subscriber for new activity Stop event");
-                Assert.IsFalse(
-                    listener.IsEnabled(activity.OperationName +
-                                       TelemetryDiagnosticSourceListener.ActivityStartNameSuffix),
-                    "There are no subscribers for new activity Start event");
+                    Assert.IsTrue(listener.IsEnabled(), "There is a subscriber for a new diagnostic source");
+                    Assert.IsTrue(listener.IsEnabled(activity.OperationName),
+                        "There is a subscriber for a new activity");
+                    Assert.IsTrue(
+                        listener.IsEnabled(
+                            activity.OperationName + TelemetryDiagnosticSourceListener.ActivityStopNameSuffix),
+                        "There is a subscriber for new activity Stop event");
+                    Assert.IsFalse(
+                        listener.IsEnabled(activity.OperationName +
+                                           TelemetryDiagnosticSourceListener.ActivityStartNameSuffix),
+                        "There are no subscribers for new activity Start event");
 
-                int sentCountBefore = this.sentItems.Count;
+                    int sentCountBefore = this.sentItems.Count;
 
-                listener.StartActivity(activity, null);
-                Assert.AreEqual(sentCountBefore, this.sentItems.Count, "No telemetry item should be sent on activity start");
+                    listener.StartActivity(activity, null);
+                    Assert.AreEqual(sentCountBefore, this.sentItems.Count,
+                        "No telemetry item should be sent on activity start");
 
-                listener.StopActivity(activity, null);
-                Assert.AreEqual(sentCountBefore + 1, this.sentItems.Count, "One new telemetry item should be sent on activity stop");
+                    listener.StopActivity(activity, null);
+                    Assert.AreEqual(sentCountBefore + 1, this.sentItems.Count,
+                        "One new telemetry item should be sent on activity stop");
 
-                DependencyTelemetry telemetryItem = this.sentItems.Last() as DependencyTelemetry;
-                Assert.IsNotNull(telemetryItem, "Dependency telemetry item should be sent");
-                Assert.AreEqual(activity.OperationName, telemetryItem.Name);
+                    DependencyTelemetry telemetryItem = this.sentItems.Last() as DependencyTelemetry;
+                    Assert.IsNotNull(telemetryItem, "Dependency telemetry item should be sent");
+                    Assert.AreEqual(activity.OperationName, telemetryItem.Name);
+                }
             }
         }
 
@@ -87,11 +92,11 @@
         public void TelemetryDiagnosticSourceListenerIgnoresNotIncludedSources()
         {
             var inclusionList = new[] { "Test.B" }.ToList();
+            using (var listenerA = new DiagnosticListener("Test.A"))
             using (var dl = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
                 dl.Subscribe();
                 // Diagnostic Source A is ignored
-                DiagnosticListener listenerA = new DiagnosticListener("Test.A");
                 Activity activityA = new Activity("Test.A.Client.Monitoring");
 
                 Assert.IsFalse(listenerA.IsEnabled(), "There are no subscribers for excluded diagnostic source A");
@@ -106,21 +111,25 @@
                 Assert.AreEqual(sentCountBefore, this.sentItems.Count, "No telemetry item should be sent on activity stop");
 
                 // Diagnostic Source B is still captured
-                DiagnosticListener listenerB = new DiagnosticListener("Test.B");
-                Activity activityB = new Activity("Test.B.Client.Monitoring");
+                using (var listenerB = new DiagnosticListener("Test.B"))
+                {
+                    Activity activityB = new Activity("Test.B.Client.Monitoring");
 
-                Assert.IsTrue(listenerB.IsEnabled(), "There is a subscriber for diagnostic source B");
-                Assert.IsTrue(listenerB.IsEnabled(activityB.OperationName), "There is a subscriber for activity B");
+                    Assert.IsTrue(listenerB.IsEnabled(), "There is a subscriber for diagnostic source B");
+                    Assert.IsTrue(listenerB.IsEnabled(activityB.OperationName), "There is a subscriber for activity B");
 
-                listenerB.StartActivity(activityB, null);
-                Assert.AreEqual(sentCountBefore, this.sentItems.Count, "No telemetry item should be sent on activity start");
+                    listenerB.StartActivity(activityB, null);
+                    Assert.AreEqual(sentCountBefore, this.sentItems.Count,
+                        "No telemetry item should be sent on activity start");
 
-                listenerB.StopActivity(activityB, null);
-                Assert.AreEqual(sentCountBefore + 1, this.sentItems.Count, "One new telemetry item should be sent on activity B stop");
+                    listenerB.StopActivity(activityB, null);
+                    Assert.AreEqual(sentCountBefore + 1, this.sentItems.Count,
+                        "One new telemetry item should be sent on activity B stop");
 
-                DependencyTelemetry telemetryItem = this.sentItems.Last() as DependencyTelemetry;
-                Assert.IsNotNull(telemetryItem, "Dependency telemetry item should be sent");
-                Assert.AreEqual(telemetryItem.Name, activityB.OperationName);
+                    DependencyTelemetry telemetryItem = this.sentItems.Last() as DependencyTelemetry;
+                    Assert.IsNotNull(telemetryItem, "Dependency telemetry item should be sent");
+                    Assert.AreEqual(telemetryItem.Name, activityB.OperationName);
+                }
             }
         }
 
@@ -128,12 +137,12 @@
         public void TelemetryDiagnosticSourceListenerIgnoresNotIncludedActivities()
         {
             var inclusionList = new[] { "Test.A:Test.A.Client.Monitoring" }.ToList();
+            using (var listener = new DiagnosticListener("Test.A"))
             using (var dl = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
                 dl.Subscribe();
-                // Diagnostic Source is not ignored
-                DiagnosticListener listener = new DiagnosticListener("Test.A");
 
+                // Diagnostic Source is not ignored
                 Assert.IsTrue(listener.IsEnabled(), "There is a subscriber for diagnostic source");
 
                 // Activity1 is ignored per exclusion
@@ -182,10 +191,11 @@
         public void TelemetryDiagnosticSourceListenerCollectsTelemetryFromRawActivity()
         {
             var inclusionList = new[] { "Test.A" }.ToList();
+
+            using (var listener = new DiagnosticListener("Test.A"))
             using (var dl = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
             {
                 dl.Subscribe();
-                DiagnosticListener listener = new DiagnosticListener("Test.A");
 
                 // generic example
                 var tags = new Dictionary<string, string>()
@@ -215,25 +225,26 @@
                 module.IncludeDiagnosticSourceActivities.Add("Test.A");
                 module.Initialize(this.configuration);
 
-                DiagnosticListener listener = new DiagnosticListener("Test.A");
-
-                // generic example
-                var tags = new Dictionary<string, string>()
+                using (var listener = new DiagnosticListener("Test.A"))
                 {
-                    ["error"] = "true",
-                    ["peer.hostname"] = "test.example.com",
-                    ["custom.tag"] = "test"
-                };
+                    // generic example
+                    var tags = new Dictionary<string, string>
+                    {
+                        ["error"] = "true",
+                        ["peer.hostname"] = "test.example.com",
+                        ["custom.tag"] = "test"
+                    };
 
-                DependencyTelemetry telemetryItem = this.CollectDependencyTelemetryFromActivity(listener, tags);
+                    DependencyTelemetry telemetryItem = this.CollectDependencyTelemetryFromActivity(listener, tags);
 
-                Assert.AreEqual(telemetryItem.Name, "Test.A.Client.Monitoring"); // Activity name
-                Assert.AreEqual(telemetryItem.Type, listener.Name);
-                Assert.IsTrue(string.IsNullOrEmpty(telemetryItem.Data));
-                Assert.AreEqual(telemetryItem.Target, tags["peer.hostname"]);
-                Assert.AreEqual(telemetryItem.Success, false);
-                Assert.IsTrue(telemetryItem.Properties.ContainsKey("custom.tag"));
-                Assert.AreEqual(telemetryItem.Properties["custom.tag"], tags["custom.tag"]);
+                    Assert.AreEqual(telemetryItem.Name, "Test.A.Client.Monitoring"); // Activity name
+                    Assert.AreEqual(telemetryItem.Type, listener.Name);
+                    Assert.IsTrue(string.IsNullOrEmpty(telemetryItem.Data));
+                    Assert.AreEqual(telemetryItem.Target, tags["peer.hostname"]);
+                    Assert.AreEqual(telemetryItem.Success, false);
+                    Assert.IsTrue(telemetryItem.Properties.ContainsKey("custom.tag"));
+                    Assert.AreEqual(telemetryItem.Properties["custom.tag"], tags["custom.tag"]);
+                }
             }
         }
 
@@ -253,12 +264,13 @@
                 telemetryListener.RegisterHandler("Test.A", ahandler);
                 telemetryListener.RegisterHandler("Test.B", bhandler);
 
-                DiagnosticListener listenerA = new DiagnosticListener("Test.A");
-                DiagnosticListener listenerB = new DiagnosticListener("Test.B");
-
-                this.DoOperation(listenerA, "Send");
-                this.DoOperation(listenerA, "Receive");
-                this.DoOperation(listenerB, "Any");
+                using (var listenerA = new DiagnosticListener("Test.A"))
+                using (var listenerB = new DiagnosticListener("Test.B"))
+                {
+                    this.DoOperation(listenerA, "Send");
+                    this.DoOperation(listenerA, "Receive");
+                    this.DoOperation(listenerB, "Any");
+                }
 
                 Assert.AreEqual(1, ahandler.EventCalls.Count);
 
@@ -277,7 +289,91 @@
 
         #endregion
 
-        private void DoOperation(DiagnosticListener listener, string activityName)
+        #region MultiHosts
+
+        [TestMethod]
+        public void MultiHost_OnlyOneListnerTracksTelemetry()
+        {
+            var inclusionList = new[] { "Test.A" }.ToList();
+
+            using (var listener = new DiagnosticListener("Test.A"))
+            using (var dl1 = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
+            using (var dl2 = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
+            {
+                dl1.Subscribe();
+                dl2.Subscribe();
+
+                Activity activity = new Activity("Test.A.Client.Monitoring");
+                listener.StartActivity(activity, null);
+                listener.StopActivity(activity, null);
+
+                Assert.AreEqual(1, this.sentItems.Count(t => t is DependencyTelemetry));
+            }
+        }
+
+        [TestMethod]
+        public void MultiHost_TwoActiveAndOneIsDisposedStillTracksTelemetry()
+        {
+            var inclusionList = new[] { "Test.A" }.ToList();
+
+            var dl1 = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList);
+            dl1.Subscribe();
+
+            using (var listener = new DiagnosticListener("Test.A"))
+            using (var dl2 = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
+            {
+                dl2.Subscribe();
+
+                Activity activity = new Activity("Test.A.Client.Monitoring");
+                listener.StartActivity(activity, null);
+                listener.StopActivity(activity, null);
+
+                Assert.AreEqual(1, this.sentItems.Count(t => t is DependencyTelemetry));
+
+                dl1.Dispose();
+
+                activity = new Activity("Test.A.Client.Monitoring");
+                listener.StartActivity(activity, null);
+                listener.StopActivity(activity, null);
+
+                Assert.AreEqual(2, this.sentItems.Count(t => t is DependencyTelemetry));
+            }
+        }
+
+        [TestMethod]
+        public void MultiHost_OneListnerThenAnotherTracksTelemetry()
+        {
+            var inclusionList = new[] { "Test.A" }.ToList();
+
+            using (var listener = new DiagnosticListener("Test.A"))
+            {
+                using (var dl = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
+                {
+                    dl.Subscribe();
+
+                    Activity activity = new Activity("Test.A.Client.Monitoring");
+                    listener.StartActivity(activity, null);
+                    listener.StopActivity(activity, null);
+
+                    Assert.AreEqual(1, this.sentItems.Count(t => t is DependencyTelemetry));
+                }
+
+                using (var dl = new TelemetryDiagnosticSourceListener(this.configuration, inclusionList))
+                {
+                    dl.Subscribe();
+
+                    Activity activity = new Activity("Test.A.Client.Monitoring");
+                    listener.StartActivity(activity, null);
+                    listener.StopActivity(activity, null);
+
+                    Assert.AreEqual(2, this.sentItems.Count(t => t is DependencyTelemetry));
+                }
+            }
+        }
+
+        #endregion
+
+            private void DoOperation(DiagnosticListener listener, string activityName)
         {
             Activity activity = null;
 

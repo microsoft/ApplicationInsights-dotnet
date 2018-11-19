@@ -26,15 +26,10 @@
         {
             if (configuration == null)
             {
-                throw new ArgumentNullException("configuration");
+                throw new ArgumentNullException(nameof(configuration));
             }
 
-            if (telemetryTupleHolder == null)
-            {
-                throw new ArgumentNullException("telemetryHolder");
-            }
-
-            this.TelemetryTable = telemetryTupleHolder;
+            this.TelemetryTable = telemetryTupleHolder ?? throw new ArgumentNullException(nameof(telemetryTupleHolder));
             this.telemetryClient = new TelemetryClient(configuration);
 
             // Since dependencySource is no longer set, sdk version is prepended with information which can identify whether dependency was collected by profiler/framework
@@ -103,7 +98,7 @@
         /// <summary>
         /// On end async callback for methods with 1 parameter.
         /// </summary>
-        public object OnEndAsyncForOneParameter(object context, object returnValue, object thisObj)
+        public object OnEndAsyncForOneParameter(object returnValue, object thisObj)
         {
             this.OnEndAsync(returnValue, thisObj);
             return returnValue;
@@ -112,7 +107,7 @@
         /// <summary>
         /// On end async callback for methods with 1 parameter. Sends data only if returned task (returnValue) is faulted.
         /// </summary>
-        public object OnEndExceptionAsyncForOneParameter(object context, object returnValue, object thisObj)
+        public object OnEndExceptionAsyncForOneParameter(object returnValue, object thisObj)
         {
             this.OnEndExceptionAsync(returnValue, thisObj);
             return returnValue;
@@ -130,7 +125,7 @@
         /// <summary>
         /// On end async callback for methods with 2 parameter.
         /// </summary>
-        public object OnEndAsyncForTwoParameters(object context, object returnValue, object thisObj, object parameter1)
+        public object OnEndAsyncForTwoParameters(object returnValue, object thisObj)
         {
             this.OnEndAsync(returnValue, thisObj);
             return returnValue;

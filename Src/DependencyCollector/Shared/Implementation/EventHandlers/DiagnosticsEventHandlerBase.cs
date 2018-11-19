@@ -113,7 +113,7 @@
                     return false;
                 }
 
-                return obj is Property && this.Equals((Property)obj);
+                return obj is Property property && this.Equals(property);
             }
 
             public override int GetHashCode()

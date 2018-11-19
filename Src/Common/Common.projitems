@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ArrayExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConditionalWeakTableExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExceptionUtilities.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GuidExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HeadersUtilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InjectionGuardConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PropertyFetcher.cs" />

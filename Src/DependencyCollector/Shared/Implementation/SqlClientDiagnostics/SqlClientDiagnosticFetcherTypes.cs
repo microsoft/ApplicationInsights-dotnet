@@ -57,7 +57,7 @@
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
         }
 
-        /// <summary> Fetchers for transaction commit/rollback before events. </summary>
+        /// <summary> Fetchers for transaction commit before events. </summary>
         internal static class TransactionCommitBefore
         {
             public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
@@ -67,7 +67,7 @@
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
         }
 
-        /// <summary> Fetchers for transaction commit before events. </summary>
+        /// <summary> Fetchers for transaction rollback before events. </summary>
         internal static class TransactionRollbackBefore
         {
             public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
@@ -78,16 +78,33 @@
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
         }
 
-        /// <summary> Fetchers for transaction commit/rollback after events. </summary>
-        internal static class TransactionAfter
+        /// <summary> Fetchers for transaction rollback after events. </summary>
+        internal static class TransactionRollbackAfter
         {
             public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
             public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
             public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
         }
 
-        /// <summary> Fetchers for transaction commit/rollback error events. </summary>
-        internal static class TransactionError
+        /// <summary> Fetchers for transaction commit after events. </summary>
+        internal static class TransactionCommitAfter
+        {
+            public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
+            public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
+            public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
+        }
+
+        /// <summary> Fetchers for transaction rollback error events. </summary>
+        internal static class TransactionRollbackError
+        {
+            public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
+            public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));
+            public static readonly PropertyFetcher Exception = new PropertyFetcher(nameof(Exception));
+            public static readonly PropertyFetcher Timestamp = new PropertyFetcher(nameof(Timestamp));
+        }
+
+        /// <summary> Fetchers for transaction commit error events. </summary>
+        internal static class TransactionCommitError
         {
             public static readonly PropertyFetcher OperationId = new PropertyFetcher(nameof(OperationId));
             public static readonly PropertyFetcher Connection = new PropertyFetcher(nameof(Connection));

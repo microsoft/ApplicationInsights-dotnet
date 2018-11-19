@@ -52,57 +52,51 @@ namespace Microsoft.ApplicationInsights.Tests
             this.fakeSqlClientDiagnosticSource.Dispose();
             this.configuration.Dispose();
             this.stubTelemetryChannel.Dispose();
+
+            while (Activity.Current != null)
+            {
+                Activity.Current.Stop();
+            }
         }
 
         [TestMethod]
         public void InitializesTelemetryFromParentActivity()
         {
-            var parentActivity = new Activity("Parent");
             var activity = new Activity("Current").AddBaggage("Stuff", "123");
+            activity.Start();
 
-            try
+            var operationId = Guid.NewGuid();
+            var sqlConnection = new SqlConnection(TestConnectionString);
+            var sqlCommand = sqlConnection.CreateCommand();
+            sqlCommand.CommandText = "select * from orders";
+
+            var beforeExecuteEventData = new
             {
-                parentActivity.Start();
-                activity.Start();
+                OperationId = operationId,
+                Command = sqlCommand,
+                Timestamp = (long?)1000000L
+            };
 
-                var operationId = Guid.NewGuid();
-                var sqlConnection = new SqlConnection(TestConnectionString);
-                var sqlCommand = sqlConnection.CreateCommand();
-                sqlCommand.CommandText = "select * from orders";
+            this.fakeSqlClientDiagnosticSource.Write(
+                SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
+                beforeExecuteEventData);
 
-                var beforeExecuteEventData = new
-                {
-                    OperationId = operationId,
-                    Command = sqlCommand,
-                    Timestamp = (long?)1000000L
-                };
-
-                this.fakeSqlClientDiagnosticSource.Write(
-                    SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
-                    beforeExecuteEventData);
-
-                var afterExecuteEventData = new
-                {
-                    OperationId = operationId,
-                    Command = sqlCommand,
-                    Timestamp = 2000000L
-                };
-
-                this.fakeSqlClientDiagnosticSource.Write(
-                    SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
-                    afterExecuteEventData);
-
-                var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
-
-                Assert.AreEqual(activity.RootId, dependencyTelemetry.Context.Operation.Id);
-                Assert.AreEqual(parentActivity.Id, dependencyTelemetry.Context.Operation.ParentId);
-                Assert.AreEqual("123", dependencyTelemetry.Properties["Stuff"]);
-            }
-            finally
+            var afterExecuteEventData = new
             {
-                activity.Stop();
-                parentActivity.Stop();
-            }
+                OperationId = operationId,
+                Command = sqlCommand,
+                Timestamp = 2000000L
+            };
+
+            this.fakeSqlClientDiagnosticSource.Write(
+                SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
+                afterExecuteEventData);
+
+            var dependencyTelemetry = (DependencyTelemetry)this.sendItems.Single();
+
+            Assert.AreEqual(activity.RootId, dependencyTelemetry.Context.Operation.Id);
+            Assert.AreEqual(activity.Id, dependencyTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual("123", dependencyTelemetry.Properties["Stuff"]);
         }
 
         [TestMethod]
@@ -545,6 +539,138 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
             Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
             Assert.IsTrue(DateTimeOffset.UtcNow >= dependencyTelemetry.Timestamp);
+        }
+
+        [TestMethod]
+        public void MultiHost_OneListenerIsActive()
+        {
+            var operationId = Guid.NewGuid();
+            var sqlConnection = new SqlConnection(TestConnectionString);
+            var sqlCommand = sqlConnection.CreateCommand();
+            sqlCommand.CommandText = "select * from orders";
+
+            var beforeExecuteEventData = new
+            {
+                OperationId = operationId,
+                Command = sqlCommand,
+                Timestamp = (long?)1000000L
+            };
+
+            var afterExecuteEventData = new
+            {
+                OperationId = operationId,
+                Command = sqlCommand,
+                Timestamp = 2000000L
+            };
+
+            using (var listener2 = new SqlClientDiagnosticSourceListener(this.configuration))
+            {
+                this.fakeSqlClientDiagnosticSource.Write(
+                    SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
+                    beforeExecuteEventData);
+
+                this.fakeSqlClientDiagnosticSource.Write(
+                    SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
+                    afterExecuteEventData);
+
+                Assert.AreEqual(1, this.sendItems.Count(t => t is DependencyTelemetry));
+            }
+        }
+
+        [TestMethod]
+        public void MultiHost_OneListenerThenAnotherIsActive()
+        {
+            var operationId = Guid.NewGuid();
+            var sqlConnection = new SqlConnection(TestConnectionString);
+            var sqlCommand = sqlConnection.CreateCommand();
+            sqlCommand.CommandText = "select * from orders";
+
+            var beforeExecuteEventData = new
+            {
+                OperationId = operationId,
+                Command = sqlCommand,
+                Timestamp = (long?)1000000L
+            };
+
+            var afterExecuteEventData = new
+            {
+                OperationId = operationId,
+                Command = sqlCommand,
+                Timestamp = 2000000L
+            };
+
+            this.fakeSqlClientDiagnosticSource.Write(
+                SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
+                beforeExecuteEventData);
+
+            this.fakeSqlClientDiagnosticSource.Write(
+                SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
+                afterExecuteEventData);
+
+            Assert.AreEqual(1, this.sendItems.Count(t => t is DependencyTelemetry));
+
+            this.sqlClientDiagnosticSourceListener.Dispose();
+
+            using (var listener = new SqlClientDiagnosticSourceListener(this.configuration))
+            {
+                this.fakeSqlClientDiagnosticSource.Write(
+                    SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
+                    beforeExecuteEventData);
+
+                this.fakeSqlClientDiagnosticSource.Write(
+                    SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
+                    afterExecuteEventData);
+
+                Assert.AreEqual(2, this.sendItems.Count(t => t is DependencyTelemetry));
+            }
+        }
+
+        [TestMethod]
+        public void MultiHost_OneListnerIsActiveAfterDispose()
+        {
+            var operationId = Guid.NewGuid();
+            var sqlConnection = new SqlConnection(TestConnectionString);
+            var sqlCommand = sqlConnection.CreateCommand();
+            sqlCommand.CommandText = "select * from orders";
+
+            var beforeExecuteEventData = new
+            {
+                OperationId = operationId,
+                Command = sqlCommand,
+                Timestamp = (long?)1000000L
+            };
+
+            var afterExecuteEventData = new
+            {
+                OperationId = operationId,
+                Command = sqlCommand,
+                Timestamp = 2000000L
+            };
+
+            using (var listener2 = new SqlClientDiagnosticSourceListener(this.configuration))
+            {
+                this.fakeSqlClientDiagnosticSource.Write(
+                    SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
+                    beforeExecuteEventData);
+
+                this.fakeSqlClientDiagnosticSource.Write(
+                    SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
+                    afterExecuteEventData);
+
+                Assert.AreEqual(1, this.sendItems.Count(t => t is DependencyTelemetry));
+
+                this.sqlClientDiagnosticSourceListener.Dispose();
+
+                this.fakeSqlClientDiagnosticSource.Write(
+                    SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
+                    beforeExecuteEventData);
+
+                this.fakeSqlClientDiagnosticSource.Write(
+                    SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
+                    afterExecuteEventData);
+
+                Assert.AreEqual(2, this.sendItems.Count(t => t is DependencyTelemetry));
+            }
         }
 
         private class FakeSqlClientDiagnosticSource : IDisposable

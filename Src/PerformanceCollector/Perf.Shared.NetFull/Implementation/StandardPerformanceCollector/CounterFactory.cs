@@ -5,7 +5,7 @@
     /// <summary>
     /// Factory to create different counters.
     /// </summary>
-    internal class CounterFactory
+    internal static class CounterFactory
     {
         /// <summary>
         /// Gets a counter.
@@ -15,12 +15,12 @@
         /// <param name="counterName">Counter name.</param>
         /// <param name="instanceName">Instance name.</param>
         /// <returns>The counter identified by counter name.</returns>
-        internal ICounterValue GetCounter(string originalString, string categoryName, string counterName, string instanceName)
+        internal static ICounterValue GetCounter(string originalString, string categoryName, string counterName, string instanceName)
         {
             switch (originalString)
             {
                 case @"\Process(??APP_WIN32_PROC??)\% Processor Time Normalized":
-                    return new NormalizedProcessCPUPerformanceCounter(categoryName, counterName, instanceName);
+                    return new NormalizedProcessCPUPerformanceCounter(instanceName);
                 default:
                     return new StandardPerformanceCounter(categoryName, counterName, instanceName);
             }

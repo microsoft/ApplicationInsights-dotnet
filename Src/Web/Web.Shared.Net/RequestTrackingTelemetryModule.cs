@@ -170,7 +170,7 @@
             {
                 // Instrumentation key is probably empty, because the context has not yet had a chance to associate the requestTelemetry to the telemetry client yet.
                 // and get they instrumentation key from all possible sources in the process. Let's do that now.
-                this.telemetryClient.Initialize(requestTelemetry);
+                this.telemetryClient.InitializeInstrumentationKey(requestTelemetry);
             }
 
             if (string.IsNullOrEmpty(requestTelemetry.Source) && context.Request.Headers != null)
@@ -240,7 +240,7 @@
             {
                 // Instrumentation key is probably empty, because the context has not yet had a chance to associate the requestTelemetry to the telemetry client yet.
                 // and get they instrumentation key from all possible sources in the process. Let's do that now.
-                this.telemetryClient.Initialize(requestTelemetry);
+                this.telemetryClient.InitializeInstrumentationKey(requestTelemetry);
             }
 
             try
@@ -459,7 +459,7 @@
 
                 try
                 {
-                    this.TagRequest(context);
+                    TagRequest(context);
                 }
                 catch (Exception ex)
                 {
@@ -488,7 +488,7 @@
                     if (rootRequestId != null)
                     {
                         rootRequestId = StringUtilities.EnforceMaxLength(rootRequestId, InjectionGuardConstants.RequestHeaderMaxLength);
-                        if (!this.IsRequestKnown(rootRequestId))
+                        if (!IsRequestKnown(rootRequestId))
                         {
                             // doesn't exist add to dictionary and return true
                             this.AddRequestToDictionary(rootRequestId);
@@ -516,7 +516,7 @@
             /// Tag new requests.
             /// Transfer Ids to parent requests.
             /// </summary>
-            private void TagRequest(HttpContext context)
+            private static void TagRequest(HttpContext context)
             {
                 var headers = context.Request.Headers;
 
@@ -542,7 +542,7 @@
             /// <summary>
             /// Has this request been tracked.
             /// </summary>
-            private bool IsRequestKnown(string requestId)
+            private static bool IsRequestKnown(string requestId)
             {
                 return activeRequestsA.ContainsKey(requestId) || activeRequestsB.ContainsKey(requestId);
             }

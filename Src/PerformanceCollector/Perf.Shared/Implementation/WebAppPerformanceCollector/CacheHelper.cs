@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
 #if NETSTANDARD1_6
     using Microsoft.Extensions.Caching.Memory;
 #else
@@ -12,6 +13,7 @@
     /// <summary>
     /// Class to contain the one cache for all Gauges.
     /// </summary>
+    [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification="This class targets both net45 and netstandard. Net Standard implementation has instance members.")]
     internal class CacheHelper : ICachedEnvironmentVariableAccess, IDisposable
     {
         /// <summary>

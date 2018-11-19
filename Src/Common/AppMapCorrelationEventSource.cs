@@ -85,6 +85,7 @@
         /// <summary>
         /// Keywords for the <see cref="AppMapCorrelationEventSource"/>.
         /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "Required By ETW manifest")]
         public sealed class Keywords
         {
             /// <summary>

@@ -8,7 +8,7 @@
     /// <summary>
     /// Allows configuration of patterns for synthetic traffic filters.
     /// </summary>
-    [Obsolete]
+    [Obsolete("Replaced with string compare in SyntheticUserAgentTelemetryInitializer. See: https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/85")]
     public class SyntheticUserAgentFilter
     {
         private string pattern;

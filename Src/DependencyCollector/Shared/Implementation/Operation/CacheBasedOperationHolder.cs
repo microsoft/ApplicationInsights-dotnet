@@ -50,7 +50,7 @@
         {
             if (telemetryTuple == null)
             {
-                throw new ArgumentNullException("telemetryTuple");
+                throw new ArgumentNullException(nameof(telemetryTuple));
             }
 
             // it might be possible to optimize by preventing the long to string conversion

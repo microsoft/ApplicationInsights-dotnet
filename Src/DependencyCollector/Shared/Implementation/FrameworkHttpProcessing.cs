@@ -22,13 +22,8 @@
         internal FrameworkHttpProcessing(TelemetryConfiguration configuration, CacheBasedOperationHolder telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, bool injectLegacyHeaders)
             : base(configuration, SdkVersionUtils.GetSdkVersion("rdd" + RddSource.Framework + ":"), null, setCorrelationHeaders, correlationDomainExclusionList, injectLegacyHeaders, false)
         {
-            if (telemetryTupleHolder == null)
-            {
-                throw new ArgumentNullException("telemetryTupleHolder");
-            }
-
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
-            this.TelemetryTable = telemetryTupleHolder;
+            this.TelemetryTable = telemetryTupleHolder ?? throw new ArgumentNullException(nameof(telemetryTupleHolder));
         }
       
         /// <summary>
@@ -105,10 +100,8 @@
         /// On end callback from Framework event source.
         /// </summary>
         /// <param name="id">The id.</param>
-        /// <param name="success">The success to indicate if the dependency call completed successfully or not.</param>
-        /// <param name="synchronous">The synchronous flag to indicate if the dependency call was synchronous or not.</param>
         /// <param name="statusCode">The HTTP status code of the response.</param>
-        public void OnEndHttpCallback(long id, bool? success, bool synchronous, int? statusCode)
+        public void OnEndHttpCallback(long id, int? statusCode)
         {
             DependencyCollectorEventSource.Log.EndCallbackCalled(id.ToString(CultureInfo.InvariantCulture));
             var telemetryTuple = this.TelemetryTable.Get(id);

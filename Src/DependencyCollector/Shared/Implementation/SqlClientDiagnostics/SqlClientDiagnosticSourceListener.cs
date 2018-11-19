@@ -42,6 +42,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
         private const string SqlClientPrefix = "System.Data.SqlClient.";
 
+        private static readonly ActiveSubsciptionManager SubscriptionManager = new ActiveSubsciptionManager();
         private readonly TelemetryClient client;
         private readonly SqlClientDiagnosticSourceSubscriber subscriber;
 
@@ -74,6 +75,15 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
         {
             try
             {
+                // It's possible to host multiple apps (ASP.NET Core or generic hosts) in the same process
+                // Each of this apps has it's own DependencyTrackingModule and corresponding SQL listener.
+                // We should ignore events for all of them except one
+                if (!SubscriptionManager.IsActive(this))
+                {
+                    DependencyCollectorEventSource.Log.NotActiveListenerNoTracking(evnt.Key, Activity.Current?.Id);
+                    return;
+                }
+
                 switch (evnt.Key)
                 {
                     case SqlBeforeExecuteCommand:
@@ -88,11 +98,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         {
                             var dependencyName = string.Empty;
                             var target = string.Empty;
-                            SqlConnection connection = null;
 
                             if (command.Connection != null)
                             {
-                                connection = command.Connection;
+                                var connection = command.Connection;
                                 target = string.Join(" | ", connection.DataSource, connection.Database);
 
                                 var commandName = command.CommandType == CommandType.StoredProcedure
@@ -109,7 +118,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             var telemetry = new DependencyTelemetry()
                             {
-                                Id = operationId.ToString("N"),
+                                Id = operationId.ToStringInvariant("N"),
                                 Name = dependencyName,
                                 Type = RemoteDependencyConstants.SQL,
                                 Target = target,
@@ -155,7 +164,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         }
                         else
                         {
-                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToString("N"));
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToStringInvariant("N"));
                         }
 
                         break;
@@ -188,7 +197,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         }
                         else
                         {
-                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToString("N"));
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToStringInvariant("N"));
                         }
 
                         break;
@@ -209,7 +218,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             var telemetry = new DependencyTelemetry()
                             {
-                                Id = operationId.ToString("N"),
+                                Id = operationId.ToStringInvariant("N"),
                                 Name = string.Join(" | ", connection.DataSource, connection.Database, operation),
                                 Type = RemoteDependencyConstants.SQL,
                                 Target = string.Join(" | ", connection.DataSource, connection.Database),
@@ -244,7 +253,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         }
                         else
                         {
-                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToString("N"));
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToStringInvariant("N"));
                         }
 
                         break;
@@ -277,7 +286,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         }
                         else
                         {
-                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToString("N"));
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToStringInvariant("N"));
                         }
 
                         break;
@@ -299,7 +308,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             var telemetry = new DependencyTelemetry()
                             {
-                                Id = operationId.ToString("N"),
+                                Id = operationId.ToStringInvariant("N"),
                                 Name = string.Join(" | ", connection.DataSource, connection.Database, operation, isolationLevel),
                                 Type = RemoteDependencyConstants.SQL,
                                 Target = string.Join(" | ", connection.DataSource, connection.Database),
@@ -335,7 +344,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             var telemetry = new DependencyTelemetry()
                             {
-                                Id = operationId.ToString("N"),
+                                Id = operationId.ToStringInvariant("N"),
                                 Name = string.Join(" | ", connection.DataSource, connection.Database, operation, isolationLevel),
                                 Type = RemoteDependencyConstants.SQL,
                                 Target = string.Join(" | ", connection.DataSource, connection.Database),
@@ -356,13 +365,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                     }
 
                     case SqlAfterCommitTransaction:
-                    case SqlAfterRollbackTransaction:
                     {
-                        var operationId = (Guid)TransactionAfter.OperationId.Fetch(evnt.Value);
+                        var operationId = (Guid)TransactionCommitAfter.OperationId.Fetch(evnt.Value);
 
-                        DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId, evnt.Key);
+                        DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId,
+                            evnt.Key);
 
-                        var connection = (SqlConnection)TransactionAfter.Connection.Fetch(evnt.Value);
+                        var connection = (SqlConnection)TransactionCommitAfter.Connection.Fetch(evnt.Value);
                         var tuple = this.operationHolder.Get(connection);
 
                         if (tuple != null)
@@ -371,7 +380,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             var telemetry = tuple.Item1;
 
-                            var timestamp = (long)TransactionAfter.Timestamp.Fetch(evnt.Value);
+                            var timestamp = (long)TransactionCommitAfter.Timestamp.Fetch(evnt.Value);
 
                             telemetry.Stop(timestamp);
 
@@ -379,20 +388,20 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         }
                         else
                         {
-                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToString("N"));
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(
+                                operationId.ToStringInvariant("N"));
                         }
 
                         break;
                     }
 
-                    case SqlErrorCommitTransaction:
-                    case SqlErrorRollbackTransaction:
+                    case SqlAfterRollbackTransaction:
                     {
-                        var operationId = (Guid)TransactionError.OperationId.Fetch(evnt.Value);
+                        var operationId = (Guid)TransactionRollbackAfter.OperationId.Fetch(evnt.Value);
 
                         DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId, evnt.Key);
 
-                        var connection = (SqlConnection)TransactionError.Connection.Fetch(evnt.Value);
+                        var connection = (SqlConnection)TransactionRollbackAfter.Connection.Fetch(evnt.Value);
                         var tuple = this.operationHolder.Get(connection);
 
                         if (tuple != null)
@@ -401,11 +410,40 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
                             var telemetry = tuple.Item1;
 
-                            var timestamp = (long)TransactionError.Timestamp.Fetch(evnt.Value);
+                            var timestamp = (long)TransactionRollbackAfter.Timestamp.Fetch(evnt.Value);
 
                             telemetry.Stop(timestamp);
 
-                            var exception = (Exception)TransactionError.Exception.Fetch(evnt.Value);
+                            this.client.TrackDependency(telemetry);
+                        }
+                        else
+                        {
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToStringInvariant("N"));
+                        }
+
+                        break;
+                    }
+
+                    case SqlErrorCommitTransaction:
+                    {
+                        var operationId = (Guid)TransactionCommitError.OperationId.Fetch(evnt.Value);
+
+                        DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId, evnt.Key);
+
+                        var connection = (SqlConnection)TransactionCommitError.Connection.Fetch(evnt.Value);
+                        var tuple = this.operationHolder.Get(connection);
+
+                        if (tuple != null)
+                        {
+                            this.operationHolder.Remove(connection);
+
+                            var telemetry = tuple.Item1;
+
+                            var timestamp = (long)TransactionCommitError.Timestamp.Fetch(evnt.Value);
+
+                            telemetry.Stop(timestamp);
+
+                            var exception = (Exception)TransactionCommitError.Exception.Fetch(evnt.Value);
 
                             ConfigureExceptionTelemetry(telemetry, exception);
 
@@ -413,7 +451,40 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                         }
                         else
                         {
-                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToString("N"));
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToStringInvariant("N"));
+                        }
+
+                        break;
+                    }
+
+                    case SqlErrorRollbackTransaction:
+                    {
+                        var operationId = (Guid)TransactionRollbackError.OperationId.Fetch(evnt.Value);
+
+                        DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberCallbackCalled(operationId, evnt.Key);
+
+                        var connection = (SqlConnection)TransactionRollbackError.Connection.Fetch(evnt.Value);
+                        var tuple = this.operationHolder.Get(connection);
+
+                        if (tuple != null)
+                        {
+                            this.operationHolder.Remove(connection);
+
+                            var telemetry = tuple.Item1;
+
+                            var timestamp = (long)TransactionRollbackError.Timestamp.Fetch(evnt.Value);
+
+                            telemetry.Stop(timestamp);
+
+                            var exception = (Exception)TransactionRollbackError.Exception.Fetch(evnt.Value);
+
+                            ConfigureExceptionTelemetry(telemetry, exception);
+
+                            this.client.TrackDependency(telemetry);
+                        }
+                        else
+                        {
+                            DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(operationId.ToStringInvariant("N"));
                         }
 
                         break;
@@ -436,7 +507,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
             if (activity != null)
             {
                 telemetry.Context.Operation.Id = activity.RootId;
-                telemetry.Context.Operation.ParentId = activity.ParentId;
+
+                // SQL Client does NOT create and Activity, i.e. 
+                // we initialize SQL dependency using request Activity 
+                // and it is a parent of the SQL dependency
+                telemetry.Context.Operation.ParentId = activity.Id;
 
                 foreach (var item in activity.Baggage)
                 {
@@ -448,7 +523,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
             }
             else
             {
-                telemetry.Context.Operation.Id = operationId.ToString("N");
+                telemetry.Context.Operation.Id = operationId.ToStringInvariant("N");
             }
         }
 
@@ -457,9 +532,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
             telemetry.Success = false;
             telemetry.Properties["Exception"] = exception.ToInvariantString();
 
-            var sqlException = exception as SqlException;
-
-            if (sqlException != null)
+            if (exception is SqlException sqlException)
             {
                 telemetry.ResultCode = sqlException.Number.ToString(CultureInfo.InvariantCulture);
             }
@@ -495,6 +568,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                 {
                     DependencyCollectorEventSource.Log.SqlClientDiagnosticSubscriberFailedToSubscribe(ex.ToInvariantString());
                 }
+
+                SubscriptionManager.Attach(this.sqlDiagnosticListener);
             }
 
             public void OnNext(DiagnosticListener value)
@@ -518,15 +593,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
 
             public void Dispose()
             {
-                if (this.eventSubscription != null)
-                {
-                    this.eventSubscription.Dispose();
-                }
+                SubscriptionManager.Detach(this.sqlDiagnosticListener);
+                this.eventSubscription?.Dispose();
 
-                if (this.listenerSubscription != null)
-                {
-                    this.listenerSubscription.Dispose();
-                }
+                this.listenerSubscription?.Dispose();
             }
         }
     }
