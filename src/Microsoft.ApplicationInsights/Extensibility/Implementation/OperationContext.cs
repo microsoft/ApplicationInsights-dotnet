@@ -62,7 +62,7 @@
         /// </summary>
         public string SyntheticSource
         {
-            get { return this.syntheticSource; }
+            get { return string.IsNullOrEmpty(this.syntheticSource) ? null : this.syntheticSource; }
             set { this.syntheticSource = value; }
         }
 
