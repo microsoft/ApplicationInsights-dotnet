@@ -38,7 +38,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.context = new TelemetryContext();
             this.GenerateId();
             this.Name = string.Empty;
-            this.Id = string.Empty;
             this.ResultCode = string.Empty;
             this.Duration = TimeSpan.Zero;
             this.Target = string.Empty;

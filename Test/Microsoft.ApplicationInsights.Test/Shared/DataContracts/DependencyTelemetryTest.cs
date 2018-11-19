@@ -26,10 +26,11 @@
             Assert.IsNotNull(defaultDependencyTelemetry.Target);
             Assert.IsNotNull(defaultDependencyTelemetry.Name);
             Assert.IsNotNull(defaultDependencyTelemetry.Data);
-            Assert.IsNotNull(defaultDependencyTelemetry.ResultCode);
-            Assert.IsNotNull(defaultDependencyTelemetry.Id);
+            Assert.IsNotNull(defaultDependencyTelemetry.ResultCode);            
             Assert.IsNotNull(defaultDependencyTelemetry.Type);
-    }
+            Assert.IsNotNull(defaultDependencyTelemetry.Id);
+            Assert.IsTrue(defaultDependencyTelemetry.Id.Length >= 1);
+        }
 
         [TestMethod]
         public void DependencyTelemetryITelemetryContractConsistentlyWithOtherTelemetryTypes()
