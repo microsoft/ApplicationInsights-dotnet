@@ -30,7 +30,7 @@
             try
             {
                 // As this is executed inside a separate AppDomain, it is safe to load assemblies here without interfering with user code.                
-                loadedAssembly = this.AttemptToLoadAssembly(this.AssemblyNameToLoad, this.VersionsToAttempt);
+                loadedAssembly = AttemptToLoadAssembly(this.AssemblyNameToLoad, this.VersionsToAttempt);
                 if (loadedAssembly != null)
                 {
                     // This is a test loader. Just populate test values if assembly loading is successfull.

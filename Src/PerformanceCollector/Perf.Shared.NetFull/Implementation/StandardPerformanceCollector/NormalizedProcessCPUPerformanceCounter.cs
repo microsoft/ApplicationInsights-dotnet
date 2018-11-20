@@ -16,10 +16,8 @@
         /// <summary>
         ///  Initializes a new instance of the <see cref="NormalizedProcessCPUPerformanceCounter" /> class.
         /// </summary>
-        /// <param name="categoryName">The counter category name.</param>
-        /// <param name="counterName">The counter name.</param>
         /// <param name="instanceName">The instance name.</param>
-        internal NormalizedProcessCPUPerformanceCounter(string categoryName, string counterName, string instanceName)
+        internal NormalizedProcessCPUPerformanceCounter(string instanceName)
         {
             int? count = PerformanceCounterUtility.GetProcessorCount(false);
 

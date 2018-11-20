@@ -15,6 +15,7 @@
     /// Telemetry Initializer that sets correlation ids for W3C.
     /// </summary>
     [Obsolete("Not ready for public consumption.")]
+    [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "TelemetryInitializers are intended to be instatiated by the framework when added to a config.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
 #if DEPENDENCY_COLLECTOR
     public
@@ -27,7 +28,7 @@
         private const string SqlRemoteDependencyType = "SQL";
 
         /// <summary>
-        /// Initializes telemety item.
+        /// Initializes telemetry item.
         /// </summary>
         /// <param name="telemetry">Telemetry item.</param>
         public void Initialize(ITelemetry telemetry)
@@ -73,7 +74,7 @@
                         // on .NET Fx Activities are not always reliable, this code prevents update
                         // of the telemetry that was forcibly updated during Activity lifetime
                         // ON .NET Core there is no such problem 
-                        if (telemetry.Context.Operation.Id == tag.Value && !forceUpdate)
+                        if (telemetry.Context.Operation.Id == tag.Value && initializeFromCurrent && !forceUpdate)
                         {
                             return;
                         }

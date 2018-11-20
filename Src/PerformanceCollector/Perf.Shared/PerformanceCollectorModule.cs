@@ -144,7 +144,7 @@
                             string.Format(
                                 CultureInfo.InvariantCulture,
                                 "Custom counters count: '{0}'",
-                                this.Counters != null ? this.Counters.Count : 0));
+                                Counters?.Count ?? 0));
 
                         if (configuration == null)
                         {

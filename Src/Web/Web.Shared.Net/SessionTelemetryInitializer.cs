@@ -14,7 +14,7 @@
         private const string WebSessionCookieName = "ai_session";
         private const int SessionCookieSessionIdIndex = 0;
 
-        internal void GetSessionContextFromUserCookie(HttpCookie sessionCookie, RequestTelemetry requestTelemetry)
+        internal static void GetSessionContextFromUserCookie(HttpCookie sessionCookie, RequestTelemetry requestTelemetry)
         {
             if (sessionCookie == null)
             {
@@ -53,7 +53,7 @@
             {
                 if (string.IsNullOrEmpty(requestTelemetry.Context.Session.Id))
                 {
-                    this.GetSessionContextFromUserCookie(platformContext.Request.UnvalidatedGetCookie(WebSessionCookieName), requestTelemetry);
+                    GetSessionContextFromUserCookie(platformContext.Request.UnvalidatedGetCookie(WebSessionCookieName), requestTelemetry);
                 }
 
                 telemetry.Context.Session.Id = requestTelemetry.Context.Session.Id;

@@ -26,4 +26,20 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WindowsServerEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnobservedExceptionTelemetryModule.cs" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <Compile Include="$(MSBuildThisFileDirectory)AzureRoleEnvironmentTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DeviceTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FirstChanceExceptionStatisticsTelemetryModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureRoleEnvironmentContextReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureServiceRuntimeAssemblyLoader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DeviceContextReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\IAzureRoleEnvironmentContextReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\MetricManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Role.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RoleEnvironment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RoleInstance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RuntimeBindingObject.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ServiceRuntime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UnhandledExceptionTelemetryModule.cs" />
+  </ItemGroup>
 </Project>

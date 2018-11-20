@@ -17,7 +17,7 @@
         {
             if (platformContext == null)
             {
-                throw new ArgumentException("platformContext");
+                throw new ArgumentNullException(nameof(platformContext));
             }
 
             var result = new RequestTelemetry();
@@ -37,7 +37,7 @@
                     currentActivity.SetParentId(currentActivity.GetTraceId());
                     W3COperationCorrelationTelemetryInitializer.UpdateTelemetry(result, currentActivity, true);
 
-                    SetLegacyContextIds(platformContext.Request, currentActivity, result);
+                    SetLegacyContextIds(platformContext.Request, result);
                 }
                 else if (currentActivity.Extract(platformContext.Request.Headers))
                 {
@@ -83,7 +83,7 @@
                     ActivityHelpers.ExtractTracestate(platformContext.Request, currentActivity, result);
 
                     W3COperationCorrelationTelemetryInitializer.UpdateTelemetry(result, currentActivity, true);
-                    SetLegacyContextIds(platformContext.Request, currentActivity, result);
+                    SetLegacyContextIds(platformContext.Request, result);
                 }
                 else if (ActivityHelpers.IsHierarchicalRequestId(currentActivity.ParentId))
                 {
@@ -128,7 +128,7 @@
         {
             if (platformContext == null)
             {
-                throw new ArgumentException("platformContext");
+                throw new ArgumentNullException(nameof(platformContext));
             }
 
             var result = platformContext.GetRequestTelemetry() ??
@@ -197,7 +197,7 @@
             return name;
         }
 
-        private static void SetLegacyContextIds(HttpRequest request, Activity activity, RequestTelemetry requestTelemetry)
+        private static void SetLegacyContextIds(HttpRequest request, RequestTelemetry requestTelemetry)
         {
             if (request.UnvalidatedGetHeader(W3CConstants.TraceParentHeader) != null)
             {

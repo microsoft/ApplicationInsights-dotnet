@@ -2,10 +2,7 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("WindowsServer.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Web.TestFramework, PublicKey=" + AssemblyInfo.PublicKey)]
-[assembly: InternalsVisibleTo("WindowsServer.Nuget.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
-
-[assembly: AssemblyCopyright("© Microsoft Corporation. All rights reserved.")]
+[assembly: InternalsVisibleTo("Microsoft.AI.WindowsServer.NetCore.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
 internal static class AssemblyInfo
 {

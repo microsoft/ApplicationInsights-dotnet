@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
+    using System.Diagnostics;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -11,7 +12,7 @@
     internal sealed class FrameworkSqlProcessing
     {
         internal CacheBasedOperationHolder TelemetryTable;
-        private TelemetryClient telemetryClient;
+        private readonly TelemetryClient telemetryClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FrameworkSqlProcessing"/> class.
@@ -20,15 +21,10 @@
         {
             if (configuration == null)
             {
-                throw new ArgumentNullException("configuration");
+                throw new ArgumentNullException(nameof(configuration));
             }
 
-            if (telemetryTupleHolder == null)
-            {
-                throw new ArgumentNullException("telemetryHolder");
-            }
-
-            this.TelemetryTable = telemetryTupleHolder;
+            this.TelemetryTable = telemetryTupleHolder ?? throw new ArgumentNullException(nameof(telemetryTupleHolder));
             this.telemetryClient = new TelemetryClient(configuration);
 
             // Since dependencySource is no longer set, sdk version is prepended with information which can identify whether RDD was collected by profiler/framework
@@ -51,7 +47,7 @@
         {
             try
             {
-                var resourceName = this.GetResourceName(dataSource, database, commandText);
+                var resourceName = GetResourceName(dataSource, database, commandText);
 
                 DependencyCollectorEventSource.Log.BeginCallbackCalled(id, resourceName);
 
@@ -64,18 +60,25 @@
                 var telemetryTuple = this.TelemetryTable.Get(id);
                 if (telemetryTuple == null)
                 {
-                    bool isCustomCreated = false;
                     var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
                     telemetry.Name = resourceName;
                     telemetry.Target = string.Join(" | ", dataSource, database);
                     telemetry.Type = RemoteDependencyConstants.SQL;
                     telemetry.Data = commandText;
-                    this.TelemetryTable.Store(id, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));
+                    this.TelemetryTable.Store(id, new Tuple<DependencyTelemetry, bool>(telemetry, false));
                 }
             }
             catch (Exception exception)
             {
                 DependencyCollectorEventSource.Log.CallbackError(id, "OnBeginSql", exception);
+            }
+            finally
+            {
+                Activity current = Activity.Current;
+                if (current?.OperationName == ClientServerDependencyTracker.DependencyActivityName)
+                {
+                    current.Stop();
+                }
             }
         }
 
@@ -84,9 +87,8 @@
         /// </summary>        
         /// <param name="id">Identifier of SQL connection object.</param>
         /// <param name="success">Indicate whether operation completed successfully.</param>
-        /// <param name="synchronous">Indicates whether operation was called synchronously or asynchronously.</param>
         /// <param name="sqlExceptionNumber">SQL exception number.</param>
-        public void OnEndExecuteCallback(long id, bool success, bool synchronous, int sqlExceptionNumber)
+        public void OnEndExecuteCallback(long id, bool success, int sqlExceptionNumber)
         {
             DependencyCollectorEventSource.Log.EndCallbackCalled(id.ToString(CultureInfo.InvariantCulture));
 
@@ -101,7 +103,7 @@
             if (!telemetryTuple.Item2)
             {
                 this.TelemetryTable.Remove(id);
-                var telemetry = telemetryTuple.Item1 as DependencyTelemetry;
+                var telemetry = telemetryTuple.Item1;
                 telemetry.Success = success;
                 telemetry.ResultCode = sqlExceptionNumber != 0 ? sqlExceptionNumber.ToString(CultureInfo.InvariantCulture) : string.Empty;
                 DependencyCollectorEventSource.Log.AutoTrackingDependencyItem(telemetry.Name);
@@ -118,12 +120,16 @@
         /// <param name="database">Database name.</param>
         /// <param name="commandText">CommandText name.</param>        
         /// <returns>The resource name if possible otherwise empty string.</returns>
-        private string GetResourceName(string dataSource, string database, string commandText)
+        private static string GetResourceName(string dataSource, string database, string commandText)
         {
-            string resource = string.IsNullOrEmpty(commandText)
-                ? string.Join(" | ", dataSource, database)
-                : commandText;
-            return resource;
+            if (!string.IsNullOrEmpty(commandText))
+            {
+                return commandText;
+            }
+            else
+            {
+                return string.Format(CultureInfo.InvariantCulture, "{0} | {1}", dataSource, database);
+            }
         }
     }
 }

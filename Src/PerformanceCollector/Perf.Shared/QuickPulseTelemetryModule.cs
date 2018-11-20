@@ -396,7 +396,7 @@
 
         private static string GetStreamId()
         {
-            return Guid.NewGuid().ToString("N");
+            return Guid.NewGuid().ToStringInvariant("N");
         }
 
         private static QuickPulseDataSample CreateDataSample(

@@ -625,10 +625,10 @@
 
                 var exception = new Exception();
 
-                Assert.False(module.WasExceptionTracked(exception));
-                Assert.True(module.WasExceptionTracked(exception));
-                Assert.True(module.WasExceptionTracked(exception));
-                Assert.True(module.WasExceptionTracked(exception));
+                Assert.False(FirstChanceExceptionStatisticsTelemetryModule.WasExceptionTracked(exception));
+                Assert.True(FirstChanceExceptionStatisticsTelemetryModule.WasExceptionTracked(exception));
+                Assert.True(FirstChanceExceptionStatisticsTelemetryModule.WasExceptionTracked(exception));
+                Assert.True(FirstChanceExceptionStatisticsTelemetryModule.WasExceptionTracked(exception));
             }
         }
 
@@ -660,12 +660,12 @@
 
                 var exception = new Exception();
 
-                Assert.False(module.WasExceptionTracked(exception));
+                Assert.False(FirstChanceExceptionStatisticsTelemetryModule.WasExceptionTracked(exception));
 
                 var wrapper1 = new Exception("wrapper 1", exception);
                 var wrapper2 = new Exception("wrapper 2", wrapper1);
 
-                Assert.False(module.WasExceptionTracked(wrapper2));
+                Assert.False(FirstChanceExceptionStatisticsTelemetryModule.WasExceptionTracked(wrapper2));
             }
         }
 
@@ -696,7 +696,7 @@
                 var exception = new Exception();
 
                 var aggExc = new AggregateException(exception);
-                Assert.False(module.WasExceptionTracked(aggExc));
+                Assert.False(FirstChanceExceptionStatisticsTelemetryModule.WasExceptionTracked(aggExc));
             }
         }
 

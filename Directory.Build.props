@@ -58,6 +58,7 @@
 
         <!-- Collect all NuGet packages in the same folder for convenience during testing -->
         <PackageOutputDir>$(BinRoot)\$(Configuration)\NuGet</PackageOutputDir>
+        <PackageOutputPath>$(PackageOutputDir)</PackageOutputPath>
 
         <AppxPackageDir>$(OutputPath)</AppxPackageDir>
 
@@ -69,14 +70,12 @@
         <PackagesDir>$(EnlistmentRoot)\..\packages</PackagesDir>
         <PackagesDir>$([System.IO.Path]::GetFullPath( $(PackagesDir) ))</PackagesDir>
 
-		        <MyGetPackageSource>https://www.myget.org/F/applicationinsights/api/v2</MyGetPackageSource>
+		    <MyGetPackageSource>https://www.myget.org/F/applicationinsights/api/v2</MyGetPackageSource>
 
         <PowerShellExe Condition=" '$(PowerShellExe)'=='' ">%WINDIR%\System32\WindowsPowerShell\v1.0\powershell.exe</PowerShellExe>
         
         <NugetVersionFilePath>$(MSBuildThisFileDirectory).nugetVersion</NugetVersionFilePath>
         <BuildNugetVersion Condition="Exists($(NugetVersionFilePath))">$([System.IO.File]::ReadAllText($(NugetVersionFilePath)))</BuildNugetVersion>
-
-        <CoreSdkVersion>2.8.1</CoreSdkVersion>
 
         <!-- Forces EventRegister target to generate ETW manifest file --> 
         <EtwManifestForceAll>true</EtwManifestForceAll>

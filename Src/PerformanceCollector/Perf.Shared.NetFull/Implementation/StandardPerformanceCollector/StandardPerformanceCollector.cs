@@ -8,7 +8,6 @@
     internal class StandardPerformanceCollector : IPerformanceCollector, IDisposable
     {
         private readonly List<Tuple<PerformanceCounterData, ICounterValue>> performanceCounters = new List<Tuple<PerformanceCounterData, ICounterValue>>();
-        private CounterFactory factory = new CounterFactory();
 
         private IEnumerable<string> win32Instances;
         private IEnumerable<string> clrInstances;
@@ -246,7 +245,7 @@
 
             try
             {
-                performanceCounter = this.factory.GetCounter(originalString, categoryName, counterName, instanceName);
+                performanceCounter = CounterFactory.GetCounter(originalString, categoryName, counterName, instanceName);
             }
             catch (Exception e)
             {

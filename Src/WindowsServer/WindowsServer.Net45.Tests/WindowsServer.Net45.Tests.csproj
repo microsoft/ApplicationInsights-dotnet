@@ -2,6 +2,7 @@
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
   <PropertyGroup>
+    <RuntimeIdentifier>win</RuntimeIdentifier>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F05EB480-B209-47DD-90E3-1DDC47EFC579}</ProjectGuid>
@@ -24,8 +25,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
-    <Reference Include="Microsoft.ApplicationInsights, Version=2.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.8.1\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
+    <Reference Include="Microsoft.ApplicationInsights, Version=2.9.0-beta1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.9.0-beta1\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -66,9 +67,9 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WindowsServer.Net45\WindowsServer.Net45.csproj">
-      <Project>{e7e874bd-609c-41ca-8594-f793da2fa0d0}</Project>
-      <Name>WindowsServer.Net45</Name>
+    <ProjectReference Include="..\WindowsServer\WindowsServer.csproj">
+      <Project>{94127fd9-e516-4891-98d4-ef7523117f32}</Project>
+      <Name>WindowsServer</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

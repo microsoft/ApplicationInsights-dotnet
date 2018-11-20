@@ -1,29 +1,30 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 #if NET45
     using System.Diagnostics.Tracing;
 #endif
+    using Microsoft.ApplicationInsights.Common;
     
     /// <summary>
     /// ETW EventSource tracing class.
     /// </summary>
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-Web")]
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class WebEventSource : EventSource
     {
         /// <summary>
         /// Instance of the PlatformEventSource class.
         /// </summary>
         public static readonly WebEventSource Log = new WebEventSource();
+        private readonly ApplicationNameProvider applicationNameProvider = new ApplicationNameProvider();
 
         private WebEventSource()
         {
-            this.ApplicationName = this.GetApplicationName();
         }
 
-        public string ApplicationName { [NonEvent]get; [NonEvent]private set; }
-
-        public bool IsVerboseEnabled 
+        public static bool IsVerboseEnabled 
         { 
             [NonEvent] 
              get 
@@ -41,7 +42,7 @@
             this.WriteEvent(
                 1,
                 excMessage ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -54,7 +55,7 @@
                 2,
                 callbackName ?? string.Empty,
                 excMessage ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -67,7 +68,7 @@
                 3,
                 callback ?? string.Empty,
                 uri ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -79,7 +80,7 @@
             this.WriteEvent(
                 4,
                 exception ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -91,7 +92,7 @@
             this.WriteEvent(
                 5,
                 exception ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -100,7 +101,7 @@
             Level = EventLevel.Verbose)]
         public void WebTelemetryModuleRequestTelemetryCreated(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(8, this.ApplicationName);
+            this.WriteEvent(8, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -109,7 +110,7 @@
             Level = EventLevel.Warning)]
         public void HttpRequestNotAvailable(string message, string stack, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(9, message, stack, this.ApplicationName);
+            this.WriteEvent(9, message, stack, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -119,7 +120,7 @@
             Level = EventLevel.Verbose)]
         public void WebSessionTrackingSessionCookieIsNotSecifiedInRequest(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(10, this.ApplicationName);
+            this.WriteEvent(10, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -128,7 +129,7 @@
             Level = EventLevel.Warning)]
         public void WebSessionTrackingSessionCookieIsEmptyWarning(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(11, this.ApplicationName);
+            this.WriteEvent(11, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -137,7 +138,7 @@
             Level = EventLevel.Verbose)]
         public void WebUserTrackingUserCookieNotAvailable(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(12, this.ApplicationName);
+            this.WriteEvent(12, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -146,7 +147,7 @@
             Level = EventLevel.Warning)]
         public void WebUserTrackingUserCookieIsEmpty(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(13, this.ApplicationName);
+            this.WriteEvent(13, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -159,7 +160,7 @@
             this.WriteEvent(
                 14,
                 cookieValue ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -173,7 +174,7 @@
             this.WriteEvent(
                 16,
                 typeName ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -183,7 +184,7 @@
         public void WebTelemetryInitializerNotExecutedOnNullHttpContext(
             string appDomainName = "Incorrect")
         {
-            this.WriteEvent(17, this.ApplicationName);
+            this.WriteEvent(17, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -199,7 +200,7 @@
                 18,
                 typeName ?? string.Empty,
                 exception ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -208,7 +209,7 @@
             Level = EventLevel.Verbose)]
         public void WebLocationIdHeaderFound(string headerName, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(19, headerName ?? "NULL", this.ApplicationName);
+            this.WriteEvent(19, headerName ?? "NULL", this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -217,7 +218,7 @@
             Level = EventLevel.Verbose)]
         public void WebLocationIdSet(string ip, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(20, ip ?? "NULL", this.ApplicationName);
+            this.WriteEvent(20, ip ?? "NULL", this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -226,7 +227,7 @@
             Level = EventLevel.Warning)]
         public void WebUriFormatException(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(21, this.ApplicationName);
+            this.WriteEvent(21, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -235,7 +236,7 @@
             Level = EventLevel.Verbose)]
         public void AuthIdTrackingCookieNotAvailable(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(26, this.ApplicationName);
+            this.WriteEvent(26, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -244,7 +245,7 @@
             Level = EventLevel.Warning)]
         public void AuthIdTrackingCookieIsEmpty(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(27, this.ApplicationName);
+            this.WriteEvent(27, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -255,7 +256,7 @@
         {
             this.WriteEvent(
                 28,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -266,7 +267,7 @@
         {
             this.WriteEvent(
                 29,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -277,7 +278,7 @@
         {
             this.WriteEvent(
                 30,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -291,7 +292,7 @@
                 31,
                 pattern,
                 exception,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -303,7 +304,7 @@
             this.WriteEvent(
                 32,
                 excMessage ?? string.Empty,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -314,7 +315,7 @@
         {
             this.WriteEvent(
                 33,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -325,7 +326,7 @@
         {
             this.WriteEvent(
                 34,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -337,7 +338,7 @@
             this.WriteEvent(
                 35,
                 exception,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -349,7 +350,7 @@
             this.WriteEvent(
                 36,
                 exception,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -360,7 +361,7 @@
         {
             this.WriteEvent(
                 37,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -371,7 +372,7 @@
         {
             this.WriteEvent(
                 38,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -384,7 +385,7 @@
                 39,
                 methodName,
                 exceptionMessage,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -395,7 +396,7 @@
         {
             this.WriteEvent(
                 40,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -408,7 +409,7 @@
                 41,
                 requestId,
                 reason,
-                this.ApplicationName);
+                this.applicationNameProvider.Name);
         }
 
         [Event(42,
@@ -417,7 +418,7 @@
             Level = EventLevel.Verbose)]
         public void InjectionStarted(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(42, this.ApplicationName);
+            this.WriteEvent(42, this.applicationNameProvider.Name);
         }
 
         [Event(43,
@@ -426,7 +427,7 @@
             Level = EventLevel.Informational)]
         public void InjectionFailed(string component, string error, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(43, component ?? string.Empty, error ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(43, component ?? string.Empty, error ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(44,
@@ -435,7 +436,7 @@
             Level = EventLevel.Verbose)]
         public void InjectionVersionNotSupported(string version, string component, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(44, version ?? string.Empty, component ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(44, version ?? string.Empty, component ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -445,7 +446,7 @@
             Level = EventLevel.Error)]
         public void InjectionUnknownError(string error, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(45, error ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(45, error ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(
@@ -455,7 +456,7 @@
             Level = EventLevel.Verbose)]
         public void InjectionSkipped(string type, string component, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(46, type ?? string.Empty, component ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(46, type ?? string.Empty, component ?? string.Empty, this.applicationNameProvider.Name);
         }
 
         [Event(47,
@@ -464,7 +465,7 @@
             Level = EventLevel.Verbose)]
         public void InjectionCompleted(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(47, this.ApplicationName);
+            this.WriteEvent(47, this.applicationNameProvider.Name);
         }
 
         [Event(48,
@@ -473,7 +474,7 @@
             Level = EventLevel.Error)]
         public void ActivityIsNull(string diagnosticsSourceEventName, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(48, diagnosticsSourceEventName, this.ApplicationName);
+            this.WriteEvent(48, diagnosticsSourceEventName, this.applicationNameProvider.Name);
         }
 
         [Event(49,
@@ -484,23 +485,7 @@
         {
             this.WriteEvent(
                 49,
-                this.ApplicationName);
-        }
-
-        [NonEvent]
-        private string GetApplicationName()
-        {
-            string name;
-            try
-            {
-                name = AppDomain.CurrentDomain.FriendlyName;
-            }
-            catch (Exception exp)
-            {
-                name = "Undefined " + exp.Message;
-            }
-
-            return name;
+                this.applicationNameProvider.Name);
         }
 
         /// <summary>
