@@ -8,12 +8,7 @@
     /// </summary>
     [Obsolete("Not ready for public consumption.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-#if DEPENDENCY_COLLECTOR
-    public
-#else
-    internal
-#endif
-    static class W3CConstants
+    internal static class W3CConstants
     {
         /// <summary>
         /// W3C traceparent header name.

@@ -13,12 +13,7 @@
     /// </summary>
     [Obsolete("Not ready for public consumption.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-#if DEPENDENCY_COLLECTOR
-    public
-#else
-    internal
-#endif
-    static class W3CActivityExtensions
+    internal static class W3CActivityExtensions
     {
         private static readonly Regex TraceIdRegex = new Regex("^[a-f0-9]{32}$", RegexOptions.Compiled);
         private static readonly Regex SpanIdRegex = new Regex("^[a-f0-9]{16}$", RegexOptions.Compiled);

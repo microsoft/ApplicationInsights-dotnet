@@ -8,12 +8,7 @@
     /// <summary>
     /// Generic functions to perform common operations on a string.
     /// </summary>
-#if DEPENDENCY_COLLECTOR
-    public
-#else
-    internal
-#endif
-    static class StringUtilities
+    internal static class StringUtilities
     {
         private static readonly uint[] Lookup32 = CreateLookup32();
 
