@@ -17,12 +17,7 @@
     [Obsolete("Not ready for public consumption.")]
     [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "TelemetryInitializers are intended to be instatiated by the framework when added to a config.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-#if DEPENDENCY_COLLECTOR
-    public
-#else
-    internal
-#endif
-    class W3COperationCorrelationTelemetryInitializer : ITelemetryInitializer
+    internal class W3COperationCorrelationTelemetryInitializer : ITelemetryInitializer
     {
         private const string RddDiagnosticSourcePrefix = "rdddsc";
         private const string SqlRemoteDependencyType = "SQL";
