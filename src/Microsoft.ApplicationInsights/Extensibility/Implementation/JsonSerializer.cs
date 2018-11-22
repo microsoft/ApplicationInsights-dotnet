@@ -19,8 +19,6 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class JsonSerializer
     {
-        internal const string EventNameForUnknownTelemetry = "ConvertedTelemetry";
-
         private static readonly UTF8Encoding TransmissionEncoding = new UTF8Encoding(false);
 
         /// <summary>
@@ -209,7 +207,7 @@
             jsonSerializationWriter.WriteStartObject("baseData");
 
             jsonSerializationWriter.WriteProperty("ver", 2);
-            jsonSerializationWriter.WriteProperty("name", EventNameForUnknownTelemetry);
+            jsonSerializationWriter.WriteProperty("name", Constants.EventNameForUnknownTelemetry);
 
             jsonSerializationWriter.WriteProperty("properties", dictionarySerializationWriter.AccumulatedDictionary);
             jsonSerializationWriter.WriteProperty("measurements", dictionarySerializationWriter.AccumulatedMeasurements);

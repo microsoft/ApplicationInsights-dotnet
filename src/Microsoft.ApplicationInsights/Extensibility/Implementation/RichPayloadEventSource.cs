@@ -4,11 +4,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
-    using System.Globalization;
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
     /// Event Source exposes Application Insights telemetry information as ETW events.
@@ -51,6 +50,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 // Sanitize, Copying global properties is to be done before calling .Data,
                 // as Data returns a singleton instance, which won't be updated with changes made
                 // after .Data is called.
+                telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
@@ -69,6 +69,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
 
                 var telemetryItem = item as TraceTelemetry;
+                telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
@@ -87,6 +88,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
 
                 var telemetryItem = item as EventTelemetry;
+                telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
@@ -108,6 +110,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 // Sanitize, Copying global properties is to be done before calling .InternalData,
                 // as InternalData returns a singleton instance, which won't be updated with changes made
                 // after .InternalData is called.
+                telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
@@ -126,6 +129,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
                 
                 var telemetryItem = item as MetricTelemetry;
+                telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
@@ -144,6 +148,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
                 
                 var telemetryItem = item as ExceptionTelemetry;
+                telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
@@ -163,6 +168,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
                 
                 var telemetryItem = (item as PerformanceCounterTelemetry).Data;
+                telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
@@ -182,6 +188,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
                 
                 var telemetryItem = item as PageViewTelemetry;
+                telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
@@ -200,6 +207,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
                 
                 var telemetryItem = item as PageViewPerformanceTelemetry;
+                telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
@@ -219,6 +227,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
                 
                 var telemetryItem = (item as SessionStateTelemetry).Data;
+                telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
@@ -237,6 +246,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 }
                 
                 var telemetryItem = item as AvailabilityTelemetry;
+                telemetryItem.FlattenIExtensionIfExists();
                 CopyGlobalPropertiesIfRequired(item, telemetryItem.Properties);
                 item.Sanitize();
                 this.WriteEvent(
@@ -249,8 +259,23 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
             else
             {
-                string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemetry type: {0}", item.GetType());
-                CoreEventSource.Log.LogVerbose(msg);
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Events))
+                {
+                    return;
+                }
+
+                item.Sanitize();
+
+                EventData telemetryData = item.FlattenTelemetryIntoEventData();
+                telemetryData.name = Constants.EventNameForUnknownTelemetry;
+
+                this.WriteEvent(
+                    EventTelemetry.TelemetryName,
+                    item.Context.InstrumentationKey,
+                    item.Context.SanitizedTags,
+                    telemetryData,
+                    item.Context.Flags,
+                    Keywords.Events);                
             }
         }
 
@@ -346,14 +371,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Tracing;
-    using System.Globalization;
-    using System.Linq;
-    using System.Reflection;
+    using System.Diagnostics.Tracing;    
 
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Channel;    
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
     /// RichPayload Event Source (.Net 4.5 version)
@@ -379,6 +400,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// <summary>Handler for <see cref="OperationTelemetry"/> start/stop operations.</summary>
         private readonly Action<OperationTelemetry, EventOpcode> operationStartStopHandler;
 
+        /// <summary>Handler for Unknown ITelemetry implementations.</summary>
+        private readonly Action<EventData, string, IDictionary<string, string>, long> unknownTelemetryHandler;
+
         /// <summary>
         /// Initializes a new instance of the RichPayloadEventSource class.
         /// </summary>
@@ -398,6 +422,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     this.telemetryHandlers = this.CreateTelemetryHandlers(this.EventSourceInternal);
 
                     this.operationStartStopHandler = this.CreateOperationStartStopHandler(this.EventSourceInternal);
+
+                    this.unknownTelemetryHandler = this.CreateHandlerForUnknownTelemetry(this.EventSourceInternal);
                 }
             }
         }
@@ -415,15 +441,22 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
             Action<ITelemetry> handler = null;
             var itemType = item.GetType();
-            if (!this.telemetryHandlers.TryGetValue(itemType, out handler))
+            if (this.telemetryHandlers.TryGetValue(itemType, out handler))
             {
-                string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemetry type: {0}", itemType.FullName);
-                CoreEventSource.Log.LogVerbose(msg);
-
-                return;
+                item.FlattenIExtensionIfExists();
+                handler(item);
             }
+            else
+            {
+                if (this.unknownTelemetryHandler != null)
+                {
+                    item.Sanitize();
+                    EventData telemetryData = item.FlattenTelemetryIntoEventData();
+                    telemetryData.name = Constants.EventNameForUnknownTelemetry;
 
-            handler(item);
+                    this.unknownTelemetryHandler(telemetryData, item.Context.InstrumentationKey, item.Context.SanitizedTags, item.Context.Flags);
+                }
+            }
         }
 
         /// <summary>
