@@ -3,12 +3,21 @@
     using System;
     using System.Diagnostics;
     using System.Globalization;
-    using Microsoft.ApplicationInsights.W3C;
+#if DEPENDENCY_COLLECTOR
+    using Microsoft.ApplicationInsights.W3C;        
+#else
+    using Microsoft.ApplicationInsights.W3C.Internal;
+#endif
 
     /// <summary>
     /// Generic functions to perform common operations on a string.
     /// </summary>
-    internal static class StringUtilities
+#if DEPENDENCY_COLLECTOR
+    public 
+#else
+    internal
+#endif
+    static class StringUtilities
     {
         private static readonly uint[] Lookup32 = CreateLookup32();
 

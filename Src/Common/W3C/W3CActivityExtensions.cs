@@ -1,4 +1,8 @@
-﻿namespace Microsoft.ApplicationInsights.W3C
+﻿#if DEPENDENCY_COLLECTOR
+    namespace Microsoft.ApplicationInsights.W3C
+#else
+    namespace Microsoft.ApplicationInsights.W3C.Internal
+#endif
 {
     using System;
     using System.ComponentModel;
@@ -13,7 +17,12 @@
     /// </summary>
     [Obsolete("Not ready for public consumption.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    internal static class W3CActivityExtensions
+#if DEPENDENCY_COLLECTOR
+    public 
+#else
+    internal
+#endif
+    static class W3CActivityExtensions
     {
         private static readonly Regex TraceIdRegex = new Regex("^[a-f0-9]{32}$", RegexOptions.Compiled);
         private static readonly Regex SpanIdRegex = new Regex("^[a-f0-9]{16}$", RegexOptions.Compiled);

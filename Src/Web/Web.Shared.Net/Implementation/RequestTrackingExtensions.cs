@@ -6,7 +6,11 @@
     using System.Web;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.W3C;
+#if DEPENDENCY_COLLECTOR
+    using Microsoft.ApplicationInsights.W3C;        
+#else
+    using Microsoft.ApplicationInsights.W3C.Internal;
+#endif
     using Microsoft.AspNet.TelemetryCorrelation;
 
 #pragma warning disable 612, 618
