@@ -4,6 +4,11 @@
     using System.Globalization;
     using System.Linq;
     using System.Text.RegularExpressions;
+#if DEPENDENCY_COLLECTOR
+    using Microsoft.ApplicationInsights.Common;
+#else
+    using Microsoft.ApplicationInsights.Common.Internal;
+#endif
 
     /// <summary>
     /// Generic functions that can be used to get and set Http headers.

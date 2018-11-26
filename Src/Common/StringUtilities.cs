@@ -1,4 +1,8 @@
-﻿namespace Microsoft.ApplicationInsights.Common
+﻿#if DEPENDENCY_COLLECTOR
+    namespace Microsoft.ApplicationInsights.Common
+#else
+    namespace Microsoft.ApplicationInsights.Common.Internal
+#endif
 {
     using System;
     using System.Diagnostics;

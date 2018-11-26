@@ -1,4 +1,8 @@
-﻿namespace Microsoft.ApplicationInsights.Common
+﻿#if DEPENDENCY_COLLECTOR
+    namespace Microsoft.ApplicationInsights.Common
+#else
+namespace Microsoft.ApplicationInsights.Common.Internal
+#endif
 {
     /// <summary>
     /// These values are listed to guard against malicious injections by limiting the max size allowed in an HTTP Response.

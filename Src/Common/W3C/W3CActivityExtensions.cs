@@ -10,7 +10,11 @@
     using System.Globalization;
     using System.Linq;
     using System.Text.RegularExpressions;
+#if DEPENDENCY_COLLECTOR
     using Microsoft.ApplicationInsights.Common;
+#else
+    using Microsoft.ApplicationInsights.Common.Internal;
+#endif
 
     /// <summary>
     /// Extends Activity to support W3C distributed tracing standard.

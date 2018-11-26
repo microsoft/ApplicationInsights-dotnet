@@ -9,11 +9,15 @@ namespace Microsoft.ApplicationInsights.W3C.Internal
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Common;
+    using Microsoft.ApplicationInsights.Channel;    
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+#if DEPENDENCY_COLLECTOR
+    using Microsoft.ApplicationInsights.Common;
+#else
+    using Microsoft.ApplicationInsights.Common.Internal;
+#endif
 
     /// <summary>
     /// Telemetry Initializer that sets correlation ids for W3C.
