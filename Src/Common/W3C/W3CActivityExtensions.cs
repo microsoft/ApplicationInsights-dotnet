@@ -1,4 +1,8 @@
-﻿namespace Microsoft.ApplicationInsights.W3C
+﻿#if DEPENDENCY_COLLECTOR
+    namespace Microsoft.ApplicationInsights.W3C
+#else
+    namespace Microsoft.ApplicationInsights.W3C.Internal
+#endif
 {
     using System;
     using System.ComponentModel;
@@ -6,14 +10,23 @@
     using System.Globalization;
     using System.Linq;
     using System.Text.RegularExpressions;
+#if DEPENDENCY_COLLECTOR
     using Microsoft.ApplicationInsights.Common;
+#else
+    using Microsoft.ApplicationInsights.Common.Internal;
+#endif
 
     /// <summary>
     /// Extends Activity to support W3C distributed tracing standard.
     /// </summary>
     [Obsolete("Not ready for public consumption.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    internal static class W3CActivityExtensions
+#if DEPENDENCY_COLLECTOR
+    public 
+#else
+    internal
+#endif
+    static class W3CActivityExtensions
     {
         private static readonly Regex TraceIdRegex = new Regex("^[a-f0-9]{32}$", RegexOptions.Compiled);
         private static readonly Regex SpanIdRegex = new Regex("^[a-f0-9]{16}$", RegexOptions.Compiled);

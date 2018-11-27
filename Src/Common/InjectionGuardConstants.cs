@@ -1,11 +1,20 @@
-﻿namespace Microsoft.ApplicationInsights.Common
+﻿#if DEPENDENCY_COLLECTOR
+    namespace Microsoft.ApplicationInsights.Common
+#else
+namespace Microsoft.ApplicationInsights.Common.Internal
+#endif
 {
     /// <summary>
     /// These values are listed to guard against malicious injections by limiting the max size allowed in an HTTP Response.
     /// These max limits are intentionally exaggerated to allow for unexpected responses, while still guarding against unreasonably large responses.
     /// Example: While a 32 character response may be expected, 50 characters may be permitted while a 10,000 character response would be unreasonable and malicious.
     /// </summary>
-    internal static class InjectionGuardConstants
+#if DEPENDENCY_COLLECTOR
+    public 
+#else
+    internal
+#endif
+    static class InjectionGuardConstants
     {
         /// <summary>
         /// Max length of AppId allowed in response from Breeze.
