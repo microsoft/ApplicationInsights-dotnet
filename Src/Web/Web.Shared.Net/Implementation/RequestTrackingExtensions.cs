@@ -6,7 +6,7 @@
     using System.Web;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.W3C;
+    using Microsoft.ApplicationInsights.W3C.Internal;
     using Microsoft.AspNet.TelemetryCorrelation;
 
 #pragma warning disable 612, 618

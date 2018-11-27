@@ -1,4 +1,8 @@
-﻿namespace Microsoft.ApplicationInsights.Common
+﻿#if DEPENDENCY_COLLECTOR
+    namespace Microsoft.ApplicationInsights.Common
+#else
+namespace Microsoft.ApplicationInsights.Common.Internal
+#endif
 {
     /// <summary>
     /// These values are listed to guard against malicious injections by limiting the max size allowed in an HTTP Response.
@@ -6,7 +10,7 @@
     /// Example: While a 32 character response may be expected, 50 characters may be permitted while a 10,000 character response would be unreasonable and malicious.
     /// </summary>
 #if DEPENDENCY_COLLECTOR
-    public
+    public 
 #else
     internal
 #endif

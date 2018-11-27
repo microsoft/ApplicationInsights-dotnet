@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\Product.props" />
 
   <PropertyGroup>
@@ -34,13 +34,8 @@
   
   <ItemGroup>
     <!--Common Dependencies-->
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.9.0-beta1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.9.0-beta1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.9.0-beta1">
-      <!--This is needed only in runtime as no code in WindowsServer package has compile time dependency on DependencyCollector-->
-      <IncludeAssets>runtime</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.9.0-beta1" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.9.0-beta2" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.9.0-beta2" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
   </ItemGroup>
 
@@ -57,9 +52,14 @@
     <Content Include="ApplicationInsights.config.uninstall.xdt" />
   </ItemGroup>
   
-  <ItemGroup  Condition="'$(TargetFramework)' == 'net45'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
     <!--Framework References-->    
     <Reference Include="System.Management" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\DependencyCollector\DependencyCollector\DependencyCollector.csproj" />
+    <ProjectReference Include="..\..\PerformanceCollector\PerformanceCollector\Perf.csproj" />
   </ItemGroup>
   
   <Import Project="..\WindowsServer.Shared\WindowsServer.Shared.projitems" Label="Shared" />

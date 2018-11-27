@@ -1,4 +1,8 @@
-﻿namespace Microsoft.ApplicationInsights.W3C
+﻿#if DEPENDENCY_COLLECTOR
+    namespace Microsoft.ApplicationInsights.W3C
+#else
+    namespace Microsoft.ApplicationInsights.W3C.Internal
+#endif
 {
     using System;
     using System.ComponentModel;
@@ -6,7 +10,11 @@
     using System.Globalization;
     using System.Linq;
     using System.Text.RegularExpressions;
+#if DEPENDENCY_COLLECTOR
     using Microsoft.ApplicationInsights.Common;
+#else
+    using Microsoft.ApplicationInsights.Common.Internal;
+#endif
 
     /// <summary>
     /// Extends Activity to support W3C distributed tracing standard.
@@ -14,7 +22,7 @@
     [Obsolete("Not ready for public consumption.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
 #if DEPENDENCY_COLLECTOR
-    public
+    public 
 #else
     internal
 #endif

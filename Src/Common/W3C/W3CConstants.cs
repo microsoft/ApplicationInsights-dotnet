@@ -1,4 +1,8 @@
-﻿namespace Microsoft.ApplicationInsights.W3C
+﻿#if DEPENDENCY_COLLECTOR
+    namespace Microsoft.ApplicationInsights.W3C
+#else
+namespace Microsoft.ApplicationInsights.W3C.Internal
+#endif
 {
     using System;
     using System.ComponentModel;
@@ -9,7 +13,7 @@
     [Obsolete("Not ready for public consumption.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
 #if DEPENDENCY_COLLECTOR
-    public
+    public 
 #else
     internal
 #endif

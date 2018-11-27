@@ -1,15 +1,23 @@
-﻿namespace Microsoft.ApplicationInsights.Common
+﻿#if DEPENDENCY_COLLECTOR
+    namespace Microsoft.ApplicationInsights.Common
+#else
+    namespace Microsoft.ApplicationInsights.Common.Internal
+#endif
 {
     using System;
     using System.Diagnostics;
     using System.Globalization;
-    using Microsoft.ApplicationInsights.W3C;
+#if DEPENDENCY_COLLECTOR
+    using Microsoft.ApplicationInsights.W3C;        
+#else
+    using Microsoft.ApplicationInsights.W3C.Internal;
+#endif
 
     /// <summary>
     /// Generic functions to perform common operations on a string.
     /// </summary>
 #if DEPENDENCY_COLLECTOR
-    public
+    public 
 #else
     internal
 #endif
