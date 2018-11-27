@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 2.6.0-beta2
+- Updated Web/Base SDK version dependency to 2.9.0-beta2
+
+## Version 2.6.0-beta1
+- Updated Web/Base SDK version dependency to 2.9.0-beta1
+
 ## Version 2.5.1
 - Update Web/Base SDK version dependency to 2.8.1
 
