@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Target Name="BuildLogs_HelloWorld" AfterTargets="CopyFilesToOutputDirectory" >
-        <Message Text="***************************************Hello World!" Importance="high" />
-
-<!--		<Copy SourceFiles="@(Compile)" DestinationFolder="c:\foocopy\%(RecursiveDir)"></Copy> -->
+    <Target Name="CopyApplicationInsightsConfigToOutputDirectory" AfterTargets="CopyFilesToOutputDirectory" >
+        <!--Currently we cannot set the config's "Copy to Output Directory" property to "PreserveNewest.
+          Workaround is to use this targets file to manually copy into output path."-->
+      
+        <Copy SourceFiles="ApplicationInsights.config" DestinationFolder="$(OutputPath)" ContinueOnError="true" />
     </Target>
 </Project>
