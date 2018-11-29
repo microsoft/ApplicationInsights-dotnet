@@ -59,7 +59,7 @@
     <Content Include="ApplicationInsights.config.install.xdt" />
     <Content Include="ApplicationInsights.config.transform" />
     <Content Include="ApplicationInsights.config.uninstall.xdt" />
-    <Content Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets" PackagePath="build" />
+    <Content Include="copyconfig.targets" PackagePath="build" />
   </ItemGroup>
 
   <ItemGroup>
