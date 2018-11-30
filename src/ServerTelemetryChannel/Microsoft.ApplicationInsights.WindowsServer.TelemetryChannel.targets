@@ -4,7 +4,7 @@
         <!--Currently we cannot set the config's "Copy to Output Directory" property to "PreserveNewest.
           Workaround is to use this targets file to manually copy into output path."-->
       
+      <Message Text="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel: Copying ApplicationInsights.config to $(OutputPath)" Importance="high" />
       <Copy SourceFiles="ApplicationInsights.config" DestinationFolder="$(OutputPath)" ContinueOnError="true" />
-      <Message Text="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel: ApplicationInsights.config has been copied to $(OutputPath)" Importance="high" />
     </Target>
 </Project>
