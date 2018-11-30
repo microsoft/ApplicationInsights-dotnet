@@ -279,6 +279,12 @@
                     return builder.ConfigureServices(services =>
                     {
                         services.AddApplicationInsightsTelemetry(o => o.RequestCollectionOptions.EnableW3CDistributedTracing = true);
+                        services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((m, o) =>
+                        {
+                            // no correlation headers so we can test request
+                            // call without auto-injected w3c headers
+                            m.ExcludeComponentCorrelationHttpHeadersOnDomains.Add("localhost");
+                        });
                     });
                 }))
             {
