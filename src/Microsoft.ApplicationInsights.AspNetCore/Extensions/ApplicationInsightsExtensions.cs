@@ -154,13 +154,14 @@
                     module.EnableLegacyCorrelationHeadersInjection =
                         o.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection;
 
+                    var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
+                    excludedDomains.Add("core.windows.net");
+                    excludedDomains.Add("core.chinacloudapi.cn");
+                    excludedDomains.Add("core.cloudapi.de");
+                    excludedDomains.Add("core.usgovcloudapi.net");
+
                     if (module.EnableLegacyCorrelationHeadersInjection)
                     {
-                        var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
-                        excludedDomains.Add("core.windows.net");
-                        excludedDomains.Add("core.chinacloudapi.cn");
-                        excludedDomains.Add("core.cloudapi.de");
-                        excludedDomains.Add("core.usgovcloudapi.net");
                         excludedDomains.Add("localhost");
                         excludedDomains.Add("127.0.0.1");
                     }

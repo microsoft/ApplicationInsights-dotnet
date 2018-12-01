@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
     using System.Text.RegularExpressions;
 
     using FunctionalTestUtils;
@@ -106,8 +105,6 @@
                 return builder.ConfigureServices(services =>
                 {
                     services.AddApplicationInsightsTelemetry();
-                    services.Remove(services.Single(sd =>
-                        sd.ImplementationType == typeof(DependencyTrackingTelemetryModule)));
                 });
             }
 
@@ -201,9 +198,6 @@
                 return builder.ConfigureServices(services =>
                 {
                     services.AddApplicationInsightsTelemetry(o => o.RequestCollectionOptions.EnableW3CDistributedTracing = true);
-                    var depCollectorSd = services.Single(sd =>
-                        sd.ImplementationType == typeof(DependencyTrackingTelemetryModule));
-                    services.Remove(depCollectorSd);
                 });
             }))
             {

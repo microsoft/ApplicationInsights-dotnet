@@ -526,7 +526,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var dependencyModule = modules.OfType<DependencyTrackingTelemetryModule>().Single();
 
                 //VALIDATE
-                Assert.Equal(0, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count);
+                Assert.Equal(4, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count);
+                Assert.False(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("localhost"));
+                Assert.False(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("127.0.0.1"));
             }
 
             [Fact]
@@ -550,7 +552,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var dependencyModule = modules.OfType<DependencyTrackingTelemetryModule>().Single();
 
                 //VALIDATE
-                Assert.True(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count > 0);
+                Assert.Equal(6, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count);
+                Assert.True(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("localhost"));
+                Assert.True(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("127.0.0.1"));
             }
 
             [Fact]
