@@ -281,10 +281,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         {
                             statusCode = (int)responseObj.StatusCode;
                             this.SetTarget(telemetry, responseObj.Headers);
-                            if (this.injectW3CHeaders && request is HttpWebRequest httpRequest)
-                            {
-                                // this.SetLegacyId(telemetry, httpRequest.Headers);
-                            }
 
                             // Set the operation details for the response
                             telemetry.SetOperationDetail(RemoteDependencyConstants.HttpResponseOperationDetailName, responseObj);

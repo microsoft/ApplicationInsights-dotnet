@@ -23,10 +23,11 @@ namespace Microsoft.ApplicationInsights.W3C.Internal
     /// Telemetry Initializer that sets correlation ids for W3C.
     /// </summary>
     [Obsolete("Not ready for public consumption.")]
-    [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "TelemetryInitializers are intended to be instatiated by the framework when added to a config.")]
+    [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification =
+        "TelemetryInitializers are intended to be instantiated by the framework when added to a config.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
 #if DEPENDENCY_COLLECTOR
-    public 
+    public
 #else
     internal
 #endif
@@ -45,7 +46,8 @@ namespace Microsoft.ApplicationInsights.W3C.Internal
             UpdateTelemetry(telemetry, currentActivity, false);
         }
 
-        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "This method has different code for Net45/NetCore")]
+        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification =
+            "This method has different code for Net45/NetCore")]
         internal static void UpdateTelemetry(ITelemetry telemetry, Activity activity, bool forceUpdate)
         {
             if (activity == null)
@@ -55,7 +57,7 @@ namespace Microsoft.ApplicationInsights.W3C.Internal
 
             activity.UpdateContextOnActivity();
 
-            // Requests and dependnecies are initialized from the current Activity 
+            // Requests and dependencies are initialized from the current Activity 
             // (i.e. telemetry.Id = current.Id). Activity is created for such requests specifically
             // Traces, exceptions, events on the other side are children of current activity
             // There is one exception - SQL DiagnosticSource where current Activity is a parent
@@ -67,9 +69,9 @@ namespace Microsoft.ApplicationInsights.W3C.Internal
             if (initializeFromCurrent)
             {
                 initializeFromCurrent &= !(opTelemetry is DependencyTelemetry dependency &&
-                                           dependency.Type == SqlRemoteDependencyType && 
+                                           dependency.Type == SqlRemoteDependencyType &&
                                            dependency.Context.GetInternalContext().SdkVersion
-                                               .StartsWith(RddDiagnosticSourcePrefix, StringComparison.Ordinal)); 
+                                               .StartsWith(RddDiagnosticSourcePrefix, StringComparison.Ordinal));
             }
 
             string spanId = null, parentSpanId = null;
@@ -78,15 +80,6 @@ namespace Microsoft.ApplicationInsights.W3C.Internal
                 switch (tag.Key)
                 {
                     case W3CConstants.TraceIdTag:
-#if NET45
-                        // on .NET Fx Activities are not always reliable, this code prevents update
-                        // of the telemetry that was forcibly updated during Activity lifetime
-                        // ON .NET Core there is no such problem 
-                        if (telemetry.Context.Operation.Id == tag.Value && initializeFromCurrent && !forceUpdate)
-                        {
-                            return;
-                        }
-#endif
                         telemetry.Context.Operation.Id = tag.Value;
                         break;
                     case W3CConstants.SpanIdTag:
@@ -107,15 +100,27 @@ namespace Microsoft.ApplicationInsights.W3C.Internal
 
             if (initializeFromCurrent)
             {
+#if NET45
+                // on .NET Fx Activities are not always reliable, this code prevents update
+                // of the telemetry that was forcibly updated during Activity lifetime
+                // ON .NET Core there is no such problem 
+                // if spanId is valid already and update is not forced, ignore it
+                if (!forceUpdate && IsValidTelemetryId(opTelemetry.Id, telemetry.Context.Operation.Id))
+                {
+                    return;
+                }
+#endif
                 opTelemetry.Id = StringUtilities.FormatRequestId(telemetry.Context.Operation.Id, spanId);
                 if (parentSpanId != null)
                 {
-                    telemetry.Context.Operation.ParentId = StringUtilities.FormatRequestId(telemetry.Context.Operation.Id, parentSpanId);
+                    telemetry.Context.Operation.ParentId =
+                        StringUtilities.FormatRequestId(telemetry.Context.Operation.Id, parentSpanId);
                 }
             }
             else
             {
-                telemetry.Context.Operation.ParentId = StringUtilities.FormatRequestId(telemetry.Context.Operation.Id, spanId);
+                telemetry.Context.Operation.ParentId =
+                    StringUtilities.FormatRequestId(telemetry.Context.Operation.Id, spanId);
             }
 
             if (opTelemetry != null)
@@ -131,5 +136,16 @@ namespace Microsoft.ApplicationInsights.W3C.Internal
                 }
             }
         }
+
+#if NET45
+        private static bool IsValidTelemetryId(string id, string operationId)
+        {
+            return id.Length == 51 &&
+                   id[0] == '|' &&
+                   id[33] == '.' &&
+                   id.IndexOf('.', 34) == 50 &&
+                   id.IndexOf(operationId, 1, 33, StringComparison.Ordinal) == 1;
+        }
+#endif
     }
 }
