@@ -157,6 +157,45 @@
         }
 
         [TestMethod]
+        public void UpdateContextFromCompatibleRootId()
+        {
+            var a = new Activity("foo");
+            a.SetParentId(TraceId);
+
+            Assert.IsFalse(a.IsW3CActivity());
+
+            a.UpdateContextOnActivity();
+            Assert.IsTrue(a.IsW3CActivity());
+            Assert.AreEqual(TraceId, a.GetTraceId());
+            Assert.IsNotNull(a.GetSpanId());
+            Assert.IsNull(a.GetParentSpanId());
+            Assert.IsNotNull(a.GetSpanId());
+
+            Assert.AreEqual($"00-{a.GetTraceId()}-{a.GetSpanId()}-02", a.GetTraceparent());
+            Assert.IsNull(a.GetTracestate());
+        }
+
+        [TestMethod]
+        public void UpdateContextFromIncompatibleRootId()
+        {
+            var a = new Activity("foo");
+            a.SetParentId("abc");
+
+            Assert.IsFalse(a.IsW3CActivity());
+
+            a.UpdateContextOnActivity();
+            Assert.IsTrue(a.IsW3CActivity());
+            Assert.AreNotEqual("abc", a.GetTraceId());
+            Assert.IsNotNull(a.GetTraceId());
+            Assert.IsNotNull(a.GetSpanId());
+            Assert.IsNull(a.GetParentSpanId());
+            Assert.IsNotNull(a.GetSpanId());
+
+            Assert.AreEqual($"00-{a.GetTraceId()}-{a.GetSpanId()}-02", a.GetTraceparent());
+            Assert.IsNull(a.GetTracestate());
+        }
+
+        [TestMethod]
         public void UpdateContextWithParent()
         {
             var parent = new Activity("foo").Start();

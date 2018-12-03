@@ -11,6 +11,7 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.W3C;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -217,6 +218,38 @@
                 Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
             }
         }
+
+#pragma warning disable 612, 618
+        [TestMethod]
+        public void ServiceBusProcessHandingExternalParentW3CCompatibleRequestId()
+        {
+            this.configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
+            using (var listener = new DiagnosticListener("Microsoft.Azure.ServiceBus"))
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.EnableW3CHeadersInjection = true;
+                module.IncludeDiagnosticSourceActivities.Add("Microsoft.Azure.ServiceBus");
+                module.Initialize(this.configuration);
+
+                var telemetry = this.TrackOperation<RequestTelemetry>(
+                    listener,
+                    "Microsoft.Azure.ServiceBus.Process", 
+                    TaskStatus.RanToCompletion,
+                    "|4bf92f3577b34da6a3ce929d0e0e4736.");
+
+                Assert.IsNotNull(telemetry);
+                Assert.AreEqual("Process", telemetry.Name);
+                Assert.AreEqual(
+                    $"type:{RemoteDependencyConstants.AzureServiceBus} | name:queueName | endpoint:sb://queuename.myservicebus.com/",
+                    telemetry.Source);
+                Assert.IsTrue(telemetry.Success.Value);
+
+                Assert.AreEqual("|4bf92f3577b34da6a3ce929d0e0e4736.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual("4bf92f3577b34da6a3ce929d0e0e4736", telemetry.Context.Operation.Id);
+                Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
+            }
+        }
+#pragma warning restore 612, 618
 
         [TestMethod]
         public void ServiceBusExceptionsAreIgnored()
