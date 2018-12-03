@@ -293,16 +293,19 @@
         /// <summary>
         /// Set parsedStack from an array of StackFrame objects.
         /// </summary>
-        public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
+        /// <param name="frames">The new array of stack frames.</param>
+        /// <param name="exceptionLevel">Specifies which stack trace should be replaced.
+        /// 0 specifies top level exception, other value selects the respective inner exception.</param>
+        public void SetParsedStack(System.Diagnostics.StackFrame[] frames, int exceptionLevel)
         {
-            if (this.Exceptions != null && this.Exceptions.Count > 0)
+            if (this.Exceptions != null && this.Exceptions.Count > exceptionLevel)
             {
                 if (frames != null && frames.Length > 0)
                 {
                     int stackLength = 0;
 
-                    this.Exceptions[0].parsedStack = new List<Extensibility.Implementation.External.StackFrame>();
-                    this.Exceptions[0].hasFullStack = true;
+                    this.Exceptions[exceptionLevel].parsedStack = new List<Extensibility.Implementation.External.StackFrame>();
+                    this.Exceptions[exceptionLevel].hasFullStack = true;
 
                     for (int level = 0; level < frames.Length; level++)
                     {
@@ -312,14 +315,22 @@
 
                         if (stackLength > ExceptionConverter.MaxParsedStackLength)
                         {
-                            this.Exceptions[0].hasFullStack = false;
+                            this.Exceptions[exceptionLevel].hasFullStack = false;
                             break;
                         }
 
-                        this.Exceptions[0].parsedStack.Add(sf);
+                        this.Exceptions[exceptionLevel].parsedStack.Add(sf);
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Set parsedStack from an array of StackFrame objects.
+        /// </summary>
+        public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
+        {
+            SetParsedStack(frames, 0);
         }
 
         /// <summary>
