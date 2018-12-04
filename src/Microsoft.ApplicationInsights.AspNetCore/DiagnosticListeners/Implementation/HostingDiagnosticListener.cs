@@ -38,7 +38,7 @@
         private readonly bool injectResponseHeaders;
         private readonly bool trackExceptions;
         private readonly bool enableW3CHeaders;
-
+        private static readonly ActiveSubsciptionManager SubscriptionManager = new ActiveSubsciptionManager();
         private const string ActivityCreatedByHostingDiagnosticListener = "ActivityCreatedByHostingDiagnosticListener";
 
         /// <summary>
@@ -49,13 +49,24 @@
         /// <param name="injectResponseHeaders">Flag that indicates that response headers should be injected.</param>
         /// <param name="trackExceptions">Flag that indicates that exceptions should be tracked.</param>
         /// <param name="enableW3CHeaders">Flag that indicates that W3C header parsing should be enabled.</param>
-        public HostingDiagnosticListener(TelemetryClient client, IApplicationIdProvider applicationIdProvider, bool injectResponseHeaders, bool trackExceptions, bool enableW3CHeaders)
+        public HostingDiagnosticListener(
+            TelemetryClient client, 
+            IApplicationIdProvider applicationIdProvider, 
+            bool injectResponseHeaders, 
+            bool trackExceptions, 
+            bool enableW3CHeaders)
         {
             this.client = client ?? throw new ArgumentNullException(nameof(client));
             this.applicationIdProvider = applicationIdProvider;
             this.injectResponseHeaders = injectResponseHeaders;
             this.trackExceptions = trackExceptions;
             this.enableW3CHeaders = enableW3CHeaders;
+        }
+
+        /// <inheritdoc />
+        public void OnSubscribe()
+        {
+            SubscriptionManager.Attach(this);
         }
 
         /// <inheritdoc/>
@@ -78,6 +89,15 @@
         {
             if (this.client.IsEnabled())
             {
+                // It's possible to host multiple apps (ASP.NET Core or generic hosts) in the same process
+                // Each of this apps has it's own HostingDiagnosticListener and corresponding Http listener.
+                // We should ignore events for all of them except one
+                if (!SubscriptionManager.IsActive(this))
+                {
+                    AspNetCoreEventSource.Instance.NotActiveListenerNoTracking("Microsoft.AspNetCore.Hosting.HttpRequestIn.Start", Activity.Current?.Id);
+                    return;
+                }
+
                 if (Activity.Current == null)
                 {
                     AspNetCoreEventSource.Instance.LogHostingDiagnosticListenerOnHttpRequestInStartActivityNull();
@@ -170,6 +190,16 @@
         {
             if (this.client.IsEnabled() && !IsAspNetCore20)
             {
+                // It's possible to host multiple apps (ASP.NET Core or generic hosts) in the same process
+                // Each of this apps has it's own HostingDiagnosticListener and corresponding Http listener.
+                // We should ignore events for all of them except one
+                if (!SubscriptionManager.IsActive(this))
+                {
+                    AspNetCoreEventSource.Instance.NotActiveListenerNoTracking(
+                        "Microsoft.AspNetCore.Hosting.BeginRequest", Activity.Current?.Id);
+                    return;
+                }
+
                 var activity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                 var isActivityCreatedFromRequestIdHeader = false;
 
@@ -374,6 +404,16 @@
         {
             if (this.client.IsEnabled())
             {
+                // It's possible to host multiple apps (ASP.NET Core or generic hosts) in the same process
+                // Each of this apps has it's own HostingDiagnosticListener and corresponding Http listener.
+                // We should ignore events for all of them except one
+                if (!SubscriptionManager.IsActive(this))
+                {
+                    AspNetCoreEventSource.Instance.NotActiveListenerNoTracking(
+                        "EndRequest", Activity.Current?.Id);
+                    return;
+                }
+
                 var telemetry = httpContext?.Features.Get<RequestTelemetry>();
 
                 if (telemetry == null)
@@ -415,6 +455,16 @@
         {
             if (this.trackExceptions && this.client.IsEnabled())
             {
+                // It's possible to host multiple apps (ASP.NET Core or generic hosts) in the same process
+                // Each of this apps has it's own HostingDiagnosticListener and corresponding Http listener.
+                // We should ignore events for all of them except one
+                if (!SubscriptionManager.IsActive(this))
+                {
+                    AspNetCoreEventSource.Instance.NotActiveListenerNoTracking(
+                        "Exception", Activity.Current?.Id);
+                    return;
+                }
+
                 var telemetry = httpContext?.Features.Get<RequestTelemetry>();
                 if (telemetry != null)
                 {
@@ -503,6 +553,11 @@
 
             appId = appIds[0];
             return true;
+        }
+
+        public void Dispose()
+        {
+            SubscriptionManager.Detach(this);
         }
     }
 #pragma warning restore 612, 618

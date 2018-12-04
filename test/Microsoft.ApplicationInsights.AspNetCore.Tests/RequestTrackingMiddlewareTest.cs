@@ -10,6 +10,7 @@
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -69,6 +70,7 @@
         private ConcurrentQueue<ITelemetry> sentTelemetry = new ConcurrentQueue<ITelemetry>();
 
         private HostingDiagnosticListener middleware;
+        private ActiveSubsciptionManager subscriptionManager; 
 
         public RequestTrackingMiddlewareTest()
         {
@@ -78,6 +80,7 @@
                 injectResponseHeaders: true,
                 trackExceptions: true,
                 enableW3CHeaders: false);
+            this.middleware.OnSubscribe();
         }
 
         [Fact]
@@ -536,39 +539,46 @@
         [Fact]
         public void ResponseHeadersAreNotInjectedWhenDisabled()
         {
+            this.middleware.Dispose();
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
 
-            var noHeadersMiddleware = new HostingDiagnosticListener(
+            using (var noHeadersMiddleware = new HostingDiagnosticListener(
                 CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry)),
                 CommonMocks.GetMockApplicationIdProvider(),
                 injectResponseHeaders: false,
                 trackExceptions: true,
-                enableW3CHeaders: false);
+                enableW3CHeaders: false))
+            {
+                noHeadersMiddleware.OnSubscribe();
+                noHeadersMiddleware.OnBeginRequest(context, 0);
+                Assert.False(context.Response.Headers.ContainsKey(RequestResponseHeaders.RequestContextHeader));
+                noHeadersMiddleware.OnEndRequest(context, 0);
+                Assert.False(context.Response.Headers.ContainsKey(RequestResponseHeaders.RequestContextHeader));
 
-            noHeadersMiddleware.OnBeginRequest(context, 0);
-            Assert.False(context.Response.Headers.ContainsKey(RequestResponseHeaders.RequestContextHeader));
-            noHeadersMiddleware.OnEndRequest(context, 0);
-            Assert.False(context.Response.Headers.ContainsKey(RequestResponseHeaders.RequestContextHeader));
-
-            Assert.Single(sentTelemetry);
-            Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
+                Assert.Single(sentTelemetry);
+                Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
+            }
         }
 
         [Fact]
         public void ExceptionsAreNotTrackedInjectedWhenDisabled()
         {
+            this.middleware.Dispose();
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
 
-            var noExceptionsMiddleware = new HostingDiagnosticListener(
+            using (var noExceptionsMiddleware = new HostingDiagnosticListener(
                 CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry)),
                 CommonMocks.GetMockApplicationIdProvider(),
                 injectResponseHeaders: true,
                 trackExceptions: false,
-                enableW3CHeaders: false);
-
-            noExceptionsMiddleware.OnHostingException(context, new Exception("HostingException"));
-            noExceptionsMiddleware.OnDiagnosticsHandledException(context, new Exception("DiagnosticsHandledException"));
-            noExceptionsMiddleware.OnDiagnosticsUnhandledException(context, new Exception("UnhandledException"));
+                enableW3CHeaders: false))
+            {
+                noExceptionsMiddleware.OnSubscribe();
+                noExceptionsMiddleware.OnHostingException(context, new Exception("HostingException"));
+                noExceptionsMiddleware.OnDiagnosticsHandledException(context,
+                    new Exception("DiagnosticsHandledException"));
+                noExceptionsMiddleware.OnDiagnosticsUnhandledException(context, new Exception("UnhandledException"));
+            }
 
             Assert.Empty(sentTelemetry);
         }
@@ -592,230 +602,266 @@
         [Fact]
         public void OnBeginRequestWithW3CHeadersIsTrackedCorrectly()
         {
+            this.middleware.Dispose();
+
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-            this.middleware = new HostingDiagnosticListener(
+            using (var w3cMiddleware = new HostingDiagnosticListener(
                 CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry), configuration),
                 CommonMocks.GetMockApplicationIdProvider(),
                 injectResponseHeaders: true,
                 trackExceptions: true,
-                enableW3CHeaders: true);
-
-            var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
-
-            context.Request.Headers[W3CConstants.TraceParentHeader] = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01";
-            context.Request.Headers[W3CConstants.TraceStateHeader] = "state=some";
-            context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
-
-            if (HostingDiagnosticListener.IsAspNetCore20)
+                enableW3CHeaders: true))
             {
-                var activity = new Activity("operation");
-                activity.Start();
+                w3cMiddleware.OnSubscribe();
+                var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
-                middleware.OnHttpRequestInStart(context);
+                context.Request.Headers[W3CConstants.TraceParentHeader] =
+                    "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01";
+                context.Request.Headers[W3CConstants.TraceStateHeader] = "state=some";
+                context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
 
-                Assert.NotEqual(Activity.Current, activity);
+                if (HostingDiagnosticListener.IsAspNetCore20)
+                {
+                    var activity = new Activity("operation");
+                    activity.Start();
+
+                    w3cMiddleware.OnHttpRequestInStart(context);
+
+                    Assert.NotEqual(Activity.Current, activity);
+                }
+                else
+                {
+                    w3cMiddleware.OnBeginRequest(context, Stopwatch.GetTimestamp());
+                }
+
+                var activityInitializedByW3CHeader = Activity.Current;
+                Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", activityInitializedByW3CHeader.GetTraceId());
+                Assert.Equal("00f067aa0ba902b7", activityInitializedByW3CHeader.GetParentSpanId());
+                Assert.Equal(16, activityInitializedByW3CHeader.GetSpanId().Length);
+                Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
+                Assert.Equal("v", activityInitializedByW3CHeader.Baggage.Single(t => t.Key == "k").Value);
+
+                if (HostingDiagnosticListener.IsAspNetCore20)
+                {
+                    w3cMiddleware.OnHttpRequestInStop(context);
+                }
+                else
+                {
+                    w3cMiddleware.OnEndRequest(context, Stopwatch.GetTimestamp());
+                }
+
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry) this.sentTelemetry.Single();
+
+                Assert.Equal($"|4bf92f3577b34da6a3ce929d0e0e4736.{activityInitializedByW3CHeader.GetSpanId()}.",
+                    requestTelemetry.Id);
+                Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
+                Assert.Equal("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.",
+                    requestTelemetry.Context.Operation.ParentId);
+
+                Assert.True(context.Response.Headers.TryGetValue(RequestResponseHeaders.RequestContextHeader,
+                    out var appId));
+                Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
             }
-            else
-            {
-                middleware.OnBeginRequest(context, Stopwatch.GetTimestamp());
-            }
-
-            var activityInitializedByW3CHeader = Activity.Current;
-            Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", activityInitializedByW3CHeader.GetTraceId());
-            Assert.Equal("00f067aa0ba902b7", activityInitializedByW3CHeader.GetParentSpanId());
-            Assert.Equal(16, activityInitializedByW3CHeader.GetSpanId().Length);
-            Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
-            Assert.Equal("v", activityInitializedByW3CHeader.Baggage.Single(t => t.Key == "k").Value);
-
-            if (HostingDiagnosticListener.IsAspNetCore20)
-            {
-                middleware.OnHttpRequestInStop(context);
-            }
-            else
-            {
-                middleware.OnEndRequest(context, Stopwatch.GetTimestamp());
-            }
-
-            Assert.Single(sentTelemetry);
-            var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
-
-            Assert.Equal($"|4bf92f3577b34da6a3ce929d0e0e4736.{activityInitializedByW3CHeader.GetSpanId()}.", requestTelemetry.Id);
-            Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
-            Assert.Equal("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.", requestTelemetry.Context.Operation.ParentId);
-
-            Assert.True(context.Response.Headers.TryGetValue(RequestResponseHeaders.RequestContextHeader, out var appId));
-            Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
         }
 
         [Fact]
         public void OnBeginRequestWithW3CHeadersAndRequestIdIsTrackedCorrectly()
         {
+            this.middleware.Dispose();
+
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-            this.middleware = new HostingDiagnosticListener(
+            using (var w3cMiddleware = new HostingDiagnosticListener(
                 CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry), configuration),
                 CommonMocks.GetMockApplicationIdProvider(),
                 injectResponseHeaders: true,
                 trackExceptions: true,
-                enableW3CHeaders: true);
+                enableW3CHeaders: true))
+            {
+                w3cMiddleware.OnSubscribe();
+                var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
-            var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+                context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = "|abc.1.2.3.";
+                context.Request.Headers[W3CConstants.TraceParentHeader] =
+                    "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01";
+                context.Request.Headers[W3CConstants.TraceStateHeader] = "state=some";
+                context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
 
-            context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = "|abc.1.2.3.";
-            context.Request.Headers[W3CConstants.TraceParentHeader] = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01";
-            context.Request.Headers[W3CConstants.TraceStateHeader] = "state=some";
-            context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
+                w3cMiddleware.OnBeginRequest(context, Stopwatch.GetTimestamp());
+                var activityInitializedByW3CHeader = Activity.Current;
 
-            middleware.OnBeginRequest(context, Stopwatch.GetTimestamp());
-            var activityInitializedByW3CHeader = Activity.Current;
+                Assert.Equal("|abc.1.2.3.", activityInitializedByW3CHeader.ParentId);
+                Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", activityInitializedByW3CHeader.GetTraceId());
+                Assert.Equal("00f067aa0ba902b7", activityInitializedByW3CHeader.GetParentSpanId());
+                Assert.Equal(16, activityInitializedByW3CHeader.GetSpanId().Length);
+                Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
+                Assert.Equal("v", activityInitializedByW3CHeader.Baggage.Single(t => t.Key == "k").Value);
 
-            Assert.Equal("|abc.1.2.3.", activityInitializedByW3CHeader.ParentId);
-            Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", activityInitializedByW3CHeader.GetTraceId());
-            Assert.Equal("00f067aa0ba902b7", activityInitializedByW3CHeader.GetParentSpanId());
-            Assert.Equal(16, activityInitializedByW3CHeader.GetSpanId().Length);
-            Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
-            Assert.Equal("v", activityInitializedByW3CHeader.Baggage.Single(t => t.Key == "k").Value);
+                w3cMiddleware.OnEndRequest(context, Stopwatch.GetTimestamp());
 
-            middleware.OnEndRequest(context, Stopwatch.GetTimestamp());
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry) this.sentTelemetry.Single();
 
-            Assert.Single(sentTelemetry);
-            var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+                Assert.Equal($"|4bf92f3577b34da6a3ce929d0e0e4736.{activityInitializedByW3CHeader.GetSpanId()}.",
+                    requestTelemetry.Id);
+                Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
+                Assert.Equal("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.",
+                    requestTelemetry.Context.Operation.ParentId);
 
-            Assert.Equal($"|4bf92f3577b34da6a3ce929d0e0e4736.{activityInitializedByW3CHeader.GetSpanId()}.", requestTelemetry.Id);
-            Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", requestTelemetry.Context.Operation.Id);
-            Assert.Equal("|4bf92f3577b34da6a3ce929d0e0e4736.00f067aa0ba902b7.", requestTelemetry.Context.Operation.ParentId);
+                Assert.True(context.Response.Headers.TryGetValue(RequestResponseHeaders.RequestContextHeader,
+                    out var appId));
+                Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
 
-            Assert.True(context.Response.Headers.TryGetValue(RequestResponseHeaders.RequestContextHeader, out var appId));
-            Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
-
-            Assert.Equal("abc", requestTelemetry.Properties["ai_legacyRootId"]);
-            Assert.StartsWith("|abc.1.2.3.", requestTelemetry.Properties["ai_legacyRequestId"]);
+                Assert.Equal("abc", requestTelemetry.Properties["ai_legacyRootId"]);
+                Assert.StartsWith("|abc.1.2.3.", requestTelemetry.Properties["ai_legacyRequestId"]);
+            }
         }
 
         [Fact]
         public void OnBeginRequestWithNoW3CHeadersAndRequestIdIsTrackedCorrectly()
         {
+            this.middleware.Dispose();
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-            this.middleware = new HostingDiagnosticListener(
+            using (var w3cMiddleware = new HostingDiagnosticListener(
                 CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry), configuration),
                 CommonMocks.GetMockApplicationIdProvider(),
                 injectResponseHeaders: true,
                 trackExceptions: true,
-                enableW3CHeaders: true);
+                enableW3CHeaders: true))
+            {
+                w3cMiddleware.OnSubscribe();
+                var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
-            var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+                context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = "|abc.1.2.3.";
+                context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
 
-            context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = "|abc.1.2.3.";
-            context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
+                w3cMiddleware.OnBeginRequest(context, Stopwatch.GetTimestamp());
+                var activityInitializedByW3CHeader = Activity.Current;
 
-            middleware.OnBeginRequest(context, Stopwatch.GetTimestamp());
-            var activityInitializedByW3CHeader = Activity.Current;
+                Assert.Equal("|abc.1.2.3.", activityInitializedByW3CHeader.ParentId);
+                w3cMiddleware.OnEndRequest(context, Stopwatch.GetTimestamp());
 
-            Assert.Equal("|abc.1.2.3.", activityInitializedByW3CHeader.ParentId);
-            middleware.OnEndRequest(context, Stopwatch.GetTimestamp());
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry) this.sentTelemetry.Single();
 
-            Assert.Single(sentTelemetry);
-            var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+                Assert.Equal(
+                    $"|{activityInitializedByW3CHeader.GetTraceId()}.{activityInitializedByW3CHeader.GetSpanId()}.",
+                    requestTelemetry.Id);
+                Assert.Equal(activityInitializedByW3CHeader.GetTraceId(), requestTelemetry.Context.Operation.Id);
+                Assert.Equal("|abc.1.2.3.", requestTelemetry.Context.Operation.ParentId);
 
-            Assert.Equal($"|{activityInitializedByW3CHeader.GetTraceId()}.{activityInitializedByW3CHeader.GetSpanId()}.", requestTelemetry.Id);
-            Assert.Equal(activityInitializedByW3CHeader.GetTraceId(), requestTelemetry.Context.Operation.Id);
-            Assert.Equal("|abc.1.2.3.", requestTelemetry.Context.Operation.ParentId);
-
-            Assert.Equal("abc", requestTelemetry.Properties["ai_legacyRootId"]);
-            Assert.StartsWith("|abc.1.2.3.", requestTelemetry.Properties["ai_legacyRequestId"]);
+                Assert.Equal("abc", requestTelemetry.Properties["ai_legacyRootId"]);
+                Assert.StartsWith("|abc.1.2.3.", requestTelemetry.Properties["ai_legacyRequestId"]);
+            }
         }
 
         [Fact]
         public void OnBeginRequestWithW3CSupportAndNoHeadersIsTrackedCorrectly()
         {
+            this.middleware.Dispose();
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-            this.middleware = new HostingDiagnosticListener(
+            using (var w3cMiddleware = new HostingDiagnosticListener(
                 CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry), configuration),
                 CommonMocks.GetMockApplicationIdProvider(),
                 injectResponseHeaders: true,
                 trackExceptions: true,
-                enableW3CHeaders: true);
+                enableW3CHeaders: true))
+            {
+                w3cMiddleware.OnSubscribe();
 
-            var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+                var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
-            middleware.OnBeginRequest(context, Stopwatch.GetTimestamp());
+                w3cMiddleware.OnBeginRequest(context, Stopwatch.GetTimestamp());
 
-            var activityInitializedByW3CHeader = Activity.Current;
-            Assert.Null(activityInitializedByW3CHeader.ParentId);
-            Assert.NotNull(activityInitializedByW3CHeader.GetTraceId());
-            Assert.Equal(32, activityInitializedByW3CHeader.GetTraceId().Length);
-            Assert.Equal(16, activityInitializedByW3CHeader.GetSpanId().Length);
-            Assert.Equal($"00-{activityInitializedByW3CHeader.GetTraceId()}-{activityInitializedByW3CHeader.GetSpanId()}-02",
-                activityInitializedByW3CHeader.GetTraceparent());
-            Assert.Null(activityInitializedByW3CHeader.GetTracestate());
-            Assert.Empty(activityInitializedByW3CHeader.Baggage);
+                var activityInitializedByW3CHeader = Activity.Current;
+                Assert.Null(activityInitializedByW3CHeader.ParentId);
+                Assert.NotNull(activityInitializedByW3CHeader.GetTraceId());
+                Assert.Equal(32, activityInitializedByW3CHeader.GetTraceId().Length);
+                Assert.Equal(16, activityInitializedByW3CHeader.GetSpanId().Length);
+                Assert.Equal(
+                    $"00-{activityInitializedByW3CHeader.GetTraceId()}-{activityInitializedByW3CHeader.GetSpanId()}-02",
+                    activityInitializedByW3CHeader.GetTraceparent());
+                Assert.Null(activityInitializedByW3CHeader.GetTracestate());
+                Assert.Empty(activityInitializedByW3CHeader.Baggage);
 
-            middleware.OnEndRequest(context, Stopwatch.GetTimestamp());
+                w3cMiddleware.OnEndRequest(context, Stopwatch.GetTimestamp());
 
-            Assert.Single(sentTelemetry);
-            var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry) this.sentTelemetry.Single();
 
-            Assert.Equal($"|{activityInitializedByW3CHeader.GetTraceId()}.{activityInitializedByW3CHeader.GetSpanId()}.", requestTelemetry.Id);
-            Assert.Equal(activityInitializedByW3CHeader.GetTraceId(), requestTelemetry.Context.Operation.Id);
-            Assert.Null(requestTelemetry.Context.Operation.ParentId);
+                Assert.Equal(
+                    $"|{activityInitializedByW3CHeader.GetTraceId()}.{activityInitializedByW3CHeader.GetSpanId()}.",
+                    requestTelemetry.Id);
+                Assert.Equal(activityInitializedByW3CHeader.GetTraceId(), requestTelemetry.Context.Operation.Id);
+                Assert.Null(requestTelemetry.Context.Operation.ParentId);
 
-            Assert.True(context.Response.Headers.TryGetValue(RequestResponseHeaders.RequestContextHeader, out var appId));
-            Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
+                Assert.True(context.Response.Headers.TryGetValue(RequestResponseHeaders.RequestContextHeader,
+                    out var appId));
+                Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
+            }
         }
 
         [Fact]
         public void OnBeginRequestWithW3CHeadersAndAppIdInState()
         {
+            this.middleware.Dispose();
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
-            this.middleware = new HostingDiagnosticListener(
+            using (var w3cMiddleware = new HostingDiagnosticListener(
                 CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry.Enqueue(telemetry), configuration),
                 CommonMocks.GetMockApplicationIdProvider(),
                 injectResponseHeaders: true,
                 trackExceptions: true,
-                enableW3CHeaders: true);
-
-            var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
-
-            context.Request.Headers[W3CConstants.TraceParentHeader] = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-00";
-            context.Request.Headers[W3CConstants.TraceStateHeader] = $"state=some,{W3CConstants.AzureTracestateNamespace}={ExpectedAppId}";
-
-            if (HostingDiagnosticListener.IsAspNetCore20)
+                enableW3CHeaders: true))
             {
-                var activity = new Activity("operation");
-                activity.Start();
+                w3cMiddleware.OnSubscribe();
 
-                middleware.OnHttpRequestInStart(context);
-                Assert.NotEqual(Activity.Current, activity);
+                var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+
+                context.Request.Headers[W3CConstants.TraceParentHeader] =
+                    "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-00";
+                context.Request.Headers[W3CConstants.TraceStateHeader] =
+                    $"state=some,{W3CConstants.AzureTracestateNamespace}={ExpectedAppId}";
+
+                if (HostingDiagnosticListener.IsAspNetCore20)
+                {
+                    var activity = new Activity("operation");
+                    activity.Start();
+
+                    w3cMiddleware.OnHttpRequestInStart(context);
+                    Assert.NotEqual(Activity.Current, activity);
+                }
+                else
+                {
+                    w3cMiddleware.OnBeginRequest(context, Stopwatch.GetTimestamp());
+                }
+
+                var activityInitializedByW3CHeader = Activity.Current;
+
+                Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
+
+                if (HostingDiagnosticListener.IsAspNetCore20)
+                {
+                    w3cMiddleware.OnHttpRequestInStop(context);
+                }
+                else
+                {
+                    w3cMiddleware.OnEndRequest(context, Stopwatch.GetTimestamp());
+                }
+
+                Assert.Single(sentTelemetry);
+                var requestTelemetry = (RequestTelemetry) this.sentTelemetry.Single();
+
+                Assert.Equal(ExpectedAppId, requestTelemetry.Source);
+
+                Assert.True(context.Response.Headers.TryGetValue(RequestResponseHeaders.RequestContextHeader,
+                    out var appId));
+                Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
             }
-            else
-            {
-                middleware.OnBeginRequest(context, Stopwatch.GetTimestamp());
-            }
-
-            var activityInitializedByW3CHeader = Activity.Current;
-
-            Assert.Equal("state=some", activityInitializedByW3CHeader.GetTracestate());
-
-            if (HostingDiagnosticListener.IsAspNetCore20)
-            {
-                middleware.OnHttpRequestInStop(context);
-            }
-            else
-            {
-                middleware.OnEndRequest(context, Stopwatch.GetTimestamp());
-            }
-
-            Assert.Single(sentTelemetry);
-            var requestTelemetry = (RequestTelemetry)this.sentTelemetry.Single();
-
-            Assert.Equal(ExpectedAppId, requestTelemetry.Source);
-
-            Assert.True(context.Response.Headers.TryGetValue(RequestResponseHeaders.RequestContextHeader, out var appId));
-            Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
         }
 #pragma warning restore 612, 618
 
@@ -854,6 +900,8 @@
             {
                 Activity.Current.Stop();
             }
+
+            this.middleware?.Dispose();
         }
     }
 }

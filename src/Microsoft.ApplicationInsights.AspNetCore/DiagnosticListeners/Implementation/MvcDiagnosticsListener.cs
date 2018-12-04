@@ -35,6 +35,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             }
         }
 
+        /// <inheritdoc />
+        public void OnSubscribe()
+        {
+        }
+
         private string GetNameFromRouteContext(IRouteData routeData)
         {
             string name = null;
@@ -91,6 +96,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             }
 
             return name;
+        }
+
+        public void Dispose()
+        {
         }
 
         /// <summary>
