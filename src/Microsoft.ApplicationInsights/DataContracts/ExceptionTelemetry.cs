@@ -298,8 +298,17 @@
         /// 0 specifies top level exception, other value selects the respective inner exception.</param>
         public void SetParsedStack(System.Diagnostics.StackFrame[] frames, int exceptionLevel)
         {
-            if (this.Exceptions != null && this.Exceptions.Count > exceptionLevel)
+            if (this.Exceptions != null && this.Exceptions.Count > 0)
             {
+                if(exceptionLevel < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(exceptionLevel), exceptionLevel, "The exceptionLevel value must not be negative.");
+                }
+                else if (exceptionLevel >= this.Exceptions.Count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(exceptionLevel), exceptionLevel, $"The value of exceptionLevel {exceptionLevel} is not lower than {this.Exceptions.Count}.");
+                }
+
                 if (frames != null && frames.Length > 0)
                 {
                     int stackLength = 0;
