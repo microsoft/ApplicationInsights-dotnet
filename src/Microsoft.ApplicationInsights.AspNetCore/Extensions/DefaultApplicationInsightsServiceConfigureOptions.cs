@@ -9,7 +9,7 @@
     using Microsoft.Extensions.Options;
 
     /// <summary>
-    /// <see cref="IConfigureOptions&lt;ApplicationInsightsServiceOptions&gt;"/> implemetation that reads options from 'appsettings.json',
+    /// <see cref="IConfigureOptions&lt;ApplicationInsightsServiceOptions&gt;"/> implementation that reads options from 'appsettings.json',
     /// environment variables and sets developer mode based on debugger state.
     /// </summary>
     internal class DefaultApplicationInsightsServiceConfigureOptions : IConfigureOptions<ApplicationInsightsServiceOptions>
