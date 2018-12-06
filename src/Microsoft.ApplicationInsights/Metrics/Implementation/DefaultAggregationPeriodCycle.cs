@@ -16,8 +16,6 @@
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming Rules", "SA1310: C# Field must not contain an underscore", Justification = "By design: Structured name.")]
         private const int RunningState_Stopped = 2;
 
-        private readonly Action workerMethod;
-
         private readonly MetricAggregationManager aggregationManager;
         private readonly MetricManager metricManager;
 
@@ -28,8 +26,6 @@
         {
             Util.ValidateNotNull(aggregationManager, nameof(aggregationManager));
             Util.ValidateNotNull(metricManager, nameof(metricManager));
-
-            this.workerMethod = this.Run;
 
             this.aggregationManager = aggregationManager;
             this.metricManager = metricManager;
@@ -52,10 +48,8 @@
                 return false; // Was already running or stopped.
             }
 
-            this.workerTask = Task.Run(this.workerMethod)
-                              .ContinueWith(
-                                        (t) => { this.workerTask = null; },
-                                        TaskContinuationOptions.ExecuteSynchronously);
+            this.workerTask = this.Run();
+            
             return true;
         }
 
@@ -132,16 +126,19 @@
         /// We use exactly one background thread for completing aggregators - either once per minute or once per second.
         /// We start this thread right when this manager is created to avoid that potential thread starvation on busy systems affects metrics.
         /// </summary>
-        private void Run()
+        private async Task Run()
         {
+            Interlocked.Exchange(ref this.runningState, RunningState_Running);
+
             while (true)
             {
                 DateTimeOffset now = DateTimeOffset.Now;
                 TimeSpan waitPeriod = GetNextCycleTargetTime(now) - now;
 
-                Task.Delay(waitPeriod).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
+                await Task.Delay(waitPeriod).ConfigureAwait(continueOnCapturedContext: false);
 
                 int shouldBeRunning = Volatile.Read(ref this.runningState);
+
                 if (shouldBeRunning != RunningState_Running)
                 {
                     return;
