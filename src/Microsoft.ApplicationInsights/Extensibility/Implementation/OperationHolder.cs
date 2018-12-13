@@ -80,18 +80,26 @@
                             var currentActivity = Activity.Current;
                             if (currentActivity == null || operationTelemetry.Id != currentActivity.Id)
                             {
-                                // this is for internal error reporting
-                                CoreEventSource.Log.InvalidOperationToStopError();
+                                // W3COperationCorrelationTelemetryInitializer changes Id
+                                // but keeps an original one in 'ai_legacyRequestId' property
 
-                                // this are details with unique ids for debugging
-                                CoreEventSource.Log.InvalidOperationToStopDetails(
-                                    string.Format(
-                                        CultureInfo.InvariantCulture,
-                                        "Telemetry Id '{0}' does not match current Activity '{1}'",
-                                        operationTelemetry.Id,
-                                        currentActivity?.Id));
+                                if (!operationTelemetry.Properties.TryGetValue("ai_legacyRequestId", out var legacyId) ||
+                                    legacyId != currentActivity?.Id)
+                                {
+                                    // this is for internal error reporting
+                                    CoreEventSource.Log.InvalidOperationToStopError();
 
-                                return;
+                                    // this are details with unique ids for debugging
+                                    CoreEventSource.Log.InvalidOperationToStopDetails(
+                                        string.Format(
+                                            CultureInfo.InvariantCulture,
+                                            "Telemetry Id '{0}' does not match current Activity '{1}'",
+                                            operationTelemetry.Id,
+                                            currentActivity?.Id));
+
+
+                                    return;
+                                }
                             }
 
                             this.telemetryClient.Track(operationTelemetry);

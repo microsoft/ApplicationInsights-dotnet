@@ -154,7 +154,7 @@
         }
 
         [TestMethod]
-        public void StopOperationDoesNotThrowExceptionIfParentOpertionIsStoppedBeforeChildOperation()
+        public void StopOperationDoesNotThrowExceptionIfParentOperationIsStoppedBeforeChildOperation()
         {
             using (var parentOperation = this.telemetryClient.StartOperation<DependencyTelemetry>("operationName"))
             {
@@ -191,7 +191,7 @@
         [TestMethod]
         public void DisposeOperationAppliesChangesOnActivityDoneAfterStart()
         {
-            this.telemetryClient.TelemetryConfiguration.TelemetryInitializers.Add(new ActivityTagsTelemetryIntitializer());
+            this.telemetryClient.TelemetryConfiguration.TelemetryInitializers.Add(new ActivityTagsTelemetryInitializer());
 
             DependencyTelemetry telemetry = null;
             using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName"))
@@ -216,12 +216,12 @@
 
             Assert.AreEqual(2, this.sendItems.Count);
 
-            var requestTelmetry = (RequestTelemetry)this.sendItems[1];
-            var dependentTelmetry = (DependencyTelemetry)this.sendItems[0];
-            Assert.IsNull(requestTelmetry.Context.Operation.ParentId);
-            Assert.AreEqual(requestTelmetry.Id, dependentTelmetry.Context.Operation.ParentId);
-            Assert.AreEqual(requestTelmetry.Context.Operation.Id, dependentTelmetry.Context.Operation.Id);
-            Assert.AreEqual(requestTelmetry.Context.Operation.Name, dependentTelmetry.Context.Operation.Name);
+            var requestTelemetry = (RequestTelemetry)this.sendItems[1];
+            var dependentTelemetry = (DependencyTelemetry)this.sendItems[0];
+            Assert.IsNull(requestTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual(requestTelemetry.Id, dependentTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual(requestTelemetry.Context.Operation.Id, dependentTelemetry.Context.Operation.Id);
+            Assert.AreEqual(requestTelemetry.Context.Operation.Name, dependentTelemetry.Context.Operation.Name);
         }
 
         [TestMethod]
@@ -233,9 +233,9 @@
 
             Assert.AreEqual(1, this.sendItems.Count);
 
-            var requestTelmetry = (RequestTelemetry)this.sendItems[0];
-            Assert.IsNull(requestTelmetry.Context.Operation.ParentId);
-            Assert.AreEqual("HOME", requestTelmetry.Context.Operation.Id);
+            var requestTelemetry = (RequestTelemetry)this.sendItems[0];
+            Assert.IsNull(requestTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual("HOME", requestTelemetry.Context.Operation.Id);
         }
 
         [TestMethod]
@@ -248,12 +248,12 @@
 
             Assert.AreEqual(2, this.sendItems.Count);
 
-            var requestTelmetry = (RequestTelemetry)this.sendItems.Single(t => t is RequestTelemetry);
-            Assert.AreEqual("PARENT", requestTelmetry.Context.Operation.ParentId);
-            Assert.AreEqual("ROOT", requestTelmetry.Context.Operation.Id);
+            var requestTelemetry = (RequestTelemetry)this.sendItems.Single(t => t is RequestTelemetry);
+            Assert.AreEqual("PARENT", requestTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual("ROOT", requestTelemetry.Context.Operation.Id);
 
             var traceTelemetry = (TraceTelemetry)this.sendItems.Single(t => t is TraceTelemetry);
-            Assert.AreEqual(requestTelmetry.Id, traceTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual(requestTelemetry.Id, traceTelemetry.Context.Operation.ParentId);
             Assert.AreEqual("ROOT", traceTelemetry.Context.Operation.Id);
         }
 
@@ -282,12 +282,37 @@
             Assert.AreEqual(requestTelemetry, this.sendItems[0]);
         }
 
+        [TestMethod]
+        public void StopOperationWhenTelemetryIdDoesNotMatchActivityId()
+        {
+            Assert.IsNull(Activity.Current);
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null))
+            {
+                operation.Telemetry.Id = "123";
+            }
+
+            Assert.AreEqual(0, this.sendItems.Count);
+        }
+
+        [TestMethod]
+        public void StopOperationWhenTelemetryIdDoesNotMatchActivityIdButMatchesLegacyId()
+        {
+            Assert.IsNull(Activity.Current);
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null))
+            {
+                operation.Telemetry.Properties["ai_legacyRequestId"] = Activity.Current.Id;
+                operation.Telemetry.Id = "123";
+            }
+
+            Assert.AreEqual(1, this.sendItems.Count);
+        }
+
         private string GetOperationName(Activity activity)
         {
             return activity.Tags.FirstOrDefault(tag => tag.Key == "OperationName").Value;
         }
 
-        private class ActivityTagsTelemetryIntitializer : ITelemetryInitializer
+        private class ActivityTagsTelemetryInitializer : ITelemetryInitializer
         {
             public void Initialize(ITelemetry telemetry)
             {
@@ -298,8 +323,7 @@
 
                 foreach (var tag in Activity.Current.Tags)
                 {
-                    var telProp = telemetry as ISupportProperties;
-                    if(telProp != null)
+                    if(telemetry is ISupportProperties telProp)
                     {
                         telProp.Properties[tag.Key] = tag.Value;
                     }                        
