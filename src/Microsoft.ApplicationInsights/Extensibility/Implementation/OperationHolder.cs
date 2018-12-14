@@ -97,7 +97,6 @@
                                             operationTelemetry.Id,
                                             currentActivity?.Id));
 
-
                                     return;
                                 }
                             }
