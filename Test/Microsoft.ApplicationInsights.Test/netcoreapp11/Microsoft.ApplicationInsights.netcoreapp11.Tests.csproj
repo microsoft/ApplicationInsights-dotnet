@@ -13,6 +13,7 @@
     <DebugType>pdbonly</DebugType> 
     <DebugSymbols>true</DebugSymbols> 
     <DefineConstants>$(DefineConstants);NETCOREAPP</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
