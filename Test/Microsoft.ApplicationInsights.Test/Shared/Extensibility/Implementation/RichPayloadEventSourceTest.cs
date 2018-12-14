@@ -11,6 +11,9 @@
     using System.Reflection;
     using System.Collections.ObjectModel;
     using Microsoft.ApplicationInsights.TestFramework;
+    using Microsoft.Diagnostics.Tracing.Session;
+    using System.Threading.Tasks;
+    using Microsoft.ServiceProfiler.Agent.Utilities;
 
     /// <summary>
     /// Tests the rich payload event source tracking.
@@ -391,6 +394,57 @@
                     ValidatePropertyDictionary((IDictionary<string, object>)prop, propKeyNameAfterTrimmed.Length, propValueAfterTrimmed.Length);
                     ValidatePropertyDictionary((IDictionary<string, object>)gblProp, propKeyNameAfterTrimmed.Length, propValueAfterTrimmed.Length);
                 };
+            }
+        }
+
+        /// <summary>
+        /// This test verifies that the Application Insights Profiler agent can decode
+        /// RequestTelemetry payloads when passed through the ETW pipeline.
+        /// </summary>
+        [TestMethod]
+        public void RichPayloadEventSourceEtwPayloadSerializationTest()
+        {
+            if (IsRunningOnEnvironmentSupportingRichPayloadEventSource())
+            {
+                var request = new RequestTelemetry()
+                {
+                    Name = "TestRequest",
+                    Url = new Uri("https://www.example.com/api/test&id=1234"),
+                    ResponseCode = "200",
+                    Success = true,
+                    Duration = TimeSpan.FromTicks(314159)
+                };
+
+                request.Context.InstrumentationKey = Guid.NewGuid().ToString();
+                request.Context.Operation.Name = "TestOperation";
+                request.Context.Operation.Id = "ABC123";
+
+                using (var eventSource = new RichPayloadEventSource($"Microsoft-ApplicationInsights-{nameof(RichPayloadEventSourceEtwPayloadSerializationTest)}"))
+                using (var session = new TraceEventSession($"{nameof(RichPayloadEventSourceEtwPayloadSerializationTest)}"))
+                {
+                    session.EnableProvider(eventSource.EventSourceInternal.Guid);
+                    session.Source.AllEvents += traceEvent =>
+                    {
+                        var payload = traceEvent.EventData();
+                        var parsedPayload = PayloadParser.ParsePayload(payload);
+                        Assert.AreEqual(request.Context.InstrumentationKey, parsedPayload.InstrumentationKey);
+                        Assert.AreEqual(request.Context.Operation.Name, parsedPayload.OperationName);
+                        Assert.AreEqual(request.Context.Operation.Id, parsedPayload.OperationId);
+                        Assert.AreEqual(request.Data.ver, parsedPayload.Version);
+                        Assert.AreEqual(request.Data.id, parsedPayload.RequestId);
+                        Assert.AreEqual(request.Data.source, parsedPayload.Source);
+                        Assert.AreEqual(request.Data.name, parsedPayload.Name);
+                        Assert.AreEqual(request.Data.duration, parsedPayload.Duration);
+                    };
+
+                    Task.Run(() =>
+                    {
+                        eventSource.Process(request);
+                        session.Stop();
+                    });
+
+                    session.Source.Process();
+                }
             }
         }
 

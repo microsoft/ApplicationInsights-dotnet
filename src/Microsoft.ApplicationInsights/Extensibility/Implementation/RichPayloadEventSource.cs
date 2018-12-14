@@ -26,10 +26,19 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// <summary>
         /// Initializes a new instance of the RichPayloadEventSource class.
         /// </summary>
-        public RichPayloadEventSource()
+        public RichPayloadEventSource() : this(EventProviderName)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the RichPayloadEventSource class.
+        /// </summary>
+        /// <param name="providerName">The ETW provider name.</param>
+        /// <remarks>Internal so that unit tests can provide a unique provider name.</remarks>
+        internal RichPayloadEventSource(string providerName)
         {
             this.EventSourceInternal = new EventSource(
-               EventProviderName,
+               providerName,
                EventSourceSettings.EtwSelfDescribingEventFormat);
         }
 
@@ -406,7 +415,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// <summary>
         /// Initializes a new instance of the RichPayloadEventSource class.
         /// </summary>
-        public RichPayloadEventSource()
+        public RichPayloadEventSource() : this(EventProviderName)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the RichPayloadEventSource class.
+        /// </summary>
+        internal RichPayloadEventSource(string providerName)
         {
             if (AppDomain.CurrentDomain.IsHomogenous && AppDomain.CurrentDomain.IsFullyTrusted)
             {
@@ -416,7 +432,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 if (eventSourceSettingsType != null)
                 {
                     var etwSelfDescribingEventFormat = Enum.ToObject(eventSourceSettingsType, 8);
-                    this.EventSourceInternal = (EventSource)Activator.CreateInstance(eventSourceType, EventProviderName, etwSelfDescribingEventFormat);
+                    this.EventSourceInternal = (EventSource)Activator.CreateInstance(eventSourceType, providerName, etwSelfDescribingEventFormat);
 
                     // CreateTelemetryHandlers is defined in RichPayloadEventSource.TelemetryHandler.cs
                     this.telemetryHandlers = this.CreateTelemetryHandlers(this.EventSourceInternal);
