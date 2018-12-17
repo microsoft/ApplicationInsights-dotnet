@@ -14,14 +14,13 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
 
     /// <summary>
     /// Application insights logger implementation for <see cref="ILogger"/>.
     /// </summary>
-    /// <seealso cref="Microsoft.Extensions.Logging.ILogger" />
+    /// <seealso cref="ILogger" />
     public class ApplicationInsightsLogger : ILogger, IDisposable
     {
         private readonly string categoryName;
@@ -29,7 +28,7 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
         private readonly ApplicationInsightsLoggerOptions applicationInsightsLoggerOptions;
 
         /// <summary>
-        /// Creates a new instance of <see cref="ApplicationInsightsLogger"/>
+        /// Creates a new instance of <see cref="ApplicationInsightsLogger"/>.
         /// </summary>
         public ApplicationInsightsLogger(
             string categoryName,
@@ -85,9 +84,11 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
         {
             if (this.IsEnabled(logLevel))
             {
-                if (exception == null || this.applicationInsightsLoggerOptions?.TrackExceptionsAsExceptionTelemetry == false)
+                if (exception == null || !this.applicationInsightsLoggerOptions.TrackExceptionsAsExceptionTelemetry)
                 {
-                    TraceTelemetry traceTelemetry = new TraceTelemetry(formatter(state, exception), this.GetSeverityLevel(logLevel));
+                    TraceTelemetry traceTelemetry = new TraceTelemetry(
+                        formatter(state, exception), 
+                        ApplicationInsightsLogger.GetSeverityLevel(logLevel));
                     this.PopulateTelemetry(traceTelemetry, state, eventId);
                     this.telemetryClient.TrackTrace(traceTelemetry);
                 }
@@ -96,7 +97,7 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                     ExceptionTelemetry exceptionTelemetry = new ExceptionTelemetry(exception)
                     {
                         Message = formatter(state, exception),
-                        SeverityLevel = this.GetSeverityLevel(logLevel),
+                        SeverityLevel = ApplicationInsightsLogger.GetSeverityLevel(logLevel),
                     };
                     exceptionTelemetry.Context.Properties["Exception"] = exception.ToString();
                     this.PopulateTelemetry(exceptionTelemetry, state, eventId);
@@ -122,13 +123,43 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
         {
         }
 
+        /// <summary>
+        /// Converts the <see cref="LogLevel"/> into corresponding Application insights <see cref="SeverityLevel"/>.
+        /// </summary>
+        /// <param name="logLevel">Logging log level.</param>
+        /// <returns>Application insights corresponding SeverityLevel for the LogLevel.</returns>
+        private static SeverityLevel GetSeverityLevel(LogLevel logLevel)
+        {
+            switch (logLevel)
+            {
+                case LogLevel.Critical:
+                    return SeverityLevel.Critical;
+                case LogLevel.Error:
+                    return SeverityLevel.Error;
+                case LogLevel.Warning:
+                    return SeverityLevel.Warning;
+                case LogLevel.Information:
+                    return SeverityLevel.Information;
+                case LogLevel.Debug:
+                case LogLevel.Trace:
+                default:
+                    return SeverityLevel.Verbose;
+            }
+        }
+
+        /// <summary>
+        /// Populates the state, scope and event information for the logging event.
+        /// </summary>
+        /// <typeparam name="TState">State information for the current event.</typeparam>
+        /// <param name="telemetry">Telemetry item.</param>
+        /// <param name="state">Event state information.</param>
+        /// <param name="eventId">Event Id information.</param>
         private void PopulateTelemetry<TState>(ITelemetry telemetry, TState state, EventId eventId)
         {
-            IReadOnlyList<KeyValuePair<string, object>> stateDictionary = state as IReadOnlyList<KeyValuePair<string, object>>;
             IDictionary<string, string> dict = telemetry.Context.Properties;
             dict["CategoryName"] = this.categoryName;
 
-            if (this.applicationInsightsLoggerOptions?.IncludeEventId ?? false)
+            if (this.applicationInsightsLoggerOptions.IncludeEventId)
             {
                 if (eventId.Id != 0)
                 {
@@ -141,7 +172,7 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                 }
             }
 
-            if (stateDictionary != null)
+            if (state is IReadOnlyList<KeyValuePair<string, object>> stateDictionary)
             {
                 foreach (KeyValuePair<string, object> item in stateDictionary)
                 {
@@ -156,11 +187,10 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                     (activeScope, builder) =>
                     {
                         // Ideally we expect that the scope to implement IReadOnlyList<KeyValuePair<string, object>>.
-                        // But this is not gauranteed as user can call BeginScope and pass anything. Hence
+                        // But this is not guaranteed as user can call BeginScope and pass anything. Hence
                         // we try to resolve the scope as Dictionary and if we fail, we just serialize the object and add it.
-                        IReadOnlyList<KeyValuePair<string, object>> activeScopeDictionary = activeScope as IReadOnlyList<KeyValuePair<string, object>>;
 
-                        if (activeScopeDictionary != null)
+                        if (activeScope is IReadOnlyList<KeyValuePair<string, object>> activeScopeDictionary)
                         {
                             foreach (KeyValuePair<string, object> item in activeScopeDictionary)
                             {
@@ -178,25 +208,6 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                 {
                     dict["Scope"] = stringBuilder.ToString();
                 }
-            }
-        }
-
-        private SeverityLevel GetSeverityLevel(LogLevel logLevel)
-        {
-            switch (logLevel)
-            {
-                case LogLevel.Critical:
-                    return SeverityLevel.Critical;
-                case LogLevel.Error:
-                    return SeverityLevel.Error;
-                case LogLevel.Warning:
-                    return SeverityLevel.Warning;
-                case LogLevel.Information:
-                    return SeverityLevel.Information;
-                case LogLevel.Debug:
-                case LogLevel.Trace:
-                default:
-                    return SeverityLevel.Verbose;
             }
         }
     }
