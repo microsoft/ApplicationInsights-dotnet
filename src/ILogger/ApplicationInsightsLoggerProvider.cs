@@ -61,8 +61,13 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
             TelemetryConfiguration telemetryConfiguration,
             IOptions<ApplicationInsightsLoggerOptions> applicationInsightsLoggerOptions)
         {
-            this.telemetryClient = new TelemetryClient(telemetryConfiguration) ?? throw new ArgumentNullException(nameof(telemetryConfiguration));
-            this.applicationInsightsLoggerOptions = applicationInsightsLoggerOptions.Value ?? throw new ArgumentNullException(nameof(applicationInsightsLoggerOptions));
+            if (telemetryConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(telemetryConfiguration));
+            }
+
+            this.telemetryClient = new TelemetryClient(telemetryConfiguration);
+            this.applicationInsightsLoggerOptions = applicationInsightsLoggerOptions?.Value ?? throw new ArgumentNullException(nameof(applicationInsightsLoggerOptions));
         }
 
         /// <summary>

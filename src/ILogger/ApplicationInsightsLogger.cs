@@ -12,7 +12,6 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
     using System.Globalization;
     using System.Text;
     using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
@@ -87,7 +86,7 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                 if (exception == null || !this.applicationInsightsLoggerOptions.TrackExceptionsAsExceptionTelemetry)
                 {
                     TraceTelemetry traceTelemetry = new TraceTelemetry(
-                        formatter(state, exception), 
+                        formatter(state, exception),
                         ApplicationInsightsLogger.GetSeverityLevel(logLevel));
                     this.PopulateTelemetry(traceTelemetry, state, eventId);
                     this.telemetryClient.TrackTrace(traceTelemetry);
@@ -99,7 +98,7 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                         Message = formatter(state, exception),
                         SeverityLevel = ApplicationInsightsLogger.GetSeverityLevel(logLevel),
                     };
-                    exceptionTelemetry.Context.Properties["Exception"] = exception.ToString();
+
                     this.PopulateTelemetry(exceptionTelemetry, state, eventId);
                     this.telemetryClient.TrackException(exceptionTelemetry);
                 }
@@ -151,19 +150,19 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
         /// Populates the state, scope and event information for the logging event.
         /// </summary>
         /// <typeparam name="TState">State information for the current event.</typeparam>
-        /// <param name="telemetry">Telemetry item.</param>
+        /// <param name="telemetryItem">Telemetry item.</param>
         /// <param name="state">Event state information.</param>
         /// <param name="eventId">Event Id information.</param>
-        private void PopulateTelemetry<TState>(ITelemetry telemetry, TState state, EventId eventId)
+        private void PopulateTelemetry<TState>(ISupportProperties telemetryItem, TState state, EventId eventId)
         {
-            IDictionary<string, string> dict = telemetry.Context.Properties;
+            IDictionary<string, string> dict = telemetryItem.Properties;
             dict["CategoryName"] = this.categoryName;
 
-            if (this.applicationInsightsLoggerOptions.IncludeEventId)
+            if (!this.applicationInsightsLoggerOptions.ExcludeEventId)
             {
                 if (eventId.Id != 0)
                 {
-                    dict["EventId"] = eventId.Id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    dict["EventId"] = eventId.Id.ToString(CultureInfo.InvariantCulture);
                 }
 
                 if (!string.IsNullOrEmpty(eventId.Name))
@@ -172,41 +171,44 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                 }
             }
 
-            if (state is IReadOnlyList<KeyValuePair<string, object>> stateDictionary)
+            if (!this.applicationInsightsLoggerOptions.ExcludeScopeData)
             {
-                foreach (KeyValuePair<string, object> item in stateDictionary)
+                if (state is IReadOnlyList<KeyValuePair<string, object>> stateDictionary)
                 {
-                    dict[item.Key] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
-                }
-            }
-
-            if (this.ExternalScopeProvider != null)
-            {
-                StringBuilder stringBuilder = new StringBuilder();
-                this.ExternalScopeProvider.ForEachScope(
-                    (activeScope, builder) =>
+                    foreach (KeyValuePair<string, object> item in stateDictionary)
                     {
-                        // Ideally we expect that the scope to implement IReadOnlyList<KeyValuePair<string, object>>.
-                        // But this is not guaranteed as user can call BeginScope and pass anything. Hence
-                        // we try to resolve the scope as Dictionary and if we fail, we just serialize the object and add it.
+                        dict[item.Key] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
+                    }
+                }
 
-                        if (activeScope is IReadOnlyList<KeyValuePair<string, object>> activeScopeDictionary)
-                        {
-                            foreach (KeyValuePair<string, object> item in activeScopeDictionary)
-                            {
-                                dict[item.Key] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
-                            }
-                        }
-                        else
-                        {
-                            stringBuilder.Append(" => ").Append(activeScope);
-                        }
-                    },
-                    stringBuilder);
-
-                if (stringBuilder.Length > 0)
+                if (this.ExternalScopeProvider != null)
                 {
-                    dict["Scope"] = stringBuilder.ToString();
+                    StringBuilder stringBuilder = new StringBuilder();
+                    this.ExternalScopeProvider.ForEachScope(
+                        (activeScope, builder) =>
+                        {
+                            // Ideally we expect that the scope to implement IReadOnlyList<KeyValuePair<string, object>>.
+                            // But this is not guaranteed as user can call BeginScope and pass anything. Hence
+                            // we try to resolve the scope as Dictionary and if we fail, we just serialize the object and add it.
+
+                            if (activeScope is IReadOnlyList<KeyValuePair<string, object>> activeScopeDictionary)
+                            {
+                                foreach (KeyValuePair<string, object> item in activeScopeDictionary)
+                                {
+                                    dict[item.Key] = Convert.ToString(item.Value, CultureInfo.InvariantCulture);
+                                }
+                            }
+                            else
+                            {
+                                builder.Append(" => ").Append(activeScope);
+                            }
+                        },
+                        stringBuilder);
+
+                    if (stringBuilder.Length > 0)
+                    {
+                        dict["Scope"] = stringBuilder.ToString();
+                    }
                 }
             }
         }

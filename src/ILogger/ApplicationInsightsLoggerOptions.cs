@@ -16,22 +16,18 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
     public class ApplicationInsightsLoggerOptions
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ApplicationInsightsLoggerOptions" /> class.
-        /// Application Insights logger options can configure how <see cref="ILogger"/> behaves when sending telemetry.
-        /// </summary>
-        public ApplicationInsightsLoggerOptions()
-        {
-            this.TrackExceptionsAsExceptionTelemetry = true;
-        }
-
-        /// <summary>
         /// Gets or sets a value indicating whether to track exceptions as <see cref="ExceptionTelemetry"/>.
         /// </summary>
-        public bool TrackExceptionsAsExceptionTelemetry { get; set; }
+        public bool TrackExceptionsAsExceptionTelemetry { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether EventId and EventName properties should be included in telemetry.
+        /// Gets or sets a value indicating whether EventId and EventName properties should be excluded from telemetry.
         /// </summary>
-        public bool IncludeEventId { get; set; }
+        public bool ExcludeEventId { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the Scope information is excluded from telemetry or not.
+        /// </summary>
+        public bool ExcludeScopeData { get; set; } = false;
     }
 }
