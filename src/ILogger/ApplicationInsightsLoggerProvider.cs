@@ -13,6 +13,8 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
     using System.Text;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Implementation;
     using Microsoft.Extensions.Options;
 
     /// <summary>
@@ -66,8 +68,10 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                 throw new ArgumentNullException(nameof(telemetryConfiguration));
             }
 
-            this.telemetryClient = new TelemetryClient(telemetryConfiguration);
             this.applicationInsightsLoggerOptions = applicationInsightsLoggerOptions?.Value ?? throw new ArgumentNullException(nameof(applicationInsightsLoggerOptions));
+
+            this.telemetryClient = new TelemetryClient(telemetryConfiguration);
+            this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("il:");
         }
 
         /// <summary>
@@ -77,20 +81,13 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
         /// <returns>An <see cref="ILogger"/> instance to be used for logging.</returns>
         public ILogger CreateLogger(string categoryName)
         {
-            // Word of caution : GetOrAdd function is not fully threadsafe. The delegate to create
-            // new objects is not run under lock so we might create multiple ApplicationInsightsLoggers.
-            // However this will only typically during first time a specific code path is getting hit.
-            // Since ApplicationInsightsLoggers are harmless we are ready to live with this. However
-            // if in future this changes, Lazy<> approach can be used.
-            return this.applicationInsightsLoggers.GetOrAdd(
-                categoryName,
-                loggerName => new ApplicationInsightsLogger(
-                    loggerName,
+            return new ApplicationInsightsLogger(
+                    categoryName,
                     this.telemetryClient,
                     this.applicationInsightsLoggerOptions)
-                {
-                    ExternalScopeProvider = this.externalScopeProvider,
-                });
+            {
+                ExternalScopeProvider = this.externalScopeProvider,
+            };
         }
 
         /// <summary>
@@ -108,27 +105,16 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
         /// <param name="externalScopeProvider">The external scope provider.</param>
         public void SetScopeProvider(IExternalScopeProvider externalScopeProvider)
         {
-            // First set the ScopeProvider to ensure the newer instances get the newer instance.
             this.externalScopeProvider = externalScopeProvider;
-
-            // Then update all the existing loggers regardless of their current scope provider.
-            foreach (var logger in this.applicationInsightsLoggers)
-            {
-                logger.Value.ExternalScopeProvider = externalScopeProvider;
-            }
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
+        /// Releases unmanaged and - optionally - managed resources. 
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
+        /// <param name="releasedManagedResources">Release managed resources.</param>
+        protected virtual void Dispose(bool releasedManagedResources)
         {
-            // Dispose all appInsights loggers.
-            foreach (var logger in this.applicationInsightsLoggers)
-            {
-                logger.Value.Dispose();
-            }
+            // Nothing to dispose right now.
         }
     }
 }

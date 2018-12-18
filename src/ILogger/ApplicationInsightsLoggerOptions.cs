@@ -17,12 +17,14 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
     {
         /// <summary>
         /// Gets or sets a value indicating whether to track exceptions as <see cref="ExceptionTelemetry"/>.
+        /// Defaults to true.
         /// </summary>
         public bool TrackExceptionsAsExceptionTelemetry { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether the Scope information is excluded from telemetry or not.
+        /// Defaults to true.
         /// </summary>
-        public bool IncludeScopes { get; set; } = false;
+        public bool IncludeScopes { get; set; } = true;
     }
 }
