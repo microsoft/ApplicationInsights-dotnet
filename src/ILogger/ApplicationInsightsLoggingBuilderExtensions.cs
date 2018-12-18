@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ApplicationInsightsLoggerExtensions.cs" company="Microsoft">
+// <copyright file="ApplicationInsightsLoggingBuilderExtensions.cs" company="Microsoft">
 // Copyright (c) Microsoft Corporation. 
 // All rights reserved.  2013
 // </copyright>
@@ -16,7 +16,7 @@ namespace Microsoft.Extensions.Logging
     /// <summary>
     /// Extensions methods to add and configure application insights logger.
     /// </summary>
-    public static class ApplicationInsightsLoggerExtensions
+    public static class ApplicationInsightsLoggingBuilderExtensions
     {
         /// <summary>
         /// Adds an ApplicationInsights logger named 'ApplicationInsights' to the factory.
