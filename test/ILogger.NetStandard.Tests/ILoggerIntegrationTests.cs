@@ -58,11 +58,12 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// Ensures that the <see cref="ApplicationInsightsLoggerOptions.TrackExceptionsAsExceptionTelemetry"/> switch is honored.
+        /// Ensures that the <see cref="ApplicationInsightsLoggerOptions.TrackExceptionsAsExceptionTelemetry"/> switch is honored
+        /// and exceptions are logged as trace messages when value is true.
         /// </summary>
         [TestMethod]
         [TestCategory("ILogger")]
-        public void ApplicationInsightsLoggerHonorsLogExceptionsAsExceptionTelemetrySwitch()
+        public void ApplicationInsightsLoggerLogsExceptionAsExceptionWhenSwitchIsTrue()
         {
             List<ITelemetry> itemsReceived = new List<ITelemetry>();
 
@@ -85,16 +86,24 @@ namespace Microsoft.ApplicationInsights
 
             Assert.AreEqual(SeverityLevel.Error, (itemsReceived[1] as ExceptionTelemetry).SeverityLevel);
             Assert.AreEqual("Exception", (itemsReceived[1] as ExceptionTelemetry).Message);
+        }
 
-            itemsReceived.Clear();
+        /// <summary>
+        /// Ensures that the <see cref="ApplicationInsightsLoggerOptions.TrackExceptionsAsExceptionTelemetry"/> switch is honored
+        /// and exceptions are logged as trace messages when value is false.
+        /// </summary>
+        [TestMethod]
+        [TestCategory("ILogger")]
+        public void ApplicationInsightsLoggerLogsExceptionAsTraceWhenSwitchIsFalse()
+        {
+            List<ITelemetry> itemsReceived = new List<ITelemetry>();
 
-            // Case where Exceptions are logged as Trace Telemetry.
-            serviceProvider = ILoggerIntegrationTests.SetupApplicationInsightsLoggerIntegration(
+            IServiceProvider serviceProvider = ILoggerIntegrationTests.SetupApplicationInsightsLoggerIntegration(
                 (telemetryItem, telemetryProcessor) => itemsReceived.Add(telemetryItem),
                 configureTelemetryConfiguration: null,
                 configureApplicationInsightsOptions: (appInsightsLoggerOptions) => appInsightsLoggerOptions.TrackExceptionsAsExceptionTelemetry = false);
 
-            testLogger = serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
+            ILogger<ILoggerIntegrationTests> testLogger = serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
 
             testLogger.LogInformation("Testing");
             testLogger.LogError(new Exception("TestException"), "Exception");
@@ -110,11 +119,12 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// Ensures that the <see cref="ApplicationInsightsLoggerOptions.IncludeScopes"/> switch is honored.
+        /// Ensures that the <see cref="ApplicationInsightsLoggerOptions.IncludeScopes"/> switch is honored and scopes are added
+        /// when switch is true.
         /// </summary>
         [TestMethod]
         [TestCategory("ILogger")]
-        public void ApplicationInsightsLoggerHonorsIncludeScopeSwitch()
+        public void ApplicationInsightsLoggerAddsScopeWhenSwitchIsTrue()
         {
             List<ITelemetry> itemsReceived = new List<ITelemetry>();
 
@@ -137,16 +147,25 @@ namespace Microsoft.ApplicationInsights
 
             Assert.AreEqual(" => TestScope", (itemsReceived[1] as ISupportProperties).Properties["Scope"]);
             Assert.AreEqual("Value", (itemsReceived[1] as ISupportProperties).Properties["Key"]);
+        }
 
-            itemsReceived.Clear();
+        /// <summary>
+        /// Ensures that the <see cref="ApplicationInsightsLoggerOptions.IncludeScopes"/> switch is honored and scopes are excluded
+        /// when switch is false.
+        /// </summary>
+        [TestMethod]
+        [TestCategory("ILogger")]
+        public void ApplicationInsightsLoggerAddsScopeWhenSwitchIsFalse()
+        {
+            List<ITelemetry> itemsReceived = new List<ITelemetry>();
 
             // Case where Scope is NOT Included
-            serviceProvider = ILoggerIntegrationTests.SetupApplicationInsightsLoggerIntegration(
+            IServiceProvider serviceProvider = ILoggerIntegrationTests.SetupApplicationInsightsLoggerIntegration(
                 (telemetryItem, telemetryProcessor) => itemsReceived.Add(telemetryItem),
                 configureTelemetryConfiguration: null,
                 configureApplicationInsightsOptions: (appInsightsLoggerOptions) => appInsightsLoggerOptions.IncludeScopes = false);
 
-            testLogger = serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
+            ILogger<ILoggerIntegrationTests> testLogger = serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
 
             testLogger.BeginScope("TestScope");
             testLogger.BeginScope<IReadOnlyCollection<KeyValuePair<string, object>>>(new Dictionary<string, object> { { "Key", "Value" } });
@@ -159,6 +178,28 @@ namespace Microsoft.ApplicationInsights
 
             Assert.IsFalse((itemsReceived[1] as ISupportProperties).Properties.ContainsKey("Scope"));
             Assert.IsFalse((itemsReceived[1] as ISupportProperties).Properties.ContainsKey("Key"));
+        }
+
+        /// <summary>
+        /// Test to ensure Instrumentation key is set correctly.
+        /// </summary>
+        [TestMethod]
+        [TestCategory("ILogger")]
+        public void ApplicationInsightsLoggerInstrumentationKeyIsSetCorrectly()
+        {
+            // Create DI container.
+            IServiceCollection services = new ServiceCollection();
+
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddApplicationInsights("TestAIKey");
+            });
+
+            TelemetryConfiguration telemetryConfiguration = services
+                .BuildServiceProvider()
+                .GetRequiredService<IOptions<TelemetryConfiguration>>().Value;
+
+            Assert.AreEqual("TestAIKey", telemetryConfiguration.InstrumentationKey);
         }
 
         /// <summary>
