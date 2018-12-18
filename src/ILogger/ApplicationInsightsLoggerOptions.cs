@@ -21,13 +21,8 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
         public bool TrackExceptionsAsExceptionTelemetry { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether EventId and EventName properties should be excluded from telemetry.
-        /// </summary>
-        public bool ExcludeEventId { get; set; } = false;
-
-        /// <summary>
         /// Gets or sets a value indicating whether the Scope information is excluded from telemetry or not.
         /// </summary>
-        public bool ExcludeScopeData { get; set; } = false;
+        public bool IncludeScopes { get; set; } = false;
     }
 }

@@ -158,20 +158,17 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
             IDictionary<string, string> dict = telemetryItem.Properties;
             dict["CategoryName"] = this.categoryName;
 
-            if (!this.applicationInsightsLoggerOptions.ExcludeEventId)
+            if (eventId.Id != 0)
             {
-                if (eventId.Id != 0)
-                {
-                    dict["EventId"] = eventId.Id.ToString(CultureInfo.InvariantCulture);
-                }
-
-                if (!string.IsNullOrEmpty(eventId.Name))
-                {
-                    dict["EventName"] = eventId.Name;
-                }
+                dict["EventId"] = eventId.Id.ToString(CultureInfo.InvariantCulture);
             }
 
-            if (!this.applicationInsightsLoggerOptions.ExcludeScopeData)
+            if (!string.IsNullOrEmpty(eventId.Name))
+            {
+                dict["EventName"] = eventId.Name;
+            }
+
+            if (this.applicationInsightsLoggerOptions.IncludeScopes)
             {
                 if (state is IReadOnlyList<KeyValuePair<string, object>> stateDictionary)
                 {
