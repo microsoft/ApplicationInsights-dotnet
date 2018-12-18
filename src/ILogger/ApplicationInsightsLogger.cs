@@ -150,7 +150,7 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
 
             if (this.applicationInsightsLoggerOptions.IncludeScopes)
             {
-                if (state is IReadOnlyList<KeyValuePair<string, object>> stateDictionary)
+                if (state is IReadOnlyCollection<KeyValuePair<string, object>> stateDictionary)
                 {
                     foreach (KeyValuePair<string, object> item in stateDictionary)
                     {
@@ -168,7 +168,7 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
                             // But this is not guaranteed as user can call BeginScope and pass anything. Hence
                             // we try to resolve the scope as Dictionary and if we fail, we just serialize the object and add it.
 
-                            if (activeScope is IReadOnlyList<KeyValuePair<string, object>> activeScopeDictionary)
+                            if (activeScope is IReadOnlyCollection<KeyValuePair<string, object>> activeScopeDictionary)
                             {
                                 foreach (KeyValuePair<string, object> item in activeScopeDictionary)
                                 {

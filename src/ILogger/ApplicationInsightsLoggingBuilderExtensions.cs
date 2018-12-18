@@ -41,10 +41,9 @@ namespace Microsoft.Extensions.Logging
                 throw new ArgumentNullException(nameof(configureApplicationInsightsOptions));
             }
 
-            // This ensures that we don't override the TelemetryClient if one was added using .AddApplicationInsightsTelemetry()
-            // However if one was not added at the time of calling LoggerProvider, use a dummy one so that logger does not throw.
-            // .AddApplicationInsightsTelemetry() will add a configured TelemetryClient which will then override this one.
-            builder.Services.TryAdd(ServiceDescriptor.Singleton<TelemetryConfiguration, TelemetryConfiguration>());
+            // Initialize IOptions<TelemetryConfiguration> user can keep on configuring it furthur if they want to.
+            builder.Services.Configure<TelemetryConfiguration>((telemetryConfiguration) => { });
+
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, ApplicationInsightsLoggerProvider>());
             builder.Services.Configure(configureApplicationInsightsOptions);
 

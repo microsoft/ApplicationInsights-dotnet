@@ -8,6 +8,7 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <RunCodeAnalysis>false</RunCodeAnalysis>
+    <DebugType>Full</DebugType>
   </PropertyGroup>
 
   <!-- Import is done after first property group because Product.props use AssemblyName property. -->

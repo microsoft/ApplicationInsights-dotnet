@@ -9,8 +9,6 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Text;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -20,8 +18,8 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
     /// <summary>
     /// Application insights logger provider.
     /// </summary>
-    /// <seealso cref="Microsoft.Extensions.Logging.ILoggerProvider" />
-    /// <seealso cref="Microsoft.Extensions.Logging.ISupportExternalScope" />
+    /// <seealso cref="ILoggerProvider" />
+    /// <seealso cref="ISupportExternalScope" />
     [ProviderAlias("ApplicationInsights")]
     public class ApplicationInsightsLoggerProvider : ILoggerProvider, ISupportExternalScope
     {
@@ -36,13 +34,6 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
         private readonly TelemetryClient telemetryClient;
 
         /// <summary>
-        /// The collection of application insights loggers stored against categoryName.
-        /// categoryName -> <see cref="ApplicationInsightsLogger"/> map.
-        /// </summary>
-        private readonly ConcurrentDictionary<string, ApplicationInsightsLogger> applicationInsightsLoggers
-            = new ConcurrentDictionary<string, ApplicationInsightsLogger>();
-
-        /// <summary>
         /// The external scope provider to allow setting scope data in messages.
         /// </summary>
         private IExternalScopeProvider externalScopeProvider;
@@ -50,7 +41,7 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationInsightsLoggerProvider"/> class.
         /// </summary>
-        /// <param name="telemetryConfiguration">The telemetry configuration.</param>
+        /// <param name="telemetryConfigurationOptions">The telemetry configuration options..</param>
         /// <param name="applicationInsightsLoggerOptions">The application insights logger options.</param>
         /// <exception cref="System.ArgumentNullException">
         /// telemetryConfiguration
@@ -60,17 +51,17 @@ namespace Microsoft.Extensions.Logging.ApplicationInsights
         /// applicationInsightsLoggerOptions.
         /// </exception>
         public ApplicationInsightsLoggerProvider(
-            TelemetryConfiguration telemetryConfiguration,
+            IOptions<TelemetryConfiguration> telemetryConfigurationOptions,
             IOptions<ApplicationInsightsLoggerOptions> applicationInsightsLoggerOptions)
         {
-            if (telemetryConfiguration == null)
+            if (telemetryConfigurationOptions?.Value == null)
             {
-                throw new ArgumentNullException(nameof(telemetryConfiguration));
+                throw new ArgumentNullException(nameof(telemetryConfigurationOptions));
             }
 
             this.applicationInsightsLoggerOptions = applicationInsightsLoggerOptions?.Value ?? throw new ArgumentNullException(nameof(applicationInsightsLoggerOptions));
 
-            this.telemetryClient = new TelemetryClient(telemetryConfiguration);
+            this.telemetryClient = new TelemetryClient(telemetryConfigurationOptions.Value);
             this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("il:");
         }
 
