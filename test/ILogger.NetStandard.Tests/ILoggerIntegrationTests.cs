@@ -55,6 +55,22 @@ namespace Microsoft.ApplicationInsights
 
             Assert.AreEqual("Microsoft.ApplicationInsights.ILoggerIntegrationTests", (itemsReceived[2] as ISupportProperties).Properties["CategoryName"]);
             Assert.AreEqual("Microsoft.ApplicationInsights.ILoggerIntegrationTests", (itemsReceived[0] as ISupportProperties).Properties["CategoryName"]);
+
+            Assert.AreEqual(SeverityLevel.Information, (itemsReceived[0] as TraceTelemetry).SeverityLevel);
+            Assert.AreEqual(SeverityLevel.Error, (itemsReceived[1] as ExceptionTelemetry).SeverityLevel);
+            Assert.AreEqual(SeverityLevel.Information, (itemsReceived[2] as TraceTelemetry).SeverityLevel);
+            Assert.AreEqual(SeverityLevel.Critical, (itemsReceived[3] as TraceTelemetry).SeverityLevel);
+            Assert.AreEqual(SeverityLevel.Verbose, (itemsReceived[4] as TraceTelemetry).SeverityLevel);
+            Assert.AreEqual(SeverityLevel.Warning, (itemsReceived[5] as TraceTelemetry).SeverityLevel);
+            Assert.AreEqual(SeverityLevel.Verbose, (itemsReceived[6] as TraceTelemetry).SeverityLevel);
+
+            Assert.AreEqual("Testing", (itemsReceived[0] as TraceTelemetry).Message);
+            Assert.AreEqual("Exception", (itemsReceived[1] as ExceptionTelemetry).Message);
+            Assert.AreEqual("TestingEvent", (itemsReceived[2] as TraceTelemetry).Message);
+            Assert.AreEqual("Critical", (itemsReceived[3] as TraceTelemetry).Message);
+            Assert.AreEqual("Trace", (itemsReceived[4] as TraceTelemetry).Message);
+            Assert.AreEqual("Warning", (itemsReceived[5] as TraceTelemetry).Message);
+            Assert.AreEqual("Debug", (itemsReceived[6] as TraceTelemetry).Message);
         }
 
         /// <summary>
@@ -81,10 +97,7 @@ namespace Microsoft.ApplicationInsights
             Assert.IsInstanceOfType(itemsReceived[0], typeof(TraceTelemetry));
             Assert.IsInstanceOfType(itemsReceived[1], typeof(ExceptionTelemetry));
 
-            Assert.AreEqual(SeverityLevel.Information, (itemsReceived[0] as TraceTelemetry).SeverityLevel);
             Assert.AreEqual("Testing", (itemsReceived[0] as TraceTelemetry).Message);
-
-            Assert.AreEqual(SeverityLevel.Error, (itemsReceived[1] as ExceptionTelemetry).SeverityLevel);
             Assert.AreEqual("Exception", (itemsReceived[1] as ExceptionTelemetry).Message);
         }
 
@@ -136,11 +149,14 @@ namespace Microsoft.ApplicationInsights
 
             ILogger<ILoggerIntegrationTests> testLogger = serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
 
-            testLogger.BeginScope("TestScope");
-            testLogger.BeginScope<IReadOnlyCollection<KeyValuePair<string, object>>>(new Dictionary<string, object> { { "Key", "Value" } });
-
-            testLogger.LogInformation("Testing");
-            testLogger.LogError(new Exception("TestException"), "Exception");
+            using (testLogger.BeginScope("TestScope"))
+            {
+                using (testLogger.BeginScope<IReadOnlyCollection<KeyValuePair<string, object>>>(new Dictionary<string, object> { { "Key", "Value" } }))
+                {
+                    testLogger.LogInformation("Testing");
+                    testLogger.LogError(new Exception("TestException"), "Exception");
+                }
+            }
 
             Assert.AreEqual(" => TestScope", (itemsReceived[0] as ISupportProperties).Properties["Scope"]);
             Assert.AreEqual("Value", (itemsReceived[0] as ISupportProperties).Properties["Key"]);
@@ -167,11 +183,14 @@ namespace Microsoft.ApplicationInsights
 
             ILogger<ILoggerIntegrationTests> testLogger = serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
 
-            testLogger.BeginScope("TestScope");
-            testLogger.BeginScope<IReadOnlyCollection<KeyValuePair<string, object>>>(new Dictionary<string, object> { { "Key", "Value" } });
-
-            testLogger.LogInformation("Testing");
-            testLogger.LogError(new Exception("TestException"), "Exception");
+            using (testLogger.BeginScope("TestScope"))
+            {
+                using (testLogger.BeginScope<IReadOnlyCollection<KeyValuePair<string, object>>>(new Dictionary<string, object> { { "Key", "Value" } }))
+                {
+                    testLogger.LogInformation("Testing");
+                    testLogger.LogError(new Exception("TestException"), "Exception");
+                }
+            }
 
             Assert.IsFalse((itemsReceived[0] as ISupportProperties).Properties.ContainsKey("Scope"));
             Assert.IsFalse((itemsReceived[0] as ISupportProperties).Properties.ContainsKey("Key"));

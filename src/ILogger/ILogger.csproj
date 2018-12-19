@@ -8,6 +8,15 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <RunCodeAnalysis>false</RunCodeAnalysis>
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!-- Include the PDB in the built .nupkg -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+
   </PropertyGroup>
 
   <!-- Import is done after first property group because Product.props use AssemblyName property. -->
@@ -21,11 +30,8 @@
     <Description>Application Insights ILogger allows forwarding events from ILogger to Application Insights. Application Insights will collect your logs from multiple sources and provide rich powerful search capabilities. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
     <PackageTags>$(PackageTags) ILogger ILoggerBuilder ILoggerProvider</PackageTags>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
+  
+  
 
   <PropertyGroup>
     <GenerateAdditionalSources>false</GenerateAdditionalSources>
@@ -35,6 +41,10 @@
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.8.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2">
       <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.1-beta.61">
       <PrivateAssets>All</PrivateAssets>
