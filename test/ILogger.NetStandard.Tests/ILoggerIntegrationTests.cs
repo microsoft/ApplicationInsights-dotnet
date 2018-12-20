@@ -163,6 +163,9 @@ namespace Microsoft.ApplicationInsights
 
             Assert.AreEqual(" => TestScope", (itemsReceived[1] as ISupportProperties).Properties["Scope"]);
             Assert.AreEqual("Value", (itemsReceived[1] as ISupportProperties).Properties["Key"]);
+
+            Assert.AreEqual("Testing", (itemsReceived[0] as TraceTelemetry).Message);
+            Assert.AreEqual("Exception", (itemsReceived[1] as ExceptionTelemetry).Message);
         }
 
         /// <summary>
@@ -171,7 +174,7 @@ namespace Microsoft.ApplicationInsights
         /// </summary>
         [TestMethod]
         [TestCategory("ILogger")]
-        public void ApplicationInsightsLoggerAddsScopeWhenSwitchIsFalse()
+        public void ApplicationInsightsLoggerDoesNotAddScopeWhenSwitchIsFalse()
         {
             List<ITelemetry> itemsReceived = new List<ITelemetry>();
 
@@ -197,6 +200,9 @@ namespace Microsoft.ApplicationInsights
 
             Assert.IsFalse((itemsReceived[1] as ISupportProperties).Properties.ContainsKey("Scope"));
             Assert.IsFalse((itemsReceived[1] as ISupportProperties).Properties.ContainsKey("Key"));
+
+            Assert.AreEqual("Testing", (itemsReceived[0] as TraceTelemetry).Message);
+            Assert.AreEqual("Exception", (itemsReceived[1] as ExceptionTelemetry).Message);
         }
 
         /// <summary>

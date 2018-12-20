@@ -48,30 +48,30 @@ namespace Microsoft.Extensions.Logging
         /// </summary>
         /// <param name="builder">The <see cref="ILoggingBuilder"/> to use.</param>
         /// <param name="instrumentationKey">Application insights instrumentation key.</param>
-        /// <param name="configureApplicationInsightsOptions">Action to configure ApplicationInsights logger.</param>
+        /// <param name="configureApplicationInsightsLoggerOptions">Action to configure ApplicationInsights logger.</param>
         /// <returns>Logging builder with Application Insights added to it.</returns>
         public static ILoggingBuilder AddApplicationInsights(
             this ILoggingBuilder builder,
             string instrumentationKey,
-            Action<ApplicationInsightsLoggerOptions> configureApplicationInsightsOptions)
+            Action<ApplicationInsightsLoggerOptions> configureApplicationInsightsLoggerOptions)
         {
             return builder.AddApplicationInsights(
                 (telemetryConfiguration) => telemetryConfiguration.InstrumentationKey = instrumentationKey,
-                configureApplicationInsightsOptions);
+                configureApplicationInsightsLoggerOptions);
         }
 
         /// <summary>
         /// Adds an ApplicationInsights logger named 'ApplicationInsights' to the factory.
         /// </summary>
         /// <param name="builder">The <see cref="ILoggingBuilder"/> to use.</param>
-        /// <param name="configureApplicationInsightsOptions">Action to configure ApplicationInsights logger.</param>
+        /// <param name="configureApplicationInsightsLoggerOptions">Action to configure ApplicationInsights logger.</param>
         public static ILoggingBuilder AddApplicationInsights(
             this ILoggingBuilder builder,
-            Action<ApplicationInsightsLoggerOptions> configureApplicationInsightsOptions)
+            Action<ApplicationInsightsLoggerOptions> configureApplicationInsightsLoggerOptions)
         {
             return builder.AddApplicationInsights(
                 (telemetryConfiguration) => { },
-                configureApplicationInsightsOptions);
+                configureApplicationInsightsLoggerOptions);
         }
 
         /// <summary>
@@ -79,22 +79,22 @@ namespace Microsoft.Extensions.Logging
         /// </summary>
         /// <param name="builder">The <see cref="ILoggingBuilder"/> to use.</param>
         /// <param name="configureTelemetryConfiguration">Action to configure telemetry configuration.</param>
-        /// <param name="configureApplicationInsightsOptions">Action to configure ApplicationInsights logger.</param>
+        /// <param name="configureApplicationInsightsLoggerOptions">Action to configure ApplicationInsights logger.</param>
         private static ILoggingBuilder AddApplicationInsights(
             this ILoggingBuilder builder,
             Action<TelemetryConfiguration> configureTelemetryConfiguration,
-            Action<ApplicationInsightsLoggerOptions> configureApplicationInsightsOptions)
+            Action<ApplicationInsightsLoggerOptions> configureApplicationInsightsLoggerOptions)
         {
-            if (configureApplicationInsightsOptions == null)
+            if (configureApplicationInsightsLoggerOptions == null)
             {
-                throw new ArgumentNullException(nameof(configureApplicationInsightsOptions));
+                throw new ArgumentNullException(nameof(configureApplicationInsightsLoggerOptions));
             }
 
             // Initialize IOptions<TelemetryConfiguration> user can keep on configuring it furthur if they want to.
             builder.Services.Configure<TelemetryConfiguration>(configureTelemetryConfiguration);
 
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, ApplicationInsightsLoggerProvider>());
-            builder.Services.Configure(configureApplicationInsightsOptions);
+            builder.Services.Configure(configureApplicationInsightsLoggerOptions);
 
             return builder;
         }
