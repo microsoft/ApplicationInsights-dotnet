@@ -52,7 +52,7 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta009">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Desktop.Analyzers" Version="1.2.0-beta2">
+    <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microbuild.Core" Version="0.3.0">
