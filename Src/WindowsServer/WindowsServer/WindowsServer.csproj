@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\Product.props" />
 
   <PropertyGroup>
@@ -50,6 +50,7 @@
     <Content Include="ApplicationInsights.config.transform" />
     <Content Include="ApplicationInsights.config.install.xdt" />
     <Content Include="ApplicationInsights.config.uninstall.xdt" />
+    <Content Include="Microsoft.ApplicationInsights.WindowsServer.targets" PackagePath="build" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\Product.props" />
 
   <PropertyGroup>
@@ -44,6 +44,7 @@
   <ItemGroup>
     <!--Nuget Transforms (install.xdt, uninstall.xdt, config.transform): "nupkg\content\<framework>\*.*-->
     <Content Include="net45\*" />
+    <Content Include="Microsoft.ApplicationInsights.Web.targets" PackagePath="build" />
   </ItemGroup>
 
   <ItemGroup>
