@@ -113,7 +113,7 @@
             TelemetryItem<EventTelemetry> data = obj.ToObject<TelemetryItem<EventTelemetry>>();
 
             Assert.AreEqual("Microsoft.ApplicationInsights.Event", data.name);
-            Assert.AreEqual(JsonSerializer.EventNameForUnknownTelemetry, data.data.baseData.Name);
+            Assert.AreEqual(Constants.EventNameForUnknownTelemetry, data.data.baseData.Name);
             Assert.AreEqual("testUser", data.tags["ai.user.id"]);
             Assert.IsTrue(DateTimeOffset.TryParse(data.time, out DateTimeOffset testResult));
             Assert.AreEqual(testTime, testResult);           

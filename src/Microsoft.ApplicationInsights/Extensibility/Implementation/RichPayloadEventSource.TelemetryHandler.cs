@@ -200,6 +200,75 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         }
 
         /// <summary>
+        /// Create handler for unknown telemetry that accepts EventData, InstrumentationKey, tags, flags
+        /// </summary>
+        private Action<EventData, string, IDictionary<string, string>, long> CreateHandlerForUnknownTelemetry(EventSource eventSource)
+        {
+            var eventSourceType = eventSource.GetType();
+
+            // EventSource.Write<T> (String, EventSourceOptions, T)
+            var writeGenericMethod = eventSourceType.GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .Where(m => m.Name == "Write" && m.IsGenericMethod == true)
+                .Select(m => new { Method = m, Parameters = m.GetParameters() })
+                .Where(m => m.Parameters.Length == 3
+                            && m.Parameters[0].ParameterType.FullName == "System.String"
+                            && m.Parameters[1].ParameterType.FullName == "System.Diagnostics.Tracing.EventSourceOptions"
+                            && m.Parameters[2].ParameterType.FullName == null && m.Parameters[2].ParameterType.IsByRef == false)
+                .Select(m => m.Method)
+                .SingleOrDefault();
+
+            if (writeGenericMethod == null)
+            {
+                return null;
+            }
+
+            var eventSourceOptionsType = eventSourceType.Assembly.GetType("System.Diagnostics.Tracing.EventSourceOptions");
+            var eventSourceOptionsKeywordsProperty = eventSourceOptionsType.GetProperty("Keywords", BindingFlags.Public | BindingFlags.Instance);
+
+            var eventSourceOptions = Activator.CreateInstance(eventSourceOptionsType);
+            var keywords = Keywords.Events;
+            eventSourceOptionsKeywordsProperty.SetValue(eventSourceOptions, keywords);
+            var dummyEventData = new EventData();
+            var writeMethod = writeGenericMethod.MakeGenericMethod(new
+            {
+                PartA_iKey = this.dummyPartAiKeyValue,
+                PartA_Tags = this.dummyPartATagsValue,
+                PartB_EventData = new
+                {
+                    // The properties and layout should be the same as EventData_types.cs
+                    dummyEventData.ver,
+                    dummyEventData.name,
+                    dummyEventData.properties,
+                    dummyEventData.measurements
+                },
+                PartA_flags = this.dummyPartAFlagsValue,
+            }.GetType());
+
+            return (data, iKey, tags, flags) =>
+             {
+                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
+                 {
+                     var extendedData = new
+                     {
+                         // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
+                         PartA_iKey = iKey,
+                         PartA_Tags = tags,
+                         PartB_EventData = new
+                         {
+                             data.ver,
+                             data.name,
+                             data.properties,
+                             data.measurements
+                         },
+                         PartA_flags = flags,
+                     };
+
+                     writeMethod.Invoke(eventSource, new object[] { EventTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                 }
+             };
+        }
+
+        /// <summary>
         /// Create handler for request telemetry.
         /// </summary>
         private Action<ITelemetry> CreateHandlerForRequestTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)

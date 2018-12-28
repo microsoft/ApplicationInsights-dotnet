@@ -16,6 +16,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IExtensionImplementations.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MetricTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationTelemetryExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServiceProfiler\Agent\Utilities\ParsedPayload.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServiceProfiler\Agent\Utilities\PayloadParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServiceProfiler\Agent\Utilities\PayloadParserUtilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StartOperationActivityTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionAsyncTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionTests.cs" />
