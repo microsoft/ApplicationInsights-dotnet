@@ -383,6 +383,7 @@
             Assert.AreEqual(32, request.Context.Operation.Id.Length);
             Assert.IsTrue(Regex.Match(request.Context.Operation.Id, @"[a-z][0-9]").Success);
 
+            Assert.AreEqual(request.Context.Operation.Id, activity.GetTraceId());
             Assert.AreEqual(request.Context.Operation.Id, activity.RootId);
             Assert.AreEqual(request.Context.Operation.ParentId, activity.GetParentSpanId());
             Assert.AreEqual(request.Id, $"|{activity.GetTraceId()}.{activity.GetSpanId()}.");
@@ -493,6 +494,42 @@
 
             Assert.IsTrue(requestTelemetry.Properties.ContainsKey(W3CConstants.LegacyRequestIdProperty));
             Assert.IsTrue(requestTelemetry.Properties[W3CConstants.LegacyRequestIdProperty].StartsWith("|requestId."));
+        }
+
+        [TestMethod]
+        public void RequestIdBecomesParentAndRootIfCompatibleWhenThereAreNoW3CHeaders()
+        {
+            this.aspNetDiagnosticsSource.FakeContext =
+                HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
+                {
+                    ["Request-Id"] = "|4bf92f3577b34da6a3ce929d0e0e4736."
+                });
+            this.module = this.CreateModule(enableW3cSupport: true);
+
+            var activity = new Activity(FakeAspNetDiagnosticSource.IncomingRequestEventName);
+
+            activity.Extract(HttpContext.Current.Request.Headers);
+
+            Assert.IsTrue(this.aspNetDiagnosticsSource.IsEnabled(FakeAspNetDiagnosticSource.IncomingRequestEventName, activity));
+            this.aspNetDiagnosticsSource.StartActivityWithoutChecks(activity);
+            this.aspNetDiagnosticsSource.StopActivity();
+
+            Assert.AreEqual("4bf92f3577b34da6a3ce929d0e0e4736", activity.GetTraceId());
+            Assert.AreEqual(16, activity.GetSpanId().Length);
+            Assert.IsNull(activity.GetParentSpanId());
+
+            Assert.AreEqual(1, this.sendItems.Count);
+
+            var requestTelemetry = this.sendItems[0] as RequestTelemetry;
+            Assert.IsNotNull(requestTelemetry);
+            Assert.AreEqual(activity.GetTraceId(), requestTelemetry.Context.Operation.Id);
+            Assert.AreEqual("|4bf92f3577b34da6a3ce929d0e0e4736.", requestTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual($"|{activity.GetTraceId()}.{activity.GetSpanId()}.", requestTelemetry.Id);
+
+            Assert.IsFalse(requestTelemetry.Properties.ContainsKey(W3CConstants.LegacyRootIdProperty));
+
+            Assert.IsTrue(requestTelemetry.Properties.ContainsKey(W3CConstants.LegacyRequestIdProperty));
+            Assert.IsTrue(requestTelemetry.Properties[W3CConstants.LegacyRequestIdProperty].StartsWith("|4bf92f3577b34da6a3ce929d0e0e4736."));
         }
 
         [TestMethod]

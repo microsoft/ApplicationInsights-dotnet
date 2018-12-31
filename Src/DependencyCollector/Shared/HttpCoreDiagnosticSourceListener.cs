@@ -388,7 +388,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             telemetry.Timestamp = currentActivity.StartTimeUtc;
             telemetry.Name = resourceName;
-            telemetry.Target = requestUri.Host;
+            telemetry.Target = DependencyTargetNameHelper.GetDependencyTargetName(requestUri);
             telemetry.Type = RemoteDependencyConstants.HTTP;
             telemetry.Data = requestUri.OriginalString;
             telemetry.Duration = currentActivity.Duration;
@@ -435,7 +435,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     this.client.StartOperation<DependencyTelemetry>(resourceName) :
                     this.client.StartOperation<DependencyTelemetry>(resourceName, StringUtilities.GenerateTraceId());
 
-                dependency.Telemetry.Target = requestUri.Host;
+                dependency.Telemetry.Target = DependencyTargetNameHelper.GetDependencyTargetName(requestUri);
                 dependency.Telemetry.Type = RemoteDependencyConstants.HTTP;
                 dependency.Telemetry.Data = requestUri.OriginalString;
                 dependency.Telemetry.SetOperationDetail(RemoteDependencyConstants.HttpRequestOperationDetailName, request);

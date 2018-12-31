@@ -351,7 +351,7 @@
         private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, HttpRequestMessage request, bool success, string resultCode, bool expectLegacyHeaders, Activity parent = null)
         {
             Assert.AreEqual(url, item.Data);
-            Assert.AreEqual(url.Host, item.Target);
+            Assert.AreEqual($"{url.Host}:{url.Port}", item.Target);
             Assert.AreEqual("GET " + url.AbsolutePath, item.Name);
             Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
             Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");

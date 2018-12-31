@@ -43,7 +43,11 @@
             activity.SetVersion(W3CConstants.DefaultVersion);
             activity.SetSampled(W3CConstants.TraceFlagRecordedAndNotRequested);
             activity.SetSpanId(StringUtilities.GenerateSpanId());
-            activity.SetTraceId(StringUtilities.GenerateTraceId());
+
+            activity.SetTraceId(activity.RootId != null && TraceIdRegex.IsMatch(activity.RootId)
+                ? activity.RootId
+                : StringUtilities.GenerateTraceId());
+
             return activity;
         }
 

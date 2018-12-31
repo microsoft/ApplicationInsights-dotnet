@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 2.9.0-beta3
+- Update Base SDK to version 2.9.0-beta3
+- [Fix: Correlation doesn't work for localhost](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1120). If you are upgrading and have previously opted into legacy header injection via `DependencyTrackingTelemetryModule.EnableLegacyCorrelationHeadersInjection` and run app locally with Azure Storage Emulator, make sure you manually exclude localhost from correlation headers injection in the `ExcludeComponentCorrelationHttpHeadersOnDomains` under `DependencyCollector`
+    ```xml
+        <Add>localhost</Add>
+        <Add>127.0.0.1</Add>
+    ```
+- [Fix: Non-default port is not included into the target for Http dependencies on .NET Core](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1121)
+- [When Activity has root id compatible with W3C trace Id, use it as trace id](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/1107)
+
 ## Version 2.9.0-beta1
 - [Prevent duplicate dependency collection in multi-host apps](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/621)
 - [Fix missing transactions Sql dependencies](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/1031)

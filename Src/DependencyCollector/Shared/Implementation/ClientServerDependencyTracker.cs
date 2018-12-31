@@ -59,7 +59,7 @@
 
                 // Every operation must have its own Activity
                 // if dependency is tracked with profiler of event source, we need to generate a proper Id for it
-                // in case of HTTP it will be propagated into the requert header.
+                // in case of HTTP it will be propagated into the request header.
                 // So, we will create a new Activity for the dependency, just to generate an Id.
                 activity = new Activity(DependencyActivityName);
 
@@ -80,21 +80,23 @@
                 activity.Start();
             }
 
-            // telemetry is initialized from current Activity (root and parent Id, but not the Id)
-            telemetry.Id = activity.Id;
-
-            // set operation root Id in case there was no parent activity (e.g. HttpRequest in background thread)
-            if (string.IsNullOrEmpty(telemetry.Context.Operation.Id))
-            {
-                telemetry.Context.Operation.Id = activity.RootId;
-            }
-
-#pragma warning disable 612, 618
             if (IsW3CEnabled)
             {
+#pragma warning disable 612, 618
                 W3COperationCorrelationTelemetryInitializer.UpdateTelemetry(telemetry, activity, true);
-            }
 #pragma warning restore 612, 618
+            }
+            else
+            {
+                // telemetry is initialized from current Activity (root and parent Id, but not the Id)
+                telemetry.Id = activity.Id;
+
+                // set operation root Id in case there was no parent activity (e.g. HttpRequest in background thread)
+                if (string.IsNullOrEmpty(telemetry.Context.Operation.Id))
+                {
+                    telemetry.Context.Operation.Id = activity.RootId;
+                }
+            }
 
             PretendProfilerIsAttached = false;
             return telemetry;
