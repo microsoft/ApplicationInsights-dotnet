@@ -1,5 +1,8 @@
 # Changelog 
 
+## Version 2.9.0-beta3
+- Update Base SDK to version 2.9.0-beta3
+
 ### Version 2.9
 - Update log4net reference to [2.0.7](https://www.nuget.org/packages/log4net/2.0.7)
 
