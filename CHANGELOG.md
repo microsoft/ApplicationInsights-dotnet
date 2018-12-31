@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 2.9.0-beta3
+- Update Base SDK to version 2.9.0-beta3
 - [Fix: Correlation doesn't work for localhost](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1120). If you are upgrading and have previously opted into legacy header injection via `DependencyTrackingTelemetryModule.EnableLegacyCorrelationHeadersInjection` and run app locally with Azure Storage Emulator, make sure you manually exclude localhost from correlation headers injection in the `ExcludeComponentCorrelationHttpHeadersOnDomains` under `DependencyCollector`
     ```xml
         <Add>localhost</Add>
