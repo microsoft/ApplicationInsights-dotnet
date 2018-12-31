@@ -11,6 +11,7 @@
 
     <RootNamespace>Microsoft.ApplicationInsights.TraceListener</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.TraceListener</AssemblyName>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
