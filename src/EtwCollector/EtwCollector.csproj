@@ -15,6 +15,8 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <RootNamespace>Microsoft.ApplicationInsights.EtwCollector</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.EtwCollector</AssemblyName>
+
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
