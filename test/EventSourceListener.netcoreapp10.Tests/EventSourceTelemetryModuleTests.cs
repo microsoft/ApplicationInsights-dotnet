@@ -80,7 +80,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 Assert.AreEqual("Hey!", telemetry.Message);
                 Assert.AreEqual("Hey!", telemetry.Properties["information"]);
                 Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
-                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "evl:");
+                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "evl:", loggerType: typeof(EventSourceTelemetryModule));
                 Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
             }
         }
@@ -107,7 +107,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                 Assert.AreEqual("Hey!", telemetry.Properties["information"]);
                 Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
 
-                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "evl:");
+                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "evl:", loggerType: typeof(EventSourceTelemetryModule));
                 Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
             }
         }
@@ -159,7 +159,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
                     Assert.AreEqual("Hey!", telemetry.Message);
                     Assert.AreEqual("Hey!", telemetry.Properties["message"]);
                     Assert.AreEqual(SeverityLevel.Information, telemetry.SeverityLevel);
-                    string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "evl:");
+                    string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "evl:", loggerType: typeof(EventSourceTelemetryModule));
                     Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
                 }
             }

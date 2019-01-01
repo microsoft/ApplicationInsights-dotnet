@@ -104,7 +104,7 @@
 
                 TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
 
-                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "sd:");
+                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(prefix: "sd:", loggerType: typeof(ApplicationInsightsTraceListener));
                 Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
             }
         }
