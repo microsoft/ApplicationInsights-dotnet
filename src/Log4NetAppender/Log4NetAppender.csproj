@@ -12,6 +12,7 @@
 
     <RootNamespace>Microsoft.ApplicationInsights.Log4NetAppender</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.Log4NetAppender</AssemblyName>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -41,7 +42,7 @@
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.8.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.9.0-beta3" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
@@ -49,7 +50,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.3' ">
-    <PackageReference Include="log4net" Version="2.0.6" />
+    <PackageReference Include="log4net" Version="2.0.7" />
   </ItemGroup>
   
   <ItemGroup>

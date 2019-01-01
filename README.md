@@ -87,7 +87,7 @@ Microsoft.ApplicationInsights.TraceListener nuget package modifies web.config an
 
 For more information, see ["Microsoft Docs: "Tracing and Instrumenting Applications"](https://docs.microsoft.com/dotnet/framework/debug-trace-profile/tracing-and-instrumenting-applications)
 
-```
+```xml
 <configuration>
   <system.diagnostics>
     <trace>
@@ -131,7 +131,7 @@ For more information, see [CoreFX: "Diagnostic Source Users Guide"](https://gith
 
 To enable, edit the `TelemetryModules` section of the ApplicationInsights.config file:
 
-```
+```xml
 <Add Type="Microsoft.ApplicationInsights.DiagnsoticSourceListener.DiagnosticSourceTelemetryModule, Microsoft.ApplicationInsights.DiagnosticSourceListener">
       <Sources>
         <Add Name="MyDiagnosticSourceName" />

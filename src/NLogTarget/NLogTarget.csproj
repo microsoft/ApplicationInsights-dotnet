@@ -12,6 +12,7 @@
 
     <RootNamespace>Microsoft.ApplicationInsights.NLogTarget</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.NLogTarget</AssemblyName>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -41,7 +42,7 @@
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.8.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.9.0-beta3" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">

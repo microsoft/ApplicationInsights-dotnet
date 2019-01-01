@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28315.86
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EE933574-C82B-4E59-A0D1-05328197B937}"
 EndProject
@@ -62,6 +62,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLogTarget.NetCoreApp10.Tests", "test\NLogTarget.NetCoreApp10.Tests\NLogTarget.NetCoreApp10.Tests.csproj", "{B24CB3C6-A3A0-4190-97E4-E847C7B1A691}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Log4NetAppender.NetCoreApp10.Tests", "test\Log4NetAppender.NetCoreApp10.Tests\Log4NetAppender.NetCoreApp10.Tests.csproj", "{F74826DB-53B1-4588-BD02-4DD25DCBF292}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILogger", "src\ILogger\ILogger.csproj", "{7D942802-E85E-4C3C-B97E-67A3867B7CBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILogger.NetStandard.Tests", "test\ILogger.NetStandard.Tests\ILogger.NetStandard.Tests.csproj", "{4C1B862F-8F19-4D0F-834D-694DDE0438AE}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -225,6 +229,22 @@ Global
 		{F74826DB-53B1-4588-BD02-4DD25DCBF292}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F74826DB-53B1-4588-BD02-4DD25DCBF292}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{F74826DB-53B1-4588-BD02-4DD25DCBF292}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{7D942802-E85E-4C3C-B97E-67A3867B7CBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D942802-E85E-4C3C-B97E-67A3867B7CBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D942802-E85E-4C3C-B97E-67A3867B7CBA}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{7D942802-E85E-4C3C-B97E-67A3867B7CBA}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{7D942802-E85E-4C3C-B97E-67A3867B7CBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D942802-E85E-4C3C-B97E-67A3867B7CBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D942802-E85E-4C3C-B97E-67A3867B7CBA}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{7D942802-E85E-4C3C-B97E-67A3867B7CBA}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4C1B862F-8F19-4D0F-834D-694DDE0438AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C1B862F-8F19-4D0F-834D-694DDE0438AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C1B862F-8F19-4D0F-834D-694DDE0438AE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4C1B862F-8F19-4D0F-834D-694DDE0438AE}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4C1B862F-8F19-4D0F-834D-694DDE0438AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C1B862F-8F19-4D0F-834D-694DDE0438AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C1B862F-8F19-4D0F-834D-694DDE0438AE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4C1B862F-8F19-4D0F-834D-694DDE0438AE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -251,6 +271,8 @@ Global
 		{11E4A92F-154E-450B-8508-437C28744BC2} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{B24CB3C6-A3A0-4190-97E4-E847C7B1A691} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{F74826DB-53B1-4588-BD02-4DD25DCBF292} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{7D942802-E85E-4C3C-B97E-67A3867B7CBA} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{4C1B862F-8F19-4D0F-834D-694DDE0438AE} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC8888B1-0E98-49D7-BE15-EB97A6261C0D}

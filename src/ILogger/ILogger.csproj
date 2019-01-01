@@ -1,13 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
-    <RootNamespace>Microsoft.ApplicationInsights.DiagnosticSourceListener</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.DiagnosticSourceListener</AssemblyName>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <RootNamespace>Microsoft.Extensions.Logging.ApplicationInsights</RootNamespace>
+    <AssemblyName>Microsoft.Extensions.Logging.ApplicationInsights</AssemblyName>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <RunCodeAnalysis>false</RunCodeAnalysis>
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!-- Include the PDB in the built .nupkg -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+
   </PropertyGroup>
 
   <!-- Import is done after first property group because Product.props use AssemblyName property. -->
@@ -16,10 +25,10 @@
   <PropertyGroup>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
-    <PackageId>Microsoft.ApplicationInsights.DiagnosticSourceListener</PackageId>
-    <Title>Application Insights DiagnosticSourceListener</Title>
-    <Description>Application Insights DiagnosticSourceListener allows forwarding events from DiagnosticSource to Application Insights. Application Insights will collect your logs from multiple sources and provide rich powerful search capabilities. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
-    <PackageTags>$(PackageTags) DiagnosticsSource</PackageTags>
+    <PackageId>Microsoft.Extensions.Logging.ApplicationInsights</PackageId>
+    <Title>Microsoft Logging Extensions for ApplicationInsights</Title>
+    <Description>Application Insights ILogger allows forwarding events from ILogger to Application Insights. Application Insights will collect your logs from multiple sources and provide rich powerful search capabilities. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <PackageTags>$(PackageTags) ILogger ILoggerBuilder ILoggerProvider</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -30,19 +39,17 @@
   <PropertyGroup>
     <GenerateAdditionalSources>false</GenerateAdditionalSources>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <Content Include="ApplicationInsights.config.install.xdt" />
-    <Content Include="ApplicationInsights.config.uninstall.xdt" />
-  </ItemGroup>
-
 
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.9.0-beta3" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.1">
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta009">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
@@ -51,11 +58,10 @@
     <PackageReference Include="Microbuild.Core" Version="0.3.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.0" />
   </ItemGroup>
 
   <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
-
 </Project>
