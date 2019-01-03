@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 2.6.0-beta3
+- Updated Web/Base SDK version dependency to 2.9.0-beta3
+- [Deprecate ApplicationInsightsLoggerFactoryExtensions.AddApplicationInsights logging extensions in favor of Microsoft.Extensions.Logging.ApplicationInsights package](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/817)
+- [Fix: Do not track requests by each host in the process](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/621)
+- [Fix: Correlation doesn't work for localhost](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1120)
+
 ## Version 2.6.0-beta2
 - Updated Web/Base SDK version dependency to 2.9.0-beta2
 

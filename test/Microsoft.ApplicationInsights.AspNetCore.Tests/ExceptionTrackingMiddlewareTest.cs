@@ -1,5 +1,4 @@
 ﻿using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
@@ -16,34 +15,39 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         [Fact]
         public void InvokeTracksExceptionThrownByNextMiddlewareAsHandledByPlatform()
         {
-            var middleware = new HostingDiagnosticListener(
+            using (var middleware = new HostingDiagnosticListener(
                 CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry),
                 CommonMocks.GetMockApplicationIdProvider(),
                 injectResponseHeaders: true,
                 trackExceptions: true,
-                enableW3CHeaders:false);
+                enableW3CHeaders: false))
+            {
+                middleware.OnSubscribe();
+                middleware.OnHostingException(null, null);
 
-            middleware.OnHostingException(null, null);
-
-            Assert.NotNull(sentTelemetry);
-            Assert.IsType<ExceptionTelemetry>(sentTelemetry);
-            Assert.Equal(ExceptionHandledAt.Platform, ((ExceptionTelemetry)sentTelemetry).HandledAt);
+                Assert.NotNull(sentTelemetry);
+                Assert.IsType<ExceptionTelemetry>(sentTelemetry);
+                Assert.Equal(ExceptionHandledAt.Platform, ((ExceptionTelemetry) sentTelemetry).HandledAt);
+            }
         }
 
         [Fact]
         public void SdkVersionIsPopulatedByMiddleware()
         {
-            var middleware = new HostingDiagnosticListener(
-                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry), 
+            using (var middleware = new HostingDiagnosticListener(
+                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry),
                 CommonMocks.GetMockApplicationIdProvider(),
                 injectResponseHeaders: true,
                 trackExceptions: true,
-                enableW3CHeaders: false);
+                enableW3CHeaders: false))
+            {
+                middleware.OnSubscribe();
+                middleware.OnHostingException(null, null);
 
-            middleware.OnHostingException(null, null);
-
-            Assert.NotEmpty(sentTelemetry.Context.GetInternalContext().SdkVersion);
-            Assert.Contains(SdkVersionTestUtils.VersionPrefix, sentTelemetry.Context.GetInternalContext().SdkVersion);
+                Assert.NotEmpty(sentTelemetry.Context.GetInternalContext().SdkVersion);
+                Assert.Contains(SdkVersionTestUtils.VersionPrefix,
+                    sentTelemetry.Context.GetInternalContext().SdkVersion);
+            }
         }
     }
 }

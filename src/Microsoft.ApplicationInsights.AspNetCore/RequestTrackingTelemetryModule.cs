@@ -59,8 +59,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                     {
                         this.telemetryClient = new TelemetryClient(configuration);
 
-                        this.diagnosticListeners.Add
-                            (new HostingDiagnosticListener(
+                        this.diagnosticListeners.Add(new HostingDiagnosticListener(
                             this.telemetryClient,
                             this.applicationIdProvider,
                             this.CollectionOptions.InjectResponseHeaders,
@@ -92,6 +91,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                 if (applicationInsightDiagnosticListener.ListenerName == value.Name)
                 {
                     subs.Add(value.SubscribeWithAdapter(applicationInsightDiagnosticListener));
+                    applicationInsightDiagnosticListener.OnSubscribe();
                 }
             }
         }
@@ -128,6 +128,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore
             foreach (var subscription in subs)
             {
                 subscription.Dispose();
+            }
+
+            foreach (var listener in this.diagnosticListeners)
+            {
+                listener.Dispose();
             }
         }
     }

@@ -509,6 +509,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var quickPulseModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(QuickPulseTelemetryModule));
                 Assert.NotNull(quickPulseModuleDescriptor);
             }
+
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithDefaultValues()
             {
@@ -525,8 +526,35 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var dependencyModule = modules.OfType<DependencyTrackingTelemetryModule>().Single();
 
                 //VALIDATE
-                Assert.True(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count > 0);
+                Assert.Equal(4, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count);
+                Assert.False(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("localhost"));
+                Assert.False(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("127.0.0.1"));
+            }
 
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithCustomValues()
+            {
+                //ARRANGE
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(
+                    null,
+                    null,
+                    o => { o.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection = true; },
+                    false);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+
+                // Requesting TelemetryConfiguration from services trigger constructing the TelemetryConfiguration
+                // which in turn trigger configuration of all modules.
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+                //ACT
+                var dependencyModule = modules.OfType<DependencyTrackingTelemetryModule>().Single();
+
+                //VALIDATE
+                Assert.Equal(6, dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count);
+                Assert.True(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("localhost"));
+                Assert.True(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Contains("127.0.0.1"));
             }
 
             [Fact]
@@ -1138,6 +1166,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
             }
+
             IConfigurationRoot config = null;
 
             if (jsonPath != null)

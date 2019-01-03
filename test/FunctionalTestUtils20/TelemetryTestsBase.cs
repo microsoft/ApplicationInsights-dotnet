@@ -8,9 +8,6 @@
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Text;
-    using System.Text.RegularExpressions;
-    using System.Threading;
-    using System.Threading.Tasks;
     using AI;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.Extensions.DependencyInjection;
@@ -138,7 +135,7 @@
 
             using (HttpClient httpClient = new HttpClient(httpClientHandler, true))
             {
-                this.output.WriteLine(string.Format("{0}: Executing request: {1}", DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff tt"), requestPath));
+                this.output.WriteLine($"{DateTime.Now:MM/dd/yyyy hh:mm:ss.fff tt}: Executing request: {requestPath}");
                 HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestPath);
                 if (headers != null)
                 {
@@ -150,7 +147,7 @@
 
                 var task = httpClient.SendAsync(request);
                 task.Wait(TestListenerTimeoutInMs);
-                this.output.WriteLine(string.Format("{0:MM/dd/yyyy hh:mm:ss.fff tt}: Ended request: {1}", DateTime.Now, requestPath));
+                this.output.WriteLine($"{DateTime.Now:MM/dd/yyyy hh:mm:ss.fff tt}: Ended request: {requestPath}");
 
                 return task.Result;
             }

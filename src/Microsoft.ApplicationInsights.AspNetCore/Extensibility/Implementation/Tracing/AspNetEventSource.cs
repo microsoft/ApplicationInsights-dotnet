@@ -146,6 +146,16 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(12, this.ApplicationName);
         }
 
+        [Event(
+            13,
+            Keywords = Keywords.Diagnostics,
+            Message = "Not tracking operation for event = '{0}', id = '{1}', lisener is not active.",
+            Level = EventLevel.Verbose)]
+        public void NotActiveListenerNoTracking(string evntName, string activityId, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(13, evntName, activityId, this.ApplicationName);
+        }
+
         /// <summary>
         /// Keywords for the AspNetEventSource.
         /// </summary>

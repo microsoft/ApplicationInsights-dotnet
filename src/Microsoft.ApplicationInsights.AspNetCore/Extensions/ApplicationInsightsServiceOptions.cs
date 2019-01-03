@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 {
     using System.Reflection;
+    using Microsoft.ApplicationInsights.DependencyCollector;
 
     /// <summary>
     /// Application Insights service options defines the custom behavior of the features to add, as opposed to the default selection of features obtained from Application Insights.
@@ -9,7 +10,7 @@
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationInsightsServiceOptions" /> class.
-        /// Application Insights service options that controlls the default behavior of application insights features.
+        /// Application Insights service options that controls the default behavior of application insights features.
         /// </summary>
         public ApplicationInsightsServiceOptions()
         {
@@ -20,6 +21,7 @@
             this.EnableHeartbeat = true;
             this.AddAutoCollectedMetricExtractor = true;
             this.RequestCollectionOptions = new RequestCollectionOptions();
+            this.DependencyCollectionOptions = new DependencyCollectionOptions();
             this.ApplicationVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
         }
 
@@ -80,5 +82,11 @@
         /// Gets <see cref="RequestCollectionOptions"/> that allow to manage <see cref="RequestTrackingTelemetryModule"/>
         /// </summary>
         public RequestCollectionOptions RequestCollectionOptions { get; }
+
+        /// <summary>
+        /// Gets <see cref="DependencyCollectionOptions"/> that allow to manage <see cref="DependencyTrackingTelemetryModule"/>
+        /// </summary>
+        public DependencyCollectionOptions DependencyCollectionOptions { get; }
+      
     }
 }

@@ -1,5 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 {
+    /// <summary>
+    /// Request collection options define the custom behavior or non-default features of request collection.
+    /// </summary>
     public class RequestCollectionOptions
     {
         /// <summary>

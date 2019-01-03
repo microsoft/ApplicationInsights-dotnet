@@ -151,13 +151,20 @@
                 services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
                 services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
                 {
+                    module.EnableLegacyCorrelationHeadersInjection =
+                        o.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection;
+
                     var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
                     excludedDomains.Add("core.windows.net");
                     excludedDomains.Add("core.chinacloudapi.cn");
                     excludedDomains.Add("core.cloudapi.de");
                     excludedDomains.Add("core.usgovcloudapi.net");
-                    excludedDomains.Add("localhost");
-                    excludedDomains.Add("127.0.0.1");
+
+                    if (module.EnableLegacyCorrelationHeadersInjection)
+                    {
+                        excludedDomains.Add("localhost");
+                        excludedDomains.Add("127.0.0.1");
+                    }
 
                     var includedActivities = module.IncludeDiagnosticSourceActivities;
                     includedActivities.Add("Microsoft.Azure.EventHubs");
