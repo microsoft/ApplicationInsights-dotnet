@@ -16,6 +16,7 @@
         /// </summary>
         /// <param name="factory"></param>
         /// <param name="serviceProvider">The instance of <see cref="IServiceProvider"/> to use for service resolution.</param>
+        [Obsolete("Use Microsoft.Extensions.Logging.ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights from Microsoft.Extensions.Logging.ApplicationInsights package")]
         public static ILoggerFactory AddApplicationInsights(this ILoggerFactory factory, IServiceProvider serviceProvider)
         {
             return factory.AddApplicationInsights(serviceProvider, LogLevel.Warning);
@@ -27,6 +28,7 @@
         /// <param name="factory"></param>
         /// <param name="serviceProvider">The instance of <see cref="IServiceProvider"/> to use for service resolution.</param>
         /// <param name="minLevel">The minimum <see cref="LogLevel"/> to be logged</param>
+        [Obsolete("Use Microsoft.Extensions.Logging.ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights from Microsoft.Extensions.Logging.ApplicationInsights package")]
         public static ILoggerFactory AddApplicationInsights(
             this ILoggerFactory factory,
             IServiceProvider serviceProvider,
@@ -42,6 +44,7 @@
         /// <param name="factory"></param>
         /// <param name="filter"></param>
         /// <param name="serviceProvider">The instance of <see cref="IServiceProvider"/> to use for service resolution.</param>
+        [Obsolete("Use Microsoft.Extensions.Logging.ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights from Microsoft.Extensions.Logging.ApplicationInsights package")]
         public static ILoggerFactory AddApplicationInsights(
             this ILoggerFactory factory,
             IServiceProvider serviceProvider,
@@ -57,6 +60,7 @@
         /// <param name="filter"></param>
         /// <param name="serviceProvider">The instance of <see cref="IServiceProvider"/> to use for service resolution.</param>
         /// <param name="loggerAddedCallback">The callback that gets executed when another ApplicationInsights logger is added.</param>
+        [Obsolete("Use Microsoft.Extensions.Logging.ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights from Microsoft.Extensions.Logging.ApplicationInsights package")]
         public static ILoggerFactory AddApplicationInsights(
             this ILoggerFactory factory,
             IServiceProvider serviceProvider,
