@@ -13,7 +13,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
-    using TaskEx = System.Threading.Tasks.Task;
 
     [TestClass]
     public class SnapshottingCollectionTest
@@ -68,7 +67,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var target = new TestableSnapshottingCollection<object>(collection);
                 lock (collection)
                 {
-                    anotherThread = TaskEx.Run(() => target.Add(new object()));
+                    anotherThread = Task.Run(() => target.Add(new object()));
                     Assert.IsFalse(anotherThread.Wait(20));
                 }
 
@@ -109,7 +108,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var target = new TestableSnapshottingCollection<object>(collection);
                 lock (collection)
                 {
-                    anotherThread = TaskEx.Run(() => target.Clear());
+                    anotherThread = Task.Run(() => target.Clear());
                     Assert.IsFalse(anotherThread.Wait(20));
                 }
 
@@ -260,7 +259,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var target = new TestableSnapshottingCollection<object>(collection);
                 lock (collection)
                 {
-                    anotherThread = TaskEx.Run(() => target.Remove(null));
+                    anotherThread = Task.Run(() => target.Remove(null));
                     Assert.IsFalse(anotherThread.Wait(20));
                 }
 

@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using TaskEx = System.Threading.Tasks.Task;
 
     /// <summary>
     /// Accumulates <see cref="ITelemetry"/> items for efficient transmission.
@@ -190,7 +189,7 @@
                 // Flush on thread pull to offload the rest of the channel logic from the customer's thread.
                 // This also works around the problem in ASP.NET 4.0, does not support await and SynchronizationContext correctly.
                 // See also: http://www.bing.com/search?q=UseTaskFriendlySynchronizationContext
-                await TaskEx.Run(() => this.serializer.Serialize(telemetryToFlush)).ConfigureAwait(false);
+                await Task.Run(() => this.serializer.Serialize(telemetryToFlush)).ConfigureAwait(false);
             }
         }
 

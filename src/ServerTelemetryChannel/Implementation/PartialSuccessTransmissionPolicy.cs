@@ -8,7 +8,6 @@
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
-    using TaskEx = System.Threading.Tasks.Task;
 
     internal class PartialSuccessTransmissionPolicy : TransmissionPolicy, IDisposable
     {
@@ -149,7 +148,7 @@
                         this.LogCapacityChanged();
                         this.Apply();
 
-                        return TaskEx.FromResult<object>(null);
+                        return Task.FromResult<object>(null);
                     });
         }
 

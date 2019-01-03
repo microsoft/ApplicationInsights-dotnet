@@ -7,10 +7,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
-    using TaskEx = System.Threading.Tasks.Task;
 
     /// <summary>
     /// Runs a task after a certain delay and log any error.
@@ -62,7 +60,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         {
             var newTokenSource = new CancellationTokenSource();
 
-            TaskEx.Delay(this.Delay, newTokenSource.Token)
+            Task.Delay(this.Delay, newTokenSource.Token)
                 .ContinueWith(
                 async previousTask =>
                     {

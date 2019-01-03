@@ -6,10 +6,8 @@
     using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
-
     using Implementation;
-
-    using TaskEx = System.Threading.Tasks.Task;
+    
 
     internal class DiagnoisticsEventThrottlingScheduler 
         : IDiagnoisticsEventThrottlingScheduler, IDisposable
@@ -106,7 +104,7 @@
                 {
                     timer.Start(task);
                     action();
-                    return TaskEx.FromResult<object>(null);
+                    return Task.FromResult<object>(null);
                 };
 
             timer.Start(task);

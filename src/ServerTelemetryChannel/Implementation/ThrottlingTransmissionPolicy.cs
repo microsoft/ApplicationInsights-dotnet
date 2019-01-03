@@ -6,7 +6,6 @@
     using Microsoft.ApplicationInsights.Channel.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
-    using TaskEx = System.Threading.Tasks.Task;
 
     internal class ThrottlingTransmissionPolicy : TransmissionPolicy, IDisposable
     {
@@ -64,7 +63,7 @@
                         () =>
                         {
                             this.ResetPolicy();
-                            return TaskEx.FromResult<object>(null);
+                            return Task.FromResult<object>(null);
                         });
                 }
             }
