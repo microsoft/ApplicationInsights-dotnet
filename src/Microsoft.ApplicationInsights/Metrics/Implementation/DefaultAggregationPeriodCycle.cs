@@ -78,7 +78,7 @@
         public void FetchAndTrackMetrics()
         {
             // We know that GetNextCycleTargetTime(..) tries to snap cycles to 1 second into each minute.
-            // But the timer wakes us up *approxumately* at that time. If we are within a few seconds of that time, we will snap exactly to that time.
+            // But the timer wakes us up *approximately* at that time. If we are within a few seconds of that time, we will snap exactly to that time.
             // If we are further away, we will just snap to a whole second. That way downstream systems do not need to worry about sub-second resolution.
 
             DateTimeOffset now = DateTimeOffset.Now;

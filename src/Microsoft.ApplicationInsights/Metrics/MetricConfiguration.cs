@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using static System.FormattableString;
 
-    /// <summary>Encapsulates the configuration for a metric and its respecitve data time series.</summary>
+    /// <summary>Encapsulates the configuration for a metric and its respective data time series.</summary>
     public class MetricConfiguration : IEquatable<MetricConfiguration>
     {
         private readonly int hashCode;
@@ -57,7 +57,7 @@
         /// <param name="valuesPerDimensionLimits">How many different values each of the dimensions of a metric can
         /// have as a maximum. If this enumeration contains less elements than the number of supported dimensions,
         /// then the last specified element is replicated for subsequent dimensions. If this enumeration contains
-        /// too many elements, superflous elements are ignored.
+        /// too many elements, superfluous elements are ignored.
         /// Once this limit is reached, calls to <c>TrackValue(..)</c>, <c>TryGetDataSeries(..)</c> and similar
         /// that would normally result in new series will return <c>false</c>.</param>
         /// <param name="seriesConfig">The configuration for how each series of this metric should be aggregated.</param>
@@ -132,9 +132,9 @@
             return this.valuesPerDimensionLimits[dimensionIndex];
         }
 
-        /// <summary>Gets whether tho objects describe idendical configuration.</summary>
+        /// <summary>Gets whether tho objects describe identical configuration.</summary>
         /// <param name="obj">A configuration object.</param>
-        /// <returns>Whether tho objects describe idendical configuration.</returns>
+        /// <returns>Whether tho objects describe identical configuration.</returns>
         public override bool Equals(object obj)
         {
             if (obj != null)
@@ -149,9 +149,9 @@
             return false;
         }
 
-        /// <summary>Gets whether tho objects describe idendical configuration.</summary>
+        /// <summary>Gets whether tho objects describe identical configuration.</summary>
         /// <param name="other">A configuration object.</param>
-        /// <returns>Whether tho objects describe idendical configuration.</returns>
+        /// <returns>Whether tho objects describe identical configuration.</returns>
         public virtual bool Equals(MetricConfiguration other)
         {
             if (other == null)
