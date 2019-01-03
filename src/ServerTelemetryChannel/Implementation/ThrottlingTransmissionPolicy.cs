@@ -2,10 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-
     using Microsoft.ApplicationInsights.Channel.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-
 
     internal class ThrottlingTransmissionPolicy : TransmissionPolicy, IDisposable
     {

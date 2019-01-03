@@ -9,7 +9,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
-
     /// <summary>
     /// Runs a task after a certain delay and log any error.
     /// </summary>

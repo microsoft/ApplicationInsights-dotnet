@@ -2,12 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Channel.Implementation;
-
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-
 
     internal class PartialSuccessTransmissionPolicy : TransmissionPolicy, IDisposable
     {

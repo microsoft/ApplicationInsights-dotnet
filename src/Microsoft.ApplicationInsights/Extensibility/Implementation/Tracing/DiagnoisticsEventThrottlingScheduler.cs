@@ -7,7 +7,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Implementation;
-    
 
     internal class DiagnoisticsEventThrottlingScheduler 
         : IDiagnoisticsEventThrottlingScheduler, IDisposable
