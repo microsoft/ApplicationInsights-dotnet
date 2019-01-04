@@ -12,7 +12,6 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
     using Channel.Helpers;
-    using TaskEx = System.Threading.Tasks.Task;
 
     public class TransmissionStorageTest
     {
@@ -76,9 +75,9 @@
                     var tasks = new Task[NumberOfThreads];
                     for (int t = 0; t < tasks.Length; t++)
                     {
-                        tasks[t] = TaskEx.Run(async () =>
+                        tasks[t] = Task.Run(async () =>
                         {
-                            await TaskEx.Delay(new Random(t).Next(50));
+                            await Task.Delay(new Random(t).Next(50));
                             for (int f = 0; f < NumberOfFilesPerThread; f++)
                             {
                                 storage.Enqueue(() => new Transmission(new Uri("http://address"), content, string.Empty, string.Empty));
@@ -87,7 +86,7 @@
                         });
                     }
 
-                    TaskEx.WhenAll(tasks).GetAwaiter().GetResult();
+                    Task.WhenAll(tasks).GetAwaiter().GetResult();
                 }
                 finally
                 {
@@ -580,10 +579,10 @@
                 var storage = new TransmissionStorage();
                 storage.Initialize(provider);
 
-                Task<Transmission> dequeue1 = TaskEx.Run(() => storage.Dequeue());
-                Task<Transmission> dequeue2 = TaskEx.Run(() => storage.Dequeue());
+                Task<Transmission> dequeue1 = Task.Run(() => storage.Dequeue());
+                Task<Transmission> dequeue2 = Task.Run(() => storage.Dequeue());
                 returnFiles.Set();
-                TaskEx.WhenAll(dequeue1, dequeue2).GetAwaiter().GetResult();
+                Task.WhenAll(dequeue1, dequeue2).GetAwaiter().GetResult();
 
                 Assert.AreEqual(2, numberOfGetFilesAsyncCalls); // 1 for initializing size and 1 for 1 dequeue
             }

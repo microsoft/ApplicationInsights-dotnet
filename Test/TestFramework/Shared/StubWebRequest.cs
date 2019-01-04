@@ -4,7 +4,6 @@
     using System.IO;
     using System.Net;
     using System.Threading.Tasks;
-    using TaskEx = System.Threading.Tasks.Task;
 
     internal class StubWebRequest : WebRequest
     {
@@ -39,9 +38,9 @@
             this.OnGetRequestUri = () => default(Uri);
 
             this.OnAbort = () => { };
-            this.OnBeginGetRequestStream = (callback, state) => TaskEx.FromResult<object>(null).AsAsyncResult(callback, this);
+            this.OnBeginGetRequestStream = (callback, state) => Task.FromResult<object>(null).AsAsyncResult(callback, this);
             this.OnEndGetRequestStream = asyncResult => this.requestStream = new StubStream();
-            this.OnBeginGetResponse = (callback, state) => TaskEx.FromResult<object>(null).AsAsyncResult(callback, this);
+            this.OnBeginGetResponse = (callback, state) => Task.FromResult<object>(null).AsAsyncResult(callback, this);
             this.OnEndGetResponse = asyncResult => this.response = new StubWebResponse();
         }
 

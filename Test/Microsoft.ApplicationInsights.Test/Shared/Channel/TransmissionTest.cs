@@ -9,8 +9,6 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
-    using TaskEx = System.Threading.Tasks.Task;
 
 #if !NETCOREAPP1_1
 
@@ -167,7 +165,7 @@
                     request.OnBeginGetRequestStream = (callback, state) =>
                     {
                         beginGetRequestStreamCount++;
-                        return TaskEx.FromResult<object>(null).AsAsyncResult(callback, request);
+                        return Task.FromResult<object>(null).AsAsyncResult(callback, request);
                     };
         
                     var transmission = new TestableTransmission { OnCreateRequest = uri => request };
@@ -242,7 +240,7 @@
                 var finishBeginGetRequestStream = new ManualResetEventSlim();
                 var request = new StubWebRequest();
                 request.OnAbort = () => requestAborted.Set();
-                request.OnBeginGetRequestStream = (callback, state) => TaskEx.Run(() => finishBeginGetRequestStream.Wait()).AsAsyncResult(callback, request);
+                request.OnBeginGetRequestStream = (callback, state) => Task.Run(() => finishBeginGetRequestStream.Wait()).AsAsyncResult(callback, request);
                 var transmission = new TestableTransmission(timeout: TimeSpan.FromTicks(1));
                 transmission.OnCreateRequest = uri => request;
 
@@ -265,7 +263,7 @@
         
                     await transmission.SendAsync();
         
-                    await TaskEx.Delay(TimeSpan.FromMilliseconds(50)); // Let timout detector finish
+                    await Task.Delay(TimeSpan.FromMilliseconds(50)); // Let timout detector finish
         
                     Assert.IsFalse(requestAborted);
                 });

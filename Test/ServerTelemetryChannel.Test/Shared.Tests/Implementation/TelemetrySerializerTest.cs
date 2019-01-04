@@ -11,7 +11,6 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using TaskEx = System.Threading.Tasks.Task;
 
     public class TelemetrySerializerTest
     {
@@ -141,7 +140,7 @@
             [TestMethod]
             public void DoesNotContinueAsyncOperationsOnCapturedSynchronizationContextToImprovePerformance()
             {
-                var transmitter = new StubTransmitter() { OnEnqueue = transmission => TaskEx.Run(() => { }) };
+                var transmitter = new StubTransmitter() { OnEnqueue = transmission => Task.Run(() => { }) };
                 var serializer = new TelemetrySerializer(transmitter);
 
                 bool postedBack = false;
