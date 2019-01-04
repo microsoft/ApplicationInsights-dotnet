@@ -15,15 +15,16 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         [Fact]
         public void InvokeTracksExceptionThrownByNextMiddlewareAsHandledByPlatform()
         {
-            using (var middleware = new HostingDiagnosticListener(
+            using (var hostingListener = new HostingDiagnosticListener(
                 CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry),
                 CommonMocks.GetMockApplicationIdProvider(),
                 injectResponseHeaders: true,
                 trackExceptions: true,
-                enableW3CHeaders: false))
+                enableW3CHeaders: false,
+                enableNewDiagnosticEvents: true))
             {
-                middleware.OnSubscribe();
-                middleware.OnHostingException(null, null);
+                hostingListener.OnSubscribe();
+                hostingListener.OnHostingException(null, null);
 
                 Assert.NotNull(sentTelemetry);
                 Assert.IsType<ExceptionTelemetry>(sentTelemetry);
@@ -34,15 +35,16 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         [Fact]
         public void SdkVersionIsPopulatedByMiddleware()
         {
-            using (var middleware = new HostingDiagnosticListener(
+            using (var hostingListener = new HostingDiagnosticListener(
                 CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry),
                 CommonMocks.GetMockApplicationIdProvider(),
                 injectResponseHeaders: true,
                 trackExceptions: true,
-                enableW3CHeaders: false))
+                enableW3CHeaders: false,
+                enableNewDiagnosticEvents: true))
             {
-                middleware.OnSubscribe();
-                middleware.OnHostingException(null, null);
+                hostingListener.OnSubscribe();
+                hostingListener.OnHostingException(null, null);
 
                 Assert.NotEmpty(sentTelemetry.Context.GetInternalContext().SdkVersion);
                 Assert.Contains(SdkVersionTestUtils.VersionPrefix,

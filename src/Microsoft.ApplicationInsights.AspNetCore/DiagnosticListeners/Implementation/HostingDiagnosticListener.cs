@@ -5,7 +5,6 @@
     using System.Globalization;
     using System.Linq;
     using System.Net.Http.Headers;
-    using System.Reflection;
     using System.Text;
     using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
@@ -14,7 +13,6 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.W3C;
-    using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DiagnosticAdapter;
     using Microsoft.Extensions.Primitives;
@@ -30,7 +28,7 @@
         /// To support AspNetCore 1.0 and 2.0, we listen to both old and new events.
         /// If the running AspNetCore version is 2.0, both old and new events will be sent. In this case, we will ignore the old events.
         /// </summary>
-        public static bool IsAspNetCore20 = typeof(WebHostBuilder).GetTypeInfo().Assembly.GetName().Version.Major >= 2;
+        private readonly bool enableNewDiagnosticEvents;
 
         private readonly TelemetryClient client;
         private readonly IApplicationIdProvider applicationIdProvider;
@@ -49,13 +47,16 @@
         /// <param name="injectResponseHeaders">Flag that indicates that response headers should be injected.</param>
         /// <param name="trackExceptions">Flag that indicates that exceptions should be tracked.</param>
         /// <param name="enableW3CHeaders">Flag that indicates that W3C header parsing should be enabled.</param>
+        /// <param name="enableNewDiagnosticEvents">Flag that indicates that new diagnostic events are supported by AspNetCore</param>
         public HostingDiagnosticListener(
-            TelemetryClient client, 
-            IApplicationIdProvider applicationIdProvider, 
-            bool injectResponseHeaders, 
-            bool trackExceptions, 
-            bool enableW3CHeaders)
+            TelemetryClient client,
+            IApplicationIdProvider applicationIdProvider,
+            bool injectResponseHeaders,
+            bool trackExceptions,
+            bool enableW3CHeaders,
+            bool enableNewDiagnosticEvents = true)
         {
+            this.enableNewDiagnosticEvents = enableNewDiagnosticEvents;
             this.client = client ?? throw new ArgumentNullException(nameof(client));
             this.applicationIdProvider = applicationIdProvider;
             this.injectResponseHeaders = injectResponseHeaders;
@@ -78,7 +79,7 @@
         [DiagnosticName("Microsoft.AspNetCore.Hosting.HttpRequestIn")]
         public void OnHttpRequestIn()
         {
-            // do nothing, just enable the diagnotic source
+            // do nothing, just enable the diagnostic source
         }
 
         /// <summary>
@@ -188,7 +189,7 @@
         [DiagnosticName("Microsoft.AspNetCore.Hosting.BeginRequest")]
         public void OnBeginRequest(HttpContext httpContext, long timestamp)
         {
-            if (this.client.IsEnabled() && !IsAspNetCore20)
+            if (this.client.IsEnabled() && !this.enableNewDiagnosticEvents)
             {
                 // It's possible to host multiple apps (ASP.NET Core or generic hosts) in the same process
                 // Each of this apps has it's own HostingDiagnosticListener and corresponding Http listener.
@@ -285,7 +286,7 @@
         [DiagnosticName("Microsoft.AspNetCore.Hosting.EndRequest")]
         public void OnEndRequest(HttpContext httpContext, long timestamp)
         {
-            if (!IsAspNetCore20)
+            if (!this.enableNewDiagnosticEvents)
             {
                 EndRequest(httpContext, timestamp);
             }
@@ -301,7 +302,7 @@
 
             // In AspNetCore 1.0, when an exception is unhandled it will only send the UnhandledException event, but not the EndRequest event, so we need to call EndRequest here.
             // In AspNetCore 2.0, after sending UnhandledException, it will stop the created activity, which will send HttpRequestIn.Stop event, so we will just end the request there.
-            if (!IsAspNetCore20)
+            if (!this.enableNewDiagnosticEvents)
             {
                 this.EndRequest(httpContext, Stopwatch.GetTimestamp());
             }
