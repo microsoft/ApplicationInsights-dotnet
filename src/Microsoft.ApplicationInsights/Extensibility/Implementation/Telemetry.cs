@@ -6,6 +6,7 @@
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     internal static class Telemetry
     {
@@ -83,6 +84,9 @@
             }
         }
 
+        /// <summary>
+        /// Flattens Extension object on ITelemetry if exists into the properties and measurements
+        /// </summary>        
         internal static void FlattenIExtensionIfExists(this ITelemetry telemetry)
         {
             if (telemetry.Extension != null)
@@ -107,6 +111,33 @@
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Flattens ITelemetry object into the properties and measurements
+        /// </summary>        
+        /// <returns>EventData containing flattened ITelemetry object</returns>
+        internal static EventData FlattenTelemetryIntoEventData(this ITelemetry telemetry)
+        {
+            EventData flatTelemetry = new EventData();
+            DictionarySerializationWriter dictionarySerializationWriter = new DictionarySerializationWriter();
+            telemetry.SerializeData(dictionarySerializationWriter); // Properties and Measurements are covered as part of Data if present
+            Utils.CopyDictionary(dictionarySerializationWriter.AccumulatedDictionary, flatTelemetry.properties);
+            Utils.CopyDictionary(dictionarySerializationWriter.AccumulatedMeasurements, flatTelemetry.measurements);
+            if (telemetry.Context.GlobalPropertiesValue != null)
+            {
+                Utils.CopyDictionary(telemetry.Context.GlobalProperties, flatTelemetry.properties);
+            }
+
+            if (telemetry.Extension != null)
+            {
+                DictionarySerializationWriter extensionSerializationWriter = new DictionarySerializationWriter();
+                telemetry.Extension.Serialize(extensionSerializationWriter); // Extension is supposed to be flattened as well
+                Utils.CopyDictionary(extensionSerializationWriter.AccumulatedDictionary, flatTelemetry.properties);
+                Utils.CopyDictionary(extensionSerializationWriter.AccumulatedMeasurements, flatTelemetry.measurements);
+            }
+
+            return flatTelemetry;
         }
 
         /// <summary>

@@ -8,7 +8,7 @@
     /// <summary>@ToDo: Complete documentation before stable release. {406}</summary>
     public class MetricAggregate
     {
-        // We want to make the aggregate thread safe, but we expect no signiicant contention, so a simple lock will suffice.
+        // We want to make the aggregate thread safe, but we expect no significant contention, so a simple lock will suffice.
         private readonly object updateLock = new object();
 
         private DateTimeOffset aggregationPeriodStart;
@@ -91,7 +91,7 @@
         public IDictionary<string, object> Data { get; }
 
         /// <summary>
-        /// This is aconvenience method to retrieve the object at <c>Data[dataKey]</c>.
+        /// This is a convenience method to retrieve the object at <c>Data[dataKey]</c>.
         /// It attempts to convert that object to the specified type <c>T</c>. If the conversion fails, the specified <c>defaultValue</c> is returned.
         /// </summary>
         /// <typeparam name="T">Type to which to convert the object at <c>Data[dataKey]</c>.</typeparam>

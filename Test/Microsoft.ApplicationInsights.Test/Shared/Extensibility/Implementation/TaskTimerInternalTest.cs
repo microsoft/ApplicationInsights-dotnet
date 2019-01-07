@@ -11,7 +11,6 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
-    using TaskEx = System.Threading.Tasks.Task;
 
     [TestClass]
     public class TaskTimerInternalTest
@@ -193,7 +192,7 @@
                     timer.Start(() => Task.Factory.StartNew(() => actionInvoked = true));
                     timer.Cancel();
         
-                    await TaskEx.Delay(TimeSpan.FromMilliseconds(20));
+                    await Task.Delay(TimeSpan.FromMilliseconds(20));
         
                     Assert.IsFalse(actionInvoked);
                 });

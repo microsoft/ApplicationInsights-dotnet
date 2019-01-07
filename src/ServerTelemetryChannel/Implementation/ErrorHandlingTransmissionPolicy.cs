@@ -4,11 +4,8 @@
     using System.IO;
     using System.Net;
     using System.Threading.Tasks;
-
     using ApplicationInsights.Channel.Implementation;
     using Extensibility.Implementation;
-
-    using TaskEx = System.Threading.Tasks.Task;
 
     internal class ErrorHandlingTransmissionPolicy : TransmissionPolicy, IDisposable
     {
@@ -114,7 +111,7 @@
 
                                         this.backoffLogicManager.ReportBackoffDisabled();
 
-                                        return TaskEx.FromResult<object>(null);
+                                        return Task.FromResult<object>(null);
                                     });
                             break;
                     }

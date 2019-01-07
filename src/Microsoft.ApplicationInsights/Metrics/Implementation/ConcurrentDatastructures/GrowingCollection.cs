@@ -9,7 +9,7 @@
     using static System.FormattableString;
 
     /// <summary>@ToDo: Complete documentation before stable release. {574}</summary>
-    /// <typeparam name="T">Type of collection elemets.</typeparam>
+    /// <typeparam name="T">Type of collection elements.</typeparam>
     internal class GrowingCollection<T> : IEnumerable<T>
     {
         private const int SegmentSize = 32;

@@ -19,8 +19,6 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class JsonSerializer
     {
-        internal const string EventNameForUnknownTelemetry = "ConvertedTelemetry";
-
         private static readonly UTF8Encoding TransmissionEncoding = new UTF8Encoding(false);
 
         /// <summary>
@@ -59,7 +57,7 @@
             {
                 using (var streamWriter = new StreamWriter(compressedStream, TransmissionEncoding))
                 {
-                    SeializeToStream(telemetryItems, streamWriter);
+                    SerializeToStream(telemetryItems, streamWriter);
                 }
             }
 
@@ -133,7 +131,7 @@
             var stringBuilder = new StringBuilder();
             using (StringWriter stringWriter = new StringWriter(stringBuilder, CultureInfo.InvariantCulture))
             {
-                SeializeToStream(telemetryItems, stringWriter);
+                SerializeToStream(telemetryItems, stringWriter);
                 return stringBuilder.ToString();
             }
         }
@@ -209,7 +207,7 @@
             jsonSerializationWriter.WriteStartObject("baseData");
 
             jsonSerializationWriter.WriteProperty("ver", 2);
-            jsonSerializationWriter.WriteProperty("name", EventNameForUnknownTelemetry);
+            jsonSerializationWriter.WriteProperty("name", Constants.EventNameForUnknownTelemetry);
 
             jsonSerializationWriter.WriteProperty("properties", dictionarySerializationWriter.AccumulatedDictionary);
             jsonSerializationWriter.WriteProperty("measurements", dictionarySerializationWriter.AccumulatedMeasurements);
@@ -221,7 +219,7 @@
         /// <summary>
         /// Serializes <paramref name="telemetryItems"/> and write the response to <paramref name="streamWriter"/>.
         /// </summary>
-        private static void SeializeToStream(IEnumerable<ITelemetry> telemetryItems, TextWriter streamWriter)
+        private static void SerializeToStream(IEnumerable<ITelemetry> telemetryItems, TextWriter streamWriter)
         {
             // JsonWriter jsonWriter = new JsonWriter(streamWriter);
             JsonSerializationWriter jsonSerializationWriter = new JsonSerializationWriter(streamWriter);

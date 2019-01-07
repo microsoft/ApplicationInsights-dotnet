@@ -10,9 +10,6 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
-
-    using TaskEx = System.Threading.Tasks.Task;
-
     [TestClass]
     public class TelemetryConfigurationTest
     {
@@ -151,7 +148,7 @@
                 var tasks = new Task[8];
                 for (int i = 0; i < tasks.Length; i++)
                 {
-                    tasks[i] = TaskEx.Run(() => TelemetryConfiguration.Active);
+                    tasks[i] = Task.Run(() => TelemetryConfiguration.Active);
                 }
 
                 Task.WaitAll(tasks);
