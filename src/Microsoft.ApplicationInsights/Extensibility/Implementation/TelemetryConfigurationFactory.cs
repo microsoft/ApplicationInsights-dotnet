@@ -61,9 +61,7 @@
                     modules.Modules.Add(new DiagnosticsTelemetryModule());
                 }
 
-                // TODO: disabled for perf reasons, it still can be loaded via config:
-                // <Add Type="Microsoft.ApplicationInsights.Extensibility.OperationCorrelationTelemetryInitializer, Microsoft.ApplicationInsights"/>
-                // configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+                configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
 
                 // Load configuration from the specified configuration
                 if (!string.IsNullOrEmpty(serializedConfiguration))
