@@ -3,7 +3,7 @@
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
 ## Version next:
-- InitialSamplingRate is now correctly applied if set in applicationInsights.config
+- InitialSamplingRate is now correctly applied if set in applicationInsights.config (https://github.com/Microsoft/ApplicationInsights-dotnet/pull/1048)
 
 ## Version 2.9.0-beta3
 - [Flatten IExtension and Unknown ITelemetry implementations for Rich Payload Event Source consumption](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/1017)
