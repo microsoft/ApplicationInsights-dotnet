@@ -12,7 +12,6 @@
     internal class TransmissionProcessor : ITelemetryProcessor
     {        
         private readonly TelemetrySink sink;
-        private readonly IDebugOutput debugOutput;     
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransmissionProcessor"/> class.
@@ -26,7 +25,6 @@
             }
 
             this.sink = sink;
-            this.debugOutput = PlatformSingleton.Current.GetDebugOutput();
         }
 
         /// <summary>
@@ -34,7 +32,7 @@
         /// </summary>
         public void Process(ITelemetry item)
         {
-            // TelemetryDebugWriter.WriteTelemetry(item);
+            TelemetryDebugWriter.WriteTelemetry(item);
 
             this.sink.TelemetryChannel.Send(item);
         }
