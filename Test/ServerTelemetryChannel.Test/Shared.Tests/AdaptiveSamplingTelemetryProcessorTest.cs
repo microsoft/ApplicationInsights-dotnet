@@ -14,7 +14,8 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+    using Moq;
+
     [TestClass]
     public class AdaptiveSamplingTelemetryProcessorTest
     {
@@ -299,39 +300,39 @@
         [TestMethod]
         public void CurrentSamplingRateResetsOnInitialSamplingRateChange()
         {
-            var sentTelemetry = new List<ITelemetry>();
-            int itemsProduced = 0;
+            var nextMock = new Mock<ITelemetryProcessor>();
+            var next = nextMock.Object;
+            var adaptiveSamplingProcessor = new AdaptiveSamplingTelemetryProcessor(
+                new Channel.Implementation.SamplingPercentageEstimatorSettings
+                {
+                    InitialSamplingPercentage = 20,
+                },
+                null,
+                next);
 
-            using (var tc = new TelemetryConfiguration() { TelemetryChannel = new StubTelemetryChannel() })
-            {
-                var chainBuilder = new TelemetryProcessorChainBuilder(tc);
+            Assert.AreEqual(20, adaptiveSamplingProcessor.InitialSamplingPercentage);
+            Assert.AreEqual(100 / 20, adaptiveSamplingProcessor.SamplingPercentageEstimatorTelemetryProcessor.CurrentSamplingRate);
 
-                // set up adaptive sampling that evaluates and changes sampling % frequently
-                chainBuilder
-                    .UseAdaptiveSampling(
-                        new Channel.Implementation.SamplingPercentageEstimatorSettings()
-                        {
-                            EvaluationInterval = TimeSpan.FromSeconds(1),
-                            SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(2),
-                            SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(2),
-                            InitialSamplingPercentage = 20, // will be rounded by EffectiveInitialSamplingRate which is int, hence should be int of 100/InitialSamplingPercentage
-                        },
-                        this.TraceSamplingPercentageEvaluation)
-                    .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
+            // change in InitialSamplingPercentage should change the CurrentSamplingPercentage:
+            adaptiveSamplingProcessor.InitialSamplingPercentage = 50;
+            Assert.AreEqual(50, adaptiveSamplingProcessor.InitialSamplingPercentage);
+            Assert.AreEqual(100 / 50, adaptiveSamplingProcessor.SamplingPercentageEstimatorTelemetryProcessor.CurrentSamplingRate);
+        }
 
-                chainBuilder.Build();
-
-                var adaptiveSamplingProcessor = tc.TelemetryProcessors.OfType<AdaptiveSamplingTelemetryProcessor>().Single();
-                Assert.AreEqual(20, adaptiveSamplingProcessor.InitialSamplingPercentage);
-                Assert.AreEqual(20, adaptiveSamplingProcessor.CurrentSamplingPercentage);
-
-                // change in InitialSamplingPercentage should change the CurrentSamplingPercentage:
-                adaptiveSamplingProcessor.InitialSamplingPercentage = 50;
-                Assert.AreEqual(50, adaptiveSamplingProcessor.InitialSamplingPercentage);
-                Assert.AreEqual(50, adaptiveSamplingProcessor.CurrentSamplingPercentage);
-            }
-
-            Assert.AreEqual(itemsProduced, sentTelemetry.Count);
+        [TestMethod]
+        public void SettingsFromPassedInTelemetryProcessorsAreAppliedToSamplingTelemetryProcessor()
+        {
+            var nextMock = new Mock<ITelemetryProcessor>();
+            var next = nextMock.Object;
+            var adaptiveSamplingProcessor = new AdaptiveSamplingTelemetryProcessor(
+                new Channel.Implementation.SamplingPercentageEstimatorSettings
+                {
+                    InitialSamplingPercentage = 25,
+                },
+                null,
+                next);
+            var percentageEstimatorProcessor = adaptiveSamplingProcessor.SamplingTelemetryProcessor;
+            Assert.AreEqual(25, percentageEstimatorProcessor.SamplingPercentage);
         }
 
         private void TraceSamplingPercentageEvaluation(
