@@ -80,10 +80,9 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class. This overload is for Test purposes. 
         /// </summary>
-        protected internal Transmission(Uri address, ICollection<ITelemetry> telemetryItems,HttpClient passedClient)
+        protected internal Transmission(Uri address, byte[] content, HttpClient passedClient, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan))
+        : this(address, content, contentType, contentEncoding, timeout)
         {
-            this.EndpointAddress = address;
-            this.Content = JsonSerializer.Serialize(telemetryItems, true);
             client = passedClient;
         }
 
