@@ -222,6 +222,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets current sampling rate.
+        /// </summary>
         internal double CurrentSamplingPercentage => 100.0 / this.estimatorProcessor.CurrentSamplingRate;
 
         /// <summary>
