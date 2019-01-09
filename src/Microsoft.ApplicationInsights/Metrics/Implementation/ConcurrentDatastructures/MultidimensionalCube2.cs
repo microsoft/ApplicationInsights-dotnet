@@ -12,12 +12,12 @@
     using static System.FormattableString;
 
     /// <summary>@ToDo: Complete documentation before stable release. {099}</summary>
-    /// <typeparam name="TPoint">Type of the set over which the cube is build. For metics, it is a metric series.</typeparam>
+    /// <typeparam name="TPoint">Type of the set over which the cube is build. For metrics, it is a metric series.</typeparam>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001: Types that own disposable fields should be disposable", Justification = "OK not to explicitly dispose a released SemaphoreSlim.")]
     internal class MultidimensionalCube2<TPoint>
     {
         /// <summary>
-        /// We are using a recursive implementation for points creation so we are limiting the max dimension count to prevent strack overflow.
+        /// We are using a recursive implementation for points creation so we are limiting the max dimension count to prevent stack overflow.
         /// In practice this is unlikely to be ever reached.
         /// If it nevertheless becomes an issue, we can change the implementation to be iterative and increase this limit.
         /// </summary>
@@ -298,7 +298,7 @@
         {
 #pragma warning disable SA1509 // Opening braces must not be preceded by blank line
 
-            // We already have tried getting the existng point and failed.
+            // We already have tried getting the existing point and failed.
             // We also checked that _totalPointsCountLimit was not reached (outside the lock).
             // Lastly, we took a lock.
             // Now we can begin the slow path.
@@ -387,7 +387,7 @@
                 }
             }
 
-            // Inc total points coint.
+            // Inc total points count.
             this.totalPointsCount++;
 
             {

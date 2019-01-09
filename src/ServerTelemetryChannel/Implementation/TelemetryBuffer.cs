@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using TaskEx = System.Threading.Tasks.Task;
 
     /// <summary>
     /// Accumulates <see cref="ITelemetry"/> items for efficient transmission.
@@ -22,7 +21,7 @@
         private int backlogSize = 1000000;
         private int minimumBacklogSize = 1001;
         private bool itemDroppedMessageLogged = false;
-        private List<ITelemetry> transmissionBuffer;
+        private List<ITelemetry> itemBuffer;
 
         public TelemetryBuffer(TelemetrySerializer serializer, IApplicationLifecycle applicationLifecycle)
             : this()
@@ -51,7 +50,7 @@
         protected TelemetryBuffer()
         {
             this.flushTimer = new TaskTimerInternal { Delay = DefaultFlushDelay };
-            this.transmissionBuffer = new List<ITelemetry>(this.Capacity);
+            this.itemBuffer = new List<ITelemetry>(this.Capacity);
         }
 
         /// <summary>
@@ -144,7 +143,7 @@
 
             lock (this)
             {
-                if (this.transmissionBuffer.Count >= this.BacklogSize)
+                if (this.itemBuffer.Count >= this.BacklogSize)
                 {
                     if (!this.itemDroppedMessageLogged)
                     {
@@ -155,8 +154,8 @@
                     return;
                 }
 
-                this.transmissionBuffer.Add(item);
-                if (this.transmissionBuffer.Count >= this.Capacity)
+                this.itemBuffer.Add(item);
+                if (this.itemBuffer.Count >= this.Capacity)
                 {
                     ExceptionHandler.Start(this.FlushAsync);
                 }
@@ -169,15 +168,15 @@
         public virtual async Task FlushAsync()
         {
             List<ITelemetry> telemetryToFlush = null;
-            if (this.transmissionBuffer.Count > 0)
+            if (this.itemBuffer.Count > 0)
             {
                 lock (this)
                 {
-                    if (this.transmissionBuffer.Count > 0)
+                    if (this.itemBuffer.Count > 0)
                     {
                         this.flushTimer.Cancel();
-                        telemetryToFlush = this.transmissionBuffer;
-                        this.transmissionBuffer = new List<ITelemetry>(this.Capacity);
+                        telemetryToFlush = this.itemBuffer;
+                        this.itemBuffer = new List<ITelemetry>(this.Capacity);
                         this.itemDroppedMessageLogged = false;
                     }
                 }
@@ -190,13 +189,13 @@
                 // Flush on thread pull to offload the rest of the channel logic from the customer's thread.
                 // This also works around the problem in ASP.NET 4.0, does not support await and SynchronizationContext correctly.
                 // See also: http://www.bing.com/search?q=UseTaskFriendlySynchronizationContext
-                await TaskEx.Run(() => this.serializer.Serialize(telemetryToFlush)).ConfigureAwait(false);
+                await Task.Run(() => this.serializer.Serialize(telemetryToFlush)).ConfigureAwait(false);
             }
         }
 
         public IEnumerator<ITelemetry> GetEnumerator()
         {
-            return this.transmissionBuffer.GetEnumerator();
+            return this.itemBuffer.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

@@ -2,13 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Channel.Implementation;
-
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-
-    using TaskEx = System.Threading.Tasks.Task;
 
     internal class PartialSuccessTransmissionPolicy : TransmissionPolicy, IDisposable
     {
@@ -149,7 +145,7 @@
                         this.LogCapacityChanged();
                         this.Apply();
 
-                        return TaskEx.FromResult<object>(null);
+                        return Task.FromResult<object>(null);
                     });
         }
 

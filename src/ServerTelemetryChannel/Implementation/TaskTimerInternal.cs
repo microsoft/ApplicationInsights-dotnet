@@ -10,9 +10,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using WindowsServer.TelemetryChannel.Implementation;
-
-    using TaskEx = System.Threading.Tasks.Task;
-
+    
     /// <summary>
     /// Runs a task after a certain delay and log any error.
     /// </summary>
@@ -63,7 +61,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
         {
             var newTokenSource = new CancellationTokenSource();
 
-            TaskEx.Delay(this.Delay, newTokenSource.Token)
+            Task.Delay(this.Delay, newTokenSource.Token)
                 .ContinueWith(
                 async previousTask =>
                     {

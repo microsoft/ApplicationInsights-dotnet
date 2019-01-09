@@ -7,7 +7,6 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
-    using TaskEx = System.Threading.Tasks.Task;
 
     internal class StubTransmission : Transmission
     {
@@ -32,12 +31,12 @@
 
         public Task SaveAsync(Stream stream)
         {
-            return TaskEx.Run(() => this.OnSave(stream));
+            return Task.Run(() => this.OnSave(stream));
         }
 
         public override Task<HttpWebResponseWrapper> SendAsync()
         {
-            return TaskEx.Run(this.OnSend);
+            return Task.Run(this.OnSend);
         }
 
         public override Tuple<Transmission, Transmission> Split(Func<int, int> calculateLength)
