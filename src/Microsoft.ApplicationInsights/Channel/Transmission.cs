@@ -4,16 +4,12 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Net;
-#if NETSTANDARD1_3
     using System.Net.Http;
     using System.Net.Http.Headers;
-#endif
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-
-    using TaskEx = System.Threading.Tasks.Task;
 
     /// <summary>
     /// Implements an asynchronous transmission of data to an HTTP POST endpoint.
@@ -24,9 +20,8 @@
         internal const string ContentEncodingHeader = "Content-Encoding";
 
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
-#if NETSTANDARD1_3
         private static HttpClient client = new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
-#endif
+
         private int isSending;
 
         /// <summary>
@@ -80,6 +75,16 @@
         /// </summary>
         protected internal Transmission()
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Transmission"/> class. This overload is for Test purposes. 
+        /// </summary>
+        protected internal Transmission(Uri address, ICollection<ITelemetry> telemetryItems,HttpClient passedClient)
+        {
+            this.EndpointAddress = address;
+            this.Content = JsonSerializer.Serialize(telemetryItems, true);
+            client = passedClient;
         }
 
         /// <summary>
@@ -158,35 +163,31 @@
 
             try
             {
-#if NETSTANDARD1_3
                 using (MemoryStream contentStream = new MemoryStream(this.Content))
                 {
                     HttpRequestMessage request = this.CreateRequestMessage(this.EndpointAddress, contentStream);
+                    HttpWebResponseWrapper wrapper = null;
 
                     using (var ct = new CancellationTokenSource(this.Timeout))
                     {
-                        await client.SendAsync(request, ct.Token).ConfigureAwait(false);
+                        var response = await client.SendAsync(request, ct.Token).ConfigureAwait(false);
+                        if (response != null && response.StatusCode == HttpStatusCode.PartialContent)
+                        {
+                            wrapper = new HttpWebResponseWrapper
+                            {
+                                StatusCode = (int)response.StatusCode,
+                                StatusDescription = response.ReasonPhrase
+                            };
+                            wrapper.RetryAfterHeader = response.Headers?.RetryAfter?.ToString();
+                            if (response.Content != null)
+                            {
+                                wrapper.Content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            }
+                        }
                     }
                     
-                    return null;
+                    return wrapper;
                 }
-#else
-                WebRequest request = this.CreateRequest(this.EndpointAddress);
-                Task<HttpWebResponseWrapper> sendTask = this.GetResponseAsync(request);
-                Task timeoutTask = Task.Delay(this.Timeout).ContinueWith(task =>
-                {
-                    if (!sendTask.IsCompleted)
-                    {
-                        request.Abort(); // And force the sendTask to throw WebException.
-                    }
-                });
-
-                Task completedTask = await Task.WhenAny(timeoutTask, sendTask).ConfigureAwait(false);
-
-                // Observe any exceptions the sendTask may have thrown and propagate them to the caller.
-                HttpWebResponseWrapper responseContent = await sendTask.ConfigureAwait(false);
-                return responseContent;
-#endif
             }
             finally
             {
@@ -303,7 +304,6 @@
             return Tuple.Create(transmissionA, transmissionB);
         }
 
-#if NETSTANDARD1_3
         /// <summary>
         /// Creates an http request for sending a transmission.
         /// </summary>
@@ -325,76 +325,6 @@
             }
 
             return request;
-        }
-#else
-        /// <summary>
-        /// Creates a post web request.  
-        /// </summary>
-        /// <param name="address">The Address in the web request.</param>
-        /// <returns>A web request pointing to the <c>Address</c>.</returns>
-        protected virtual WebRequest CreateRequest(Uri address)
-        {
-            var request = WebRequest.Create(address);
-
-            request.Method = "POST";
-
-            if (!string.IsNullOrEmpty(this.ContentType))
-            {
-                request.ContentType = this.ContentType;
-            }
-
-            if (!string.IsNullOrEmpty(this.ContentEncoding))
-            {
-                request.Headers[ContentEncodingHeader] = this.ContentEncoding;
-            }
-
-            return request;
-        }
-
-        private async Task<HttpWebResponseWrapper> GetResponseAsync(WebRequest request)
-        {
-            using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
-            {
-                await requestStream.WriteAsync(this.Content, 0, this.Content.Length).ConfigureAwait(false);
-            }
-
-            using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
-            {
-                return this.CheckResponse(response);
-            }
-        }
-
-        private HttpWebResponseWrapper CheckResponse(WebResponse response)
-        {
-            HttpWebResponseWrapper wrapper = null;
-
-            var httpResponse = response as HttpWebResponse;
-            if (httpResponse != null)
-            {
-                // Return content only for 206 for performance reasons
-                // Currently we do not need it in other cases
-                if (httpResponse.StatusCode == HttpStatusCode.PartialContent)
-                {
-                    wrapper = new HttpWebResponseWrapper
-                    {
-                        StatusCode = (int)httpResponse.StatusCode,
-                        StatusDescription = httpResponse.StatusDescription
-                    };
-
-                    if (httpResponse.Headers != null)
-                    {
-                        wrapper.RetryAfterHeader = httpResponse.Headers["Retry-After"];
-                    }
-
-                    using (StreamReader content = new StreamReader(httpResponse.GetResponseStream()))
-                    {
-                        wrapper.Content = content.ReadToEnd();
-                    }
-                }
-            }
-
-            return wrapper;
-        }
-#endif
+        }        
     }
 }

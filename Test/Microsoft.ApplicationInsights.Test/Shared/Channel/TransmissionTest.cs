@@ -1,6 +1,13 @@
-﻿namespace Microsoft.ApplicationInsights.Channel
+﻿using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
+
+namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Net;
     using System.Reflection;
@@ -9,8 +16,6 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-#if !NETCOREAPP1_1
 
     public class TransmissionTest : AsyncTest
     {
@@ -33,6 +38,7 @@
             {
                 var expectedAddress = new Uri("expected://uri");
                 var transmission = new Transmission(expectedAddress, new byte[1], "content/type", "content/encoding");
+                Assert.AreEqual(expectedAddress, transmission.EndpointAddress);
             }
 
             [TestMethod]
@@ -100,9 +106,8 @@
             public void CreatesHttpWebRequestWithSpecifiedUri()
             {
                 var transmission = new TestableTransmission();
-
                 var expectedUri = new Uri("http://custom.uri");
-                WebRequest request = transmission.TestableCreateRequest(expectedUri);
+                HttpRequestMessage request = transmission.TestableCreateRequest(expectedUri, new MemoryStream());
 
                 Assert.AreEqual(expectedUri, request.RequestUri);
             }
@@ -111,32 +116,33 @@
             public void CreatesHttpWebRequestWithPostMethod()
             {
                 var transmission = new TestableTransmission();
-                WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
-                Assert.AreEqual("POST", request.Method);
+                HttpRequestMessage request = transmission.TestableCreateRequest(new Uri("http://uri"), new MemoryStream());
+                Assert.AreEqual(HttpMethod.Post, request.Method);
             }
 
             [TestMethod]
             public void CreatesHttpWebRequestWithContentTypeSpecifiedInConstructor()
             {
-                var transmission = new TestableTransmission(contentType: "TestContentType");
-                WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
-                Assert.AreEqual(transmission.ContentType, request.ContentType);
+                string expectedContentType = "content/mytype";
+                var transmission = new TestableTransmission(contentType: expectedContentType);
+                HttpRequestMessage request = transmission.TestableCreateRequest(new Uri("http://uri"), new MemoryStream());
+                Assert.AreEqual(transmission.ContentType, request.Content.Headers.ContentType.MediaType);
             }
 
             [TestMethod]
             public void CreatesHttpWebRequestWithoutContentTypeIfNotSpecifiedInConstructor()
             {
                 var transmission = new TestableTransmission(contentType: string.Empty);
-                WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
-                Assert.IsNull(request.ContentType);
+                HttpRequestMessage request = transmission.TestableCreateRequest(new Uri("http://uri"), new MemoryStream());
+                Assert.IsNull(request.Content.Headers.ContentType);
             }
 
             [TestMethod]
             public void CreatesHttpWebRequestWithContentEncodingSpecifiedInConstructor()
             {
                 var transmission = new TestableTransmission(contentEncoding: "TestContentEncoding");
-                WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
-                Assert.AreEqual(transmission.ContentEncoding, request.Headers[HttpRequestHeader.ContentEncoding]);
+                HttpRequestMessage request = transmission.TestableCreateRequest(new Uri("http://uri"), new MemoryStream());
+                Assert.AreEqual(transmission.ContentEncoding, request.Content.Headers.ContentEncoding.FirstOrDefault());
             }
         }
 
@@ -150,151 +156,88 @@
                 {
                     var transmission = new TestableTransmission();
                     FieldInfo isSendingField = typeof(Transmission).GetField("isSending", BindingFlags.NonPublic | BindingFlags.Instance);
-                    isSendingField.SetValue(transmission, 1, BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Instance, null, null);
+                    // isSendingField.SetValue(transmission, 1, BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Instance, null, null);
+                    isSendingField.SetValue(transmission,1);
                     await AssertEx.ThrowsAsync<InvalidOperationException>(() => transmission.SendAsync());
                 });
             }
 
             [TestMethod]
-            public void BeginsAsynchronouslyGettingRequestStream()
+            public async Task SendAsync2Async()
+            {
+                var client = new StubHttpClient();
+                client.OnSendAsync = (request, cancellationToken) =>
+                {
+                    HttpResponseMessage response = new HttpResponseMessage();
+                    response.StatusCode = HttpStatusCode.PartialContent;
+                    return Task.FromResult<HttpResponseMessage>(response);
+                };
+
+                var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
+                Transmission transmission = new Transmission(new Uri("http://uri"), items,client);                
+                transmission.Timeout = TimeSpan.FromMilliseconds(1);
+                HttpWebResponseWrapper result = await transmission.SendAsync();
+                
+                Assert.AreEqual(HttpStatusCode.PartialContent,result.StatusCode);
+
+            }
+
+            [TestMethod]
+            public void SendAsync1()
             {
                 AsyncTest.Run(async () =>
                 {
-                    int beginGetRequestStreamCount = 0;
-                    var request = new StubWebRequest();
-                    request.OnBeginGetRequestStream = (callback, state) =>
+                    var client = new StubHttpClient();
+                    client.OnSendAsync = (request, cancellationToken) =>
                     {
-                        beginGetRequestStreamCount++;
-                        return Task.FromResult<object>(null).AsAsyncResult(callback, request);
+                        HttpResponseMessage msg = new HttpResponseMessage();
+                        return Task.FromResult<HttpResponseMessage>(msg);
                     };
-        
-                    var transmission = new TestableTransmission { OnCreateRequest = uri => request };
-        
-                    await transmission.SendAsync();
-        
-                    Assert.AreEqual(1, beginGetRequestStreamCount);
-                });
-            }
 
-            [TestMethod]
-            public void WritesTransmissionContentToRequestStream()
-            {
-                AsyncTest.Run(async () =>
-                {
-                    var requestStream = new MemoryStream();
-        
-                    var request = new StubWebRequest();
-                    request.OnEndGetRequestStream = asyncResult => requestStream;
-        
-                    byte[] transmissionContent = new byte[] { 1, 2, 3, 4, 5 };
-                    var transmission = new TestableTransmission(new Uri("http://test.uri"), transmissionContent);
-                    transmission.OnCreateRequest = uri => request;
-        
-                    await transmission.SendAsync();
-        
-                    AssertEx.AreEqual(transmissionContent, requestStream.ToArray());
-                });
-            }
-
-            [TestMethod]
-            public void AsynchronouslyFinishesGettingResponse()
-            {
-                AsyncTest.Run(async () =>
-                {
-                    int endGetResponseCount = 0;
-                    var request = new StubWebRequest();
-                    request.OnEndGetResponse = asyncResult =>
+                    var responseWrapper = new HttpWebResponseWrapper();
+                    var transmission = new TestableTransmission();
+                    transmission.OnSendAsync = () =>
                     {
-                        endGetResponseCount++;
-                        return new StubWebResponse();
+                        return Task.FromResult<HttpWebResponseWrapper>(responseWrapper);
                     };
-        
-                    var transmission = new TestableTransmission { OnCreateRequest = uri => request };
-        
+
                     await transmission.SendAsync();
-        
-                    Assert.AreEqual(1, endGetResponseCount);
-                });
-            }
-
-            [TestMethod]
-            public void DisposesHttpWebResponseToReleaseResources()
-            {
-                AsyncTest.Run(async () =>
-                {
-                    bool responseDisposed = false;
-                    var response = new StubWebResponse { OnDispose = () => responseDisposed = true };
-                    var request = new StubWebRequest { OnEndGetResponse = asyncResult => response };
-                    var transmission = new TestableTransmission { OnCreateRequest = uri => request };
-        
-                    await transmission.SendAsync();
-        
-                    Assert.IsTrue(responseDisposed);
-                });
-            }
-
-            [TestMethod]
-            public void AbortsWebRequestWhenBeginGetRequestStreamTimesOut()
-            {
-                var requestAborted = new ManualResetEventSlim();
-                var finishBeginGetRequestStream = new ManualResetEventSlim();
-                var request = new StubWebRequest();
-                request.OnAbort = () => requestAborted.Set();
-                request.OnBeginGetRequestStream = (callback, state) => Task.Run(() => finishBeginGetRequestStream.Wait()).AsAsyncResult(callback, request);
-                var transmission = new TestableTransmission(timeout: TimeSpan.FromTicks(1));
-                transmission.OnCreateRequest = uri => request;
-
-                Task sendAsync = transmission.SendAsync();
-
-                Assert.IsTrue(requestAborted.Wait(1000));
-                finishBeginGetRequestStream.Set();
-            }
-            
-            [TestMethod]
-            public void DoesNotAbortRequestThatWasSentSuccessfully()
-            {
-                AsyncTest.Run(async () =>
-                {
-                    bool requestAborted = false;
-                    var request = new StubWebRequest { OnAbort = () => requestAborted = true };
-        
-                    var transmission = new TestableTransmission(timeout: TimeSpan.FromMilliseconds(50));
-                    transmission.OnCreateRequest = uri => request;
-        
-                    await transmission.SendAsync();
-        
-                    await Task.Delay(TimeSpan.FromMilliseconds(50)); // Let timout detector finish
-        
-                    Assert.IsFalse(requestAborted);
                 });
             }
         }
 
         private class TestableTransmission : Transmission
         {
-            public Func<Uri, WebRequest> OnCreateRequest;
+            public Func<Uri, Stream, HttpRequestMessage> OnCreateRequest;
+            public Func<Task<HttpWebResponseWrapper>> OnSendAsync;
+
 
             public TestableTransmission(Uri endpointAddress = null, byte[] content = null, string contentType = null, string contentEncoding = null, TimeSpan timeout = default(TimeSpan))
                 : base(
                     endpointAddress ?? new Uri("http://test.uri"),
                     content ?? new byte[1],
                     contentType ?? "content/type",
-                    contentEncoding ?? "content/encoding",
+                    contentEncoding,
                     timeout)
-            {
-                this.OnCreateRequest = base.CreateRequest;
+            {                
+                this.OnCreateRequest = base.CreateRequestMessage;
+                this.OnSendAsync = base.SendAsync;
             }
 
-            public WebRequest TestableCreateRequest(Uri address)
+            public HttpRequestMessage TestableCreateRequest(Uri address, Stream contentStream)
             {
-                return base.CreateRequest(address);
+                return this.OnCreateRequest(address, contentStream);
             }
 
-            protected override WebRequest CreateRequest(Uri address)
+            protected override HttpRequestMessage CreateRequestMessage(Uri address, Stream contentStream)
             {
-                return this.OnCreateRequest(address);
+                return this.OnCreateRequest(address, contentStream);
+            }
+
+            public override Task<HttpWebResponseWrapper> SendAsync()
+            {
+                return this.OnSendAsync();
             }
         }
     }
-#endif
 }
