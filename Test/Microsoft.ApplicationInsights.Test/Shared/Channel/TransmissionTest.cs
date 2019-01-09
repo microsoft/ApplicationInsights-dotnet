@@ -254,6 +254,7 @@ namespace Microsoft.ApplicationInsights.Channel
             }
 
             [TestMethod]
+            [Ignore("https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1047")]
             public async Task SendAsyncHandlesTimeout()
             {
                 var handler = new HandlerForFakeHttpClient
@@ -267,8 +268,9 @@ namespace Microsoft.ApplicationInsights.Channel
 
                 using (var fakeHttpClient = new HttpClient())
                 {
-                    // Instantiate Transmission with the mock HttpClient
-                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty, TimeSpan.FromMilliseconds(1));
+                    // Instantiate Transmission with the mock HttpClient and Timeout to be just 1 msec to force Timeout.
+                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, 
+                        string.Empty, TimeSpan.FromMilliseconds(1));
 
                     // ACT
                     HttpWebResponseWrapper result = await transmission.SendAsync();
