@@ -322,8 +322,13 @@
                 chainBuilder.Build();
 
                 var adaptiveSamplingProcessor = tc.TelemetryProcessors.OfType<AdaptiveSamplingTelemetryProcessor>().Single();
-                adaptiveSamplingProcessor.estimatorProcessor
                 Assert.AreEqual(20, adaptiveSamplingProcessor.InitialSamplingPercentage);
+                Assert.AreEqual(20, adaptiveSamplingProcessor.CurrentSamplingPercentage);
+
+                // change in InitialSamplingPercentage should change the CurrentSamplingPercentage:
+                adaptiveSamplingProcessor.InitialSamplingPercentage = 50;
+                Assert.AreEqual(50, adaptiveSamplingProcessor.InitialSamplingPercentage);
+                Assert.AreEqual(50, adaptiveSamplingProcessor.CurrentSamplingPercentage);
             }
 
             Assert.AreEqual(itemsProduced, sentTelemetry.Count);

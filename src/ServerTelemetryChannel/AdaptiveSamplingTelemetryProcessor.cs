@@ -222,6 +222,8 @@
             }
         }
 
+        internal double CurrentSamplingPercentage => 100.0 / this.estimatorProcessor.CurrentSamplingRate;
+
         /// <summary>
         /// Processes telemetry item.
         /// </summary>
