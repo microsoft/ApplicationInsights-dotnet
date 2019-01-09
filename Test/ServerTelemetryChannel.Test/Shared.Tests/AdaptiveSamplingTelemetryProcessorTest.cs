@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Reflection;
     using System.Threading;
 
@@ -293,6 +294,39 @@
             SamplingTelemetryProcessor internalProcessor = (SamplingTelemetryProcessor) fieldInfo.GetValue(tc.TelemetryProcessorChain.FirstTelemetryProcessor);
 
             Assert.AreEqual("request;", internalProcessor.ExcludedTypes);
+        }
+
+        [TestMethod]
+        public void CurrentSamplingRateResetsOnInitialSamplingRateChange()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            int itemsProduced = 0;
+
+            using (var tc = new TelemetryConfiguration() { TelemetryChannel = new StubTelemetryChannel() })
+            {
+                var chainBuilder = new TelemetryProcessorChainBuilder(tc);
+
+                // set up adaptive sampling that evaluates and changes sampling % frequently
+                chainBuilder
+                    .UseAdaptiveSampling(
+                        new Channel.Implementation.SamplingPercentageEstimatorSettings()
+                        {
+                            EvaluationInterval = TimeSpan.FromSeconds(1),
+                            SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(2),
+                            SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(2),
+                            InitialSamplingPercentage = 20, // will be rounded by EffectiveInitialSamplingRate which is int, hence should be int of 100/InitialSamplingPercentage
+                        },
+                        this.TraceSamplingPercentageEvaluation)
+                    .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
+
+                chainBuilder.Build();
+
+                var adaptiveSamplingProcessor = tc.TelemetryProcessors.OfType<AdaptiveSamplingTelemetryProcessor>().Single();
+                adaptiveSamplingProcessor.estimatorProcessor
+                Assert.AreEqual(20, adaptiveSamplingProcessor.InitialSamplingPercentage);
+            }
+
+            Assert.AreEqual(itemsProduced, sentTelemetry.Count);
         }
 
         private void TraceSamplingPercentageEvaluation(
