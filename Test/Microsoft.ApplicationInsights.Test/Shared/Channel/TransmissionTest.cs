@@ -188,8 +188,7 @@
             {
                 AsyncTest.Run(async () =>
                 {
-                    var transmission = new Transmission();
-                    FieldInfo isSendingField = typeof(Transmission).GetField("isSending", BindingFlags.NonPublic | BindingFlags.Instance);
+                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, new HttpClient(), string.Empty, string.Empty); FieldInfo isSendingField = typeof(Transmission).GetField("isSending", BindingFlags.NonPublic | BindingFlags.Instance);
                     isSendingField.SetValue(transmission,1);
                     await AssertEx.ThrowsAsync<InvalidOperationException>(() => transmission.SendAsync());
                 });

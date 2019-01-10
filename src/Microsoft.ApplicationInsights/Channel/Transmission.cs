@@ -73,17 +73,17 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class. This overload is for Test purposes. 
         /// </summary>
-        protected internal Transmission()
+        internal Transmission(Uri address, byte[] content, HttpClient passedClient, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan))
+            : this(address, content, contentType, contentEncoding, timeout)
         {
+            client = passedClient;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class. This overload is for Test purposes. 
         /// </summary>
-        protected internal Transmission(Uri address, byte[] content, HttpClient passedClient, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan))
-        : this(address, content, contentType, contentEncoding, timeout)
+        protected internal Transmission()
         {
-            client = passedClient;
         }
 
         /// <summary>
@@ -326,6 +326,31 @@
             }
 
             return request;
-        }        
+        }
+
+        /// <summary>
+        /// Creates a post web request.
+        /// </summary>
+        /// <param name="address">The Address in the web request.</param>
+        /// <returns>A web request pointing to the <c>Address</c>.</returns>
+        [Obsolete("Use CreateRequestMessage instead as SendAsync is now using HttpClient to send HttpRequest.")]
+        protected virtual WebRequest CreateRequest(Uri address)
+        {
+            var request = WebRequest.Create(address);
+
+            request.Method = "POST";
+
+            if (!string.IsNullOrEmpty(this.ContentType))
+            {
+                request.ContentType = this.ContentType;
+            }
+
+            if (!string.IsNullOrEmpty(this.ContentEncoding))
+            {
+                request.Headers[ContentEncodingHeader] = this.ContentEncoding;
+            }
+
+            return request;
+        }
     }
 }
