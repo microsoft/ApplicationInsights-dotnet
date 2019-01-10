@@ -96,7 +96,7 @@
         /// </summary>
         public CloudContext Cloud
         {
-            get { return this.cloud ?? (this.cloud = new CloudContext()); }
+            get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext()); }
         }
 
         /// <summary>
