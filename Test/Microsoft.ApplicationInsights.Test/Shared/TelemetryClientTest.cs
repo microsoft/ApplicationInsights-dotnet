@@ -1135,7 +1135,7 @@
         #region ValidateEndpoint
 
         [TestMethod]
-        public void SendEventToValidateEndpoint()
+        public async System.Threading.Tasks.Task SendEventToValidateEndpointAsync()
         {
             string unicodeString = "русский\\#/\x0000\x0001\x0002\x0003\x0004\x0005\x0006\x0007\x0008\x009Farabicشلاؤيثبلاهتنمةىخحضقسفعشلاؤيصثبل c\n\r\t";
 
@@ -1191,16 +1191,23 @@
             byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
 
             HttpClient client = new HttpClient();
-            var result = client.PostAsync(
-                "https://dc.services.visualstudio.com/v2/validate",
-                new ByteArrayContent(jsonBytes)).GetAwaiter().GetResult();
-            if (result.StatusCode != HttpStatusCode.OK)
+            try
             {
-                var response = result.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                Trace.WriteLine(response);
-            }
+                var result = await client.PostAsync(
+                    "https://dc.services.visualstudio.com/v2/validate",
+                    new ByteArrayContent(jsonBytes));
+                if (result.StatusCode != HttpStatusCode.OK)
+                {
+                    var response = result.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                    Trace.WriteLine(response);
+                }
 
-            Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine("Exception occuring trying to send items to backend." + ex);
+            }
         }
 
         [TestMethod]
