@@ -169,18 +169,20 @@
 
                     using (var ct = new CancellationTokenSource(this.Timeout))
                     {
-                        var response = await client.SendAsync(request, ct.Token).ConfigureAwait(false);
-                        if (response != null && response.StatusCode == HttpStatusCode.PartialContent)
+                        using (var response = await client.SendAsync(request, ct.Token).ConfigureAwait(false))
                         {
-                            wrapper = new HttpWebResponseWrapper
+                            if (response != null && response.StatusCode == HttpStatusCode.PartialContent)
                             {
-                                StatusCode = (int)response.StatusCode,
-                                StatusDescription = response.ReasonPhrase
-                            };
-                            wrapper.RetryAfterHeader = response.Headers?.RetryAfter?.ToString();
-                            if (response.Content != null)
-                            {
-                                wrapper.Content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                wrapper = new HttpWebResponseWrapper
+                                {
+                                    StatusCode = (int)response.StatusCode,
+                                    StatusDescription = response.ReasonPhrase
+                                };
+                                wrapper.RetryAfterHeader = response.Headers?.RetryAfter?.ToString();
+                                if (response.Content != null)
+                                {
+                                    wrapper.Content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                }
                             }
                         }
                     }

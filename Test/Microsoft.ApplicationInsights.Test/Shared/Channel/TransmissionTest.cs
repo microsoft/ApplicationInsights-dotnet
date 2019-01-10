@@ -1,19 +1,17 @@
-﻿using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Extensibility.Implementation;
-
-namespace Microsoft.ApplicationInsights.Channel
+﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Net;
     using System.Reflection;
-    using System.Text;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -254,7 +252,7 @@ namespace Microsoft.ApplicationInsights.Channel
             }
 
             [TestMethod]
-            [Ignore("https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1047")]
+            [Ignore("https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1049")]
             public async Task SendAsyncHandlesTimeout()
             {
                 var handler = new HandlerForFakeHttpClient
