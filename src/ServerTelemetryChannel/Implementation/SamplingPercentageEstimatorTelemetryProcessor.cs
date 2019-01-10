@@ -121,6 +121,7 @@
         }
 
         /// <summary>
+        /// Gets or sets current sampling rate.
         /// </summary>
         internal int CurrentSamplingRate
         {
