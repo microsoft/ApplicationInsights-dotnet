@@ -6,7 +6,6 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using TaskEx = System.Threading.Tasks.Task;
 
     public class TransmissionBufferTest
     {
@@ -24,7 +23,7 @@
                 var tasks = new Task[NumberOfThreads];
                 for (int t = 0; t < NumberOfThreads; t++)
                 {
-                    tasks[t] = TaskEx.Run(() =>
+                    tasks[t] = Task.Run(() =>
                     {
                         for (int i = 0; i < NumberOfIterations; i++)
                         {
@@ -34,7 +33,7 @@
                     });
                 }
 
-                TaskEx.WhenAll(tasks).GetAwaiter().GetResult();
+                Task.WhenAll(tasks).GetAwaiter().GetResult();
             }
         }
 

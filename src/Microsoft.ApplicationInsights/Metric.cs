@@ -1223,7 +1223,7 @@
             {
                 if (configuration.GetValuesPerDimensionLimit(d + 1) < 1)
                 {
-                    throw new ArgumentException("Multidimensional metrics must allow at least one dimension-value per dimesion"
+                    throw new ArgumentException("Multidimensional metrics must allow at least one dimension-value per dimension"
                                     + Invariant($" (but {nameof(configuration.GetValuesPerDimensionLimit)}({d + 1})")
                                     + Invariant($" = {configuration.GetValuesPerDimensionLimit(d + 1)} was specified."));
                 }
@@ -1263,7 +1263,7 @@
                         throw new ArgumentNullException(Invariant($"{nameof(dimensionValues)}[{d}]"));
                     }
 
-                    if (String.IsNullOrWhiteSpace(dimensionValue))
+                    if (string.IsNullOrWhiteSpace(dimensionValue))
                     {
                         throw new ArgumentException(Invariant($"The value for dimension number {d} is empty or white-space."));
                     }

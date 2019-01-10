@@ -10,9 +10,12 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
-    /// Telemetry type used to track exceptions.
+    /// Telemetry type used to track exceptions. This will capture TypeName, Message, and CallStack.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=723596">Learn more</a>
     /// </summary>
+    /// <remarks>
+    /// Additional exception details will need to be tracked manually.
+    /// </remarks>
     public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
     {
         internal const string TelemetryName = "Exception";

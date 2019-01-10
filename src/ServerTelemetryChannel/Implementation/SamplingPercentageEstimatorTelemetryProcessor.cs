@@ -121,10 +121,10 @@
         }
 
         /// <summary>
-        /// Sets current sampling rate.
         /// </summary>
         internal int CurrentSamplingRate
         {
+            get => this.currenSamplingRate;
             set => this.currenSamplingRate = value;
         }
 

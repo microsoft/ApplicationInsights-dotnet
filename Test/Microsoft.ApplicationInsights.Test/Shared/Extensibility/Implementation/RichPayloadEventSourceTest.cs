@@ -10,6 +10,10 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Reflection;
     using System.Collections.ObjectModel;
+    using Microsoft.ApplicationInsights.TestFramework;
+    using Microsoft.Diagnostics.Tracing.Session;
+    using System.Threading.Tasks;
+    using Microsoft.ServiceProfiler.Agent.Utilities;
 
     /// <summary>
     /// Tests the rich payload event source tracking.
@@ -79,6 +83,19 @@
                 new EventTelemetry("TestEvent"),
                 typeof(External.EventData),
                 (client, item) => { client.TrackEvent((EventTelemetry)item); });
+        }
+
+        /// <summary>
+        /// Tests tracking unknown implementaiton of ITelemetry.
+        /// </summary>
+        [TestMethod]
+        public void RichPayloadEventSourceUnknownEventSentTest()
+        {
+            this.DoTracking(
+                RichPayloadEventSource.Keywords.Events,
+                new UnknownTelemetry() { Source = "source", Name = "name", ResponseCode = "200", Success = true }, // .NET 4.5 Event Source does not process empty values
+                typeof(External.EventData),
+                (client, item) => { client.Track((UnknownTelemetry)item); });
         }
 
         /// <summary>
@@ -380,6 +397,57 @@
             }
         }
 
+        /// <summary>
+        /// This test verifies that the Application Insights Profiler agent can decode
+        /// RequestTelemetry payloads when passed through the ETW pipeline.
+        /// </summary>
+        [TestMethod]
+        public void RichPayloadEventSourceEtwPayloadSerializationTest()
+        {
+            if (IsRunningOnEnvironmentSupportingRichPayloadEventSource())
+            {
+                var request = new RequestTelemetry()
+                {
+                    Name = "TestRequest",
+                    Url = new Uri("https://www.example.com/api/test&id=1234"),
+                    ResponseCode = "200",
+                    Success = true,
+                    Duration = TimeSpan.FromTicks(314159)
+                };
+
+                request.Context.InstrumentationKey = Guid.NewGuid().ToString();
+                request.Context.Operation.Name = "TestOperation";
+                request.Context.Operation.Id = "ABC123";
+
+                using (var eventSource = new RichPayloadEventSource($"Microsoft-ApplicationInsights-{nameof(RichPayloadEventSourceEtwPayloadSerializationTest)}"))
+                using (var session = new TraceEventSession($"{nameof(RichPayloadEventSourceEtwPayloadSerializationTest)}"))
+                {
+                    session.EnableProvider(eventSource.EventSourceInternal.Guid);
+                    session.Source.AllEvents += traceEvent =>
+                    {
+                        var payload = traceEvent.EventData();
+                        var parsedPayload = PayloadParser.ParsePayload(payload);
+                        Assert.AreEqual(request.Context.InstrumentationKey, parsedPayload.InstrumentationKey);
+                        Assert.AreEqual(request.Context.Operation.Name, parsedPayload.OperationName);
+                        Assert.AreEqual(request.Context.Operation.Id, parsedPayload.OperationId);
+                        Assert.AreEqual(request.Data.ver, parsedPayload.Version);
+                        Assert.AreEqual(request.Data.id, parsedPayload.RequestId);
+                        Assert.AreEqual(request.Data.source, parsedPayload.Source);
+                        Assert.AreEqual(request.Data.name, parsedPayload.Name);
+                        Assert.AreEqual(request.Data.duration, parsedPayload.Duration);
+                    };
+
+                    Task.Run(() =>
+                    {
+                        eventSource.Process(request);
+                        session.Stop();
+                    });
+
+                    session.Source.Process();
+                }
+            }
+        }
+
         private void ValidatePropertyDictionary(IDictionary<string, object> props, int keyMax, int valuemax)
         {
             var dic = (IDictionary<string, object>)(props);
@@ -424,13 +492,17 @@
                     item.Context.User.Id = "testUserId";
                     item.Context.Operation.Id = Guid.NewGuid().ToString();
 
+                    item.Extension = new MyTestExtension { myIntField = 42, myStringField = "value" };
+
                     track(client, item);
 
-#pragma warning disable CS0618 // Type or member is obsolete
-                    Assert.IsTrue(item.Context.Properties.ContainsKey("globalproperty1"), "Item Properties should contain the globalproperties as its copied before serialization");
-#pragma warning restore CS0618 // Type or member is obsolete
-
                     var actualEvent = listener.Messages.FirstOrDefault();
+#pragma warning disable CS0618 // Type or member is obsolete
+                    if (!(item is UnknownTelemetry)) // Global properties are copied directly into output properties for unknown telemetry
+                    {
+                        Assert.IsTrue(item.Context.Properties.ContainsKey("globalproperty1"), "Item Properties should contain the globalproperties as its copied before serialization");
+                    }
+#pragma warning restore CS0618 // Type or member is obsolete
 
                     Assert.IsNotNull(actualEvent);
                     Assert.AreEqual(client.InstrumentationKey, actualEvent.Payload[0]);
@@ -465,20 +537,43 @@
                     {
                         object[] properties = (object[])((IDictionary<string, object>)actualEvent.Payload[2])["properties"];
 #pragma warning disable CS0618 // Type or member is obsolete
-                        if (!(item is PerformanceCounterTelemetry))
+                        if (item is PerformanceCounterTelemetry)
 #pragma warning restore CS0618 // Type or member is obsolete
                         {
-                            // There should be 3 entries in properties
+                            // There should be 6 entries in properties
                             // 1. from item's ISupportProperties.Properties
                             // 2. from item context.GlobalProperties
-                            // 3. from item context.Properties                            
-                            Assert.AreEqual(3, properties.Length);                                                        
+                            // 3. from item context.Properties        
+                            // 4. from myInfField in item's Extension
+                            // 5. from myStringField in item's Extension
+                            // 6. PerfCounter name is a custom property.
+                            Assert.AreEqual(6, properties.Length);                                                        
+                        }
+                        else if (item is UnknownTelemetry)
+                        {
+                            // There should be 11 entries in properties, all fields are flattened into properties
+                            // 1. from item's ISupportProperties.Properties
+                            // 2. from item context.GlobalProperties
+                            // 3. from item context.Properties        
+                            // 4. from myInfField in item's Extension
+                            // 5. from myStringField in item's Extension
+                            // 6. Unknown Telemetry name.
+                            // 7. Unknown Telemetry id
+                            // 8. Unknown Telemetry responseCode
+                            // 9. Unknown Telemetry source
+                            // 10. Unknown Telemetry duration
+                            // 11. Unknown Telemetry success                            
+                            Assert.AreEqual(11, properties.Length);
                         }
                         else
                         {
-                            // There should be 4 entries in properties                            
-                            // 4. PerfCounter name is a custom property.
-                            Assert.AreEqual(4, properties.Length);
+                            // There should be 5 entries in properties
+                            // 1. from item's ISupportProperties.Properties
+                            // 2. from item context.GlobalProperties
+                            // 3. from item context.Properties        
+                            // 4. from myInfField in item's Extension
+                            // 5. from myStringField in item's Extension                            
+                            Assert.AreEqual(5, properties.Length);
                         }
                     }
 

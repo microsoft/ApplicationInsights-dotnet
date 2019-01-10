@@ -9,8 +9,8 @@
     internal static class ActivityExtensions
     {
         private const string OperationNameTag = "OperationName";
-        private static bool isInitialized = false;
-        private static bool isAvailable = false;
+        private static bool isInitialized;
+        private static bool isAvailable;
 
         /// <summary>
         /// Executes action if Activity is available (DiagnosticSource DLL is available).
