@@ -893,6 +893,7 @@ static readonly Microsoft.ApplicationInsights.Extensibility.TelemetrySink.Defaul
 static readonly Microsoft.ApplicationInsights.MetricConfigurations.Common -> Microsoft.ApplicationInsights.MetricConfigurations
 virtual Microsoft.ApplicationInsights.Channel.InMemoryChannel.Dispose(bool disposing) -> void
 virtual Microsoft.ApplicationInsights.Channel.Transmission.CreateRequest(System.Uri address) -> System.Net.WebRequest
+virtual Microsoft.ApplicationInsights.Channel.Transmission.CreateRequestMessage(System.Uri address, System.IO.Stream contentStream) -> System.Net.Http.HttpRequestMessage
 virtual Microsoft.ApplicationInsights.Channel.Transmission.SendAsync() -> System.Threading.Tasks.Task<Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper>
 virtual Microsoft.ApplicationInsights.Channel.Transmission.Split(System.Func<int, int> calculateLength) -> System.Tuple<Microsoft.ApplicationInsights.Channel.Transmission, Microsoft.ApplicationInsights.Channel.Transmission>
 virtual Microsoft.ApplicationInsights.Extensibility.Implementation.TaskTimer.Dispose(bool disposing) -> void

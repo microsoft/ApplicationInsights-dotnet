@@ -1,16 +1,19 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Net;
     using System.Reflection;
-    using System.Text;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-#if !NETCOREAPP1_1
 
     public class TransmissionTest : AsyncTest
     {
@@ -33,6 +36,7 @@
             {
                 var expectedAddress = new Uri("expected://uri");
                 var transmission = new Transmission(expectedAddress, new byte[1], "content/type", "content/encoding");
+                Assert.AreEqual(expectedAddress, transmission.EndpointAddress);
             }
 
             [TestMethod]
@@ -94,207 +98,196 @@
         }
 
         [TestClass]
-        public class CreateRequest : TransmissionTest
-        {
-            [TestMethod]
-            public void CreatesHttpWebRequestWithSpecifiedUri()
-            {
-                var transmission = new TestableTransmission();
-
-                var expectedUri = new Uri("http://custom.uri");
-                WebRequest request = transmission.TestableCreateRequest(expectedUri);
-
-                Assert.AreEqual(expectedUri, request.RequestUri);
-            }
-
-            [TestMethod]
-            public void CreatesHttpWebRequestWithPostMethod()
-            {
-                var transmission = new TestableTransmission();
-                WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
-                Assert.AreEqual("POST", request.Method);
-            }
-
-            [TestMethod]
-            public void CreatesHttpWebRequestWithContentTypeSpecifiedInConstructor()
-            {
-                var transmission = new TestableTransmission(contentType: "TestContentType");
-                WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
-                Assert.AreEqual(transmission.ContentType, request.ContentType);
-            }
-
-            [TestMethod]
-            public void CreatesHttpWebRequestWithoutContentTypeIfNotSpecifiedInConstructor()
-            {
-                var transmission = new TestableTransmission(contentType: string.Empty);
-                WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
-                Assert.IsNull(request.ContentType);
-            }
-
-            [TestMethod]
-            public void CreatesHttpWebRequestWithContentEncodingSpecifiedInConstructor()
-            {
-                var transmission = new TestableTransmission(contentEncoding: "TestContentEncoding");
-                WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
-                Assert.AreEqual(transmission.ContentEncoding, request.Headers[HttpRequestHeader.ContentEncoding]);
-            }
-        }
-
-        [TestClass]
         public class SendAsync : TransmissionTest
         {
+            [TestMethod]
+            public async Task SendAsyncUsesPostMethodToSpecifiedHttpEndpoint()
+            {
+                var expectedUri = new Uri("http://uri");
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        // VALIDATE
+                        Assert.AreEqual(expectedUri, req.RequestUri);
+                        Assert.AreEqual(HttpMethod.Post, req.Method);
+                        return Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient(handler))
+                {
+                    var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
+
+                    // Instantiate Transmission with the mock HttpClient
+                    Transmission transmission = new Transmission(expectedUri, new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+                    // transmission.Timeout = TimeSpan.FromMilliseconds(1);
+
+                    HttpWebResponseWrapper result = await transmission.SendAsync();
+                }
+            }
+
+            [TestMethod]
+            public async Task SendAsyncUsesSpecifiedContentTypeAndEncoding()
+            {
+                var expectedContentType = "content/type";
+                var expectedContentEncoding = "contentEncoding";
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        // VALIDATE
+                        Assert.AreEqual(expectedContentType, req.Content.Headers.ContentType.MediaType);
+                        Assert.AreEqual(expectedContentEncoding, req.Content.Headers.ContentEncoding.FirstOrDefault());
+
+                        return Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient(handler))
+                {
+                    var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
+
+                    // Instantiate Transmission with the mock HttpClient
+                    var transmission = new Transmission(new Uri("http://testuri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, expectedContentType, expectedContentEncoding);
+
+                    HttpWebResponseWrapper result = await transmission.SendAsync();
+                }
+            }
+
+            [TestMethod]
+            public async Task SendAsyncUsesEmptyContentTypeIfNoneSpecifiedInConstructor()
+            {
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        // VALIDATE
+                        Assert.IsNull(req.Content.Headers.ContentType);
+
+                        return Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient(handler))
+                {
+                    var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
+
+                    // Instantiate Transmission with the mock HttpClient
+                    var transmission = new Transmission(new Uri("http://testuri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, "ContentEncoding");
+
+                    HttpWebResponseWrapper result = await transmission.SendAsync();
+                }
+            }
+
             [TestMethod]
             public void ThrowsInvalidOperationExceptionWhenTransmissionIsAlreadySending()
             {
                 AsyncTest.Run(async () =>
                 {
-                    var transmission = new TestableTransmission();
-                    FieldInfo isSendingField = typeof(Transmission).GetField("isSending", BindingFlags.NonPublic | BindingFlags.Instance);
-                    isSendingField.SetValue(transmission, 1, BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Instance, null, null);
+                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, new HttpClient(), string.Empty, string.Empty); FieldInfo isSendingField = typeof(Transmission).GetField("isSending", BindingFlags.NonPublic | BindingFlags.Instance);
+                    isSendingField.SetValue(transmission,1);
                     await AssertEx.ThrowsAsync<InvalidOperationException>(() => transmission.SendAsync());
                 });
             }
 
             [TestMethod]
-            public void BeginsAsynchronouslyGettingRequestStream()
+            public async Task SendAsyncHandleResponseForPartialContentResponse()
             {
-                AsyncTest.Run(async () =>
+                var handler = new HandlerForFakeHttpClient
                 {
-                    int beginGetRequestStreamCount = 0;
-                    var request = new StubWebRequest();
-                    request.OnBeginGetRequestStream = (callback, state) =>
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
                     {
-                        beginGetRequestStreamCount++;
-                        return Task.FromResult<object>(null).AsAsyncResult(callback, request);
-                    };
-        
-                    var transmission = new TestableTransmission { OnCreateRequest = uri => request };
-        
-                    await transmission.SendAsync();
-        
-                    Assert.AreEqual(1, beginGetRequestStreamCount);
-                });
+                        HttpResponseMessage response = new HttpResponseMessage();
+                        response.StatusCode = HttpStatusCode.PartialContent;
+                        response.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(5));
+                        return Task.FromResult<HttpResponseMessage>(response);                        
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient(handler))
+                {                    
+                    // Instantiate Transmission with the mock HttpClient
+                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+
+                    // ACT
+                    HttpWebResponseWrapper result = await transmission.SendAsync();
+
+                    // VALIDATE
+                    Assert.AreEqual(206, result.StatusCode);
+                    Assert.AreEqual("5", result.RetryAfterHeader);
+                    Assert.IsNull(result.Content);
+                }
             }
 
             [TestMethod]
-            public void WritesTransmissionContentToRequestStream()
+            public async Task SendAsyncSendsContentPassedInConstructor()
             {
-                AsyncTest.Run(async () =>
+                var expectedContent = new byte[] {1, 2, 3, 4, 5};
+                var handler = new HandlerForFakeHttpClient
                 {
-                    var requestStream = new MemoryStream();
-        
-                    var request = new StubWebRequest();
-                    request.OnEndGetRequestStream = asyncResult => requestStream;
-        
-                    byte[] transmissionContent = new byte[] { 1, 2, 3, 4, 5 };
-                    var transmission = new TestableTransmission(new Uri("http://test.uri"), transmissionContent);
-                    transmission.OnCreateRequest = uri => request;
-        
-                    await transmission.SendAsync();
-        
-                    AssertEx.AreEqual(transmissionContent, requestStream.ToArray());
-                });
-            }
-
-            [TestMethod]
-            public void AsynchronouslyFinishesGettingResponse()
-            {
-                AsyncTest.Run(async () =>
-                {
-                    int endGetResponseCount = 0;
-                    var request = new StubWebRequest();
-                    request.OnEndGetResponse = asyncResult =>
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = async (req, cancellationToken) =>
                     {
-                        endGetResponseCount++;
-                        return new StubWebResponse();
-                    };
-        
-                    var transmission = new TestableTransmission { OnCreateRequest = uri => request };
-        
-                    await transmission.SendAsync();
-        
-                    Assert.AreEqual(1, endGetResponseCount);
-                });
-            }
+                        HttpResponseMessage response = new HttpResponseMessage();
+                        byte[] actualContent = await req.Content.ReadAsByteArrayAsync();
+                        AssertEx.AreEqual(expectedContent, actualContent);
+                        return await Task.FromResult<HttpResponseMessage>(response);
+                    }
+                };
 
-            [TestMethod]
-            public void DisposesHttpWebResponseToReleaseResources()
-            {
-                AsyncTest.Run(async () =>
+                using (var fakeHttpClient = new HttpClient(handler))
                 {
-                    bool responseDisposed = false;
-                    var response = new StubWebResponse { OnDispose = () => responseDisposed = true };
-                    var request = new StubWebRequest { OnEndGetResponse = asyncResult => response };
-                    var transmission = new TestableTransmission { OnCreateRequest = uri => request };
-        
-                    await transmission.SendAsync();
-        
-                    Assert.IsTrue(responseDisposed);
-                });
+                    // Instantiate Transmission with the mock HttpClient
+                    Transmission transmission = new Transmission(new Uri("http://uri"), expectedContent, fakeHttpClient, string.Empty, string.Empty);
+
+                    // ACT
+                    HttpWebResponseWrapper result = await transmission.SendAsync();
+                }
             }
 
             [TestMethod]
-            public void AbortsWebRequestWhenBeginGetRequestStreamTimesOut()
+            [Ignore("https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1049")]
+            public async Task SendAsyncHandlesTimeout()
             {
-                var requestAborted = new ManualResetEventSlim();
-                var finishBeginGetRequestStream = new ManualResetEventSlim();
-                var request = new StubWebRequest();
-                request.OnAbort = () => requestAborted.Set();
-                request.OnBeginGetRequestStream = (callback, state) => Task.Run(() => finishBeginGetRequestStream.Wait()).AsAsyncResult(callback, request);
-                var transmission = new TestableTransmission(timeout: TimeSpan.FromTicks(1));
-                transmission.OnCreateRequest = uri => request;
-
-                Task sendAsync = transmission.SendAsync();
-
-                Assert.IsTrue(requestAborted.Wait(1000));
-                finishBeginGetRequestStream.Set();
-            }
-            
-            [TestMethod]
-            public void DoesNotAbortRequestThatWasSentSuccessfully()
-            {
-                AsyncTest.Run(async () =>
+                var handler = new HandlerForFakeHttpClient
                 {
-                    bool requestAborted = false;
-                    var request = new StubWebRequest { OnAbort = () => requestAborted = true };
-        
-                    var transmission = new TestableTransmission(timeout: TimeSpan.FromMilliseconds(50));
-                    transmission.OnCreateRequest = uri => request;
-        
-                    await transmission.SendAsync();
-        
-                    await Task.Delay(TimeSpan.FromMilliseconds(50)); // Let timout detector finish
-        
-                    Assert.IsFalse(requestAborted);
-                });
-            }
-        }
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = async (req, cancellationToken) =>
+                    {
+                        return await Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
+                    }
+                };
 
-        private class TestableTransmission : Transmission
-        {
-            public Func<Uri, WebRequest> OnCreateRequest;
+                using (var fakeHttpClient = new HttpClient())
+                {
+                    // Instantiate Transmission with the mock HttpClient and Timeout to be just 1 msec to force Timeout.
+                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, 
+                        string.Empty, TimeSpan.FromMilliseconds(1));
 
-            public TestableTransmission(Uri endpointAddress = null, byte[] content = null, string contentType = null, string contentEncoding = null, TimeSpan timeout = default(TimeSpan))
-                : base(
-                    endpointAddress ?? new Uri("http://test.uri"),
-                    content ?? new byte[1],
-                    contentType ?? "content/type",
-                    contentEncoding ?? "content/encoding",
-                    timeout)
-            {
-                this.OnCreateRequest = base.CreateRequest;
-            }
-
-            public WebRequest TestableCreateRequest(Uri address)
-            {
-                return base.CreateRequest(address);
-            }
-
-            protected override WebRequest CreateRequest(Uri address)
-            {
-                return this.OnCreateRequest(address);
+                    // ACT
+                    HttpWebResponseWrapper result = await transmission.SendAsync();
+                }
             }
         }
     }
-#endif
+
+    /// <summary>
+    /// Handler to control the behaviour of HttpClient. HttpClient instance created with this
+    /// Unit tests provide the behaviour of this handler.
+    /// </summary>
+    internal class HandlerForFakeHttpClient : DelegatingHandler
+    {
+        public Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> OnSendAsync;
+        protected async override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            return await OnSendAsync(request, cancellationToken);
+        }
+    }
 }
