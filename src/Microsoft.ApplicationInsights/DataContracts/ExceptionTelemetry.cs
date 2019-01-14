@@ -93,7 +93,7 @@
             {
                 this.exception = source.Exception;
             }
-            
+
             this.extension = source.extension?.DeepClone();
         }
 
@@ -303,7 +303,7 @@
         {
             if (this.Exceptions != null && this.Exceptions.Count > 0)
             {
-                if(exceptionLevel < 0)
+                if (exceptionLevel < 0)
                 {
                     throw new ArgumentOutOfRangeException(nameof(exceptionLevel), exceptionLevel, "The exceptionLevel value must not be negative.");
                 }
@@ -342,7 +342,7 @@
         /// </summary>
         public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
         {
-            SetParsedStack(frames, 0);
+            this.SetParsedStack(frames, 0);
         }
 
         /// <summary>
