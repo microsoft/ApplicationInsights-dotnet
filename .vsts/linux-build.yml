@@ -1,9 +1,12 @@
+variables:
+  DotNetVersion: "2.2.101"
+
 pool:
   vmImage: 'ubuntu-16.04'
 steps:
 - task: DotNetCoreInstaller@0
   inputs:
-    version: "2.0.3"
+    version: $(DotNetVersion)
 
 - task: DotNetCoreCLI@1
   inputs:
