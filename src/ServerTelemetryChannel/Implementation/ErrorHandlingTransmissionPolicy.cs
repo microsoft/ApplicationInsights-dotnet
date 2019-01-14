@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Net;
+    using System.Net.Http;
     using System.Threading.Tasks;
     using ApplicationInsights.Channel.Implementation;
     using Extensibility.Implementation;
@@ -31,34 +32,21 @@
             GC.SuppressFinalize(this);
         }
 
-        private static void AdditionalVerboseTracing(HttpWebResponse httpResponse)
+        private static void AdditionalVerboseTracing(string httpResponse)
         {
-            // For perf reason deserialize only when verbose tracing is enabled 
+            // For perf reason deserialize the response only when verbose tracing is enabled 
             if (TelemetryChannelEventSource.IsVerboseEnabled && httpResponse != null)
             {
                 try
                 {
-                    var stream = httpResponse.GetResponseStream();
-                    if (stream != null)
+                    BackendResponse backendResponse = BackoffLogicManager.GetBackendResponse(httpResponse);
+                    if (backendResponse != null && backendResponse.Errors != null)
                     {
-                        using (StreamReader content = new StreamReader(stream))
+                        foreach (var error in backendResponse.Errors)
                         {
-                            string response = content.ReadToEnd();
-
-                            if (!string.IsNullOrEmpty(response))
+                            if (error != null)
                             {
-                                BackendResponse backendResponse = BackoffLogicManager.GetBackendResponse(response);
-
-                                if (backendResponse != null && backendResponse.Errors != null)
-                                {
-                                    foreach (var error in backendResponse.Errors)
-                                    {
-                                        if (error != null)
-                                        {
-                                            TelemetryChannelEventSource.Log.ItemRejectedByEndpointWarning(error.Message);
-                                        }
-                                    }
-                                }
+                                TelemetryChannelEventSource.Log.ItemRejectedByEndpointWarning(error.Message);
                             }
                         }
                     }
@@ -69,68 +57,52 @@
                 }
             }
         }
-
         private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs e)
         {
-            var webException = e.Exception as WebException;
-            if (webException != null)
+            HttpWebResponseWrapper httpWebResponseWrapper = e.Response;
+            if (httpWebResponseWrapper != null)
             {
-                HttpWebResponseWrapper httpWebResponse = e.Response;
-                if (httpWebResponse != null)
+                AdditionalVerboseTracing(httpWebResponseWrapper.Content);
+                switch (httpWebResponseWrapper.StatusCode)
                 {
-                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(
-                        e.Transmission.Id, 
-                        webException.Message, 
-                        (int)httpWebResponse.StatusCode,
-                        httpWebResponse.StatusDescription);
+                    case ResponseStatusCodes.RequestTimeout:
+                    case ResponseStatusCodes.ServiceUnavailable:
+                    case ResponseStatusCodes.InternalServerError:
+                    case ResponseStatusCodes.UnknownNetworkError:
+                        // Disable sending and buffer capacity (Enqueue will enqueue to the Storage)
+                        this.MaxSenderCapacity = 0;
+                        this.MaxBufferCapacity = 0;
+                        this.LogCapacityChanged();
+                        this.Apply();
 
-                    AdditionalVerboseTracing((HttpWebResponse)webException.Response);
+                        this.backoffLogicManager.ReportBackoffEnabled((int)httpWebResponseWrapper.StatusCode);
+                        this.Transmitter.Enqueue(e.Transmission);
 
-                    switch (httpWebResponse.StatusCode)
-                    {
-                        case ResponseStatusCodes.RequestTimeout:
-                        case ResponseStatusCodes.ServiceUnavailable:
-                        case ResponseStatusCodes.InternalServerError:
-                            // Disable sending and buffer capacity (Enqueue will enqueue to the Storage)
-                            this.MaxSenderCapacity = 0;
-                            this.MaxBufferCapacity = 0;
-                            this.LogCapacityChanged();
-                            this.Apply();
+                        this.pauseTimer.Delay = this.backoffLogicManager.GetBackOffTimeInterval(httpWebResponseWrapper.RetryAfterHeader);
+                        this.pauseTimer.Start(
+                           () =>
+                           {
+                               this.MaxBufferCapacity = null;
+                               this.MaxSenderCapacity = null;
+                               this.LogCapacityChanged();
+                               this.Apply();
 
-                            this.backoffLogicManager.ReportBackoffEnabled((int)httpWebResponse.StatusCode);
-                            this.Transmitter.Enqueue(e.Transmission);
+                               this.backoffLogicManager.ReportBackoffDisabled();
 
-                            this.pauseTimer.Delay = this.backoffLogicManager.GetBackOffTimeInterval(httpWebResponse.RetryAfterHeader);
-                            this.pauseTimer.Start(
-                               () =>
-                                    {
-                                        this.MaxBufferCapacity = null;
-                                        this.MaxSenderCapacity = null;
-                                        this.LogCapacityChanged();
-                                        this.Apply();
-
-                                        this.backoffLogicManager.ReportBackoffDisabled();
-
-                                        return Task.FromResult<object>(null);
-                                    });
-                            break;
-                    }
-                }
-                else
-                {
-                    // We are loosing data here (we did not upload failed transaction back).
-                    // We did not get response back. 
-                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(e.Transmission.Id, webException.Message, (int)HttpStatusCode.InternalServerError, null);
+                               return Task.FromResult<object>(null);
+                           });
+                        break;
                 }
             }
             else
             {
+                // Data loss Unknown Exception
+                // We are loosing data here (we did not upload failed transaction back).
+                // We got unknown exception. 
                 if (e.Exception != null)
-                {
-                    // We are loosing data here (we did not upload failed transaction back).
-                    // We got unknown exception. 
                     TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id, e.Exception.Message);
-                }
+                else
+                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id, "Unknown Exception Message");
             }
         }
 

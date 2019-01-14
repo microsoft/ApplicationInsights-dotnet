@@ -136,11 +136,7 @@
 
         protected void OnTransmissionSent(TransmissionProcessedEventArgs args)
         {
-            EventHandler<TransmissionProcessedEventArgs> handler = this.TransmissionSent;
-            if (handler != null)
-            {
-                handler(this, args);
-            }
+            this.TransmissionSent?.Invoke(this, args);
         }
 
         private async Task StartSending(Transmission transmission)

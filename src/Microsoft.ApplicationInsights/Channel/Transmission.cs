@@ -16,7 +16,6 @@
     /// </summary>
     public class Transmission
     {
-        internal const string ContentTypeHeader = "Content-Type";
         internal const string ContentEncodingHeader = "Content-Encoding";
 
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
@@ -29,24 +28,9 @@
         /// </summary>
         public Transmission(Uri address, byte[] content, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan))
         {
-            if (address == null)
-            {
-                throw new ArgumentNullException(nameof(address));
-            }
-
-            if (content == null)
-            {
-                throw new ArgumentNullException(nameof(content));
-            }
-
-            if (contentType == null)
-            {
-                throw new ArgumentNullException(nameof(contentType));
-            }
-
-            this.EndpointAddress = address;
-            this.Content = content;
-            this.ContentType = contentType;
+            this.EndpointAddress = address ?? throw new ArgumentNullException(nameof(address));
+            this.Content = content ?? throw new ArgumentNullException(nameof(content));
+            this.ContentType = contentType ?? throw new ArgumentNullException(nameof(contentType));
             this.ContentEncoding = contentEncoding;
             this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
             this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
@@ -197,6 +181,7 @@
 
                                     if (CoreEventSource.IsVerboseEnabled)
                                     {
+                                        // Read the entire response body only on VerboseTracing for perf reasons.
                                         try
                                         {
                                             if (response.Content != null)
