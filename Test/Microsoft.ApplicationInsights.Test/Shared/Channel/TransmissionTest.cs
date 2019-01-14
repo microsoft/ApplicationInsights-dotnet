@@ -289,7 +289,7 @@
                 var handler = new HandlerForFakeHttpClient
                 {
                     InnerHandler = new HttpClientHandler(),
-                    OnSendAsync = async (req, cancellationToken) =>
+                    OnSendAsync = (req, cancellationToken) =>
                     {
                         throw new HttpRequestException();
                     }

@@ -57,6 +57,7 @@
                 }
             }
         }
+
         private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs e)
         {
             HttpWebResponseWrapper httpWebResponseWrapper = e.Response;
@@ -100,9 +101,15 @@
                 // We are loosing data here (we did not upload failed transaction back).
                 // We got unknown exception. 
                 if (e.Exception != null)
-                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id, e.Exception.Message);
+                {
+                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id,
+                        e.Exception.Message);
+                }
                 else
-                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id, "Unknown Exception Message");
+                {
+                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id,
+                        "Unknown Exception Message");
+                }
             }
         }
 

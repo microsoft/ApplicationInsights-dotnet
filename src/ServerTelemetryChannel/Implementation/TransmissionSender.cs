@@ -1,13 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-    using System.Collections.Generic;
-    using System.IO;
+    using System.Globalization;
     using System.Net;
-    using System.Runtime.Serialization;
     using System.Net.Http;
     using System.Threading;
-    using System.Threading.Tasks;
+    using System.Threading.Tasks;    
     using Extensibility;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -178,7 +176,7 @@
                             }
                             else
                             {
-                                TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(acceptedTransmission.Id, responseContent.StatusCode.ToString());
+                                TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(acceptedTransmission.Id, responseContent.StatusCode.ToString(CultureInfo.InvariantCulture));
                             }
                         }                        
                     }

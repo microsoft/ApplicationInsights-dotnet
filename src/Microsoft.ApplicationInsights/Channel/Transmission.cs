@@ -189,7 +189,7 @@
                                                 wrapper.Content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                                             }
                                         }
-                                        catch(Exception)
+                                        catch (Exception)
                                         {
                                             // Swallow any exception here as this code is for tracing purposes only and should never throw.
                                         }
@@ -198,11 +198,11 @@
                             }
                         }
                     }
-                    catch(TaskCanceledException)
+                    catch (TaskCanceledException)
                     {                        
                         wrapper = new HttpWebResponseWrapper
                         {
-                            StatusCode = (int) HttpStatusCode.RequestTimeout
+                            StatusCode = (int)HttpStatusCode.RequestTimeout
                         };
                     }
 
@@ -214,7 +214,6 @@
                 Interlocked.Exchange(ref this.isSending, 0);
             }
         }
-
 
         /// <summary>
         /// Splits the Transmission object into two pieces using a method 
