@@ -27,7 +27,7 @@ steps:
 
 - task: DotNetCoreInstaller@0
   inputs:
-    version: $(DotNetVersion)
+    version: "1.1.5"
 
 - task: DotNetCoreCLI@1
   inputs:
