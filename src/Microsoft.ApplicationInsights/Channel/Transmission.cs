@@ -167,26 +167,60 @@
                     HttpRequestMessage request = this.CreateRequestMessage(this.EndpointAddress, contentStream);
                     HttpWebResponseWrapper wrapper = null;
 
-                    using (var ct = new CancellationTokenSource(this.Timeout))
+                    try
                     {
-                        using (var response = await client.SendAsync(request, ct.Token).ConfigureAwait(false))
+                        using (var ct = new CancellationTokenSource(this.Timeout))
                         {
-                            if (response != null && response.StatusCode == HttpStatusCode.PartialContent)
+                            // HttpClient.SendAsync throws HttpRequestException only on the following scenarios:
+                            // "The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout."
+                            // i.e for Server errors (500 status code), no exception is thrown. Hence this method should read the response and status code,
+                            // and return correct HttpWebResponseWrapper to give any Retry policies a chance to retry as needed.
+
+                            using (var response = await client.SendAsync(request, ct.Token).ConfigureAwait(false))
                             {
-                                wrapper = new HttpWebResponseWrapper
+                                if (response != null)
                                 {
-                                    StatusCode = (int)response.StatusCode,
-                                    StatusDescription = response.ReasonPhrase
-                                };
-                                wrapper.RetryAfterHeader = response.Headers?.RetryAfter?.ToString();
-                                if (response.Content != null)
-                                {
-                                    wrapper.Content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                    wrapper = new HttpWebResponseWrapper
+                                    {
+                                        StatusCode = (int)response.StatusCode,
+                                        StatusDescription = response.ReasonPhrase // maybe not required?
+                                    };
+                                    wrapper.RetryAfterHeader = response.Headers?.RetryAfter?.ToString();
+
+                                    if (response.StatusCode == HttpStatusCode.PartialContent)
+                                    {
+                                        if (response.Content != null)
+                                        {
+                                            wrapper.Content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                        }
+                                    }
+
+                                    if (CoreEventSource.IsVerboseEnabled)
+                                    {
+                                        try
+                                        {
+                                            if (response.Content != null)
+                                            {
+                                                wrapper.Content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                            }
+                                        }
+                                        catch(Exception)
+                                        {
+                                            // Swallow any exception here as this code is for tracing purposes only and should never throw.
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                    
+                    catch(TaskCanceledException)
+                    {                        
+                        wrapper = new HttpWebResponseWrapper
+                        {
+                            StatusCode = (int) HttpStatusCode.RequestTimeout
+                        };
+                    }
+
                     return wrapper;
                 }
             }
@@ -195,6 +229,7 @@
                 Interlocked.Exchange(ref this.isSending, 0);
             }
         }
+
 
         /// <summary>
         /// Splits the Transmission object into two pieces using a method 
