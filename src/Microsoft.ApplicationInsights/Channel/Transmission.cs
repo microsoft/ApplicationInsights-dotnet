@@ -175,11 +175,13 @@
                                     {
                                         if (response.Content != null)
                                         {
+                                            // Read the entire response body only on PartialContent for perf reasons.
+                                            // This cannot be avoided as response tells which items are to be resubmitted.
                                             wrapper.Content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                                         }
                                     }
 
-                                    if (CoreEventSource.IsVerboseEnabled)
+                                    if (CoreEventSource.IsVerboseEnabled && response.StatusCode != HttpStatusCode.PartialContent)
                                     {
                                         // Read the entire response body only on VerboseTracing for perf reasons.
                                         try

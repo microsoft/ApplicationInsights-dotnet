@@ -493,7 +493,7 @@
         public void TransmissionDataLossWarning(string transmissionId, string message, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                54,
+                69,
                 transmissionId ?? string.Empty,
                 message ?? string.Empty,
                 this.ApplicationName);
