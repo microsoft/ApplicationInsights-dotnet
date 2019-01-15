@@ -94,7 +94,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(5000);
 
                     // VERIFY
                     // We validate by checking SDK traces.
@@ -236,7 +236,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                         var telemetry = new EventTelemetry("test event name");
                         telemetry.Context.InstrumentationKey = "dummy";
                         channel.Send(telemetry);
-                        Thread.Sleep(1000);
+                        Thread.Sleep(5000);
                     }
 
                     // Assert:
