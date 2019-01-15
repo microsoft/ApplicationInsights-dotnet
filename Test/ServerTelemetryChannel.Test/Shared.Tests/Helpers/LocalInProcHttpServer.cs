@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿#if NETSTANDARD2_0
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -47,3 +48,4 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers
     }
 
 }
+#endif

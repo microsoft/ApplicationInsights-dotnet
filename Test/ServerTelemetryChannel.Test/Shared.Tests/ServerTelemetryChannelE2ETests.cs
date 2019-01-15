@@ -1,4 +1,4 @@
-﻿#if !NETSTANDARD2_0
+﻿#if NETSTANDARD2_0
 namespace Microsoft.ApplicationInsights.WindowsServer.Channel
 {    
     using System.Collections.Generic;
