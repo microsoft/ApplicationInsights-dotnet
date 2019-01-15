@@ -102,12 +102,12 @@
                 // We got unknown exception. 
                 if (e.Exception != null)
                 {
-                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id,
+                    TelemetryChannelEventSource.Log.TransmissionDataLossWarning(e.Transmission.Id,
                         e.Exception.Message);
                 }
                 else
                 {
-                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id,
+                    TelemetryChannelEventSource.Log.TransmissionDataLossWarning(e.Transmission.Id,
                         "Unknown Exception Message");
                 }
             }

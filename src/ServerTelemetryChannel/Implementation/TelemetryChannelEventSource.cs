@@ -489,6 +489,26 @@
             this.WriteEvent(68, directory, error, this.ApplicationName);
         }
 
+        [Event(69, Message = "TransmissionDataLossWarning. Telemetry items are being lost here due to unknown error. TransmissionId: {0}. Error Message: {1}.", Level = EventLevel.Warning)]
+        public void TransmissionDataLossWarning(string transmissionId, string message, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                54,
+                transmissionId ?? string.Empty,
+                message ?? string.Empty,
+                this.ApplicationName);
+        }
+
+        [Event(70, Message = "Raw response content from AI Backend for Transmission Id {0} : {1}.", Level = EventLevel.Verbose)]
+        public void RawResponseFromAIBackend(string transmissionId, string message, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                70,
+                transmissionId ?? string.Empty,
+                message ?? string.Empty,
+                this.ApplicationName);
+        }
+
         private static string GetApplicationName()
         {
             //// We want to add application name to all events BUT

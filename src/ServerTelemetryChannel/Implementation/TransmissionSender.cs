@@ -172,13 +172,22 @@
                         {
                             if (responseContent.StatusCode < 400)
                             {
-                                TelemetryChannelEventSource.Log.TransmissionSentSuccessfully(acceptedTransmission.Id, currentCapacity);
+                                TelemetryChannelEventSource.Log.TransmissionSentSuccessfully(acceptedTransmission.Id,
+                                    currentCapacity);
                             }
                             else
                             {
-                                TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(acceptedTransmission.Id, responseContent.StatusCode.ToString(CultureInfo.InvariantCulture));
+                                TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(
+                                    acceptedTransmission.Id,
+                                    responseContent.StatusCode.ToString(CultureInfo.InvariantCulture));
                             }
-                        }                        
+
+                            if (TelemetryChannelEventSource.IsVerboseEnabled)
+                            {
+                                TelemetryChannelEventSource.Log.RawResponseFromAIBackend(acceptedTransmission.Id,
+                                    responseContent.Content);
+                            }
+                        }
                     }
 
                     if (responseContent == null && exception is HttpRequestException)
