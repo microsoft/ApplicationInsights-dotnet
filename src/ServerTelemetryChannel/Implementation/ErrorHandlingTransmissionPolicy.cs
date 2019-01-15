@@ -1,9 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-    using System.IO;
-    using System.Net;
-    using System.Net.Http;
     using System.Globalization;
     using System.Threading.Tasks;
     using ApplicationInsights.Channel.Implementation;
