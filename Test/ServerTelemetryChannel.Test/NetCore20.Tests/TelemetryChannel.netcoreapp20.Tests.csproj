@@ -15,7 +15,7 @@
     <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.NetCore20.Tests</AssemblyName>
     <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>$(DefineConstants);NETCOREAPP;NETCOREAPP2_0</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETCOREAPP</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

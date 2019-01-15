@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP2_0
+﻿#if !NETCOREAPP1_1 && !NET45
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;

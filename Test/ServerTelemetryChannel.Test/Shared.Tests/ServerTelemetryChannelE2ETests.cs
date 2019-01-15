@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP2_0
+﻿#if !NETCOREAPP1_1 && !NET45
 namespace Microsoft.ApplicationInsights.WindowsServer.Channel
 {    
     using System.Collections.Generic;
