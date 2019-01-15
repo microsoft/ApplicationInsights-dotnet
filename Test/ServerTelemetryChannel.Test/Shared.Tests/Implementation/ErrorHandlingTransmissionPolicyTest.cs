@@ -44,9 +44,15 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
             }
 
             [TestMethod]
-            public void StopsTransmissionSendingForUnknownNetworkError()
+            public void StopsTransmissionSendingForBadGateway()
             {
-                StopsTransmissionSendingForGivenResponseCode(ResponseStatusCodes.UnknownNetworkError);
+                StopsTransmissionSendingForGivenResponseCode(ResponseStatusCodes.BadGateway);
+            }
+
+            [TestMethod]
+            public void StopsTransmissionSendingForGatewayTimeout()
+            {
+                StopsTransmissionSendingForGivenResponseCode(ResponseStatusCodes.GatewayTimeout);
             }
 
             [TestMethod]
@@ -71,6 +77,18 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
             public void ResumesTransmissionSenderAfterPauseDurationForUnknownNetworkError()
             {
                 ResumesTransmissionSenderAfterPauseDuration(ResponseStatusCodes.UnknownNetworkError);
+            }
+
+            [TestMethod]
+            public void ResumesTransmissionSenderAfterPauseDurationForBadGateway()
+            {
+                ResumesTransmissionSenderAfterPauseDuration(ResponseStatusCodes.BadGateway);
+            }
+
+            [TestMethod]
+            public void ResumesTransmissionSenderAfterPauseDurationForGatewayTimeout()
+            {
+                ResumesTransmissionSenderAfterPauseDuration(ResponseStatusCodes.GatewayTimeout);
             }
 
             [TestMethod]
@@ -231,6 +249,41 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
             }
 
             [TestMethod]
+            public void LogsWarningWhenDataLossIntentional()
+            {
+                // ErrorHandlingTransmissionPolicy does retry only for a whitelisted set of status codes. For 
+                // others telemetry is dropped. This test is to validate that those are logged.
+                using (var listener = new TestEventListener())
+                {
+                    // Arrange:
+                    const long AllKeywords = -1;
+                    listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.LogAlways, (EventKeywords)AllKeywords);
+
+                    Transmission enqueuedTransmission = null;
+                    var transmitter = new StubTransmitter(new BackoffLogicManager(TimeSpan.FromMilliseconds(10)))
+                    {
+                        OnEnqueue = transmission => { enqueuedTransmission = transmission; }
+                    };
+
+                    var policy = new ErrorHandlingTransmissionPolicy();
+                    policy.Initialize(transmitter);
+
+                    var failedTransmission = new StubTransmission();
+
+                    // Act:
+                    var res = new HttpWebResponseWrapper();
+                    res.StatusCode = 8989;  // some status code not whitelisted for retry.
+                    transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, null, res));
+
+                    // Assert:
+                    var traces = listener.Messages.Where(item => item.Level == EventLevel.Warning).ToList();
+                    Assert.AreEqual(1, traces.Count);
+                    Assert.AreEqual(71, traces[0].EventId); // failed to send
+                    Assert.AreEqual("8989", traces[0].Payload[1]);
+                }
+            }
+
+            [TestMethod]
             public void LogsAdditionalTracesIfResponseIsProvided()
             {
                 using (var listener = new TestEventListener())
@@ -250,6 +303,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
 
                     var failedTransmission = new StubTransmission();
                     var response = new HttpWebResponseWrapper {Content = BackendResponseHelper.CreateBackendResponse(2, 1, new[] { "123" })};
+                    response.StatusCode = 502;
 
                     // Act:
                     transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, null, response));

@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
+﻿using System.Globalization;
+
+namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
     using System.IO;
@@ -66,7 +68,8 @@
                 AdditionalVerboseTracing(httpWebResponseWrapper.Content);
                 switch (httpWebResponseWrapper.StatusCode)
                 {
-                    //TODO handle 502,503,504
+                    case ResponseStatusCodes.BadGateway:
+                    case ResponseStatusCodes.GatewayTimeout:
                     case ResponseStatusCodes.RequestTimeout:
                     case ResponseStatusCodes.ServiceUnavailable:
                     case ResponseStatusCodes.InternalServerError:
@@ -94,6 +97,12 @@
                                return Task.FromResult<object>(null);
                            });
                         break;
+                    default:                        
+                        // We are loosing data here but that is intentional as the response code is
+                        // not in the whitelisted set to attempt retry.
+                        TelemetryChannelEventSource.Log.TransmissionDataNotRetriedForNonWhitelistedResponse(e.Transmission.Id,
+                            httpWebResponseWrapper.StatusCode.ToString(CultureInfo.InvariantCulture));
+                        break;
                 }
             }
             else
@@ -103,12 +112,12 @@
                 // We got unknown exception. 
                 if (e.Exception != null)
                 {                    
-                    TelemetryChannelEventSource.Log.TransmissionDataLossWarning(e.Transmission.Id,
+                    TelemetryChannelEventSource.Log.TransmissionDataLossError(e.Transmission.Id,
                         e.Exception.Message);
                 }
                 else
                 {
-                    TelemetryChannelEventSource.Log.TransmissionDataLossWarning(e.Transmission.Id,
+                    TelemetryChannelEventSource.Log.TransmissionDataLossError(e.Transmission.Id,
                         "Unknown Exception Message");
                 }
             }
