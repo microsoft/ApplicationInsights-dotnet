@@ -94,7 +94,7 @@
                            });
                         break;
                     default:                        
-                        // We are loosing data here but that is intentional as the response code is
+                        // We are losing data here but that is intentional as the response code is
                         // not in the whitelisted set to attempt retry.
                         TelemetryChannelEventSource.Log.TransmissionDataNotRetriedForNonWhitelistedResponse(e.Transmission.Id,
                             httpWebResponseWrapper.StatusCode.ToString(CultureInfo.InvariantCulture));
@@ -104,7 +104,7 @@
             else
             {
                 // Data loss Unknown Exception
-                // We are loosing data here (we did not upload failed transaction back).
+                // We are losing data here (we did not upload failed transaction back).
                 // We got unknown exception. 
                 if (e.Exception != null)
                 {                    
