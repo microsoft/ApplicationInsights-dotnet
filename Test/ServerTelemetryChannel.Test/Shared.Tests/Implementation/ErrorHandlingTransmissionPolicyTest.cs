@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
+﻿using System.Net.Http;
+
+namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
     using System.Diagnostics.Tracing;
@@ -167,31 +169,28 @@
             }
 
             [TestMethod]
-            [Ignore("Not sure what this is testing... ")]
             public void CatchesAndLogsSynchronousExceptionsThrownByTransmitterWhenPausingTransmission()
             {
                 var policy = new ErrorHandlingTransmissionPolicy();
-                var exception = CreateException(statusCode: 408);
+                var exception = new HttpRequestException("http request error");
                 var transmitter = new StubTransmitter { OnApplyPolicies = () => { throw exception; } };
                 CatchesAndLogsExceptionThrownByTransmitter(policy, transmitter, exception);
             }
 
             [TestMethod, Timeout(1000)]
-            [Ignore("Not sure what this is testing... ")]
             public void CatchesAndLogsAsynchronousExceptionsThrownByTransmitterWhenPausingTransmission()
             {
                 var policy = new ErrorHandlingTransmissionPolicy();
-                var exception = CreateException(statusCode: 408);
+                var exception = new HttpRequestException("http request error");
                 var transmitter = new StubTransmitter { OnApplyPolicies = () => ThrowAsync(exception) };
                 CatchesAndLogsExceptionThrownByTransmitter(policy, transmitter, exception);
             }
 
             [TestMethod, Timeout(1000)]
-            [Ignore("Not sure what this is testing... ")]
             public void CatchesAndLogsSynchronousExceptionsThrownByTransmitterWhenResumingTransmission()
             {
                 var policy = new ErrorHandlingTransmissionPolicy();
-                var exception = CreateException(statusCode: 408);
+                var exception = new HttpRequestException("http request error");
                 var transmitter = new StubTransmitter(new TestableBackoffLogicManager(TimeSpan.FromMilliseconds(1)));
                 transmitter.OnApplyPolicies = () =>
                 {
@@ -227,9 +226,9 @@
                     transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, new Exception("Data loss"), null));
 
                     // Assert:
-                    var traces = listener.Messages.Where(item => item.Level == EventLevel.Warning).ToList();
+                    var traces = listener.Messages.Where(item => item.Level == EventLevel.Error).ToList();
                     Assert.AreEqual(1, traces.Count);
-                    Assert.AreEqual(54, traces[0].EventId); // failed to send
+                    Assert.AreEqual(69, traces[0].EventId); // failed to send
                     Assert.AreEqual("Data loss", traces[0].Payload[1]);
                 }
             }
@@ -258,9 +257,9 @@
                     transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, null, null));
 
                     // Assert:
-                    var traces = listener.Messages.Where(item => item.Level == EventLevel.Warning).ToList();
+                    var traces = listener.Messages.Where(item => item.Level == EventLevel.Error).ToList();
                     Assert.AreEqual(1, traces.Count);
-                    Assert.AreEqual(54, traces[0].EventId); // failed to send
+                    Assert.AreEqual(69, traces[0].EventId); // failed to send
                     Assert.AreEqual("Unknown Exception Message", traces[0].Payload[1]);
                 }
             }
@@ -350,10 +349,10 @@
                     const long AllKeywords = -1;
                     listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.Warning, (EventKeywords)AllKeywords);
 
-                    transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission(), CreateException(statusCode: 408)));
+                    transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission(), null, new HttpWebResponseWrapper(){StatusCode = ResponseStatusCodes.UnknownNetworkError}));
 
-                    EventWrittenEventArgs error = listener.Messages.First(args => args.EventId == 23);
-                    AssertEx.Contains(exception.Message, (string)error.Payload[1], StringComparison.Ordinal);
+                    EventWrittenEventArgs error = listener.Messages.First(args => args.EventId == 45);
+                    AssertEx.Contains(exception.Message, (string)error.Payload[0], StringComparison.Ordinal);
                 }
             }
             

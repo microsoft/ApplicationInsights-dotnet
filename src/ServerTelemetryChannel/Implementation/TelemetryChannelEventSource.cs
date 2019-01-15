@@ -489,7 +489,7 @@
             this.WriteEvent(68, directory, error, this.ApplicationName);
         }
 
-        [Event(69, Message = "TransmissionDataLossWarning. Telemetry items are being lost here due to unknown error. TransmissionId: {0}. Error Message: {1}.", Level = EventLevel.Warning)]
+        [Event(69, Message = "TransmissionDataLossWarning. Telemetry items are being lost here due to unknown error. TransmissionId: {0}. Error Message: {1}.", Level = EventLevel.Error)]
         public void TransmissionDataLossWarning(string transmissionId, string message, string appDomainName = "Incorrect")
         {
             this.WriteEvent(

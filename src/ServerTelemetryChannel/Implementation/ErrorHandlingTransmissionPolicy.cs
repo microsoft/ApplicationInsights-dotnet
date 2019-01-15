@@ -66,6 +66,7 @@
                 AdditionalVerboseTracing(httpWebResponseWrapper.Content);
                 switch (httpWebResponseWrapper.StatusCode)
                 {
+                    //TODO handle 502,503,504
                     case ResponseStatusCodes.RequestTimeout:
                     case ResponseStatusCodes.ServiceUnavailable:
                     case ResponseStatusCodes.InternalServerError:
@@ -101,7 +102,7 @@
                 // We are loosing data here (we did not upload failed transaction back).
                 // We got unknown exception. 
                 if (e.Exception != null)
-                {
+                {                    
                     TelemetryChannelEventSource.Log.TransmissionDataLossWarning(e.Transmission.Id,
                         e.Exception.Message);
                 }

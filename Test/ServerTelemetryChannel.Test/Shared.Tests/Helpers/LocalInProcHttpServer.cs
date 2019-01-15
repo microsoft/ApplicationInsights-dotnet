@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD2_0
+﻿#if NETCOREAPP2_0
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
