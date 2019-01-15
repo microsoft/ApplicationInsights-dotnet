@@ -167,41 +167,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
                 Assert.IsNull(enqueuedTransmission);
                 Assert.AreEqual(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
             }
-
-            [TestMethod]
-            public void CatchesAndLogsSynchronousExceptionsThrownByTransmitterWhenPausingTransmission()
-            {
-                var policy = new ErrorHandlingTransmissionPolicy();
-                var exception = new HttpRequestException("http request error");
-                var transmitter = new StubTransmitter { OnApplyPolicies = () => { throw exception; } };
-                CatchesAndLogsExceptionThrownByTransmitter(policy, transmitter, exception);
-            }
-
-            [TestMethod, Timeout(1000)]
-            public void CatchesAndLogsAsynchronousExceptionsThrownByTransmitterWhenPausingTransmission()
-            {
-                var policy = new ErrorHandlingTransmissionPolicy();
-                var exception = new HttpRequestException("http request error");
-                var transmitter = new StubTransmitter { OnApplyPolicies = () => ThrowAsync(exception) };
-                CatchesAndLogsExceptionThrownByTransmitter(policy, transmitter, exception);
-            }
-
-            [TestMethod, Timeout(1000)]
-            public void CatchesAndLogsSynchronousExceptionsThrownByTransmitterWhenResumingTransmission()
-            {
-                var policy = new ErrorHandlingTransmissionPolicy();
-                var exception = new HttpRequestException("http request error");
-                var transmitter = new StubTransmitter(new TestableBackoffLogicManager(TimeSpan.FromMilliseconds(1)));
-                transmitter.OnApplyPolicies = () =>
-                {
-                    if (policy.MaxSenderCapacity == null)
-                    {
-                        throw exception;
-                    }
-                };
-                CatchesAndLogsExceptionThrownByTransmitter(policy, transmitter, exception);
-            }
-
+            
             [TestMethod]
             public void LogsDataLossEventsWhenExceptionisNotNull()
             {
@@ -288,6 +254,8 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
                     // Act:
                     transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, null, response));
 
+                    Thread.Sleep(1000);
+
                     // Assert:
                     var traces = listener.Messages.Where(item => item.Level == EventLevel.Warning).ToList();
                     Assert.AreEqual(1, traces.Count);
@@ -338,48 +306,6 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
                 Assert.IsTrue(policyApplied.WaitOne(100));
                 Assert.IsTrue(policyApplied.WaitOne(100));
                 Assert.IsNull(policy.MaxSenderCapacity);
-            }
-
-            private static void CatchesAndLogsExceptionThrownByTransmitter(ErrorHandlingTransmissionPolicy policy, StubTransmitter transmitter, Exception exception)
-            {
-                policy.Initialize(transmitter);
-
-                using (var listener = new TestEventListener())
-                {
-                    const long AllKeywords = -1;
-                    listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.Warning, (EventKeywords)AllKeywords);
-
-                    transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission(), null, new HttpWebResponseWrapper(){StatusCode = ResponseStatusCodes.UnknownNetworkError}));
-
-                    EventWrittenEventArgs error = listener.Messages.First(args => args.EventId == 45);
-                    AssertEx.Contains(exception.Message, (string)error.Payload[0], StringComparison.Ordinal);
-                }
-            }
-            
-            private static WebException CreateException(int statusCode)
-            {
-                string content = BackendResponseHelper.CreateBackendResponse(3,1, new [] {"500"});
-                var bytes = Encoding.UTF8.GetBytes(content);
-                var responseStream = new MemoryStream();
-                responseStream.Write(bytes, 0, bytes.Length);
-                responseStream.Seek(0, SeekOrigin.Begin);
-
-#if NETCOREAPP1_1
-                System.Net.Http.HttpResponseMessage responseMessage = new System.Net.Http.HttpResponseMessage((HttpStatusCode)statusCode);
-                responseMessage.Content = new System.Net.Http.StreamContent(responseStream);
-                
-                ConstructorInfo ctor = typeof(HttpWebResponse).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)[0];
-                HttpWebResponse webResponse = (HttpWebResponse)ctor.Invoke(new object[] { responseMessage, null, null });
-
-                return new WebException("Transmitter Error", null, WebExceptionStatus.UnknownError, webResponse);                
-#else
-                var mockWebResponse = new Moq.Mock<HttpWebResponse>();
-                mockWebResponse.Setup(c => c.GetResponseStream()).Returns(responseStream);
-
-                mockWebResponse.SetupGet<HttpStatusCode>((webRes) => webRes.StatusCode).Returns((HttpStatusCode)statusCode);
-
-                return new WebException("Transmitter Error", null, WebExceptionStatus.UnknownError, mockWebResponse.Object);
-#endif        
             }
         }
     }
