@@ -24,7 +24,6 @@
     {
         private const string VersionPrefix = "dotnet:";
         private readonly TelemetryConfiguration configuration;
-        private TelemetryContext context;
         private string sdkVersion;
 
         /// <summary>
@@ -60,9 +59,11 @@
         /// </summary>
         public TelemetryContext Context
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.context, () => new TelemetryContext()); }
-            internal set { this.context = value; }
+            get;
+            internal set;
         }
+
+        = new TelemetryContext();
 
         /// <summary>
         /// Gets or sets the default instrumentation key for all <see cref="ITelemetry"/> objects logged in this <see cref="TelemetryClient"/>.
@@ -451,6 +452,23 @@
         /// <summary>
         /// This method is an internal part of Application Insights infrastructure. Do not call.
         /// </summary>
+        /// <param name="telemetry">Telemetry item to initialize instrumentation key.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void InitializeInstrumentationKey(ITelemetry telemetry)
+        {
+            string instrumentationKey = this.Context.InstrumentationKey;
+
+            if (string.IsNullOrEmpty(instrumentationKey))
+            {
+                instrumentationKey = this.configuration.InstrumentationKey;
+            }
+
+            telemetry.Context.InitializeInstrumentationkey(instrumentationKey);
+        }
+
+        /// <summary>
+        /// This method is an internal part of Application Insights infrastructure. Do not call.
+        /// </summary>
         /// <param name="telemetry">Telemetry item to initialize.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void Initialize(ITelemetry telemetry)
@@ -476,12 +494,15 @@
 
             // Properties set of TelemetryClient's Context are copied over to that of ITelemetry's Context
 #pragma warning disable CS0618 // Type or member is obsolete
-            Utils.CopyDictionary(this.Context.Properties, telemetry.Context.Properties);
-            
+            if (this.Context.PropertiesValue != null)
+            {
+                Utils.CopyDictionary(this.Context.Properties, telemetry.Context.Properties);
+            }
+
 #pragma warning restore CS0618 // Type or member is obsolete
 
             // This check avoids accessing the public accessor GlobalProperties
-            // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
+            // unless needed, to avoid the penalty of ConcurrentDictionary instantiation.
             if (this.Context.GlobalPropertiesValue != null)
             {
                 Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
@@ -512,7 +533,7 @@
             // Currently backend requires SDK version to comply "name: version"
             if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
             {
-                var version = LazyInitializer.EnsureInitialized(ref this.sdkVersion, () => SdkVersionUtils.GetSdkVersion(VersionPrefix));
+                var version = this.sdkVersion ?? (this.sdkVersion = SdkVersionUtils.GetSdkVersion(VersionPrefix));
                 telemetry.Context.Internal.SdkVersion = version;
             }
 
@@ -627,7 +648,7 @@
         /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
         /// with the same metric ID and dimensions for a given aggregation scope, you will receive the same
         /// instance of <c>Metric</c>.</returns>
@@ -655,7 +676,7 @@
         /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
         /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
         /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
@@ -681,7 +702,7 @@
         /// </summary>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
         /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
         /// <returns>A <c>Metric</c> with the specified ID and dimensions. If you call this method several times
@@ -716,7 +737,7 @@
         /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <param name="dimension1Name">The name of the first dimension.</param>
         /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
         /// and aggregation scope, but with a different configuration. When calling this method to get a previously
@@ -744,7 +765,7 @@
         /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <param name="dimension1Name">The name of the first dimension.</param>
         /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
         /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
@@ -772,7 +793,7 @@
         /// </summary>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <param name="dimension1Name">The name of the first dimension.</param>
         /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
         /// Use presets in <see cref="MetricConfigurations.Common"/> or specify your own settings. </param>
@@ -808,7 +829,7 @@
         /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <param name="dimension1Name">The name of the first dimension.</param>
         /// <param name="dimension2Name">The name of the second dimension.</param>
         /// <exception cref="ArgumentException">If you previously created a metric with the same namespace, ID, dimensions
@@ -838,7 +859,7 @@
         /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <param name="dimension1Name">The name of the first dimension.</param>
         /// <param name="dimension2Name">The name of the second dimension.</param>
         /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
@@ -868,7 +889,7 @@
         /// </summary>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <param name="dimension1Name">The name of the first dimension.</param>
         /// <param name="dimension2Name">The name of the second dimension.</param>
         /// <param name="metricConfiguration">Determines how tracked values will be aggregated. <br />
@@ -906,7 +927,7 @@
         /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <param name="dimension1Name">The name of the first dimension.</param>
         /// <param name="dimension2Name">The name of the second dimension.</param>
         /// <param name="dimension3Name">The name of the third dimension.</param>
@@ -938,7 +959,7 @@
         /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <param name="dimension1Name">The name of the first dimension.</param>
         /// <param name="dimension2Name">The name of the second dimension.</param>
         /// <param name="dimension3Name">The name of the third dimension.</param>
@@ -970,7 +991,7 @@
         /// </summary>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <param name="dimension1Name">The name of the first dimension.</param>
         /// <param name="dimension2Name">The name of the second dimension.</param>
         /// <param name="dimension3Name">The name of the third dimension.</param>
@@ -1010,7 +1031,7 @@
         /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <param name="dimension1Name">The name of the first dimension.</param>
         /// <param name="dimension2Name">The name of the second dimension.</param>
         /// <param name="dimension3Name">The name of the third dimension.</param>
@@ -1044,7 +1065,7 @@
         /// across all clients that share the same <c>TelemetryConfiguration</c>.</remarks>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <param name="dimension1Name">The name of the first dimension.</param>
         /// <param name="dimension2Name">The name of the second dimension.</param>
         /// <param name="dimension3Name">The name of the third dimension.</param>
@@ -1078,7 +1099,7 @@
         /// </summary>
         /// <param name="metricId">The ID (name) of the metric.
         ///   (The namespace specified in <see cref="MetricIdentifier.DefaultMetricNamespace"/> will be used.
-        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> paramater instead.)</param>
+        ///   To specify another namespace, user an overload that takes a <c>MetricIdentifier</c> parameter instead.)</param>
         /// <param name="dimension1Name">The name of the first dimension.</param>
         /// <param name="dimension2Name">The name of the second dimension.</param>
         /// <param name="dimension3Name">The name of the third dimension.</param>

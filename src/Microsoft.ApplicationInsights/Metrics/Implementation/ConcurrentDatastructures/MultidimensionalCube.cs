@@ -35,21 +35,21 @@
     /// </p>
     /// <p>
     /// This implementation assumes that creation and storage of TPoint-elements is resource intensive. It creates points lazily, only when requested.
-    /// However, to minimize locking it uses pessimistic and optimistic concurrency mechanisms where possible. Two artefacts occur as a result:
+    /// However, to minimize locking it uses pessimistic and optimistic concurrency mechanisms where possible. Two artifacts occur as a result:
     /// </p>
     /// <list type="bullet">
     ///   <item><description>The specified <c>pointsFactory</c> delegate may be executed more than once for a particular coordinates vector.
     ///     However, once a point for the specified coordinates-vector has been actually returned to the caller, always the same instance of
     ///     that point will be returned by the cube. This behaviour is consistent with the ConcurrentDictionary in the .NET Framework.</description></item>
     ///   <item><description>The <c>TryGetOrCreatePoint(..)</c> may return <c>false</c>, and then return <c>true</c> moments later when called with the
-    ///     same parameters. This is becasue in order to avoid locking the cube pre-books dimension value counts (and total points counts) and later
+    ///     same parameters. This is because in order to avoid locking the cube pre-books dimension value counts (and total points counts) and later
     ///     frees them up if the creation of a new point did not complete.
-    ///     Notably, this artefact does not represent any probems in practice: It occurs only in cuncurrent races when the number of values of a
+    ///     Notably, this artifact does not represent any problems in practice: It occurs only in concurrent races when the number of values of a
     ///     dimension (or the total number of points) is close to the limit, where applications should not rely on a particular outcome of adding a
     ///     point anyway. In common cases one can assume that the result of <c>TryGetOrCreatePoint(..)</c> is, indeed, stable.
     ///     In order to control potential instability use <c>TryGetOrCreatePointAsync(..)</c> overloads.
     ///     Note, however, that those overloads do not guarantee that the result of requesting a new point is completely stable. They merely make it
-    ///     very unlikely for it to change by re-trying the oprtation several times.</description></item>
+    ///     very unlikely for it to change by re-trying the operation several times.</description></item>
     /// </list>
     /// </summary>
     /// <remarks>
@@ -479,7 +479,7 @@
                 return false;
             }
 
-            return Boolean.TrueString.Equals(marker);
+            return bool.TrueString.Equals(marker);
         }
     }
 }

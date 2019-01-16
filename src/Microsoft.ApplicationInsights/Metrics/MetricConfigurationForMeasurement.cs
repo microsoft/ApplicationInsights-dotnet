@@ -27,7 +27,7 @@
         /// <param name="valuesPerDimensionLimits">How many different values each of the dimensions of a metric can
         /// have as a maximum. If this enumeration contains less elements than the number of supported dimensions,
         /// then the last specified element is replicated for subsequent dimensions. If this enumeration contains
-        /// too many elements, superflous elements are ignored.
+        /// too many elements, superfluous elements are ignored.
         /// Once this limit is reached, calls to <c>TrackValue(..)</c>, <c>TryGetDataSeries(..)</c> and similar
         /// that would normally result in new series will return <c>false</c>.</param>
         /// <param name="seriesConfig">The configuration for how each series of this metric should be aggregated.</param>

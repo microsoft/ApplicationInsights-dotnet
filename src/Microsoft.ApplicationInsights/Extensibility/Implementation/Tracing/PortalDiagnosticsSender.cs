@@ -58,7 +58,7 @@
             {
                 if (eventData.MetaData != null && !string.IsNullOrEmpty(eventData.MetaData.MessageFormat))
                 {
-                    // Check if trace message is sended to the portal (somewhere before in the stack)
+                    // Check if trace message is sent to the portal (somewhere before in the stack)
                     // It allows to avoid infinite recursion if sending to the portal traces something.
                     if (!ThreadResourceLock.IsResourceLocked)
                     {
@@ -108,7 +108,8 @@
             }
             else
             {
-                message = AiNonUserActionable + message;
+                string eventSourceName = '[' + eventData.MetaData.EventSourceName + "] ";
+                message = AiNonUserActionable + eventSourceName + message;
             }
 
             traceTelemetry.Message = message;

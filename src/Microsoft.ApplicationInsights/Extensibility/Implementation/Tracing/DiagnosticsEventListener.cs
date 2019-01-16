@@ -25,6 +25,7 @@
 
             var metadata = new EventMetaData
             {                
+                EventSourceName = eventSourceEvent.EventSource?.Name,
                 Keywords = (long)eventSourceEvent.Keywords,
                 MessageFormat = eventSourceEvent.Message,
                 EventId = eventSourceEvent.EventId,
@@ -34,7 +35,7 @@
             var traceEvent = new TraceEvent
             {
                 MetaData = metadata,
-                Payload = eventSourceEvent.Payload != null ? eventSourceEvent.Payload.ToArray() : null
+                Payload = eventSourceEvent.Payload?.ToArray()
             };
 
             this.listener.WriteEvent(traceEvent);

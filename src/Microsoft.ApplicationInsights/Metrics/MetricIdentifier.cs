@@ -59,7 +59,7 @@
             }
             else
             {
-                if (String.IsNullOrWhiteSpace(partValue))
+                if (string.IsNullOrWhiteSpace(partValue))
                 {
                     throw new ArgumentException(Invariant($"{partName} may not be empty or whitespace-only."));
                 }
@@ -558,7 +558,7 @@
             if (dimensionNumber > thisDimensionsCount)
             {
                 throw new ArgumentOutOfRangeException(Invariant($"Cannot access dimension for {nameof(dimensionNumber)}={dimensionNumber}")
-                                                    + Invariant($" becasue this metric only has {thisDimensionsCount} dimensions.")
+                                                    + Invariant($" because this metric only has {thisDimensionsCount} dimensions.")
                                                     + Invariant($" Note that {nameof(dimensionNumber)} is a 1-based index."));
             }
         }

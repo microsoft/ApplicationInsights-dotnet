@@ -13,11 +13,10 @@
     /// Telemetry type used to track custom events.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
     /// </summary>
-    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
+    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
     {
         internal const string TelemetryName = "Event";
 
-        internal readonly string BaseType = typeof(EventData).Name;
         internal readonly EventData Data;
         private readonly TelemetryContext context;
         private IExtension extension;
@@ -50,6 +49,12 @@
             this.samplingPercentage = source.samplingPercentage;
             this.extension = source.extension?.DeepClone();
         }
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.BaseType => nameof(EventData);
 
         /// <summary>
         /// Gets or sets date and time when event was recorded.

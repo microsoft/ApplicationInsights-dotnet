@@ -10,7 +10,7 @@
     /// The class that represents information about performance counters.
     /// </summary>
     [Obsolete("Use MetricTelemetry instead.")]
-    public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties
+    public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties, IAiSerializableTelemetry
     {
         internal readonly MetricTelemetry Data;        
         private string categoryName = string.Empty;
@@ -50,6 +50,12 @@
             this.categoryName = source.categoryName;
             this.counterName = source.counterName;
         }
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.TelemetryName => ((IAiSerializableTelemetry)this.Data).TelemetryName;
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.BaseType => ((IAiSerializableTelemetry)this.Data).BaseType;
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.

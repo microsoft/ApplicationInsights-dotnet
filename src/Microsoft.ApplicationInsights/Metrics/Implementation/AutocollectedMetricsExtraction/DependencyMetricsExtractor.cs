@@ -109,7 +109,7 @@
         public void InitializeExtractor(TelemetryClient metricTelemetryClient)
         {
             this.metricTelemetryClient = metricTelemetryClient;
-            // Benigh race where we alreadu set the new metricTelemetryClient, but dependencyCallDurationMetric is not yet updated.
+            // Benigh race where we already set the new metricTelemetryClient, but dependencyCallDurationMetric is not yet updated.
             this.ReinitializeMetrics(this.maxDependencyTypesToDiscover);
         }
 
@@ -141,7 +141,7 @@
 
             //// Get dependency call success status:
             bool dependencyFailed = (dependencyCall.Success != null) && (dependencyCall.Success == false);
-            string dependnecySuccessString = dependencyFailed ? Boolean.FalseString : Boolean.TrueString;
+            string dependencySuccessString = dependencyFailed ? bool.FalseString : bool.TrueString;
 
             //// Now we need to determine which data series to use:
             MetricSeries seriesToTrack = null;
@@ -154,7 +154,7 @@
                 dependencyCallMetric.TryGetDataSeries(
                                                     out seriesToTrack,
                                                     MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                                    dependnecySuccessString,
+                                                    dependencySuccessString,
                                                     MetricTerms.Autocollection.DependencyCall.TypeNames.Other);
             }
             else
@@ -172,7 +172,7 @@
                 bool canTrack = dependencyCallMetric.TryGetDataSeries(
                                                     out seriesToTrack,
                                                     MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                                    dependnecySuccessString,
+                                                    dependencySuccessString,
                                                     dependencyType);
 
                 if (false == canTrack)
@@ -182,7 +182,7 @@
                     dependencyCallMetric.TryGetDataSeries(
                                                     out seriesToTrack,
                                                     MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                                    dependnecySuccessString,
+                                                    dependencySuccessString,
                                                     MetricTerms.Autocollection.DependencyCall.TypeNames.Other);
                 }
             }
@@ -207,9 +207,9 @@
 
             lock (this.initializationLock)
             {
-                if (maxDependencyTypesToDiscoverCount > Int32.MaxValue - 3)
+                if (maxDependencyTypesToDiscoverCount > int.MaxValue - 3)
                 {
-                    maxDependencyTypesToDiscoverCount = Int32.MaxValue - 3;
+                    maxDependencyTypesToDiscoverCount = int.MaxValue - 3;
                 }
 
                 int depTypesDimValuesLimit = (maxDependencyTypesToDiscoverCount == 0)

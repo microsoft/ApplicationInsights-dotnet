@@ -194,7 +194,7 @@
             }
 
             if (this.rawObjectsTemp.TryGetValue(key, out rawObject))
-            {                
+            {
                 return true;
             }
             else
@@ -243,22 +243,37 @@
 
         internal void ClearTempRawObjects()
         {
-          this.rawObjectsTemp.Clear();
+            this.rawObjectsTemp.Clear();
         }
 
         internal TelemetryContext DeepClone(IDictionary<string, string> properties)
         {
-            Debug.Assert(properties != null, "properties parameter should not be null");
-            var other = new TelemetryContext(properties);
+            var newTelemetryContext = new TelemetryContext(properties);
             // This check avoids accessing the public accessor GlobalProperties
             // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
             if (this.GlobalPropertiesValue != null)
             {
-                Utils.CopyDictionary(this.GlobalProperties, other.GlobalProperties);
+                Utils.CopyDictionary(this.GlobalProperties, newTelemetryContext.GlobalProperties);
             }
 
-            other.InstrumentationKey = this.InstrumentationKey;
-            return other;
+            if (this.PropertiesValue != null)
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                Utils.CopyDictionary(this.Properties, newTelemetryContext.Properties);
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
+
+            newTelemetryContext.Initialize(this, this.instrumentationKey);
+
+            // RawObject collection is not cloned by design, they share the same collection.
+            newTelemetryContext.rawObjectsTemp = this.rawObjectsTemp;
+            newTelemetryContext.rawObjectsPerm = this.rawObjectsPerm;
+            return newTelemetryContext;
+        }
+
+        internal TelemetryContext DeepClone()
+        {
+            return this.DeepClone(null);
         }
 
         /// <summary>
@@ -268,7 +283,7 @@
         /// </summary>
         internal void Initialize(TelemetryContext source, string instrumentationKey)
         {
-            Property.Initialize(ref this.instrumentationKey, instrumentationKey);
+            this.InitializeInstrumentationkey(instrumentationKey);
 
             this.Flags |= source.Flags;
 
@@ -280,6 +295,14 @@
             source.operation?.CopyTo(this.Operation);
             source.location?.CopyTo(this.Location);
             source.Internal.CopyTo(this.Internal);
+        }
+
+        /// <summary>
+        /// Initialize this instance's instrumentation key.
+        /// </summary>
+        internal void InitializeInstrumentationkey(string instrumentationKey)
+        {
+            Property.Initialize(ref this.instrumentationKey, instrumentationKey);
         }
     }
 }

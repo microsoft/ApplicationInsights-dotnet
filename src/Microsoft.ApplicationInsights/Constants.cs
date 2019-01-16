@@ -10,6 +10,8 @@
 
         internal const string DevModeTelemetryNamePrefix = "Microsoft.ApplicationInsights.Dev.";
 
+        internal const string EventNameForUnknownTelemetry = "ConvertedTelemetry";
+
         internal const int MaxExceptionCountToSave = 10;
     }
 }

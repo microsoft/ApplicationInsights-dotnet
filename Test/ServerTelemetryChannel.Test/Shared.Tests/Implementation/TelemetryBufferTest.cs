@@ -12,8 +12,6 @@
     using ITelemetry = Microsoft.ApplicationInsights.Channel.ITelemetry;
     using Channel.Helpers;
 
-    using TaskEx = System.Threading.Tasks.Task;
-
     public class TelemetryBufferTest
     {
         [TestClass]
@@ -198,7 +196,7 @@
                 Task anotherThread;
                 lock (buffer)
                 {
-                    anotherThread = TaskEx.Run(() => buffer.Process(new StubTelemetry()));
+                    anotherThread = Task.Run(() => buffer.Process(new StubTelemetry()));
                     Assert.IsFalse(anotherThread.Wait(10));
                 }
 
@@ -328,7 +326,7 @@
                 Task anotherThread;
                 lock (telemetryBuffer)
                 {
-                    anotherThread = TaskEx.Run(() => telemetryBuffer.FlushAsync());
+                    anotherThread = Task.Run(() => telemetryBuffer.FlushAsync());
                     Assert.IsFalse(anotherThread.Wait(10));
                 }
 
