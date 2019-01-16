@@ -1,4 +1,4 @@
-﻿#if !NETCOREAPP1_1 && !NET45
+﻿#if NETCOREAPP2_0
 namespace Microsoft.ApplicationInsights.WindowsServer.Channel
 {    
     using System.Collections.Generic;
@@ -25,6 +25,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
         private const string Localurl = "http://localhost:6090";
         private const string LocalurlNotRunning = "http://localhost:6091";
         private const long AllKeywords = -1;
+        private const int SleepInMilliseconds = 10000;
 
         [TestMethod]
         public void ChannelSendsTransmission()
@@ -32,7 +33,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
             using (var localServer = new LocalInProcHttpServer(Localurl))
             {
                 IList<ITelemetry> telemetryItems = new List<ITelemetry>();
-                var telemetry = new EventTelemetry("test event name");
+                var telemetry = new EventTelemetry("test event name");    
                 telemetry.Context.InstrumentationKey = "dummy";
                 telemetryItems.Add((telemetry));
                 var serializedExpected = JsonSerializer.Serialize(telemetryItems);
@@ -94,11 +95,11 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);
-                    Thread.Sleep(5000);
+                    Thread.Sleep(SleepInMilliseconds);
 
                     // VERIFY
                     // We validate by checking SDK traces.
-                    var allTraces = listener.Messages.ToList();
+                    var allTraces = listener.Messages.ToList();    
                     // Event 22 is logged upon successful transmission.
                     var traces = allTraces.Where(item => item.EventId == 22).ToList();
                     Assert.AreEqual(1, traces.Count);                    
@@ -138,7 +139,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(SleepInMilliseconds);
 
                     // VERIFY
                     // We validate by checking SDK traces
@@ -185,7 +186,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     var telemetry = new EventTelemetry("test event name");
                     telemetry.Context.InstrumentationKey = "dummy";
                     channel.Send(telemetry);
-                    Thread.Sleep(5000);
+                    Thread.Sleep(SleepInMilliseconds);
 
                     // Assert:
                     var allTraces = listener.Messages.ToList();
@@ -236,7 +237,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                         var telemetry = new EventTelemetry("test event name");
                         telemetry.Context.InstrumentationKey = "dummy";
                         channel.Send(telemetry);
-                        Thread.Sleep(5000);
+                        Thread.Sleep(SleepInMilliseconds);
                     }
 
                     // Assert:

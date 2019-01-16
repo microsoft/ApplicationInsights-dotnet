@@ -1,4 +1,4 @@
-﻿#if !NETCOREAPP1_1 && !NET45
+﻿#if NETCOREAPP2_0
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -17,9 +17,10 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers
 
         public RequestDelegate ServerLogic;
 
-        public LocalInProcHttpServer(string url)
+        public LocalInProcHttpServer(string url, RequestDelegate serverLogic = null)
         {
             this.cts = new CancellationTokenSource();
+            this.ServerLogic = serverLogic;
             this.host = new WebHostBuilder()
                 .UseKestrel()
                 .UseUrls(url)

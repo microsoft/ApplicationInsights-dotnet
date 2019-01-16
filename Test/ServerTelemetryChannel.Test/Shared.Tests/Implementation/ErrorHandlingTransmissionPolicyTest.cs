@@ -137,8 +137,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
                 };
 
                 var policy = new ErrorHandlingTransmissionPolicy();
-                policy.Initialize(transmitter);
-
+                policy.Initialize(transmitter);                
                 var failedTransmission = new StubTransmission();
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, new Exception("Error"), new HttpWebResponseWrapper() { StatusCode = ResponseStatusCodes.InternalServerError }));
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, new Exception("Error"), new HttpWebResponseWrapper() { StatusCode = ResponseStatusCodes.InternalServerError }));
