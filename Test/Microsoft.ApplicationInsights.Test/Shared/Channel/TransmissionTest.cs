@@ -250,28 +250,132 @@
                 }
             }
 
-            [TestMethod]
-            [Ignore("https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1049")]
+            [TestMethod]            
             public async Task SendAsyncHandlesTimeout()
             {
+                int clientTimeoutInMillisecs = 1;
+
+                //ARRANGE
                 var handler = new HandlerForFakeHttpClient
                 {
                     InnerHandler = new HttpClientHandler(),
                     OnSendAsync = async (req, cancellationToken) =>
                     {
+                        await Task.Delay(clientTimeoutInMillisecs + 10); // this ensures client timeout is hit.
                         return await Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient())
+                {                    
+                    // Instantiate Transmission with the mock HttpClient and Timeout to be just 1 msec to force Timeout.
+                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, 
+                        string.Empty, TimeSpan.FromMilliseconds(clientTimeoutInMillisecs));
+
+                    // ACT
+                    HttpWebResponseWrapper result = await transmission.SendAsync();
+                    
+                    // VALIDATE
+                    Assert.IsNotNull(result);
+                    Assert.AreEqual((int) HttpStatusCode.RequestTimeout, result.StatusCode);
+                    Assert.IsNull(result.Content, "Content is not to be read except in partial response (206) status.");
+                }
+            }
+
+            [TestMethod]
+            public async Task SendAsyncPropogatesHttpRequestException()
+            {
+                //ARRANGE
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        throw new HttpRequestException();
                     }
                 };
 
                 using (var fakeHttpClient = new HttpClient())
                 {
                     // Instantiate Transmission with the mock HttpClient and Timeout to be just 1 msec to force Timeout.
-                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, 
-                        string.Empty, TimeSpan.FromMilliseconds(1));
+                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty,
+                        string.Empty);
+
+                    // ACT & VALIDATE
+                    await AssertEx.ThrowsAsync<HttpRequestException>(() => transmission.SendAsync());
+                }
+            }
+
+            [TestMethod]
+            public async Task SendAsyncReturnsCorrectHttpResponseWrapperWhenNoExceptionOccurs()
+            {
+                // HttpClient.SendAsync throws HttpRequestException only on the following scenarios:
+                // "The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout."
+                // For every other case, a response is returned, and we expect Transmission.SendAsync to properly return HttpWebResponseWrapper.                
+
+                // ARRANGE
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        HttpResponseMessage response = new HttpResponseMessage();
+                        response.StatusCode = HttpStatusCode.ServiceUnavailable;
+                        return Task.FromResult<HttpResponseMessage>(response);
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient(handler))
+                {
+                    // Instantiate Transmission with the mock HttpClient
+                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
 
                     // ACT
                     HttpWebResponseWrapper result = await transmission.SendAsync();
+
+                    // VALIDATE
+                    Assert.IsNotNull(result);
+                    Assert.AreEqual(503, result.StatusCode);
+                    Assert.IsNull(result.Content, "Content is not to be read except in partial response (206) status.");
                 }
+                  
+            }
+
+            [TestMethod]
+            public async Task SendAsyncReturnsCorrectHttpResponseWrapperWithRetryHeaderWhenNoExceptionOccur()
+            {
+                // HttpClient.SendAsync throws HttpRequestException only on the following scenarios:
+                // "The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout."
+                // For every other case, a response is returned, and we expect Transmission.SendAsync to properly return HttpWebResponseWrapper.                
+
+                // ARRANGE
+                var handler = new HandlerForFakeHttpClient
+                {
+                    InnerHandler = new HttpClientHandler(),
+                    OnSendAsync = (req, cancellationToken) =>
+                    {
+                        HttpResponseMessage response = new HttpResponseMessage();
+                        response.StatusCode = HttpStatusCode.ServiceUnavailable;
+                        response.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(5));
+                        return Task.FromResult<HttpResponseMessage>(response);
+                    }
+                };
+
+                using (var fakeHttpClient = new HttpClient(handler))
+                {
+                    // Instantiate Transmission with the mock HttpClient
+                    Transmission transmission = new Transmission(new Uri("http://uri"), new byte[] { 1, 2, 3, 4, 5 }, fakeHttpClient, string.Empty, string.Empty);
+
+                    // ACT
+                    HttpWebResponseWrapper result = await transmission.SendAsync();
+
+                    // VALIDATE
+                    Assert.IsNotNull(result);
+                    Assert.AreEqual(503, result.StatusCode);
+                    Assert.AreEqual("5", result.RetryAfterHeader);
+                    Assert.IsNull(result.Content, "Content is not to be read except in partial response (206) status.");
+                }
+
             }
         }
     }

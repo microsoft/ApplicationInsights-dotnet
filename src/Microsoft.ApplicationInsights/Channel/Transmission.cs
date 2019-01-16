@@ -16,7 +16,6 @@
     /// </summary>
     public class Transmission
     {
-        internal const string ContentTypeHeader = "Content-Type";
         internal const string ContentEncodingHeader = "Content-Encoding";
 
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
@@ -29,24 +28,9 @@
         /// </summary>
         public Transmission(Uri address, byte[] content, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan))
         {
-            if (address == null)
-            {
-                throw new ArgumentNullException(nameof(address));
-            }
-
-            if (content == null)
-            {
-                throw new ArgumentNullException(nameof(content));
-            }
-
-            if (contentType == null)
-            {
-                throw new ArgumentNullException(nameof(contentType));
-            }
-
-            this.EndpointAddress = address;
-            this.Content = content;
-            this.ContentType = contentType;
+            this.EndpointAddress = address ?? throw new ArgumentNullException(nameof(address));
+            this.Content = content ?? throw new ArgumentNullException(nameof(content));
+            this.ContentType = contentType ?? throw new ArgumentNullException(nameof(contentType));
             this.ContentEncoding = contentEncoding;
             this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
             this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
@@ -167,26 +151,63 @@
                     HttpRequestMessage request = this.CreateRequestMessage(this.EndpointAddress, contentStream);
                     HttpWebResponseWrapper wrapper = null;
 
-                    using (var ct = new CancellationTokenSource(this.Timeout))
+                    try
                     {
-                        using (var response = await client.SendAsync(request, ct.Token).ConfigureAwait(false))
+                        using (var ct = new CancellationTokenSource(this.Timeout))
                         {
-                            if (response != null && response.StatusCode == HttpStatusCode.PartialContent)
+                            // HttpClient.SendAsync throws HttpRequestException only on the following scenarios:
+                            // "The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout."
+                            // i.e for Server errors (500 status code), no exception is thrown. Hence this method should read the response and status code,
+                            // and return correct HttpWebResponseWrapper to give any Retry policies a chance to retry as needed.
+
+                            using (var response = await client.SendAsync(request, ct.Token).ConfigureAwait(false))
                             {
-                                wrapper = new HttpWebResponseWrapper
+                                if (response != null)
                                 {
-                                    StatusCode = (int)response.StatusCode,
-                                    StatusDescription = response.ReasonPhrase
-                                };
-                                wrapper.RetryAfterHeader = response.Headers?.RetryAfter?.ToString();
-                                if (response.Content != null)
-                                {
-                                    wrapper.Content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                    wrapper = new HttpWebResponseWrapper
+                                    {
+                                        StatusCode = (int)response.StatusCode,
+                                        StatusDescription = response.ReasonPhrase // maybe not required?
+                                    };
+                                    wrapper.RetryAfterHeader = response.Headers?.RetryAfter?.ToString();
+
+                                    if (response.StatusCode == HttpStatusCode.PartialContent)
+                                    {
+                                        if (response.Content != null)
+                                        {
+                                            // Read the entire response body only on PartialContent for perf reasons.
+                                            // This cannot be avoided as response tells which items are to be resubmitted.
+                                            wrapper.Content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                        }
+                                    }
+
+                                    if (CoreEventSource.IsVerboseEnabled && response.StatusCode != HttpStatusCode.PartialContent)
+                                    {
+                                        // Read the entire response body only on VerboseTracing for perf reasons.
+                                        try
+                                        {
+                                            if (response.Content != null)
+                                            {
+                                                wrapper.Content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                            }
+                                        }
+                                        catch (Exception)
+                                        {
+                                            // Swallow any exception here as this code is for tracing purposes only and should never throw.
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                    
+                    catch (TaskCanceledException)
+                    {                        
+                        wrapper = new HttpWebResponseWrapper
+                        {
+                            StatusCode = (int)HttpStatusCode.RequestTimeout
+                        };
+                    }
+
                     return wrapper;
                 }
             }
