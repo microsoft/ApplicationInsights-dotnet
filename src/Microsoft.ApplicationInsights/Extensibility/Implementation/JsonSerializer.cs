@@ -65,6 +65,27 @@
         }
 
         /// <summary>
+        /// Serializes and compress the telemetry items into a JSON string. Each JSON object is separated by a new line. 
+        /// </summary>
+        /// <param name="telemetryItems">The list of telemetry items to serialize.</param>
+        /// <param name="compress">Should serialization also perform compression.</param>
+        /// <returns>The compressed and serialized stream of telemetry items.</returns>
+        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "Disposing a MemoryStream multiple times is harmless.")]
+        public static MemoryStream SerializeToStream(IEnumerable<ITelemetry> telemetryItems, bool compress = true)
+        {
+            var memoryStream = new MemoryStream();
+            Stream compressedStream = compress ? CreateCompressedStream(memoryStream) : memoryStream;
+            var streamWriter = new StreamWriter(compressedStream, TransmissionEncoding);
+            SerializeToStream(telemetryItems, streamWriter);
+
+            streamWriter.Flush();
+            compressedStream.Flush();
+            memoryStream.Flush();
+
+            return memoryStream;
+        }
+
+        /// <summary>
         /// Converts serialized telemetry items to a byte array.
         /// </summary>
         /// <param name="telemetryItems">Serialized telemetry items.</param>

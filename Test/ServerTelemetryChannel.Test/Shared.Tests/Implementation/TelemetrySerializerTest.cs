@@ -107,7 +107,7 @@
                         "\"baseData\":{\"ver\":2," +
                             "\"name\":\"ConvertedTelemetry\"}" +
                         "}" +
-                    "}", Unzip(transmission.Content));
+                    "}", Unzip(transmission.ContentStream));
             }
 
             [TestMethod]
@@ -134,7 +134,7 @@
                         "\"baseData\":{}" +
                         "}" +
                     "}";
-                Assert.AreEqual(expectedContent, Unzip(transmission.Content));
+                Assert.AreEqual(expectedContent, Unzip(transmission.ContentStream));
             }
 
             [TestMethod]
@@ -158,9 +158,9 @@
                 Assert.IsFalse(postedBack);
             }
 
-            private static string Unzip(byte[] content)
+            private static string Unzip(MemoryStream memoryStream)
             {
-                var memoryStream = new MemoryStream(content);
+                memoryStream.Position = 0;
                 var gzipStream = new GZipStream(memoryStream, CompressionMode.Decompress);
                 using (var streamReader = new StreamReader(gzipStream))
                 {

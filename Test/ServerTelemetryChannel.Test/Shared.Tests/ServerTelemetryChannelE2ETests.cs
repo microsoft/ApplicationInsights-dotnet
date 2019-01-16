@@ -28,7 +28,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
         private const int SleepInMilliseconds = 10000;
 
         [TestMethod]
-        [Ignore("Ignored as unstable in Test/Build machines. Run locally when making changes to ServerChannel")]
+        
         public void ChannelSendsTransmission()
         {
             using (var localServer = new LocalInProcHttpServer(Localurl))
@@ -44,7 +44,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.Channel
                     byte[] buffer = new byte[2000];
                     await ctx.Request.Body.ReadAsync(buffer, 0, 2000);     
                     Assert.AreEqual(serializedExpected, buffer);
-                    await ctx.Response.WriteAsync("Ok");
+                    await ctx.Response.WriteAsync("Ok"); 
                 };
 
                 var channel = new ServerTelemetryChannel

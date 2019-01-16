@@ -26,6 +26,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class.
         /// </summary>
+        [Obsolete("Use the overload accepting MemoryStream instead of byte array for content.")]
         public Transmission(Uri address, byte[] content, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan))
         {
             this.EndpointAddress = address ?? throw new ArgumentNullException(nameof(address));
@@ -40,8 +41,22 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class.
         /// </summary>
+        public Transmission(Uri address, MemoryStream content, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan))
+        {
+            this.EndpointAddress = address ?? throw new ArgumentNullException(nameof(address));
+            this.ContentStream = content ?? throw new ArgumentNullException(nameof(content));
+            this.ContentType = contentType ?? throw new ArgumentNullException(nameof(contentType));
+            this.ContentEncoding = contentEncoding;
+            this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
+            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+            this.TelemetryItems = null;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Transmission"/> class.
+        /// </summary>
         public Transmission(Uri address, ICollection<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan))
-            : this(address, JsonSerializer.Serialize(telemetryItems, true), JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout)
+            : this(address, JsonSerializer.SerializeToStream(telemetryItems, true), JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout)
         {
             this.TelemetryItems = telemetryItems;
         }
@@ -50,7 +65,7 @@
         /// Initializes a new instance of the <see cref="Transmission"/> class. This overload is for Test purposes. 
         /// </summary>
         internal Transmission(Uri address, IEnumerable<ITelemetry> telemetryItems, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan))
-            : this(address, JsonSerializer.Serialize(telemetryItems), contentType, contentEncoding, timeout)
+            : this(address, JsonSerializer.SerializeToStream(telemetryItems), contentType, contentEncoding, timeout)
         {
         }
 
@@ -58,7 +73,7 @@
         /// Initializes a new instance of the <see cref="Transmission"/> class. This overload is for Test purposes. 
         /// </summary>
         internal Transmission(Uri address, byte[] content, HttpClient passedClient, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan))
-            : this(address, content, contentType, contentEncoding, timeout)
+            : this(address, new MemoryStream(content), contentType, contentEncoding, timeout)
         {
             client = passedClient;
         }
@@ -84,6 +99,15 @@
         /// Gets the content of the transmission.
         /// </summary>
         public byte[] Content
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the content of the transmission.
+        /// </summary>
+        public MemoryStream ContentStream
         {
             get;
             private set;
@@ -146,70 +170,73 @@
 
             try
             {
-                using (MemoryStream contentStream = new MemoryStream(this.Content))
+                // Either ContentStream or Content should be non-null as they both have
+                // only private setter, and constructor enforces non-null.
+                var stream = this.ContentStream ?? new MemoryStream(this.Content);
+                HttpRequestMessage request = this.CreateRequestMessage(this.EndpointAddress, stream);
+                HttpWebResponseWrapper wrapper = null;
+
+                try
                 {
-                    HttpRequestMessage request = this.CreateRequestMessage(this.EndpointAddress, contentStream);
-                    HttpWebResponseWrapper wrapper = null;
-
-                    try
+                    using (var ct = new CancellationTokenSource(this.Timeout))
                     {
-                        using (var ct = new CancellationTokenSource(this.Timeout))
+                        // HttpClient.SendAsync throws HttpRequestException only on the following scenarios:
+                        // "The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout."
+                        // i.e for Server errors (500 status code), no exception is thrown. Hence this method should read the response and status code,
+                        // and return correct HttpWebResponseWrapper to give any Retry policies a chance to retry as needed.
+
+                        using (var response = await client.SendAsync(request, ct.Token).ConfigureAwait(false))
                         {
-                            // HttpClient.SendAsync throws HttpRequestException only on the following scenarios:
-                            // "The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout."
-                            // i.e for Server errors (500 status code), no exception is thrown. Hence this method should read the response and status code,
-                            // and return correct HttpWebResponseWrapper to give any Retry policies a chance to retry as needed.
-
-                            using (var response = await client.SendAsync(request, ct.Token).ConfigureAwait(false))
+                            if (response != null)
                             {
-                                if (response != null)
+                                wrapper = new HttpWebResponseWrapper
                                 {
-                                    wrapper = new HttpWebResponseWrapper
-                                    {
-                                        StatusCode = (int)response.StatusCode,
-                                        StatusDescription = response.ReasonPhrase // maybe not required?
-                                    };
-                                    wrapper.RetryAfterHeader = response.Headers?.RetryAfter?.ToString();
+                                    StatusCode = (int)response.StatusCode,
+                                    StatusDescription = response.ReasonPhrase // maybe not required?
+                                };
+                                wrapper.RetryAfterHeader = response.Headers?.RetryAfter?.ToString();
 
-                                    if (response.StatusCode == HttpStatusCode.PartialContent)
+                                if (response.StatusCode == HttpStatusCode.PartialContent)
+                                {
+                                    if (response.Content != null)
+                                    {
+                                        // Read the entire response body only on PartialContent for perf reasons.
+                                        // This cannot be avoided as response tells which items are to be resubmitted.
+                                        wrapper.Content = await response.Content.ReadAsStringAsync()
+                                            .ConfigureAwait(false);
+                                    }
+                                }
+
+                                if (CoreEventSource.IsVerboseEnabled &&
+                                    response.StatusCode != HttpStatusCode.PartialContent)
+                                {
+                                    // Read the entire response body only on VerboseTracing for perf reasons.
+                                    try
                                     {
                                         if (response.Content != null)
                                         {
-                                            // Read the entire response body only on PartialContent for perf reasons.
-                                            // This cannot be avoided as response tells which items are to be resubmitted.
-                                            wrapper.Content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                            wrapper.Content = await response.Content.ReadAsStringAsync()
+                                                .ConfigureAwait(false);
                                         }
                                     }
-
-                                    if (CoreEventSource.IsVerboseEnabled && response.StatusCode != HttpStatusCode.PartialContent)
+                                    catch (Exception)
                                     {
-                                        // Read the entire response body only on VerboseTracing for perf reasons.
-                                        try
-                                        {
-                                            if (response.Content != null)
-                                            {
-                                                wrapper.Content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                                            }
-                                        }
-                                        catch (Exception)
-                                        {
-                                            // Swallow any exception here as this code is for tracing purposes only and should never throw.
-                                        }
+                                        // Swallow any exception here as this code is for tracing purposes only and should never throw.
                                     }
                                 }
                             }
                         }
                     }
-                    catch (TaskCanceledException)
-                    {                        
-                        wrapper = new HttpWebResponseWrapper
-                        {
-                            StatusCode = (int)HttpStatusCode.RequestTimeout
-                        };
-                    }
-
-                    return wrapper;
                 }
+                catch (TaskCanceledException)
+                {
+                    wrapper = new HttpWebResponseWrapper
+                    {
+                        StatusCode = (int)HttpStatusCode.RequestTimeout
+                    };
+                }
+
+                return wrapper;
             }
             finally
             {
