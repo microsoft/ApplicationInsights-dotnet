@@ -1,12 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-    using System.Collections.Generic;
-    using System.IO;
+    using System.Globalization;
     using System.Net;
-    using System.Runtime.Serialization;
+    using System.Net.Http;
     using System.Threading;
-    using System.Threading.Tasks;
+    using System.Threading.Tasks;    
     using Extensibility;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -135,11 +134,7 @@
 
         protected void OnTransmissionSent(TransmissionProcessedEventArgs args)
         {
-            EventHandler<TransmissionProcessedEventArgs> handler = this.TransmissionSent;
-            if (handler != null)
-            {
-                handler(this, args);
-            }
+            this.TransmissionSent?.Invoke(this, args);
         }
 
         private async Task StartSending(Transmission transmission)
@@ -167,37 +162,44 @@
                 finally
                 {
                     int currentCapacity = Interlocked.Decrement(ref this.transmissionCount);
-                    if (exception == null)
-                    {
-                        TelemetryChannelEventSource.Log.TransmissionSentSuccessfully(acceptedTransmission.Id, currentCapacity);
-                    }
-                    else
+                    if (exception != null)
                     {
                         TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(acceptedTransmission.Id, exception.ToString());
                     }
-
-                    if (responseContent == null && exception is WebException)
+                    else
                     {
-                        HttpWebResponse response = (HttpWebResponse)((WebException)exception).Response;
+                        if (responseContent != null)
+                        {
+                            if (responseContent.StatusCode < 400)
+                            {
+                                TelemetryChannelEventSource.Log.TransmissionSentSuccessfully(acceptedTransmission.Id,
+                                    currentCapacity);
+                            }
+                            else
+                            {
+                                TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(
+                                    acceptedTransmission.Id,
+                                    responseContent.StatusCode.ToString(CultureInfo.InvariantCulture));
+                            }
 
-                        if (response != null)
-                        {
-                            responseContent = new HttpWebResponseWrapper()
+                            if (TelemetryChannelEventSource.IsVerboseEnabled)
                             {
-                                StatusCode = (int)response.StatusCode,
-                                StatusDescription = response.StatusDescription,
-                                RetryAfterHeader = response.Headers?["Retry-After"]
-                            };
+                                TelemetryChannelEventSource.Log.RawResponseFromAIBackend(acceptedTransmission.Id,
+                                    responseContent.Content);
+                            }
                         }
-                        else
+                    }
+
+                    if (responseContent == null && exception is HttpRequestException)
+                    {
+                        // HttpClient.SendAsync throws HttpRequestException on the following scenarios:
+                        // "The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout."
+                        // https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient.sendasync?view=netstandard-1.6
+                        responseContent = new HttpWebResponseWrapper()
                         {
-                            responseContent = new HttpWebResponseWrapper()
-                            {
-                                StatusCode = 0,
-                                StatusDescription = null,
-                                RetryAfterHeader = null
-                            };
-                        }
+                            // Expectation is that RetryPolicy will attempt retry for this status.
+                            StatusCode = ResponseStatusCodes.UnknownNetworkError
+                        };
                     }
 
                     this.OnTransmissionSent(new TransmissionProcessedEventArgs(acceptedTransmission, exception, responseContent));
