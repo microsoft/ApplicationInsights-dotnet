@@ -61,7 +61,7 @@
                 {
                     lock (this.transmissions)
                     {
-                        this.size += transmission.Content.Length;
+                        this.size += (transmission.ContentStream != null)? transmission.ContentStream.Length : transmission.Content.Length;
                         this.transmissions.Enqueue(transmission);
                         enqueueSucceded = true;
                         TelemetryChannelEventSource.Log.BufferEnqueued(transmission.Id, this.transmissions.Count);

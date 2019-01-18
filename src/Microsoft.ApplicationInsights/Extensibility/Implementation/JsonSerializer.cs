@@ -11,6 +11,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Serializes and compress the telemetry items into a JSON string. Compression will be done using GZIP, for Windows Phone 8 compression will be disabled because there
@@ -73,15 +74,18 @@
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "Disposing a MemoryStream multiple times is harmless.")]
         public static MemoryStream SerializeToStream(IEnumerable<ITelemetry> telemetryItems, bool compress = true)
         {
-            var memoryStream = new MemoryStream();
-            Stream compressedStream = compress ? CreateCompressedStream(memoryStream) : memoryStream;
+            var memoryStream = new MemoryStream(1710);
+            Stream compressedStream = new GZipStream(memoryStream, CompressionMode.Compress,true);
+            //Stream compressedStream = new GZipStream(memoryStream, CompressionMode.Compress);
             var streamWriter = new StreamWriter(compressedStream, TransmissionEncoding);
             SerializeToStream(telemetryItems, streamWriter);
-
             streamWriter.Flush();
-            compressedStream.Flush();
-            memoryStream.Flush();
-
+            compressedStream.Dispose();
+            memoryStream.Position = 0;
+            var buffLength = memoryStream.Length;
+            var buffCapacity = memoryStream.Capacity;
+            var wastage = buffCapacity - buffLength;
+            CoreEventSource.Log.WastedInsideStream(wastage);
             return memoryStream;
         }
 

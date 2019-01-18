@@ -32,7 +32,7 @@
         /// </summary>
         public void Process(ITelemetry item)
         {
-            TelemetryDebugWriter.WriteTelemetry(item);
+            // TelemetryDebugWriter.WriteTelemetry(item);
 
             this.sink.TelemetryChannel.Send(item);
         }

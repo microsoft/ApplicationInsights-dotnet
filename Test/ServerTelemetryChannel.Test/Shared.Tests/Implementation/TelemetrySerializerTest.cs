@@ -160,7 +160,7 @@
 
             private static string Unzip(MemoryStream memoryStream)
             {
-                memoryStream.Position = 0;
+                // memoryStream.Position = 0;
                 var gzipStream = new GZipStream(memoryStream, CompressionMode.Decompress);
                 using (var streamReader = new StreamReader(gzipStream))
                 {

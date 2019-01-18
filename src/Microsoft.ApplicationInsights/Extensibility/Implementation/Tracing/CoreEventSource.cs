@@ -534,6 +534,15 @@
         }
 
         /// <summary>
+        /// Logs the diff.
+        /// </summary>
+        [Event(45, Message = "Diff: {0}.", Level = EventLevel.Warning)]
+        public void WastedInsideStream(long details, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(45, details, this.nameProvider.Name);
+        }
+
+        /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
         public sealed class Keywords

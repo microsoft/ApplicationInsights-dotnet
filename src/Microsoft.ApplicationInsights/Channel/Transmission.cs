@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.Channel
+﻿using System.IO.Compression;
+
+namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
     using System.Collections.Generic;
@@ -173,6 +175,7 @@
                 // Either ContentStream or Content should be non-null as they both have
                 // only private setter, and constructor enforces non-null.
                 var stream = this.ContentStream ?? new MemoryStream(this.Content);
+
                 HttpRequestMessage request = this.CreateRequestMessage(this.EndpointAddress, stream);
                 HttpWebResponseWrapper wrapper = null;
 

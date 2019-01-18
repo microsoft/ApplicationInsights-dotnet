@@ -84,25 +84,12 @@
         {
             get
             {
-                return this.developerMode;
+                return false;
             }
 
             set
             {
-                if (value != this.developerMode)
-                {
-                    if (value.HasValue && value.Value)
-                    {
-                        this.telemetryBufferCapacity = this.TelemetryBuffer.Capacity;
-                        this.TelemetryBuffer.Capacity = 1;
-                    }
-                    else
-                    {
-                        this.TelemetryBuffer.Capacity = this.telemetryBufferCapacity;
-                    }
-
-                    this.developerMode = value;
-                }
+                
             }
         }
 
