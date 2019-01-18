@@ -120,6 +120,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\StubApplicationInsightsTelemetryChannel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\TestCategoryNames.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\TestUtil.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)W3C\W3CActivityExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)W3C\W3COperationCorrelationTelemetryInitializerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)W3C\W3CUtilitiesTests.cs" />
     <None Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\Materials\StdDev Test Tool.xlsx" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
   </ItemGroup>
