@@ -15,7 +15,7 @@ Param(
 
 $requiredCopyright = "$([char]0x00A9) Microsoft Corporation. All rights reserved.";#"© Microsoft Corporation. All rights reserved.";
 $expectedProjectUrl = "https://go.microsoft.com/fwlink/?LinkId=392727"; # Application Insights Project Url
-$expectedLicenseUrl = "https://go.microsoft.com/fwlink/?LinkID=510709"; # Application Insights license Url
+$expectedLicenseUrl = "https://licenses.nuget.org/MIT"; # MIT license Url
 $expectedOwner = "AppInsightsSdk"; # Application Insights Nuget Account
 $expectedTags = @("Azure","Monitoring");
 
@@ -180,9 +180,8 @@ function Get-IsValidLicenseUrl([xml]$nuspecXml) {
 
     $message = "License Url: $licenseUrl";
     $requirement = "Must match expected."
-    $recommendation = "Should not use FWLINK."
 
-    Test-MultiCondition ($licenseUrl -eq $expectedLicenseUrl) ($licenseUrl -notlike "*fwlink*") $message $requirement $recommendation;
+    Test-Condition ($licenseUrl -eq $expectedLicenseUrl) $message $requirement;
 }
 
 function Get-IsValidLicenseAcceptance([xml]$nuspecXml) {
