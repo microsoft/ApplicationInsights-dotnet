@@ -180,9 +180,8 @@ function Get-IsValidLicenseUrl([xml]$nuspecXml) {
 
     $message = "License Url: $licenseUrl";
     $requirement = "Must match expected."
-    $recommendation = "Should not use FWLINK."
 
-    Test-MultiCondition ($licenseUrl -eq $expectedLicenseUrl) ($licenseUrl -notlike "*fwlink*") $message $requirement $recommendation;
+    Test-Condition ($licenseUrl -eq $expectedLicenseUrl) $message $requirement;
 }
 
 function Get-IsValidLicenseAcceptance([xml]$nuspecXml) {
