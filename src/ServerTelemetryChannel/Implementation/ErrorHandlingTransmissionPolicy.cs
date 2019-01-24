@@ -62,7 +62,7 @@
             if (httpWebResponseWrapper != null)
             {
                 AdditionalVerboseTracing(httpWebResponseWrapper.Content);
-                if(httpWebResponseWrapper.StatusCode == ResponseStatusCodes.Success || httpWebResponseWrapper.StatusCode == ResponseStatusCodes.PartialSuccess)
+                if (httpWebResponseWrapper.StatusCode == ResponseStatusCodes.Success || httpWebResponseWrapper.StatusCode == ResponseStatusCodes.PartialSuccess)
                 {
                     // There is no further action for ErrorHandlingTransmissionPolicy here as transmission is success/partial success.
                     return;
