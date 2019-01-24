@@ -2,7 +2,7 @@
 {
     using System.Diagnostics;
     using System.Linq;
-    using Microsoft.ApplicationInsights.W3C;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]

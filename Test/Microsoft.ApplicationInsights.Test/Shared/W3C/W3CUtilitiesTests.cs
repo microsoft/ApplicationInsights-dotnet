@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.W3C
 {
     using System.Text.RegularExpressions;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]

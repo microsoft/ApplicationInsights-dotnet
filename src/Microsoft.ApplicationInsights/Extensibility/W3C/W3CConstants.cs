@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.W3C
+﻿namespace Microsoft.ApplicationInsights.Extensibility.W3C
 {
     /// <summary>
     /// W3C constants.
