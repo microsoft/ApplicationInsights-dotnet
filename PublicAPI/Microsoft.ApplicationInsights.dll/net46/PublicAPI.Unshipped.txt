@@ -1,1 +1,0 @@
-Microsoft.ApplicationInsights.TelemetryClient.InitializeInstrumentationKey(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
