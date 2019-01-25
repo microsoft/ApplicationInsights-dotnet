@@ -34,7 +34,7 @@
             string hostName = Dns.GetHostName();
 
             // Issue #61: For dnxcore machine name does not have domain name like in full framework 
-#if !NETSTANDARD1_6
+#if !NETSTANDARD1_6 || !NETSTANDARD2_0
             string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
             if (!hostName.EndsWith(domainName, StringComparison.OrdinalIgnoreCase))
             {
