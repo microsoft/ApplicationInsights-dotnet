@@ -12,12 +12,11 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.W3C;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DiagnosticAdapter;
     using Microsoft.Extensions.Primitives;
 
-#pragma warning disable 612, 618
     /// <summary>
     /// <see cref="IApplicationInsightDiagnosticListener"/> implementation that listens for events specific to AspNetCore hosting layer.
     /// </summary>
@@ -482,7 +481,7 @@
         private void SetW3CContext(IHeaderDictionary requestHeaders, Activity activity, out string sourceAppId)
         {
             sourceAppId = null;
-            if (requestHeaders.TryGetValue(W3CConstants.TraceParentHeader, out StringValues traceParentValues))
+            if (requestHeaders.TryGetValue(W3C.W3CConstants.TraceParentHeader, out StringValues traceParentValues))
             {
                 var parentTraceParent = StringUtilities.EnforceMaxLength(traceParentValues.First(),
                     InjectionGuardConstants.TraceParentHeaderMaxLength);
@@ -493,7 +492,7 @@
                 activity.GenerateW3CContext();
             }
 
-            string[] traceStateValues = HttpHeadersUtilities.SafeGetCommaSeparatedHeaderValues(requestHeaders, W3CConstants.TraceStateHeader,
+            string[] traceStateValues = HttpHeadersUtilities.SafeGetCommaSeparatedHeaderValues(requestHeaders, W3C.W3CConstants.TraceStateHeader,
                 InjectionGuardConstants.TraceStateHeaderMaxLength, InjectionGuardConstants.TraceStateMaxPairs);
 
             if (traceStateValues != null && traceStateValues.Any())
@@ -501,7 +500,7 @@
                 var pairsExceptAz = new StringBuilder();
                 foreach (var t in traceStateValues)
                 {
-                    if (t.StartsWith(W3CConstants.AzureTracestateNamespace + "=", StringComparison.Ordinal))
+                    if (t.StartsWith(W3C.W3CConstants.AzureTracestateNamespace + "=", StringComparison.Ordinal))
                     {
                         // start after 'az='
                         TryExtractAppIdFromAzureTracestate(t.Substring(3), out sourceAppId);
@@ -543,9 +542,9 @@
         private static bool TryExtractAppIdFromAzureTracestate(string azTracestate, out string appId)
         {
             appId = null;
-            var parts = azTracestate.Split(W3CConstants.TracestateAzureSeparator);
+            var parts = azTracestate.Split(W3C.W3CConstants.TracestateAzureSeparator);
 
-            var appIds = parts.Where(p => p.StartsWith(W3CConstants.ApplicationIdTraceStateField, StringComparison.Ordinal)).ToArray();
+            var appIds = parts.Where(p => p.StartsWith(W3C.W3CConstants.ApplicationIdTraceStateField, StringComparison.Ordinal)).ToArray();
 
             if (appIds.Length != 1)
             {
@@ -561,5 +560,4 @@
             SubscriptionManager.Detach(this);
         }
     }
-#pragma warning restore 612, 618
 }

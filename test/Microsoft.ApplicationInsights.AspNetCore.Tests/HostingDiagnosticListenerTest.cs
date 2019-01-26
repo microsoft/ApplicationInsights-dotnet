@@ -14,7 +14,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.W3C;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.AspNetCore.Http;
     using Xunit;
 
@@ -660,7 +660,6 @@
             Assert.True(string.IsNullOrEmpty(requestTelemetry.Source));
         }
 
-#pragma warning disable 612, 618
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -901,7 +900,6 @@
                 Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
             }
         }
-#pragma warning restore 612, 618
 
         private void HandleRequestBegin(HostingDiagnosticListener hostingListener, HttpContext context, long timestamp, bool isAspNetCore2)
         {

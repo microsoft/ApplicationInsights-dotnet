@@ -1003,7 +1003,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.False(heartbeatModule.IsHeartbeatEnabled);
             }
 
-#pragma warning disable 612, 618
             [Fact]
             public static void W3CIsDisabledByDefault()
             {
@@ -1046,7 +1045,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.True(requestTracking.Single().CollectionOptions.EnableW3CDistributedTracing);
                 Assert.True(dependencyTracking.Single().EnableW3CHeadersInjection);
             }
-#pragma warning restore 612, 618
 
             private static int GetTelemetryProcessorsCountInConfiguration<T>(TelemetryConfiguration telemetryConfiguration)
             {
