@@ -275,7 +275,7 @@
 
             if (initializeFromCurrent)
             {
-#if NET45
+#if NET45 || NET46
                 // on .NET Fx Activities are not always reliable, this code prevents update
                 // of the telemetry that was forcibly updated during Activity lifetime
                 // ON .NET Core there is no such problem 
@@ -366,7 +366,7 @@
             return activity;
         }
 
-#if NET45
+#if NET45 || NET46
         private static bool IsValidTelemetryId(string id, string operationId)
         {
             return id.Length == 51 &&
