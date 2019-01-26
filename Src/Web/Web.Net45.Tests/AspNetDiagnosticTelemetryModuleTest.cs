@@ -11,6 +11,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.ApplicationInsights.W3C.Internal;
     using Microsoft.ApplicationInsights.Web;
     using Microsoft.ApplicationInsights.Web.Helpers;
@@ -18,7 +19,6 @@
     using Microsoft.AspNet.TelemetryCorrelation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-#pragma warning disable 612, 618
     [TestClass]
     public class AspNetDiagnosticTelemetryModuleTest : IDisposable
     {
@@ -747,5 +747,4 @@
             }
         }
     }
-#pragma warning restore 612, 618
 }

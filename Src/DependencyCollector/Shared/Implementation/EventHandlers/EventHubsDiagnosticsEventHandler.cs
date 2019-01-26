@@ -7,6 +7,7 @@
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
     /// <summary>
     /// Implements EventHubs DiagnosticSource events handling.
@@ -44,7 +45,7 @@
                     // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331 (TODO)
                     if (currentActivity.Parent == null && currentActivity.ParentId == null)
                     {
-                        currentActivity.UpdateParent(StringUtilities.GenerateTraceId());
+                        currentActivity.UpdateParent(W3CUtilities.GenerateTraceId());
                     }
 
                     break;

@@ -15,15 +15,13 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.ApplicationInsights.TestFramework;
-    using Microsoft.ApplicationInsights.W3C;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-#pragma warning disable 612, 618
 
     /// <summary>
     /// .NET Core specific tests that verify Http Dependencies are collected for outgoing request
@@ -237,25 +235,25 @@
                 Assert.AreEqual(expectedTraceId, dependency.Context.Operation.Id);
                 Assert.AreEqual($"|{expectedTraceId}.{expectedParentId}.", dependency.Context.Operation.ParentId);
 
-                Assert.IsTrue(request.Headers.Contains(W3CConstants.TraceParentHeader));
+                Assert.IsTrue(request.Headers.Contains(W3C.W3CConstants.TraceParentHeader));
 
                 var dependencyIdParts = dependency.Id.Split('.', '|');
                 Assert.AreEqual(4, dependencyIdParts.Length);
 
                 Assert.AreEqual(expectedTraceId, dependencyIdParts[1]);
-                Assert.AreEqual($"00-{expectedTraceId}-{dependencyIdParts[2]}-02", request.Headers.GetValues(W3CConstants.TraceParentHeader).Single());
+                Assert.AreEqual($"00-{expectedTraceId}-{dependencyIdParts[2]}-02", request.Headers.GetValues(W3C.W3CConstants.TraceParentHeader).Single());
 
-                Assert.IsTrue(request.Headers.Contains(W3CConstants.TraceStateHeader));
-                Assert.AreEqual($"{W3CConstants.AzureTracestateNamespace}={expectedAppId},state=some", request.Headers.GetValues(W3CConstants.TraceStateHeader).Single());
+                Assert.IsTrue(request.Headers.Contains(W3C.W3CConstants.TraceStateHeader));
+                Assert.AreEqual($"{W3C.W3CConstants.AzureTracestateNamespace}={expectedAppId},state=some", request.Headers.GetValues(W3C.W3CConstants.TraceStateHeader).Single());
 
                 Assert.IsTrue(request.Headers.Contains(RequestResponseHeaders.CorrelationContextHeader));
                 Assert.AreEqual("k=v", request.Headers.GetValues(RequestResponseHeaders.CorrelationContextHeader).Single());
 
                 Assert.AreEqual("v", dependency.Properties["k"]);
-                Assert.AreEqual("state=some", dependency.Properties[W3CConstants.TracestateTag]);
+                Assert.AreEqual("state=some", dependency.Properties[W3C.W3CConstants.TracestateTag]);
 
-                Assert.IsTrue(dependency.Properties.ContainsKey(W3CConstants.LegacyRequestIdProperty));
-                Assert.IsTrue(dependency.Properties[W3CConstants.LegacyRequestIdProperty].StartsWith("|guid."));
+                Assert.IsTrue(dependency.Properties.ContainsKey(W3C.W3CConstants.LegacyRequestIdProperty));
+                Assert.IsTrue(dependency.Properties[W3C.W3CConstants.LegacyRequestIdProperty].StartsWith("|guid."));
             }
         }
 
@@ -295,19 +293,19 @@
                 Assert.AreEqual(expectedTraceId, dependency.Context.Operation.Id);
                 Assert.AreEqual($"|{expectedTraceId}.{expectedParentId}.", dependency.Context.Operation.ParentId);
 
-                Assert.IsTrue(request.Headers.Contains(W3CConstants.TraceParentHeader));
+                Assert.IsTrue(request.Headers.Contains(W3C.W3CConstants.TraceParentHeader));
 
                 var dependencyIdParts = dependency.Id.Split('.', '|');
                 Assert.AreEqual(4, dependencyIdParts.Length);
 
                 Assert.AreEqual(expectedTraceId, dependencyIdParts[1]);
-                Assert.AreEqual($"00-{expectedTraceId}-{dependencyIdParts[2]}-02", request.Headers.GetValues(W3CConstants.TraceParentHeader).Single());
+                Assert.AreEqual($"00-{expectedTraceId}-{dependencyIdParts[2]}-02", request.Headers.GetValues(W3C.W3CConstants.TraceParentHeader).Single());
 
-                Assert.IsTrue(request.Headers.Contains(W3CConstants.TraceStateHeader));
-                Assert.AreEqual($"{W3CConstants.AzureTracestateNamespace}={expectedAppId}", request.Headers.GetValues(W3CConstants.TraceStateHeader).Single());
+                Assert.IsTrue(request.Headers.Contains(W3C.W3CConstants.TraceStateHeader));
+                Assert.AreEqual($"{W3C.W3CConstants.AzureTracestateNamespace}={expectedAppId}", request.Headers.GetValues(W3C.W3CConstants.TraceStateHeader).Single());
 
-                Assert.IsTrue(dependency.Properties.ContainsKey(W3CConstants.LegacyRequestIdProperty));
-                Assert.IsTrue(dependency.Properties[W3CConstants.LegacyRequestIdProperty].StartsWith(parent.Id));
+                Assert.IsTrue(dependency.Properties.ContainsKey(W3C.W3CConstants.LegacyRequestIdProperty));
+                Assert.IsTrue(dependency.Properties[W3C.W3CConstants.LegacyRequestIdProperty].StartsWith(parent.Id));
             }
         }
 
@@ -343,8 +341,8 @@
 
                 parent.Stop();
 
-                var traceState = HttpHeadersUtilities.GetHeaderValues(request.Headers, W3CConstants.TraceStateHeader).First();
-                Assert.AreEqual($"{W3CConstants.AzureTracestateNamespace}={expectedAppId},some=state", traceState);
+                var traceState = HttpHeadersUtilities.GetHeaderValues(request.Headers, W3C.W3CConstants.TraceStateHeader).First();
+                Assert.AreEqual($"{W3C.W3CConstants.AzureTracestateNamespace}={expectedAppId},some=state", traceState);
             }
         }
 
@@ -445,5 +443,4 @@
             }
         }
     }
-#pragma warning restore 612, 618
 }

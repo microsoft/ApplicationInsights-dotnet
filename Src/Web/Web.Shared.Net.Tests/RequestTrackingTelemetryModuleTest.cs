@@ -13,8 +13,8 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.ApplicationInsights.TestFramework;
-    using Microsoft.ApplicationInsights.W3C.Internal;
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.ApplicationInsights.Web.Implementation;
     using Microsoft.ApplicationInsights.Web.TestFramework;
@@ -490,12 +490,10 @@
                 config = this.CreateDefaultConfig(HttpModuleHelper.GetFakeHttpContext());
             }
 
-#pragma warning disable 612, 618
             if (enableW3CTracing)
             {
                 config.TelemetryInitializers.Add(new W3COperationCorrelationTelemetryInitializer());
             }
-#pragma warning restore 612, 618
 
             module.Initialize(config);
 

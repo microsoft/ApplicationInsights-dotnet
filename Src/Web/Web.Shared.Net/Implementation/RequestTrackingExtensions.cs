@@ -6,10 +6,10 @@
     using System.Web;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.ApplicationInsights.W3C.Internal;
     using Microsoft.AspNet.TelemetryCorrelation;
 
-#pragma warning disable 612, 618
     internal static class RequestTrackingExtensions
     {
         internal static RequestTelemetry CreateRequestTelemetryPrivate(
@@ -35,7 +35,7 @@
                     ActivityHelpers.ExtractTracestate(platformContext.Request, currentActivity, result);
                     // length enforced in SetW3CContext
                     currentActivity.SetParentId(currentActivity.GetTraceId());
-                    W3COperationCorrelationTelemetryInitializer.UpdateTelemetry(result, currentActivity, true);
+                    currentActivity.UpdateTelemetry(result, true);
 
                     SetLegacyContextIds(platformContext.Request, result);
                 }
@@ -64,7 +64,7 @@
                     // So if there is no current Activity (i.e. there were no Request-Id header in the incoming request), we'll override ParentId on 
                     // the current Activity by the properly formatted one. This workaround should go away
                     // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
-                    currentActivity.SetParentId(StringUtilities.GenerateTraceId());
+                    currentActivity.SetParentId(W3CUtilities.GenerateTraceId());
                     // end of workaround
                 }
 
@@ -82,7 +82,7 @@
 
                     ActivityHelpers.ExtractTracestate(platformContext.Request, currentActivity, result);
 
-                    W3COperationCorrelationTelemetryInitializer.UpdateTelemetry(result, currentActivity, true);
+                    currentActivity.UpdateTelemetry(result, true);
                     SetLegacyContextIds(platformContext.Request, result);
                 }
                 else if (ActivityHelpers.IsHierarchicalRequestId(currentActivity.ParentId))
@@ -217,5 +217,4 @@
             }
         }
     }
-#pragma warning restore 612, 618
 }

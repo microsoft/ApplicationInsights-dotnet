@@ -10,13 +10,13 @@
 
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.ApplicationInsights.W3C.Internal;
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Assert = Xunit.Assert;
 
-#pragma warning disable 612, 618
     /// <summary>
     /// NET 4.5 specific tests for RequestTrackingTelemetryModule.
     /// </summary>
@@ -606,5 +606,4 @@
             }
         }
     }
-#pragma warning restore 612, 618
 }
