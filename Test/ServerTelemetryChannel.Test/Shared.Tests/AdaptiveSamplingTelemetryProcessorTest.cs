@@ -357,7 +357,7 @@
             // Regular Dispose() does not wait for all callbacks to complete
             // so TelemetryConfiguration could be disposed while callback still runs
 
-#if NETCOREAPP1_1
+#if (NETCOREAPP1_1)
             timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
             timer.Dispose();
             Thread.Sleep(1000);
