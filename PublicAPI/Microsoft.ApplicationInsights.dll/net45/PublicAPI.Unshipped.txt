@@ -1,1 +1,18 @@
+Microsoft.ApplicationInsights.Extensibility.W3C.W3CUtilities
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CUtilities.GenerateTraceId() -> string
+Microsoft.ApplicationInsights.Extensibility.W3C.W3COperationCorrelationTelemetryInitializer
+Microsoft.ApplicationInsights.Extensibility.W3C.W3COperationCorrelationTelemetryInitializer.Initialize(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
+Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.GenerateW3CContext(this System.Diagnostics.Activity activity) -> System.Diagnostics.Activity
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.GetParentSpanId(this System.Diagnostics.Activity activity) -> string
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.GetSpanId(this System.Diagnostics.Activity activity) -> string
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.GetTraceId(this System.Diagnostics.Activity activity) -> string
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.GetTraceparent(this System.Diagnostics.Activity activity) -> string
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.GetTracestate(this System.Diagnostics.Activity activity) -> string
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.IsW3CActivity(this System.Diagnostics.Activity activity) -> bool
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.SetTraceparent(this System.Diagnostics.Activity activity, string value) -> void
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.SetTracestate(this System.Diagnostics.Activity activity, string value) -> void
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.UpdateContextOnActivity(this System.Diagnostics.Activity activity) -> System.Diagnostics.Activity
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.UpdateTelemetry(this System.Diagnostics.Activity activity, Microsoft.ApplicationInsights.Channel.ITelemetry telemetry, bool forceUpdate) -> void
 Microsoft.ApplicationInsights.TelemetryClient.InitializeInstrumentationKey(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
+
