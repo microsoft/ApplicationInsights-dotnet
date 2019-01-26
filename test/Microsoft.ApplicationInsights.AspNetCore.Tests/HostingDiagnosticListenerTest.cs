@@ -737,7 +737,11 @@
 
                 var activityInitializedByW3CHeader = Activity.Current;
 
-                Assert.Equal("|abc.1.2.3.", activityInitializedByW3CHeader.ParentId);
+                if (isAspNetCore2)
+                {
+                    Assert.Equal("|abc.1.2.3.", activityInitializedByW3CHeader.ParentId);
+                }
+
                 Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", activityInitializedByW3CHeader.GetTraceId());
                 Assert.Equal("00f067aa0ba902b7", activityInitializedByW3CHeader.GetParentSpanId());
                 Assert.Equal(16, activityInitializedByW3CHeader.GetSpanId().Length);
@@ -759,8 +763,11 @@
                     out var appId));
                 Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
 
-                Assert.Equal("abc", requestTelemetry.Properties["ai_legacyRootId"]);
-                Assert.StartsWith("|abc.1.2.3.", requestTelemetry.Properties["ai_legacyRequestId"]);
+                if (isAspNetCore2)
+                {
+                    Assert.Equal("abc", requestTelemetry.Properties["ai_legacyRootId"]);
+                    Assert.StartsWith("|abc.1.2.3.", requestTelemetry.Properties["ai_legacyRequestId"]);
+                }
             }
         }
 
