@@ -164,19 +164,24 @@ namespace FunctionalTestUtils
             return ((EndpointAddress)this.hostingEngine.Services.GetService<EndpointAddress>()).ConnectionString;
         }
 
-        public void Dispose()
+        public void DisposeHost()
         {
             if (this.hostingEngine != null)
             {
                 this.output.WriteLine(string.Format("{0}:Disposing WebHost starting.....", DateTime.Now.ToString("G")));
-                this.hostingEngine.Dispose();                
+                this.hostingEngine.Dispose();
                 this.output.WriteLine(string.Format("{0}:Disposing WebHost completed.", DateTime.Now.ToString("G")));
+                this.hostingEngine = null;
             }
             else
             {
                 this.output.WriteLine(string.Format("{0}: Hosting engine is null.", DateTime.Now.ToString("G")));
             }
+        }
 
+        public void Dispose()
+        {
+            DisposeHost();
             if (this.listener != null)
             {
                 output.WriteLine(string.Format("{0}: Stopping listener at: {1}", DateTime.Now.ToString("G"), this.httpListenerConnectionString));
