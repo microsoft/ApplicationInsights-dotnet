@@ -5,7 +5,6 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.W3C;
-    using Microsoft.ApplicationInsights.W3C;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -218,7 +217,7 @@
         }
 
         [TestMethod]
-        public void InitializerOnSqlDepenedency()
+        public void InitializerOnSqlDependency()
         {
             Activity requestActivity = new Activity("request")
                 .Start()
