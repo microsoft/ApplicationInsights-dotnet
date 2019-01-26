@@ -678,9 +678,9 @@
                 hostingListener.OnSubscribe();
                 var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
-                context.Request.Headers[W3CConstants.TraceParentHeader] =
+                context.Request.Headers[W3C.W3CConstants.TraceParentHeader] =
                     "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01";
-                context.Request.Headers[W3CConstants.TraceStateHeader] = "state=some";
+                context.Request.Headers[W3C.W3CConstants.TraceStateHeader] = "state=some";
                 context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
 
                 HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
@@ -728,9 +728,9 @@
                 var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
                 context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = "|abc.1.2.3.";
-                context.Request.Headers[W3CConstants.TraceParentHeader] =
+                context.Request.Headers[W3C.W3CConstants.TraceParentHeader] =
                     "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01";
-                context.Request.Headers[W3CConstants.TraceStateHeader] = "state=some";
+                context.Request.Headers[W3C.W3CConstants.TraceStateHeader] = "state=some";
                 context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
 
                 HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
@@ -878,10 +878,10 @@
 
                 var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
-                context.Request.Headers[W3CConstants.TraceParentHeader] =
+                context.Request.Headers[W3C.W3CConstants.TraceParentHeader] =
                     "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-00";
-                context.Request.Headers[W3CConstants.TraceStateHeader] =
-                    $"state=some,{W3CConstants.AzureTracestateNamespace}={ExpectedAppId}";
+                context.Request.Headers[W3C.W3CConstants.TraceStateHeader] =
+                    $"state=some,{W3C.W3CConstants.AzureTracestateNamespace}={ExpectedAppId}";
 
                 HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
                 var activityInitializedByW3CHeader = Activity.Current;
