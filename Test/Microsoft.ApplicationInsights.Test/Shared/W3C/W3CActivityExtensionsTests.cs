@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.W3C
+﻿using Microsoft.ApplicationInsights.DataContracts;
+
+namespace Microsoft.ApplicationInsights.W3C
 {
     using System.Diagnostics;
     using System.Linq;
@@ -249,6 +251,149 @@
                 a.SetTraceparent($"00-{TraceId}-{ParenSpanId}-{notReq}");
                 Assert.AreEqual($"00-{TraceId}-{a.GetSpanId()}-02", a.GetTraceparent(), notReq);
             }
+        }
+
+        [TestMethod]
+        public void UpdateValidRequestTelemetryWithForceFalse()
+        {
+            var traceId = W3CUtilities.GenerateTraceId();
+            var parentSpanId = W3CUtilities.GenerateSpanId();
+            var spanId = W3CUtilities.GenerateSpanId();
+
+            var telemetry = new RequestTelemetry();
+            telemetry.Context.Operation.Id = traceId;
+            telemetry.Context.Operation.ParentId = $"|{traceId}.{parentSpanId}.";
+            telemetry.Id = $"|{traceId}.{spanId}.";
+
+            var a = new Activity("foo").Start();
+            a.SetTraceparent($"00-{traceId}-{spanId}-01");
+
+            a.UpdateTelemetry(telemetry, false);
+
+            Assert.AreEqual(traceId, telemetry.Context.Operation.Id);
+
+#if NET45 || NET46
+            Assert.AreEqual($"|{traceId}.{parentSpanId}.", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual($"|{traceId}.{spanId}.", telemetry.Id);
+#else
+            Assert.AreEqual($"|{traceId}.{spanId}.", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual($"|{traceId}.{a.GetSpanId()}.", telemetry.Id);
+#endif
+        }
+
+        [TestMethod]
+        public void UpdateValidRequestTelemetryWithForceInvalidIdFalse()
+        {
+            var traceId = W3CUtilities.GenerateTraceId();
+            var parentSpanId = W3CUtilities.GenerateSpanId();
+            var spanId = W3CUtilities.GenerateSpanId();
+
+            var telemetry = new RequestTelemetry();
+            telemetry.Context.Operation.Id = traceId;
+            telemetry.Context.Operation.ParentId = $"|{traceId}.{parentSpanId}.";
+            telemetry.Id = "|123.456.";
+
+            var a = new Activity("foo").Start();
+            a.SetTraceparent($"00-{traceId}-{spanId}-01");
+
+            a.UpdateTelemetry(telemetry, false);
+
+            Assert.AreEqual(traceId, telemetry.Context.Operation.Id);
+            Assert.AreEqual($"|{traceId}.{spanId}.", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual($"|{traceId}.{a.GetSpanId()}.", telemetry.Id);
+        }
+
+        [TestMethod]
+        public void UpdateValidRequestTelemetryWithForceTrue()
+        {
+            var traceId = W3CUtilities.GenerateTraceId();
+            var parentSpanId = W3CUtilities.GenerateSpanId();
+            var spanId = W3CUtilities.GenerateSpanId();
+
+            var telemetry = new RequestTelemetry();
+            telemetry.Context.Operation.Id = traceId;
+            telemetry.Context.Operation.ParentId = $"|{traceId}.{parentSpanId}.";
+            telemetry.Id = $"|{traceId}.{spanId}.";
+
+            var a = new Activity("foo").Start();
+            a.SetTraceparent($"00-{traceId}-{spanId}-01");
+
+            a.UpdateTelemetry(telemetry, true);
+
+            Assert.AreEqual(traceId, telemetry.Context.Operation.Id);
+            Assert.AreEqual($"|{traceId}.{spanId}.", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual($"|{traceId}.{a.GetSpanId()}.", telemetry.Id);
+        }
+
+        [TestMethod]
+        public void UpdateValidDependencyTelemetryWithForceFalse()
+        {
+            var traceId = W3CUtilities.GenerateTraceId();
+            var parentSpanId = W3CUtilities.GenerateSpanId();
+            var spanId = W3CUtilities.GenerateSpanId();
+
+            var telemetry = new DependencyTelemetry();
+            telemetry.Context.Operation.Id = traceId;
+            telemetry.Context.Operation.ParentId = $"|{traceId}.{parentSpanId}.";
+            telemetry.Id = $"|{traceId}.{spanId}.";
+
+            var a = new Activity("foo").Start();
+            a.SetTraceparent($"00-{traceId}-{spanId}-01");
+
+            a.UpdateTelemetry(telemetry, false);
+
+            Assert.AreEqual(traceId, telemetry.Context.Operation.Id);
+#if NET45 || NET46
+            Assert.AreEqual($"|{traceId}.{parentSpanId}.", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual($"|{traceId}.{spanId}.", telemetry.Id);
+#else
+            Assert.AreEqual($"|{traceId}.{spanId}.", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual($"|{traceId}.{a.GetSpanId()}.", telemetry.Id);
+#endif
+        }
+
+        [TestMethod]
+        public void UpdateValidDependencyTelemetryWithForceInvalidIdFalse()
+        {
+            var traceId = W3CUtilities.GenerateTraceId();
+            var parentSpanId = W3CUtilities.GenerateSpanId();
+            var spanId = W3CUtilities.GenerateSpanId();
+
+            var telemetry = new DependencyTelemetry();
+            telemetry.Context.Operation.Id = traceId;
+            telemetry.Context.Operation.ParentId = $"|{traceId}.{parentSpanId}.";
+            telemetry.Id = "|123.456.";
+
+            var a = new Activity("foo").Start();
+            a.SetTraceparent($"00-{traceId}-{spanId}-01");
+
+            a.UpdateTelemetry(telemetry, false);
+
+            Assert.AreEqual(traceId, telemetry.Context.Operation.Id);
+            Assert.AreEqual($"|{traceId}.{spanId}.", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual($"|{traceId}.{a.GetSpanId()}.", telemetry.Id);
+        }
+
+        [TestMethod]
+        public void UpdateValidDependencyTelemetryTelemetryWithForceTrue()
+        {
+            var traceId = W3CUtilities.GenerateTraceId();
+            var parentSpanId = W3CUtilities.GenerateSpanId();
+            var spanId = W3CUtilities.GenerateSpanId();
+
+            var telemetry = new DependencyTelemetry();
+            telemetry.Context.Operation.Id = traceId;
+            telemetry.Context.Operation.ParentId = $"|{traceId}.{parentSpanId}.";
+            telemetry.Id = $"|{traceId}.{spanId}.";
+
+            var a = new Activity("foo").Start();
+            a.SetTraceparent($"00-{traceId}-{spanId}-01");
+
+            a.UpdateTelemetry(telemetry, true);
+
+            Assert.AreEqual(traceId, telemetry.Context.Operation.Id);
+            Assert.AreEqual($"|{traceId}.{spanId}.", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual($"|{traceId}.{a.GetSpanId()}.", telemetry.Id);
         }
     }
 }
