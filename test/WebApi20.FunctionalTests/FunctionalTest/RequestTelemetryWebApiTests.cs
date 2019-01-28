@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Text.RegularExpressions;
 
     using FunctionalTestUtils;
@@ -101,10 +102,12 @@
         {
             IWebHostBuilder Config(IWebHostBuilder builder)
             {
-                // disable Dependency tracking (i.e. header injection)
                 return builder.ConfigureServices(services =>
                 {
                     services.AddApplicationInsightsTelemetry();
+
+                    // disable Dependency tracking (i.e. header injection)
+                    services.Remove(services.FirstOrDefault(sd => sd.ImplementationType == typeof(DependencyTrackingTelemetryModule)));
                 });
             }
 
