@@ -68,17 +68,21 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
                 this.output.WriteLine("~~telemetry2~~");
                 this.DebugTelemetryItems(telemetry2);
 
-                Assert.Equal(2, telemetry1.Count(t => t is TelemetryItem<RequestData>));
-                Assert.Equal(2, telemetry1.Count(IsServiceDependencyCall));
+                // we don't know which host reported requests
+                Assert.True(2 == telemetry1.Count(t => t is TelemetryItem<RequestData>) ||
+                            2 == telemetry2.Count(t => t is TelemetryItem<RequestData>));
+
+                // we don't know which host reported dependencies
+                Assert.True(2 == telemetry1.Count(IsServiceDependencyCall) ||
+                            2 == telemetry2.Count(IsServiceDependencyCall));
+
                 Assert.DoesNotContain(telemetry1, t => t is TelemetryItem<ExceptionData>);
 
                 var request1 = telemetry1.First(t => t is TelemetryItem<RequestData>);
                 var request2 = telemetry1.Last(t => t is TelemetryItem<RequestData>);
                 Assert.Equal("200", ((TelemetryItem<RequestData>)request1).data.baseData.responseCode);
                 Assert.Equal("200", ((TelemetryItem<RequestData>)request2).data.baseData.responseCode);
-
-                Assert.False(telemetry2.Any());
-           }
+            }
         }
 
         [Fact]
@@ -140,20 +144,13 @@ namespace WebApi20.FunctionalTests20.FunctionalTest
             {
                 this.ExecuteRequest(server.BaseHost + requestPath);
 
-                // receive everything and clean up
-                server.Listener.ReceiveItemsOfType<TelemetryItem<RequestData>>(1, TestListenerTimeoutInMs);
-            }
-
-            Assert.NotNull(activeConfig.TelemetryChannel);
-
-            using (var listener = new TelemetryHttpListenerObservable(activeConfig.TelemetryChannel.EndpointAddress, this.output))
-            {
-                listener.Start();
+                server.DisposeHost();
+                Assert.NotNull(activeConfig.TelemetryChannel);
 
                 var telemetryClient = new TelemetryClient(activeConfig);
                 telemetryClient.TrackTrace("some message after web host is disposed");
 
-                var message = listener.ReceiveItemsOfType<TelemetryItem<MessageData>>(1, TestListenerTimeoutInMs);
+                var message = server.Listener.ReceiveItemsOfType<TelemetryItem<MessageData>>(1, TestListenerTimeoutInMs);
                 Assert.Single(message);
 
                 this.output.WriteLine(((TelemetryItem<MessageData>)message.Single()).data.baseData.message);
