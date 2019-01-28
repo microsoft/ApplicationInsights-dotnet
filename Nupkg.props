@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
+  <PropertyGroup Condition="$(OS) == 'Windows_NT'">
     <!-- Including this file will generate both the *.nupkg and *.symbols.nupkg -->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
@@ -14,7 +14,7 @@
     <!-- <PackageVersion>Defined in GlobalStaticVersion.props</PackageVersion> -->
     <Authors>Microsoft</Authors>
     <Owners>Microsoft,AppInsightsSdk</Owners>
-    <PackageRequireLicenseAcceptance Condition="$(OS) == 'Windows_NT'">true</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
     <PackageIconUrl>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageIconUrl>
