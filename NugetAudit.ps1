@@ -15,7 +15,7 @@ Param(
 
 $requiredCopyright = "$([char]0x00A9) Microsoft Corporation. All rights reserved.";#"© Microsoft Corporation. All rights reserved.";
 $expectedProjectUrl = "https://go.microsoft.com/fwlink/?LinkId=392727"; # Application Insights Project Url
-$expectedLicense = "https://licenses.nuget.org/MIT"; # MIT license Url
+$expectedLicense = "MIT"; # MIT license Url
 $expectedOwner = "AppInsightsSdk"; # Application Insights Nuget Account
 $expectedTags = @("Azure","Monitoring");
 
