@@ -14,7 +14,7 @@
     <!-- <PackageVersion>Defined in GlobalStaticVersion.props</PackageVersion> -->
     <Authors>Microsoft</Authors>
     <Owners>Microsoft,AppInsightsSdk</Owners>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance Condition="$(OS) == 'Windows_NT'">true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
     <PackageIconUrl>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageIconUrl>
