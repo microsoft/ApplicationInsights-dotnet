@@ -4,7 +4,7 @@
 ## Nuget packages
 
 - For ILogger:
- [Microsoft.ApplicationInsights.NLogTarget](https://www.nuget.org/packages/Microsoft.Extensions.Logging.ApplicationInsights/)
+ [Microsoft.Extensions.Logging.ApplicationInsights](https://www.nuget.org/packages/Microsoft.Extensions.Logging.ApplicationInsights/)
 [![Nuget](https://img.shields.io/nuget/vpre/Microsoft.Extensions.Logging.ApplicationInsights.svg)](https://www.nuget.org/packages/Microsoft.Extensions.Logging.ApplicationInsights/)
 - For NLog:
  [Microsoft.ApplicationInsights.NLogTarget](http://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/)
