@@ -51,7 +51,7 @@
             }
         }
 
-#if !NETCOREAPP1_1
+#if (!NETCOREAPP1_1 && !NETCOREAPP2_0)
 
         [Ignore("This test is failing intermittently and needs to be investigated. ~Timothy")]
         [TestMethod]

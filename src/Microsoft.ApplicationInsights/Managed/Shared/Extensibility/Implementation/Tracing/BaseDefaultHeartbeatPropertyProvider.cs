@@ -4,11 +4,9 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading.Tasks;
-#if NETSTANDARD1_3
-    using System.Runtime.InteropServices;
-#endif
 
     internal class BaseDefaultHeartbeatPropertyProvider : IHeartbeatDefaultPayloadProvider
     {
@@ -93,7 +91,7 @@
                                 .Cast<AssemblyFileVersionAttribute>()
                                 .FirstOrDefault();
             return objectAssemblyFileVer != null ? objectAssemblyFileVer.Version : "undefined";
-#elif NETSTANDARD1_3
+#elif NETSTANDARD1_3 || NETSTANDARD2_0
             return System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 #else
 #error Unrecognized framework
@@ -113,6 +111,8 @@
             return "net46";
 #elif NETSTANDARD1_3
             return "netstandard1.3";
+#elif NETSTANDARD2_0
+            return "netstandard2.0";
 #else
 #error Unrecognized framework
             return "undefined";
@@ -133,7 +133,7 @@
 
             osValue = Environment.OSVersion.Platform.ToString();
 
-#elif NETSTANDARD1_3
+#elif NETSTANDARD1_3 || NETSTANDARD2_0
             
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {

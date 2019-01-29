@@ -1012,7 +1012,7 @@
             Assert.AreEqual(client.Context.Properties[PropertyNameGlobal], globalValueInInitializer);
         }
 
-#if !NETCOREAPP1_1
+#if (!NETCOREAPP1_1 && !NETCOREAPP2_0)
         [TestMethod]
         public void TrackAddsSdkVerionByDefault()
         {

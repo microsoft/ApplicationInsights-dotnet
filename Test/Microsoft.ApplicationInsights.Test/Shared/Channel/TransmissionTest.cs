@@ -255,17 +255,6 @@
             {
                 int clientTimeoutInMillisecs = 1;
 
-                //ARRANGE
-                var handler = new HandlerForFakeHttpClient
-                {
-                    InnerHandler = new HttpClientHandler(),
-                    OnSendAsync = async (req, cancellationToken) =>
-                    {
-                        await Task.Delay(clientTimeoutInMillisecs + 10); // this ensures client timeout is hit.
-                        return await Task.FromResult<HttpResponseMessage>(new HttpResponseMessage());
-                    }
-                };
-
                 using (var fakeHttpClient = new HttpClient())
                 {                    
                     // Instantiate Transmission with the mock HttpClient and Timeout to be just 1 msec to force Timeout.

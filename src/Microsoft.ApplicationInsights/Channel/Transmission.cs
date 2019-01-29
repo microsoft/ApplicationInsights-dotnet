@@ -200,7 +200,7 @@
                             }
                         }
                     }
-                    catch (TaskCanceledException)
+                    catch (OperationCanceledException)
                     {                        
                         wrapper = new HttpWebResponseWrapper
                         {

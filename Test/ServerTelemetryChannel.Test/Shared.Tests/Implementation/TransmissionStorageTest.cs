@@ -61,7 +61,7 @@
             // [TestMethod]
             public void IsThreadSafe()
             {
-#if !NETCOREAPP1_1
+#if (!NETCOREAPP1_1 && !NETCOREAPP2_0)
                 const int NumberOfThreads = 16;
                 const int NumberOfFilesPerThread = 64;
                 var storage = new TransmissionStorage();
