@@ -8,10 +8,9 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.W3C;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.ApplicationInsights.Web.Implementation;
 
-#pragma warning disable 612, 618
     /// <summary>
     /// Listens to ASP.NET DiagnosticSource and enables instrumentation with Activity: let ASP.NET create root Activity for the request.
     /// </summary>
@@ -169,7 +168,7 @@
 
                             string traceId = ActivityHelpers.IsW3CTracingEnabled
                                 ? activity.GetTraceId()
-                                : StringUtilities.GenerateTraceId();
+                                : W3CUtilities.GenerateTraceId();
 
                             // As a first step in supporting W3C protocol in ApplicationInsights,
                             // we want to generate Activity Ids in the W3C compatible format.
@@ -257,5 +256,4 @@
             }
         }
     }
-#pragma warning restore 612, 618
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
+  <PropertyGroup Condition="$(OS) == 'Windows_NT'">
     <!-- Including this file will generate both the *.nupkg and *.symbols.nupkg -->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
@@ -15,7 +15,7 @@
     <Authors>Microsoft</Authors>
     <Owners>Microsoft,AppInsightsSdk</Owners>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageLicenseUrl>https://go.microsoft.com/fwlink/?LinkID=510709</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://go.microsoft.com/fwlink/?LinkId=392727</PackageProjectUrl>
     <PackageIconUrl>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-dotnet-server</RepositoryUrl>

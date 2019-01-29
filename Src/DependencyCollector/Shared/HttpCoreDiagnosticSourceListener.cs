@@ -16,7 +16,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.W3C;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
 
     internal class HttpCoreDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
     {
@@ -326,7 +326,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331 (TODO)
             if (currentActivity.Parent == null && currentActivity.ParentId == null)
             {
-                currentActivity.UpdateParent(StringUtilities.GenerateTraceId());
+                currentActivity.UpdateParent(W3CUtilities.GenerateTraceId());
             }
 
             // end of workaround
@@ -433,7 +433,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                 var dependency = Activity.Current != null ?
                     this.client.StartOperation<DependencyTelemetry>(resourceName) :
-                    this.client.StartOperation<DependencyTelemetry>(resourceName, StringUtilities.GenerateTraceId());
+                    this.client.StartOperation<DependencyTelemetry>(resourceName, W3CUtilities.GenerateTraceId());
 
                 dependency.Telemetry.Target = DependencyTargetNameHelper.GetDependencyTargetName(requestUri);
                 dependency.Telemetry.Type = RemoteDependencyConstants.HTTP;
@@ -494,7 +494,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
         }
 
-#pragma warning disable 612, 618
         private void InjectRequestHeaders(HttpRequestMessage request, string instrumentationKey, bool isLegacyEvent = false)
         {
             try
@@ -549,13 +548,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     {
                         currentActivity.UpdateContextOnActivity();
                         string traceParent = currentActivity.GetTraceparent();
-                        if (traceParent != null && !requestHeaders.Contains(W3CConstants.TraceParentHeader))
+                        if (traceParent != null && !requestHeaders.Contains(W3C.W3CConstants.TraceParentHeader))
                         {
-                            requestHeaders.Add(W3CConstants.TraceParentHeader, traceParent);
+                            requestHeaders.Add(W3C.W3CConstants.TraceParentHeader, traceParent);
                         }
 
                         string traceState = currentActivity.GetTracestate();
-                        if (!requestHeaders.Contains(W3CConstants.TraceStateHeader))
+                        if (!requestHeaders.Contains(W3C.W3CConstants.TraceStateHeader))
                         {
                             if (sourceApplicationId != null)
                             {
@@ -574,7 +573,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                             if (traceState != null)
                             {
-                                requestHeaders.Add(W3CConstants.TraceStateHeader, traceState);
+                                requestHeaders.Add(W3C.W3CConstants.TraceStateHeader, traceState);
                             }
                         }
                     }
@@ -585,7 +584,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 AppMapCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
             }
         }
-#pragma warning restore 612, 618
 
         private void ParseResponse(HttpResponseMessage response, DependencyTelemetry telemetry)
         {

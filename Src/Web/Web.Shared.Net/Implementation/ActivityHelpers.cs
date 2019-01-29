@@ -7,10 +7,10 @@ namespace Microsoft.ApplicationInsights.Common
     using System.Web;
 
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.W3C;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
+    using Microsoft.ApplicationInsights.W3C.Internal;
     using Microsoft.ApplicationInsights.Web.Implementation;
 
-#pragma warning disable 612, 618
     internal class ActivityHelpers
     {
         internal const string RequestActivityItemName = "Microsoft.ApplicationInsights.Web.Activity";
@@ -138,5 +138,4 @@ namespace Microsoft.ApplicationInsights.Common
             return true;
         }
     }
-#pragma warning restore 612, 618
 }

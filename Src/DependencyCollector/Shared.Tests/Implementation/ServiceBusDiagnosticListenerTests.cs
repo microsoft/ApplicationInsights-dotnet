@@ -11,7 +11,7 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.W3C;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -258,7 +258,6 @@
             }
         }
 
-#pragma warning disable 612, 618
         [TestMethod]
         public void ServiceBusProcessHandingW3C()
         {
@@ -330,7 +329,7 @@
                 Assert.IsTrue(requestTelemetry.Success.Value);
 
                 Assert.AreEqual("parent", requestTelemetry.Context.Operation.ParentId);
-                Assert.AreEqual("parent", requestTelemetry.Properties[W3CConstants.LegacyRootIdProperty]);
+                Assert.AreEqual("parent", requestTelemetry.Properties[W3C.W3CConstants.LegacyRootIdProperty]);
                 Assert.AreEqual("messageId", requestTelemetry.Properties["MessageId"]);
 
                 var traceTelemetry = this.sentItems.OfType<TraceTelemetry>();
@@ -411,7 +410,6 @@
                 Assert.AreEqual("messageId", telemetry.Properties["MessageId"]);
             }
         }
-#pragma warning restore 612, 618
 
         [TestMethod]
         public void ServiceBusExceptionsAreIgnored()
