@@ -6,6 +6,7 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
     using System.Text;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -13,7 +14,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 
     [TestClass]
@@ -453,15 +454,12 @@
         [TestMethod]
         public void SerializeWritesHasFullStackPropertyAsItIsExpectedByEndpoint()
         {
-            using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
-            {
-                var exception = CreateExceptionWithStackTrace();
-                ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
+            var exception = CreateExceptionWithStackTrace();
+            ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
 
-                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
 
-                Assert.IsTrue(item.data.baseData.exceptions[0].hasFullStack);
-            }
+            Assert.IsTrue(item.data.baseData.exceptions[0].hasFullStack);
         }
 
         [TestMethod]
@@ -478,7 +476,7 @@
         [TestMethod]
         public void SerializeWritesPropertiesAsExpectedByEndpoint()
         {
-            ExceptionTelemetry expected = CreateExceptionTelemetry();            
+            ExceptionTelemetry expected = CreateExceptionTelemetry();
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AI.ExceptionData>(expected);
 
@@ -686,21 +684,139 @@
 
             // Items added to both Exception.Properties, and Exception.Context.Properties are serialized to properties.
             // IExtension object in CreateExceptionTelemetry adds 2 more properties: myIntField and myStringField
-            Assert.AreEqual(4, item.data.baseData.properties.Count);            
+            Assert.AreEqual(4, item.data.baseData.properties.Count);
             Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestProperty"));
             Assert.IsTrue(item.data.baseData.properties.ContainsKey("TestPropertyGlobal"));
         }
 
-        private static Exception CreateExceptionWithStackTrace()
+        [TestMethod]
+        public void SetParsedStockIsIgnoredIfExceptionTelemetryHasNoExceptions()
         {
+            var exceptionTelemetry = new ExceptionTelemetry();
+            var stackFrames = GetStackFrames();
+
+            exceptionTelemetry.SetParsedStack(null, -1);
+            exceptionTelemetry.SetParsedStack(null, 0);
+            exceptionTelemetry.SetParsedStack(null, 3);
+
+            exceptionTelemetry.SetParsedStack(stackFrames, -1);
+            exceptionTelemetry.SetParsedStack(stackFrames, 0);
+            exceptionTelemetry.SetParsedStack(stackFrames, 3);
+        }
+
+        [TestMethod]
+        public void SetParsedStackDoesNotAcceptOutOfRangeExceptionLevel()
+        {
+            var exceptionTelemetry = CreateExceptionTelemetry(CreateExceptionWithInnerExceptions(4));
+            var newFrames = GetStackFrames();
+
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => exceptionTelemetry.SetParsedStack(newFrames, -1));
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => exceptionTelemetry.SetParsedStack(newFrames, 4));
+        }
+
+        [TestMethod]
+        public void SetParsedStackModifiesStackFramesOfInnerException()
+        {
+            // ARRANGE
+            var topLevelexceptionDetails = new ExceptionDetailsInfo(1, -1, "TopLevelException", "Top level exception",
+                true, "Top level exception stack", new[]
+                {
+                    new StackFrame("Some.Assembly", "LessImportantFile.dll", 1, 11, "DeeperInnerMethod")
+                });
+            var innerExceptionDetails1 = new ExceptionDetailsInfo(2, 1, "InnerException", "Inner exception", false,
+                "Inner exception stack", new[]
+                {
+                    new StackFrame("Some.Assembly", "LessImportantFile.dll", 1, 11, "DeeperInnerMethod")
+                });
+            var innerExceptionDetails2 = new ExceptionDetailsInfo(3, 2, "InnerException", "Inner exception", false,
+                "Inner exception stack", new[]
+                {
+                    new StackFrame("Some.Assembly", "LessImportantFile.dll", 1, 11, "DeeperInnerMethod")
+                });
+            var innerExceptionDetails3 = new ExceptionDetailsInfo(4, 3, "InnerException", "Inner exception", false,
+                "Inner exception stack", new[]
+                {
+                    new StackFrame("Some.Assembly", "LessImportantFile.dll", 1, 11, "DeeperInnerMethod")
+                });
+            var stackFrames = GetStackFrames();
+            ExceptionTelemetry item = new ExceptionTelemetry(
+                new[] { topLevelexceptionDetails, innerExceptionDetails1, innerExceptionDetails2, innerExceptionDetails3 },
+                SeverityLevel.Error, "ProblemId",
+                new Dictionary<string, string>(),
+                new Dictionary<string, double>());
+
+            // ACT
+            item.SetParsedStack(stackFrames, 2);
+
+            // ASSERT
+            // use internal fields to validate not modified stacks
+            foreach(var i in new[] { 0, 1, 3 })
+            {
+                var parsedStack = item.Data.Data.exceptions[i].parsedStack;
+                Assert.AreEqual(1, parsedStack.Count);
+                Assert.AreEqual("Some.Assembly", parsedStack[0].assembly);
+                Assert.AreEqual("LessImportantFile.dll", parsedStack[0].fileName);
+                Assert.AreEqual(1, parsedStack[0].level);
+                Assert.AreEqual(11, parsedStack[0].line);
+                Assert.AreEqual("DeeperInnerMethod", parsedStack[0].method);
+            }
+
+            // validate that the replaced stack matches source stack frames
+            var modifiedParsedStack = item.Data.Data.exceptions[2].parsedStack;
+            Assert.AreEqual(stackFrames.Length, modifiedParsedStack.Count);
+            for(int i = 0; i < stackFrames.Length; i++)
+            {
+                var assemblyName = stackFrames[i].GetMethod().DeclaringType.GetTypeInfo().Assembly.FullName;
+                Assert.AreEqual(assemblyName, modifiedParsedStack[i].assembly);
+                Assert.AreEqual(stackFrames[i].GetFileName(), modifiedParsedStack[i].fileName);
+                Assert.AreEqual(i, modifiedParsedStack[i].level);
+                Assert.AreEqual(stackFrames[i].GetFileLineNumber(), modifiedParsedStack[i].line);
+                var methodName = stackFrames[i].GetMethod().DeclaringType.FullName + "." + stackFrames[i].GetMethod().Name;
+                Assert.AreEqual(methodName, modifiedParsedStack[i].method);
+            }
+        }
+
+        private System.Diagnostics.StackFrame[] GetStackFrames(int numberOfStackFrames = 5)
+        {
+            var exception = CreateExceptionWithStackTrace(numberOfStackFrames);
+            return new System.Diagnostics.StackTrace(exception, true).GetFrames();
+        }
+
+        private Exception CreateExceptionWithInnerExceptions(int numberOfInnerExceptions)
+        {
+            Exception innerException = numberOfInnerExceptions > 1
+                ? CreateExceptionWithInnerExceptions(numberOfInnerExceptions - 1)
+                : null;
+
+            return CreateExceptionWithStackTrace(2, innerException);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private Exception CreateExceptionWithStackTrace(int numberOfStackpoints = 0, Exception innerException = null)
+        {
+            Exception exception = null;
+
             try
             {
-                throw new Exception();
+                FailedFunction(numberOfStackpoints, innerException);
             }
-            catch (Exception e)
+            catch (Exception exp)
             {
-                return e;
+                exception = exp;
             }
+
+            return exception;
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void FailedFunction(int numberOfStackpoints, Exception innerException)
+        {
+            if (numberOfStackpoints > 1)
+            {
+                FailedFunction(--numberOfStackpoints, innerException);
+            }
+
+            throw new AggregateException("exception message", innerException);
         }
 
         private static ExceptionTelemetry CreateExceptionTelemetry(Exception exception = null)
