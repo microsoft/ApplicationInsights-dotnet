@@ -1,4 +1,6 @@
 # Changelog 
+### Version 2.9.0
+- Update Base SDK to version 2.9.0
 
 ### Version 2.9.0-beta3
 - Update Base SDK to version 2.9.0-beta3
