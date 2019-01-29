@@ -3,6 +3,9 @@
 
 ## Nuget packages
 
+- For ILogger:
+ [Microsoft.ApplicationInsights.NLogTarget](https://www.nuget.org/packages/Microsoft.Extensions.Logging.ApplicationInsights/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.Extensions.Logging.ApplicationInsights.svg)](https://www.nuget.org/packages/Microsoft.Extensions.Logging.ApplicationInsights/)
 - For NLog:
  [Microsoft.ApplicationInsights.NLogTarget](http://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/)
 [![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.NLogTarget.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/)
@@ -25,6 +28,105 @@ If you use NLog, log4Net or System.Diagnostics.Trace for diagnostic tracing in y
 Read more:
 - [Microsoft Docs: "Explore .NET trace logs in Application Insights"](https://docs.microsoft.com/azure/application-insights/app-insights-asp-net-trace-logs)
 - [Microsoft Docs: "Diagnose sudden changes in your app telemetry"](https://docs.microsoft.com/azure/application-insights/app-insights-analytics-diagnostics#trace)
+
+## ILogger
+See [Logging](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging) documentation.
+
+Following shows a sample Asp.Net Core Application configured to send ILogger traces to application insights. This example can be
+followed to send ILogger traces from Program.cs, Startup.cs or any other Contoller/Application Logic.
+
+```
+public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var host = BuildWebHost(args);
+            var logger = host.Services.GetRequiredService<ILogger<Program>>();
+            logger.LogInformation("From Program. Running the host now.."); // This will be picked up up by AI
+            host.Run();
+        }
+
+        public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()                
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders(); //optionally removing all other logging providers.
+                    logging.AddApplicationInsights("ikeyhere");
+					// Optional: Apply filters to configure LogLevel Trace or above is sent to ApplicationInsights for all
+					// categories.
+					logging.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace);
+					// Additional filtering For category starting in "Microsoft",
+					// only Warning or above will be sent to Application Insights.
+                    logging.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Warning);
+                })
+                .Build();
+    }
+```
+
+```
+public class Startup
+    {
+        private readonly ILogger _logger;
+
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
+        {
+            Configuration = configuration;
+            _logger = logger;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);                         
+
+             _logger.LogInformation("From ConfigureServices. Services.AddMVC invoked"); // This will be picked up up by AI
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                _logger.LogInformation("Configuring for Development environment");
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                _logger.LogInformation("Configuring for Production environment");
+            }
+
+            app.UseMvc();
+        }
+    }
+```
+
+```
+public class ValuesController : ControllerBase
+    {
+        private readonly ILogger _logger;
+
+        public ValuesController(ILogger<ValuesController> logger)
+        {
+            _logger = logger;
+        }
+
+        // GET api/values
+        [HttpGet]
+        public ActionResult<IEnumerable<string>> Get()
+        {
+            _logger.LogInformation("This is an information trace..");
+            _logger.LogWarning("This is a warning trace..");
+            _logger.LogTrace("this is a Trace level message");
+            return new string[] { "value1", "value2" };
+        }
+		...
+		....
+	}
+```
+
 
 ## NLog
 Application Insights NLog Target nuget package adds ApplicationInsights target in your web.config (If you use application type that does not have web.config you can install the package but you need to configure ApplicationInsights programmatically; see below). 
