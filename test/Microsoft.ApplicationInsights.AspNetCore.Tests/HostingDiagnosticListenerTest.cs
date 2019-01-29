@@ -14,7 +14,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.W3C;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.AspNetCore.Http;
     using Xunit;
 
@@ -660,7 +660,6 @@
             Assert.True(string.IsNullOrEmpty(requestTelemetry.Source));
         }
 
-#pragma warning disable 612, 618
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -679,9 +678,9 @@
                 hostingListener.OnSubscribe();
                 var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
-                context.Request.Headers[W3CConstants.TraceParentHeader] =
+                context.Request.Headers[W3C.W3CConstants.TraceParentHeader] =
                     "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01";
-                context.Request.Headers[W3CConstants.TraceStateHeader] = "state=some";
+                context.Request.Headers[W3C.W3CConstants.TraceStateHeader] = "state=some";
                 context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
 
                 HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
@@ -729,16 +728,20 @@
                 var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
                 context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = "|abc.1.2.3.";
-                context.Request.Headers[W3CConstants.TraceParentHeader] =
+                context.Request.Headers[W3C.W3CConstants.TraceParentHeader] =
                     "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01";
-                context.Request.Headers[W3CConstants.TraceStateHeader] = "state=some";
+                context.Request.Headers[W3C.W3CConstants.TraceStateHeader] = "state=some";
                 context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "k=v";
 
                 HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
 
                 var activityInitializedByW3CHeader = Activity.Current;
 
-                Assert.Equal("|abc.1.2.3.", activityInitializedByW3CHeader.ParentId);
+                if (isAspNetCore2)
+                {
+                    Assert.Equal("|abc.1.2.3.", activityInitializedByW3CHeader.ParentId);
+                }
+
                 Assert.Equal("4bf92f3577b34da6a3ce929d0e0e4736", activityInitializedByW3CHeader.GetTraceId());
                 Assert.Equal("00f067aa0ba902b7", activityInitializedByW3CHeader.GetParentSpanId());
                 Assert.Equal(16, activityInitializedByW3CHeader.GetSpanId().Length);
@@ -760,8 +763,11 @@
                     out var appId));
                 Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
 
-                Assert.Equal("abc", requestTelemetry.Properties["ai_legacyRootId"]);
-                Assert.StartsWith("|abc.1.2.3.", requestTelemetry.Properties["ai_legacyRequestId"]);
+                if (isAspNetCore2)
+                {
+                    Assert.Equal("abc", requestTelemetry.Properties["ai_legacyRootId"]);
+                    Assert.StartsWith("|abc.1.2.3.", requestTelemetry.Properties["ai_legacyRequestId"]);
+                }
             }
         }
 
@@ -879,10 +885,10 @@
 
                 var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
-                context.Request.Headers[W3CConstants.TraceParentHeader] =
+                context.Request.Headers[W3C.W3CConstants.TraceParentHeader] =
                     "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-00";
-                context.Request.Headers[W3CConstants.TraceStateHeader] =
-                    $"state=some,{W3CConstants.AzureTracestateNamespace}={ExpectedAppId}";
+                context.Request.Headers[W3C.W3CConstants.TraceStateHeader] =
+                    $"state=some,{W3C.W3CConstants.AzureTracestateNamespace}={ExpectedAppId}";
 
                 HandleRequestBegin(hostingListener, context, 0, isAspNetCore2);
                 var activityInitializedByW3CHeader = Activity.Current;
@@ -901,7 +907,6 @@
                 Assert.Equal($"appId={CommonMocks.TestApplicationId}", appId);
             }
         }
-#pragma warning restore 612, 618
 
         private void HandleRequestBegin(HostingDiagnosticListener hostingListener, HttpContext context, long timestamp, bool isAspNetCore2)
         {
