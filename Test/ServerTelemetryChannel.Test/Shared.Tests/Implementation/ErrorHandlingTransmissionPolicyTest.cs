@@ -283,6 +283,73 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
             }
 
             [TestMethod]
+            public void NoWarningLogsWhenResponseIsSucess()
+            {
+                // ErrorHandlingTransmissionPolicy does retry only for a whitelisted set of status codes. For 
+                // success status, there should be no warnings. This test is to validate that no warning is logged.
+                using (var listener = new TestEventListener())
+                {
+                    // Arrange:
+                    const long AllKeywords = -1;
+                    listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.LogAlways, (EventKeywords)AllKeywords);
+
+                    Transmission enqueuedTransmission = null;
+                    var transmitter = new StubTransmitter(new BackoffLogicManager(TimeSpan.FromMilliseconds(10)))
+                    {
+                        OnEnqueue = transmission => { enqueuedTransmission = transmission; }
+                    };
+
+                    var policy = new ErrorHandlingTransmissionPolicy();
+                    policy.Initialize(transmitter);
+
+                    var failedTransmission = new StubTransmission();
+
+                    // Act:
+                    var res = new HttpWebResponseWrapper();
+                    res.StatusCode = 200;  // Sucess
+                    transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, null, res));
+
+                    // Assert:
+                    var traces = listener.Messages.Where(item => item.Level == EventLevel.Warning).ToList();
+                    Assert.AreEqual(0, traces.Count);
+                }
+            }
+
+            [TestMethod]
+            public void NoWarningLogsWhenResponseIsPartiallSuccess()
+            {
+                // ErrorHandlingTransmissionPolicy does retry only for a whitelisted set of status codes. For 
+                // partial success (206) status, there should be no warnings as this is handled by separate
+                // Retry policy. This test is to validate that no warning is logged.
+                using (var listener = new TestEventListener())
+                {
+                    // Arrange:
+                    const long AllKeywords = -1;
+                    listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.LogAlways, (EventKeywords)AllKeywords);
+
+                    Transmission enqueuedTransmission = null;
+                    var transmitter = new StubTransmitter(new BackoffLogicManager(TimeSpan.FromMilliseconds(10)))
+                    {
+                        OnEnqueue = transmission => { enqueuedTransmission = transmission; }
+                    };
+
+                    var policy = new ErrorHandlingTransmissionPolicy();
+                    policy.Initialize(transmitter);
+
+                    var failedTransmission = new StubTransmission();
+
+                    // Act:
+                    var res = new HttpWebResponseWrapper();
+                    res.StatusCode = 206;  // Sucess
+                    transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, null, res));
+
+                    // Assert:
+                    var traces = listener.Messages.Where(item => item.Level == EventLevel.Warning).ToList();
+                    Assert.AreEqual(0, traces.Count);
+                }
+            }
+
+            [TestMethod]
             public void LogsAdditionalTracesIfResponseIsProvided()
             {
                 using (var listener = new TestEventListener())
