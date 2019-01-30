@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 2.6.0
+- Updated Web/Base SDK version dependency to 2.9.0
 - [Fix: TypeInitializationException when Microsoft.AspNetCore.Hosting and Microsoft.AspNetCore.Hosting.Abstractions versions do not match](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/821)
 
 ## Version 2.6.0-beta3
