@@ -30,8 +30,43 @@ Read more:
 - [Microsoft Docs: "Diagnose sudden changes in your app telemetry"](https://docs.microsoft.com/azure/application-insights/app-insights-analytics-diagnostics#trace)
 
 ## ILogger
-See [Logging](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging) documentation.
+See [this](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/tree/develop/src/ILogger/Readme.md).
 
+Console Application
+Following shows a sample Console Application configured to send ILogger traces to application insights.
+
+```
+class Program
+    {
+        static void Main(string[] args)
+        {
+            // Create DI container.
+            IServiceCollection services = new ServiceCollection();
+            
+            // Add the logging pipelines to use. We are using Console and AI and configuring them both.
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddApplicationInsights("--YourAIKeyHere--");
+
+                loggingBuilder.AddConsole();
+            });
+
+            // Build ServiceProvider.
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+
+            ILogger<Program> logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+
+            // Begin a new scope. This is optional. Epecially in case of AspNetCore request info is already
+            // present in scope.
+            using (logger.BeginScope(new Dictionary<string, object> { { "Method", nameof(Main) } }))
+            {
+                logger.LogInformation("Logger is working");
+            }
+        }
+    }
+```
+
+Asp.Net Core Application
 Following shows a sample Asp.Net Core Application configured to send ILogger traces to application insights. This example can be
 followed to send ILogger traces from Program.cs, Startup.cs or any other Contoller/Application Logic.
 
