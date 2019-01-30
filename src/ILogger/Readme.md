@@ -47,7 +47,8 @@ class Program
 }
 ```
 
-Asp.Net Core Application
+## Asp.Net Core Application
+
 Following shows a sample Asp.Net Core Application configured to send ILogger traces to application insights. This example can be
 followed to send ILogger traces from Program.cs, Startup.cs or any other Contoller/Application Logic.
 
@@ -175,13 +176,14 @@ and a custom TelemetryInitializer.
 ```
 
 While the above approach can be used in a Asp.Net Core application as well, a more common approach would be to combine regular Application monitoring (Requests, Dependencies etc.)
-with ILogger capture. 
+with ILogger capture as shown below.
+
 Install additional package
 ```
 <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.6.0-beta3" />
 ```
 
-Add the following to `ConfigureServices` method. This will enable regular Application Monitoring with default conifguration (ServerTelemetryChannel, LiveMetrics, Request/Dependencies, Correlation etc.)
+Add the following to `ConfigureServices` method. This will enable regular Application Monitoring with default configuration (ServerTelemetryChannel, LiveMetrics, Request/Dependencies, Correlation etc.)
 ```
 services.AddApplicationInsightsTelemetry("ikeyhere");
 ```
@@ -189,4 +191,3 @@ services.AddApplicationInsightsTelemetry("ikeyhere");
 In this example, the configuration used `ApplicationInsightsLoggerProvider` is the same as used by regular Application Monitoring. There is an exemption to this however. 
 The default `TelemetryConfguration` is not quite setup when logging something from Program.cs or Startup.cs itself, so those logs won't have the default configuration. However,
 every other logs (e.g. logs from Controllers, Models etc.) would share the configuration with Application Monitoring.
-
