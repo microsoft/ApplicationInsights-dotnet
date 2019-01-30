@@ -1,7 +1,8 @@
-## ILogger
+# ILogger
 To learn about ILogger based logging, see [this](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging) documentation.
 
-Console Application
+## Console Application
+
 Following shows a sample Console Application configured to send ILogger traces to application insights.
 
 Packages installed
