@@ -176,7 +176,7 @@ function Get-IsValidProjectUrl([xml]$nuspecXml) {
 }
 
 function Get-IsValidLicense([xml]$nuspecXml) {
-    $license = $nuspecXml.package.metadata.license;
+    $license = $nuspecXml.package.metadata.license.InnerText;
 
     $message = "License Url: $license";
     $requirement = "Must match expected."
