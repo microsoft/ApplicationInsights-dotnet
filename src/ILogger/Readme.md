@@ -97,7 +97,7 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);                         
-            _logger.LogInformation("From ConfigureServices. Services.AddMVC invoked"); // This will be picked up up by AI
+        _logger.LogInformation("From ConfigureServices. Services.AddMVC invoked"); // This will be picked up up by AI
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -154,25 +154,25 @@ Following is the relevant section showing how to override the default `Telemetry
 and a custom TelemetryInitializer.
 
 ```csharp
-			// Create DI container.
-            IServiceCollection services = new ServiceCollection();
-            var serverChannel = new ServerTelemetryChannel();
-            services.Configure<TelemetryConfiguration>(
-                        (config) =>
-                        {                            
-                            config.TelemetryChannel = serverChannel;
-                            config.TelemetryInitializers.Add(new MyTelemetryInitalizers());
-                            config.DefaultTelemetrySink.TelemetryProcessorChainBuilder.UseSampling(5);
-                            serverChannel.Initialize(config);
-                        }
-                );
+	// Create DI container.
+    IServiceCollection services = new ServiceCollection();
+    var serverChannel = new ServerTelemetryChannel();
+    services.Configure<TelemetryConfiguration>(
+        (config) =>
+        {                            
+            config.TelemetryChannel = serverChannel;
+            config.TelemetryInitializers.Add(new MyTelemetryInitalizers());
+            config.DefaultTelemetrySink.TelemetryProcessorChainBuilder.UseSampling(5);
+            serverChannel.Initialize(config);
+        }
+    );
 
-            // Add the logging pipelines to use. We are adding ApplicationInsights only.
-            services.AddLogging(loggingBuilder =>
-            {
-                loggingBuilder.AddApplicationInsights();
+    // Add the logging pipelines to use. We are adding ApplicationInsights only.
+    services.AddLogging(loggingBuilder =>
+    {
+        loggingBuilder.AddApplicationInsights();
 
-            });
+    });
 ```
 
 While the above approach can be used in a Asp.Net Core application as well, a more common approach would be to combine regular Application monitoring (Requests, Dependencies etc.)
