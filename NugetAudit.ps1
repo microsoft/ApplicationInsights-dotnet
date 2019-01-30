@@ -15,7 +15,7 @@ Param(
 
 $requiredCopyright = "$([char]0x00A9) Microsoft Corporation. All rights reserved.";#"© Microsoft Corporation. All rights reserved.";
 $expectedProjectUrl = "https://go.microsoft.com/fwlink/?LinkId=392727"; # Application Insights Project Url
-$expectedLicenseUrl = "https://go.microsoft.com/fwlink/?LinkID=510709"; # Application Insights license Url
+$expectedLicense = "MIT"; # MIT License SPDX ID
 $expectedOwner = "AppInsightsSdk"; # Application Insights Nuget Account
 $expectedTags = @("Azure","Monitoring");
 
@@ -175,14 +175,13 @@ function Get-IsValidProjectUrl([xml]$nuspecXml) {
     Test-Condition ($projectUrl -eq $expectedProjectUrl) $message $requirement;
 }
 
-function Get-IsValidLicenseUrl([xml]$nuspecXml) {
-    $licenseUrl = $nuspecXml.package.metadata.licenseUrl;
+function Get-IsValidLicense([xml]$nuspecXml) {
+    $license = $nuspecXml.package.metadata.license;
 
-    $message = "License Url: $licenseUrl";
+    $message = "License Url: $license";
     $requirement = "Must match expected."
-    $recommendation = "Should not use FWLINK."
 
-    Test-MultiCondition ($licenseUrl -eq $expectedLicenseUrl) ($licenseUrl -notlike "*fwlink*") $message $requirement $recommendation;
+    Test-Condition ($license -eq $expectedLicense) $message $requirement;
 }
 
 function Get-IsValidLicenseAcceptance([xml]$nuspecXml) {
@@ -291,7 +290,7 @@ function Start-EvaluateNupkg ($nupkgPath) {
         Get-IsValidAuthors $nuspecXml;
         Get-IsValidOwners $nuspecXml;
         Get-IsValidProjectUrl $nuspecXml;
-        Get-IsValidLicenseUrl $nuspecXml;
+        Get-IsValidLicense $nuspecXml;
         Get-IsValidLicenseAcceptance $nuspecXml;
         Get-IsValidCopyright $nuspecXml;
         Get-IsValidLogoUrl $nuspecXml $unzipPath;
