@@ -113,9 +113,7 @@
                 telemetryContext.Name = operationTelemetry.Name;
             }
 
-            bool isActivityAvailable = false;
-
-            isActivityAvailable = ActivityExtensions.TryRun(() =>
+            var isActivityAvailable = ActivityExtensions.TryRun(() =>
             {
                 var parentActivity = Activity.Current;
                 var operationActivity = new Activity(ChildActivityName);

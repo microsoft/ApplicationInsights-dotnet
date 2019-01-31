@@ -57,7 +57,10 @@
 
             // make estimator telemetry processor  work after sampling was done
             this.estimatorProcessor = new SamplingPercentageEstimatorTelemetryProcessor(settings, this.SamplingPercentageChanged, next);
-            this.samplingProcessor = new SamplingTelemetryProcessor(next, this.estimatorProcessor);
+            this.samplingProcessor = new SamplingTelemetryProcessor(next, this.estimatorProcessor)
+            {
+                SamplingPercentage = this.estimatorSettings.InitialSamplingPercentage
+            };
         }
 
         /// <summary>
@@ -99,6 +102,7 @@
                 // note: 'initial' percentage will affect sampling even 
                 // if it was running for a while
                 this.estimatorSettings.InitialSamplingPercentage = value;
+                this.estimatorProcessor.CurrentSamplingRate = this.estimatorSettings.EffectiveInitialSamplingRate;
                 this.samplingProcessor.SamplingPercentage = value;
             }
         }
@@ -220,6 +224,16 @@
                 this.estimatorSettings.MovingAverageRatio = value;
             }
         }
+
+        /// <summary>
+        /// Gets sampling telemetry processor.
+        /// </summary>
+        internal SamplingTelemetryProcessor SamplingTelemetryProcessor => this.samplingProcessor;
+
+        /// <summary>
+        /// Gets sampling percentage estimator telemetry processor.
+        /// </summary>
+        internal SamplingPercentageEstimatorTelemetryProcessor SamplingPercentageEstimatorTelemetryProcessor => this.estimatorProcessor;
 
         /// <summary>
         /// Processes telemetry item.

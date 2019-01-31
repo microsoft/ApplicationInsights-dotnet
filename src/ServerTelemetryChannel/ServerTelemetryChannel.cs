@@ -7,8 +7,6 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
-    using TaskEx = System.Threading.Tasks.Task;
-
     /// <summary>
     /// Represents a communication channel for sending telemetry to Application Insights via HTTP/S.
     /// </summary>
@@ -29,7 +27,7 @@
 #if !NETSTANDARD
         public ServerTelemetryChannel() : this(new Network(), new WebApplicationLifecycle())
 #else
-        // TODO: IApplicationLifecycle implemenation for netcore need to be written instead of null here.
+        // TODO: IApplicationLifecycle implementation for netcore need to be written instead of null here.
         public ServerTelemetryChannel() : this(new Network(), null)
 #endif
         {
@@ -308,7 +306,7 @@
 
             // ApplyPolicies will synchronously get list of file names from disk and calculate size
             // Creating task to improve application startup time
-            ExceptionHandler.Start(() => { return TaskEx.Run(() => this.Transmitter.ApplyPolicies()); });
+            ExceptionHandler.Start(() => { return Task.Run(() => this.Transmitter.ApplyPolicies()); });
 
             this.isInitialized = true;
         }

@@ -12,7 +12,7 @@
     
     using Extensibility.Implementation;
     using TestFramework;
-    using TaskEx = System.Threading.Tasks.Task;
+    
 
     /// <summary>
     /// Tests corresponding to TelemetryClientExtension methods.
@@ -66,7 +66,7 @@
                 this.telemetryClient.TrackTrace("trace1");
 
                 //HttpClient client = new HttpClient();
-                await TaskEx.Delay(TimeSpan.FromMilliseconds(100));//client.GetStringAsync("http://bing.com");
+                await Task.Delay(TimeSpan.FromMilliseconds(100));//client.GetStringAsync("http://bing.com");
 
                 var id2 = Thread.CurrentThread.ManagedThreadId;
                 this.telemetryClient.TrackTrace("trace2");
@@ -105,7 +105,7 @@
             int id2 = 0;
             this.telemetryClient.TrackTrace("trace1");
 
-            var result = TaskEx.Delay(TimeSpan.FromMilliseconds(50)).ContinueWith((t) =>
+            var result = Task.Delay(TimeSpan.FromMilliseconds(50)).ContinueWith((t) =>
             {
                 id2 = Thread.CurrentThread.ManagedThreadId;
                 this.telemetryClient.TrackTrace("trace2");

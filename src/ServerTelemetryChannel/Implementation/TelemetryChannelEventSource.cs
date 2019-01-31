@@ -489,6 +489,37 @@
             this.WriteEvent(68, directory, error, this.ApplicationName);
         }
 
+        [Event(69, Message = "TransmissionDataLossError. Telemetry items are being lost here due to unknown error. TransmissionId: {0}. Error Message: {1}.", Level = EventLevel.Error)]
+        public void TransmissionDataLossError(string transmissionId, string message, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                69,
+                transmissionId ?? string.Empty,
+                message ?? string.Empty,
+                this.ApplicationName);
+        }
+
+        [Event(70, Message = "Raw response content from AI Backend for Transmission Id {0} : {1}.", Level = EventLevel.Verbose)]
+        public void RawResponseFromAIBackend(string transmissionId, string message, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                70,
+                transmissionId ?? string.Empty,
+                message ?? string.Empty,
+                this.ApplicationName);
+        }
+
+        [Event(71, Message = "TransmissionDataLossError. Telemetry items are being lost here as the response code is not in the whitelisted set of retriable codes." +
+                             "TransmissionId: {0}. Status Code: {1}.", Level = EventLevel.Warning)]
+        public void TransmissionDataNotRetriedForNonWhitelistedResponse(string transmissionId, string status, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                71,
+                transmissionId ?? string.Empty,
+                status ?? string.Empty,
+                this.ApplicationName);
+        }
+
         private static string GetApplicationName()
         {
             //// We want to add application name to all events BUT

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Reflection;
     using System.Threading;
 
@@ -13,7 +14,8 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+    using Moq;
+
     [TestClass]
     public class AdaptiveSamplingTelemetryProcessorTest
     {
@@ -295,6 +297,44 @@
             Assert.AreEqual("request;", internalProcessor.ExcludedTypes);
         }
 
+        [TestMethod]
+        public void CurrentSamplingRateResetsOnInitialSamplingRateChange()
+        {
+            var nextMock = new Mock<ITelemetryProcessor>();
+            var next = nextMock.Object;
+            var adaptiveSamplingProcessor = new AdaptiveSamplingTelemetryProcessor(
+                new Channel.Implementation.SamplingPercentageEstimatorSettings
+                {
+                    InitialSamplingPercentage = 20,
+                },
+                null,
+                next);
+
+            Assert.AreEqual(20, adaptiveSamplingProcessor.InitialSamplingPercentage);
+            Assert.AreEqual(100 / 20, adaptiveSamplingProcessor.SamplingPercentageEstimatorTelemetryProcessor.CurrentSamplingRate);
+
+            // change in InitialSamplingPercentage should change the CurrentSamplingPercentage:
+            adaptiveSamplingProcessor.InitialSamplingPercentage = 50;
+            Assert.AreEqual(50, adaptiveSamplingProcessor.InitialSamplingPercentage);
+            Assert.AreEqual(100 / 50, adaptiveSamplingProcessor.SamplingPercentageEstimatorTelemetryProcessor.CurrentSamplingRate);
+        }
+
+        [TestMethod]
+        public void SettingsFromPassedInTelemetryProcessorsAreAppliedToSamplingTelemetryProcessor()
+        {
+            var nextMock = new Mock<ITelemetryProcessor>();
+            var next = nextMock.Object;
+            var adaptiveSamplingProcessor = new AdaptiveSamplingTelemetryProcessor(
+                new Channel.Implementation.SamplingPercentageEstimatorSettings
+                {
+                    InitialSamplingPercentage = 25,
+                },
+                null,
+                next);
+            var percentageEstimatorProcessor = adaptiveSamplingProcessor.SamplingTelemetryProcessor;
+            Assert.AreEqual(25, percentageEstimatorProcessor.SamplingPercentage);
+        }
+
         private void TraceSamplingPercentageEvaluation(
             double afterSamplingTelemetryItemRatePerSecond,
             double currentSamplingPercentage,
@@ -317,7 +357,7 @@
             // Regular Dispose() does not wait for all callbacks to complete
             // so TelemetryConfiguration could be disposed while callback still runs
 
-#if NETCOREAPP1_1
+#if (NETCOREAPP1_1)
             timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
             timer.Dispose();
             Thread.Sleep(1000);
