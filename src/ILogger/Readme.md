@@ -137,10 +137,15 @@ public class ValuesController : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<string>> Get()
     {
-		// The following be picked up up by Application Insights.
-        _logger.LogInformation("This is an information trace..");
-        _logger.LogWarning("This is a warning trace..");
-        _logger.LogTrace("this is a Trace level message");
+		// All the following logs will be picked upby Application Insights.
+		// and all have ("MyKey", "MyValue") in Properties.
+		using (_logger.BeginScope(new Dictionary<string, object> { { "MyKey", "MyValue" } }))
+        {			
+			_logger.LogInformation("This is an information trace..");
+			_logger.LogWarning("This is a warning trace..");
+			_logger.LogTrace("this is a Trace level message");
+        }
+
         return new string[] { "value1", "value2" };
     }
 }
