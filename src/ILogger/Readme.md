@@ -193,7 +193,9 @@ Add the following to `ConfigureServices` method. This will enable regular applic
 services.AddApplicationInsightsTelemetry("ikeyhere");
 ```
 
-In this example, the configuration used by `ApplicationInsightsLoggerProvider` is the same as used by regular application monitoring. 
+In this example, the configuration used by `ApplicationInsightsLoggerProvider` is the same as used by regular application monitoring. This means that both `ILogger` traces
+and other telemetry (Requests, Dependencies etc) will be running the same set of `TelemetryInitializers`, `TelemetryProcessors`, and `TelemetryChannel`. They will correlated
+and sampled/not sampled in the same way.
 
-There is an exemption to this however. The default `TelemetryConfguration` is not quite setup when logging something from Program.cs or Startup.cs itself, so those logs won't have the default configuration. However,
-every other logs (e.g. logs from Controllers, Models etc.) would share the configuration with Application Monitoring.
+There is an exception to this, however. The default `TelemetryConfiguration` is not fully setup when logging something from `Program.cs` or `Startup.cs` itself,
+so those logs will not be have the default configuration. However, every other logs (e.g. logs from Controllers, Models etc.) would share the configuration.
