@@ -69,12 +69,14 @@ public class Program
             .ConfigureLogging(logging =>
             {                
                 logging.AddApplicationInsights("ikeyhere");
+				
 				// Optional: Apply filters to configure LogLevel Trace or above is sent to
 				// ApplicationInsights for all categories.
 				logging.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace);
+				
 				// Additional filtering For category starting in "Microsoft",
 				// only Warning or above will be sent to Application Insights.
-                logging.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Warning);
+				logging.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Warning);
             })
             .Build();
 }
@@ -96,8 +98,9 @@ public class Startup
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);                         
-        _logger.LogInformation("From ConfigureServices. Services.AddMVC invoked"); // This will be picked up up by AI
+        services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+		// The following be picked up up by Application Insights.
+        _logger.LogInformation("From ConfigureServices. Services.AddMVC invoked"); 
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -105,11 +108,13 @@ public class Startup
     {
         if (env.IsDevelopment())
         {
+			// The following be picked up up by Application Insights.	
             _logger.LogInformation("Configuring for Development environment");
             app.UseDeveloperExceptionPage();
         }
         else
         {
+			// The following be picked up up by Application Insights.
             _logger.LogInformation("Configuring for Production environment");
         }
 
@@ -132,12 +137,12 @@ public class ValuesController : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<string>> Get()
     {
+		// The following be picked up up by Application Insights.
         _logger.LogInformation("This is an information trace..");
         _logger.LogWarning("This is a warning trace..");
         _logger.LogTrace("this is a Trace level message");
         return new string[] { "value1", "value2" };
     }
-	...
 }
 ```
 
