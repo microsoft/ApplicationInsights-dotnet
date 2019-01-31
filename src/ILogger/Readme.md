@@ -189,7 +189,7 @@ While the above approach can be used in a Asp.Net Core application as well, a mo
 with ILogger capture as shown below.
 
 Install additional package
-```
+```xml
 <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.6.0-beta3" />
 ```
 
