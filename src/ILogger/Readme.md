@@ -142,7 +142,7 @@ public class ValuesController : ControllerBase
 ```
 
 In both the above examples, the standalone package Microsoft.Extensions.Logging.ApplicationInsights was used. This, by default, would be using a bare minimum `TelemetryConfiguration` for sending data to
-application insights. Bare minimum means the channel used will be `InMemoryChannel`, no sampling, and no standard TelemetryInitializers. This behavior can be overridden for a console application
+Application Insights. Bare minimum means the channel used will be `InMemoryChannel`, no sampling, and no standard TelemetryInitializers. This behavior can be overridden for a console application
 as shown in below example.
 
 Install additional package
@@ -161,7 +161,7 @@ and a custom TelemetryInitializer.
         (config) =>
         {                            
             config.TelemetryChannel = serverChannel;
-            config.TelemetryInitializers.Add(new MyTelemetryInitalizers());
+            config.TelemetryInitializers.Add(new MyTelemetryInitalizer());
             config.DefaultTelemetrySink.TelemetryProcessorChainBuilder.UseSampling(5);
             serverChannel.Initialize(config);
         }
@@ -175,7 +175,7 @@ and a custom TelemetryInitializer.
     });
 ```
 
-While the above approach can be used in a Asp.Net Core application as well, a more common approach would be to combine regular Application monitoring (Requests, Dependencies etc.)
+While the above approach can be used in a Asp.Net Core application as well, a more common approach would be to combine regular application monitoring (Requests, Dependencies etc.)
 with ILogger capture as shown below.
 
 Install additional package
@@ -183,11 +183,12 @@ Install additional package
 <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.6.0-beta3" />
 ```
 
-Add the following to `ConfigureServices` method. This will enable regular Application Monitoring with default configuration (ServerTelemetryChannel, LiveMetrics, Request/Dependencies, Correlation etc.)
+Add the following to `ConfigureServices` method. This will enable regular application monitoring with default configuration (ServerTelemetryChannel, LiveMetrics, Request/Dependencies, Correlation etc.)
 ```
 services.AddApplicationInsightsTelemetry("ikeyhere");
 ```
 
-In this example, the configuration used `ApplicationInsightsLoggerProvider` is the same as used by regular Application Monitoring. There is an exemption to this however. 
-The default `TelemetryConfguration` is not quite setup when logging something from Program.cs or Startup.cs itself, so those logs won't have the default configuration. However,
+In this example, the configuration used by `ApplicationInsightsLoggerProvider` is the same as used by regular application monitoring. 
+
+There is an exemption to this however. The default `TelemetryConfguration` is not quite setup when logging something from Program.cs or Startup.cs itself, so those logs won't have the default configuration. However,
 every other logs (e.g. logs from Controllers, Models etc.) would share the configuration with Application Monitoring.
