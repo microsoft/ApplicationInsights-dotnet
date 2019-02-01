@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.10.0-beta1
+Updated Base SDK to 2.10.0-beta1
+
 ## Version 2.9.0
 - [Fix: remove unused reference to Microsoft.AspNet.TelemetryCorrelation package from DependencyCollector](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/1136)
 - [Move W3C support from DependencyCollector package to base SDK, deprecate W3C support in DependencyCollector](https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/1138)
