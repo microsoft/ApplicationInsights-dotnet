@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-#if NETSTANDARD1_6
+#if NETSTANDARD1_6 || NETSTANDARD2_0
     using Microsoft.Extensions.Caching.Memory;
 #else
     using System.Runtime.Caching;
@@ -21,7 +21,7 @@
         /// </summary>
         private static readonly CacheHelper CacheHelperInstance = new CacheHelper();
 
-#if NETSTANDARD1_6
+#if NETSTANDARD1_6 || NETSTANDARD2_0
         IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
 #endif
 
@@ -114,7 +114,7 @@
         /// <param name="absoluteExpiration">DateTimeOffset until item expires from cache.</param>
         public void SaveToCache(string cacheKey, object toCache,  DateTimeOffset absoluteExpiration)
         {
-#if NETSTANDARD1_6
+#if NETSTANDARD1_6 || NETSTANDARD2_0
             cache.Set(cacheKey, toCache, absoluteExpiration);
 #else
             MemoryCache.Default.Add(cacheKey, toCache, absoluteExpiration);                        
@@ -128,7 +128,7 @@
         /// <returns> The requested item, as object type T.</returns>
         public object GetFromCache(string cacheKey) 
         {
-#if NETSTANDARD1_6            
+#if NETSTANDARD1_6 || NETSTANDARD2_0          
             return cache.Get(cacheKey);            
 #else
             return MemoryCache.Default[cacheKey];
@@ -142,7 +142,7 @@
         /// <returns>Boolean value for whether or not a key is in the cache.</returns>
         public bool IsInCache(string cacheKey)
         {
-#if NETSTANDARD1_6            
+#if NETSTANDARD1_6 || NETSTANDARD2_0            
             object output;
             return cache.TryGetValue(cacheKey, out output);
 #else
@@ -160,7 +160,7 @@
         {
             if (disposing)
             {
-#if NETSTANDARD1_6
+#if NETSTANDARD1_6 || NETSTANDARD2_0
                 cache.Dispose();
 #endif
             }
