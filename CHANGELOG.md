@@ -2,6 +2,15 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.10.0-beta1
+- [Fix Transmission in NETCORE to handle partial success (206) response from backend.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1047)
+- [Fix data losses in ServerTelemetryChannel.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1049)
+- [InitialSamplingRate is now correctly applied if set in applicationInsights.config] (https://github.com/Microsoft/ApplicationInsights-dotnet/pull/1048)
+- Added new target for NetStandard2.0.
+
+## Version 2.9.1
+- [Aggregation thread is now a background thread](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1080)
+
 ## Version 2.9.0
 - [Move W3C methods from Web SDK](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/1064)
 
