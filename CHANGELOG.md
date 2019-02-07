@@ -3,6 +3,9 @@
 ## Version 2.7.0-beta1
 - Added NetStandard2.0 target.
 
+## Version 2.6.1
+- Updated Web/Base SDK version dependency to 2.9.1
+
 ## Version 2.6.0
 - Updated Web/Base SDK version dependency to 2.9.0
 - [Fix: TypeInitializationException when Microsoft.AspNetCore.Hosting and Microsoft.AspNetCore.Hosting.Abstractions versions do not match](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/821)
