@@ -6,6 +6,6 @@
           Workaround is to use this targets file to manually copy into output path."-->
 
     <Message Text="Microsoft.ApplicationInsights.DependencyCollector: Copying ApplicationInsights.config to $(OutputPath)" Importance="high" />
-    <Copy SourceFiles="ApplicationInsights.config" DestinationFolder="$(OutputPath)" ContinueOnError="true" />
+    <Copy Condition="Exists('ApplicationInsights.config')" SourceFiles="ApplicationInsights.config" DestinationFolder="$(OutputPath)" ContinueOnError="true" />
   </Target>
 </Project>
