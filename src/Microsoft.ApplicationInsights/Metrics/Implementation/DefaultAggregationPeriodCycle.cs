@@ -63,6 +63,7 @@
 
             this.aggregationThread = new Thread(this.Run);
             this.aggregationThread.Name = nameof(DefaultAggregationPeriodCycle);
+            this.aggregationThread.IsBackground = true;
 
             this.aggregationThread.Start();
             return true;
