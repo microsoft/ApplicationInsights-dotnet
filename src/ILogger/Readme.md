@@ -7,12 +7,12 @@ Following shows a sample Console Application configured to send ILogger traces t
 
 Packages installed
 ```xml
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.9.0-beta3" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.0" />
-  </ItemGroup>
+<ItemGroup>
+  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.0" />
+  <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.0" />
+  <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.9.0-beta3" />
+  <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.0" />
+</ItemGroup>
 ```
 
 ```csharp
@@ -26,9 +26,9 @@ class Program
         // Add the logging pipelines to use. We are using Application Insights only here.
         services.AddLogging(loggingBuilder =>
         {
-			// Optional: Apply filters to configure LogLevel Trace or above is sent to ApplicationInsights for all
-			// categories.
-			loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace);
+	    // Optional: Apply filters to configure LogLevel Trace or above is sent to ApplicationInsights for all
+	    // categories.
+	    loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace);
             loggingBuilder.AddApplicationInsights("--YourAIKeyHere--");                
         });
 
@@ -47,9 +47,9 @@ class Program
 }
 ```
 
-## Asp.Net Core Application
+## ASP.NET Core Application
 
-Following shows a sample Asp.Net Core Application configured to send ILogger traces to application insights. This example can be
+Following shows a sample ASP.NET Core Application configured to send ILogger traces to application insights. This example can be
 followed to send ILogger traces from Program.cs, Startup.cs or any other Contoller/Application Logic.
 
 ```csharp
@@ -68,15 +68,15 @@ public class Program
         .UseStartup<Startup>()                
         .ConfigureLogging(logging =>
         {                
-			logging.AddApplicationInsights("ikeyhere");
+	    logging.AddApplicationInsights("ikeyhere");
 				
-			// Optional: Apply filters to configure LogLevel Trace or above is sent to
-			// ApplicationInsights for all categories.
-			logging.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace);
+	    // Optional: Apply filters to configure LogLevel Trace or above is sent to
+	    // ApplicationInsights for all categories.
+            logging.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace);
 				
-			// Additional filtering For category starting in "Microsoft",
-			// only Warning or above will be sent to Application Insights.
-			logging.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Warning);
+            // Additional filtering For category starting in "Microsoft",
+	    // only Warning or above will be sent to Application Insights.
+	    logging.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Warning);
         })
         .Build();
 }
@@ -99,7 +99,8 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-		// The following be picked up up by Application Insights.
+	
+	// The following be picked up up by Application Insights.
         _logger.LogInformation("From ConfigureServices. Services.AddMVC invoked"); 
     }
 
@@ -108,13 +109,13 @@ public class Startup
     {
         if (env.IsDevelopment())
         {
-			// The following be picked up up by Application Insights.	
+	    // The following be picked up up by Application Insights.	
             _logger.LogInformation("Configuring for Development environment");
             app.UseDeveloperExceptionPage();
         }
         else
         {
-			// The following be picked up up by Application Insights.
+            // The following be picked up up by Application Insights.
             _logger.LogInformation("Configuring for Production environment");
         }
 
@@ -137,13 +138,13 @@ public class ValuesController : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<string>> Get()
     {
-		// All the following logs will be picked upby Application Insights.
-		// and all have ("MyKey", "MyValue") in Properties.
-		using (_logger.BeginScope(new Dictionary<string, object> { { "MyKey", "MyValue" } }))
+        // All the following logs will be picked upby Application Insights.
+	// and all have ("MyKey", "MyValue") in Properties.
+	using (_logger.BeginScope(new Dictionary<string, object> { { "MyKey", "MyValue" } }))
         {			
-			_logger.LogInformation("This is an information trace..");
-			_logger.LogWarning("This is a warning trace..");
-			_logger.LogTrace("this is a Trace level message");
+	    _logger.LogInformation("This is an information trace..");
+	    _logger.LogWarning("This is a warning trace..");
+	    _logger.LogTrace("this is a Trace level message");
         }
 
         return new string[] { "value1", "value2" };
@@ -160,11 +161,10 @@ Install additional package
 <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.9.0-beta3" />
 ```
 
-Following is the relevant section showing how to override the default `TelemetryConfiguration`. This example configures `ServerTelemetryChannel`, sampling, 
-and a custom TelemetryInitializer.
+Following is the relevant section showing how to override the default `TelemetryConfiguration`. This example configures `ServerTelemetryChannel`, sampling, and a custom `ITelemetryInitializer`.
 
 ```csharp
-	// Create DI container.
+    // Create DI container.
     IServiceCollection services = new ServiceCollection();
     var serverChannel = new ServerTelemetryChannel();
     services.Configure<TelemetryConfiguration>(
@@ -181,26 +181,23 @@ and a custom TelemetryInitializer.
     services.AddLogging(loggingBuilder =>
     {
         loggingBuilder.AddApplicationInsights();
-
     });
 ```
 
-While the above approach can be used in a Asp.Net Core application as well, a more common approach would be to combine regular application monitoring (Requests, Dependencies etc.)
-with ILogger capture as shown below.
+While the above approach can be used in a ASP.NET Core application as well, a more common approach would be to combine regular application monitoring (Requests, Dependencies etc.) with ILogger capture as shown below.
 
 Install additional package
+
 ```xml
 <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.6.0-beta3" />
 ```
 
 Add the following to `ConfigureServices` method. This will enable regular application monitoring with default configuration (ServerTelemetryChannel, LiveMetrics, Request/Dependencies, Correlation etc.)
-```
+
+```csharp
 services.AddApplicationInsightsTelemetry("ikeyhere");
 ```
 
-In this example, the configuration used by `ApplicationInsightsLoggerProvider` is the same as used by regular application monitoring. This means that both `ILogger` traces
-and other telemetry (Requests, Dependencies etc) will be running the same set of `TelemetryInitializers`, `TelemetryProcessors`, and `TelemetryChannel`. They will correlated
-and sampled/not sampled in the same way.
+In this example, the configuration used by `ApplicationInsightsLoggerProvider` is the same as used by regular application monitoring. This means that both `ILogger` traces and other telemetry (Requests, Dependencies etc) will be running the same set of `TelemetryInitializers`, `TelemetryProcessors`, and `TelemetryChannel`. They will correlated and sampled/not sampled in the same way.
 
-There is an exception to this, however. The default `TelemetryConfiguration` is not fully setup when logging something from `Program.cs` or `Startup.cs` itself,
-so those logs will not be have the default configuration. However, every other logs (e.g. logs from Controllers, Models etc.) would share the configuration.
+There is an exception to this, however. The default `TelemetryConfiguration` is not fully setup when logging something from `Program.cs` or `Startup.cs` itself, so those logs will not be have the default configuration. However, every other logs (e.g. logs from Controllers, Models etc.) would share the configuration.
