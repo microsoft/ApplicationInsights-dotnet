@@ -5,6 +5,7 @@
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Http;
