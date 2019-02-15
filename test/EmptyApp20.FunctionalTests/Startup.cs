@@ -21,6 +21,7 @@
 
             var builder = new ConfigurationBuilder();
             builder.AddApplicationInsightsSettings(instrumentationKey: InProcessServer.IKey, endpointAddress: endpointAddress.ConnectionString, developerMode: true);
+            services.AddSingleton(typeof(ITelemetryChannel), new InMemoryChannel());
             services.AddApplicationInsightsTelemetry(builder.Build());
         }
 

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using FunctionalTestUtils;
-
+using Microsoft.ApplicationInsights.Channel;
 
 namespace WebApi20.FunctionalTests
 {
@@ -24,6 +24,7 @@ namespace WebApi20.FunctionalTests
 
             var builder = new ConfigurationBuilder();
             builder.AddApplicationInsightsSettings(instrumentationKey: InProcessServer.IKey, endpointAddress: endpointAddress.ConnectionString, developerMode: true);
+            services.AddSingleton(typeof(ITelemetryChannel), new InMemoryChannel());
             services.AddApplicationInsightsTelemetry(builder.Build());
 
             services.AddMvc();
