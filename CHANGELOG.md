@@ -1,8 +1,8 @@
 # Changelog
 
-## Version 2.7.0-beta1
+## Version 2.7.0-beta2
 - Added NetStandard2.0 target.
-- Updated Web/Base SDK version dependency to 2.10.0-beta1
+- Updated Web/Base SDK version dependency to 2.10.0-beta2
 
 ## Version 2.6.1
 - Updated Web/Base SDK version dependency to 2.9.1
