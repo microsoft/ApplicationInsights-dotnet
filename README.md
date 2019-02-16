@@ -3,6 +3,9 @@
 
 ## Nuget packages
 
+- For ILogger:
+ [Microsoft.Extensions.Logging.ApplicationInsights](https://www.nuget.org/packages/Microsoft.Extensions.Logging.ApplicationInsights/)
+[![Nuget](https://img.shields.io/nuget/vpre/Microsoft.Extensions.Logging.ApplicationInsights.svg)](https://www.nuget.org/packages/Microsoft.Extensions.Logging.ApplicationInsights/)
 - For NLog:
  [Microsoft.ApplicationInsights.NLogTarget](http://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/)
 [![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.NLogTarget.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/)
@@ -25,6 +28,9 @@ If you use NLog, log4Net or System.Diagnostics.Trace for diagnostic tracing in y
 Read more:
 - [Microsoft Docs: "Explore .NET trace logs in Application Insights"](https://docs.microsoft.com/azure/application-insights/app-insights-asp-net-trace-logs)
 - [Microsoft Docs: "Diagnose sudden changes in your app telemetry"](https://docs.microsoft.com/azure/application-insights/app-insights-analytics-diagnostics#trace)
+
+## ILogger
+See [this](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/tree/develop/src/ILogger/Readme.md).
 
 ## NLog
 Application Insights NLog Target nuget package adds ApplicationInsights target in your web.config (If you use application type that does not have web.config you can install the package but you need to configure ApplicationInsights programmatically; see below). 
