@@ -33,6 +33,7 @@ namespace MVCFramework20.FunctionalTests
             applicationInsightsOptions.EndpointAddress = endpointAddress.ConnectionString;
             applicationInsightsOptions.InstrumentationKey = InProcessServer.IKey;
 
+            services.AddSingleton(typeof(ITelemetryChannel), new InMemoryChannel());
             services.AddApplicationInsightsTelemetry(applicationInsightsOptions);
             services.AddMvc();
         }
