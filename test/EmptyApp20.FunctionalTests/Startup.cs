@@ -5,6 +5,7 @@
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Http;
@@ -21,6 +22,7 @@
 
             var builder = new ConfigurationBuilder();
             builder.AddApplicationInsightsSettings(instrumentationKey: InProcessServer.IKey, endpointAddress: endpointAddress.ConnectionString, developerMode: true);
+            services.AddSingleton(typeof(ITelemetryChannel), new InMemoryChannel());
             services.AddApplicationInsightsTelemetry(builder.Build());
         }
 
