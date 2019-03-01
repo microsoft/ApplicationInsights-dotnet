@@ -70,6 +70,7 @@
             return StartOperation(telemetryClient, operationTelemetry);
         }
 
+        [CLSCompliant(false)]
         public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, string operationName, ActivityTraceId traceId, ActivitySpanId parentSpanId) where T : OperationTelemetry, new()
         {
             if (telemetryClient == null)
@@ -260,6 +261,7 @@
         /// <param name="telemetryClient">Telemetry client object.</param>
         /// <param name="activity">Activity to get tracing context and telemetry properties from.</param>
         /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
+        [CLSCompliant(false)]
         public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, Activity activity) where T : OperationTelemetry, new()
         {
             if (telemetryClient == null)

@@ -26,6 +26,7 @@
         /// <returns>The same Activity for chaining.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete]
+        [CLSCompliant(false)]
         public static Activity GenerateW3CContext(this Activity activity)
         {
             return activity;
@@ -38,6 +39,7 @@
         /// <returns>True if Activity has W3C properties, false otherwise.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete]
+        [CLSCompliant(false)]
         public static bool IsW3CActivity(this Activity activity)
         {
             return true;
@@ -50,6 +52,7 @@
         /// <returns>The same Activity for chaining.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete]
+        [CLSCompliant(false)]
         public static Activity UpdateContextOnActivity(this Activity activity)
         {
             return activity;
@@ -62,6 +65,7 @@
         /// <returns>traceparent header value.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete]
+        [CLSCompliant(false)]
         public static string GetTraceparent(this Activity activity)
         {
             return activity.Id;
@@ -73,6 +77,7 @@
         /// <param name="activity">Activity to set W3C context on.</param>
         /// <param name="value">Valid traceparent header like 00-0af7651916cd43dd8448eb211c80319c-b9c7c989f97918e1-01.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        [CLSCompliant(false)]
         public static void SetTraceparent(this Activity activity, string value)
         {
             if (activity.Id == null)
@@ -88,6 +93,7 @@
         /// <returns>tracestate header value.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete]
+        [CLSCompliant(false)]
         public static string GetTracestate(this Activity activity) => activity.TraceStateString;
 
         /// <summary>
@@ -110,6 +116,7 @@
         /// <returns>TraceId value or null if it does not exist.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete]
+        [CLSCompliant(false)]
         public static string GetTraceId(this Activity activity) => activity.TraceId.AsHexString;
 
         /// <summary>
@@ -120,6 +127,7 @@
         /// <returns>SpanId value or null if it does not exist.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete]
+        [CLSCompliant(false)]
         public static string GetSpanId(this Activity activity) => activity.SpanId.AsHexString;
 
         /// <summary>
