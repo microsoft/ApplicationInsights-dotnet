@@ -42,7 +42,7 @@
         /// <param name="operationId">Operation ID to set in the new operation.</param>
         /// <param name="parentOperationId">Optional parent operation ID to set in the new operation.</param>
         /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
-        [Obsolete]
+        [Obsolete("123")]
         public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, string operationName, string operationId, string parentOperationId = null) where T : OperationTelemetry, new()
         {
             if (telemetryClient == null)
@@ -70,7 +70,7 @@
             return StartOperation(telemetryClient, operationTelemetry);
         }
 
-        [CLSCompliant(false)]
+       /* [CLSCompliant(false)]
         public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, string operationName, ActivityTraceId traceId, ActivitySpanId parentSpanId) where T : OperationTelemetry, new()
         {
             if (telemetryClient == null)
@@ -82,7 +82,7 @@
             activity.SetParentId(traceId, parentSpanId);
 
             return StartOperation<T>(telemetryClient, activity);
-        }
+        }*/
 
         /// <summary>
         /// Creates an operation object with a given telemetry item. 
@@ -154,7 +154,8 @@
                 {
                     if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
                     {
-                        if (telemetryContext.Id.Length == 32) // TODO: valid traceid
+                        // TODO: valid traceid
+                        if (telemetryContext.Id.Length == 32) 
                         {
                             operationActivity.SetParentId($"00-{telemetryContext.Id}-0000000000000000-01");
                         }

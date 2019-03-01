@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace Microsoft.ApplicationInsights.Extensibility.W3C
+﻿namespace Microsoft.ApplicationInsights.Extensibility.W3C
 {
+    using System;
     using System.ComponentModel;
-    using System.Diagnostics;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -11,7 +9,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.W3C
     /// Telemetry Initializer that sets correlation ids for W3C.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    [Obsolete]
+    [Obsolete("123")]
     public class W3COperationCorrelationTelemetryInitializer : ITelemetryInitializer
     {
         /// <summary>
@@ -20,8 +18,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.W3C
         /// <param name="telemetry">Telemetry item.</param>
         public void Initialize(ITelemetry telemetry)
         {
-//            Activity currentActivity = Activity.Current;
-//            currentActivity.UpdateTelemetry(telemetry, false);
         }
     }
 }

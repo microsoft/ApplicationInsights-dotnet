@@ -224,6 +224,7 @@
             Assert.AreEqual(requestTelemetry.Context.Operation.Name, dependentTelemetry.Context.Operation.Name);
         }
 
+#pragma  warning disable 612, 618
         [TestMethod]
         public void StartOperationCanOverrideOperationId()
         {

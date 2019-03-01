@@ -17,12 +17,6 @@
 #endif
     public class OperationCorrelationTelemetryInitializer : ITelemetryInitializer
     {
-        
-        private static string FormatRequestId(Activity activity)
-        {
-            return string.Concat("|", activity.TraceId.AsHexString, ".", activity.SpanId.AsHexString, ".");
-        }
-
         /// <summary>
         /// Initializes/Adds operation id to the existing telemetry item.
         /// </summary>
@@ -52,7 +46,6 @@
                             {
                                 telemetryProp.Properties.Add("tracestate", currentActivity.TraceStateString);
                             }
-
                         }
                         else
                         {
@@ -62,7 +55,6 @@
                             {
                                 itemContext.ParentId = currentActivity.ParentId;
                             }
-
                         }
 
                         foreach (var baggage in currentActivity.Baggage)
@@ -121,6 +113,11 @@
                     }
                 }
             }
+        }
+
+        private static string FormatRequestId(Activity activity)
+        {
+            return string.Concat("|", activity.TraceId.AsHexString, ".", activity.SpanId.AsHexString, ".");
         }
     }
 }

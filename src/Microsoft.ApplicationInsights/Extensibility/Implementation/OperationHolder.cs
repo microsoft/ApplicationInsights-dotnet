@@ -78,8 +78,9 @@
                         isActivityAvailable = ActivityExtensions.TryRun(() =>
                         {
                             var currentActivity = Activity.Current;
-                            if (currentActivity == null /*|| operationTelemetry.Id != currentActivity.Id*/) //TODO
+                            if (currentActivity == null)
                             {
+                                // operationTelemetry.Id != currentActivity.Id //TODO
                                 // W3COperationCorrelationTelemetryInitializer changes Id
                                 // but keeps an original one in 'ai_legacyRequestId' property
 
