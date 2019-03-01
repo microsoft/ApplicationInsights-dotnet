@@ -17,6 +17,12 @@
 #endif
     public class OperationCorrelationTelemetryInitializer : ITelemetryInitializer
     {
+        
+        private static string FormatRequestId(Activity activity)
+        {
+            return string.Concat("|", activity.TraceId.AsHexString, ".", activity.SpanId.AsHexString, ".");
+        }
+
         /// <summary>
         /// Initializes/Adds operation id to the existing telemetry item.
         /// </summary>
@@ -33,11 +39,30 @@
                 {
                     if (string.IsNullOrEmpty(itemContext.Id))
                     {
-                        itemContext.Id = currentActivity.RootId;
-
-                        if (string.IsNullOrEmpty(itemContext.ParentId))
+                        if (currentActivity.IdFormat == ActivityIdFormat.W3C)
                         {
-                            itemContext.ParentId = currentActivity.Id;
+                            itemContext.Id = currentActivity.TraceId.AsHexString;
+
+                            if (string.IsNullOrEmpty(itemContext.ParentId))
+                            {
+                                itemContext.ParentId = FormatRequestId(currentActivity);
+                            }
+
+                            if (!string.IsNullOrEmpty(currentActivity.TraceStateString) && telemetryProp != null && !telemetryProp.Properties.ContainsKey("tracestate"))
+                            {
+                                telemetryProp.Properties.Add("tracestate", currentActivity.TraceStateString);
+                            }
+
+                        }
+                        else
+                        {
+                            itemContext.Id = currentActivity.RootId;
+
+                            if (string.IsNullOrEmpty(itemContext.ParentId))
+                            {
+                                itemContext.ParentId = currentActivity.ParentId;
+                            }
+
                         }
 
                         foreach (var baggage in currentActivity.Baggage)

@@ -31,18 +31,23 @@
         [TestMethod]
         public void AppInsightsDllCouldRunStandalone()
         {
-            var dependencyId = RunTestApplication(false, "guid");
-            Assert.IsFalse(dependencyId.Contains("guid"));
+            var traceId = Guid.NewGuid().ToString("n");
+            var spanId = Guid.NewGuid().ToString("n").Substring(0, 16);
+            var dependencyId = RunTestApplication(false, traceId, spanId);
+            Assert.IsFalse(dependencyId.Contains(traceId));
         }
 
         [TestMethod]
         public void AppInsightsUsesActivityWhenDiagnosticSourceIsAvailable()
         {
-            var dependencyId = RunTestApplication(true, "guid");
-            Assert.IsTrue(dependencyId.StartsWith("|guid."));
+            var traceId = Guid.NewGuid().ToString("n");
+            var spanId = Guid.NewGuid().ToString("n").Substring(0, 16);
+
+            var dependencyId = RunTestApplication(true, traceId, spanId);
+            Assert.IsTrue(dependencyId.StartsWith($"|{traceId}."));
         }
 
-        private string RunTestApplication(bool withDiagnosticSource, string operationId)
+        private string RunTestApplication(bool withDiagnosticSource, string traceId, string spanId)
         {
             if (withDiagnosticSource)
             {
@@ -61,7 +66,7 @@
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     FileName = fileName,
-                    Arguments = operationId
+                    Arguments = $"00-{traceId}-{spanId}-01"
                 }
             };
             

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.W3C
+﻿/*namespace Microsoft.ApplicationInsights.Extensibility.W3C
 {
     using System;
     using System.ComponentModel;
@@ -66,3 +66,4 @@
         }
     }
 }
+*/

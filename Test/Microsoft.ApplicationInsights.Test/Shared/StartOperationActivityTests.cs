@@ -24,6 +24,9 @@
         [TestInitialize]
         public void TestInitialize()
         {
+            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+            Activity.ForceDefaultIdFormat = false;
+
             var configuration = new TelemetryConfiguration();
             this.sendItems = new ConcurrentQueue<ITelemetry>();
             configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Enqueue(item) };
@@ -46,6 +49,7 @@
         [TestMethod]
         public void BasicStartOperationWithActivity()
         {
+            Activity.ForceDefaultIdFormat = false;
             var activity = new Activity("name").SetParentId("parentId").AddBaggage("b1", "v1").AddTag("t1", "v1");
 
             RequestTelemetry telemetry;
@@ -275,9 +279,19 @@
         private void ValidateTelemetry<T>(T telemetry, Activity activity) where T : OperationTelemetry
         {
             Assert.AreEqual(activity.OperationName, telemetry.Name);
-            Assert.AreEqual(activity.Id, telemetry.Id);
-            Assert.AreEqual(activity.ParentId, telemetry.Context.Operation.ParentId);
-            Assert.AreEqual(activity.RootId, telemetry.Context.Operation.Id);
+
+            if (activity.IdFormat == ActivityIdFormat.W3C)
+            {
+                Assert.AreEqual($"|{activity.TraceId.AsHexString}.{activity.SpanId.AsHexString}.", telemetry.Id);
+                Assert.AreEqual($"|{activity.TraceId.AsHexString}.{activity.ParentSpanId.AsHexString}.", telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(activity.TraceId.AsHexString, telemetry.Context.Operation.Id);
+            }
+            else
+            {
+                Assert.AreEqual(activity.Id, telemetry.Id);
+                Assert.AreEqual(activity.ParentId, telemetry.Context.Operation.ParentId);
+                Assert.AreEqual(activity.RootId, telemetry.Context.Operation.Id);
+            }
 
             foreach (var baggage in activity.Baggage)
             {

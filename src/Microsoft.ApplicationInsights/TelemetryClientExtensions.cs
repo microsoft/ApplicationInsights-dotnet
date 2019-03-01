@@ -24,7 +24,13 @@
         /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
         public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, string operationName) where T : OperationTelemetry, new()
         {
-            return StartOperation<T>(telemetryClient, operationName, operationId: null, parentOperationId: null);
+            if (telemetryClient == null)
+            {
+                throw new ArgumentNullException(nameof(telemetryClient));
+            }
+
+            Activity activity = new Activity(operationName);
+            return StartOperation<T>(telemetryClient, activity);
         }
 
         /// <summary>
@@ -36,6 +42,7 @@
         /// <param name="operationId">Operation ID to set in the new operation.</param>
         /// <param name="parentOperationId">Optional parent operation ID to set in the new operation.</param>
         /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
+        [Obsolete]
         public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, string operationName, string operationId, string parentOperationId = null) where T : OperationTelemetry, new()
         {
             if (telemetryClient == null)
@@ -61,6 +68,19 @@
             }
 
             return StartOperation(telemetryClient, operationTelemetry);
+        }
+
+        public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, string operationName, ActivityTraceId traceId, ActivitySpanId parentSpanId) where T : OperationTelemetry, new()
+        {
+            if (telemetryClient == null)
+            {
+                throw new ArgumentNullException(nameof(telemetryClient));
+            }
+
+            Activity activity = new Activity(operationName);
+            activity.SetParentId(traceId, parentSpanId);
+
+            return StartOperation<T>(telemetryClient, activity);
         }
 
         /// <summary>
@@ -131,12 +151,36 @@
 
                 if (parentActivity == null)
                 {
-                    // telemetryContext.Id is always set: if it was null, it is set to opTelemetry.Id and opTelemetry.Id is never null
-                    operationActivity.SetParentId(telemetryContext.Id);
+                    if (Activity.DefaultIdFormat == ActivityIdFormat.W3C)
+                    {
+                        if (telemetryContext.Id.Length == 32) // TODO: valid traceid
+                        {
+                            operationActivity.SetParentId($"00-{telemetryContext.Id}-0000000000000000-01");
+                        }
+                        else
+                        {
+                            operationTelemetry.Properties["ai_legacyRootId"] = telemetryContext.Id;
+                            telemetryContext.Id = null;
+                        }
+                    }
+                    else
+                    {
+                        // telemetryContext.Id is always set: if it was null, it is set to opTelemetry.Id and opTelemetry.Id is never null
+                        operationActivity.SetParentId(telemetryContext.Id);
+                    }
                 }
 
                 operationActivity.Start();
-                operationTelemetry.Id = operationActivity.Id;
+
+                if (operationActivity.IdFormat == ActivityIdFormat.W3C)
+                {
+                    operationTelemetry.Id =
+                        $"|{operationActivity.TraceId.AsHexString}.{operationActivity.SpanId.AsHexString}.";
+                }
+                else
+                {
+                    operationTelemetry.Id = operationActivity.Id;
+                }
             });
 
             var operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry);
@@ -255,9 +299,24 @@
 
             OperationContext operationContext = telemetry.Context.Operation;
             operationContext.Name = activity.GetOperationName();
-            operationContext.Id = activity.RootId;
-            operationContext.ParentId = activity.ParentId;
-            telemetry.Id = activity.Id;
+
+            if (activity.IdFormat != ActivityIdFormat.W3C)
+            {
+                operationContext.Id = activity.RootId;
+                operationContext.ParentId = activity.ParentId;
+                telemetry.Id = activity.Id;
+            }
+            else
+            {
+                operationContext.Id = activity.TraceId.AsHexString;
+                operationContext.ParentId = $"|{operationContext.Id}.{activity.ParentSpanId.AsHexString}.";
+                telemetry.Id = $"|{operationContext.Id}.{activity.SpanId.AsHexString}.";
+
+                if (!string.IsNullOrEmpty(activity.TraceStateString) && telemetry.Properties.ContainsKey("tracestate"))
+                {
+                    telemetry.Properties.Add("tracestate", activity.TraceStateString);
+                }
+            }
 
             foreach (var item in activity.Baggage)
             {

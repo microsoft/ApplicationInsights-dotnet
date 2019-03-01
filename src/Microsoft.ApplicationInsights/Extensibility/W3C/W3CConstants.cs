@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.W3C
+﻿/*namespace Microsoft.ApplicationInsights.Extensibility.W3C
 {
     /// <summary>
     /// W3C constants.
@@ -66,3 +66,4 @@
         internal const string LegacyRequestIdProperty = "ai_legacyRequestId";
     }
 }
+*/
