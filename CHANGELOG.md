@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.7.0-beta3
+- [Fix: NullReferenceException in ApplicationInsightsLogger.Log when exception contains a Data entry with a null value](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/848)
+
 ## Version 2.7.0-beta2
 - Added NetStandard2.0 target.
 - Updated Web/Base SDK version dependency to 2.10.0-beta2
