@@ -17,10 +17,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseServiceClient.cs">
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\CounterFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\NormalizedProcessCPUPerformanceCounter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\StandardPerformanceCounter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\ICounterValue.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\StandardPerformanceCollector.cs" />
   </ItemGroup>
 </Project>

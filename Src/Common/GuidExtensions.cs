@@ -13,7 +13,7 @@
         /// </remarks>
         public static string ToStringInvariant(this Guid guid, string format)
         {
-#if NETSTANDARD
+#if NETSTANDARD1_6
             return guid.ToString(format);
 #else
             return guid.ToString(format, CultureInfo.InvariantCulture);

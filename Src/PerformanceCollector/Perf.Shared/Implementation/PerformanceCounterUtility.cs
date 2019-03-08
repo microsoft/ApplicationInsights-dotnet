@@ -264,7 +264,7 @@
 
         internal static string GetInstanceForCurrentW3SvcWorker()
         {
-#if NETSTANDARD1_6
+#if NETSTANDARD1_6 || NETSTANDARD2_0
             string name = new AssemblyName(Assembly.GetEntryAssembly().FullName).Name;
 #else
             string name = AppDomain.CurrentDomain.FriendlyName;
@@ -417,9 +417,13 @@
             {
                 // something went wrong and the category hasn't been found
                 // we can't perform this operation
+#if NETSTANDARD2_0
+                return Array.Empty<string>();
+#else
                 return new string[] { };
+#endif
             }
         }
 #endif
-    }
+            }
 }

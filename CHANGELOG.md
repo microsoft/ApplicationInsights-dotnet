@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.10.0-beta3
+Added NetStandard2.0 Target for PerfCounter project.
+Added support for PerfCounters for .Net Core Apps in Windows.
+
 ## Version 2.10.0-beta2
 Updated Base SDK to 2.10.0-beta2
 
