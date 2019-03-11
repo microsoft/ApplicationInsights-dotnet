@@ -23,9 +23,12 @@
         private const string Win32ProcessCategoryName = "Process";
         private const string ClrProcessCategoryName = ".NET CLR Memory";
         private const string Win32ProcessCounterName = "ID Process";
-        private const string ClrProcessCounterName = "Process ID";
-
+        private const string ClrProcessCounterName = "Process ID";        
+#if NETSTANDARD2_0
+        private const string StandardSdkVersionPrefix = "pccore:";
+#else
         private const string StandardSdkVersionPrefix = "pc:";
+#endif
         private const string AzureWebAppSdkVersionPrefix = "azwapc:";
         private const string AzureWebAppCoreSdkVersionPrefix = "azwapccore:";
 
@@ -136,7 +139,7 @@
         {
             if (IsWebAppRunningInAzure())
             {
-#if NETSTANDARD1_6
+#if NETSTANDARD1_6 || NETSTANDARD2_0
                 return AzureWebAppCoreSdkVersionPrefix;
 #else
                 return AzureWebAppSdkVersionPrefix;
