@@ -1,12 +1,14 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Net.Http.Headers;
     using System.Text;
     using Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -14,7 +16,6 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.Extensions.DiagnosticAdapter;
     using Microsoft.Extensions.Primitives;
 
     /// <summary>
@@ -37,6 +38,24 @@
         private readonly bool enableW3CHeaders;
         private static readonly ActiveSubsciptionManager SubscriptionManager = new ActiveSubsciptionManager();
         private const string ActivityCreatedByHostingDiagnosticListener = "ActivityCreatedByHostingDiagnosticListener";
+
+        #region fetchers
+
+        // fetch is unique per event and per property
+        private readonly PropertyFetcher httpContextFetcherStart = new PropertyFetcher("HttpContext");
+        private readonly PropertyFetcher httpContextFetcherStop = new PropertyFetcher("HttpContext");
+        private readonly PropertyFetcher httpContextFetcherBeginRequest = new PropertyFetcher("httpContext");
+        private readonly PropertyFetcher httpContextFetcherEndRequest = new PropertyFetcher("httpContext");
+        private readonly PropertyFetcher httpContextFetcherDiagExceptionUnhandled = new PropertyFetcher("httpContext");
+        private readonly PropertyFetcher httpContextFetcherDiagExceptionHandled = new PropertyFetcher("httpContext");
+        private readonly PropertyFetcher httpContextFetcherHostingExceptionUnhandled = new PropertyFetcher("httpContext");
+        private readonly PropertyFetcher exceptionFetcherDiagExceptionUnhandled = new PropertyFetcher("exception");
+        private readonly PropertyFetcher exceptionFetcherDiagExceptionHandled = new PropertyFetcher("exception");
+        private readonly PropertyFetcher exceptionFetcherHostingExceptionUnhandled = new PropertyFetcher("exception");
+
+        private readonly PropertyFetcher timestampFetcherBeginRequest = new PropertyFetcher("timestamp");
+        private readonly PropertyFetcher timestampFetcherEndRequest = new PropertyFetcher("timestamp");
+        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:HostingDiagnosticListener"/> class.
@@ -73,18 +92,8 @@
         public string ListenerName { get; } = "Microsoft.AspNetCore";
 
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn' event.
-        /// </summary>
-        [DiagnosticName("Microsoft.AspNetCore.Hosting.HttpRequestIn")]
-        public void OnHttpRequestIn()
-        {
-            // do nothing, just enable the diagnostic source
-        }
-
-        /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Start' event.
         /// </summary>
-        [DiagnosticName("Microsoft.AspNetCore.Hosting.HttpRequestIn.Start")]
         public void OnHttpRequestInStart(HttpContext httpContext)
         {
             if (this.client.IsEnabled())
@@ -176,7 +185,6 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop' event.
         /// </summary>
-        [DiagnosticName("Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop")]
         public void OnHttpRequestInStop(HttpContext httpContext)
         {
             EndRequest(httpContext, Stopwatch.GetTimestamp());
@@ -185,7 +193,6 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.BeginRequest' event.
         /// </summary>
-        [DiagnosticName("Microsoft.AspNetCore.Hosting.BeginRequest")]
         public void OnBeginRequest(HttpContext httpContext, long timestamp)
         {
             if (this.client.IsEnabled() && !this.enableNewDiagnosticEvents)
@@ -282,7 +289,6 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.EndRequest' event.
         /// </summary>
-        [DiagnosticName("Microsoft.AspNetCore.Hosting.EndRequest")]
         public void OnEndRequest(HttpContext httpContext, long timestamp)
         {
             if (!this.enableNewDiagnosticEvents)
@@ -294,7 +300,6 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.UnhandledException' event.
         /// </summary>
-        [DiagnosticName("Microsoft.AspNetCore.Hosting.UnhandledException")]
         public void OnHostingException(HttpContext httpContext, Exception exception)
         {
             this.OnException(httpContext, exception);
@@ -310,7 +315,6 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HandledException' event.
         /// </summary>
-        [DiagnosticName("Microsoft.AspNetCore.Diagnostics.HandledException")]
         public void OnDiagnosticsHandledException(HttpContext httpContext, Exception exception)
         {
             this.OnException(httpContext, exception);
@@ -319,7 +323,6 @@
         /// <summary>
         /// Diagnostic event handler method for 'Microsoft.AspNetCore.Diagnostics.UnhandledException' event.
         /// </summary>
-        [DiagnosticName("Microsoft.AspNetCore.Diagnostics.UnhandledException")]
         public void OnDiagnosticsUnhandledException(HttpContext httpContext, Exception exception)
         {
             this.OnException(httpContext, exception);
@@ -559,5 +562,81 @@
         {
             SubscriptionManager.Detach(this);
         }
+
+        public void OnNext(KeyValuePair<string, object> value)
+        {
+            HttpContext httpContext = null;
+            Exception exception = null;
+            long? timestamp = null;
+
+            switch (value.Key)
+            {
+                case "Microsoft.AspNetCore.Hosting.HttpRequestIn.Start":
+                    httpContext = this.httpContextFetcherStart.Fetch(value.Value) as HttpContext;
+                    if (httpContext != null)
+                    {
+                        this.OnHttpRequestInStart(httpContext);
+                    }
+                    break;
+                case "Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop":
+                    httpContext = this.httpContextFetcherStop.Fetch(value.Value) as HttpContext;
+                    if (httpContext != null)
+                    {
+                        this.OnHttpRequestInStop(httpContext);
+                    }
+                    break;
+                case "Microsoft.AspNetCore.Hosting.BeginRequest":
+                    httpContext = this.httpContextFetcherBeginRequest.Fetch(value.Value) as HttpContext;
+                    timestamp = this.timestampFetcherBeginRequest.Fetch(value.Value) as long?;
+                    if (httpContext != null && timestamp.HasValue)
+                    {
+                        this.OnBeginRequest(httpContext, timestamp.Value);
+                    }
+                    break;
+                case "Microsoft.AspNetCore.Hosting.EndRequest":
+                    httpContext = this.httpContextFetcherEndRequest.Fetch(value.Value) as HttpContext;
+                    timestamp = this.timestampFetcherEndRequest.Fetch(value.Value) as long?;
+                    if (httpContext != null && timestamp.HasValue)
+                    {
+                        this.OnEndRequest(httpContext, timestamp.Value);
+                    }
+                    break;
+                case "Microsoft.AspNetCore.Diagnostics.UnhandledException":
+                    httpContext = this.httpContextFetcherDiagExceptionUnhandled.Fetch(value.Value) as HttpContext;
+                    exception = this.exceptionFetcherDiagExceptionUnhandled.Fetch(value.Value) as Exception;
+                    if (httpContext != null && exception != null)
+                    {
+                        this.OnDiagnosticsUnhandledException(httpContext, exception);
+                    }
+                    break;
+                case "Microsoft.AspNetCore.Diagnostics.HandledException":
+                    httpContext = this.httpContextFetcherDiagExceptionHandled.Fetch(value.Value) as HttpContext;
+                    exception = this.exceptionFetcherDiagExceptionHandled.Fetch(value.Value) as Exception;
+                    if (httpContext != null && exception != null)
+                    {
+                        this.OnDiagnosticsHandledException(httpContext, exception);
+                    }
+                    break;
+                case "Microsoft.AspNetCore.Hosting.UnhandledException":
+                    httpContext = this.httpContextFetcherHostingExceptionUnhandled.Fetch(value.Value) as HttpContext;
+                    exception = this.exceptionFetcherHostingExceptionUnhandled.Fetch(value.Value) as Exception;
+                    if (httpContext != null && exception != null)
+                    {
+                        this.OnHostingException(httpContext, exception);
+                    }
+                    break;
+            }
+        }
+
+        /// <inheritdoc />
+        public void OnError(Exception error)
+        {
+        }
+
+        /// <inheritdoc />
+        public void OnCompleted()
+        {
+        }
+
     }
 }

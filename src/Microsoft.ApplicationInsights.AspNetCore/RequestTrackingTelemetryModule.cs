@@ -105,7 +105,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
             {
                 if (applicationInsightDiagnosticListener.ListenerName == value.Name)
                 {
-                    subs.Add(value.SubscribeWithAdapter(applicationInsightDiagnosticListener));
+                    subs.Add(value.Subscribe(applicationInsightDiagnosticListener));
                     applicationInsightDiagnosticListener.OnSubscribe();
                 }
             }
