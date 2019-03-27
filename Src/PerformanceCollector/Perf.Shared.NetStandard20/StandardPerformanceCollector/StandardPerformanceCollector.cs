@@ -39,8 +39,11 @@
                         catch (InvalidOperationException e)
                         {
                             onReadingFailure?.Invoke(PerformanceCounterUtility.FormatPerformanceCounter(pc.Item1.PerformanceCounter), e);
-
+#if NETSTANDARD2_0
+                            return Array.Empty<Tuple<PerformanceCounterData, double>>();
+#else
                             return new Tuple<PerformanceCounterData, double>[] { };
+#endif                        
                         }
 
                         return new[] { Tuple.Create(pc.Item1, value) };

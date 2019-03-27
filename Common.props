@@ -34,6 +34,16 @@
    <DefineConstants>$(DefineConstants);NET45;</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+   <!--There is a bug affecting Code Analysis and NetStandard 1.6.
+        https://github.com/dotnet/core/issues/758
+        https://github.com/dotnet/roslyn-analyzers/issues/1313
+        Workaround is to disable Code Analysis.
+    -->
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+   <DefineConstants>$(DefineConstants);NETSTANDARD2_0;</DefineConstants>
+  </PropertyGroup>
+  
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
     <!--There is a bug affecting Code Analysis and NetStandard 1.6.
         https://github.com/dotnet/core/issues/758
