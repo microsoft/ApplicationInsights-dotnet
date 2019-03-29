@@ -2,7 +2,7 @@
 {
     using System;
     using ApplicationInsights;
-    using ApplicationInsights.AspNetCore.Logging;
+    using Microsoft.ApplicationInsights;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Options;
 
@@ -16,7 +16,7 @@
         /// </summary>
         /// <param name="factory"></param>
         /// <param name="serviceProvider">The instance of <see cref="IServiceProvider"/> to use for service resolution.</param>
-        [Obsolete("Use Microsoft.Extensions.Logging.ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights from Microsoft.Extensions.Logging.ApplicationInsights package")]
+        [Obsolete("ApplicationInsightsLoggerProvider is now enabled by default when enabling ApplicationInsights monitoring using UseApplicationInsights extension method on IWebHostBuilder or AddApplicationInsightsTelemetry extension method on IServiceCollection. From 2.7.0-beta3 onwards, calling this method will result in double logging and filters applied will not get applied. If interested in using just logging provider, then please use Microsoft.Extensions.Logging.ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights from Microsoft.Extensions.Logging.ApplicationInsights package. Read more https://aka.ms/ApplicationInsightsILoggerFaq")]
         public static ILoggerFactory AddApplicationInsights(this ILoggerFactory factory, IServiceProvider serviceProvider)
         {
             return factory.AddApplicationInsights(serviceProvider, LogLevel.Warning);
@@ -28,7 +28,7 @@
         /// <param name="factory"></param>
         /// <param name="serviceProvider">The instance of <see cref="IServiceProvider"/> to use for service resolution.</param>
         /// <param name="minLevel">The minimum <see cref="LogLevel"/> to be logged</param>
-        [Obsolete("Use Microsoft.Extensions.Logging.ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights from Microsoft.Extensions.Logging.ApplicationInsights package")]
+        [Obsolete("ApplicationInsightsLoggerProvider is now enabled by default when enabling ApplicationInsights monitoring using UseApplicationInsights extension method on IWebHostBuilder or AddApplicationInsightsTelemetry extension method on IServiceCollection. From 2.7.0-beta3 onwards, calling this method will result in double logging and filters applied will not get applied. If interested in using just logging provider, then please use Microsoft.Extensions.Logging.ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights from Microsoft.Extensions.Logging.ApplicationInsights package. Read more https://aka.ms/ApplicationInsightsILoggerFaq")]
         public static ILoggerFactory AddApplicationInsights(
             this ILoggerFactory factory,
             IServiceProvider serviceProvider,
@@ -44,7 +44,7 @@
         /// <param name="factory"></param>
         /// <param name="filter"></param>
         /// <param name="serviceProvider">The instance of <see cref="IServiceProvider"/> to use for service resolution.</param>
-        [Obsolete("Use Microsoft.Extensions.Logging.ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights from Microsoft.Extensions.Logging.ApplicationInsights package")]
+        [Obsolete("ApplicationInsightsLoggerProvider is now enabled by default when enabling ApplicationInsights monitoring using UseApplicationInsights extension method on IWebHostBuilder or AddApplicationInsightsTelemetry extension method on IServiceCollection. From 2.7.0-beta3 onwards, calling this method will result in double logging and filters applied will not get applied. If interested in using just logging provider, then please use Microsoft.Extensions.Logging.ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights from Microsoft.Extensions.Logging.ApplicationInsights package. Read more https://aka.ms/ApplicationInsightsILoggerFaq")]
         public static ILoggerFactory AddApplicationInsights(
             this ILoggerFactory factory,
             IServiceProvider serviceProvider,
@@ -60,20 +60,21 @@
         /// <param name="filter"></param>
         /// <param name="serviceProvider">The instance of <see cref="IServiceProvider"/> to use for service resolution.</param>
         /// <param name="loggerAddedCallback">The callback that gets executed when another ApplicationInsights logger is added.</param>
-        [Obsolete("Use Microsoft.Extensions.Logging.ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights from Microsoft.Extensions.Logging.ApplicationInsights package")]
+        [Obsolete("ApplicationInsightsLoggerProvider is now enabled by default when enabling ApplicationInsights monitoring using UseApplicationInsights extension method on IWebHostBuilder or AddApplicationInsightsTelemetry extension method on IServiceCollection. From 2.7.0-beta3 onwards, calling this method will result in double logging and filters applied will not get applied. If interested in using just logging provider, then please use Microsoft.Extensions.Logging.ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights from Microsoft.Extensions.Logging.ApplicationInsights package. Read more https://aka.ms/ApplicationInsightsILoggerFaq")]
         public static ILoggerFactory AddApplicationInsights(
             this ILoggerFactory factory,
             IServiceProvider serviceProvider,
             Func<string, LogLevel, bool> filter,
             Action loggerAddedCallback)
-        {
+        {            
+            
             var client = serviceProvider.GetService<TelemetryClient>();
-            var debugLoggerControl = serviceProvider.GetService<ApplicationInsightsLoggerEvents>();
-            var options = serviceProvider.GetService<IOptions<ApplicationInsightsLoggerOptions>>();
+            var debugLoggerControl = serviceProvider.GetService<Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerEvents>();
+            var options = serviceProvider.GetService<IOptions<Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerOptions>>();
 
             if (options == null)
             {
-                options = Options.Create(new ApplicationInsightsLoggerOptions());
+                options = Options.Create(new Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerOptions());
             }
 
             if (debugLoggerControl != null)
@@ -85,8 +86,8 @@
                     debugLoggerControl.LoggerAdded += loggerAddedCallback;
                 }
             }
-
-            factory.AddProvider(new ApplicationInsightsLoggerProvider(client, filter, options));
+            factory.AddProvider(new Microsoft.ApplicationInsights.AspNetCore.Logging.ApplicationInsightsLoggerProvider(client, filter, options));
+                         
             return factory;
         }
     }

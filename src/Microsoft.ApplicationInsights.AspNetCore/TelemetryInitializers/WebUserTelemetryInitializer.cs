@@ -5,15 +5,18 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Http;
 
+    /// <inheritdoc />
     public class WebUserTelemetryInitializer : TelemetryInitializerBase
     {
         private const string WebUserCookieName = "ai_user";
 
+        /// <inheritdoc />
         public WebUserTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
              : base(httpContextAccessor)
         {
         }
 
+        /// <inheritdoc />
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
             if (!string.IsNullOrEmpty(telemetry.Context.User.Id))

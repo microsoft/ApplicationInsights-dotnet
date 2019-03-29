@@ -22,8 +22,10 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Options;
+    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.
@@ -190,8 +192,6 @@
 
                 services.AddSingleton<TelemetryClient>();
 
-                services.AddSingleton<ApplicationInsightsDebugLogger, ApplicationInsightsDebugLogger>();
-
                 services
                     .TryAddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>,
                         DefaultApplicationInsightsServiceConfigureOptions>();
@@ -201,12 +201,38 @@
                 // that requires IOptions infrastructure to run and initialize
                 services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
 
-                services.AddSingleton<JavaScriptSnippet>();
-                services.AddSingleton<ApplicationInsightsLoggerEvents>();
+                services.AddSingleton<JavaScriptSnippet>();                
 
                 services.AddOptions();
                 services.AddSingleton<IOptions<TelemetryConfiguration>, TelemetryConfigurationOptions>();
                 services.AddSingleton<IConfigureOptions<TelemetryConfiguration>, TelemetryConfigurationOptionsSetup>();
+
+                // NetStandard2.0 has a package reference to Microsoft.Extensions.Logging.ApplicationInsights, and
+                // enables ApplicationInsightsLoggerProvider by default.                
+#if NETSTANDARD2_0
+                services.AddLogging(loggingBuilder =>
+                {
+                     loggingBuilder.AddApplicationInsights();
+
+                    // The default behavior is to capture only logs above Warning level from all categories.
+                    // This can achieved with this code level filter -> loggingBuilder.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>("",LogLevel.Warning);
+                    // However, this will make it impossible to override this behavior from Configuration like below using appsettings.json:
+                    //"ApplicationInsights": {
+                    // "LogLevel": {
+                    // "": "Error"
+                    // }
+                    // },
+                    // The reason is as both rules will match the filter, the last one added wins.
+                    // To ensure that the default filter is in the beginning of filter rules, so that user override from Configuration will always win, 
+                    // we add code filter rule to the 0th position as below.
+
+                    loggingBuilder.Services.Configure<LoggerFilterOptions>
+                    (options => options.Rules.Insert(0,
+                        new LoggerFilterRule(
+                            "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider", null,
+                            LogLevel.Warning, null)));
+                });                                
+#endif
             }
 
             return services;
@@ -406,8 +432,8 @@
 
         private static bool IsApplicationInsightsAdded(IServiceCollection services)
         {
-            // We treat ApplicationInsightsDebugLogger as a marker that AI services were added to service collection
-            return services.Any(service => service.ServiceType == typeof(ApplicationInsightsDebugLogger));
+            // We treat TelemetryClient as a marker that AI services were added to service collection
+            return services.Any(service => service.ServiceType == typeof(TelemetryClient));
         }
     }
 }

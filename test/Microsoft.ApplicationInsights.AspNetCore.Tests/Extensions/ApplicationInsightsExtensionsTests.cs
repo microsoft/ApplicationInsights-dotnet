@@ -145,10 +145,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             /// <summary>
             /// We determine if Active telemtery needs to be configured based on the assumptions that 'default' configuration
-            // created by base SDK has single preset ITelemetryIntitializer. If it ever changes, change TelemetryConfigurationOptions.IsActiveConfigured method as well.
+            // created by base SDK has single preset ITelemetryInitializer. If it ever changes, change TelemetryConfigurationOptions.IsActiveConfigured method as well.
             /// </summary>
             [Fact]
-            public static void DefaultTelemetryconfigurationHasOneTelemetryInitializer()
+            public static void DefaultTelemetryConfigurationHasOneTelemetryInitializer()
             {
                 //
                 var defaultConfig = TelemetryConfiguration.CreateDefault();

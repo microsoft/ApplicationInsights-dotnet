@@ -13,11 +13,13 @@
     {
         private readonly IHttpContextAccessor httpContextAccessor;
 
+        /// <inheritdoc />
         public TelemetryInitializerBase(IHttpContextAccessor httpContextAccessor)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
+        /// <inheritdoc />
         public void Initialize(ITelemetry telemetry)
         {
             var context = this.httpContextAccessor.HttpContext;
