@@ -18,7 +18,7 @@
 
         protected override void OnEventWritten(EventWrittenEventArgs eventSourceEvent)
         {
-            if (eventSourceEvent == null)
+            if (eventSourceEvent == null || this.listener == null)
             {
                 return;
             }
