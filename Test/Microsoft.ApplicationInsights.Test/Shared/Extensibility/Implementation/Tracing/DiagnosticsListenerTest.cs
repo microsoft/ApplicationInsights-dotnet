@@ -70,10 +70,31 @@
                 Assert.AreEqual(1, senderMock.Messages.Count);
 
                 senderMock.Messages.Clear();
-                
+
                 listener.LogLevel = EventLevel.Error;
                 CoreEventSource.Log.LogError("Logging an error");
                 Assert.AreEqual(1, senderMock.Messages.Count);
+            }
+        }
+
+        [TestMethod]
+        public void TestEventSourceLogLevelWhenEventSourceIsAlreadyCreated()
+        {
+            using (var testEventSource = new EventSource("Microsoft-ApplicationInsights-" + nameof(TestEventSourceLogLevelWhenEventSourceIsAlreadyCreated)))
+            {
+                var senderMock = new DiagnosticsSenderMock();
+                var senders = new List<IDiagnosticsSender> { senderMock };
+                using (var listener = new DiagnosticsListener(senders))
+                {
+                    // The default level is EventLevel.Error
+                    Assert.IsTrue(testEventSource.IsEnabled(EventLevel.Error, EventKeywords.All));
+
+                    // So Verbose should not be enabled
+                    Assert.IsFalse(testEventSource.IsEnabled(EventLevel.Verbose, EventKeywords.All));
+
+                    listener.LogLevel = EventLevel.Verbose;
+                    Assert.IsTrue(testEventSource.IsEnabled(EventLevel.Verbose, EventKeywords.All));
+                }
             }
         }
     }
