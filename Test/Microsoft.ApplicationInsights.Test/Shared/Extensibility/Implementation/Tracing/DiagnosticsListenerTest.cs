@@ -80,22 +80,28 @@
         [TestMethod]
         public void TestEventSourceLogLevelWhenEventSourceIsAlreadyCreated()
         {
-            using (var testEventSource = new EventSource("Microsoft-ApplicationInsights-" + nameof(TestEventSourceLogLevelWhenEventSourceIsAlreadyCreated)))
+            using (var testEventSource = new TestEventSource())
             {
                 var senderMock = new DiagnosticsSenderMock();
                 var senders = new List<IDiagnosticsSender> { senderMock };
                 using (var listener = new DiagnosticsListener(senders))
                 {
+                    const EventKeywords AllKeyword = (EventKeywords)(-1);
                     // The default level is EventLevel.Error
-                    Assert.IsTrue(testEventSource.IsEnabled(EventLevel.Error, EventKeywords.All));
+                    Assert.IsTrue(testEventSource.IsEnabled(EventLevel.Error, AllKeyword));
 
                     // So Verbose should not be enabled
-                    Assert.IsFalse(testEventSource.IsEnabled(EventLevel.Verbose, EventKeywords.All));
+                    Assert.IsFalse(testEventSource.IsEnabled(EventLevel.Verbose, AllKeyword));
 
                     listener.LogLevel = EventLevel.Verbose;
-                    Assert.IsTrue(testEventSource.IsEnabled(EventLevel.Verbose, EventKeywords.All));
+                    Assert.IsTrue(testEventSource.IsEnabled(EventLevel.Verbose, AllKeyword));
                 }
             }
+        }
+
+        [EventSource(Name = "Microsoft-ApplicationInsights-" + nameof(TestEventSource))]
+        private class TestEventSource : EventSource
+        {
         }
     }
 }
