@@ -127,7 +127,7 @@
             public void RetryAfterOlderThanNowCausesDefaultDelay()
             {
                 // An old date
-                string retryAfterDateString = DateTime.Now.AddMinutes(-1).ToString("R", CultureInfo.InvariantCulture);
+                string retryAfterDateString = DateTime.UtcNow.AddMinutes(-1).ToString("R", CultureInfo.InvariantCulture);
 
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 manager.GetBackOffTimeInterval(retryAfterDateString);
