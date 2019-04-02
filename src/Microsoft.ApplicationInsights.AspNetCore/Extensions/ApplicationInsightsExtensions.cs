@@ -374,8 +374,8 @@
         ///      "ApplicationInsights": {
         ///          "InstrumentationKey": "11111111-2222-3333-4444-555555555555"
         ///          "TelemetryChannel": {
-        ///              EndpointAddress: "http://dc.services.visualstudio.com/v2/track",
-        ///              DeveloperMode: true
+        ///              "EndpointAddress": "http://dc.services.visualstudio.com/v2/track",
+        ///              "DeveloperMode": true
         ///          }
         ///      }
         /// </para>
