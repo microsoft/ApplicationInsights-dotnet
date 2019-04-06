@@ -78,10 +78,13 @@
             string configFileContents = Configuration("<InstrumentationKey>F8474271-D231-45B6-8DD4-D344C309AE69</InstrumentationKey>");
 
             TelemetryConfiguration configuration = new TelemetryConfiguration();
-            new TestableTelemetryConfigurationFactory().Initialize(configuration, new TestableTelemetryModules(), configFileContents);
+            using (var testableTelemetryModules = new TestableTelemetryModules())
+            {
+                new TestableTelemetryConfigurationFactory().Initialize(configuration, testableTelemetryModules, configFileContents);
 
-            // Assume that LoadFromXml method is called, tested separately
-            Assert.IsFalse(string.IsNullOrEmpty(configuration.InstrumentationKey));
+                // Assume that LoadFromXml method is called, tested separately
+                Assert.IsFalse(string.IsNullOrEmpty(configuration.InstrumentationKey));
+            }
         }
 
         [TestMethod]
@@ -422,24 +425,27 @@
                   "</TelemetryProcessors>");
 
             TelemetryConfiguration configuration = new TelemetryConfiguration();
-            new TestableTelemetryConfigurationFactory().Initialize(configuration, new TestableTelemetryModules(), configFileContents);
+            using (var testableTelemetryModules = new TestableTelemetryModules())
+            {
+                new TestableTelemetryConfigurationFactory().Initialize(configuration, testableTelemetryModules, configFileContents);
 
-            // Assume that LoadFromXml method is called, tested separately
-            Assert.IsTrue(configuration.TelemetryProcessors != null);
-            AssertEx.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessorChain.FirstTelemetryProcessor);
+                // Assume that LoadFromXml method is called, tested separately
+                Assert.IsTrue(configuration.TelemetryProcessors != null);
+                AssertEx.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessorChain.FirstTelemetryProcessor);
 
-            //validate the chain linking stub1->stub2->pass through->sink
-            var tp1 = (StubTelemetryProcessor)configuration.TelemetryProcessorChain.FirstTelemetryProcessor;
-            var tp2 = (StubTelemetryProcessor2)tp1.next;
-            var passThroughProcessor = tp2.next as PassThroughProcessor;
-            Assert.IsNotNull(passThroughProcessor);
+                //validate the chain linking stub1->stub2->pass through->sink
+                var tp1 = (StubTelemetryProcessor)configuration.TelemetryProcessorChain.FirstTelemetryProcessor;
+                var tp2 = (StubTelemetryProcessor2)tp1.next;
+                var passThroughProcessor = tp2.next as PassThroughProcessor;
+                Assert.IsNotNull(passThroughProcessor);
 
-            // The sink has only a transmission processor and a default channel.
-            var sink = passThroughProcessor.Sink;
-            Assert.IsNotNull(sink);
-            Assert.AreEqual(1, sink.TelemetryProcessorChain.TelemetryProcessors.Count);
-            AssertEx.IsType<TransmissionProcessor>(sink.TelemetryProcessorChain.FirstTelemetryProcessor);
-            AssertEx.IsType<InMemoryChannel>(sink.TelemetryChannel);
+                // The sink has only a transmission processor and a default channel.
+                var sink = passThroughProcessor.Sink;
+                Assert.IsNotNull(sink);
+                Assert.AreEqual(1, sink.TelemetryProcessorChain.TelemetryProcessors.Count);
+                AssertEx.IsType<TransmissionProcessor>(sink.TelemetryProcessorChain.FirstTelemetryProcessor);
+                AssertEx.IsType<InMemoryChannel>(sink.TelemetryChannel);
+            }
         }
 
         [TestMethod]
@@ -453,23 +459,26 @@
                   "</TelemetryProcessors>");
 
             TelemetryConfiguration configuration = new TelemetryConfiguration();
-            new TestableTelemetryConfigurationFactory().Initialize(configuration, new TestableTelemetryModules(), configFileContents);
+            using (var testableTelemetryModules = new TestableTelemetryModules())
+            {
+                new TestableTelemetryConfigurationFactory().Initialize(configuration, testableTelemetryModules, configFileContents);
 
-            Assert.IsTrue(configuration.TelemetryProcessors != null);
-            AssertEx.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessorChain.FirstTelemetryProcessor);
+                Assert.IsTrue(configuration.TelemetryProcessors != null);
+                AssertEx.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessorChain.FirstTelemetryProcessor);
 
-            //validate the chain linking stub1->stub2->pass through->sink
-            var tp1 = (StubTelemetryProcessor)configuration.TelemetryProcessorChain.FirstTelemetryProcessor;
-            var tp2 = (StubTelemetryProcessor2)tp1.next;
-            var passThroughProcessor = tp2.next as PassThroughProcessor;
-            Assert.IsNotNull(passThroughProcessor);
+                //validate the chain linking stub1->stub2->pass through->sink
+                var tp1 = (StubTelemetryProcessor)configuration.TelemetryProcessorChain.FirstTelemetryProcessor;
+                var tp2 = (StubTelemetryProcessor2)tp1.next;
+                var passThroughProcessor = tp2.next as PassThroughProcessor;
+                Assert.IsNotNull(passThroughProcessor);
 
-            // The sink has only a transmission processor and a default channel.
-            var sink = passThroughProcessor.Sink;
-            Assert.IsNotNull(sink);
-            Assert.AreEqual(1, sink.TelemetryProcessorChain.TelemetryProcessors.Count);
-            AssertEx.IsType<TransmissionProcessor>(sink.TelemetryProcessorChain.FirstTelemetryProcessor);
-            AssertEx.IsType<InMemoryChannel>(sink.TelemetryChannel);
+                // The sink has only a transmission processor and a default channel.
+                var sink = passThroughProcessor.Sink;
+                Assert.IsNotNull(sink);
+                Assert.AreEqual(1, sink.TelemetryProcessorChain.TelemetryProcessors.Count);
+                AssertEx.IsType<TransmissionProcessor>(sink.TelemetryProcessorChain.FirstTelemetryProcessor);
+                AssertEx.IsType<InMemoryChannel>(sink.TelemetryChannel);
+            }
         }
 
         [TestMethod]
@@ -647,10 +656,12 @@
                   </TelemetryModules>"
                 );
 
-            var modules = new TestableTelemetryModules();
-            new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
+            using (var modules = new TestableTelemetryModules())
+            {
+                new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
 
-            Assert.AreEqual(2, modules.Modules.Count); // Diagnostics module is added by default
+                Assert.AreEqual(2, modules.Modules.Count); // Diagnostics module is added by default
+            }
         }
 
         [TestMethod]
@@ -661,11 +672,13 @@
                   </TelemetryModules>"
                 );
 
-            var modules = new TestableTelemetryModules();
-            new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
+            using (var modules = new TestableTelemetryModules())
+            {
+                new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
 
-            Assert.AreEqual(1, modules.Modules.Count);
-            AssertEx.IsType<DiagnosticsTelemetryModule>(modules.Modules[0]);
+                Assert.AreEqual(1, modules.Modules.Count);
+                AssertEx.IsType<DiagnosticsTelemetryModule>(modules.Modules[0]);
+            }
         }
 
 
@@ -680,10 +693,12 @@
                   </TelemetryModules>"
                 );
 
-            var modules = new TestableTelemetryModules();
-            new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
+            using (var modules = new TestableTelemetryModules())
+            {
+                new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
 
-            Assert.AreEqual(3, modules.Modules.Count); // Diagnostics module is added by default
+                Assert.AreEqual(3, modules.Modules.Count); // Diagnostics module is added by default
+            }
         }
 
         [TestMethod]
@@ -700,14 +715,16 @@
                 OnInitialize = _ => { throw new ArgumentException(); }
             };
 
-            var modules = new TestableTelemetryModules();
-            modules.Modules.Add(module);
+            using (var modules = new TestableTelemetryModules())
+            {
+                modules.Modules.Add(module);
 
-            //Assert.DoesNotThrow
-            new TestableTelemetryConfigurationFactory().Initialize(
-                new TelemetryConfiguration(),
-                modules,
-                configFileContents);
+                //Assert.DoesNotThrow
+                new TestableTelemetryConfigurationFactory().Initialize(
+                    new TelemetryConfiguration(),
+                    modules,
+                    configFileContents);
+            }
         }
 
         #endregion
@@ -1519,11 +1536,13 @@
                   </TelemetryModules>"
                 );
 
-            var modules = new TestableTelemetryModules();
-            new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
+            using (var modules = new TestableTelemetryModules())
+            {
+                new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
 
-            Assert.AreEqual(true, isInternalOperation);
-            Assert.AreEqual(false, SdkInternalOperationsMonitor.IsEntered());
+                Assert.AreEqual(true, isInternalOperation);
+                Assert.AreEqual(false, SdkInternalOperationsMonitor.IsEntered());
+            }
         }
 
         private static TelemetryConfiguration CreateTelemetryConfigurationWithDeveloperModeValue(string developerModeValue)
@@ -1548,8 +1567,15 @@
                 </ApplicationInsights>";
         }
 
-        private class TestableTelemetryModules : TelemetryModules
+        private class TestableTelemetryModules : TelemetryModules, IDisposable
         {
+            public void Dispose()
+            {
+                foreach (var module in this.Modules)
+                {
+                    (module as IDisposable)?.Dispose();
+                }
+            }
         }
 
         private class TestableTelemetryConfigurationFactory : TelemetryConfigurationFactory
