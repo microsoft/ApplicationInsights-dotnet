@@ -2,6 +2,11 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
+## [Unreleased](https://github.com/Microsoft/ApplicationInsights-dotnet/compare/2.10.0-beta3..HEAD)
+- [Fix NullReferenceException in DiagnosticsEventListener.OnEventWritten](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1106)
+- [Fix RichPayloadEventSource can get enabled at Verbose level](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1108)
+- [Fix DiagnosticsTelemetryModule can get added more than once](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1111)
+
 ## Version 2.10.0-beta3
 - No changes. Bumping version to match WebSDK release.
 
