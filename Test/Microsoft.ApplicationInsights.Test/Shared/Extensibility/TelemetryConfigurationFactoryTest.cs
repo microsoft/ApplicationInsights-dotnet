@@ -676,6 +676,10 @@
             {
                 new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
 
+
+                // Initialize a 2nd TelemetryConfiguration to check that only one diagnostics module is added.
+                new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
+
                 Assert.AreEqual(1, modules.Modules.Count);
                 AssertEx.IsType<DiagnosticsTelemetryModule>(modules.Modules[0]);
             }
