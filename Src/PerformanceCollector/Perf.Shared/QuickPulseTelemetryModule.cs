@@ -697,7 +697,11 @@
             {
                 Interlocked.Exchange(ref this.stateThread, null)?.Stop(wait: true);
                 Interlocked.Exchange(ref this.collectionThread, null)?.Stop(wait: true);
-                this.serviceClient.Dispose();
+
+                if (this.serviceClient != null)
+                {
+                    this.serviceClient.Dispose();
+                }
             }
         }
     }
