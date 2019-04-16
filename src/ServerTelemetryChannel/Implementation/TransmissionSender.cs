@@ -13,7 +13,7 @@
     internal class TransmissionSender
     {
         private int transmissionCount = 0;
-        private int capacity = 3;
+        private int capacity = 10;
 
         private bool applyThrottle = false;
         private int throttleWindowInMilliseconds = 1000;

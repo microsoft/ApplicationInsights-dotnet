@@ -8,7 +8,8 @@
 
     internal class TransmissionBuffer
     {
-        private const int DefaultCapacityInKiloBytes = 1024;
+        // 5MB default capacity
+        private const int DefaultCapacityInKiloBytes = 5120;
         private readonly Queue<Transmission> transmissions = new Queue<Transmission>(DefaultCapacityInKiloBytes);
         private int capacity = DefaultCapacityInKiloBytes * 1024;
         private long size = 0;
