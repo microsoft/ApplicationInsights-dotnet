@@ -19,7 +19,7 @@
             public void DefaultValueIsAppropriateForMostApps()
             {
                 var sender = new TransmissionSender();
-                Assert.AreEqual(3, sender.Capacity);
+                Assert.AreEqual(10, sender.Capacity);
             }
 
             [TestMethod]
