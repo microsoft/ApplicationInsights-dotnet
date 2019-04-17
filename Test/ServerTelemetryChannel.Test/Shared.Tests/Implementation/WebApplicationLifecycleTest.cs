@@ -5,7 +5,6 @@
     using System.Web.Hosting;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.ApplicationInsights.TestFramework;
-    using TaskEx = System.Threading.Tasks.Task;
 
     [TestClass]
     public sealed class WebApplicationLifecycleTest : IDisposable
@@ -105,7 +104,7 @@
                 args.Run(() =>
                 {
                     stoppingTaskScheduler = TaskScheduler.Current;
-                    return TaskEx.FromResult<object>(null);
+                    return Task.FromResult<object>(null);
                 });
             };
 
@@ -137,7 +136,7 @@
             Func<Task> asyncMethod = () =>
             {
                 objectUnregisteredWhileRunningAsyncMethods = unregisteredObject;
-                return TaskEx.FromResult<object>(null);
+                return Task.FromResult<object>(null);
             };
 
             var service = new TestableWebApplicationLifecycle(typeof(StubHostingEnvironment));

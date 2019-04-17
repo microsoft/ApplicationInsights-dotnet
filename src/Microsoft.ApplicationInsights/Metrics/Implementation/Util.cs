@@ -14,12 +14,12 @@
         public const string NullString = "null";
         private const double MicroOne = 0.000001;
 
-        private const string FallbackParemeterName = "specified parameter";
+        private const string FallbackParameterName = "specified parameter";
 
         private static string sdkVersionMoniker = SdkVersionUtils.GetSdkVersion("m-agg2:");
 
         /// <summary>
-        /// Paramater check for Null.
+        /// Parameter check for Null.
         /// </summary>
         /// <param name="value">Value to be checked.</param>
         /// <param name="name">Name of the parameter being checked.</param>
@@ -28,12 +28,12 @@
         {
             if (value == null)
             {
-                throw new ArgumentNullException(name ?? Util.FallbackParemeterName);
+                throw new ArgumentNullException(name ?? Util.FallbackParameterName);
             }
         }
 
         /// <summary>
-        /// String paramater check with a more informative exception that specifies whether
+        /// String parameter check with a more informative exception that specifies whether
         /// the problem was that the string was null or empty.
         /// </summary>
         /// <param name="value">Value to be checked.</param>
@@ -43,17 +43,17 @@
         {
             if (value == null)
             {
-                throw new ArgumentNullException(name ?? Util.FallbackParemeterName);
+                throw new ArgumentNullException(name ?? Util.FallbackParameterName);
             }
 
             if (value.Length == 0)
             {
-                throw new ArgumentException((name ?? Util.FallbackParemeterName) + " may not be empty.");
+                throw new ArgumentException((name ?? Util.FallbackParameterName) + " may not be empty.");
             }
         }
 
         /// <summary>
-        /// String paramater check with a more informative exception that specifies whether
+        /// String parameter check with a more informative exception that specifies whether
         /// the problem was that the string was null, empty or whitespace only.
         /// </summary>
         /// <param name="value">Value to be checked.</param>
@@ -65,7 +65,7 @@
 
             if (String.IsNullOrWhiteSpace(value))
             {
-                throw new ArgumentException((name ?? Util.FallbackParemeterName) + " may not be whitespace only.");
+                throw new ArgumentException((name ?? Util.FallbackParameterName) + " may not be whitespace only.");
             }
         }
 
@@ -83,27 +83,27 @@
 
         public static double RoundAndValidateValue(double value)
         {
-            if (Double.IsNaN(value))
+            if (double.IsNaN(value))
             {
                 throw new ArgumentException("Cannot process the specified value."
-                                          + " A non-negavite whole number was expected, but the specified value is Double.NaN."
+                                          + " A non-negative whole number was expected, but the specified value is Double.NaN."
                                           + " Have you specified the correct metric configuration?");
             }
 
             if (value < -MicroOne)
             {
                 throw new ArgumentException("Cannot process the specified value."
-                                          + " A non-negavite whole number was expected, but the specified value is"
+                                          + " A non-negative whole number was expected, but the specified value is"
                                           + " a negative double value (" + value + ")."
                                           + " Have you specified the correct metric configuration?");
             }
 
             double wholeValue = Math.Round(value);
 
-            if (wholeValue > UInt32.MaxValue)
+            if (wholeValue > uint.MaxValue)
             {
                 throw new ArgumentException("Cannot process the specified value."
-                                         + " A non-negavite whole number was expected, but the specified value is"
+                                         + " A non-negative whole number was expected, but the specified value is"
                                          + " larger than the maximum accepted value (" + value + ")."
                                          + " Have you specified the correct metric configuration?");
             }
@@ -112,7 +112,7 @@
             if (delta > MicroOne)
             {
                 throw new ArgumentException("Cannot process the specified value."
-                                          + " A non-negavite whole number was expected, but the specified value is"
+                                          + " A non-negative whole number was expected, but the specified value is"
                                           + " a double value that does not equal to a whole number (" + value + ")."
                                           + " Have you specified the correct metric configuration?");
             }
@@ -214,7 +214,7 @@
             }
             catch
             {
-                // Protect against errors in user's implemenmtation of IMetricSeriesFilter.WillConsume(..).
+                // Protect against errors in user's implementation of IMetricSeriesFilter.WillConsume(..).
                 // If it throws, assume that the filter is not functional and accept all values.
                 return true;
             }
@@ -319,7 +319,7 @@
 #pragma warning restore CS0618 // Type or member is obsolete
 
             // This check avoids accessing the public accessor GlobalProperties
-            // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
+            // unless needed, to avoid the penalty of ConcurrentDictionary instantiation.
             if (source.GlobalPropertiesValue != null)
             {
                 Utils.CopyDictionary(source.GlobalProperties, target.GlobalProperties);

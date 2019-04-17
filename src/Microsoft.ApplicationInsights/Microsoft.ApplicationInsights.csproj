@@ -3,7 +3,7 @@
   <Import Project="..\..\Nupkg.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net45;net46;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>net45;net46;netstandard1.3;netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netstandard1.3</TargetFrameworks>
   </PropertyGroup>
   
@@ -48,6 +48,11 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
     <PackageReference Include="System.Net.Requests" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.RunTime.InteropServices" Version="4.3.0" />   
   </ItemGroup>
 
   <ItemGroup>

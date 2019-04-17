@@ -248,16 +248,32 @@
 
         internal TelemetryContext DeepClone(IDictionary<string, string> properties)
         {
-            var other = new TelemetryContext(properties);
+            var newTelemetryContext = new TelemetryContext(properties);
             // This check avoids accessing the public accessor GlobalProperties
             // unless needed, to avoid the penality of ConcurrentDictionary instantiation.
             if (this.GlobalPropertiesValue != null)
             {
-                Utils.CopyDictionary(this.GlobalProperties, other.GlobalProperties);
+                Utils.CopyDictionary(this.GlobalProperties, newTelemetryContext.GlobalProperties);
             }
 
-            other.InstrumentationKey = this.InstrumentationKey;
-            return other;
+            if (this.PropertiesValue != null)
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                Utils.CopyDictionary(this.Properties, newTelemetryContext.Properties);
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
+
+            newTelemetryContext.Initialize(this, this.instrumentationKey);
+
+            // RawObject collection is not cloned by design, they share the same collection.
+            newTelemetryContext.rawObjectsTemp = this.rawObjectsTemp;
+            newTelemetryContext.rawObjectsPerm = this.rawObjectsPerm;
+            return newTelemetryContext;
+        }
+
+        internal TelemetryContext DeepClone()
+        {
+            return this.DeepClone(null);
         }
 
         /// <summary>

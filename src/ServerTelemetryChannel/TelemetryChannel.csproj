@@ -47,6 +47,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ApplicationInsights\Microsoft.ApplicationInsights.csproj" />
     <Reference Include="System.Web" Condition="'$(TargetFramework)' == 'net45'" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
@@ -54,11 +55,12 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-
+  
   <ItemGroup>
     <Content Include="ApplicationInsights.config.install.xdt" />
     <Content Include="ApplicationInsights.config.transform" />
     <Content Include="ApplicationInsights.config.uninstall.xdt" />
+    <Content Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.targets" PackagePath="build" />
   </ItemGroup>
 
   <ItemGroup>
@@ -85,6 +87,6 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
-
+  
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>

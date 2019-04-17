@@ -15,10 +15,6 @@
     using Microsoft.ApplicationInsights.Channel.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
-    
-    
-
-    using TaskEx = System.Threading.Tasks.Task;
 
     public class BackoffLogicManagerTest
     {
@@ -131,7 +127,7 @@
             public void RetryAfterOlderThanNowCausesDefaultDelay()
             {
                 // An old date
-                string retryAfterDateString = DateTime.Now.AddMinutes(-1).ToString("R", CultureInfo.InvariantCulture);
+                string retryAfterDateString = DateTime.UtcNow.AddMinutes(-1).ToString("R", CultureInfo.InvariantCulture);
 
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 manager.GetBackOffTimeInterval(retryAfterDateString);
@@ -260,7 +256,7 @@
                 Task[] tasks = new Task[10];
                 for (int i = 0; i < 10; ++i)
                 {
-                    tasks[i] = TaskEx.Run(() => manager.ReportBackoffEnabled(500));
+                    tasks[i] = Task.Run(() => manager.ReportBackoffEnabled(500));
                 }
 
                 Task.WaitAll(tasks);

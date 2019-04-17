@@ -1,10 +1,48 @@
-﻿# Changelog
+# Changelog
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
-## Version 2.9.0-beta1
-- [Remove unused reference to System.Web.Extesions](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/956)
-- [Added new method on TelemetryClient to initialize just instrumntation. This is to be used by autocollectors to avoid calling TelemetryInitializers twice.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/966)
+## [Unreleased](https://github.com/Microsoft/ApplicationInsights-dotnet/compare/2.10.0-beta3..HEAD)
+- [Fix NullReferenceException in DiagnosticsEventListener.OnEventWritten](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1106)
+- [Fix RichPayloadEventSource can get enabled at Verbose level](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1108)
+- [Fix DiagnosticsTelemetryModule can get added more than once](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1111)
+
+## Version 2.10.0-beta3
+- No changes. Bumping version to match WebSDK release.
+
+## Version 2.10.0-beta2
+- [Fix Transmission in NETCORE to handle partial success (206) response from backend.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1047)
+- [Fix data losses in ServerTelemetryChannel.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1049)
+- [InitialSamplingRate is now correctly applied if set in applicationInsights.config] (https://github.com/Microsoft/ApplicationInsights-dotnet/pull/1048)
+- Added new target for NetStandard2.0.
+
+## Version 2.9.1
+- [Aggregation thread is now a background thread](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1080)
+
+## Version 2.9.0
+- [Move W3C methods from Web SDK](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/1064)
+
+## Version 2.9.0-beta3
+- [Flatten IExtension and Unknown ITelemetry implementations for Rich Payload Event Source consumption](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/1017)
+- [Fix: Start/StopOperation with W3C distributed tracing enabled does not track telemetry](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/1031)
+- [Fix: Do not run metric aggregation on a thread pool thread](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/1028)
+
+## Version 2.9.0-beta2
+- [Remove unused reference to System.Web.Extensions](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/956)
+- [PageViewTelemetry](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/8673ed1d15005713755e0bb9594acfe0ee00b869/src/Microsoft.ApplicationInsights/DataContracts/PageViewTelemetry.cs) now supports [ISupportMetrics](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/39a5ef23d834777eefdd72149de705a016eb06b0/src/Microsoft.ApplicationInsights/DataContracts/ISupportMetrics.cs)
+- [Fixed a bug in TelemetryContext which prevented rawobject store to be not available in all sinks.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/974)
+- [Fixed a bug where TelemetryContext would have missing values on secondary sinks](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/993)
+- [Fixed race condition in BroadcastProcessor which caused it to drop TelemetryItems](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/995)
+- [Custom Telemetry Item that implements ITelemetry is no longer dropped, bur rather serialized as EventTelemetry and handled by the channels accordingly](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/988)
+- [IExtension is now serialized into the Properties and Metrics](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1000)
+
+Perf Improvements.
+- [Improved Perf of ITelemetry JsonSerialization](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/997)
+- [Added new method on TelemetryClient to initialize just instrumentation. This is to be used by autocollectors to avoid calling TelemetryInitializers twice.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/966)
+- [RequestTelemetry modified to lazily instantiate ConcurrentDictionary for Properties](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/969)
+- [RequestTelemetry modified to not service public fields with data class to avoid converting between types.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/965)
+- [Dependency Telemetry modified to lazily instantiate ConcurrentDictionary for Properties](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1002)
+- [Avoid string allocations in Metrics hot path](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1004)
 
 ## Version 2.8.1
 [Patch release addressing perf regression.](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/952)

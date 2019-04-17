@@ -20,18 +20,17 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
     /// </remarks>
-    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling
+    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling, IAiSerializableTelemetry
     {
         internal new const string TelemetryName = "Request";
 
-        internal readonly string BaseType = typeof(RequestData).Name;
         private readonly TelemetryContext context;
         private RequestData dataPrivate;
         private bool successFieldSet;
         private IExtension extension;
         private double? samplingPercentage;
-        private bool? success;
-        private IDictionary<string, double> measurements;
+        private bool success = true;
+        private IDictionary<string, double> measurementsValue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTelemetry"/> class.
@@ -40,6 +39,10 @@
         {
             this.context = new TelemetryContext();
             this.GenerateId();
+            this.Source = string.Empty;
+            this.Name = string.Empty;
+            this.ResponseCode = string.Empty;            
+            this.Duration = System.TimeSpan.Zero;
         }
 
         /// <summary>
@@ -64,10 +67,13 @@
         {
             this.Duration = source.Duration;
             this.Id = source.Id;
-            Utils.CopyDictionary(source.Metrics, this.Metrics);
+            if (source.measurementsValue != null)
+            {
+                Utils.CopyDictionary(source.Metrics, this.Metrics);
+            }
+
             this.Name = source.Name;
-            this.context = source.context.DeepClone(null);
-            Utils.CopyDictionary(source.Properties, this.Properties);
+            this.context = source.context.DeepClone();
             this.ResponseCode = source.ResponseCode;
             this.Source = source.Source;
             this.Success = source.Success;
@@ -77,6 +83,12 @@
             this.successFieldSet = source.successFieldSet;
             this.extension = source.extension?.DeepClone();
         }
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.TelemetryName => TelemetryName;
+
+        /// <inheritdoc />
+        string IAiSerializableTelemetry.BaseType => nameof(RequestData);
 
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
@@ -201,7 +213,7 @@
         /// </summary>
         public override IDictionary<string, double> Metrics
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.measurements, () => new ConcurrentDictionary<string, double>()); }
+            get { return LazyInitializer.EnsureInitialized(ref this.measurementsValue, () => new ConcurrentDictionary<string, double>()); }
         }
 
         /// <summary>
@@ -241,6 +253,13 @@
             set;
         }
 
+        /// <summary>
+        /// Gets the Data associated with this Telemetry instance.
+        /// This is being served by a singleton instance, so this will
+        /// not pickup changes made to the telemetry after first call to this.
+        /// It is recommended to make all changes (including sanitization)
+        /// to this telemetry before calling Data.
+        /// </summary>
         internal RequestData Data
         {
             get
@@ -251,16 +270,12 @@
                              var req = new RequestData();
                              req.duration = this.Duration;
                              req.id = this.Id;
-                             req.measurements = this.Metrics;
+                             req.measurements = this.measurementsValue;
                              req.name = this.Name;
-                             req.properties = this.Properties;
+                             req.properties = this.context.PropertiesValue;
                              req.responseCode = this.ResponseCode;
                              req.source = this.Source;
-                             if (this.Success != null && this.Success.HasValue)
-                             {
-                                 req.success = this.Success.Value;
-                             }
-
+                             req.success = this.success;
                              req.url = this.Url?.ToString();
                              return req;
                          });
@@ -283,8 +298,11 @@
 
         /// <inheritdoc/>
         public override void SerializeData(ISerializationWriter serializationWriter)
-        {            
-            serializationWriter.WriteProperty(this.Data);                        
+        {
+            // To ensure that all changes to telemetry are reflected in serialization,
+            // the underlying field is set to null, which forces it to be re-created.
+            this.dataPrivate = null;
+            serializationWriter.WriteProperty(this.Data);
         }
 
         /// <summary>

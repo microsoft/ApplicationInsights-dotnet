@@ -11,10 +11,14 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ActivityExtensionsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\PageViewPerformanceTelemetryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\DictionarySerializationWriterTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonSerializationWriterTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\MyTestExtension.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IExtensionImplementations.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MetricTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationTelemetryExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServiceProfiler\Agent\Utilities\ParsedPayload.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServiceProfiler\Agent\Utilities\PayloadParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServiceProfiler\Agent\Utilities\PayloadParserUtilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StartOperationActivityTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionAsyncTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionTests.cs" />
@@ -116,6 +120,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\StubApplicationInsightsTelemetryChannel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\TestCategoryNames.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\TestUtil.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)W3C\W3CActivityExtensionsTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)W3C\W3COperationCorrelationTelemetryInitializerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)W3C\W3CUtilitiesTests.cs" />
     <None Include="$(MSBuildThisFileDirectory)Metrics\TestUtility\Materials\StdDev Test Tool.xlsx" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
   </ItemGroup>

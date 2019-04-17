@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 {
-#if !NETCOREAPP1_1
+#if (!NETCOREAPP1_1 && !NETCOREAPP2_0)
     using System;
     using System.IO;
     using System.Security.Permissions;

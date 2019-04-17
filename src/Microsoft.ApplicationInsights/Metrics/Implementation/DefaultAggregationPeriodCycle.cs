@@ -16,26 +16,25 @@
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming Rules", "SA1310: C# Field must not contain an underscore", Justification = "By design: Structured name.")]
         private const int RunningState_Stopped = 2;
 
-        private readonly Action workerMethod;
-
         private readonly MetricAggregationManager aggregationManager;
         private readonly MetricManager metricManager;
 
+        private readonly TaskCompletionSource<bool> workerTaskCompletionControl;
+
         private int runningState;
-        private Task workerTask;
+        private Thread aggregationThread;
 
         public DefaultAggregationPeriodCycle(MetricAggregationManager aggregationManager, MetricManager metricManager)
         {
             Util.ValidateNotNull(aggregationManager, nameof(aggregationManager));
             Util.ValidateNotNull(metricManager, nameof(metricManager));
 
-            this.workerMethod = this.Run;
-
             this.aggregationManager = aggregationManager;
             this.metricManager = metricManager;
 
             this.runningState = RunningState_NotStarted;
-            this.workerTask = null;
+            this.workerTaskCompletionControl = new TaskCompletionSource<bool>();
+            this.aggregationThread = null;
         }
 
         ~DefaultAggregationPeriodCycle()
@@ -52,27 +51,35 @@
                 return false; // Was already running or stopped.
             }
 
-            this.workerTask = Task.Run(this.workerMethod)
-                              .ContinueWith(
-                                        (t) => { this.workerTask = null; },
-                                        TaskContinuationOptions.ExecuteSynchronously);
+            // We create a new thread rather than using the thread pool.
+            // This is because inside of the main loop in the Run() method we use a synchronous wait.
+            // The reason for that is to prevent aggregation from being affected by potential thread pool starvation.
+            // As a result, Run() is a very long running task that occupies a thread forever.
+            // If we were to schedule Run() on the thread pool it would be possible that the thread chosen by the
+            // pool had run user code before. Such user code may be doing an asynchronous wait scheduled to
+            // continue on the same thread(e.g. this can occur when using a custom synchronization context or a 
+            // custom task scheduler). If such case the waiting user code will never continue.
+            // By creating our own thread, we guarantee no interactions with potentially incorrectly written async user code.
+
+            this.aggregationThread = new Thread(this.Run);
+            this.aggregationThread.Name = nameof(DefaultAggregationPeriodCycle);
+            this.aggregationThread.IsBackground = true;
+
+            this.aggregationThread.Start();
             return true;
         }
 
         public Task StopAsync()
         {
             Interlocked.Exchange(ref this.runningState, RunningState_Stopped);
-            
-            // Benign race on being called very soon after start. Will miss a cycle but eventually complete correctly.
 
-            Task workerTask = this.workerTask;
-            return workerTask ?? Task.FromResult(true);
+            return this.workerTaskCompletionControl.Task;
         }
 
         public void FetchAndTrackMetrics()
         {
             // We know that GetNextCycleTargetTime(..) tries to snap cycles to 1 second into each minute.
-            // But the timer wakes us up *approxumately* at that time. If we are within a few seconds of that time, we will snap exactly to that time.
+            // But the timer wakes us up *approximately* at that time. If we are within a few seconds of that time, we will snap exactly to that time.
             // If we are further away, we will just snap to a whole second. That way downstream systems do not need to worry about sub-second resolution.
 
             DateTimeOffset now = DateTimeOffset.Now;
@@ -139,11 +146,13 @@
                 DateTimeOffset now = DateTimeOffset.Now;
                 TimeSpan waitPeriod = GetNextCycleTargetTime(now) - now;
 
-                Task.Delay(waitPeriod).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
+                Thread.Sleep(waitPeriod);
 
                 int shouldBeRunning = Volatile.Read(ref this.runningState);
                 if (shouldBeRunning != RunningState_Running)
                 {
+                    this.aggregationThread = null;
+                    this.workerTaskCompletionControl.TrySetResult(true);
                     return;
                 }
 

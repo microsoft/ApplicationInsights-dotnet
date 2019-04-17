@@ -35,7 +35,7 @@
             /// <summary>If you name a metric dimension named <c>propertyName</c> you can apply this method to it
             /// to generate a name that will be moved to TelemetryContext just like its standard fields.</summary>
             /// <param name="propertyName">A metric dimension.</param>
-            /// <returns>A dimension name basedon the specified <c>propertyName</c> that will be moved to TelemetryContext
+            /// <returns>A dimension name based on the specified <c>propertyName</c> that will be moved to TelemetryContext
             /// just like its standard fields.</returns>
             internal static string Property(string propertyName)
             {
@@ -44,7 +44,7 @@
                 return dimName;
             }
 
-            /// <summary>Cheks whether this is a custom dimension name that has been marked to be moved to
+            /// <summary>Checks whether this is a custom dimension name that has been marked to be moved to
             /// the TelemetryContext using <see cref="Property(String)"/>.</summary>
             /// <param name="dimensionName">A dimension name.</param>
             /// <param name="propertyName">The underlying property name (or <c>null</c>).</param>

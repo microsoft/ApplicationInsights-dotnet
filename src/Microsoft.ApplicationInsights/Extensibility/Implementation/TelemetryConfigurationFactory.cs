@@ -55,9 +55,9 @@
             {
                 SdkInternalOperationsMonitor.Enter();
 
-                if (modules != null)
+                if (modules != null && !modules.Modules.Any(module => module is DiagnosticsTelemetryModule))
                 {
-                    // Create diagnostics module so configuration loading errors are reported to the portal    
+                    // Create diagnostics module so configuration loading errors are reported to the portal
                     modules.Modules.Add(new DiagnosticsTelemetryModule());
                 }
 

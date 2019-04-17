@@ -1,10 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     internal static class Telemetry
     {
@@ -53,6 +55,89 @@
 
                 json.WriteProperty("tags", context.SanitizedTags);
             }
+        }
+
+        /// <summary>
+        /// Copies GlobalProperties to the target's Properties. 
+        /// This avoids accessing the public accessor GlobalProperties to avoid the penalty of ConcurrentDictionary instantiation.
+        /// </summary> 
+        internal static void CopyGlobalPropertiesIfExist(this ITelemetry telemetry)
+        {
+            if (telemetry.Context.GlobalPropertiesValue != null)
+            {
+                if (telemetry is ISupportProperties telemetryWithProperties)
+                {
+                    Utils.CopyDictionary(source: telemetry.Context.GlobalProperties, target: telemetryWithProperties.Properties);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Copies GlobalProperties to the target dictionary.
+        /// This avoids accessing the public accessor GlobalProperties to avoid the penalty of ConcurrentDictionary instantiation.
+        /// </summary>
+        internal static void CopyGlobalPropertiesIfExist(this ITelemetry telemetry, IDictionary<string, string> target)
+        {
+            if (telemetry.Context.GlobalPropertiesValue != null)
+            {
+                Utils.CopyDictionary(telemetry.Context.GlobalProperties, target);
+            }
+        }
+
+        /// <summary>
+        /// Flattens Extension object on ITelemetry if exists into the properties and measurements
+        /// </summary>        
+        internal static void FlattenIExtensionIfExists(this ITelemetry telemetry)
+        {
+            if (telemetry.Extension != null)
+            {
+                ISupportProperties itemWithProperties = telemetry as ISupportProperties;
+                ISupportMetrics itemWithMetrics = telemetry as ISupportMetrics;
+
+                // Do not serialize if data cannot be stored on the item
+                if (itemWithProperties != null || itemWithMetrics != null)
+                {
+                    DictionarySerializationWriter extensionSerializationWriter = new DictionarySerializationWriter();
+                    telemetry.Extension.Serialize(extensionSerializationWriter);
+
+                    if (itemWithProperties != null)
+                    {
+                        Utils.CopyDictionary(extensionSerializationWriter.AccumulatedDictionary, itemWithProperties.Properties);
+                    }
+
+                    if (itemWithMetrics != null)
+                    {
+                        Utils.CopyDictionary(extensionSerializationWriter.AccumulatedMeasurements, itemWithMetrics.Metrics);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Flattens ITelemetry object into the properties and measurements
+        /// </summary>        
+        /// <returns>EventData containing flattened ITelemetry object</returns>
+        internal static EventData FlattenTelemetryIntoEventData(this ITelemetry telemetry)
+        {
+            EventData flatTelemetry = new EventData();
+            DictionarySerializationWriter dictionarySerializationWriter = new DictionarySerializationWriter();
+            telemetry.SerializeData(dictionarySerializationWriter); // Properties and Measurements are covered as part of Data if present
+            Utils.CopyDictionary(dictionarySerializationWriter.AccumulatedDictionary, flatTelemetry.properties);
+            Utils.CopyDictionary(dictionarySerializationWriter.AccumulatedMeasurements, flatTelemetry.measurements);
+            if (telemetry.Context.GlobalPropertiesValue != null)
+            {
+                Utils.CopyDictionary(telemetry.Context.GlobalProperties, flatTelemetry.properties);
+            }
+
+            if (telemetry.Extension != null)
+            {
+                DictionarySerializationWriter extensionSerializationWriter = new DictionarySerializationWriter();
+                telemetry.Extension.Serialize(extensionSerializationWriter); // Extension is supposed to be flattened as well
+                Utils.CopyDictionary(extensionSerializationWriter.AccumulatedDictionary, flatTelemetry.properties);
+                Utils.CopyDictionary(extensionSerializationWriter.AccumulatedMeasurements, flatTelemetry.measurements);
+            }
+
+            return flatTelemetry;
         }
 
         /// <summary>

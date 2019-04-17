@@ -593,6 +593,10 @@ Microsoft.ApplicationInsights.Extensibility.TelemetrySink.TelemetryProcessorChai
 Microsoft.ApplicationInsights.Extensibility.TelemetrySink.TelemetryProcessors.get -> System.Collections.ObjectModel.ReadOnlyCollection<Microsoft.ApplicationInsights.Extensibility.ITelemetryProcessor>
 Microsoft.ApplicationInsights.Extensibility.TelemetrySink.TelemetrySink() -> void
 Microsoft.ApplicationInsights.Extensibility.TelemetrySink.TelemetrySink(Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration telemetryConfiguration, Microsoft.ApplicationInsights.Channel.ITelemetryChannel telemetryChannel = null) -> void
+Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions
+Microsoft.ApplicationInsights.Extensibility.W3C.W3COperationCorrelationTelemetryInitializer
+Microsoft.ApplicationInsights.Extensibility.W3C.W3COperationCorrelationTelemetryInitializer.Initialize(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
+Microsoft.ApplicationInsights.Extensibility.W3C.W3CUtilities
 Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.Metric.GetAllSeries() -> System.Collections.Generic.IReadOnlyList<System.Collections.Generic.KeyValuePair<string[], Microsoft.ApplicationInsights.Metrics.MetricSeries>>
 Microsoft.ApplicationInsights.Metric.GetDimensionValues(int dimensionNumber) -> System.Collections.Generic.IReadOnlyCollection<string>
@@ -778,6 +782,7 @@ Microsoft.ApplicationInsights.TelemetryClient.GetMetric(string metricId, string 
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(string metricId, string dimension1Name, string dimension2Name, string dimension3Name, string dimension4Name, Microsoft.ApplicationInsights.Metrics.MetricConfiguration metricConfiguration) -> Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.TelemetryClient.GetMetric(string metricId, string dimension1Name, string dimension2Name, string dimension3Name, string dimension4Name, Microsoft.ApplicationInsights.Metrics.MetricConfiguration metricConfiguration, Microsoft.ApplicationInsights.MetricAggregationScope aggregationScope) -> Microsoft.ApplicationInsights.Metric
 Microsoft.ApplicationInsights.TelemetryClient.Initialize(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
+Microsoft.ApplicationInsights.TelemetryClient.InitializeInstrumentationKey(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
 Microsoft.ApplicationInsights.TelemetryClient.InstrumentationKey.get -> string
 Microsoft.ApplicationInsights.TelemetryClient.InstrumentationKey.set -> void
 Microsoft.ApplicationInsights.TelemetryClient.IsEnabled() -> bool
@@ -868,6 +873,18 @@ static Microsoft.ApplicationInsights.Extensibility.SdkInternalOperationsMonitor.
 static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.Active.get -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CreateDefault() -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
 static Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.CreateFromConfiguration(string config) -> Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.GenerateW3CContext(this System.Diagnostics.Activity activity) -> System.Diagnostics.Activity
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.GetParentSpanId(this System.Diagnostics.Activity activity) -> string
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.GetSpanId(this System.Diagnostics.Activity activity) -> string
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.GetTraceId(this System.Diagnostics.Activity activity) -> string
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.GetTraceparent(this System.Diagnostics.Activity activity) -> string
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.GetTracestate(this System.Diagnostics.Activity activity) -> string
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.IsW3CActivity(this System.Diagnostics.Activity activity) -> bool
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.SetTraceparent(this System.Diagnostics.Activity activity, string value) -> void
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.SetTracestate(this System.Diagnostics.Activity activity, string value) -> void
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.UpdateContextOnActivity(this System.Diagnostics.Activity activity) -> System.Diagnostics.Activity
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.UpdateTelemetry(this System.Diagnostics.Activity activity, Microsoft.ApplicationInsights.Channel.ITelemetry telemetry, bool forceUpdate) -> void
+static Microsoft.ApplicationInsights.Extensibility.W3C.W3CUtilities.GenerateTraceId() -> string
 static Microsoft.ApplicationInsights.MetricConfigurationsExtensions.Measurement(this Microsoft.ApplicationInsights.MetricConfigurations metricConfigPresets) -> Microsoft.ApplicationInsights.Metrics.MetricConfigurationForMeasurement
 static Microsoft.ApplicationInsights.MetricConfigurationsExtensions.SetDefaultForMeasurement(this Microsoft.ApplicationInsights.MetricConfigurations metricConfigPresets, Microsoft.ApplicationInsights.Metrics.MetricConfigurationForMeasurement defaultConfigurationForMeasurement) -> void
 static Microsoft.ApplicationInsights.Metrics.Extensibility.MetricConfigurationExtensions.Constants(this Microsoft.ApplicationInsights.Metrics.MetricConfigurationForMeasurement measurementConfig) -> Microsoft.ApplicationInsights.Metrics.MetricSeriesConfigurationForMeasurement.AggregateKindConstants
@@ -892,6 +909,7 @@ static readonly Microsoft.ApplicationInsights.Extensibility.Implementation.TaskT
 static readonly Microsoft.ApplicationInsights.Extensibility.TelemetrySink.DefaultSinkName -> string
 static readonly Microsoft.ApplicationInsights.MetricConfigurations.Common -> Microsoft.ApplicationInsights.MetricConfigurations
 virtual Microsoft.ApplicationInsights.Channel.InMemoryChannel.Dispose(bool disposing) -> void
+virtual Microsoft.ApplicationInsights.Channel.Transmission.CreateRequest(System.Uri address) -> System.Net.WebRequest
 virtual Microsoft.ApplicationInsights.Channel.Transmission.CreateRequestMessage(System.Uri address, System.IO.Stream contentStream) -> System.Net.Http.HttpRequestMessage
 virtual Microsoft.ApplicationInsights.Channel.Transmission.SendAsync() -> System.Threading.Tasks.Task<Microsoft.ApplicationInsights.Extensibility.Implementation.HttpWebResponseWrapper>
 virtual Microsoft.ApplicationInsights.Channel.Transmission.Split(System.Func<int, int> calculateLength) -> System.Tuple<Microsoft.ApplicationInsights.Channel.Transmission, Microsoft.ApplicationInsights.Channel.Transmission>
