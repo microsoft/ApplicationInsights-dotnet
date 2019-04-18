@@ -836,10 +836,6 @@
 
                 var activityInitializedByW3CHeader = Activity.Current;
 
-                if (!isAspNetCore2)
-                { 
-                Assert.Null(activityInitializedByW3CHeader.ParentId);
-                    }
                 Assert.NotNull(activityInitializedByW3CHeader.GetTraceId());
                 Assert.Equal(32, activityInitializedByW3CHeader.GetTraceId().Length);
                 Assert.Equal(16, activityInitializedByW3CHeader.GetSpanId().Length);

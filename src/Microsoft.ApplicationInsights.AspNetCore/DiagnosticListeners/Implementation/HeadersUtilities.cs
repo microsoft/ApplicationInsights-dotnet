@@ -5,6 +5,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     using System.Linq;
     using System.Text.RegularExpressions;
     using Microsoft.ApplicationInsights.Common;
+    using Microsoft.Extensions.Primitives;
 
     /// <summary>
     /// Generic functions that can be used to get and set Http headers.
@@ -20,7 +21,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         public static string GetHeaderKeyValue(IEnumerable<string> headerValues, string keyName)
         {
             if (headerValues != null)
-            {
+            {                
                 foreach (string keyNameValue in headerValues)
                 {
                     string[] keyNameValueParts = keyNameValue.Trim().Split('=');
@@ -38,7 +39,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// <summary>
         /// Given the provided list of header value strings, return a comma-separated list of key
         /// name/value pairs with the provided keyName and keyValue. If the initial header value
-        /// strings contains the key name, then the original key value should be replaced with the
+        /// string contains the key name, then the original key value should be replaced with the
         /// provided key value. If the initial header value strings don't contain the key name,
         /// then the key name/value pair should be added to the comma-separated list and returned.
         /// </summary>
@@ -46,14 +47,25 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// <param name="keyName">The name of the key to add.</param>
         /// <param name="keyValue">The value of the key to add.</param>
         /// <returns>The result of setting the provided key name/value pair into the provided headerValues.</returns>
-        public static IEnumerable<string> SetHeaderKeyValue(IEnumerable<string> headerValues, string keyName, string keyValue)
+        public static StringValues SetHeaderKeyValue(string[] currentHeaders, string key, string value)
         {
-            string[] newHeaderKeyValue = new[] { string.Format(CultureInfo.InvariantCulture, "{0}={1}", keyName.Trim(), keyValue.Trim()) };
-            return headerValues == null || !headerValues.Any()
-                ? newHeaderKeyValue
-                : headerValues
-                    .Where(headerValue => !HeaderMatchesKey(headerValue, keyName))
-                    .Concat(newHeaderKeyValue);
+            if (currentHeaders != null)
+            {
+                for (int index = 0; index < currentHeaders.Length; index++)
+                {
+                    if (HeaderMatchesKey(currentHeaders[index], key))
+                    {
+                        currentHeaders[index] = string.Concat(key, "=", value);
+                        return currentHeaders;
+                    }
+                }
+
+                return StringValues.Concat(currentHeaders, string.Concat(key, "=", value));                
+            }
+            else
+            {
+                return string.Concat(key, "=", value);
+            }
         }
 
         /// <summary>

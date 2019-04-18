@@ -19,10 +19,10 @@
         {
             var initializer = new AspNetCoreEnvironmentTelemetryInitializer(new HostingEnvironment() { EnvironmentName = "Production"});
             var telemetry = new RequestTelemetry();
-            telemetry.Context.GlobalProperties.Add("AspNetCoreEnvironment", "Development");
+            telemetry.Context.Properties.Add("AspNetCoreEnvironment", "Development");
             initializer.Initialize(telemetry);
 
-            Assert.Equal("Development", telemetry.Context.GlobalProperties["AspNetCoreEnvironment"]);
+            Assert.Equal("Development", telemetry.Context.Properties["AspNetCoreEnvironment"]);
         }
 
         [Fact]
@@ -32,7 +32,7 @@
             var telemetry = new RequestTelemetry();
             initializer.Initialize(telemetry);
 
-            Assert.Equal("Production", telemetry.Context.GlobalProperties["AspNetCoreEnvironment"]);
+            Assert.Equal("Production", telemetry.Context.Properties["AspNetCoreEnvironment"]);
         }
     }
 }
