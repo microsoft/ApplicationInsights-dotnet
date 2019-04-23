@@ -4,12 +4,14 @@ using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
+using ServerTelemetryChannel = Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.ServerTelemetryChannel;
 
 namespace PerfTest
 {
@@ -21,19 +23,45 @@ namespace PerfTest
             s1.Start();
 
             var activeConfiguration = TelemetryConfiguration.Active;
-            activeConfiguration.InstrumentationKey = "c351b2d8-10f5-45c9-902d-05100da0f8a6";
+            activeConfiguration.InstrumentationKey = "21534102-7318-4355-b38e-a00e73b1c1ce";
 
-            var channel = new MyChannel();
+            var channel = new ServerTelemetryChannel();
+            channel.StorageFolder = @"D:\home\site\aidata";
+            channel.MaxTransmissionSenderCapacity = 10;
+            channel.MaxTransmissionBufferCapacity = 10485760;
             activeConfiguration.TelemetryChannel = channel;
-
-            var builder = activeConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
-            builder.Use((next) => { return new AutocollectedMetricsExtractor(next); });
-            builder.UseSampling(5, excludedTypes: "Event");            
-            builder.UseSampling(5, includedTypes: "Event");            
-            builder.Build();
-
+            channel.Initialize(activeConfiguration);
+            
             var telemetryClient = new TelemetryClient(activeConfiguration);
 
+            
+            // WaitUntilFolderClean();
+            
+            DoPerf(telemetryClient);
+        }
+
+        private static void WaitUntilFolderClean()
+        {
+            Stopwatch s2 = new Stopwatch();
+            s2.Start();
+
+            while (true)
+            {
+                var files = Directory.GetFiles(@"D:\home\site\aidata");
+                Console.WriteLine("File Count" + files.Length);
+                Console.WriteLine("Time so far: " + s2.Elapsed);
+                if (files.Length < 10)
+                {
+                    break;
+                }
+                Thread.Sleep(5000);
+            }
+
+            Console.WriteLine("File clear took: " + s2.Elapsed);
+        }
+
+        private static void DoPerf(TelemetryClient telemetryClient)
+        {
             int IterationMax = 50;
             int TaskCount = Environment.ProcessorCount;
 
@@ -64,7 +92,7 @@ namespace PerfTest
                             telemetryClient.TrackRequest(req);
                             telemetryClient.TrackDependency(dep);
                         }
-                    }); 
+                    });
                 }
 
                 for (int i = 0; i < TaskCount; i++)
@@ -84,10 +112,9 @@ namespace PerfTest
             }
 
             Console.WriteLine("Avge" + runs.Average());
-
-            
         }
     }
+    
 
     internal class MyTelemetryInitializer : ITelemetryInitializer
     {
