@@ -2,10 +2,11 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
-## [Unreleased](https://github.com/Microsoft/ApplicationInsights-dotnet/compare/2.10.0-beta3..HEAD)
+## Version 2.10.0-beta4
 - [Fix NullReferenceException in DiagnosticsEventListener.OnEventWritten](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1106)
 - [Fix RichPayloadEventSource can get enabled at Verbose level](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1108)
 - [Fix DiagnosticsTelemetryModule can get added more than once](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1111)
+- [Modify default settings for ServerTelemetryChannel to reduce disk usage. MaxTransmissionSenderCapacity is changed from 3 to 10, MaxTransmissionBufferCapacity is changed from 1MB to 5MB](https://github.com/Microsoft/ApplicationInsights-dotnet/pull/1113)
 
 ## Version 2.10.0-beta3
 - No changes. Bumping version to match WebSDK release.
