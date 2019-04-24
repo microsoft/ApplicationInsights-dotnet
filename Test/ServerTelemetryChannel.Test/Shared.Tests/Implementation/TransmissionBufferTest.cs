@@ -44,7 +44,7 @@
             public void DefaultValueIsAppropriateForMostApps()
             {
                 var buffer = new TransmissionBuffer();
-                Assert.AreEqual(1024 * 1024, buffer.Capacity);
+                Assert.AreEqual(5120 * 1024, buffer.Capacity);
             }
 
             [TestMethod]
