@@ -525,12 +525,23 @@
         }
 
         /// <summary>
-        /// Logs the detais when there operation to stop does not match the current operation.
+        /// Logs the details when there operation to stop does not match the current operation.
         /// </summary>
         [Event(44, Message = "Operation to stop does not match the current operation. Details {0}.", Level = EventLevel.Warning)]
         public void InvalidOperationToStopDetails(string details, string appDomainName = "Incorrect")
         {
             this.WriteEvent(44, details, this.nameProvider.Name);
+        }
+
+        [Event(
+        45,
+        Message = "File system containing ApplicationInsights configuration file is inaccessible.",
+        Level = EventLevel.Warning)]
+        public void ApplicationInsightsConfigNotAccessibleWarning()
+        {
+            this.WriteEvent(
+                45,
+                this.nameProvider.Name);
         }
 
         /// <summary>

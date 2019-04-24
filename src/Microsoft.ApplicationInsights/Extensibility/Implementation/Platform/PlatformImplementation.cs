@@ -13,7 +13,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    
+
     /// <summary>
     /// The .NET 4.0 and 4.5 implementation of the <see cref="IPlatform"/> interface.
     /// </summary>
@@ -44,9 +44,17 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
         /// </summary>
         public string ReadConfigurationXml()
         {
-            // Config file should be in the base directory of the app domain
-            string configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ApplicationInsights.config");
-
+            string configFilePath;
+            try
+            {
+                // Config file should be in the base directory of the app domain
+                configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ApplicationInsights.config");
+            }
+            catch (SecurityException)
+            {
+                CoreEventSource.Log.ApplicationInsightsConfigNotAccessibleWarning();
+                return string.Empty;
+            }
             try
             {
                 // Ensure config file actually exists
@@ -78,7 +86,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
             {
                 CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(configFilePath);
             }
-
             return string.Empty;
         }
 
