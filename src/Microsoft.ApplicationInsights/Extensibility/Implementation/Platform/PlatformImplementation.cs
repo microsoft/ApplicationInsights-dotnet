@@ -55,6 +55,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
                 CoreEventSource.Log.ApplicationInsightsConfigNotAccessibleWarning();
                 return string.Empty;
             }
+
             try
             {
                 // Ensure config file actually exists
@@ -86,6 +87,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
             {
                 CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(configFilePath);
             }
+
             return string.Empty;
         }
 
