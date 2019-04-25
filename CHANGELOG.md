@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.7.0-beta4
+- [RequestTrackingTelemetryModule is modified to stop tracking exceptions by default, as exceptions are captured by ApplicationInsightsLoggerProvider.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/861)
+
 ## Version 2.7.0-beta3
 - [Enables Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider by default. If ApplicationInsightsLoggerProvider was enabled previously using ILoggerFactory extension method, please remove it to prevent duplicate logs.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/854)
 - [Remove reference to Microsoft.Extensions.DiagnosticAdapter and use DiagnosticSource subscription APIs directly](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/852) 
