@@ -49,6 +49,13 @@
         }
 
         [TestMethod]
+        public void QuickPulseTelemetryModuleDisposeWithoutInitialize()
+        {
+            var qp = new QuickPulseTelemetryModule();
+            qp.Dispose();
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void QuickPulseTelemetryModuleDoesNotRegisterNullProcessor()
         {

@@ -14,7 +14,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.W3C;
     using Microsoft.ApplicationInsights.Web.Implementation;
-    
+
     /// <summary>
     /// Telemetry module tracking requests using http module.
     /// </summary>
@@ -28,6 +28,11 @@
         private TelemetryConfiguration telemetryConfiguration;
         private bool initializationErrorReported;
         private ChildRequestTrackingSuppressionModule childRequestTrackingSuppressionModule = null;
+
+        /// <summary>
+        /// Handler types that are not TransferHandlers will be included in request tracking
+        /// </summary>
+        private HashSet<Type> requestHandlerTypesDoNotFilter = new HashSet<Type>();
 
         /// <summary>
         /// Gets or sets a value indicating whether child request suppression is enabled or disabled. 
@@ -148,7 +153,7 @@
             if (string.IsNullOrEmpty(requestTelemetry.ResponseCode))
             {
                 var statusCode = context.Response.StatusCode;
-                requestTelemetry.ResponseCode = statusCode.ToString(CultureInfo.InvariantCulture);
+                requestTelemetry.ResponseCode = statusCode == 200 ? "200" : statusCode.ToString(CultureInfo.InvariantCulture);
 
                 if (statusCode >= 400 && statusCode != 401)
                 {
@@ -383,14 +388,20 @@
         {
             if (handler != null)
             {
-                var handlerName = handler.GetType().FullName;
-                foreach (var h in this.Handlers)
+                var handlerType = handler.GetType();
+                if (!this.requestHandlerTypesDoNotFilter.Contains(handlerType))
                 {
-                    if (string.Equals(handlerName, h, StringComparison.Ordinal))
+                    var handlerName = handlerType.FullName;
+                    foreach (var h in this.Handlers)
                     {
-                        WebEventSource.Log.WebRequestFilteredOutByRequestHandler();
-                        return true;
+                        if (string.Equals(handlerName, h, StringComparison.Ordinal))
+                        {
+                            WebEventSource.Log.WebRequestFilteredOutByRequestHandler();
+                            return true;
+                        }
                     }
+
+                    this.requestHandlerTypesDoNotFilter.Add(handlerType);
                 }
             }
 

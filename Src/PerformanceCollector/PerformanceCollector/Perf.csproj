@@ -37,7 +37,7 @@
   
   <ItemGroup>
     <!--Common Dependencies-->
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.10.0-beta3" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.10.0-beta4" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">

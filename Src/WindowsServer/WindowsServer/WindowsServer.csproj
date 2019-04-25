@@ -34,8 +34,8 @@
   
   <ItemGroup>
     <!--Common Dependencies-->
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.10.0-beta3" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.10.0-beta3" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.10.0-beta4" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel" Version="2.10.0-beta4" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
   </ItemGroup>
 

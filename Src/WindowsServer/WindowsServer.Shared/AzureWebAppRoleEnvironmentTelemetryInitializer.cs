@@ -47,14 +47,17 @@
                 this.updateEnvVars = false;
             }
 
-            if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleName))
+            var context = telemetry.Context;
+            var cloudContext = context.Cloud;
+            if (string.IsNullOrEmpty(cloudContext.RoleName))
             {
-                telemetry.Context.Cloud.RoleName = this.roleName;
+                cloudContext.RoleName = this.roleName;
             }
 
-            if (string.IsNullOrEmpty(telemetry.Context.GetInternalContext().NodeName))
+            var internalContext = context.GetInternalContext();
+            if (string.IsNullOrEmpty(internalContext.NodeName))
             {
-                telemetry.Context.GetInternalContext().NodeName = this.nodeName;
+                internalContext.NodeName = this.nodeName;
             }
         }
 
