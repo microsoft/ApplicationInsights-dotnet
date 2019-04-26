@@ -13,7 +13,7 @@
         private static PreciseTimestamp instance = null;
 
 #if NET45 || NET46
-        private static TimeSync timeSync;
+        private static TimeSync timeSync = new TimeSync();
         private readonly Timer syncTimeUpdater;
 
         private PreciseTimestamp()
