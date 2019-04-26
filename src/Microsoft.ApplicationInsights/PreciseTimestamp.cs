@@ -1,14 +1,19 @@
 ﻿namespace Microsoft.ApplicationInsights
 {
     using System;
+    using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
 #if NET45 || NET46
-    using System.Diagnostics;
     using System.Threading;
 #endif
 
     internal class PreciseTimestamp
     {
+        /// <summary>
+        /// Multiplier to convert Stopwatch ticks to TimeSpan ticks.
+        /// </summary>
+        internal static readonly double StopwatchTicksToTimeSpanTicks = (double)TimeSpan.TicksPerSecond / Stopwatch.Frequency;
+
         private static readonly object Lck = new object();
         private static PreciseTimestamp instance = null;
 
@@ -45,7 +50,7 @@
         /// Returns high resolution (1 DateTime tick) current UTC DateTime. 
         /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Enforcing instance fields initialization.")]
-        internal DateTimeOffset GetUtcNow()
+        public DateTimeOffset GetUtcNow()
         {
 #if NET45 || NET46
             // DateTime.UtcNow accuracy on .NET Framework is ~16ms, this method 
@@ -54,8 +59,7 @@
             var tmp = timeSync;
 
             // Timer ticks need to be converted to DateTime ticks
-            long dateTimeTicksDiff = (long)((Stopwatch.GetTimestamp() - tmp.SyncStopwatchTicks) * 10000000L /
-                                            (double)Stopwatch.Frequency);
+            long dateTimeTicksDiff = (long)((Stopwatch.GetTimestamp() - tmp.SyncStopwatchTicks) * StopwatchTicksToTimeSpanTicks);
 
             // DateTime.AddSeconds (or Milliseconds) rounds value to 1 ms, use AddTicks to prevent it
             return tmp.SyncUtcNow.AddTicks(dateTimeTicksDiff);
@@ -85,6 +89,9 @@
                     restoreFlow = true;
                 }
 
+                // fire timer every 2 hours, Stopwatch is not very precise over long periods of time, 
+                // so we need to correct it from time to time
+                // https://docs.microsoft.com/en-us/windows/desktop/SysInfo/acquiring-high-resolution-time-stamps
                 timer = new Timer(s => { Sync(); }, null, 0, 7200000);
             }
             finally

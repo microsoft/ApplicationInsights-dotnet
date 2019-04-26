@@ -17,11 +17,6 @@
         private static readonly PreciseTimestamp Timestamp = PreciseTimestamp.Instance;
 
         /// <summary>
-        /// Multiplier to convert Stopwatch ticks to TimeSpan ticks.
-        /// </summary>
-        private static readonly double StopwatchTicksToTimeSpanTicks = (double)TimeSpan.TicksPerSecond / Stopwatch.Frequency;
-
-        /// <summary>
         /// An extension to telemetry item that starts the timer for the respective telemetry.
         /// </summary>
         /// <param name="telemetry">Telemetry item object that calls this extension method.</param>
@@ -98,7 +93,7 @@
         private static void StopImpl(OperationTelemetry telemetry, long timestamp)
         {
             long stopWatchTicksDiff = timestamp - telemetry.BeginTimeInTicks;
-            double durationInTicks = stopWatchTicksDiff * StopwatchTicksToTimeSpanTicks;
+            double durationInTicks = stopWatchTicksDiff * PreciseTimestamp.StopwatchTicksToTimeSpanTicks;
             StopImpl(telemetry, TimeSpan.FromTicks((long)Math.Round(durationInTicks)));
         }
 
