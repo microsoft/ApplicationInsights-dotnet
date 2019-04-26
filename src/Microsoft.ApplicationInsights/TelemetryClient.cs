@@ -23,9 +23,10 @@
     public sealed class TelemetryClient
     {
         private const string VersionPrefix = "dotnet:";
+        private static readonly PreciseTimestamp Timestamp = PreciseTimestamp.Instance;
         private readonly TelemetryConfiguration configuration;
         private string sdkVersion;
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the active configuration, usually loaded from ApplicationInsights.config.
         /// </summary>
@@ -527,7 +528,7 @@
 
             if (telemetry.Timestamp == default(DateTimeOffset))
             {
-                telemetry.Timestamp = DateTimeOffset.UtcNow;
+                telemetry.Timestamp = Timestamp.GetUtcNow();
             }
 
             // Currently backend requires SDK version to comply "name: version"

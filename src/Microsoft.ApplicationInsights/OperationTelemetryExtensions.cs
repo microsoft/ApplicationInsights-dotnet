@@ -12,6 +12,11 @@
     public static class OperationTelemetryExtensions
     {
         /// <summary>
+        /// Precise timestamp instance.
+        /// </summary>
+        private static readonly PreciseTimestamp Timestamp = PreciseTimestamp.Instance;
+
+        /// <summary>
         /// Multiplier to convert Stopwatch ticks to TimeSpan ticks.
         /// </summary>
         private static readonly double StopwatchTicksToTimeSpanTicks = (double)TimeSpan.TicksPerSecond / Stopwatch.Frequency;
@@ -33,7 +38,7 @@
         /// <param name="timestamp">A high-resolution timestamp from <see cref="Stopwatch"/>.</param>
         public static void Start(this OperationTelemetry telemetry, long timestamp)
         {
-            telemetry.Timestamp = DateTimeOffset.UtcNow;
+            telemetry.Timestamp = Timestamp.GetUtcNow();
 
             // Begin time is used internally for calculating duration of operation at the end call,
             // and hence is stored using higher precision Clock.
@@ -108,7 +113,7 @@
 
             if (telemetry.Timestamp == DateTimeOffset.MinValue)
             {
-                telemetry.Timestamp = DateTimeOffset.UtcNow;
+                telemetry.Timestamp = Timestamp.GetUtcNow();
             }
 
             RichPayloadEventSource.Log.ProcessOperationStop(telemetry);
