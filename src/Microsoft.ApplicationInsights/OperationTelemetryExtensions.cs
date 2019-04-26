@@ -38,7 +38,7 @@
         /// <param name="timestamp">A high-resolution timestamp from <see cref="Stopwatch"/>.</param>
         public static void Start(this OperationTelemetry telemetry, long timestamp)
         {
-            telemetry.Timestamp = Timestamp.GetUtcNow();
+            telemetry.Timestamp = DateTimeOffset.UtcNow; 
 
             // Begin time is used internally for calculating duration of operation at the end call,
             // and hence is stored using higher precision Clock.

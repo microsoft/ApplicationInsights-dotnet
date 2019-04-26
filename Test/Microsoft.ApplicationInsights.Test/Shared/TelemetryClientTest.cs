@@ -106,6 +106,35 @@
             Assert.IsTrue(telemetry.Timestamp != default(DateTimeOffset));
         }
 
+        /// <summary>
+        /// Tests the scenario if Initialize assigns current precise time to start time.
+        /// </summary>
+        [TestMethod]
+        public void StartTimeIsPrecise()
+        {
+            double[] timeStampDiff = new double[1000];
+            DateTimeOffset prevTimestamp = DateTimeOffset.MinValue;
+            for (int i = 0; i < timeStampDiff.Length; i++)
+            {
+                var telemetry = new DependencyTelemetry();
+                new TelemetryClient().Initialize(telemetry);
+
+                if (i > 0)
+                {
+                    timeStampDiff[i] = telemetry.Timestamp.Subtract(prevTimestamp).TotalMilliseconds;
+                    Debug.WriteLine(timeStampDiff[i]);
+
+                    // if timestamp is NOT precise, we'll get precisely 0 which should not ever happen
+                    Assert.IsTrue(timeStampDiff[i] != 0);
+                }
+
+                prevTimestamp = telemetry.Timestamp;
+
+                // waste a bit of time, assert result to prevent any optimizations
+                Assert.IsTrue(ComputeSomethingHeavy() > 0);
+            }
+        }
+
         [TestMethod]
         public void InitializeSetsRoleInstance()
         {
@@ -2104,6 +2133,18 @@
         private void ClearActiveTelemetryConfiguration()
         {
             TelemetryConfiguration.Active = null;
+        }
+
+        private double ComputeSomethingHeavy()
+        {
+            var random = new Random();
+            double res = 0;
+            for (int i = 0; i < 10000; i++)
+            {
+                res += Math.Sqrt(random.NextDouble());
+            }
+
+            return res;
         }
     }
 }
