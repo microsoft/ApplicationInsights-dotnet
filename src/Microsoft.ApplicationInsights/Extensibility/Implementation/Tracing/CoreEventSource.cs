@@ -537,7 +537,7 @@
         45,
         Message = "File system containing ApplicationInsights configuration file is inaccessible.",
         Level = EventLevel.Warning)]
-        public void ApplicationInsightsConfigNotAccessibleWarning()
+        public void ApplicationInsightsConfigNotAccessibleWarning(string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 45,
