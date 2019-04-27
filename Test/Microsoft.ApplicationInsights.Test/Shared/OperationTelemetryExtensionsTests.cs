@@ -64,6 +64,7 @@
             Assert.AreEqual(telemetry.Duration, TimeSpan.Zero);
         }
 
+#if !NETCOREAPP1_1
         /// <summary>
         /// Tests the scenario if Start assigns current *precise* time to start time.
         /// </summary>
@@ -92,6 +93,7 @@
                 Assert.IsTrue(ComputeSomethingHeavy() > 0);
             }
         }
+#endif
 
         /// <summary>
         /// Tests the scenario if Stop computes the duration of the telemetry when timestamps are supplied to Start and Stop.

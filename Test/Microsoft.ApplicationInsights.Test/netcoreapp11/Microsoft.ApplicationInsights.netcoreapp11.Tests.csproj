@@ -12,8 +12,8 @@
     <TargetFrameworks>netcoreapp1.1</TargetFrameworks>
     <DebugType>pdbonly</DebugType> 
     <DebugSymbols>true</DebugSymbols> 
-    <DefineConstants>$(DefineConstants);NETCOREAPP</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>$(DefineConstants);NETCOREAPP;NETCOREAPP1_1</DefineConstants>
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
