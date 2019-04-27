@@ -2,8 +2,8 @@
 {
     using System;
     using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
 #if NET45 || NET46
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
 #endif
 
@@ -14,43 +14,21 @@
         /// </summary>
         internal static readonly double StopwatchTicksToTimeSpanTicks = (double)TimeSpan.TicksPerSecond / Stopwatch.Frequency;
 
-        private static readonly object Lck = new object();
-        private static PreciseTimestamp instance = null;
-
 #if NET45 || NET46
+        private static readonly Timer SyncTimeUpdater;
         private static TimeSync timeSync = new TimeSync();
-        private readonly Timer syncTimeUpdater;
 
-        private PreciseTimestamp()
+        [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Enforcing static fields initialization.")]
+        static PreciseTimestamp()
         {
-            this.syncTimeUpdater = InitializeSyncTimer();
+            SyncTimeUpdater = InitializeSyncTimer();
         }
 #endif
-
-        public static PreciseTimestamp Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    lock (Lck)
-                    {
-                        if (instance == null)
-                        {
-                            instance = new PreciseTimestamp();
-                        }
-                    }
-                }
-
-                return instance;
-            }
-        }
 
         /// <summary>
         /// Returns high resolution (1 DateTime tick) current UTC DateTime. 
         /// </summary>
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Enforcing instance fields initialization.")]
-        public DateTimeOffset GetUtcNow()
+        public static DateTimeOffset GetUtcNow()
         {
 #if NET45 || NET46
             // DateTime.UtcNow accuracy on .NET Framework is ~16ms, this method 

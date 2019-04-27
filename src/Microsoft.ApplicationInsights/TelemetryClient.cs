@@ -23,7 +23,6 @@
     public sealed class TelemetryClient
     {
         private const string VersionPrefix = "dotnet:";
-        private static readonly PreciseTimestamp Timestamp = PreciseTimestamp.Instance;
         private readonly TelemetryConfiguration configuration;
         private string sdkVersion;
         
@@ -528,7 +527,7 @@
 
             if (telemetry.Timestamp == default(DateTimeOffset))
             {
-                telemetry.Timestamp = Timestamp.GetUtcNow();
+                telemetry.Timestamp = PreciseTimestamp.GetUtcNow();
             }
 
             // Currently backend requires SDK version to comply "name: version"
