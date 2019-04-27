@@ -94,12 +94,11 @@ namespace Microsoft.ApplicationInsights.TestFramework
         private static void VerifyEventApplicationName(MethodInfo eventMethod, EventWrittenEventArgs actualEvent)
         {
 #if !NETCOREAPP1_1
+            // we cannot properly verify app name on netcoreapp 1.1 as AppDomain is not available
             string expectedApplicationName = AppDomain.CurrentDomain.FriendlyName;
-#else
-            string expectedApplicationName = "";
-#endif
             string actualApplicationName = actualEvent.Payload.Last().ToString();
             AssertEqual(expectedApplicationName, actualApplicationName, "Application Name");
+#endif
         }
 
         private static void AssertEqual<T>(T expected, T actual, string message)
