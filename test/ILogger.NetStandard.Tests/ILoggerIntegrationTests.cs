@@ -39,7 +39,7 @@ namespace Microsoft.ApplicationInsights
             ILogger<ILoggerIntegrationTests> testLogger = serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
 
             testLogger.LogInformation("Testing");
-            testLogger.LogError(new Exception("TestException"), "Exception");
+            testLogger.LogError(new Exception("ExceptionMessage"), "LoggerMessage");
             testLogger.LogInformation(new EventId(100, "TestEvent"), "TestingEvent");
             testLogger.LogCritical("Critical");
             testLogger.LogTrace("Trace");
@@ -65,7 +65,8 @@ namespace Microsoft.ApplicationInsights
             Assert.AreEqual(SeverityLevel.Verbose, (itemsReceived[6] as TraceTelemetry).SeverityLevel);
 
             Assert.AreEqual("Testing", (itemsReceived[0] as TraceTelemetry).Message);
-            Assert.AreEqual("Exception", (itemsReceived[1] as ExceptionTelemetry).Message);
+            Assert.AreEqual("ExceptionMessage", (itemsReceived[1] as ExceptionTelemetry).Message);
+            Assert.AreEqual("LoggerMessage", (itemsReceived[1] as ExceptionTelemetry).Properties["FormattedMessage"]);
             Assert.AreEqual("TestingEvent", (itemsReceived[2] as TraceTelemetry).Message);
             Assert.AreEqual("Critical", (itemsReceived[3] as TraceTelemetry).Message);
             Assert.AreEqual("Trace", (itemsReceived[4] as TraceTelemetry).Message);
@@ -92,13 +93,14 @@ namespace Microsoft.ApplicationInsights
             ILogger<ILoggerIntegrationTests> testLogger = serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
 
             testLogger.LogInformation("Testing");
-            testLogger.LogError(new Exception("TestException"), "Exception");
+            testLogger.LogError(new Exception("ExceptionMessage"), "LoggerMessage");
 
             Assert.IsInstanceOfType(itemsReceived[0], typeof(TraceTelemetry));
             Assert.IsInstanceOfType(itemsReceived[1], typeof(ExceptionTelemetry));
 
             Assert.AreEqual("Testing", (itemsReceived[0] as TraceTelemetry).Message);
-            Assert.AreEqual("Exception", (itemsReceived[1] as ExceptionTelemetry).Message);
+            Assert.AreEqual("ExceptionMessage", (itemsReceived[1] as ExceptionTelemetry).Message);
+            Assert.AreEqual("LoggerMessage", (itemsReceived[1] as ExceptionTelemetry).Properties["FormattedMessage"]);
         }
 
         /// <summary>
@@ -119,7 +121,7 @@ namespace Microsoft.ApplicationInsights
             ILogger<ILoggerIntegrationTests> testLogger = serviceProvider.GetRequiredService<ILogger<ILoggerIntegrationTests>>();
 
             testLogger.LogInformation("Testing");
-            testLogger.LogError(new Exception("TestException"), "Exception");
+            testLogger.LogError(new Exception("ExceptionMessage"), "LoggerMessage");
 
             Assert.IsInstanceOfType(itemsReceived[0], typeof(TraceTelemetry));
             Assert.IsInstanceOfType(itemsReceived[1], typeof(TraceTelemetry));
@@ -128,7 +130,9 @@ namespace Microsoft.ApplicationInsights
             Assert.AreEqual("Testing", (itemsReceived[0] as TraceTelemetry).Message);
 
             Assert.AreEqual(SeverityLevel.Error, (itemsReceived[1] as TraceTelemetry).SeverityLevel);
-            Assert.AreEqual("Exception", (itemsReceived[1] as TraceTelemetry).Message);
+            Assert.AreEqual("LoggerMessage", (itemsReceived[1] as TraceTelemetry).Message);
+            
+            Assert.AreEqual("ExceptionMessage", (itemsReceived[1] as TraceTelemetry).Properties["ExceptionMessage"]);
         }
 
         /// <summary>
@@ -154,7 +158,7 @@ namespace Microsoft.ApplicationInsights
                 using (testLogger.BeginScope<IReadOnlyCollection<KeyValuePair<string, object>>>(new Dictionary<string, object> { { "Key", "Value" } }))
                 {
                     testLogger.LogInformation("Testing");
-                    testLogger.LogError(new Exception("TestException"), "Exception");
+                    testLogger.LogError(new Exception("ExceptionMessage"), "LoggerMessage");
                 }
             }
 
@@ -165,7 +169,7 @@ namespace Microsoft.ApplicationInsights
             Assert.AreEqual("Value", (itemsReceived[1] as ISupportProperties).Properties["Key"]);
 
             Assert.AreEqual("Testing", (itemsReceived[0] as TraceTelemetry).Message);
-            Assert.AreEqual("Exception", (itemsReceived[1] as ExceptionTelemetry).Message);
+            Assert.AreEqual("ExceptionMessage", (itemsReceived[1] as ExceptionTelemetry).Message);
         }
 
         /// <summary>
@@ -191,7 +195,7 @@ namespace Microsoft.ApplicationInsights
                 using (testLogger.BeginScope<IReadOnlyCollection<KeyValuePair<string, object>>>(new Dictionary<string, object> { { "Key", "Value" } }))
                 {
                     testLogger.LogInformation("Testing");
-                    testLogger.LogError(new Exception("TestException"), "Exception");
+                    testLogger.LogError(new Exception("ExceptionMessage"), "LoggerMessage");
                 }
             }
 
@@ -202,7 +206,7 @@ namespace Microsoft.ApplicationInsights
             Assert.IsFalse((itemsReceived[1] as ISupportProperties).Properties.ContainsKey("Key"));
 
             Assert.AreEqual("Testing", (itemsReceived[0] as TraceTelemetry).Message);
-            Assert.AreEqual("Exception", (itemsReceived[1] as ExceptionTelemetry).Message);
+            Assert.AreEqual("ExceptionMessage", (itemsReceived[1] as ExceptionTelemetry).Message);
         }
 
         /// <summary>

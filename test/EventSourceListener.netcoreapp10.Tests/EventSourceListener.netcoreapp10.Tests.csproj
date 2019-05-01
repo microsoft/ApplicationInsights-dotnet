@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.ApplicationInsights.EventSourceListener.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.EventSourceListener.Tests</AssemblyName>
+    <AssemblyName>Microsoft.ApplicationInsights.EventSourceListener.NetCoreApp10.Tests</AssemblyName>
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -18,7 +18,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.3.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.3.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.9.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.10.0-beta4" />
   </ItemGroup>
 
   <ItemGroup>
