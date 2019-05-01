@@ -8,6 +8,7 @@
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.AspNetCore.Logging;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.Channel;
@@ -132,83 +133,85 @@
         /// </returns>
         public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services)
         {
-            if (!IsApplicationInsightsAdded(services))
+            try
             {
-                services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-                services
-                    .AddSingleton<ITelemetryInitializer, ApplicationInsights.AspNetCore.TelemetryInitializers.
-                        DomainNameRoleInstanceTelemetryInitializer>();
-                services.AddSingleton<ITelemetryInitializer, AzureWebAppRoleEnvironmentTelemetryInitializer>();
-                services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
-                services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
-                services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
-                services.AddSingleton<ITelemetryInitializer, SyntheticTelemetryInitializer>();
-                services.AddSingleton<ITelemetryInitializer, WebSessionTelemetryInitializer>();
-                services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
-                services.AddSingleton<ITelemetryInitializer, AspNetCoreEnvironmentTelemetryInitializer>();
-                services.AddSingleton<ITelemetryInitializer, HttpDependenciesParsingTelemetryInitializer>();
-                services.TryAddSingleton<ITelemetryChannel, ServerTelemetryChannel>();
-
-                services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
-                services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
+                if (!IsApplicationInsightsAdded(services))
                 {
-                    module.EnableLegacyCorrelationHeadersInjection =
-                        o.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection;
+                    services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-                    var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
-                    excludedDomains.Add("core.windows.net");
-                    excludedDomains.Add("core.chinacloudapi.cn");
-                    excludedDomains.Add("core.cloudapi.de");
-                    excludedDomains.Add("core.usgovcloudapi.net");
+                    services
+                        .AddSingleton<ITelemetryInitializer, ApplicationInsights.AspNetCore.TelemetryInitializers.
+                            DomainNameRoleInstanceTelemetryInitializer>();
+                    services.AddSingleton<ITelemetryInitializer, AzureWebAppRoleEnvironmentTelemetryInitializer>();
+                    services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
+                    services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
+                    services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
+                    services.AddSingleton<ITelemetryInitializer, SyntheticTelemetryInitializer>();
+                    services.AddSingleton<ITelemetryInitializer, WebSessionTelemetryInitializer>();
+                    services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
+                    services.AddSingleton<ITelemetryInitializer, AspNetCoreEnvironmentTelemetryInitializer>();
+                    services.AddSingleton<ITelemetryInitializer, HttpDependenciesParsingTelemetryInitializer>();
+                    services.TryAddSingleton<ITelemetryChannel, ServerTelemetryChannel>();
 
-                    if (module.EnableLegacyCorrelationHeadersInjection)
+                    services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
+                    services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
                     {
-                        excludedDomains.Add("localhost");
-                        excludedDomains.Add("127.0.0.1");
-                    }
+                        module.EnableLegacyCorrelationHeadersInjection =
+                            o.DependencyCollectionOptions.EnableLegacyCorrelationHeadersInjection;
 
-                    var includedActivities = module.IncludeDiagnosticSourceActivities;
-                    includedActivities.Add("Microsoft.Azure.EventHubs");
-                    includedActivities.Add("Microsoft.Azure.ServiceBus");
+                        var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
+                        excludedDomains.Add("core.windows.net");
+                        excludedDomains.Add("core.chinacloudapi.cn");
+                        excludedDomains.Add("core.cloudapi.de");
+                        excludedDomains.Add("core.usgovcloudapi.net");
 
-                    module.EnableW3CHeadersInjection = o.RequestCollectionOptions.EnableW3CDistributedTracing;
-                });
+                        if (module.EnableLegacyCorrelationHeadersInjection)
+                        {
+                            excludedDomains.Add("localhost");
+                            excludedDomains.Add("127.0.0.1");
+                        }
 
-                services.ConfigureTelemetryModule<RequestTrackingTelemetryModule>((module, options) =>
-                {
-                    module.CollectionOptions = options.RequestCollectionOptions;
-                });
+                        var includedActivities = module.IncludeDiagnosticSourceActivities;
+                        includedActivities.Add("Microsoft.Azure.EventHubs");
+                        includedActivities.Add("Microsoft.Azure.ServiceBus");
 
-                services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
-                services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
-                services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();
-                services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
-                services.AddSingleton<ITelemetryModule, RequestTrackingTelemetryModule>();
-                services.AddSingleton<TelemetryConfiguration>(provider =>
-                    provider.GetService<IOptions<TelemetryConfiguration>>().Value);
+                        module.EnableW3CHeadersInjection = o.RequestCollectionOptions.EnableW3CDistributedTracing;
+                    });
 
-                services.TryAddSingleton<IApplicationIdProvider, ApplicationInsightsApplicationIdProvider>();
+                    services.ConfigureTelemetryModule<RequestTrackingTelemetryModule>((module, options) =>
+                    {
+                        module.CollectionOptions = options.RequestCollectionOptions;
+                    });
 
-                services.AddSingleton<TelemetryClient>();
+                    services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
+                    services.AddSingleton<ITelemetryModule, AppServicesHeartbeatTelemetryModule>();
+                    services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();
+                    services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
+                    services.AddSingleton<ITelemetryModule, RequestTrackingTelemetryModule>();
+                    services.AddSingleton<TelemetryConfiguration>(provider =>
+                        provider.GetService<IOptions<TelemetryConfiguration>>().Value);
 
-                services
-                    .TryAddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>,
-                        DefaultApplicationInsightsServiceConfigureOptions>();
+                    services.TryAddSingleton<IApplicationIdProvider, ApplicationInsightsApplicationIdProvider>();
 
-                // Using startup filter instead of starting DiagnosticListeners directly because
-                // AspNetCoreHostingDiagnosticListener injects TelemetryClient that injects TelemetryConfiguration
-                // that requires IOptions infrastructure to run and initialize
-                services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
+                    services.AddSingleton<TelemetryClient>();
 
-                services.AddSingleton<JavaScriptSnippet>();                
+                    services
+                        .TryAddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>,
+                            DefaultApplicationInsightsServiceConfigureOptions>();
 
-                services.AddOptions();
-                services.AddSingleton<IOptions<TelemetryConfiguration>, TelemetryConfigurationOptions>();
-                services.AddSingleton<IConfigureOptions<TelemetryConfiguration>, TelemetryConfigurationOptionsSetup>();
+                    // Using startup filter instead of starting DiagnosticListeners directly because
+                    // AspNetCoreHostingDiagnosticListener injects TelemetryClient that injects TelemetryConfiguration
+                    // that requires IOptions infrastructure to run and initialize
+                    services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();                    
+                    services.AddSingleton<JavaScriptSnippet>();
 
-                // NetStandard2.0 has a package reference to Microsoft.Extensions.Logging.ApplicationInsights, and
-                // enables ApplicationInsightsLoggerProvider by default.                
+                    services.AddOptions();
+                    services.AddSingleton<IOptions<TelemetryConfiguration>, TelemetryConfigurationOptions>();
+                    services
+                        .AddSingleton<IConfigureOptions<TelemetryConfiguration>, TelemetryConfigurationOptionsSetup>();
+
+                    // NetStandard2.0 has a package reference to Microsoft.Extensions.Logging.ApplicationInsights, and
+                    // enables ApplicationInsightsLoggerProvider by default.                
 #if NETSTANDARD2_0
                 services.AddLogging(loggingBuilder =>
                 {
@@ -233,9 +236,14 @@
                             LogLevel.Warning, null)));
                 });                                
 #endif
+                }
+                return services;
             }
-
-            return services;
+            catch (Exception e)
+            {
+                AspNetCoreEventSource.Instance.LogWarning(e.Message);
+                return services;
+            }            
         }
 
         /// <summary>

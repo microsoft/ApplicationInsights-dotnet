@@ -4,6 +4,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Http;
 
@@ -102,16 +103,23 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// <inheritdoc />
         public void OnNext(KeyValuePair<string, object> value)
         {
-            if (value.Key == "Microsoft.AspNetCore.Mvc.BeforeAction")
+            try
             {
-                var context = httpContextFetcher.Fetch(value.Value) as HttpContext;
-                var routeData = routeDataFetcher.Fetch(value.Value);
-                var routeValues = routeValuesFetcher.Fetch(routeData) as IDictionary<string, object>;
-
-                if (context != null && routeValues != null)
+                if (value.Key == "Microsoft.AspNetCore.Mvc.BeforeAction")
                 {
-                    this.OnBeforeAction(context, routeValues);
+                    var context = httpContextFetcher.Fetch(value.Value) as HttpContext;
+                    var routeData = routeDataFetcher.Fetch(value.Value);
+                    var routeValues = routeValuesFetcher.Fetch(routeData) as IDictionary<string, object>;
+
+                    if (context != null && routeValues != null)
+                    {
+                        this.OnBeforeAction(context, routeValues);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                AspNetCoreEventSource.Instance.DiagnosticListenerWarning("MvcDiagnosticsListener", value.Key, ex.Message);
             }
         }
 

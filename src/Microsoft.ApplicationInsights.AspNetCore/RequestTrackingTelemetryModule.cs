@@ -6,11 +6,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     using System.Diagnostics;
     using System.Reflection;
     using System.Threading;
-
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.Extensibility;
-
     using Microsoft.AspNetCore.Hosting;
 
     /// <summary>
@@ -55,41 +54,48 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         /// <param name="configuration">Telemetry configuration to use for initialization.</param>
         public void Initialize(TelemetryConfiguration configuration)
         {
-            if (!this.isInitialized)
+            try
             {
-                lock (this.lockObject)
+                if (!this.isInitialized)
                 {
-                    if (!this.isInitialized)
+                    lock (this.lockObject)
                     {
-                        this.telemetryClient = new TelemetryClient(configuration);
-
-                        bool enableNewDiagnosticEvents = true;
-                        try
+                        if (!this.isInitialized)
                         {
-                            enableNewDiagnosticEvents = typeof(IWebHostBuilder).GetTypeInfo().Assembly.GetName().Version.Major >= 2;
+                            this.telemetryClient = new TelemetryClient(configuration);
+
+                            bool enableNewDiagnosticEvents = true;
+                            try
+                            {
+                                enableNewDiagnosticEvents = typeof(IWebHostBuilder).GetTypeInfo().Assembly.GetName().Version.Major >= 2;
+                            }
+                            catch (Exception)
+                            {
+                                // ignore any errors
+                            }
+
+                            this.diagnosticListeners.Add(new HostingDiagnosticListener(
+                                this.telemetryClient,
+                                this.applicationIdProvider,
+                                this.CollectionOptions.InjectResponseHeaders,
+                                this.CollectionOptions.TrackExceptions,
+                                this.CollectionOptions.EnableW3CDistributedTracing,
+                                enableNewDiagnosticEvents));
+
+                            this.diagnosticListeners.Add
+                                (new MvcDiagnosticsListener());
+
+                            this.subscriptions?.Add(DiagnosticListener.AllListeners.Subscribe(this));
+
+                            this.isInitialized = true;
                         }
-                        catch (Exception)
-                        {
-                            // ignore any errors
-                        }
-
-                        this.diagnosticListeners.Add(new HostingDiagnosticListener(
-                            this.telemetryClient,
-                            this.applicationIdProvider,
-                            this.CollectionOptions.InjectResponseHeaders,
-                            this.CollectionOptions.TrackExceptions,
-                            this.CollectionOptions.EnableW3CDistributedTracing,
-                            enableNewDiagnosticEvents));
-
-                        this.diagnosticListeners.Add
-                            (new MvcDiagnosticsListener());
-
-                        this.subscriptions?.Add(DiagnosticListener.AllListeners.Subscribe(this));
-
-                        this.isInitialized = true;
                     }
                 }
             }
+            catch (Exception e)
+            {
+                AspNetCoreEventSource.Instance.RequestTrackingModuleInitializationFailed(e.Message);
+            }            
         }
 
         /// <inheritdoc />

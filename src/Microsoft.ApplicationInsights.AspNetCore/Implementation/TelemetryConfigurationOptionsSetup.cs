@@ -51,83 +51,91 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <inheritdoc />
         public void Configure(TelemetryConfiguration configuration)
         {
-            if (this.applicationInsightsServiceOptions.InstrumentationKey != null)
+            try
             {
-                configuration.InstrumentationKey = this.applicationInsightsServiceOptions.InstrumentationKey;
-            }
+                if (this.applicationInsightsServiceOptions.InstrumentationKey != null)
+                {
+                    configuration.InstrumentationKey = this.applicationInsightsServiceOptions.InstrumentationKey;
+                }
 
-            if (this.telemetryModuleConfigurators.Any())
-            {
-                foreach (ITelemetryModuleConfigurator telemetryModuleConfigurator in this.telemetryModuleConfigurators)
-                {                    
-                    ITelemetryModule telemetryModule = this.modules.FirstOrDefault(((module) => module.GetType() == telemetryModuleConfigurator.TelemetryModuleType));
-                    if (telemetryModule != null)
+                if (this.telemetryModuleConfigurators.Any())
+                {
+                    foreach (ITelemetryModuleConfigurator telemetryModuleConfigurator in this.telemetryModuleConfigurators)
                     {
-                        telemetryModuleConfigurator.Configure(telemetryModule, this.applicationInsightsServiceOptions);
-                    }
-                    else
-                    {
-                        AspNetCoreEventSource.Instance.UnableToFindModuleToConfigure(telemetryModuleConfigurator.TelemetryModuleType.ToString());
+                        ITelemetryModule telemetryModule = this.modules.FirstOrDefault(((module) => module.GetType() == telemetryModuleConfigurator.TelemetryModuleType));
+                        if (telemetryModule != null)
+                        {
+                            telemetryModuleConfigurator.Configure(telemetryModule, this.applicationInsightsServiceOptions);
+                        }
+                        else
+                        {
+                            AspNetCoreEventSource.Instance.UnableToFindModuleToConfigure(telemetryModuleConfigurator.TelemetryModuleType.ToString());
+                        }
                     }
                 }
-            }
 
-            if (this.telemetryProcessorFactories.Any())
-            {
-                foreach (ITelemetryProcessorFactory processorFactory in this.telemetryProcessorFactories)
-                {                    
-                    configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Use(processorFactory.Create);
-                }                
-            }
+                if (this.telemetryProcessorFactories.Any())
+                {
+                    foreach (ITelemetryProcessorFactory processorFactory in this.telemetryProcessorFactories)
+                    {
+                        configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Use(processorFactory.Create);
+                    }
+                }
 
-            // Fallback to default channel (InMemoryChannel) created by base sdk if no channel is found in DI
-            configuration.TelemetryChannel = this.telemetryChannel ?? configuration.TelemetryChannel;
-            (configuration.TelemetryChannel as ITelemetryModule)?.Initialize(configuration);
+                // Fallback to default channel (InMemoryChannel) created by base sdk if no channel is found in DI
+                configuration.TelemetryChannel = this.telemetryChannel ?? configuration.TelemetryChannel;
+                (configuration.TelemetryChannel as ITelemetryModule)?.Initialize(configuration);
 
-            this.AddAutoCollectedMetricExtractor(configuration);
-            this.AddQuickPulse(configuration);
-            this.AddSampling(configuration);
-            this.DisableHeartBeatIfConfigured();
+                this.AddAutoCollectedMetricExtractor(configuration);
+                this.AddQuickPulse(configuration);
+                this.AddSampling(configuration);
+                this.DisableHeartBeatIfConfigured();
 
-            if (applicationInsightsServiceOptions.RequestCollectionOptions.EnableW3CDistributedTracing)
-            {
-                this.EnableW3CHeaders(configuration);
-            }
+                if (applicationInsightsServiceOptions.RequestCollectionOptions.EnableW3CDistributedTracing)
+                {
+                    this.EnableW3CHeaders(configuration);
+                }
 
-            configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Build();
-            configuration.TelemetryProcessorChainBuilder.Build();            
+                configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Build();
+                configuration.TelemetryProcessorChainBuilder.Build();
 
-            if (this.applicationInsightsServiceOptions.DeveloperMode != null)
-            {
-                configuration.TelemetryChannel.DeveloperMode = this.applicationInsightsServiceOptions.DeveloperMode;
-            }
+                if (this.applicationInsightsServiceOptions.DeveloperMode != null)
+                {
+                    configuration.TelemetryChannel.DeveloperMode = this.applicationInsightsServiceOptions.DeveloperMode;
+                }
 
-            if (this.applicationInsightsServiceOptions.EndpointAddress != null)
-            {
-                configuration.TelemetryChannel.EndpointAddress = this.applicationInsightsServiceOptions.EndpointAddress;
-            }
+                if (this.applicationInsightsServiceOptions.EndpointAddress != null)
+                {
+                    configuration.TelemetryChannel.EndpointAddress = this.applicationInsightsServiceOptions.EndpointAddress;
+                }
 
-            foreach (ITelemetryInitializer initializer in this.initializers)
-            {
-                configuration.TelemetryInitializers.Add(initializer);
-            }
+                foreach (ITelemetryInitializer initializer in this.initializers)
+                {
+                    configuration.TelemetryInitializers.Add(initializer);
+                }
 
-            foreach (ITelemetryModule module in this.modules)
-            {
-                module.Initialize(configuration);
-            }
-
-            foreach (ITelemetryProcessor processor in configuration.TelemetryProcessors)
-            {
-                ITelemetryModule module = processor as ITelemetryModule;
-                if (module != null)
+                foreach (ITelemetryModule module in this.modules)
                 {
                     module.Initialize(configuration);
                 }
-            }
 
-            // Microsoft.ApplicationInsights.DependencyCollector.DependencyTrackingTelemetryModule depends on this nullable configuration to support Correlation. 
-            configuration.ApplicationIdProvider = this.applicationIdProvider;
+                foreach (ITelemetryProcessor processor in configuration.TelemetryProcessors)
+                {
+                    ITelemetryModule module = processor as ITelemetryModule;
+                    if (module != null)
+                    {
+                        module.Initialize(configuration);
+                    }
+                }
+
+                // Microsoft.ApplicationInsights.DependencyCollector.DependencyTrackingTelemetryModule depends on this nullable configuration to support Correlation. 
+                configuration.ApplicationIdProvider = this.applicationIdProvider;
+            }
+            catch(Exception ex)
+            {
+                AspNetCoreEventSource.Instance.TelemetryConfigurationSetupFailure(ex.Message);
+            }
+            
         }
 
         private void AddQuickPulse(TelemetryConfiguration configuration)
