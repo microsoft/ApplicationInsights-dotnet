@@ -26,7 +26,7 @@
 #if !NETSTANDARD1_3
                 name = AppDomain.CurrentDomain.FriendlyName + AppDomain.CurrentDomain.BaseDirectory;
 #else
-                name = string.Empty + "I think I'm on netstandard1.3 " + Directory.GetCurrentDirectory();
+                name = string.Empty;
 #endif
             }
             catch (Exception exp)
