@@ -91,17 +91,15 @@ namespace Microsoft.ApplicationInsights.TestFramework
             AssertEqual(expectedMessage, actualMessage, "Message");
         }
 
+#if !NETCOREAPP
+        // TODO Fix this on .NET Core 2.0 https://github.com/Microsoft/ApplicationInsights-dotnet/issues/1128
         private static void VerifyEventApplicationName(MethodInfo eventMethod, EventWrittenEventArgs actualEvent)
         {
-#if !NETCOREAPP
             string expectedApplicationName = AppDomain.CurrentDomain.FriendlyName;
-#else
-            string expectedApplicationName = "";
-#endif
             string actualApplicationName = actualEvent.Payload.Last().ToString();
             AssertEqual(expectedApplicationName, actualApplicationName, "Application Name");
         }
-
+#endif
         private static void AssertEqual<T>(T expected, T actual, string message)
         {
             if (!expected.Equals(actual))
