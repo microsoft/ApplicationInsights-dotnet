@@ -96,8 +96,12 @@ namespace Microsoft.ApplicationInsights.TestFramework
 #if !NETCOREAPP1_1
             // we cannot properly verify app name on netcoreapp 1.1 as AppDomain is not available
             string expectedApplicationName = AppDomain.CurrentDomain.FriendlyName;
+
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+            var dlls = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.FullName.Contains("Microsoft.ApplicationInsights")).Select(a => a.Location);
+
             string actualApplicationName = actualEvent.Payload.Last().ToString();
-            AssertEqual(expectedApplicationName, actualApplicationName, "Application Name");
+            AssertEqual(expectedApplicationName, actualApplicationName + " ", $"Application Name {dir} {string.Join(",", dlls)}");
 #endif
         }
 

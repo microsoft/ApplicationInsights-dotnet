@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     using System;
+    using System.IO;
 
     internal sealed class ApplicationNameProvider
     {
@@ -23,9 +24,9 @@
             try
             {
 #if !NETSTANDARD1_3
-                name = AppDomain.CurrentDomain.FriendlyName;
+                name = AppDomain.CurrentDomain.FriendlyName + AppDomain.CurrentDomain.BaseDirectory;
 #else
-                name = string.Empty;
+                name = string.Empty + "I think I'm on netstandard1.3 " + Directory.GetCurrentDirectory();
 #endif
             }
             catch (Exception exp)
