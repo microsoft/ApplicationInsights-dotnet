@@ -65,26 +65,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             return !string.IsNullOrEmpty(GetHeaderKeyValue(headers, RequestResponseHeaders.RequestContextHeader, keyName));
         }
 
-        internal static void SetRequestContextKeyValue(HttpHeaders headers, string keyName, string keyValue)
-        {
-            SetHeaderKeyValue(headers, RequestResponseHeaders.RequestContextHeader, keyName, keyValue);
-        }
-
         internal static void SetRequestContextKeyValue(IHeaderDictionary headers, string keyName, string keyValue)
         {
             SetHeaderKeyValue(headers, RequestResponseHeaders.RequestContextHeader, keyName, keyValue);
-        }
-
-        internal static void SetHeaderKeyValue(HttpHeaders headers, string headerName, string keyName, string keyValue)
-        {
-            if (headers == null)
-            {
-                throw new ArgumentNullException(nameof(headers));
-            }
-
-            IEnumerable<string> headerValues = GetHeaderValues(headers, headerName);
-            headers.Remove(headerName);
-            headers.Add(headerName, HeadersUtilities.SetHeaderKeyValue(headerValues, keyName, keyValue));
         }
 
         internal static void SetHeaderKeyValue(IHeaderDictionary headers, string headerName, string keyName, string keyValue)
@@ -94,7 +77,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                 throw new ArgumentNullException(nameof(headers));
             }
 
-            headers[headerName] = new StringValues(HeadersUtilities.SetHeaderKeyValue(headers[headerName].AsEnumerable(), keyName, keyValue).ToArray());
+            headers[headerName] = HeadersUtilities.SetHeaderKeyValue(headers[headerName], keyName, keyValue);
         }
 
         internal static string[] SafeGetCommaSeparatedHeaderValues(IHeaderDictionary headers, string headerName, int maxLength, int maxItems)

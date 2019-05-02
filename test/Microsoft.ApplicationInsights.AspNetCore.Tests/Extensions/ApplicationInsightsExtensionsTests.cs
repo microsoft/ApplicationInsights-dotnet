@@ -701,7 +701,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                                                                                                                 == typeof(RequestTrackingTelemetryModule));
 
                 Assert.True(requestTrackingModule.CollectionOptions.InjectResponseHeaders);
+#if NETCOREAPP2_0
+                Assert.False(requestTrackingModule.CollectionOptions.TrackExceptions);
+#else
                 Assert.True(requestTrackingModule.CollectionOptions.TrackExceptions);
+#endif
             }
 
             [Fact]

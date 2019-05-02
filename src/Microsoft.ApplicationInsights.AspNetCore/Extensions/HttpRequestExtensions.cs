@@ -28,26 +28,12 @@
             {
                 throw new ArgumentException("Http request Scheme is not specified");
             }
-
-            string hostName = request.Host.HasValue ? request.Host.ToString() : UnknownHostName;
             
-            var builder = new StringBuilder();
-
-            builder.Append(request.Scheme)
-                .Append("://")
-                .Append(hostName);
-
-            if (true == request.Path.HasValue)
-            {
-                builder.Append(request.Path.Value);
-            }
-
-            if (true == request.QueryString.HasValue)
-            {
-                builder.Append(request.QueryString);
-            }
-
-            return new Uri(builder.ToString());
+            return new Uri(string.Concat(request.Scheme,
+                    "://",
+                    request.Host.HasValue ? request.Host.Value : UnknownHostName,
+                    request.Path.HasValue ? request.Path.Value : "",
+                    request.QueryString.HasValue ? request.QueryString.Value : ""));
         }
     }
 }

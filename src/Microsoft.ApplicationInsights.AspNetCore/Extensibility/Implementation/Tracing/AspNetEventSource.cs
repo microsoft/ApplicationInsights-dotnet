@@ -42,17 +42,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         public string ApplicationName { [NonEvent] get; [NonEvent]private set; }
 
         /// <summary>
-        /// Logs an event for the an exception in the TelemetryInitializerBase Initialize method.
-        /// </summary>
-        /// <param name="errorMessage">The error message to write an event for.</param>
-        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
-        [Event(1, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.Diagnostics)]
-        public void LogTelemetryInitializerBaseInitializeException(string errorMessage, string appDomainName = "Incorrect")
-        {
-            this.WriteEvent(1, errorMessage, this.ApplicationName);
-        }
-
-        /// <summary>
         /// Logs an event for the TelemetryInitializerBase Initialize method when the HttpContext is null.
         /// </summary>
         /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
@@ -60,16 +49,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         public void LogTelemetryInitializerBaseInitializeContextNull(string appDomainName = "Incorrect")
         {
             this.WriteEvent(2, this.ApplicationName);
-        }
-
-        /// <summary>
-        /// Logs an event for the TelemetryInitializerBase Initialize method when RequestServices is null.
-        /// </summary>
-        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
-        [Event(3, Message = "TelemetryInitializerBase.Initialize - context.RequestServices is null, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
-        public void LogTelemetryInitializerBaseInitializeRequestServicesNull(string appDomainName = "Incorrect")
-        {
-            this.WriteEvent(3, this.ApplicationName);
         }
 
         /// <summary>
@@ -112,12 +91,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(7, this.ApplicationName);
         }
 
-        [Event(8, Message = "Failed to retrieve App ID for the current application insights resource. Make sure the configured instrumentation key is valid. Error: {0}", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
-        public void LogFetchAppIdFailed(string exception, string appDomainName = "Incorrect")
-        {
-            this.WriteEvent(8, exception, this.ApplicationName);
-        }
-
         /// <summary>
         /// Logs an event for the HostingDiagnosticListener OnHttpRequestInStart method when the current activity is null.
         /// </summary>
@@ -126,12 +99,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         public void LogHostingDiagnosticListenerOnHttpRequestInStartActivityNull(string appDomainName = "Incorrect")
         {
             this.WriteEvent(9, this.ApplicationName);
-        }
-
-        [Event(10, Message = "Failed to retrieve App ID for the current application insights resource. Endpoint returned HttpStatusCode: {0}", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
-        public void FetchAppIdFailedWithResponseCode(string exception, string appDomainName = "Incorrect")
-        {
-            this.WriteEvent(10, exception, this.ApplicationName);
         }
 
         [Event(11, Message = "Unable to configure module {0} as it is not found in service collection.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
@@ -154,6 +121,46 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         public void NotActiveListenerNoTracking(string evntName, string activityId, string appDomainName = "Incorrect")
         {
             this.WriteEvent(13, evntName, activityId, this.ApplicationName);
+        }
+
+        [Event(
+            14,
+            Keywords = Keywords.Diagnostics,
+            Message = "An error has occured which may prevent application insights from functioning. Error message: '{0}' ",
+            Level = EventLevel.Warning)]
+        public void LogWarning(string errorMessage,string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(14, errorMessage, this.ApplicationName);
+        }
+
+        [Event(
+            15,
+            Keywords = Keywords.Diagnostics,
+            Message = "An error has occured while initializing RequestTrackingModule. Requests will not be auto collected. Error message: '{0}' ",
+            Level = EventLevel.Error)]
+        public void RequestTrackingModuleInitializationFailed(string errorMessage, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(15, errorMessage, this.ApplicationName);
+        }
+
+        [Event(
+            16,
+            Keywords = Keywords.Diagnostics,
+            Message = "An error has occured in DiagnosticSource listener. Listener: '{0}' Callback: '{1}'. Error message: '{2}' ",
+            Level = EventLevel.Warning)]
+        public void DiagnosticListenerWarning(string listener,string callback, string errorMessage, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(16, listener, callback, errorMessage, this.ApplicationName);
+        }
+
+        [Event(
+            17,
+            Keywords = Keywords.Diagnostics,
+            Message = "An error has occured while setting up TelemetryConfiguration. Error message: '{0}' ",
+            Level = EventLevel.Error)]
+        public void TelemetryConfigurationSetupFailure(string errorMessage, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(17, errorMessage, this.ApplicationName);
         }
 
         /// <summary>

@@ -161,7 +161,15 @@
                     // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
 
                     newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
-                    newActivity.SetParentId(StringUtilities.GenerateTraceId());
+                    if (this.enableW3CHeaders)
+                    {
+                        newActivity.GenerateW3CContext();
+                        newActivity.SetParentId(newActivity.GetTraceId());
+                    }
+                    else
+                    {
+                        newActivity.SetParentId(W3CUtilities.GenerateTraceId());
+                    }
                     // end of workaround
                 }
 
@@ -257,7 +265,9 @@
                             InjectionGuardConstants.RequestHeaderMaxLength);
                     }
                 }
-                else if(!activity.IsW3CActivity())
+
+                // no headers
+                else if (originalParentId == null)
                 {
                     // As a first step in supporting W3C protocol in ApplicationInsights,
                     // we want to generate Activity Ids in the W3C compatible format.
@@ -266,8 +276,16 @@
                     // So if there is no current Activity (i.e. there were no Request-Id header in the incoming request), we'll override ParentId on 
                     // the current Activity by the properly formatted one. This workaround should go away
                     // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
-                    
-                    activity.SetParentId(StringUtilities.GenerateTraceId());
+
+                    if (this.enableW3CHeaders)
+                    {
+                        activity.GenerateW3CContext();
+                        activity.SetParentId(activity.GetTraceId());
+                    }
+                    else
+                    {
+                        activity.SetParentId(W3CUtilities.GenerateTraceId());
+                    }
 
                     // end of workaround
                 }
@@ -337,6 +355,10 @@
                 requestTelemetry.Context.Operation.Id = activity.RootId;
                 requestTelemetry.Id = activity.Id;
             }
+            else
+            {
+                activity.UpdateTelemetry(requestTelemetry, false);
+            }
 
             foreach (var prop in activity.Baggage)
             {
@@ -346,7 +368,7 @@
                 }
             }
 
-            this.client.Initialize(requestTelemetry);
+            this.client.InitializeInstrumentationKey(requestTelemetry);
 
             requestTelemetry.Source = GetAppIdFromRequestHeader(httpContext.Request.Headers, requestTelemetry.Context.InstrumentationKey);
 
@@ -490,10 +512,6 @@
                     InjectionGuardConstants.TraceParentHeaderMaxLength);
                 activity.SetTraceparent(parentTraceParent);
             }
-            else
-            {
-                activity.GenerateW3CContext();
-            }
 
             string[] traceStateValues = HttpHeadersUtilities.SafeGetCommaSeparatedHeaderValues(requestHeaders, W3C.W3CConstants.TraceStateHeader,
                 InjectionGuardConstants.TraceStateHeaderMaxLength, InjectionGuardConstants.TraceStateMaxPairs);
@@ -568,63 +586,69 @@
             HttpContext httpContext = null;
             Exception exception = null;
             long? timestamp = null;
-
-            switch (value.Key)
+            try
             {
-                case "Microsoft.AspNetCore.Hosting.HttpRequestIn.Start":
-                    httpContext = this.httpContextFetcherStart.Fetch(value.Value) as HttpContext;
-                    if (httpContext != null)
-                    {
-                        this.OnHttpRequestInStart(httpContext);
-                    }
-                    break;
-                case "Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop":
-                    httpContext = this.httpContextFetcherStop.Fetch(value.Value) as HttpContext;
-                    if (httpContext != null)
-                    {
-                        this.OnHttpRequestInStop(httpContext);
-                    }
-                    break;
-                case "Microsoft.AspNetCore.Hosting.BeginRequest":
-                    httpContext = this.httpContextFetcherBeginRequest.Fetch(value.Value) as HttpContext;
-                    timestamp = this.timestampFetcherBeginRequest.Fetch(value.Value) as long?;
-                    if (httpContext != null && timestamp.HasValue)
-                    {
-                        this.OnBeginRequest(httpContext, timestamp.Value);
-                    }
-                    break;
-                case "Microsoft.AspNetCore.Hosting.EndRequest":
-                    httpContext = this.httpContextFetcherEndRequest.Fetch(value.Value) as HttpContext;
-                    timestamp = this.timestampFetcherEndRequest.Fetch(value.Value) as long?;
-                    if (httpContext != null && timestamp.HasValue)
-                    {
-                        this.OnEndRequest(httpContext, timestamp.Value);
-                    }
-                    break;
-                case "Microsoft.AspNetCore.Diagnostics.UnhandledException":
-                    httpContext = this.httpContextFetcherDiagExceptionUnhandled.Fetch(value.Value) as HttpContext;
-                    exception = this.exceptionFetcherDiagExceptionUnhandled.Fetch(value.Value) as Exception;
-                    if (httpContext != null && exception != null)
-                    {
-                        this.OnDiagnosticsUnhandledException(httpContext, exception);
-                    }
-                    break;
-                case "Microsoft.AspNetCore.Diagnostics.HandledException":
-                    httpContext = this.httpContextFetcherDiagExceptionHandled.Fetch(value.Value) as HttpContext;
-                    exception = this.exceptionFetcherDiagExceptionHandled.Fetch(value.Value) as Exception;
-                    if (httpContext != null && exception != null)
-                    {
-                        this.OnDiagnosticsHandledException(httpContext, exception);
-                    }
-                    break;
-                case "Microsoft.AspNetCore.Hosting.UnhandledException":
-                    httpContext = this.httpContextFetcherHostingExceptionUnhandled.Fetch(value.Value) as HttpContext;
-                    exception = this.exceptionFetcherHostingExceptionUnhandled.Fetch(value.Value) as Exception;
-                    if (httpContext != null && exception != null)
-                    {
-                        this.OnHostingException(httpContext, exception);
-                    }
-                    break;
+                switch (value.Key)
+                {
+                    case "Microsoft.AspNetCore.Hosting.HttpRequestIn.Start":
+                        httpContext = this.httpContextFetcherStart.Fetch(value.Value) as HttpContext;
+                        if (httpContext != null)
+                        {
+                            this.OnHttpRequestInStart(httpContext);
+                        }
+                        break;
+                    case "Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop":
+                        httpContext = this.httpContextFetcherStop.Fetch(value.Value) as HttpContext;
+                        if (httpContext != null)
+                        {
+                            this.OnHttpRequestInStop(httpContext);
+                        }
+                        break;
+                    case "Microsoft.AspNetCore.Hosting.BeginRequest":
+                        httpContext = this.httpContextFetcherBeginRequest.Fetch(value.Value) as HttpContext;
+                        timestamp = this.timestampFetcherBeginRequest.Fetch(value.Value) as long?;
+                        if (httpContext != null && timestamp.HasValue)
+                        {
+                            this.OnBeginRequest(httpContext, timestamp.Value);
+                        }
+                        break;
+                    case "Microsoft.AspNetCore.Hosting.EndRequest":
+                        httpContext = this.httpContextFetcherEndRequest.Fetch(value.Value) as HttpContext;
+                        timestamp = this.timestampFetcherEndRequest.Fetch(value.Value) as long?;
+                        if (httpContext != null && timestamp.HasValue)
+                        {
+                            this.OnEndRequest(httpContext, timestamp.Value);
+                        }
+                        break;
+                    case "Microsoft.AspNetCore.Diagnostics.UnhandledException":
+                        httpContext = this.httpContextFetcherDiagExceptionUnhandled.Fetch(value.Value) as HttpContext;
+                        exception = this.exceptionFetcherDiagExceptionUnhandled.Fetch(value.Value) as Exception;
+                        if (httpContext != null && exception != null)
+                        {
+                            this.OnDiagnosticsUnhandledException(httpContext, exception);
+                        }
+                        break;
+                    case "Microsoft.AspNetCore.Diagnostics.HandledException":
+                        httpContext = this.httpContextFetcherDiagExceptionHandled.Fetch(value.Value) as HttpContext;
+                        exception = this.exceptionFetcherDiagExceptionHandled.Fetch(value.Value) as Exception;
+                        if (httpContext != null && exception != null)
+                        {
+                            this.OnDiagnosticsHandledException(httpContext, exception);
+                        }
+                        break;
+                    case "Microsoft.AspNetCore.Hosting.UnhandledException":
+                        httpContext = this.httpContextFetcherHostingExceptionUnhandled.Fetch(value.Value) as HttpContext;
+                        exception = this.exceptionFetcherHostingExceptionUnhandled.Fetch(value.Value) as Exception;
+                        if (httpContext != null && exception != null)
+                        {
+                            this.OnHostingException(httpContext, exception);
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                AspNetCoreEventSource.Instance.DiagnosticListenerWarning("HostingDiagnosticListener", value.Key, ex.Message);
             }
         }
 

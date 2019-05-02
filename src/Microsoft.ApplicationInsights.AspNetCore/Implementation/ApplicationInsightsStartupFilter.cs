@@ -2,6 +2,7 @@
 {
     using System;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
@@ -16,12 +17,18 @@
         {
             return app =>
             {
-                // Attemping to resolve TelemetryConfiguration triggers configuration of the same
-                // via <see cref="TelemetryConfigurationOptionsSetup"/> class which triggers
-                // initialization of TelemetryModules and construction of TelemetryProcessor pipeline.
-                var tc = app.ApplicationServices.GetService<TelemetryConfiguration>();
-                var applicationInsightsDebugLogger = app.ApplicationServices.GetService<ApplicationInsightsDebugLogger>();
-                next(app);
+                try
+                {
+                    // Attempting to resolve TelemetryConfiguration triggers configuration of the same
+                    // via <see cref="TelemetryConfigurationOptionsSetup"/> class which triggers
+                    // initialization of TelemetryModules and construction of TelemetryProcessor pipeline.
+                    var tc = app.ApplicationServices.GetService<TelemetryConfiguration>();
+                    next(app);
+                }
+                catch (Exception ex)
+                {
+                    AspNetCoreEventSource.Instance.LogWarning(ex.Message);
+                }                
             };
         }
     }
