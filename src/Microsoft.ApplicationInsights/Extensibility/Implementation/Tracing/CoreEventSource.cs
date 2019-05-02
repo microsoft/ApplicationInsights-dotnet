@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
+    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 
@@ -9,7 +10,29 @@
     {
         public static readonly CoreEventSource Log = new CoreEventSource();
 
-        private readonly ApplicationNameProvider nameProvider = new ApplicationNameProvider();
+        private readonly string applicationName;
+
+        private CoreEventSource()
+        {
+            //// We want to add application name to all events BUT
+            //// It is prohibited by EventSource rules to have more parameters in WriteEvent that in event source method
+            //// Parameter will be available in payload but in the next versions EventSource may 
+            //// start validating that number of parameters match
+            //// It is not allowed to call additional methods, only WriteEvent
+
+            try
+            {
+#if !NETSTANDARD1_3
+                this.applicationName = AppDomain.CurrentDomain.FriendlyName;
+#else
+                this.applicationName = string.Empty;
+#endif
+            }
+            catch (Exception exp)
+            {
+                this.applicationName = "Undefined " + exp.Message ?? exp.ToString();
+            }
+        }
 
         public static bool IsVerboseEnabled
         {
@@ -26,7 +49,7 @@
         [Event(1, Message = "Operation object is null.", Level = EventLevel.Warning)]
         public void OperationIsNullWarning(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(1, this.nameProvider.Name);
+            this.WriteEvent(1, this.applicationName);
         }
 
         /// <summary>
@@ -35,7 +58,7 @@
         [Event(2, Message = "Operation to stop does not match the current operation. Telemetry is not tracked.", Level = EventLevel.Error)]
         public void InvalidOperationToStopError(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(2, this.nameProvider.Name);
+            this.WriteEvent(2, this.applicationName);
         }
 
         [Event(
@@ -48,7 +71,7 @@
             this.WriteEvent(
                 3,
                 msg ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
         
         [Event(
@@ -60,7 +83,7 @@
             string eventId,
             string appDomainName = "Incorrect")
         {
-            this.WriteEvent(4, eventId ?? "NULL", this.nameProvider.Name);
+            this.WriteEvent(4, eventId ?? "NULL", this.applicationName);
         }
 
         [Event(
@@ -73,7 +96,7 @@
             int executionCount,
             string appDomainName = "Incorrect")
         {
-            this.WriteEvent(5, eventId, executionCount, this.nameProvider.Name);
+            this.WriteEvent(5, eventId, executionCount, this.applicationName);
         }
 
         [Event(
@@ -88,7 +111,7 @@
             this.WriteEvent(
                 6, 
                 exception ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -100,7 +123,7 @@
             string intervalInMilliseconds,
             string appDomainName = "Incorrect")
         {
-            this.WriteEvent(7, intervalInMilliseconds ?? "NULL", this.nameProvider.Name);
+            this.WriteEvent(7, intervalInMilliseconds ?? "NULL", this.applicationName);
         }
 
         [Event(
@@ -110,7 +133,7 @@
             Level = EventLevel.Verbose)]
         public void DiagnoisticsEventThrottlingSchedulerTimerWasRemoved(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(8, this.nameProvider.Name);
+            this.WriteEvent(8, this.applicationName);
         }
         
         [Event(
@@ -119,7 +142,7 @@
             Level = EventLevel.Warning)]
         public void TelemetryClientConstructorWithNoTelemetryConfiguration(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(9, this.nameProvider.Name);
+            this.WriteEvent(9, this.applicationName);
         }
 
         [Event(
@@ -132,7 +155,7 @@
                 10, 
                 parameterName ?? string.Empty, 
                 telemetryType ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -141,7 +164,7 @@
             Level = EventLevel.Warning)]
         public void TelemetryIncorrectDuration(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(11, this.nameProvider.Name);
+            this.WriteEvent(11, this.applicationName);
         }
 
         [Event(
@@ -150,7 +173,7 @@
            Level = EventLevel.Verbose)]
         public void TrackingWasDisabled(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(12, this.nameProvider.Name);
+            this.WriteEvent(12, this.applicationName);
         }
 
         [Event(
@@ -159,7 +182,7 @@
            Level = EventLevel.Verbose)]
         public void TrackingWasEnabled(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(13, this.nameProvider.Name);
+            this.WriteEvent(13, this.applicationName);
         }
 
         [Event(
@@ -172,7 +195,7 @@
             this.WriteEvent(
                 14, 
                 msg ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -185,7 +208,7 @@
             this.WriteEvent(
                 15,
                 type ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -199,7 +222,7 @@
                 16,
                 type ?? string.Empty,
                 expectedType ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -213,7 +236,7 @@
                 17,
                 type ?? string.Empty,
                 property ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -226,7 +249,7 @@
             this.WriteEvent(
                 18,
                 definition ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -241,7 +264,7 @@
                 element ?? string.Empty,
                 contents ?? string.Empty,
                 error ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -254,7 +277,7 @@
             this.WriteEvent(
                 20,
                 error ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -268,7 +291,7 @@
                 21,
                 type ?? string.Empty,
                 error ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -282,7 +305,7 @@
                 22,
                 type ?? string.Empty,
                 error ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -294,7 +317,7 @@
             this.WriteEvent(
                 23,
                 file ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -306,7 +329,7 @@
             this.WriteEvent(
                 24,
                 msg ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -318,7 +341,7 @@
             this.WriteEvent(
                 25,
                 error ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -330,7 +353,7 @@
             this.WriteEvent(
                 26,
                 ex ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -342,7 +365,7 @@
             this.WriteEvent(
                 27,
                 ex ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -355,7 +378,7 @@
                 28,
                 processorName ?? string.Empty,
                 ex ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -367,7 +390,7 @@
             this.WriteEvent(
                 29,
                 maxBacklogSize,               
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -376,7 +399,7 @@
             Level = EventLevel.Warning)]
         public void InMemoryChannelFlushedAfterBeingDisposed(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(30, this.nameProvider.Name);
+            this.WriteEvent(30, this.applicationName);
         }
 
         [Event(
@@ -385,7 +408,7 @@
             Level = EventLevel.Warning)]
         public void InMemoryChannelSendCalledAfterBeingDisposed(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(31, this.nameProvider.Name);
+            this.WriteEvent(31, this.applicationName);
         }
 
         [Event(
@@ -394,7 +417,7 @@
             Level = EventLevel.Warning)]
         public void FailedToLoadEnvironmentVariables(string ex, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(32, ex, this.nameProvider.Name);
+            this.WriteEvent(32, ex, this.applicationName);
         }
 
         // Verbosity is Error - so it is always sent to portal; Keyword is Diagnostics so throttling is not applied.
@@ -404,7 +427,7 @@
             Keywords = Keywords.Diagnostics | Keywords.UserActionable)]
         public void MetricExtractorAfterSamplingError(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(33, this.nameProvider.Name);
+            this.WriteEvent(33, this.applicationName);
         }
 
         // Verbosity is Verbose - targeted at support personnel; Keyword is Diagnostics so throttling is not applied.
@@ -414,13 +437,13 @@
             Keywords = Keywords.Diagnostics | Keywords.UserActionable)]
         public void MetricExtractorAfterSamplingVerbose(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(34, this.nameProvider.Name);
+            this.WriteEvent(34, this.applicationName);
         }
 
         [Event(35, Message = "Item was rejected because it has no instrumentation key set. Item: {0}", Level = EventLevel.Verbose)]
         public void ItemRejectedNoInstrumentationKey(string item, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(35, item ?? string.Empty, this.nameProvider.Name);
+            this.WriteEvent(35, item ?? string.Empty, this.applicationName);
         }
 
         [Event(
@@ -433,7 +456,7 @@
                 36,
                 heartbeatProperty ?? string.Empty,
                 ex ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -447,7 +470,7 @@
                 heartbeatProperty ?? string.Empty,
                 heartbeatPropertyValue ?? string.Empty,
                 ex ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -460,7 +483,7 @@
                 38,
                 heartbeatPropertyValue ?? string.Empty,
                 isHealthy,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -476,7 +499,7 @@
                 isHealthyHasValue,
                 isHealthy,
                 ex ?? string.Empty,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -491,7 +514,7 @@
                 heartbeatPropertyValue ?? string.Empty,
                 isHealthyHasValue,
                 isHealthy,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         [Event(
@@ -501,7 +524,7 @@
             Level = EventLevel.Warning)]
         public void ApplicationIdProviderFetchApplicationIdFailed(string exception, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(41, exception, this.nameProvider.Name);
+            this.WriteEvent(41, exception, this.applicationName);
         }
 
         [Event(
@@ -511,7 +534,7 @@
             Level = EventLevel.Warning)]
         public void ApplicationIdProviderFetchApplicationIdFailedWithResponseCode(string httpStatusCode, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(42, httpStatusCode, this.nameProvider.Name);
+            this.WriteEvent(42, httpStatusCode, this.applicationName);
         }
 
         [Event(
@@ -521,7 +544,7 @@
             Level = EventLevel.Error)]
         public void TelemetrySinkCalledAfterBeingDisposed(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(43, this.nameProvider.Name);
+            this.WriteEvent(43, this.applicationName);
         }
 
         /// <summary>
@@ -530,7 +553,7 @@
         [Event(44, Message = "Operation to stop does not match the current operation. Details {0}.", Level = EventLevel.Warning)]
         public void InvalidOperationToStopDetails(string details, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(44, details, this.nameProvider.Name);
+            this.WriteEvent(44, details, this.applicationName);
         }
 
         [Event(
@@ -541,7 +564,7 @@
         {
             this.WriteEvent(
                 45,
-                this.nameProvider.Name);
+                this.applicationName);
         }
 
         /// <summary>
