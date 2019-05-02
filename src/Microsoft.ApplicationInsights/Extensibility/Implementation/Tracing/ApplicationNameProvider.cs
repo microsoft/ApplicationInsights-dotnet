@@ -15,9 +15,9 @@
             try
             {
 #if !NETSTANDARD1_3
-                this.Name = AppDomain.CurrentDomain.FriendlyName + " 1";
+                this.Name = AppDomain.CurrentDomain.FriendlyName;
 #else
-                this.Name = string.Empty + "123";
+                this.Name = string.Empty;
 #endif
             }
             catch (Exception exp)
