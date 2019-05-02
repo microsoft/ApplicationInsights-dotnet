@@ -97,7 +97,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
             // we cannot properly verify app name on netcoreapp 1.1 as AppDomain is not available
             string expectedApplicationName = AppDomain.CurrentDomain.FriendlyName;
             string actualApplicationName = actualEvent.Payload.Last().ToString();
-            AssertEqual(expectedApplicationName, actualApplicationName + " ", $"Application Name");
+            AssertEqual(expectedApplicationName, actualApplicationName, $"Application Name");
 #endif
         }
 

@@ -24,7 +24,7 @@
             try
             {
 #if !NETSTANDARD1_3
-                name = AppDomain.CurrentDomain.FriendlyName + AppDomain.CurrentDomain.BaseDirectory;
+                name = AppDomain.CurrentDomain.FriendlyName + " 1";
 #else
                 name = string.Empty;
 #endif
