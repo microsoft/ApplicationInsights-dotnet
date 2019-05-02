@@ -26,7 +26,7 @@
 #if !NETSTANDARD1_3
                 name = AppDomain.CurrentDomain.FriendlyName + " 1";
 #else
-                name = string.Empty;
+                name = string.Empty + "123";
 #endif
             }
             catch (Exception exp)
