@@ -3,6 +3,7 @@
 ## Version 2.7.0-beta4
 - [RequestTrackingTelemetryModule is modified to stop tracking exceptions by default, as exceptions are captured by ApplicationInsightsLoggerProvider.](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/861)
 - Updated Web/Base SDK version dependency to 2.10.0-beta4
+- Updated Microsoft.Extensions.Logging.ApplicationInsights to 2.10.0-beta4
 - Reliability improvements with additional exception handling.
 
 ## Version 2.7.0-beta3
