@@ -16,7 +16,11 @@
 
         private const string FallbackParameterName = "specified parameter";
 
+#if NETSTANDARD1_3 || NETSTANDARD2_0
+        private static string sdkVersionMoniker = SdkVersionUtils.GetSdkVersion("m-agg2c:");
+#else
         private static string sdkVersionMoniker = SdkVersionUtils.GetSdkVersion("m-agg2:");
+#endif
 
         /// <summary>
         /// Parameter check for Null.

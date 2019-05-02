@@ -22,7 +22,11 @@
     /// </summary>
     public sealed class TelemetryClient
     {
+#if NETSTANDARD1_3 || NETSTANDARD2_0
+        private const string VersionPrefix = "dotnetc:";
+#else
         private const string VersionPrefix = "dotnet:";
+#endif
         private readonly TelemetryConfiguration configuration;
         private string sdkVersion;
 

@@ -1,4 +1,4 @@
-﻿#define DEBUG
+#define DEBUG
 
 namespace Microsoft.ApplicationInsights.TestFramework
 {
@@ -100,6 +100,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
             AssertEqual(expectedApplicationName, actualApplicationName, "Application Name");
         }
 #endif
+
         private static void AssertEqual<T>(T expected, T actual, string message)
         {
             if (!expected.Equals(actual))
