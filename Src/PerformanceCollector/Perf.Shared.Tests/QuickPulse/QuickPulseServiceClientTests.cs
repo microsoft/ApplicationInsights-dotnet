@@ -126,8 +126,8 @@
 
             Uri serviceEndpoint = new Uri(string.Format(CultureInfo.InvariantCulture, "http://localhost:{0}", port));
             this.TestContext.Properties[ServiceEndpointPropertyName] = serviceEndpoint;
-        
-#if NETCORE
+
+#if NETCOREAPP1_0
             this.Listener = new HttpListener(IPAddress.Loopback, port);
 #else
             this.Listener = new HttpListener();
@@ -2010,7 +2010,11 @@
                 try
                 {
                     ev.Set();
+#if NETCOREAPP1_0
                     HttpListenerContext context = listener.GetContextAsync().GetAwaiter().GetResult();
+#else
+                    HttpListenerContext context = listener.GetContext();
+#endif
 
                     var request = context.Request;
 
