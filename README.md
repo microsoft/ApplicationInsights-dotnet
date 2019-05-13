@@ -78,7 +78,7 @@ Application Insights SDK defines the following layers: data collection, public A
 
 **Data reduction pipeline** is a linked list of telemetry processors. Each telemetry processor may decide to pre-aggregate and filter telemetry item or pass it to the next processor. This way only interesting telemetry reaches to the end of the pipeline and being send to the telemetry sinks.
 
-Each **Telemetry sink** is responsible to upload telemetry to the specific back-end. Default telemetry sink sends data to the Application Insights. Sinks may also differ in guarantees they provide while uploading to the same back end. One may implement reliable delivery with re-tries and persistance when another may implement send and forget type of upload. Every telemetry sink may have it's own pipeline for additional data filtering and pre-aggregation. 
+Each **Telemetry sink** is responsible to upload telemetry to the specific back-end. Default telemetry sink sends data to the Application Insights. Sinks may also differ in guarantees they provide while uploading to the same back end. One may implement reliable delivery with re-tries and persistence when another may implement send and forget type of upload. Every telemetry sink may have it's own pipeline for additional data filtering and pre-aggregation. 
 
 Set of telemetry initializers called synchronously for every telemetry item. So extra properties can be added to the item. 
 By this time telemetry item is fully initialized. Build pipeline to aggregate or filter telemetry. 
