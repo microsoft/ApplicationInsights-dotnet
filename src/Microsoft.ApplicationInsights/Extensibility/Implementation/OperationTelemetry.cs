@@ -112,6 +112,16 @@
         }
 
         /// <summary>
+        /// Requests and dependencies are initialized from the current Activity 
+        /// (i.e. telemetry.Id = current.Id). Activity is created for such requests specifically
+        /// Traces, exceptions, events on the other side are children of current activity
+        /// There is one exception - SQL DiagnosticSource where current Activity is a parent
+        /// for dependency calls.
+        /// </summary>
+        /// <returns>boolean indicated if this telemetry item should be initialized from an activity.</returns>
+        internal virtual bool ShouldInitializeFromActivity() => true;
+
+        /// <summary>
         /// Allow to call OperationTelemetry.Sanitize method from child classes.
         /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This method is expected to be overloaded")]

@@ -17,9 +17,6 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class W3CActivityExtensions
     {
-        private const string RddDiagnosticSourcePrefix = "rdddsc";
-        private const string SqlRemoteDependencyType = "SQL";
-
         private static readonly Regex TraceIdRegex = new Regex("^[a-f0-9]{32}$", RegexOptions.Compiled);
         private static readonly Regex SpanIdRegex = new Regex("^[a-f0-9]{16}$", RegexOptions.Compiled);
 
@@ -239,16 +236,8 @@
             // for dependency calls.
 
             OperationTelemetry opTelemetry = telemetry as OperationTelemetry;
-            bool initializeFromCurrent = opTelemetry != null;
-
-            if (initializeFromCurrent)
-            {
-                initializeFromCurrent &= !(opTelemetry is DependencyTelemetry dependency &&
-                                           dependency.Type == SqlRemoteDependencyType &&
-                                           dependency.Context.GetInternalContext().SdkVersion
-                                               .StartsWith(RddDiagnosticSourcePrefix, StringComparison.Ordinal));
-            }
-
+            bool initializeFromCurrent = opTelemetry?.ShouldInitializeFromActivity() ?? false;
+            
             string spanId = null, parentSpanId = null;
             foreach (var tag in activity.Tags)
             {
@@ -264,9 +253,9 @@
                         parentSpanId = tag.Value;
                         break;
                     case W3CConstants.TracestateTag:
-                        if (telemetry is OperationTelemetry operation)
+                        if (opTelemetry != null)
                         {
-                            operation.Properties[W3CConstants.TracestateTag] = tag.Value;
+                            opTelemetry.Properties[W3CConstants.TracestateTag] = tag.Value;
                         }
 
                         break;
