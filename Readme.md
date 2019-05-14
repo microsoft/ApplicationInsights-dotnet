@@ -34,9 +34,9 @@ root\
     test\
         ApplicationInsights.AspNetCore.Tests - Unit tests
         FunctionalTestUtils - Test utilities for functional tests
-        MVCFramework.FunctionalTests - functional tests for MVC application targetting NetCore1.1,NetCore2.0 and NET45
-        WebApi.FunctionalTests - functional tests for Web API application targetting NetCore1.1,NetCore2.0 and NET45
-		EmptyApp.FunctionalTests - functional tests for an Empty application targetting NetCore1.1,NetCore2.0 and NET45
+        MVCFramework.FunctionalTests - functional tests for MVC application targeting NetCore1.1,NetCore2.0 and NET45
+        WebApi.FunctionalTests - functional tests for Web API application targeting NetCore1.1,NetCore2.0 and NET45
+		EmptyApp.FunctionalTests - functional tests for an Empty application targeting NetCore1.1,NetCore2.0 and NET45
         PerfTest - performance test
 ```
 
@@ -57,7 +57,7 @@ Execute the ```RunTests.cmd``` script in the repository root.
 
 You can also open the solution in Visual Studio and run tests directly from Visual Studio Test Explorer. However, as the tests has multiple targets, Test Explorer only shows the first target
 from <TargetFrameworks> in .csproj. To debug/run tests from a particular TargetFramework with Visual Studio, only option is to re-arrange the <TargetFrameworks>
-such that the intented target comes first. This is a Visual Studio limitation and is likely removed in the future.
+such that the intended target comes first. This is a Visual Studio limitation and is likely removed in the future.
 
 
 Running and writing tests
