@@ -106,10 +106,10 @@
             }
 
             // US-ASCII characters (hex: 0x00 - 0x7F) (decimal: 0-127)
-            // ASCII Extended characters (hex: 0x80 - 0xFF) (decimal: 0-255) (NOT ALLOWED)
+            // ASCII Extended characters (hex: 0x80 - 0xFF) (decimal: 128-255) (NOT ALLOWED)
             // Non-Printable ASCII characters are (hex: 0x00 - 0x1F) (decimal: 0-31) (NOT ALLOWED)
             // Printable ASCII characters are (hex: 0x20 - 0xFF) (decimal: 32-255) 
-            return Regex.Replace(input, @"[^\u0020-\u007F]", string.Empty);
+            return Regex.Replace(input, @"[^\u0020-\u007F]", string.Empty); // (hex: 0x20 - 0x7F) (decimal: 32-127)
         }
 
         private static string TrimSubstring(string value, int startIndex, int endIndex)
