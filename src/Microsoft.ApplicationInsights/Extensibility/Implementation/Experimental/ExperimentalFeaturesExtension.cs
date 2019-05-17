@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
 
@@ -19,25 +18,14 @@
     {
         /// <summary>
         /// Evaluate the TelemetryConfiguration to determine if a feature is enabled.
-        /// Cache the result in a nullable boolean for future queries.
         /// </summary>
         /// <param name="telemetryConfiguration">Configuration to be evaluated.</param>
         /// <param name="featureName">Name of the feature to evaluate.</param>
-        /// <param name="featureValue">Nullable boolean to cache evaluation result.</param>
         /// <returns>Returns a boolean value indicating if the feature name exists in the provided configuration.</returns>
-        public static bool EvaluateExperimentalFeature(this TelemetryConfiguration telemetryConfiguration, string featureName, ref bool? featureValue)
+        public static bool EvaluateExperimentalFeature(this TelemetryConfiguration telemetryConfiguration, string featureName)
         {
-            if (!featureValue.HasValue)
-            {
-                featureValue = DoesFeatureFlagExist(telemetryConfiguration.ExperimentalFeatures, featureName);
-            }
-
-            return featureValue.Value;
-        }
-
-        private static bool DoesFeatureFlagExist(IEnumerable<string> featureflags, string featureName)
-        {
-            return featureflags != null && featureflags.Any(x => x.Equals(featureName, StringComparison.OrdinalIgnoreCase));
+            return telemetryConfiguration.ExperimentalFeatures != null 
+                && telemetryConfiguration.ExperimentalFeatures.Any(x => x.Equals(featureName, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

@@ -7,8 +7,6 @@
     /// </summary>
     internal static class ExperimentalFeatures
     {
-        internal static bool? exampleFeature;
-
-        internal static bool IsExampleFeatureEnabled(TelemetryConfiguration telemetryConfiguration) => telemetryConfiguration.EvaluateExperimentalFeature(nameof(exampleFeature), ref exampleFeature);
+        internal static bool IsExampleFeatureEnabled(TelemetryConfiguration telemetryConfiguration) => telemetryConfiguration.EvaluateExperimentalFeature("exampleFeature");
     }
 }

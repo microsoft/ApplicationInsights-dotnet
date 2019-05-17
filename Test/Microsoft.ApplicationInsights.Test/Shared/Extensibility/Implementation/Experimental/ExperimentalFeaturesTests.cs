@@ -10,10 +10,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimenta
         {
             var config = new TelemetryConfiguration();
 
-            bool? value = null;
-            config.EvaluateExperimentalFeature("abc", ref value);
+            bool value = config.EvaluateExperimentalFeature("abc");
 
-            Assert.IsFalse(value.Value);
+            Assert.IsFalse(value);
         }
 
         [TestMethod]
@@ -24,16 +23,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimenta
                 ExperimentalFeatures = new string[] { "abc" }
             };
 
-            bool? value = null;
-            config.EvaluateExperimentalFeature("abc", ref value);
+            bool value = config.EvaluateExperimentalFeature("abc");
+            Assert.IsTrue(value);
 
-            Assert.IsTrue(value.Value);
-
-
-            bool? fakeValue = null;
-            config.EvaluateExperimentalFeature("fake", ref fakeValue);
-
-            Assert.IsFalse(fakeValue.Value);
+            bool fakeValue = config.EvaluateExperimentalFeature("fake");
+            Assert.IsFalse(fakeValue);
         }
 
         [TestMethod]
@@ -47,9 +41,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimenta
 
             var value1 = ExperimentalFeatures.IsExampleFeatureEnabled(config1);
             Assert.IsFalse(value1);
-
-            // reset static var
-            ExperimentalFeatures.exampleFeature = null;
 
             // test2: feature does exist
             var config2 = new TelemetryConfiguration
