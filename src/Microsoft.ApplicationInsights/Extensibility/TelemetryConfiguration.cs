@@ -235,6 +235,19 @@
         public IApplicationIdProvider ApplicationIdProvider { get; set; }
 
         /// <summary>
+        /// Gets or sets a string array (string[]) indicating if an experimental feature should be enabled.
+        /// This string contains comma separated feature names.
+        /// Ex: "featurename1, featurename2, featurename3"
+        /// </summary>
+        /// <remarks>
+        /// This property allows the dev team to ship and evaluate features before adding these to the public API.
+        /// We are not committing to support any features enabled through this property.
+        /// Use this at your own risk.
+        /// </remarks>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public IEnumerable<string> ExperimentalFeatures { get; set; }
+
+        /// <summary>
         /// Gets a list of telemetry sinks associated with the configuration.
         /// </summary>
         public IList<TelemetrySink> TelemetrySinks => this.telemetrySinks;
