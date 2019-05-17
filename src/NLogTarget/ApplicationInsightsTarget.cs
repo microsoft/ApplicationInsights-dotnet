@@ -50,7 +50,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         }
 
         /// <summary>
-        /// Gets the array of custom attributes to be passed into the logevent context
+        /// Gets the array of custom attributes to be passed into the logevent context.
         /// </summary>
         [ArrayParameter(typeof(TargetPropertyWithContext), "contextproperty")]
         public IList<TargetPropertyWithContext> ContextProperties { get; } = new List<TargetPropertyWithContext>();
@@ -148,9 +148,9 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         }
 
         /// <summary>
-        /// Flush any pending log messages
+        /// Flush any pending log messages.
         /// </summary>
-        /// <param name="asyncContinuation">The asynchronous continuation</param>
+        /// <param name="asyncContinuation">The asynchronous continuation.</param>
         protected override void FlushAsync(AsyncContinuation asyncContinuation)
         {
             try
@@ -249,7 +249,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         {
             var exceptionTelemetry = new ExceptionTelemetry(logEvent.Exception)
             {
-                SeverityLevel = GetSeverityLevel(logEvent.Level)
+                SeverityLevel = GetSeverityLevel(logEvent.Level),
             };
 
             string logMessage = this.Layout.Render(logEvent);
@@ -265,7 +265,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
             var trace = new TraceTelemetry(logMessage)
             {
-                SeverityLevel = GetSeverityLevel(logEvent.Level)
+                SeverityLevel = GetSeverityLevel(logEvent.Level),
             };
 
             this.BuildPropertyBag(logEvent, trace);

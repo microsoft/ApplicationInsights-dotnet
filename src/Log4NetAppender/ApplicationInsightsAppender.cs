@@ -66,10 +66,10 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
         }
 
         /// <summary>
-        /// Flushes any buffered log data
+        /// Flushes any buffered log data.
         /// </summary>
-        /// <param name="millisecondsTimeout">The maximum time to wait for logging events to be flushed</param>
-        /// <returns>True if all logging events were flushed successfully, else false</returns>
+        /// <param name="millisecondsTimeout">The maximum time to wait for logging events to be flushed.</param>
+        /// <returns>True if all logging events were flushed successfully, else false.</returns>
         public override bool Flush(int millisecondsTimeout)
         {
             this.telemetryClient.Flush();
@@ -183,7 +183,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
             {
                 var exceptionTelemetry = new ExceptionTelemetry(loggingEvent.ExceptionObject)
                 {
-                    SeverityLevel = GetSeverityLevel(loggingEvent.Level)
+                    SeverityLevel = GetSeverityLevel(loggingEvent.Level),
                 };
 
                 string message = null;
@@ -215,7 +215,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
 
                 var trace = new TraceTelemetry(message)
                 {
-                    SeverityLevel = GetSeverityLevel(loggingEvent.Level)
+                    SeverityLevel = GetSeverityLevel(loggingEvent.Level),
                 };
 
                 BuildCustomProperties(loggingEvent, trace);

@@ -50,7 +50,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         /// <summary>
         /// Initializes a new instance of the <see cref="EventSourceTelemetryModule"/> class.
         /// </summary>
-        /// <param name="onEventWrittenHandler">Action to be executed each time an event is written to format and send via the configured <see cref="TelemetryClient"/></param>
+        /// <param name="onEventWrittenHandler">Action to be executed each time an event is written to format and send via the configured <see cref="TelemetryClient"/>.</param>
         public EventSourceTelemetryModule(OnEventWrittenHandler onEventWrittenHandler)
         {
             if (onEventWrittenHandler == null)

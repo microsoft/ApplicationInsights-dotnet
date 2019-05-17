@@ -7,7 +7,7 @@
 namespace Microsoft.ApplicationInsights.EtwCollector
 {
     using System;
-    using Diagnostics.Tracing;
+    using Microsoft.Diagnostics.Tracing;
     using Microsoft.Diagnostics.Tracing.Session;
 
     /// <summary>

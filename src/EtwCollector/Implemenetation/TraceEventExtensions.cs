@@ -10,7 +10,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector.Implemenetation
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
-    using DataContracts;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities;
     using Microsoft.Diagnostics.Tracing;
 
@@ -25,7 +25,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector.Implemenetation
             SeverityLevel.Error,        // TraceEventLevel.Error == 2
             SeverityLevel.Warning,      // TraceEventLevel.Warning == 3
             SeverityLevel.Information,  // TraceEventLevel.Informational == 4
-            SeverityLevel.Verbose // TraceEventLevel.Verbose == 5
+            SeverityLevel.Verbose, // TraceEventLevel.Verbose == 5
         };
 
         public static void Track(this TraceEvent traceEvent, TelemetryClient client)

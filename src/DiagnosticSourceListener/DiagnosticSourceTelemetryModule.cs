@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.DiagnosticSourceListener
         /// <summary>
         /// Initializes a new instance of the <see cref="DiagnosticSourceTelemetryModule"/> class.
         /// </summary>
-        /// <param name="onEventWrittenHandler">Action to be executed each time an event is written to format and send via the configured <see cref="TelemetryClient"/></param>
+        /// <param name="onEventWrittenHandler">Action to be executed each time an event is written to format and send via the configured <see cref="TelemetryClient"/>.</param>
         public DiagnosticSourceTelemetryModule(OnEventWrittenHandler onEventWrittenHandler)
         {
             if (onEventWrittenHandler == null)

@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     using NLog.Layouts;
 
     /// <summary>
-    /// NLog Target Context Property that allows capture of context information for all logevents (Ex. Layout=${threadid})
+    /// NLog Target Context Property that allows capture of context information for all logevents (Ex. Layout=${threadid}).
     /// </summary>
     [NLogConfigurationItem]
     [ThreadAgnostic]
