@@ -235,9 +235,8 @@
         public IApplicationIdProvider ApplicationIdProvider { get; set; }
 
         /// <summary>
-        /// Gets or sets a string array (string[]) indicating if an experimental feature should be enabled.
-        /// This string contains comma separated feature names.
-        /// Ex: "featurename1, featurename2, featurename3"
+        /// Gets or sets a collection of string indicating if an experimental feature should be enabled.
+        /// The presence of a string in this collection will be evaluated as 'true'.
         /// </summary>
         /// <remarks>
         /// This property allows the dev team to ship and evaluate features before adding these to the public API.

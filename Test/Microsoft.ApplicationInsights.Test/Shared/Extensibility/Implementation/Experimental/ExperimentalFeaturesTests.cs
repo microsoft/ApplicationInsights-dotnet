@@ -11,7 +11,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimenta
             var config = new TelemetryConfiguration();
 
             bool value = config.EvaluateExperimentalFeature("abc");
-
             Assert.IsFalse(value);
         }
 
