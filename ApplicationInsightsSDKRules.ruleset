@@ -11,6 +11,8 @@
     <Rule Id="CA1001" Action="Warning" />
     <Rule Id="CA1009" Action="Warning" />
     <Rule Id="CA1016" Action="Warning" />
+    <!-- Suppressing Message "Modify 'method' to catch a more specific exception type, or rethrow the exception" because we already catch Exceptions we care about and either log/ignore others. -->
+    <Rule Id="CA1031" Action="None" />
     <Rule Id="CA1033" Action="Warning" />
     <Rule Id="CA1049" Action="Warning" />
     <Rule Id="CA1060" Action="Warning" />
