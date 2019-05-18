@@ -52,7 +52,7 @@
         private Metric dependencyCallDurationMetric = null;
 
         /// <summary>
-        /// Maximum number of auto-discovered dependency types
+        /// Maximum number of auto-discovered dependency types.
         /// </summary>
         private int maxDependencyTypesToDiscover = MaxDependenctTypesToDiscoverDefault;
 

@@ -32,7 +32,7 @@
                 message = message,
                 hasFullStack = hasFullStack,
                 stack = stack,
-                parsedStack = parsedStack.Select(ps => ps.Data).ToList()
+                parsedStack = parsedStack.Select(ps => ps.Data).ToList(),
             };
         }
 

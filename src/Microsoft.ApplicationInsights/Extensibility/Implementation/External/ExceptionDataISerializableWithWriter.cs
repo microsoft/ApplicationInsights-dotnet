@@ -7,7 +7,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
-    /// Partial class to implement ISerializableWithWriter
+    /// Partial class to implement ISerializableWithWriter.
     /// </summary>
     internal partial class ExceptionData : ISerializableWithWriter
     {

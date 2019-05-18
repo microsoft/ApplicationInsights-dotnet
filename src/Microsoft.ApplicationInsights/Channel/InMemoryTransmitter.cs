@@ -6,17 +6,19 @@ namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
-    using Extensibility;
-    using Extensibility.Implementation;
-    using Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// A transmitter that will immediately send telemetry over HTTP. 
     /// Telemetry items are being sent when Flush is called, or when the buffer is full (An OnFull "event" is raised) or every 30 seconds. 
     /// </summary>
+    [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", Justification = "We use startRunnerEvent in the Dispose method.")]
     internal class InMemoryTransmitter : IDisposable
     {
         private readonly TelemetryBuffer buffer;
@@ -25,6 +27,7 @@ namespace Microsoft.ApplicationInsights.Channel
         /// A lock object to serialize the sending calls from Flush, OnFull event and the Runner.  
         /// </summary>
         private object sendingLockObj = new object();
+        
         private AutoResetEvent startRunnerEvent;
         private bool enabled = true;
         
@@ -32,7 +35,6 @@ namespace Microsoft.ApplicationInsights.Channel
         /// The number of times this object was disposed.
         /// </summary>
         private int disposeCount = 0;
-
         private TimeSpan sendingInterval = TimeSpan.FromSeconds(30);
         private Uri endpointAddress = new Uri(Constants.TelemetryServiceEndpoint);
                 

@@ -182,14 +182,16 @@
                         var queueSender = this.Senders.OfType<PortalDiagnosticsQueueSender>().First();
                         queueSender.IsDisabled = true;
                         this.Senders.Remove(queueSender);
-                        
+
                         PortalDiagnosticsSender portalSender = new PortalDiagnosticsSender(
                             configuration,
                             new DiagnoisticsEventThrottlingManager<DiagnoisticsEventThrottling>(
                                 new DiagnoisticsEventThrottling(DiagnoisticsEventThrottlingDefaults.DefaultThrottleAfterCount),
                                 this.throttlingScheduler,
-                                DiagnoisticsEventThrottlingDefaults.DefaultThrottlingRecycleIntervalInMinutes));
-                        portalSender.DiagnosticsInstrumentationKey = this.DiagnosticsInstrumentationKey;
+                                DiagnoisticsEventThrottlingDefaults.DefaultThrottlingRecycleIntervalInMinutes))
+                        {
+                            DiagnosticsInstrumentationKey = this.DiagnosticsInstrumentationKey,
+                        };
 
                         this.Senders.Add(portalSender);
 
@@ -217,9 +219,9 @@
         /// payload, including (but not limited to) the name of SDK-default items.
         /// 
         /// </summary>
-        /// <param name="propertyName">Name of the heartbeat value to add</param>
-        /// <param name="propertyValue">Current value of the heartbeat value to add</param>
-        /// <param name="isHealthy">Flag indicating whether or not the property represents a healthy value</param>
+        /// <param name="propertyName">Name of the heartbeat value to add.</param>
+        /// <param name="propertyValue">Current value of the heartbeat value to add.</param>
+        /// <param name="isHealthy">Flag indicating whether or not the property represents a healthy value.</param>
         /// <returns>True if the new payload item is successfully added, false otherwise.</returns>
         public bool AddHeartbeatProperty(string propertyName, string propertyValue, bool isHealthy)
         {

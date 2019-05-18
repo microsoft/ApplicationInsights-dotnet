@@ -8,10 +8,10 @@
 
     using static System.FormattableString;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {085}</summary>
+    /// <summary>@ToDo: Complete documentation before stable release. {085}.</summary>
     public sealed class MetricIdentifier : IEquatable<MetricIdentifier>
     {
-        /// <summary>@ToDo: Complete documentation before stable release. {369}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {369}.</summary>
         public const int MaxDimensionsCount = 10;
 
         private const string NoNamespaceIdentifierStringComponent = "<NoNamespace>";
@@ -19,7 +19,7 @@
         private static readonly char[] InvalidMetricChars = new char[]
             {
                         '\0', '"', '\'', '(', ')', '[', ']', '{', '}', '<', '>', '=', ',',
-                        '`',  '~', '!',  '@', '#', '$', '%', '^', '&', '*', '+', '?'
+                        '`',  '~', '!',  '@', '#', '$', '%', '^', '&', '*', '+', '?',
             };
 
         private static string defaultMetricNamespace = String.Empty;
@@ -41,7 +41,7 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {030}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {030}.</summary>
         /// @PublicExposureCandidate
         private static void ValidateLiteral(string partValue, string partName, bool allowEmpty)
         {
@@ -91,7 +91,7 @@
         private readonly int hashCode;
 #pragma warning restore SA1201 // Elements must appear in the correct order
 
-        /// <summary>@ToDo: Complete documentation before stable release. {150}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {150}.</summary>
         public MetricIdentifier(string metricId)
             : this(metricNamespace: null,
                    metricId: metricId,
@@ -108,7 +108,7 @@
         {
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {710}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {710}.</summary>
         public MetricIdentifier(string metricNamespace, string metricId)
             : this(metricNamespace,
                    metricId,
@@ -125,7 +125,7 @@
         {
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {080}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {080}.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -145,7 +145,7 @@
         {
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {219}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {219}.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -166,7 +166,7 @@
         {
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {419}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {419}.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -188,7 +188,7 @@
         {
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {852}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {852}.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -211,7 +211,7 @@
         {
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {761}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {761}.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -235,7 +235,7 @@
         {
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {629}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {629}.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -260,7 +260,7 @@
         {
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {522}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {522}.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -286,7 +286,7 @@
         {
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {040}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {040}.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -313,7 +313,7 @@
         {
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {406}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {406}.</summary>
         public MetricIdentifier(
                             string metricNamespace,
                             string metricId,
@@ -341,7 +341,7 @@
         {
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {144}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {144}.</summary>
         public MetricIdentifier(
                         string metricNamespace,
                         string metricId,
@@ -402,7 +402,7 @@
             this.hashCode = this.identifierString.GetHashCode();
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {694}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {694}.</summary>
         public MetricIdentifier(
                         string metricNamespace,
                         string metricId,
@@ -445,7 +445,7 @@
         /// <summary>
         /// Get an enumeration of the dimension names contained in this identity. The enumeration will have <c>DimensionsCount</c> elements.
         /// </summary>
-        /// <returns>@ToDo: Complete documentation before stable release. {589}</returns>
+        /// <returns>@ToDo: Complete documentation before stable release. {589}.</returns>
         public IEnumerable<string> GetDimensionNames()
         {
             for (int d = 1; d <= this.DimensionsCount; d++)
@@ -481,8 +481,8 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {530}</summary>
-        /// <returns>@ToDo: Complete documentation before stable release. {986}</returns>
+        /// <summary>@ToDo: Complete documentation before stable release. {530}.</summary>
+        /// <returns>@ToDo: Complete documentation before stable release. {986}.</returns>
         public override string ToString()
         {
             return this.identifierString;

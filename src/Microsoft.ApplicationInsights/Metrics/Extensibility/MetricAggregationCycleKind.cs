@@ -2,7 +2,7 @@
 {
     using System;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {447}</summary>
+    /// <summary>@ToDo: Complete documentation before stable release. {447}.</summary>
     public enum MetricAggregationCycleKind : Int32
     {
         /// <summary>
@@ -18,6 +18,6 @@
         /// <summary>
         /// The custom aggregation cycle.
         /// </summary>
-        Custom
+        Custom,
     }
 }

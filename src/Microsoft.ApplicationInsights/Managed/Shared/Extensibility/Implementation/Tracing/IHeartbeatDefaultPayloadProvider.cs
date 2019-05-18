@@ -20,8 +20,8 @@
         /// heartbeat payload. This is primarly used to dissallow users from adding or setting a conflicting
         /// property into the heartbeat.
         /// </summary>
-        /// <param name="keyword">string to test against supplied property names</param>
-        /// <returns>True if the given keyword conflicts with this default payload provider's properties</returns>
+        /// <param name="keyword">string to test against supplied property names.</param>
+        /// <returns>True if the given keyword conflicts with this default payload provider's properties.</returns>
         bool IsKeyword(string keyword);
 
         /// <summary>

@@ -6,10 +6,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
-    using External;
-    using Microsoft.ApplicationInsights.DataContracts;
+
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
     /// A helper class for implementing properties of telemetry and context classes.
@@ -52,7 +50,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             { ContextTagKeys.Keys.CloudRoleInstance, 256 },
             { ContextTagKeys.Keys.InternalSdkVersion, 64 },
             { ContextTagKeys.Keys.InternalAgentVersion, 64 },
-            { ContextTagKeys.Keys.InternalNodeName, 256 }
+            { ContextTagKeys.Keys.InternalNodeName, 256 },
         };
 
         public static void Set<T>(ref T property, T value) where T : class

@@ -8,7 +8,7 @@
     public class DictionaryApplicationIdProvider : IApplicationIdProvider
     {
         /// <summary>
-        /// Gets or sets a dictionary of Instrumentation Keys to Application Ids
+        /// Gets or sets a dictionary of Instrumentation Keys to Application Ids.
         /// </summary>
         public IReadOnlyDictionary<string, string> Defined { get; set; }
 

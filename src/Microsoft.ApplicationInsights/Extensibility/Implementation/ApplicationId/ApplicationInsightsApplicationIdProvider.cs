@@ -2,9 +2,9 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Threading;
     using System.Threading.Tasks;
-    using Extensibility;
+
+    using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
     /// This <see cref="ApplicationInsightsApplicationIdProvider"/> will query the Application Insights' Breeze endpoint to lookup an Application Id based on Instrumentation Key.
@@ -42,7 +42,7 @@
 
         /// <summary>
         /// Gets or sets the endpoint that is to be used to get the Application Insights resource's profile (Application Id etc.). 
-        /// Default value is "https://dc.services.visualstudio.com/api/profiles/{0}/appId". If this is overwritten, MUST include the '{0}' for string replacement!
+        /// Default value is "https://dc.services.visualstudio.com/api/profiles/{0}/appId". If this is overwritten, MUST include the '{0}' for string replacement!.
         /// </summary>
         public string ProfileQueryEndpoint
         {
@@ -51,7 +51,7 @@
         }
 
         /// <summary>
-        /// Disposes resources
+        /// Disposes resources.
         /// </summary>
         public void Dispose()
         {

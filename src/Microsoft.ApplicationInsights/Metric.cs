@@ -110,8 +110,10 @@
                 return this.zeroDimSeriesList;
             }
 
-            var series = new List<KeyValuePair<string[], MetricSeries>>(this.SeriesCount);
-            series.Add(new KeyValuePair<string[], MetricSeries>(new string[0], this.zeroDimSeries));
+            var series = new List<KeyValuePair<string[], MetricSeries>>(this.SeriesCount)
+            {
+                new KeyValuePair<string[], MetricSeries>(new string[0], this.zeroDimSeries),
+            };
             this.metricSeries.GetAllPoints(series);
             return series;
         }
@@ -121,7 +123,7 @@
         /// This overload gets the zero-dimensional <c>MetricSeries</c> associated with this metric.
         /// Every metric, regardless of its dimensionality, has such a zero-dimensional <c>MetricSeries</c>.
         /// </summary>
-        /// <param name="series">Will be set to the zero-dimensional <c>MetricSeries</c> associated with this metric</param>
+        /// <param name="series">Will be set to the zero-dimensional <c>MetricSeries</c> associated with this metric.</param>
         /// <returns><c>True</c>.</returns>
         public bool TryGetDataSeries(out MetricSeries series)
         {

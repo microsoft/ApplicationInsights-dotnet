@@ -80,9 +80,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             LogException(exception);
                         }
                     },
-                    CancellationToken.None,
-                    TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously,
-                    TaskScheduler.Default);
+                CancellationToken.None,
+                TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously,
+                TaskScheduler.Default);
 
             CancelAndDispose(Interlocked.Exchange(ref this.tokenSource, newTokenSource));
         }

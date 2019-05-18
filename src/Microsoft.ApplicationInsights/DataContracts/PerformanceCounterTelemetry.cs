@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    using Channel;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
