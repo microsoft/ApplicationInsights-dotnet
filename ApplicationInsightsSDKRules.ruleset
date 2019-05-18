@@ -83,7 +83,9 @@
     <Rule Id="CA2207" Action="Warning" />
     <Rule Id="CA2210" Action="None" />
     <Rule Id="CA2212" Action="Warning" />
-    <Rule Id="CA2213" Action="Warning" />
+    <!-- Disabling this check "CA2213:DisposableFieldsShouldBeDisposed". 
+    This analyzer has a bug which fails the build, https://github.com/dotnet/roslyn-analyzers/issues/1815 -->
+    <Rule Id="CA2213" Action="None" />
     <Rule Id="CA2214" Action="Warning" />
     <Rule Id="CA2216" Action="Warning" />
     <Rule Id="CA2219" Action="Warning" />

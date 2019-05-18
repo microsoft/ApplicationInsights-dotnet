@@ -18,7 +18,6 @@ namespace Microsoft.ApplicationInsights.Channel
     /// A transmitter that will immediately send telemetry over HTTP. 
     /// Telemetry items are being sent when Flush is called, or when the buffer is full (An OnFull "event" is raised) or every 30 seconds. 
     /// </summary>
-    [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", Justification = "We use startRunnerEvent in the Dispose method.")]
     internal class InMemoryTransmitter : IDisposable
     {
         private readonly TelemetryBuffer buffer;
@@ -27,7 +26,6 @@ namespace Microsoft.ApplicationInsights.Channel
         /// A lock object to serialize the sending calls from Flush, OnFull event and the Runner.  
         /// </summary>
         private object sendingLockObj = new object();
-        
         private AutoResetEvent startRunnerEvent;
         private bool enabled = true;
         
