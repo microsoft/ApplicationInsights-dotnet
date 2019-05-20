@@ -10,8 +10,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimenta
         {
             var config = new TelemetryConfiguration();
 
-            bool value = config.EvaluateExperimentalFeature("abc");
-            Assert.IsFalse(value);
+            bool? value = null;
+            config.EvaluateExperimentalFeature("abc", ref value);
+
+            Assert.IsFalse(value.Value);
         }
 
         [TestMethod]
@@ -22,11 +24,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimenta
                 ExperimentalFeatures = new string[] { "abc" }
             };
 
-            bool value = config.EvaluateExperimentalFeature("abc");
-            Assert.IsTrue(value);
+            bool? value = null;
+            config.EvaluateExperimentalFeature("abc", ref value);
 
-            bool fakeValue = config.EvaluateExperimentalFeature("fake");
-            Assert.IsFalse(fakeValue);
+            Assert.IsTrue(value.Value);
+
+
+            bool? fakeValue = null;
+            config.EvaluateExperimentalFeature("fake", ref fakeValue);
+
+            Assert.IsFalse(fakeValue.Value);
         }
     }
 }

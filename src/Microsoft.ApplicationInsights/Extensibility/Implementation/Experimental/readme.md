@@ -35,7 +35,8 @@ var config = new TelemetryConfiguration{
 
 ## How to evaluate at runtime
 
-I recommend a wrapper class that wraps the string name of the feature:
+Add your feature to the `ExperimentalFeatures` class.
+You need to add both a cache variable and a method to invoke.
 
 ```
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental
@@ -47,7 +48,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimenta
     /// </summary>
     internal static class ExperimentalFeatures
     {
-        internal static bool IsExampleFeatureEnabled(TelemetryConfiguration telemetryConfiguration) => telemetryConfiguration.EvaluateExperimentalFeature("exampleFeature");
+        internal static bool? exampleFeature;
+
+        internal static bool IsExampleFeatureEnabled(TelemetryConfiguration telemetryConfiguration) => telemetryConfiguration.EvaluateExperimentalFeature(nameof(exampleFeature), ref exampleFeature);
     }
 }
 ```
@@ -55,27 +58,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimenta
 To consume:
 
 ```
-public class MyClass{
-	
-	// private cache variable
-	private bool? isExampleFeatureEnabled;
-
-	// Getter property
-	private bool IsExampleFeatureEnabled {
-		get {
-			if (!isExampleFeatureEnabled.HasValue)
-			{
-				isExampleFeatureEnabled = ExperimentalFeatures.IsExampleFeatureEnabled(TelemetryConfiguration.Active);
-			}
-
-			return isExampleFeatureEnabled.Value;
-		}
-	}
-	
-
+public class MyClass
+{
 	private void MyMethod()
 	{
-		if (IsExampleFeatureEnabled)
+		if (ExperimentalFeatures.IsExampleFeatureEnabled)
 		{
 			// do stuff here
 		}
