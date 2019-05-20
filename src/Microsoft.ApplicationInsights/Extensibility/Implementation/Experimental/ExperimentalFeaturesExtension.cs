@@ -22,6 +22,7 @@
         /// <param name="telemetryConfiguration">Configuration to be evaluated.</param>
         /// <param name="featureName">Name of the feature to evaluate.</param>
         /// <returns>Returns a boolean value indicating if the feature name exists in the provided configuration.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static bool EvaluateExperimentalFeature(this TelemetryConfiguration telemetryConfiguration, string featureName)
         {
             return telemetryConfiguration.ExperimentalFeatures != null 
