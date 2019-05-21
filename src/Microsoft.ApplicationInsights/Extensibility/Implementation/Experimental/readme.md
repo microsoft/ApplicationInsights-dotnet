@@ -8,10 +8,7 @@ The presence of a string in this collection indicates that a feature is enabled.
 ## Developers: How to use 
 
 There is no central storage of feature names.
-There is no centralized caching of feature evaluations.
-
-You may define a new feature at any time by declaring a string and invoking: `telemetryConfiguration.EvaluateExperimentalFeature("exampleFeature")`
-
+There is no centralized caching of feature evaluations. You should evaluate and cache the result in your class.
 
 
 ```
