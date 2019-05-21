@@ -244,7 +244,7 @@
         /// Use this at your own risk.
         /// </remarks>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public IEnumerable<string> ExperimentalFeatures { get; set; }
+        public IList<string> ExperimentalFeatures { get; set; }
 
         /// <summary>
         /// Gets a list of telemetry sinks associated with the configuration.
