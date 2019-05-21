@@ -1,51 +1,36 @@
 ﻿# Experimental Features
 
-`TelemetryConfiguration.ExperimentalFeatures` is an `IEnumerable<string>` of feature names.
+`TelemetryConfiguration.ExperimentalFeatures` is an `IList<string>` of feature names.
 
 For simplicity, there is no data structure to parse or evaluate.
 The presence of a string in this collection indicates that a feature is enabled.
 
-## Developers: How to define a new feature flag (compile time)
+## Developers: How to use 
 
-Feature flags are compile time constants in the `ExperimentalFeatures` class.
+There is no central storage of feature names.
+There is no centralized caching of feature evaluations.
 
-You must add 
-- a cache variable to store the evaluation result
-- and an `internal` method to invoke from your class.
-
-```
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental
-{
-    /// <summary>
-    /// This class provides a means to interact with the <see cref="TelemetryConfiguration.ExperimentalFeatures" />.
-    /// This performs a simple boolean evaluation; does a feature name exist in the string array?
-    /// Evaluation results are cached.
-    /// </summary>
-    internal static class ExperimentalFeatures
-    {
-        internal static bool? exampleFeature;
-
-        internal static bool IsExampleFeatureEnabled(TelemetryConfiguration telemetryConfiguration) => telemetryConfiguration.EvaluateExperimentalFeature(nameof(exampleFeature), ref exampleFeature);
-    }
-}
-```
+You may define a new feature at any time by declaring a string and invoking: `telemetryConfiguration.EvaluateExperimentalFeature("exampleFeature")`
 
 
-
-## Developers: How to evaluate a feature flag (runtime)
-
-To consume, reference the `ExperimentalFeatures` static class from your class:
 
 ```
 public class MyClass
 {
-	private void MyMethod()
-	{
-		if (ExperimentalFeatures.IsExampleFeatureEnabled)
-		{
-			// do stuff here
-		}
-	}
+    private readonly bool isExampleFeatureEnabled;
+
+    public MyClass()
+    {
+        this.isExampleFeatureEnabled = telemetryConfiguration.EvaluateExperimentalFeature("exampleFeature");
+    }
+
+    private void MyMethod()
+    {
+        if (this.isExampleFeatureEnabled)
+        {
+            // do stuff here
+        }
+    }
 }
 ```
 
@@ -71,7 +56,7 @@ public class MyClass
 ### Via code
 
 ```
-var config = new TelemetryConfiguration{
-	ExperimentalFeatures = new string[] {"exampleFeature", "anotherFeature"}
-	};
+var telemetryConfiguration = new TelemetryConfiguration();
+telemetryConfiguration.Add("exampleFeature");
+telemetryConfiguration.Add("anotherFeature");
 ```
