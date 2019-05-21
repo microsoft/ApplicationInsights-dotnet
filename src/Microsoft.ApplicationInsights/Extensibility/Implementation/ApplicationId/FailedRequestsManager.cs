@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Net;
-    using Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     internal class FailedRequestsManager
     {
@@ -104,7 +104,7 @@
             /// <summary>
             /// Initializes a new instance of the <see cref="FailedResult" /> class.
             /// </summary>
-            /// <param name="retryAfter">Time to wait before a retry</param>
+            /// <param name="retryAfter">Time to wait before a retry.</param>
             /// <param name="httpStatusCode">Failure response code. Used to determine if we should retry requests.</param>
             public FailedResult(TimeSpan retryAfter, HttpStatusCode httpStatusCode = HttpStatusCode.OK)
             {

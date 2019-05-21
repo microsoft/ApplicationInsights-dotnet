@@ -52,7 +52,7 @@
         ITelemetry DeepClone();
         
         /// <summary>
-        /// Writes serialization info about the data class of the implementing type using the given <see cref="ISerializationWriter"/>
+        /// Writes serialization info about the data class of the implementing type using the given <see cref="ISerializationWriter"/>.
         /// </summary>
         void SerializeData(ISerializationWriter serializationWriter);
     }

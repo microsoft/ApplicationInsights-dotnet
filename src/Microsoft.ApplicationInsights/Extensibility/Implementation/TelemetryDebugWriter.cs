@@ -8,9 +8,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
     using System.Diagnostics;
-    using Channel;
+
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Platform;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
 
     /// <summary>
     /// Writes telemetry items to debug output.

@@ -10,11 +10,11 @@
     /// @PublicExposureCandidate
     internal static class MetricManagerExtensions
     {
-        /// <summary>@ToDo: Complete documentation before stable release. {989}</summary>
-        /// <param name="metricManager">@ToDo: Complete documentation before stable release. {335}</param>
-        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release. {001}</param>
-        /// <param name="tactTimestamp">@ToDo: Complete documentation before stable release. {687}</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {620}</returns>
+        /// <summary>@ToDo: Complete documentation before stable release. {989}.</summary>
+        /// <param name="metricManager">@ToDo: Complete documentation before stable release. {335}.</param>
+        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release. {001}.</param>
+        /// <param name="tactTimestamp">@ToDo: Complete documentation before stable release. {687}.</param>
+        /// <returns>@ToDo: Complete documentation before stable release. {620}.</returns>
         public static AggregationPeriodSummary StopAggregators(
                                                         this MetricManager metricManager,
                                                         MetricAggregationCycleKind aggregationCycleKind,
@@ -24,12 +24,12 @@
             return metricManager.AggregationManager.StopAggregators(aggregationCycleKind, tactTimestamp);
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {396}</summary>
-        /// <param name="metricManager">@ToDo: Complete documentation before stable release. {784}</param>
-        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release. {805}</param>
-        /// <param name="tactTimestamp">@ToDo: Complete documentation before stable release. {879}</param>
-        /// <param name="futureFilter">@ToDo: Complete documentation before stable release. {735}</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {762}</returns>
+        /// <summary>@ToDo: Complete documentation before stable release. {396}.</summary>
+        /// <param name="metricManager">@ToDo: Complete documentation before stable release. {784}.</param>
+        /// <param name="aggregationCycleKind">@ToDo: Complete documentation before stable release. {805}.</param>
+        /// <param name="tactTimestamp">@ToDo: Complete documentation before stable release. {879}.</param>
+        /// <param name="futureFilter">@ToDo: Complete documentation before stable release. {735}.</param>
+        /// <returns>@ToDo: Complete documentation before stable release. {762}.</returns>
         public static AggregationPeriodSummary StartOrCycleAggregators(
                                                         this MetricManager metricManager,
                                                         MetricAggregationCycleKind aggregationCycleKind,
@@ -52,7 +52,7 @@
         /// the next iteration. However, the background thread will not send any aggregated metrics if it has been notified to stop.
         /// Therefore, this method flushes current data before sending the notification.
         /// </remarks>
-        /// <param name="metricManager">The metric manager</param>
+        /// <param name="metricManager">The metric manager.</param>
         /// <returns>
         /// You can await the returned Task if you want to be sure that the encapsulated thread completed.
         /// If you just want to notify the thread to stop without waiting for it, do not await this method.

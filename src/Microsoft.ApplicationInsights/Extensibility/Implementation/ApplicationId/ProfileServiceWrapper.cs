@@ -5,7 +5,7 @@
     using System.Globalization;
     using System.Net.Http;
     using System.Threading.Tasks;
-    using Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     internal class ProfileServiceWrapper : IDisposable
     {

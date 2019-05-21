@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Partial class to impelement ISerializableWithWriter
+    /// Partial class to impelement ISerializableWithWriter.
     /// </summary>    
     internal partial class StackFrame : ISerializableWithWriter
     {

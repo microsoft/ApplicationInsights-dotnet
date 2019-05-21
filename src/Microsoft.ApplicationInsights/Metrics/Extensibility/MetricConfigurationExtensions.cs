@@ -12,10 +12,10 @@
     {
         /// <summary>
         /// Groups constants used my metric aggregates produced by aggregators that are configured by metric configurations represented
-        /// through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>. See also <c>MetricConfigurations.Common.Measurement()</c>./>
+        /// through instances of <see cref="MetricSeriesConfigurationForMeasurement"/>. See also <c>MetricConfigurations.Common.Measurement()</c>./>.
         /// </summary>
-        /// <param name="measurementConfig">@ToDo: Complete documentation before stable release. {071}</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {132}</returns>
+        /// <param name="measurementConfig">@ToDo: Complete documentation before stable release. {071}.</param>
+        /// <returns>@ToDo: Complete documentation before stable release. {132}.</returns>
         public static MetricSeriesConfigurationForMeasurement.AggregateKindConstants Constants(this MetricSeriesConfigurationForMeasurement measurementConfig)
         {
             return MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Instance;
@@ -23,10 +23,10 @@
 
         /// <summary>
         /// Groups constants used my metric aggregates produced by aggregators that are configured by metric configurations represented
-        /// through instances of <see cref="MetricConfigurationForMeasurement"/>. See also <c>MetricConfigurations.Common.Measurement()</c>./>
+        /// through instances of <see cref="MetricConfigurationForMeasurement"/>. See also <c>MetricConfigurations.Common.Measurement()</c>./>.
         /// </summary>
-        /// <param name="measurementConfig">@ToDo: Complete documentation before stable release. {276}</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {564}</returns>
+        /// <param name="measurementConfig">@ToDo: Complete documentation before stable release. {276}.</param>
+        /// <returns>@ToDo: Complete documentation before stable release. {564}.</returns>
         public static MetricSeriesConfigurationForMeasurement.AggregateKindConstants Constants(this MetricConfigurationForMeasurement measurementConfig)
         {
             return MetricSeriesConfigurationForMeasurement.AggregateKindConstants.Instance;

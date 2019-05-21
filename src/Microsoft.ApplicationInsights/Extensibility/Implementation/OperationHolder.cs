@@ -3,7 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Globalization;
-    using Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Operation class that holds the telemetry item and the corresponding telemetry client.
@@ -30,18 +30,8 @@
         /// <param name="telemetry">Operation telemetry item that is assigned to the telemetry associated to the current operation item.</param>
         public OperationHolder(TelemetryClient telemetryClient, T telemetry)
         {
-            if (telemetry == null)
-            {
-                throw new ArgumentNullException(nameof(telemetry));
-            }
-
-            if (telemetryClient == null)
-            {
-                throw new ArgumentNullException(nameof(telemetryClient));
-            }
-
-            this.telemetryClient = telemetryClient;
-            this.Telemetry = telemetry;
+            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+            this.Telemetry = telemetry ?? throw new ArgumentNullException(nameof(telemetry));
         }
 
         /// <summary>
