@@ -108,7 +108,9 @@
         /// </summary>
         internal void GenerateId()
         {
-            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+            this.Id = W3C.W3CUtilities.GenerateSpanId();
+
+            // this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }
 
         /// <summary>

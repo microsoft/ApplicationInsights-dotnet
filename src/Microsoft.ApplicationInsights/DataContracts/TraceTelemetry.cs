@@ -133,6 +133,11 @@
         }
 
         /// <summary>
+        /// Gets item type for sampling evaluation
+        /// </summary>
+        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Message;
+
+        /// <summary>
         /// Deeply clones a <see cref="TraceTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>

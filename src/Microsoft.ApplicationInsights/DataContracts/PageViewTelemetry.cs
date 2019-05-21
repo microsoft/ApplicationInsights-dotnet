@@ -176,6 +176,11 @@
         }
 
         /// <summary>
+        /// Gets item type for sampling evaluation
+        /// </summary>
+        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.PageView;
+
+        /// <summary>
         /// Deeply clones a <see cref="PageViewTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>

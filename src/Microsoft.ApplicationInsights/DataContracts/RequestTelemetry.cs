@@ -236,6 +236,11 @@
         }
 
         /// <summary>
+        /// Gets item type for sampling evaluation
+        /// </summary>
+        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Request;
+
+        /// <summary>
         /// Gets or sets the source for the request telemetry object. This often is a hashed instrumentation key identifying the caller.
         /// </summary>
         public string Source
@@ -312,7 +317,11 @@
         {
             this.Name = this.Name.SanitizeName();
             this.Properties.SanitizeProperties();
-            this.Metrics.SanitizeMeasurements();
+            if (this.measurementsValue != null)
+            {
+                this.Metrics.SanitizeMeasurements();
+            }
+
             this.Url = this.Url.SanitizeUri();
 
             // Set for backward compatibility:
@@ -329,6 +338,46 @@
             {
                 this.ResponseCode = this.Success.Value ? "200" : string.Empty;
             }           
+        }
+
+        /// <summary>
+        /// Cleans field values of the telemetry item
+        /// </summary>
+        public void ClearState()
+        {
+            this.Context.ClearState();
+#pragma warning disable CS0618 // Type or member is obsolete
+            
+            this.GenerateId();
+
+            // New Source is generated regardless
+            // this.Source = string.Empty;
+
+            this.Name = string.Empty;
+
+            // New ResponseCode is generated regardless
+            // this.ResponseCode = string.Empty;
+
+            this.Duration = TimeSpan.Zero;
+            this.Extension = null;
+
+            // this.HttpMethod = null;
+
+            // New Timestamp is generated regardless
+            // this.Timestamp = new DateTimeOffset();
+
+            // New Url is generated regardless
+            // this.Url = null;
+
+            if (this.measurementsValue != null)
+            {
+                this.Metrics.Clear();
+            }
+            
+            this.MetricExtractorInfo = null;
+            this.Sequence = null;
+            this.Success = null;
+#pragma warning restore CS0618 // Type or member is obsolete
         }
     }
 }

@@ -3,13 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
-    
+
     /// <summary>
     /// Represents a telemetry processor for sampling telemetry at a fixed-rate before sending to Application Insights.
     /// </summary>
@@ -25,9 +25,11 @@
         private readonly char[] listSeparators = { ';' };
         private readonly IDictionary<string, Type> allowedTypes;
 
+        private SamplingTelemetryItemTypes excludedTypesFlags;
         private HashSet<Type> excludedTypesHashSet;
         private string excludedTypesString;
 
+        private SamplingTelemetryItemTypes includedTypesFlags;
         private HashSet<Type> includedTypesHashSet;
         private string includedTypesString;
 
@@ -80,7 +82,8 @@
             {
                 this.excludedTypesString = value;
 
-                HashSet<Type> newExcludedTypesHashSet = new HashSet<Type>();
+                SamplingTelemetryItemTypes newExcludedFlags = SamplingTelemetryItemTypes.None;
+
                 if (!string.IsNullOrEmpty(value))
                 {
                     string[] splitList = value.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
@@ -88,12 +91,47 @@
                     {
                         if (this.allowedTypes.ContainsKey(item))
                         {
-                            newExcludedTypesHashSet.Add(this.allowedTypes[item]);
+                            switch (item)
+                            {
+                                case RequestTelemetryName:
+                                    newExcludedFlags |= SamplingTelemetryItemTypes.Request;
+                                    break;
+                                case DependencyTelemetryName:
+                                    newExcludedFlags |= SamplingTelemetryItemTypes.RemoteDependency;
+                                    break;
+                                case ExceptionTelemetryName:
+                                    newExcludedFlags |= SamplingTelemetryItemTypes.Exception;
+                                    break;
+                                case PageViewTelemetryName:
+                                    newExcludedFlags |= SamplingTelemetryItemTypes.PageView;
+                                    break;
+                                case TraceTelemetryName:
+                                    newExcludedFlags |= SamplingTelemetryItemTypes.Message;
+                                    break;
+                                case EventTelemetryName:
+                                    newExcludedFlags |= SamplingTelemetryItemTypes.Event;
+                                    break;
+                            }
                         }
                     }
                 }
 
-                Interlocked.Exchange(ref this.excludedTypesHashSet, newExcludedTypesHashSet);
+                this.excludedTypesFlags = newExcludedFlags;
+
+                // HashSet<Type> newExcludedTypesHashSet = new HashSet<Type>();
+                // if (!string.IsNullOrEmpty(value))
+                // {
+                //    string[] splitList = value.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
+                //    foreach (string item in splitList)
+                //    {
+                //        if (this.allowedTypes.ContainsKey(item))
+                //        {
+                //            newExcludedTypesHashSet.Add(this.allowedTypes[item]);
+                //        }
+                //    }
+                // }
+
+                // Interlocked.Exchange(ref this.excludedTypesHashSet, newExcludedTypesHashSet);
             }
         }
 
@@ -113,7 +151,8 @@
             {
                 this.includedTypesString = value;
 
-                HashSet<Type> newIncludedTypesHashSet = new HashSet<Type>();
+                SamplingTelemetryItemTypes newIncludedFlags = SamplingTelemetryItemTypes.None;
+
                 if (!string.IsNullOrEmpty(value))
                 {
                     string[] splitList = value.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
@@ -121,12 +160,47 @@
                     {
                         if (this.allowedTypes.ContainsKey(item))
                         {
-                            newIncludedTypesHashSet.Add(this.allowedTypes[item]);
+                            switch (item)
+                            {
+                                case RequestTelemetryName:
+                                    newIncludedFlags |= SamplingTelemetryItemTypes.Request;
+                                    break;
+                                case DependencyTelemetryName:
+                                    newIncludedFlags |= SamplingTelemetryItemTypes.RemoteDependency;
+                                    break;
+                                case ExceptionTelemetryName:
+                                    newIncludedFlags |= SamplingTelemetryItemTypes.Exception;
+                                    break;
+                                case PageViewTelemetryName:
+                                    newIncludedFlags |= SamplingTelemetryItemTypes.PageView;
+                                    break;
+                                case TraceTelemetryName:
+                                    newIncludedFlags |= SamplingTelemetryItemTypes.Message;
+                                    break;
+                                case EventTelemetryName:
+                                    newIncludedFlags |= SamplingTelemetryItemTypes.Event;
+                                    break;
+                            }
                         }
                     }
                 }
 
-                Interlocked.Exchange(ref this.includedTypesHashSet, newIncludedTypesHashSet);
+                this.includedTypesFlags = newIncludedFlags;
+
+                // HashSet<Type> newIncludedTypesHashSet = new HashSet<Type>();
+                // if (!string.IsNullOrEmpty(value))
+                // {
+                //    string[] splitList = value.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
+                //    foreach (string item in splitList)
+                //    {
+                //        if (this.allowedTypes.ContainsKey(item))
+                //        {
+                //            newIncludedTypesHashSet.Add(this.allowedTypes[item]);
+                //        }
+                //    }
+                // }
+
+                // Interlocked.Exchange(ref this.includedTypesHashSet, newIncludedTypesHashSet);
             }
         }
 
@@ -178,7 +252,7 @@
             }
 
             //// If telemetry was excluded by type, do nothing:
-            if (!this.IsSamplingApplicable(item.GetType()))
+            if (!this.IsSamplingApplicable(samplingSupportingTelemetry.ItemTypeFlag))
             {
                 if (TelemetryChannelEventSource.IsVerboseEnabled)
                 {
@@ -217,17 +291,14 @@
             }
         }
 
-        private bool IsSamplingApplicable(Type telemetryItemType)
+        private bool IsSamplingApplicable(SamplingTelemetryItemTypes telemetryItemTypeFlag)
         {
-            var excludedTypesHashSetRef = this.excludedTypesHashSet;
-            var includedTypesHashSetRef = this.includedTypesHashSet;
-
-            if (excludedTypesHashSetRef.Count > 0 && excludedTypesHashSetRef.Contains(telemetryItemType))
+            if (this.excludedTypesFlags.HasFlag(telemetryItemTypeFlag))
             {
                 return false;
             }
 
-            if (includedTypesHashSetRef.Count > 0 && !includedTypesHashSetRef.Contains(telemetryItemType))
+            if (!this.includedTypesFlags.HasFlag(telemetryItemTypeFlag))
             {
                 return false;
             }

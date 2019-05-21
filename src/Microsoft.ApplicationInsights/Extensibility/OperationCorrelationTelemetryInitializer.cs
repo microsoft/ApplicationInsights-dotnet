@@ -49,12 +49,12 @@
                         }
                     }
 
-                    string operationName = currentActivity.GetOperationName();
+                    // string operationName = currentActivity.GetOperationName();
 
-                    if (string.IsNullOrEmpty(itemContext.Name) && !string.IsNullOrEmpty(operationName))
-                    {
-                        itemContext.Name = operationName;
-                    }
+                    // if (string.IsNullOrEmpty(itemContext.Name) && !string.IsNullOrEmpty(operationName))
+                    // {
+                    //     itemContext.Name = operationName;
+                    // }
                 }
             });
 

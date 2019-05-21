@@ -3,10 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Globalization;
-    using System.Linq;
-    using System.Reflection;
-    using System.Threading;
+    using System.Globalization;    
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -512,45 +509,64 @@
                 Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
             }
 
+            bool sampledIn = false;
+
             telemetry.Context.Initialize(this.Context, instrumentationKey);
-            foreach (ITelemetryInitializer initializer in this.configuration.TelemetryInitializers)
+            for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
             {
+            // foreach (ITelemetryInitializer initializer in this.configuration.TelemetryInitializers)
+            // {
+                if (!sampledIn && !string.IsNullOrEmpty(telemetry.Context.Operation.Id) && telemetry is RequestTelemetry)
+                {
+                    if (this.configuration.LastObservedRequestSamplingPercentage.HasValue && GetSamplingScore(telemetry) > this.configuration.LastObservedRequestSamplingPercentage)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        sampledIn = true;
+                    }
+                }
+
                 try
                 {
-                    initializer.Initialize(telemetry);
+                    this.configuration.TelemetryInitializers[index].Initialize(telemetry);
                 }
                 catch (Exception exception)
                 {
                     CoreEventSource.Log.LogError(string.Format(
                                                     CultureInfo.InvariantCulture,
                                                     "Exception while initializing {0}, exception message - {1}",
-                                                    initializer.GetType().FullName,
+                                                    this.configuration.TelemetryInitializers[index].GetType().FullName,
                                                     exception));
                 }
             }
 
-            if (telemetry.Timestamp == default(DateTimeOffset))
+            if (sampledIn)
             {
-                telemetry.Timestamp = PreciseTimestamp.GetUtcNow();
-            }
+                if (telemetry.Timestamp == default(DateTimeOffset))
+                {
+                    telemetry.Timestamp = PreciseTimestamp.GetUtcNow();
+                }
 
-            // Currently backend requires SDK version to comply "name: version"
-            if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
-            {
-                var version = this.sdkVersion ?? (this.sdkVersion = SdkVersionUtils.GetSdkVersion(VersionPrefix));
-                telemetry.Context.Internal.SdkVersion = version;
-            }
+                // Currently backend requires SDK version to comply "name: version"
+                if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
+                {
+                    var version = this.sdkVersion ?? (this.sdkVersion = SdkVersionUtils.GetSdkVersion(VersionPrefix));
+                    telemetry.Context.Internal.SdkVersion = version;
+                }
 
-            // set NodeName to the machine name if it's not initialized yet, if RoleInstance is also not set then we send only RoleInstance
-            if (string.IsNullOrEmpty(telemetry.Context.Internal.NodeName) && !string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
-            {
-                telemetry.Context.Internal.NodeName = PlatformSingleton.Current.GetMachineName();
-            }
+                // set NodeName to the machine name if it's not initialized yet, if RoleInstance is also not set then we send only RoleInstance
+                if (string.IsNullOrEmpty(telemetry.Context.Internal.NodeName) && !string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
+                {
+                    telemetry.Context.Internal.NodeName = PlatformSingleton.Current.GetMachineName();
+                }
 
-            // set RoleInstance to the machine name if it's not initialized yet
-            if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
-            {
-                telemetry.Context.Cloud.RoleInstance = PlatformSingleton.Current.GetMachineName();
+                // set RoleInstance to the machine name if it's not initialized yet
+                if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
+                {
+                    telemetry.Context.Cloud.RoleInstance = PlatformSingleton.Current.GetMachineName();
+                }
             }
         }
 
@@ -1212,6 +1228,34 @@
                         aggregationScope,
                         metricIdentifier,
                         metricConfiguration);
+        }
+
+        internal static double GetSamplingScore(ITelemetry telemetry)
+        {
+            double samplingScore = (double)GetSamplingHashCode(telemetry.Context.Operation.Id) / int.MaxValue;
+            return samplingScore * 100;
+        }
+
+        internal static int GetSamplingHashCode(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return 0;
+            }
+
+            while (input.Length < 8)
+            {
+                input = input + input;
+            }
+
+            int hash = 5381;
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                hash = ((hash << 5) + hash) + (int)input[i];
+            }
+
+            return hash == int.MinValue ? int.MaxValue : Math.Abs(hash);
         }
 
         private Metric GetOrCreateMetric(

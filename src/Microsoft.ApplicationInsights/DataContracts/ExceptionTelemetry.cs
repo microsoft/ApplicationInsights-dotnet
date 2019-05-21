@@ -273,6 +273,11 @@
             set { this.samplingPercentage = value; }
         }
 
+        /// <summary>
+        /// Gets item type for sampling evaluation
+        /// </summary>
+        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Exception;
+
         internal IList<ExceptionDetails> Exceptions
         {
             get { return this.Data.Data.exceptions; }

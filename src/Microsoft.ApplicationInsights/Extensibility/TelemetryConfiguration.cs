@@ -107,6 +107,15 @@
         }
 
         /// <summary>
+        /// Gets or sets last known request sampling percentage to skip initializers for sampled requests
+        /// </summary>
+        public double? LastObservedRequestSamplingPercentage
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gets or sets the default instrumentation key for the application.
         /// </summary>
         /// <exception cref="ArgumentNullException">The new value is null.</exception>

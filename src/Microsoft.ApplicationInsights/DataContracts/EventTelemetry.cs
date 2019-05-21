@@ -121,6 +121,11 @@
         }
 
         /// <summary>
+        /// Gets item type for sampling evaluation
+        /// </summary>
+        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Event;
+
+        /// <summary>
         /// Deeply clones a <see cref="EventTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>

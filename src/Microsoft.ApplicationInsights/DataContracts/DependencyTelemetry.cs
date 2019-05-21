@@ -321,6 +321,11 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
+        /// Gets item type for sampling evaluation
+        /// </summary>
+        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.RemoteDependency;
+
+        /// <summary>
         /// Gets or sets the MetricExtractorInfo.
         /// </summary>
         internal string MetricExtractorInfo
