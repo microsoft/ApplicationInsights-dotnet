@@ -54,6 +54,6 @@ public class MyClass
 
 ```
 var telemetryConfiguration = new TelemetryConfiguration();
-telemetryConfiguration.Add("exampleFeature");
-telemetryConfiguration.Add("anotherFeature");
+telemetryConfiguration.ExperimentalFeatures.Add("exampleFeature");
+telemetryConfiguration.ExperimentalFeatures.Add("anotherFeature");
 ```

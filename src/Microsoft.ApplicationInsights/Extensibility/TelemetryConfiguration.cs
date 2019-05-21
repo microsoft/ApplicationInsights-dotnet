@@ -235,7 +235,7 @@
         public IApplicationIdProvider ApplicationIdProvider { get; set; }
 
         /// <summary>
-        /// Gets a collection of string indicating if an experimental feature should be enabled.
+        /// Gets a collection of strings indicating if an experimental feature should be enabled.
         /// The presence of a string in this collection will be evaluated as 'true'.
         /// </summary>
         /// <remarks>
@@ -244,7 +244,7 @@
         /// Use this at your own risk.
         /// </remarks>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public IList<string> ExperimentalFeatures { get; internal set; } = new List<string>(0);
+        public IList<string> ExperimentalFeatures { get; } = new List<string>(0);
 
         /// <summary>
         /// Gets a list of telemetry sinks associated with the configuration.

@@ -17,30 +17,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimenta
         [TestMethod]
         public void VerifyExperimentalFeaturesExtension()
         {
-            var telemetryConfiguration = new TelemetryConfiguration
-            {
-                ExperimentalFeatures = { "abc" }
-            };
-
-            bool value = telemetryConfiguration.EvaluateExperimentalFeature("abc");
-            Assert.IsTrue(value);
-
-            bool fakeValue = telemetryConfiguration.EvaluateExperimentalFeature("fake");
-            Assert.IsFalse(fakeValue);
-        }
-
-        [TestMethod]
-        public void VerifyCanAddExperimentalFeatures()
-        {
-            var telemetryConfiguration = new TelemetryConfiguration
-            {
-                ExperimentalFeatures = { "abc" }
-            };
-
+            var telemetryConfiguration = new TelemetryConfiguration();
             telemetryConfiguration.ExperimentalFeatures.Add("123");
 
             bool value = telemetryConfiguration.EvaluateExperimentalFeature("123");
             Assert.IsTrue(value);
+
+            bool fakeValue = telemetryConfiguration.EvaluateExperimentalFeature("fake");
+            Assert.IsFalse(fakeValue);
         }
     }
 }
