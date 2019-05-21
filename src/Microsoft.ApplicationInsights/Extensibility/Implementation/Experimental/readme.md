@@ -5,35 +5,7 @@
 For simplicity, there is no data structure to parse or evaluate.
 The presence of a string in this collection indicates that a feature is enabled.
 
-
-
-## How to configure
-
-### Via applicationinsights.config
-
-```
-<?xml version="1.0" encoding="utf-8"?>
-<ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings">
-   <InstrumentationKey>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx</InstrumentationKey>
-   <TelemetryInitializers>...</TelemetryInitializers>
-   <TelemetryModules>...</TelemetryModules>
-   <ExperimentalFeatures>
-      <Add>exampleFeature</Add>
-      <Add>anotherFeature</Add>
-   </ExperimentalFeatures>
-</ApplicationInsights>
-```
-
-
-### Via code
-
-```
-var config = new TelemetryConfiguration{
-	ExperimentalFeatures = new string[] {"exampleFeature", "anotherFeature"}
-	};
-```
-
-## How to define a new feature flag (compile time)
+## Developers: How to define a new feature flag (compile time)
 
 Feature flags are compile time constants in the `ExperimentalFeatures` class.
 
@@ -60,7 +32,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimenta
 
 
 
-## How to evaluate a feature flag (runtime)
+## Developers: How to evaluate a feature flag (runtime)
 
 To consume, reference the `ExperimentalFeatures` static class from your class:
 
@@ -77,3 +49,29 @@ public class MyClass
 }
 ```
 
+
+## Users: How to configure
+
+### Via applicationinsights.config
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings">
+   <InstrumentationKey>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx</InstrumentationKey>
+   <TelemetryInitializers>...</TelemetryInitializers>
+   <TelemetryModules>...</TelemetryModules>
+   <ExperimentalFeatures>
+      <Add>exampleFeature</Add>
+      <Add>anotherFeature</Add>
+   </ExperimentalFeatures>
+</ApplicationInsights>
+```
+
+
+### Via code
+
+```
+var config = new TelemetryConfiguration{
+	ExperimentalFeatures = new string[] {"exampleFeature", "anotherFeature"}
+	};
+```
