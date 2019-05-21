@@ -5,7 +5,6 @@
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
@@ -236,7 +235,7 @@
         public IApplicationIdProvider ApplicationIdProvider { get; set; }
 
         /// <summary>
-        /// Gets or sets a collection of string indicating if an experimental feature should be enabled.
+        /// Gets a collection of string indicating if an experimental feature should be enabled.
         /// The presence of a string in this collection will be evaluated as 'true'.
         /// </summary>
         /// <remarks>
@@ -245,8 +244,7 @@
         /// Use this at your own risk.
         /// </remarks>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [SuppressMessage(category: "Microsoft.Usage", checkId: "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "DTO classes such as config files are permitted to have settable collections.")]
-        public IList<string> ExperimentalFeatures { get; set; }
+        public IList<string> ExperimentalFeatures { get; internal set; } = new List<string>(0);
 
         /// <summary>
         /// Gets a list of telemetry sinks associated with the configuration.

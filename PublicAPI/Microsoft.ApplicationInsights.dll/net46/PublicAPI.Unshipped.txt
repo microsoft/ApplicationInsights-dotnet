@@ -1,4 +1,3 @@
 Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental.ExperimentalFeaturesExtension
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ExperimentalFeatures.get -> System.Collections.Generic.IList<string>
-Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ExperimentalFeatures.set -> void
-static Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental.ExperimentalFeaturesExtension.EvaluateExperimentalFeature(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration telemetryConfiguration, string featureName, ref bool? featureCachedValue) -> bool
+static Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental.ExperimentalFeaturesExtension.EvaluateExperimentalFeature(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration telemetryConfiguration, string featureName) -> bool

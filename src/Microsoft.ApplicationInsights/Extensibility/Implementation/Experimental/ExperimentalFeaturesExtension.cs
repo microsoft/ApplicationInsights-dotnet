@@ -22,18 +22,12 @@
         /// </summary>
         /// <param name="telemetryConfiguration">Configuration to be evaluated.</param>
         /// <param name="featureName">Name of the feature to evaluate.</param>
-        /// <param name="featureCachedValue">Nullable boolean to cache the evaluation result.</param>
         /// <returns>Returns a boolean value indicating if the feature name exists in the provided configuration.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static bool EvaluateExperimentalFeature(this TelemetryConfiguration telemetryConfiguration, string featureName, ref bool? featureCachedValue)
+        public static bool EvaluateExperimentalFeature(this TelemetryConfiguration telemetryConfiguration, string featureName)
         {
-            if (!featureCachedValue.HasValue)
-            {
-                featureCachedValue = telemetryConfiguration.ExperimentalFeatures != null
+            return telemetryConfiguration.ExperimentalFeatures != null
                 && telemetryConfiguration.ExperimentalFeatures.Any(x => x.Equals(featureName, StringComparison.OrdinalIgnoreCase));
-            }
-
-            return featureCachedValue.Value;
         }
     }
 }
