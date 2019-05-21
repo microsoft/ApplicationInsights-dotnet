@@ -6,7 +6,7 @@
 
     /// <summary>
     /// This class provides a means to interact with the <see cref="TelemetryConfiguration.ExperimentalFeatures" />.
-    /// This performs a simple boolean evaluation; does a feature name exist in the string array?
+    /// This performs a simple boolean evaluation; does a feature name exist in the string array?.
     /// </summary>
     /// <remarks>
     /// This allows the dev team to ship and evaluate features before adding these to the public API.
