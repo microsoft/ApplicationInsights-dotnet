@@ -12,11 +12,6 @@
     public static class OperationTelemetryExtensions
     {
         /// <summary>
-        /// Multiplier to convert Stopwatch ticks to TimeSpan ticks.
-        /// </summary>
-        private static readonly double StopwatchTicksToTimeSpanTicks = (double)TimeSpan.TicksPerSecond / Stopwatch.Frequency;
-
-        /// <summary>
         /// An extension to telemetry item that starts the timer for the respective telemetry.
         /// </summary>
         /// <param name="telemetry">Telemetry item object that calls this extension method.</param>
@@ -33,7 +28,7 @@
         /// <param name="timestamp">A high-resolution timestamp from <see cref="Stopwatch"/>.</param>
         public static void Start(this OperationTelemetry telemetry, long timestamp)
         {
-            telemetry.Timestamp = DateTimeOffset.UtcNow;
+            telemetry.Timestamp = PreciseTimestamp.GetUtcNow(); 
 
             // Begin time is used internally for calculating duration of operation at the end call,
             // and hence is stored using higher precision Clock.
@@ -93,7 +88,7 @@
         private static void StopImpl(OperationTelemetry telemetry, long timestamp)
         {
             long stopWatchTicksDiff = timestamp - telemetry.BeginTimeInTicks;
-            double durationInTicks = stopWatchTicksDiff * StopwatchTicksToTimeSpanTicks;
+            double durationInTicks = stopWatchTicksDiff * PreciseTimestamp.StopwatchTicksToTimeSpanTicks;
             StopImpl(telemetry, TimeSpan.FromTicks((long)Math.Round(durationInTicks)));
         }
 
@@ -108,7 +103,7 @@
 
             if (telemetry.Timestamp == DateTimeOffset.MinValue)
             {
-                telemetry.Timestamp = DateTimeOffset.UtcNow;
+                telemetry.Timestamp = PreciseTimestamp.GetUtcNow();
             }
 
             RichPayloadEventSource.Log.ProcessOperationStop(telemetry);

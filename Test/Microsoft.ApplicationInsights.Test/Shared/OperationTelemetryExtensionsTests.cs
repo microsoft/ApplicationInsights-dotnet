@@ -64,6 +64,37 @@
             Assert.AreEqual(telemetry.Duration, TimeSpan.Zero);
         }
 
+#if !NETCOREAPP1_1
+        /// <summary>
+        /// Tests the scenario if Start assigns current *precise* time to start time.
+        /// </summary>
+        [TestMethod]
+        public void StartTimeIsPrecise()
+        {
+            double [] timeStampDiff = new double[1000];
+            DateTimeOffset prevTimestamp = DateTimeOffset.MinValue;
+            for (int i = 0; i < timeStampDiff.Length; i ++)
+            {
+                var telemetry = new DependencyTelemetry();
+                telemetry.Start();
+
+                if (i > 0)
+                {
+                    timeStampDiff[i] = telemetry.Timestamp.Subtract(prevTimestamp).TotalMilliseconds;
+                    Debug.WriteLine(timeStampDiff[i]);
+
+                    // if timestamp is NOT precise, we'll get precisely 0 which should not ever happen
+                    Assert.IsTrue(timeStampDiff[i] != 0);
+                }
+
+                prevTimestamp = telemetry.Timestamp;
+
+                // waste a bit of time, assert result to prevent any optimizations
+                Assert.IsTrue(ComputeSomethingHeavy() > 0);
+            }
+        }
+#endif
+
         /// <summary>
         /// Tests the scenario if Stop computes the duration of the telemetry when timestamps are supplied to Start and Stop.
         /// </summary>
@@ -128,6 +159,18 @@
                 var difference = (telemetry.Duration - expectedDuration).Duration();
                 Assert.IsTrue(difference.Ticks < 10);
             }
+        }
+
+        private double ComputeSomethingHeavy()
+        {
+            var random = new Random();
+            double res = 0;
+            for (int i = 0; i < 10000; i++)
+            {
+                res += Math.Sqrt(random.NextDouble());
+            }
+
+            return res;
         }
     }
 }

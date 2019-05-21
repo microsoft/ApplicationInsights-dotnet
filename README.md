@@ -1,4 +1,5 @@
-![Build Status](https://mseng.visualstudio.com/DefaultCollection/_apis/public/build/definitions/96a62c4a-58c2-4dbb-94b6-5979ebc7f2af/1822/badge)
+[![Build Status](https://mseng.visualstudio.com/AppInsights/_apis/build/status/ChuckNorris/AI-BaseSDK-develop-linux?branchName=develop)](https://mseng.visualstudio.com/AppInsights/_build/latest?definitionId=6237?branchName=develop)
+[![Build Status](https://mseng.visualstudio.com/AppInsights/_apis/build/status/ChuckNorris/AI-BaseSDK-GitHub-Master?branchName=develop)](https://mseng.visualstudio.com/AppInsights/_build/latest?definitionId=1822?branchName=develop)
 [![codecov.io](https://codecov.io/github/Microsoft/ApplicationInsights-dotnet/coverage.svg?branch=develop)](https://codecov.io/github/Microsoft/ApplicationInsights-dotnet?branch=develop)
 
 ## NuGet packages
@@ -77,7 +78,7 @@ Application Insights SDK defines the following layers: data collection, public A
 
 **Data reduction pipeline** is a linked list of telemetry processors. Each telemetry processor may decide to pre-aggregate and filter telemetry item or pass it to the next processor. This way only interesting telemetry reaches to the end of the pipeline and being send to the telemetry sinks.
 
-Each **Telemetry sink** is responsible to upload telemetry to the specific back-end. Default telemetry sink sends data to the Application Insights. Sinks may also differ in guarantees they provide while uploading to the same back end. One may implement reliable delivery with re-tries and persistance when another may implement send and forget type of upload. Every telemetry sink may have it's own pipeline for additional data filtering and pre-aggregation. 
+Each **Telemetry sink** is responsible to upload telemetry to the specific back-end. Default telemetry sink sends data to the Application Insights. Sinks may also differ in guarantees they provide while uploading to the same back end. One may implement reliable delivery with re-tries and persistence when another may implement send and forget type of upload. Every telemetry sink may have it's own pipeline for additional data filtering and pre-aggregation. 
 
 Set of telemetry initializers called synchronously for every telemetry item. So extra properties can be added to the item. 
 By this time telemetry item is fully initialized. Build pipeline to aggregate or filter telemetry. 
