@@ -26,7 +26,7 @@
 
         public static bool IsVerboseEnabled 
         { 
-            [NonEvent] 
+             [NonEvent] 
              get 
              { 
                  return Log.IsEnabled(EventLevel.Verbose, (EventKeywords)(-1)); 

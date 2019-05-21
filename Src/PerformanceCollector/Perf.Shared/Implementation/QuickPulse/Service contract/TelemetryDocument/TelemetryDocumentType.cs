@@ -12,6 +12,6 @@
 
         Event,
 
-        Trace
+        Trace,
     }
 }

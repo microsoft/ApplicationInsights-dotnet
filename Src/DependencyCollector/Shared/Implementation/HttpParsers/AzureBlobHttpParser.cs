@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Generic;
 
-    using DataContracts;
-    using Implementation;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
 
     /// <summary>
     /// HTTP Dependency parser that attempts to parse dependency as Azure Blob call.
@@ -16,7 +16,7 @@
                 ".blob.core.windows.net",
                 ".blob.core.chinacloudapi.cn",
                 ".blob.core.cloudapi.de",
-                ".blob.core.usgovcloudapi.net"
+                ".blob.core.usgovcloudapi.net",
             };
 
         private static readonly string[] AzureBlobSupportedVerbs = { "GET", "PUT", "OPTIONS", "HEAD", "DELETE" };

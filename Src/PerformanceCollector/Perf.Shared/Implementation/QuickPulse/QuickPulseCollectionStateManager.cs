@@ -4,13 +4,11 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
-
-    using Helpers;
 
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
 
     internal class QuickPulseCollectionStateManager
     {

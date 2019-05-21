@@ -2,9 +2,10 @@
 {
     using System;
     using System.Web;
-    using Implementation;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
     /// A telemetry initializer that determines if the request came from a synthetic source based on the user agent string.

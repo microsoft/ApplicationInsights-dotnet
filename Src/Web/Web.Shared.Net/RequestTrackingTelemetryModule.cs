@@ -7,12 +7,11 @@
     using System.Globalization;
     using System.Web;
 
-    using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.W3C;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
@@ -30,7 +29,7 @@
         private ChildRequestTrackingSuppressionModule childRequestTrackingSuppressionModule = null;
 
         /// <summary>
-        /// Handler types that are not TransferHandlers will be included in request tracking
+        /// Handler types that are not TransferHandlers will be included in request tracking.
         /// </summary>
         private HashSet<Type> requestHandlerTypesDoNotFilter = new HashSet<Type>();
 
@@ -345,7 +344,7 @@
                 Name = string.Format(CultureInfo.InvariantCulture, "Execute request handler ({0})", context.CreateRequestNamePrivate()),
                 Id = activity.Id,
                 Timestamp = activity.StartTimeUtc,
-                Duration = activity.Duration
+                Duration = activity.Duration,
             };
 
             intermediateRequest.Context.Operation.Id = activity.RootId;

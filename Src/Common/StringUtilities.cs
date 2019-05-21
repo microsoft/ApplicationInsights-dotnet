@@ -43,9 +43,9 @@
 
         /// <summary>
         /// Generates random trace Id as per W3C Distributed tracing specification.
-        /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#trace-id
+        /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#trace-id .
         /// </summary>
-        /// <returns>Random 16 bytes array encoded as hex string</returns>
+        /// <returns>Random 16 bytes array encoded as hex string.</returns>
         [Obsolete("Use Microsoft.ApplicationInsights.Extensibility.W3C.W3CUtilities.GenerateTraceId in Microsoft.ApplicationInsights package instead.")]
         public static string GenerateTraceId()
         {
@@ -54,9 +54,9 @@
 
         /// <summary>
         /// Generates random span Id as per W3C Distributed tracing specification.
-        /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#span-id
+        /// https://github.com/w3c/distributed-tracing/blob/master/trace_context/HTTP_HEADER_FORMAT.md#span-id .
         /// </summary>
-        /// <returns>Random 8 bytes array encoded as hex string</returns>
+        /// <returns>Random 8 bytes array encoded as hex string.</returns>
         [Obsolete("Use Microsoft.ApplicationInsights.Extensibility.W3C.W3CUtilities.GenerateTraceId in Microsoft.ApplicationInsights package instead.")]
         public static string GenerateSpanId()
         {

@@ -2,7 +2,7 @@
 {
     using System;
     using System.Diagnostics;
-    using Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
     /// Telemetry module that sets developer mode to true when is not already set AND managed debugger is attached.

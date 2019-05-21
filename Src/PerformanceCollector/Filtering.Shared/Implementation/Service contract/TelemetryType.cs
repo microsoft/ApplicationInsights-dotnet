@@ -12,6 +12,6 @@
 
         PerformanceCounter = 5,
 
-        Trace = 6
+        Trace = 6,
     }
 }

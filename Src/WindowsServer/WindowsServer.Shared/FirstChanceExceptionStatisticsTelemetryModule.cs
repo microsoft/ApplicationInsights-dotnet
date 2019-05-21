@@ -1,19 +1,19 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.Reflection;
     using System.Runtime.ExceptionServices;
     using System.Threading;
-    using Extensibility.Implementation.Tracing;
-    using Implementation;
+
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.WindowsServer.Implementation;
 
     /// <summary>
     /// The module subscribed to AppDomain.CurrentDomain.FirstChanceException to send exceptions statistics to ApplicationInsights.
@@ -499,7 +499,7 @@
                 {
                     if (disposing)
                     {
-                        ////this.RwLock.Dispose();
+                        this.RwLock.Dispose();
                     }
 
                     this.disposedValue = true;

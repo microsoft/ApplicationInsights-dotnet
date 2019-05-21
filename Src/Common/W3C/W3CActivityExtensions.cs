@@ -79,7 +79,7 @@ namespace Microsoft.ApplicationInsights.W3C
 
         /// <summary>
         /// Gets TraceId from the Activity.
-        /// Use carefully: if may cause iteration over all tags!
+        /// Use carefully: if may cause iteration over all tags!.
         /// </summary>
         /// <param name="activity">Activity to get traceId from.</param>
         /// <returns>TraceId value or null if it does not exist.</returns>
@@ -89,7 +89,7 @@ namespace Microsoft.ApplicationInsights.W3C
 
         /// <summary>
         /// Gets SpanId from the Activity.
-        /// Use carefully: if may cause iteration over all tags!
+        /// Use carefully: if may cause iteration over all tags!.
         /// </summary>
         /// <param name="activity">Activity to get spanId from.</param>
         /// <returns>SpanId value or null if it does not exist.</returns>
@@ -99,7 +99,7 @@ namespace Microsoft.ApplicationInsights.W3C
 
         /// <summary>
         /// Gets ParentSpanId from the Activity.
-        /// Use carefully: if may cause iteration over all tags!
+        /// Use carefully: if may cause iteration over all tags!.
         /// </summary>
         /// <param name="activity">Activity to get ParentSpanId from.</param>
         /// <returns>ParentSpanId value or null if it does not exist.</returns>

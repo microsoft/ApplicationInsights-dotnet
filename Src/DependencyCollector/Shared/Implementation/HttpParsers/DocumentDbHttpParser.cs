@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    using DataContracts;
+    using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
     /// HTTP Dependency parser that attempts to parse dependency as Azure DocumentDB call.
@@ -16,7 +16,7 @@
                 ".documents.azure.com",
                 ".documents.chinacloudapi.cn",
                 ".documents.cloudapi.de",
-                ".documents.usgovcloudapi.net"
+                ".documents.usgovcloudapi.net",
             };
 
         private static readonly string[] DocumentDbSupportedVerbs = { "GET", "POST", "PUT", "HEAD", "DELETE" };
@@ -87,7 +87,7 @@
                 ["POST /offers"] = "Query offers",
                 ["GET /offers"] = "List offers",
                 ["GET /offers/*"] = "Get offer",
-                ["PUT /offers/*"] = "Replace offer"
+                ["PUT /offers/*"] = "Replace offer",
             };
 
         /// <summary>

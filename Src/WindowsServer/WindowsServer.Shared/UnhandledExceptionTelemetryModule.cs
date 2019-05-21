@@ -74,7 +74,7 @@
 
             var newConfiguration = new TelemetryConfiguration
             {
-                TelemetryChannel = this.channel
+                TelemetryChannel = this.channel,
             };
 
             CopyConfiguration(sourceConfiguration, newConfiguration);

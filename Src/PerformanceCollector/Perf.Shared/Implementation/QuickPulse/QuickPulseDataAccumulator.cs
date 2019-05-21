@@ -35,12 +35,12 @@
         public bool GlobalDocumentQuotaReached;
 
         /// <summary>
-        /// 2^19 - 1
+        /// 2^19 - 1.
         /// </summary>
         private const long MaxCount = 524287;
 
         /// <summary>
-        /// 2^44 - 1
+        /// 2^44 - 1.
         /// </summary>
         private const long MaxDuration = 17592186044415;
 

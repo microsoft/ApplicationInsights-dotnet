@@ -2,8 +2,8 @@
 {
     using System.Collections.Generic;
 
-    using DataContracts;
-    using Implementation;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
 
     /// <summary>
     /// HTTP Dependency parser that attempts to parse dependency as Azure Queue call.
@@ -15,7 +15,7 @@
                 ".queue.core.windows.net",
                 ".queue.core.chinacloudapi.cn",
                 ".queue.core.cloudapi.de",
-                ".queue.core.usgovcloudapi.net"
+                ".queue.core.usgovcloudapi.net",
             };
 
         private static readonly string[] AzureQueueSupportedVerbs = { "GET", "PUT", "OPTIONS", "HEAD", "DELETE", "POST" };

@@ -3,8 +3,6 @@
     using System;
     using System.Diagnostics.Tracing;
     using System.Globalization;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Operation;
 
     /// <summary>
     /// Provides methods for listening to events from FrameworkEventSource for HTTP.

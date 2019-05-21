@@ -1,8 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
 {
     using System;
-    using System.Globalization;
-    using DataContracts;    
 
     /// <summary>
     /// Gauge that computes the CPU percentage utilized by a process by utilizing the last computed time.

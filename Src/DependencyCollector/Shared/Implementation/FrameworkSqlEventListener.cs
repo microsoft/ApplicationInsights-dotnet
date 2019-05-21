@@ -3,8 +3,9 @@
     using System;
     using System.Diagnostics.Tracing;
     using System.Globalization;
+
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Operation;
 
     /// <summary>
     /// Provides methods for listening to events from FrameworkEventSource for SQL.
@@ -40,7 +41,7 @@
         {
             Success = 1,
             IsSqlException = 2,
-            Synchronous = 4
+            Synchronous = 4,
         }
 
         /// <summary>

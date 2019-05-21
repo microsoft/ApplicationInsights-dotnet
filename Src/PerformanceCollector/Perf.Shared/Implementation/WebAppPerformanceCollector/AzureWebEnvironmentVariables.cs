@@ -26,6 +26,6 @@
         /// <summary>
         /// All of the above.
         /// </summary>
-        All = 3
+        All = 3,
     }
 }
