@@ -33,10 +33,13 @@ var config = new TelemetryConfiguration{
 	};
 ```
 
-## How to evaluate at runtime
+## How to define a new feature flag (compile time)
 
-Add your feature to the `ExperimentalFeatures` class.
-You need to add both a cache variable and a method to invoke.
+Feature flags are compile time constants in the `ExperimentalFeatures` class.
+
+You must add 
+- a cache variable to store the evaluation result
+- and an `internal` method to invoke from your class.
 
 ```
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental
@@ -55,7 +58,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Experimenta
 }
 ```
 
-To consume:
+
+
+## How to evaluate a feature flag (runtime)
+
+To consume, reference the `ExperimentalFeatures` static class from your class:
 
 ```
 public class MyClass
