@@ -5,6 +5,7 @@
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
@@ -244,6 +245,7 @@
         /// Use this at your own risk.
         /// </remarks>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        [SuppressMessage(category: "Microsoft.Usage", checkId: "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "DTO classes such as config files are permitted to have settable collections.")]
         public IList<string> ExperimentalFeatures { get; set; }
 
         /// <summary>
