@@ -6,7 +6,7 @@
 
     /// <summary>
     /// This class provides a means to interact with the <see cref="TelemetryConfiguration.ExperimentalFeatures" />.
-    /// This performs a simple boolean evaluation; does a feature name exist in the string array?.
+    /// This performs a simple boolean evaluation; does a feature name exist in the string list.
     /// </summary>
     /// <remarks>
     /// This allows the dev team to ship and evaluate features before adding these to the public API.
@@ -18,7 +18,6 @@
     {
         /// <summary>
         /// Evaluate the TelemetryConfiguration to determine if a feature is enabled.
-        /// The cache variable is provided. This method will evaluate the cache and set the cache accordingly.
         /// </summary>
         /// <param name="telemetryConfiguration">Configuration to be evaluated.</param>
         /// <param name="featureName">Name of the feature to evaluate.</param>
