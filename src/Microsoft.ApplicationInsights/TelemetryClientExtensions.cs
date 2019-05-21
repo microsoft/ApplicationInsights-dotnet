@@ -3,9 +3,10 @@
     using System;
     using System.ComponentModel;
     using System.Diagnostics;
-    using Extensibility;
-    using Extensibility.Implementation.Tracing;
+
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Extension class to telemetry client that creates operation object with the respective fields initialized.
@@ -155,7 +156,7 @@
                 {
                     ParentOperationId = operationTelemetry.Id,
                     RootOperationId = operationTelemetry.Context.Operation.Id,
-                    RootOperationName = operationTelemetry.Context.Operation.Name
+                    RootOperationName = operationTelemetry.Context.Operation.Name,
                 };
                 CallContextHelpers.SaveOperationContext(operationContext);
             }

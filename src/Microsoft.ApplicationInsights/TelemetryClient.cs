@@ -294,7 +294,7 @@
 
         /// <summary>
         /// Send an <see cref="ExceptionTelemetry"/> for display in Diagnostic Search.
-        /// Create a separate <see cref="ExceptionTelemetry"/> instance for each call to <see cref="TrackException(ExceptionTelemetry)"/>
+        /// Create a separate <see cref="ExceptionTelemetry"/> instance for each call to <see cref="TrackException(ExceptionTelemetry)"/>.
         /// </summary>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackexception">Learn more</a>
@@ -367,7 +367,7 @@
 
         /// <summary>
         /// Send information about external dependency call in the application.
-        /// Create a separate <see cref="DependencyTelemetry"/> instance for each call to <see cref="TrackDependency(DependencyTelemetry)"/>
+        /// Create a separate <see cref="DependencyTelemetry"/> instance for each call to <see cref="TrackDependency(DependencyTelemetry)"/>.
         /// </summary>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
@@ -415,7 +415,7 @@
 
         /// <summary>
         /// Send information about availability of an application.
-        /// Create a separate <see cref="AvailabilityTelemetry"/> instance for each call to <see cref="TrackAvailability(AvailabilityTelemetry)"/>
+        /// Create a separate <see cref="AvailabilityTelemetry"/> instance for each call to <see cref="TrackAvailability(AvailabilityTelemetry)"/>.
         /// </summary>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
@@ -624,8 +624,7 @@
         /// </remarks>
         public void Flush()
         {
-            MetricManager privateMetricManager;
-            if (this.TryGetMetricManager(out privateMetricManager))
+            if (this.TryGetMetricManager(out MetricManager privateMetricManager))
             {
                 privateMetricManager.Flush(flushDownstreamPipeline: false);
             }

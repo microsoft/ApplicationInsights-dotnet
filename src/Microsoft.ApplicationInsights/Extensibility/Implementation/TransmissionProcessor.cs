@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
+
     using Microsoft.ApplicationInsights.Channel;
-    using Platform;
 
     /// <summary>
     /// An <see cref="ITelemetryProcessor"/> that act as a proxy to the Transmission of telemetry"/>.
@@ -19,12 +19,7 @@
         /// <param name="sink">The <see cref="TelemetrySink"/> holding to the telemetry channel to use for sending telemetry.</param>
         internal TransmissionProcessor(TelemetrySink sink)
         {
-            if (sink == null)
-            {
-                throw new ArgumentNullException(nameof(sink));
-            }
-
-            this.sink = sink;
+            this.sink = sink ?? throw new ArgumentNullException(nameof(sink));
         }
 
         /// <summary>

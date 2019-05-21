@@ -18,7 +18,7 @@
         /// <summary>
         /// Indicates that a user session ended.
         /// </summary>
-        End
+        End,
     }
 #pragma warning restore CA1724
 }

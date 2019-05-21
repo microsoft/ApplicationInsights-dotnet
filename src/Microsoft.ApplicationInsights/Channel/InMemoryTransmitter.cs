@@ -6,12 +6,13 @@ namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
-    using Extensibility;
-    using Extensibility.Implementation;
-    using Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// A transmitter that will immediately send telemetry over HTTP. 
@@ -32,7 +33,6 @@ namespace Microsoft.ApplicationInsights.Channel
         /// The number of times this object was disposed.
         /// </summary>
         private int disposeCount = 0;
-
         private TimeSpan sendingInterval = TimeSpan.FromSeconds(30);
         private Uri endpointAddress = new Uri(Constants.TelemetryServiceEndpoint);
                 

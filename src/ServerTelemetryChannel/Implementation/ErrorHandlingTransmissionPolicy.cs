@@ -3,8 +3,8 @@
     using System;
     using System.Globalization;
     using System.Threading.Tasks;
-    using ApplicationInsights.Channel.Implementation;
-    using Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Channel.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     internal class ErrorHandlingTransmissionPolicy : TransmissionPolicy, IDisposable
     {

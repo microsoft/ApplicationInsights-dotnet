@@ -37,7 +37,7 @@
         {
             var convertedStackFrame = new External.StackFrame()
             {
-                level = frameId
+                level = frameId,
             };
 
             var methodInfo = stackFrame.GetMethod();

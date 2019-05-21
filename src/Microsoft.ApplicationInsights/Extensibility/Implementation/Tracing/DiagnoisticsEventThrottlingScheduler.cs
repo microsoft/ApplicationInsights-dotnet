@@ -6,7 +6,8 @@
     using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
-    using Implementation;
+
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     internal class DiagnoisticsEventThrottlingScheduler 
         : IDiagnoisticsEventThrottlingScheduler, IDisposable
@@ -94,7 +95,7 @@
         {
             var timer = new TaskTimerInternal
             {
-                Delay = TimeSpan.FromMilliseconds(intervalInMilliseconds)
+                Delay = TimeSpan.FromMilliseconds(intervalInMilliseconds),
             };
 
             Func<Task> task = null;
