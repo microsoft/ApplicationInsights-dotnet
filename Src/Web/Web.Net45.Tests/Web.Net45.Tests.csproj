@@ -125,6 +125,7 @@
     <Compile Include="AspNetDiagnosticTelemetryModuleTest.cs" />
     <Compile Include="MvcExceptionHandlerTests.cs" />
     <Compile Include="RequestTrackingTelemetryModuleTest.Net45.cs" />
+    <Compile Include="RequestTrackingUtilitiesTest.cs" />
     <Compile Include="SdkVersionUtilsTest.cs" />
     <Compile Include="WebApiExceptionLoggerTests.cs" />
   </ItemGroup>

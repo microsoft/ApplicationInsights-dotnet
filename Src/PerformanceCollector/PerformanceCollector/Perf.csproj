@@ -44,6 +44,7 @@
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.0" />
     <!--Framework References-->
     <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Web" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6' OR '$(TargetFramework)' == 'netstandard2.0'">
@@ -65,7 +66,7 @@
     <Content Include="ApplicationInsights.config.uninstall.xdt" />
     <Content Include="Microsoft.ApplicationInsights.PerfCounterCollector.targets" PackagePath="build" />
   </ItemGroup>
-  
+
   <Import Project="..\Filtering.Shared\Filtering.Shared.projitems" Label="Shared" />
   <Import Project="..\Perf.Shared\Perf.Shared.projitems" Label="Shared" />
   <Import Project="..\..\Common\Common.projitems" Label="Shared" />

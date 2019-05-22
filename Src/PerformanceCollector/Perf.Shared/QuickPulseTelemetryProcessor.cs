@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq;
     using System.Threading;
@@ -93,6 +94,13 @@
                 initialGlobalTelemetryQuota ?? InitialGlobalTelemetryQuota);
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether request properties
+        /// which were disabled via "RequestTrackingTelemetryModule.DisableTrackingProperties" should be evaluated.
+        /// </summary>
+        /// <remarks>This feature is still being evaluated and not recommended for end users.</remarks>
+        internal bool EvaluateDisabledTrackingProperties { get; set; }
+
         private ITelemetryProcessor Next { get; }
 
         /// <summary>
@@ -178,8 +186,27 @@
             }
         }
 
-        private static ITelemetryDocument ConvertRequestToTelemetryDocument(RequestTelemetry requestTelemetry)
+        private ITelemetryDocument ConvertRequestToTelemetryDocument(RequestTelemetry requestTelemetry)
         {
+            var url = requestTelemetry.Url;
+#if NET45
+            if (this.EvaluateDisabledTrackingProperties && url == null)
+            {
+                try
+                {
+                    // some of the requestTelemetry properties might be deffered by using RequestTrackingTelemetryModule.DisableTrackingProperties.
+                    // evaluate them now
+                    // note: RequestTrackingUtilities.UpdateRequestTelemetryFromRequest is not used here, since not all fields need to be populated
+                    var request = System.Web.HttpContext.Current?.Request;
+                    url = request?.Unvalidated.Url;
+                }
+                catch (Exception e)
+                {
+                    QuickPulseEventSource.Log.UnknownErrorEvent(e.ToInvariantString());
+                }
+            }
+#endif
+
             ITelemetryDocument telemetryDocument = new RequestTelemetryDocument()
             {
                 Id = Guid.NewGuid(),
@@ -463,7 +490,7 @@
                             documentStreams,
                             documentStream => documentStream.RequestQuotaTracker,
                             documentStream => documentStream.CheckFilters(telemetryAsRequest, out groupErrors),
-                            ConvertRequestToTelemetryDocument);
+                            this.ConvertRequestToTelemetryDocument);
                     }
                     else if (telemetryAsDependency != null)
                     {

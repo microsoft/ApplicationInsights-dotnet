@@ -29,6 +29,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebTelemetryInitializerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebTelemetryModuleBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationCorrelationTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\PostSamplingTelemetryProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ClientIpHeaderTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExceptionTrackingTelemetryModule.cs" />

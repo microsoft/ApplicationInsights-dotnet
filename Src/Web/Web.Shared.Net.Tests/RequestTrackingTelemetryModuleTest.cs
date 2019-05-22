@@ -217,6 +217,19 @@
         }
 
         [TestMethod]
+        public void OnEndDoesNotSetUrlIfDisableTrackingPropertiesIsSet()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext();
+
+            var module = this.RequestTrackingTelemetryModuleFactory();
+            module.DisableTrackingProperties = true;
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+
+            Assert.Null(context.GetRequestTelemetry().Url); // "RequestTrackingTelemetryModule should not set Url if DisableTrackingProperties=true"
+        }
+
+        [TestMethod]
         public void OnEndTracksRequest()
         {
             var context = HttpModuleHelper.GetFakeHttpContext();
@@ -368,6 +381,32 @@
         }
 
         [TestMethod]
+        public void OnEndDoesNotAddSourceFieldIfDisableTrackingPropertiesIsSet()
+        {
+            // ARRANGE  
+            Dictionary<string, string> headers = new Dictionary<string, string>();
+            headers.Add(RequestResponseHeaders.RequestContextHeader, this.GetCorrelationIdHeaderValue(TestApplicationId2));
+
+            var context = HttpModuleHelper.GetFakeHttpContext(headers);
+
+            // My instrumentation key and hence app id is random / newly generated. The appId header is different - hence a different component.
+            var config = TelemetryConfiguration.CreateDefault();
+            config.InstrumentationKey = TestInstrumentationKey1;
+            config.ApplicationIdProvider = new MockApplicationIdProvider(TestInstrumentationKey1, TestApplicationId1);
+            
+            var module = this.RequestTrackingTelemetryModuleFactory(null /*use default*/);
+            module.DisableTrackingProperties = true;
+            
+            // ACT
+            module.Initialize(config);
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+
+            // VALIDATE
+            Assert.True(string.IsNullOrEmpty(context.GetRequestTelemetry().Source), "RequestTrackingTelemetryModule should not set source if DisableTrackingProperties=true");
+        }
+
+        [TestMethod]
         public void OnEndDoesNotAddSourceFieldForRequestWithOutSourceIkeyHeader()
         {
             // ARRANGE                                   
@@ -453,7 +492,7 @@
                 InstrumentationKey = TestInstrumentationKey1,
                 ApplicationIdProvider = new MockApplicationIdProvider(TestInstrumentationKey1, TestApplicationId1)
             };
-            configuration.TelemetryInitializers.Add(new Extensibility.OperationCorrelationTelemetryInitializer());
+            configuration.TelemetryInitializers.Add(new Microsoft.ApplicationInsights.Extensibility.OperationCorrelationTelemetryInitializer());
 
             var telemetryInitializer = new TestableOperationCorrelationTelemetryInitializer(fakeContext);
 
