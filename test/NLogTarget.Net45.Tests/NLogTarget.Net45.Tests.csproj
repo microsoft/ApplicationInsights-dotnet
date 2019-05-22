@@ -11,7 +11,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.10.0-beta4" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.10.0" />
     <PackageReference Include="NLog" Version="4.6.3" />
     <ProjectReference Include="..\..\src\NLogTarget\NLogTarget.csproj" />
     <Reference Include="System.Net.Http" />
