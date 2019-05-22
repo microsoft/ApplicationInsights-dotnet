@@ -117,6 +117,7 @@ namespace Microsoft.ApplicationInsights.Tests
             this.fakeSqlClientDiagnosticSource.Write(
                 SqlClientDiagnosticSourceListener.SqlBeforeExecuteCommand,
                 beforeExecuteEventData);
+            var start = DateTimeOffset.UtcNow;
 
             var afterExecuteEventData = new
             {
@@ -124,8 +125,6 @@ namespace Microsoft.ApplicationInsights.Tests
                 Command = sqlCommand,
                 Timestamp = 2000000L
             };
-
-            var now = DateTimeOffset.UtcNow;
 
             this.fakeSqlClientDiagnosticSource.Write(
                 SqlClientDiagnosticSourceListener.SqlAfterExecuteCommand,
@@ -141,7 +140,7 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.IsTrue((bool)dependencyTelemetry.Success);
             Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
             Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
-            Assert.IsTrue(DateTimeOffset.UtcNow >= dependencyTelemetry.Timestamp);
+            Assert.IsTrue(Math.Abs((start - dependencyTelemetry.Timestamp).TotalMilliseconds) <= 16);
         }
 
         [TestMethod]
@@ -325,7 +324,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 Timestamp = 2000000L
             };
 
-            var now = DateTimeOffset.UtcNow;
+            var start = DateTimeOffset.UtcNow;
 
             this.fakeSqlClientDiagnosticSource.Write(
                 SqlClientDiagnosticSourceListener.SqlErrorOpenConnection,
@@ -340,7 +339,8 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.AreEqual(RemoteDependencyConstants.SQL, dependencyTelemetry.Type);
             Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
             Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
-            Assert.IsTrue(DateTimeOffset.UtcNow >= dependencyTelemetry.Timestamp);
+            Assert.IsTrue(Math.Abs((start - dependencyTelemetry.Timestamp).TotalMilliseconds) <= 16);
+
             Assert.AreEqual(errorOpenEventData.Exception.ToInvariantString(), dependencyTelemetry.Properties["Exception"]);
             Assert.IsFalse(dependencyTelemetry.Success.Value);
         }
@@ -435,7 +435,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 Timestamp = 2000000L
             };
 
-            var now = DateTimeOffset.UtcNow;
+            var start = DateTimeOffset.UtcNow;
 
             this.fakeSqlClientDiagnosticSource.Write(
                 SqlClientDiagnosticSourceListener.SqlAfterCommitTransaction,
@@ -453,7 +453,7 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.IsTrue((bool)dependencyTelemetry.Success);
             Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
             Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
-            Assert.IsTrue(DateTimeOffset.UtcNow >= dependencyTelemetry.Timestamp);
+            Assert.IsTrue(Math.Abs((start - dependencyTelemetry.Timestamp).TotalMilliseconds) <= 16);
         }
 
         [TestMethod]
@@ -520,7 +520,7 @@ namespace Microsoft.ApplicationInsights.Tests
                 Timestamp = 2000000L
             };
 
-            var now = DateTimeOffset.UtcNow;
+            var start = DateTimeOffset.UtcNow;
 
             this.fakeSqlClientDiagnosticSource.Write(
                 SqlClientDiagnosticSourceListener.SqlAfterRollbackTransaction,
@@ -538,7 +538,7 @@ namespace Microsoft.ApplicationInsights.Tests
             Assert.IsTrue((bool)dependencyTelemetry.Success);
             Assert.IsTrue(dependencyTelemetry.Duration > TimeSpan.Zero);
             Assert.IsTrue(dependencyTelemetry.Duration < TimeSpan.FromMilliseconds(500));
-            Assert.IsTrue(DateTimeOffset.UtcNow >= dependencyTelemetry.Timestamp);
+            Assert.IsTrue(Math.Abs((start - dependencyTelemetry.Timestamp).TotalMilliseconds) <= 16);
         }
 
         [TestMethod]

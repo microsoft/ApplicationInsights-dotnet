@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.10.0
+- Updated Base SDK to 2.10.0
+
 ## Version 2.10.0-beta4
 - Updated Base SDK to 2.10.0-beta4
 
