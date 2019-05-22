@@ -6,14 +6,14 @@
     using System.Net.Http;
     using System.Runtime.Serialization.Json;
     using System.Threading.Tasks;
-    using Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation.DataContracts;
 
     internal class AzureMetadataRequestor : IAzureMetadataRequestor
     {
         /// <summary>
         /// Azure Instance Metadata Service exists on a single non-routable IP on machines configured
-        /// by the Azure Resource Manager. See <a href="https://go.microsoft.com/fwlink/?linkid=864683">to learn more.</a>
+        /// by the Azure Resource Manager. https://go.microsoft.com/fwlink/?linkid=864683 .
         /// </summary>
         internal const string AzureImsApiVersion = "api-version=2017-12-01"; // this version has the format=text capability
         internal const string AzureImsJsonFormat = "format=json";
@@ -40,7 +40,7 @@
         /// Gets or sets the base URI for the Azure Instance Metadata service. Internal to allow overriding in test.
         /// </summary>
         /// <remarks>
-        /// At this time, this service does not support https. We should monitor their website for more information. https://docs.microsoft.com/azure/virtual-machines/windows/instance-metadata-service
+        /// At this time, this service does not support https. We should monitor their website for more information. https://docs.microsoft.com/azure/virtual-machines/windows/instance-metadata-service .
         /// </remarks>
         internal string BaseAimsUri { get; set; } = "http://169.254.169.254/metadata/instance/compute";
 

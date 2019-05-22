@@ -22,13 +22,13 @@
     public class QuickPulseTelemetryProcessor : ITelemetryProcessor, ITelemetryModule, IQuickPulseTelemetryProcessor
     {
         /// <summary>
-        /// An overall, cross-stream quota tracker
+        /// An overall, cross-stream quota tracker.
         /// </summary>
         private readonly QuickPulseQuotaTracker globalQuotaTracker;
 
         /// <summary>
-        /// 1.0 - initial release
-        /// 1.1 - added DocumentStreamId, EventTelemetryDocument, TraceTelemetryDocument
+        /// 1.0 - initial release.
+        /// 1.1 - added DocumentStreamId, EventTelemetryDocument, TraceTelemetryDocument.
         /// </summary>
         private const string TelemetryDocumentContractVersion = "1.1";
 
@@ -191,7 +191,7 @@
                 Duration = requestTelemetry.Duration,
                 ResponseCode = requestTelemetry.ResponseCode,
                 Url = requestTelemetry.Url,
-                Properties = GetProperties(requestTelemetry)
+                Properties = GetProperties(requestTelemetry),
             };
 
             SetCommonTelemetryDocumentData(telemetryDocument, requestTelemetry);
@@ -214,7 +214,7 @@
                 ResultCode = dependencyTelemetry.ResultCode,
                 CommandName = TruncateValue(dependencyTelemetry.Data),
                 DependencyTypeName = dependencyTelemetry.Type,
-                Properties = GetProperties(dependencyTelemetry, SpecialDependencyPropertyName)
+                Properties = GetProperties(dependencyTelemetry, SpecialDependencyPropertyName),
             };
 
             SetCommonTelemetryDocumentData(telemetryDocument, dependencyTelemetry);
@@ -233,7 +233,7 @@
                 ExceptionType = exceptionTelemetry.Exception != null ? TruncateValue(exceptionTelemetry.Exception.GetType().FullName) : null,
                 ExceptionMessage = TruncateValue(ExpandExceptionMessage(exceptionTelemetry)),
                 OperationId = TruncateValue(exceptionTelemetry.Context?.Operation?.Id),
-                Properties = GetProperties(exceptionTelemetry)
+                Properties = GetProperties(exceptionTelemetry),
             };
 
             SetCommonTelemetryDocumentData(telemetryDocument, exceptionTelemetry);
@@ -250,7 +250,7 @@
                 Timestamp = eventTelemetry.Timestamp,
                 OperationId = TruncateValue(eventTelemetry.Context?.Operation?.Id),
                 Name = TruncateValue(eventTelemetry.Name),
-                Properties = GetProperties(eventTelemetry)
+                Properties = GetProperties(eventTelemetry),
             };
 
             SetCommonTelemetryDocumentData(telemetryDocument, eventTelemetry);
@@ -267,7 +267,7 @@
                 Timestamp = traceTelemetry.Timestamp,
                 Message = TruncateValue(traceTelemetry.Message),
                 SeverityLevel = traceTelemetry.SeverityLevel.ToString(),
-                Properties = GetProperties(traceTelemetry)
+                Properties = GetProperties(traceTelemetry),
             };
 
             SetCommonTelemetryDocumentData(telemetryDocument, traceTelemetry);

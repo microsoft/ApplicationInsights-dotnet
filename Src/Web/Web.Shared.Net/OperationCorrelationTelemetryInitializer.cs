@@ -3,8 +3,9 @@
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Web;
-    using Common;
+
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Web.Implementation;
 

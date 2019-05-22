@@ -88,8 +88,8 @@
         /// </summary>
         /// <param name="headers">Header collection.</param>
         /// <param name="headerName">Name of the header in the collection.</param>
-        /// <param name="maxStringLength">Maximum allowed header length</param>
-        /// <param name="maxItems">Maximum allowed number comma separated values in the header</param>
+        /// <param name="maxStringLength">Maximum allowed header length.</param>
+        /// <param name="maxItems">Maximum allowed number comma separated values in the header.</param>
         /// <returns>List of comma separated values in the given header.</returns>
         public static IEnumerable<string> GetHeaderValue(this NameValueCollection headers, string headerName, int maxStringLength = -1, int maxItems = -1)
         {

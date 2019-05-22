@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.HttpParsers
 {
-    using DataContracts;
+    using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
     /// HTTP Dependency parser that attempts to parse dependency as Azure Service Bus call.
@@ -12,7 +12,7 @@
                 ".servicebus.windows.net",
                 ".servicebus.chinacloudapi.cn",
                 ".servicebus.cloudapi.de",
-                ".servicebus.usgovcloudapi.net"
+                ".servicebus.usgovcloudapi.net",
             };
 
         /// <summary>

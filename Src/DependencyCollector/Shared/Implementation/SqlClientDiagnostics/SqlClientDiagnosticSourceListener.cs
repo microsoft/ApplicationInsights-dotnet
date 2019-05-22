@@ -123,7 +123,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                                 Type = RemoteDependencyConstants.SQL,
                                 Target = target,
                                 Data = command.CommandText,
-                                Success = true
+                                Success = true,
                             };
 
                             // Populate the operation details for intializers
@@ -223,7 +223,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                                 Type = RemoteDependencyConstants.SQL,
                                 Target = string.Join(" | ", connection.DataSource, connection.Database),
                                 Data = operation,
-                                Success = true
+                                Success = true,
                             };
 
                             InitializeTelemetry(telemetry, operationId, timestamp);
@@ -313,7 +313,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                                 Type = RemoteDependencyConstants.SQL,
                                 Target = string.Join(" | ", connection.DataSource, connection.Database),
                                 Data = operation,
-                                Success = true
+                                Success = true,
                             };
 
                             InitializeTelemetry(telemetry, operationId, timestamp);
@@ -349,7 +349,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.SqlCl
                                 Type = RemoteDependencyConstants.SQL,
                                 Target = string.Join(" | ", connection.DataSource, connection.Database),
                                 Data = operation,
-                                Success = true
+                                Success = true,
                             };
 
                             InitializeTelemetry(telemetry, operationId, timestamp);

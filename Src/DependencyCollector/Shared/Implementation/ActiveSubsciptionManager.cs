@@ -17,7 +17,7 @@
         private object active;
 
         /// <summary>
-        /// Adds listener and makes it active if there is no active listener
+        /// Adds listener and makes it active if there is no active listener.
         /// </summary>
         public void Attach(object subscription)
         {
@@ -29,7 +29,7 @@
         }
 
         /// <summary>
-        /// Removes listener and assigns new active listener if necessary
+        /// Removes listener and assigns new active listener if necessary.
         /// </summary>
         public void Detach(object subscription)
         {

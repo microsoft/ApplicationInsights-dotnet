@@ -5,15 +5,17 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Threading; 
-    using Extensibility.Implementation;
+    using System.Threading;
+
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector;
+
     using Timer = Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.Timer.Timer;
 
     /// <summary>
@@ -271,7 +273,7 @@
 
                 foreach (var result in results)
                 {
-                    var telemetry = this.CreateTelemetry(result.Item1, result.Item2);
+                    var telemetry = CreateTelemetry(result.Item1, result.Item2);
                     try
                     {
                         this.client.Track(telemetry);
@@ -381,7 +383,7 @@
         /// <param name="pc">PerformanceCounterData for which we are generating the telemetry.</param>
         /// <param name="value">The metric value for the respective performance counter data.</param>
         /// <returns>Metric telemetry object associated with the specific counter.</returns>
-        private MetricTelemetry CreateTelemetry(PerformanceCounterData pc, double value)
+        private static MetricTelemetry CreateTelemetry(PerformanceCounterData pc, double value)
         {
             var metricName = !string.IsNullOrWhiteSpace(pc.ReportAs)
                                  ? pc.ReportAs
@@ -398,7 +400,7 @@
                 Sum = value,
                 Min = value,
                 Max = value,
-                StandardDeviation = 0
+                StandardDeviation = 0,
             };
 
             metricTelemetry.Properties.Add("CounterInstanceName", pc.PerformanceCounter.InstanceName);

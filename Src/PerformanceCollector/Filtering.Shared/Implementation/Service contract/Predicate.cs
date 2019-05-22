@@ -16,6 +16,6 @@
 
         Contains = 6,
 
-        DoesNotContain = 7
+        DoesNotContain = 7,
     }
 }

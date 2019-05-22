@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.HttpParsers
 {
     using System;
-    using DataContracts;
-    using Implementation;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
 
     /// <summary>
     /// HTTP Dependency parser that attempts to parse dependency as generic WCF or Web Service call.

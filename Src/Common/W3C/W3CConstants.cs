@@ -78,17 +78,17 @@
         internal const string DefaultVersion = "00";
 
         /// <summary>
-        /// Default sampled flag value: may be recorded, not requested
+        /// Default sampled flag value: may be recorded, not requested.
         /// </summary>
         internal const string TraceFlagRecordedAndNotRequested = "02";
 
         /// <summary>
-        /// Recorded and requested sampled flag value
+        /// Recorded and requested sampled flag value.
         /// </summary>
         internal const string TraceFlagRecordedAndRequested = "03";
 
         /// <summary>
-        /// Requested trace flag
+        /// Requested trace flag.
         /// </summary>
         internal const byte RequestedTraceFlag = 1;
 

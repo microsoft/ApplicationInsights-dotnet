@@ -68,7 +68,7 @@
 
         /// <summary>
         /// Tokenizes request path.
-        /// E.g. the string <code>"/a/b/c/d?e=f"</code> will be tokenized into <code>[ "a", "b", "c", "d" ]</code>.
+        /// E.g. the string "/a/b/c/d?e=f" will be tokenized into [ "a", "b", "c", "d" ].
         /// </summary>
         /// <param name="requestPath">The request path.</param>
         /// <returns>List of tokens.</returns>
@@ -131,7 +131,7 @@
         /// Extracts the HTTP verb from dependency name.
         /// </summary>
         /// <param name="name">The dependency name.</param>
-        /// <param name="verb">The extracted verb (<code>null</code> if not matched).</param>
+        /// <param name="verb">The extracted verb (or NULL if not matched).</param>
         /// <param name="nameWithoutVerb">The dependency name sans the extracted verb.</param>
         /// <param name="supportedVerbs">List of supported verbs to extract.</param>
         internal static void ExtractVerb(string name, out string verb, out string nameWithoutVerb, params string[] supportedVerbs)

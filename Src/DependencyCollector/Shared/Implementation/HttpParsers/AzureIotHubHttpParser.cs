@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.HttpParsers
 {
-    using DataContracts;
+    using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
     /// HTTP Dependency parser that attempts to parse dependency as Azure IoT Hub call.
@@ -9,7 +9,7 @@
     {
         private static readonly string[] AzureIotHubHostSuffixes =
             {
-                ".azure-devices.net"
+                ".azure-devices.net",
             };
 
         /// <summary>

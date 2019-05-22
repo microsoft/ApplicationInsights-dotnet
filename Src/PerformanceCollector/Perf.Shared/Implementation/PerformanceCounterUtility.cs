@@ -236,7 +236,7 @@
                         win32Instances,
                         clrInstances,
                         out usesInstanceNamePlaceholder),
-                CounterName = match.Groups["counterName"].Value
+                CounterName = match.Groups["counterName"].Value,
             };
         }
 

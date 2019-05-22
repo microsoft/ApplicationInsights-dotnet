@@ -2,7 +2,7 @@
 {
     using System;
     using System.Text.RegularExpressions;
-    using Implementation;
+
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>

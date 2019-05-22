@@ -11,8 +11,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     /// <summary>
     /// Base implementation of DiagnosticSource listener. 
     /// Takes care of managing subscriptions to multiple sources and their events.
-    /// <typeparamref name="TContext">The type of processing context for given diagnostic source.</typeparamref>
     /// </summary>
+    /// <typeparamref name="TContext">The type of processing context for given diagnostic source.</typeparamref>
     internal abstract class DiagnosticSourceListenerBase<TContext> : IObserver<DiagnosticListener>, IDisposable
     {
         protected static readonly ConcurrentDictionary<string, ActiveSubsciptionManager> SubscriptionManagers =
@@ -28,10 +28,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         /// <summary>
         /// Creates DiagnosticSourceListenerBase. To finish the initialization and subscribe to all enabled sources,
-        /// call <see cref="Subscribe"/>
+        /// call <see cref="Subscribe"/>.
         /// </summary>
         /// <param name="configuration"><see cref="TelemetryConfiguration"/> instance.
-        /// The listener tracks dependency calls and uses configuration to construct <see cref="TelemetryClient"/></param>
+        /// The listener tracks dependency calls and uses configuration to construct <see cref="TelemetryClient"/>.</param>
         protected DiagnosticSourceListenerBase(TelemetryConfiguration configuration)
         {
             this.Configuration = configuration;

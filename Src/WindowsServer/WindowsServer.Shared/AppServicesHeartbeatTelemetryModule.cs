@@ -23,7 +23,7 @@
             new KeyValuePair<string, string>("appSrv_wsStamp", "WEBSITE_HOME_STAMPNAME"),
             new KeyValuePair<string, string>("appSrv_wsHost", "WEBSITE_HOSTNAME"),
             new KeyValuePair<string, string>("appSrv_wsOwner", "WEBSITE_OWNER_NAME"),
-            new KeyValuePair<string, string>("appSrv_ResourceGroup", "WEBSITE_RESOURCE_GROUP")
+            new KeyValuePair<string, string>("appSrv_ResourceGroup", "WEBSITE_RESOURCE_GROUP"),
         };
 
         // Cache the heartbeat property manager across updates. Note that tests can also override the heartbeat manager.

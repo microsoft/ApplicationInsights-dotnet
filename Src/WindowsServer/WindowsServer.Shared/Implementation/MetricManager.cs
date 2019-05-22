@@ -869,25 +869,25 @@
 
             TaskEx.Delay(this.Delay, newTokenSource.Token)
                 .ContinueWith(
-                async previousTask =>
-                    {
-                        CancelAndDispose(Interlocked.CompareExchange(ref this.tokenSource, null, newTokenSource));
-                        try
+                    async previousTask =>
                         {
-                            Task task = elapsed();
-
-                            // Task may be executed synchronously
-                            // It should return Task.FromResult but just in case we check for null if someone returned null
-                            if (task != null)
+                            CancelAndDispose(Interlocked.CompareExchange(ref this.tokenSource, null, newTokenSource));
+                            try
                             {
-                                await task.ConfigureAwait(false);
+                                Task task = elapsed();
+
+                                // Task may be executed synchronously
+                                // It should return Task.FromResult but just in case we check for null if someone returned null
+                                if (task != null)
+                                {
+                                    await task.ConfigureAwait(false);
+                                }
                             }
-                        }
-                        catch (Exception exception)
-                        {
-                            LogException(exception);
-                        }
-                    },
+                            catch (Exception exception)
+                            {
+                                LogException(exception);
+                            }
+                        },
                     CancellationToken.None,
                     TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously,
                     TaskScheduler.Default);

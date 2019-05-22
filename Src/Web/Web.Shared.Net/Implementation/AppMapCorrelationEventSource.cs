@@ -5,7 +5,7 @@
 #if NETSTANDARD1_6
     using System.Reflection;
 #endif
-    using Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// ETW EventSource tracing class.

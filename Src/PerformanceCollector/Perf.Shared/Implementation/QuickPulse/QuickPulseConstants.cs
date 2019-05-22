@@ -54,7 +54,7 @@
             "x-ms-qps-auth-status",
             "x-ms-qps-auth-token-expiry",
             "x-ms-qps-auth-token-signature",
-            "x-ms-qps-auth-token-signature-alg"
+            "x-ms-qps-auth-token-signature-alg",
         };
     }
 }

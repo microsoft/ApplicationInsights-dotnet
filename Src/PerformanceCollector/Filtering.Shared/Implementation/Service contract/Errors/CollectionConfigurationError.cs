@@ -56,7 +56,7 @@
                 ErrorType = errorType,
                 Message = message,
                 FullException = exception?.ToString() ?? string.Empty,
-                Data = data.ToDictionary(tuple => tuple.Item1, tuple => tuple.Item2)
+                Data = data.ToDictionary(tuple => tuple.Item1, tuple => tuple.Item2),
             };
         }
     }

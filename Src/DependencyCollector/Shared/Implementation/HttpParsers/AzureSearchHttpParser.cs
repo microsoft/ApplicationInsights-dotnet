@@ -2,14 +2,14 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using DataContracts;
-    using Implementation;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
 
     internal static class AzureSearchHttpParser
     {
         private static readonly string[] AzureSearchHostSuffixes =
         {
-            ".search.windows.net"
+            ".search.windows.net",
         };
 
         private static readonly string[] AzureSearchSupportedVerbs = { "GET", "POST", "PUT", "HEAD", "DELETE" };
@@ -68,7 +68,7 @@
             ["PUT /synonymmaps/*"] = "Update synonym map",
             ["GET /synonymmaps"] = "List synonym maps",
             ["GET /synonymmaps/*"] = "Get synonym map",
-            ["DELETE /synonymmaps/*"] = "Delete synonym map"
+            ["DELETE /synonymmaps/*"] = "Delete synonym map",
         };
 
         /// <summary>

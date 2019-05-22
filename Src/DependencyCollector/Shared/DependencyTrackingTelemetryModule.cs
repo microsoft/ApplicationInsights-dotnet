@@ -250,7 +250,7 @@
         /// <summary>
         /// When the first Activity is created in the process (on .NET Framework), it synchronizes DateTime.UtcNow 
         /// in order to make it's StartTime and duration precise, it may take up to 16ms. 
-        /// Let's create the first Activity ever here, so we will not miss those 16ms on the first dependency tracking
+        /// Let's create the first Activity ever here, so we will not miss those 16ms on the first dependency tracking.
         /// </summary>
         [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         private static void PrepareFirstActivity()

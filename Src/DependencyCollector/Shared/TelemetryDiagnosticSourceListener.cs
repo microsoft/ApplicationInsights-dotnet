@@ -66,7 +66,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 Id = currentActivity.Id,
                 Duration = currentActivity.Duration,
-                Name = currentActivity.OperationName
+                Name = currentActivity.OperationName,
             };
 
             Uri requestUri = null;

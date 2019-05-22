@@ -132,7 +132,7 @@
                                 CollectionConfigurationErrorType.MetricFailureToCreate,
                                 string.Format(CultureInfo.InvariantCulture, "Failed to create metric {0}.", metricInfo),
                                 e,
-                                Tuple.Create("MetricId", metricInfo.Id))
+                                Tuple.Create("MetricId", metricInfo.Id)),
                         }).ToArray();
             }
         }

@@ -13,7 +13,7 @@
         private static readonly Dictionary<QuickPulseCounter, string> DefaultPerformanceCountersToCollect = new Dictionary<QuickPulseCounter, string>
         {
             [QuickPulseCounter.Bytes] = @"\Memory\Committed Bytes",
-            [QuickPulseCounter.ProcessorTime] = @"\Processor(_Total)\% Processor Time"
+            [QuickPulseCounter.ProcessorTime] = @"\Processor(_Total)\% Processor Time",
         };
 
         /// <summary>
@@ -22,7 +22,7 @@
         private static readonly Dictionary<QuickPulseCounter, string> WebAppDefaultPerformanceCountersToCollect = new Dictionary<QuickPulseCounter, string>
         {
             [QuickPulseCounter.Bytes] = @"\Process(??APP_WIN32_PROC??)\Private Bytes",
-            [QuickPulseCounter.ProcessorTime] = @"\Process(??APP_WIN32_PROC??)\% Processor Time"
+            [QuickPulseCounter.ProcessorTime] = @"\Process(??APP_WIN32_PROC??)\% Processor Time",
         };
 
         /// <summary>

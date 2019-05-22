@@ -31,7 +31,7 @@
             "version",
             "vmId",
             "vmSize",
-            "vmScaleSetName"
+            "vmScaleSetName",
         };
 
         /// <summary>

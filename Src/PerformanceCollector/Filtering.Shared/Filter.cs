@@ -146,7 +146,7 @@
 
             CustomDimensionName,
 
-            AnyField
+            AnyField,
         }
 
         public bool Check(TTelemetry document)
