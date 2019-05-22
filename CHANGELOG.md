@@ -1,4 +1,8 @@
 # Changelog 
+
+### Version 2.10.0
+- Update Base SDK to version 2.10.0
+
 ### Version 2.10.0-beta4
 - Update Base SDK to version 2.10.0-beta4
 - [ILogger - If an exception is passed to log, then Exception.Message is populated as ExceptionTelemetry.Message. If TrackExceptionsAsExceptionTelemetry is false, then Exception.Message is stored as custom property "ExceptionMessage"](https://github.com/Microsoft/ApplicationInsights-dotnet-logging/pull/282)

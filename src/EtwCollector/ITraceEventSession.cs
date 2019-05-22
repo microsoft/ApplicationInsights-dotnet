@@ -7,8 +7,8 @@
 namespace Microsoft.ApplicationInsights.EtwCollector
 {
     using System;
-    using Diagnostics.Tracing.Session;
     using Microsoft.Diagnostics.Tracing;
+    using Microsoft.Diagnostics.Tracing.Session;
 
     /// <summary>
     /// Abstracts properties and methods of <see cref="Microsoft.Diagnostics.Tracing.Session.TraceEventSession"/> to provide better test ability.

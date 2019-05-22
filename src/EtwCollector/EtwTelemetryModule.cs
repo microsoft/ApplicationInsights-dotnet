@@ -180,7 +180,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             {
                 ProviderGuid = TplActivities.TplEventSourceGuid,
                 Level = TraceEventLevel.Always,
-                Keywords = TplActivities.TaskFlowActivityIdsKeyword
+                Keywords = TplActivities.TaskFlowActivityIdsKeyword,
             };
             this.EnableProvider(tplProviderRequest);
 
