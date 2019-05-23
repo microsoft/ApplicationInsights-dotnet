@@ -29,13 +29,15 @@
 #endif
         private readonly TelemetryConfiguration configuration;
         private string sdkVersion;
-        
+
+#pragma warning disable 612, 618
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the active configuration, usually loaded from ApplicationInsights.config.
         /// </summary>
         public TelemetryClient() : this(TelemetryConfiguration.Active)
         {
         }
+#pragma warning restore 612, 618
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the specified <paramref name="configuration"/>.
@@ -47,7 +49,9 @@
             if (configuration == null)
             {
                 CoreEventSource.Log.TelemetryClientConstructorWithNoTelemetryConfiguration();
+#pragma warning disable 612, 618
                 configuration = TelemetryConfiguration.Active;
+#pragma warning restore 612, 618
             }
 
             this.configuration = configuration;
