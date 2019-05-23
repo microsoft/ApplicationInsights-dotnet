@@ -27,24 +27,36 @@ namespace E2ETestAppCore20
         {
             services.Configure<AppInsightsOptions>(Configuration);
             services.AddMvc();
+
+            services.AddSingleton(provider =>
+            {
+                var options = provider.GetService<IOptions<AppInsightsOptions>>();
+                var telemetryConfiguration = new TelemetryConfiguration("fafa4b10-03d3-4bb0-98f4-364f0bdf5df8")
+                {
+                    TelemetryChannel =
+                    {
+                        DeveloperMode = true,
+                        EndpointAddress = string.Format(Program.EndPointAddressFormat, options.Value.EndPoint)
+                    }
+                };
+
+                return telemetryConfiguration;
+            });
+
+            services.AddSingleton<DependencyTrackingTelemetryModule>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IOptions<AppInsightsOptions> options)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, 
+            IOptions<AppInsightsOptions> options,
+            TelemetryConfiguration configuration,
+            DependencyTrackingTelemetryModule module)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
             app.UseMvc();
-
-            var teleConfig = TelemetryConfiguration.Active;
-            teleConfig.TelemetryChannel.DeveloperMode = true;
-
-            // Fake endpoint.
-            teleConfig.TelemetryChannel.EndpointAddress = string.Format(Program.EndPointAddressFormat, options.Value.EndPoint);
-            teleConfig.InstrumentationKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8";
-
-            new DependencyTrackingTelemetryModule().Initialize(TelemetryConfiguration.Active);
+            module.Initialize(configuration);
         }
     }
 }
