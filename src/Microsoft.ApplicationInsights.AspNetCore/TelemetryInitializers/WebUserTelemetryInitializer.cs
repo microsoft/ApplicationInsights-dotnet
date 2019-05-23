@@ -9,8 +9,7 @@
     public class WebUserTelemetryInitializer : TelemetryInitializerBase
     {
         private const string WebUserCookieName = "ai_user";
-
-        /// <inheritdoc />
+        
         public WebUserTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
              : base(httpContextAccessor)
         {

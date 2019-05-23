@@ -16,7 +16,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// <inheritdoc />
         public string ListenerName { get; } = "Microsoft.AspNetCore";
 
-        private readonly  PropertyFetcher httpContextFetcher = new PropertyFetcher("httpContext");
+        private readonly PropertyFetcher httpContextFetcher = new PropertyFetcher("httpContext");
         private readonly PropertyFetcher routeDataFetcher = new PropertyFetcher("routeData");
         private readonly PropertyFetcher routeValuesFetcher = new PropertyFetcher("Values");
 

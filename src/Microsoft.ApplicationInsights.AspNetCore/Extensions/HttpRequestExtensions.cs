@@ -13,10 +13,10 @@
         private const string UnknownHostName = "UNKNOWN-HOST";
 
         /// <summary>
-        /// Gets http request Uri from request object
+        /// Gets http request Uri from request object.
         /// </summary>
         /// <param name="request">The <see cref="HttpRequest"/></param>
-        /// <returns>A New Uri object representing request Uri</returns>
+        /// <returns>A New Uri object representing request Uri.</returns>
         public static Uri GetUri(this HttpRequest request)
         {            
             if (null == request)
@@ -29,11 +29,12 @@
                 throw new ArgumentException("Http request Scheme is not specified");
             }
             
-            return new Uri(string.Concat(request.Scheme,
+            return new Uri(string.Concat(
+                    request.Scheme,
                     "://",
                     request.Host.HasValue ? request.Host.Value : UnknownHostName,
-                    request.Path.HasValue ? request.Path.Value : "",
-                    request.QueryString.HasValue ? request.QueryString.Value : ""));
+                    request.Path.HasValue ? request.Path.Value : string.Empty,
+                    request.QueryString.HasValue ? request.QueryString.Value : string.Empty));
         }
     }
 }

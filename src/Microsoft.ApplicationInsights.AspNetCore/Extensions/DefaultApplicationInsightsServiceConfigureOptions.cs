@@ -29,9 +29,9 @@
         public void Configure(ApplicationInsightsServiceOptions options)
         {
             var configBuilder = new ConfigurationBuilder()
-                .SetBasePath(this.hostingEnvironment.ContentRootPath??Directory.GetCurrentDirectory())
+                .SetBasePath(this.hostingEnvironment.ContentRootPath ?? Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true)
-                .AddJsonFile(string.Format(CultureInfo.InvariantCulture,"appsettings.{0}.json", hostingEnvironment.EnvironmentName), true)
+                .AddJsonFile(string.Format(CultureInfo.InvariantCulture, "appsettings.{0}.json", hostingEnvironment.EnvironmentName), true)
                 .AddEnvironmentVariables();
             ApplicationInsightsExtensions.AddTelemetryConfiguration(configBuilder.Build(), options);
 

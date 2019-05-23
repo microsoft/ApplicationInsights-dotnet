@@ -8,8 +8,7 @@
     public class WebSessionTelemetryInitializer : TelemetryInitializerBase
     {
         private const string WebSessionCookieName = "ai_session";
-
-        /// <inheritdoc />
+        
         public WebSessionTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
              : base(httpContextAccessor)
         {

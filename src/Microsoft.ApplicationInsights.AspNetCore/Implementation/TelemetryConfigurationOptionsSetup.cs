@@ -4,15 +4,15 @@ namespace Microsoft.Extensions.DependencyInjection
     using System.Linq;
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.AspNetCore;
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;    
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.Extensions.Options;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;    
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.W3C;
+    using Microsoft.Extensions.Options;
 
     /// <summary>
     /// Initializes TelemetryConfiguration based on values in <see cref="ApplicationInsightsServiceOptions"/>
@@ -29,7 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection
         private readonly IApplicationIdProvider applicationIdProvider;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:TelemetryConfigurationOptionsSetup"/> class.
+        /// Initializes a new instance of the <see cref="TelemetryConfigurationOptionsSetup"/> class.
         /// </summary>
         public TelemetryConfigurationOptionsSetup(
             IServiceProvider serviceProvider,
@@ -131,11 +131,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 // Microsoft.ApplicationInsights.DependencyCollector.DependencyTrackingTelemetryModule depends on this nullable configuration to support Correlation. 
                 configuration.ApplicationIdProvider = this.applicationIdProvider;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 AspNetCoreEventSource.Instance.TelemetryConfigurationSetupFailure(ex.Message);
             }
-            
         }
 
         private void AddQuickPulse(TelemetryConfiguration configuration)

@@ -87,6 +87,5 @@
         /// Gets <see cref="DependencyCollectionOptions"/> that allow to manage <see cref="DependencyTrackingTelemetryModule"/>
         /// </summary>
         public DependencyCollectionOptions DependencyCollectionOptions { get; }
-      
     }
 }

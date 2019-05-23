@@ -2,14 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Reflection;
-    using AspNetCore.Builder;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore;
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.AspNetCore.Logging;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DependencyCollector;
@@ -17,16 +16,17 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.ApplicationInsights.WindowsServer;    
+    using Microsoft.ApplicationInsights.WindowsServer;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
+    using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
-    using Microsoft.Extensions.Options;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
 
     /// <summary>
     /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.
@@ -42,13 +42,13 @@
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
 
-        [Obsolete]
+        [Obsolete("This middleware is no longer needed. Enable Request monitoring using services.AddApplicationInsights")]
         public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
         {
             return app;
         }
 
-        [Obsolete]
+        [Obsolete("This middleware is no longer needed to track exceptions as they are automatically tracked by RequestTrackingTelemetryModule")]
         public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
         {
             return app.UseMiddleware<ExceptionTrackingMiddleware>();
@@ -213,28 +213,28 @@
                     // NetStandard2.0 has a package reference to Microsoft.Extensions.Logging.ApplicationInsights, and
                     // enables ApplicationInsightsLoggerProvider by default.                
 #if NETSTANDARD2_0
-                services.AddLogging(loggingBuilder =>
-                {
-                     loggingBuilder.AddApplicationInsights();
+                    services.AddLogging(loggingBuilder =>
+                    {
+                         loggingBuilder.AddApplicationInsights();
 
-                    // The default behavior is to capture only logs above Warning level from all categories.
-                    // This can achieved with this code level filter -> loggingBuilder.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>("",LogLevel.Warning);
-                    // However, this will make it impossible to override this behavior from Configuration like below using appsettings.json:
-                    //"ApplicationInsights": {
-                    // "LogLevel": {
-                    // "": "Error"
-                    // }
-                    // },
-                    // The reason is as both rules will match the filter, the last one added wins.
-                    // To ensure that the default filter is in the beginning of filter rules, so that user override from Configuration will always win, 
-                    // we add code filter rule to the 0th position as below.
-
-                    loggingBuilder.Services.Configure<LoggerFilterOptions>
-                    (options => options.Rules.Insert(0,
-                        new LoggerFilterRule(
-                            "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider", null,
-                            LogLevel.Warning, null)));
-                });                                
+                        // The default behavior is to capture only logs above Warning level from all categories.
+                        // This can achieved with this code level filter -> loggingBuilder.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>("",LogLevel.Warning);
+                        // However, this will make it impossible to override this behavior from Configuration like below using appsettings.json:
+                        // "ApplicationInsights": {
+                        // "LogLevel": {
+                        // "": "Error"
+                        // }
+                        // },
+                        // The reason is as both rules will match the filter, the last one added wins.
+                        // To ensure that the default filter is in the beginning of filter rules, so that user override from Configuration will always win, 
+                        // we add code filter rule to the 0th position as below.
+                         loggingBuilder.Services.Configure<LoggerFilterOptions>(
+                        options => options.Rules.Insert(
+                            0,
+                            new LoggerFilterRule(
+                                "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider", null,
+                                LogLevel.Warning, null)));
+                    });
 #endif
                 }
                 return services;
@@ -243,7 +243,7 @@
             {
                 AspNetCoreEventSource.Instance.LogWarning(e.Message);
                 return services;
-            }            
+            }
         }
 
         /// <summary>
@@ -297,7 +297,8 @@
         /// The <see cref="IServiceCollection"/>.
         /// </returns>
         [Obsolete("Use ConfigureTelemetryModule overload that accepts ApplicationInsightsServiceOptions.")]
-        public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services, Action<T> configModule) where T : ITelemetryModule
+        public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services, Action<T> configModule) 
+            where T : ITelemetryModule
         {
             if (configModule == null)
             {
@@ -317,7 +318,8 @@
         /// The <see cref="IServiceCollection"/>.
         /// </returns>        
         public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services,
-            Action<T, ApplicationInsightsServiceOptions> configModule) where T : ITelemetryModule
+            Action<T, ApplicationInsightsServiceOptions> configModule) 
+            where T : ITelemetryModule
         {
             if (configModule == null)
             {
@@ -325,7 +327,7 @@
             }
 
             return services.AddSingleton(typeof(ITelemetryModuleConfigurator),
-                new TelemetryModuleConfigurator((config, options) => configModule((T) config, options), typeof(T)));
+                new TelemetryModuleConfigurator((config, options) => configModule((T)config, options), typeof(T)));
         }
 
         /// <summary>
@@ -362,14 +364,15 @@
 
             if (endpointAddress != null)
             {
-                telemetryConfigValues.Add(new KeyValuePair<string, string>(EndpointAddressForWebSites,
+                telemetryConfigValues.Add(new KeyValuePair<string, string>(
+                    EndpointAddressForWebSites,
                     endpointAddress));
                 wasAnythingSet = true;
             }
 
             if (wasAnythingSet)
             {
-                configurationSourceRoot.Add(new MemoryConfigurationSource() {InitialData = telemetryConfigValues});
+                configurationSourceRoot.Add(new MemoryConfigurationSource() { InitialData = telemetryConfigValues });
             }
 
             return configurationSourceRoot;
@@ -385,9 +388,9 @@
         ///              "EndpointAddress": "http://dc.services.visualstudio.com/v2/track",
         ///              "DeveloperMode": true
         ///          }
-        ///      }
+        ///      }.
         /// </para>
-        /// Values can also be read from environment variables to support azure web sites configuration:
+        /// Values can also be read from environment variables to support azure web sites configuration.
         /// </summary>
         /// <param name="config">Configuration to read variables from.</param>
         /// <param name="serviceOptions">Telemetry configuration to populate.</param>

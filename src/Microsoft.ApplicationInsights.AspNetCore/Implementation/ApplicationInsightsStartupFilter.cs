@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore
 {
-    using System;
-    using Microsoft.ApplicationInsights.Extensibility;
+    using System;    
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;

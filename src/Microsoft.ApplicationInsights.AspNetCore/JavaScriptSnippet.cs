@@ -37,7 +37,8 @@
         /// <param name="serviceOptions">Service options instance to use.</param>
         /// <param name="httpContextAccessor">Http context accessor to use.</param>
         /// <param name="encoder">Encoder used to encode user identity.</param>
-        public JavaScriptSnippet(TelemetryConfiguration telemetryConfiguration,
+        public JavaScriptSnippet(
+            TelemetryConfiguration telemetryConfiguration,
             IOptions<ApplicationInsightsServiceOptions> serviceOptions,
             IHttpContextAccessor httpContextAccessor,
             JavaScriptEncoder encoder)
@@ -60,7 +61,7 @@
                     !string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
                 {
                     string additionalJS = string.Empty;
-                    IIdentity identity = httpContextAccessor?.HttpContext?.User?.Identity;
+                    IIdentity identity = this.httpContextAccessor?.HttpContext?.User?.Identity;
                     if (enableAuthSnippet &&
                         identity != null &&
                         identity.IsAuthenticated)

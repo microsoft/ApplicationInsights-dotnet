@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
 #if NET451 || NET46
-    using System.Runtime.Remoting.Messaging;
     using System.Runtime.Remoting;
+    using System.Runtime.Remoting.Messaging;
 #else
     using System.Threading;
 #endif
