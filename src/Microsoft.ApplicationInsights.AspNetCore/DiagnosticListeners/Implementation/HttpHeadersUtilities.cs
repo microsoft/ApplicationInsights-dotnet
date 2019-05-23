@@ -9,16 +9,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
     internal static class HttpHeadersUtilities
     {
-        internal static IEnumerable<string> GetHeaderValues(HttpHeaders headers, string headerName)
-        {
-            IEnumerable<string> result;
-            if (headers == null || !headers.TryGetValues(headerName, out result))
-            {
-                result = Enumerable.Empty<string>();
-            }
-            return result;
-        }
-
         internal static IEnumerable<string> GetHeaderValues(IHeaderDictionary headers, string headerName)
         {
             IEnumerable<string> result = Enumerable.Empty<string>();
@@ -33,31 +23,15 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             return result;
         }
 
-        internal static string GetHeaderKeyValue(HttpHeaders headers, string headerName, string keyName)
-        {
-            IEnumerable<string> headerValues = GetHeaderValues(headers, headerName);
-            return HeadersUtilities.GetHeaderKeyValue(headerValues, keyName);
-        }
-
         internal static string GetHeaderKeyValue(IHeaderDictionary headers, string headerName, string keyName)
         {
             IEnumerable<string> headerValues = GetHeaderValues(headers, headerName);
             return HeadersUtilities.GetHeaderKeyValue(headerValues, keyName);
         }
 
-        internal static string GetRequestContextKeyValue(HttpHeaders headers, string keyName)
-        {
-            return GetHeaderKeyValue(headers, RequestResponseHeaders.RequestContextHeader, keyName);
-        }
-
         internal static string GetRequestContextKeyValue(IHeaderDictionary headers, string keyName)
         {
             return GetHeaderKeyValue(headers, RequestResponseHeaders.RequestContextHeader, keyName);
-        }
-
-        internal static bool ContainsRequestContextKeyValue(HttpHeaders headers, string keyName)
-        {
-            return !string.IsNullOrEmpty(GetHeaderKeyValue(headers, RequestResponseHeaders.RequestContextHeader, keyName));
         }
 
         internal static bool ContainsRequestContextKeyValue(IHeaderDictionary headers, string keyName)
