@@ -111,7 +111,6 @@
                 }
 
                 var currentActivity = Activity.Current;
-                var isActivityCreatedFromRequestIdHeader = true;
                 string sourceAppId = null;
                 string originalParentId = currentActivity.ParentId;
 
@@ -119,7 +118,6 @@
                 // W3C
                 if (this.enableW3CHeaders)
                 {
-                    isActivityCreatedFromRequestIdHeader = false;
                     this.SetW3CContext(httpContext.Request.Headers, currentActivity, out sourceAppId);
 
                     var parentSpanId = currentActivity.GetParentSpanId();
@@ -134,7 +132,6 @@
                          httpContext.Request.Headers.TryGetValue(RequestResponseHeaders.StandardRootIdHeader, out StringValues alternativeRootIdValues) &&
                          alternativeRootIdValues != StringValues.Empty)
                 {
-                    isActivityCreatedFromRequestIdHeader = false;
                     newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener)
                         .SetParentId(StringUtilities.EnforceMaxLength(alternativeRootIdValues.First(),
                         InjectionGuardConstants.RequestHeaderMaxLength));
@@ -213,7 +210,6 @@
                 }
 
                 var activity = new Activity(ActivityCreatedByHostingDiagnosticListener);
-                var isActivityCreatedFromRequestIdHeader = false;
 
                 string sourceAppId = null;
 
@@ -238,7 +234,6 @@
                     requestIdValues != StringValues.Empty)
                 {
                     var requestId = StringUtilities.EnforceMaxLength(requestIdValues.First(), InjectionGuardConstants.RequestHeaderMaxLength);
-                    isActivityCreatedFromRequestIdHeader = true;
                     activity.SetParentId(requestId);
 
                     ReadCorrelationContext(requestHeaders, activity);
