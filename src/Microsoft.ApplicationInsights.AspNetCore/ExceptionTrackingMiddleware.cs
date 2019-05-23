@@ -9,7 +9,7 @@
     /// <summary>
     /// Sends telemetry about exceptions thrown by the application to the Microsoft Application Insights service.
     /// </summary>
-    [Obsolete]
+    [Obsolete("Exceptions are automatically tracked with new RequestTrackingTelemetryModule")]
     public sealed class ExceptionTrackingMiddleware
     {
         private readonly RequestDelegate next;
@@ -27,7 +27,7 @@
         {
             try
             {
-                await this.next.Invoke(httpContext);
+                await this.next.Invoke(httpContext).ConfigureAwait(false);
             }
             catch (Exception exception)
             {

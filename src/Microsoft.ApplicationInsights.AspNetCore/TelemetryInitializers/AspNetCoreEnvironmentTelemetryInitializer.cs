@@ -8,7 +8,7 @@
     /// <see cref="ITelemetryInitializer"/> implementation that stamps ASP.NET Core environment name
     /// on telemetries.
     /// </summary>
-    public class AspNetCoreEnvironmentTelemetryInitializer: ITelemetryInitializer
+    public class AspNetCoreEnvironmentTelemetryInitializer : ITelemetryInitializer
     {
         private const string AspNetCoreEnvironmentPropertyName = "AspNetCoreEnvironment";
         private readonly IHostingEnvironment environment;
@@ -24,9 +24,9 @@
         /// <inheritdoc />
         public void Initialize(ITelemetry telemetry)
         {   
-            if (environment != null && !telemetry.Context.Properties.ContainsKey(AspNetCoreEnvironmentPropertyName))
+            if (this.environment != null && !telemetry.Context.Properties.ContainsKey(AspNetCoreEnvironmentPropertyName))
             {
-                telemetry.Context.Properties.Add(AspNetCoreEnvironmentPropertyName, environment.EnvironmentName);
+                telemetry.Context.Properties.Add(AspNetCoreEnvironmentPropertyName, this.environment.EnvironmentName);
             }
         }
     }

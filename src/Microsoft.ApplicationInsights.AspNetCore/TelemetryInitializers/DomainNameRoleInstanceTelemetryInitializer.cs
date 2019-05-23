@@ -7,7 +7,7 @@
     using System.Threading;
     using Channel;    
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;    
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
     /// A telemetry initializer that populates cloud context role instance.

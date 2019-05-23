@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.Extensions.Logging;
-
-namespace Microsoft.ApplicationInsights.AspNetCore.Logging
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.Logging
 {
+    using System;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.Extensions.Logging;
+
     /// <summary>
     /// <see cref="ApplicationInsightsLoggerOptions"/> defines the custom behavior of the tracing information sent to Application Insights.
     /// </summary>

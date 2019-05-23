@@ -1,15 +1,15 @@
-﻿namespace Microsoft.Extensions.DependencyInjection
+﻿using System.Globalization;
+
+namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
-    using AspNetCore.Builder;
+    using System.Reflection;    
     using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.AspNetCore;
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore;    
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.AspNetCore.Logging;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DependencyCollector;
@@ -19,6 +19,7 @@
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.WindowsServer;    
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
+    using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
@@ -26,7 +27,6 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Options;
-    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.
@@ -42,13 +42,13 @@
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
 
-        [Obsolete]
+        [Obsolete("This middleware is no longer needed. Enable Request monitoring using services.AddApplicationInsights")]
         public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
         {
             return app;
         }
 
-        [Obsolete]
+        [Obsolete("This middleware is no longer needed to track exceptions as they are automatically tracked by RequestTrackingTelemetryModule")]
         public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
         {
             return app.UseMiddleware<ExceptionTrackingMiddleware>();
@@ -297,7 +297,8 @@
         /// The <see cref="IServiceCollection"/>.
         /// </returns>
         [Obsolete("Use ConfigureTelemetryModule overload that accepts ApplicationInsightsServiceOptions.")]
-        public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services, Action<T> configModule) where T : ITelemetryModule
+        public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services, Action<T> configModule) 
+            where T : ITelemetryModule
         {
             if (configModule == null)
             {
@@ -317,7 +318,8 @@
         /// The <see cref="IServiceCollection"/>.
         /// </returns>        
         public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services,
-            Action<T, ApplicationInsightsServiceOptions> configModule) where T : ITelemetryModule
+            Action<T, ApplicationInsightsServiceOptions> configModule) 
+            where T : ITelemetryModule
         {
             if (configModule == null)
             {
@@ -325,7 +327,7 @@
             }
 
             return services.AddSingleton(typeof(ITelemetryModuleConfigurator),
-                new TelemetryModuleConfigurator((config, options) => configModule((T) config, options), typeof(T)));
+                new TelemetryModuleConfigurator((config, options) => configModule((T)config, options), typeof(T)));
         }
 
         /// <summary>
@@ -349,7 +351,7 @@
             if (developerMode != null)
             {
                 telemetryConfigValues.Add(new KeyValuePair<string, string>(DeveloperModeForWebSites,
-                    developerMode.Value.ToString()));
+                    developerMode.Value.ToString(CultureInfo.InvariantCulture)));
                 wasAnythingSet = true;
             }
 
@@ -362,14 +364,15 @@
 
             if (endpointAddress != null)
             {
-                telemetryConfigValues.Add(new KeyValuePair<string, string>(EndpointAddressForWebSites,
+                telemetryConfigValues.Add(new KeyValuePair<string, string>(
+                    EndpointAddressForWebSites,
                     endpointAddress));
                 wasAnythingSet = true;
             }
 
             if (wasAnythingSet)
             {
-                configurationSourceRoot.Add(new MemoryConfigurationSource() {InitialData = telemetryConfigValues});
+                configurationSourceRoot.Add(new MemoryConfigurationSource() { InitialData = telemetryConfigValues });
             }
 
             return configurationSourceRoot;
@@ -385,9 +388,9 @@
         ///              "EndpointAddress": "http://dc.services.visualstudio.com/v2/track",
         ///              "DeveloperMode": true
         ///          }
-        ///      }
+        ///      }.
         /// </para>
-        /// Values can also be read from environment variables to support azure web sites configuration:
+        /// Values can also be read from environment variables to support azure web sites configuration.
         /// </summary>
         /// <param name="config">Configuration to read variables from.</param>
         /// <param name="serviceOptions">Telemetry configuration to populate.</param>

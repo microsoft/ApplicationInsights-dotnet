@@ -25,7 +25,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         private readonly object lockObject = new object();
 
         /// <summary>
-        /// RequestTrackingTelemetryModule
+        /// RequestTrackingTelemetryModule.
         /// </summary>
         public RequestTrackingTelemetryModule() : this(null)
         {
@@ -95,7 +95,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
             catch (Exception e)
             {
                 AspNetCoreEventSource.Instance.RequestTrackingModuleInitializationFailed(e.Message);
-            }            
+            }
         }
 
         /// <inheritdoc />

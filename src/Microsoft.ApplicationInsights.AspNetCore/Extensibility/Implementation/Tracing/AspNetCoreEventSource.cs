@@ -3,15 +3,18 @@
 //     Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
+
 namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 
     /// <summary>
     /// Event source for Application Insights ASP.NET Core SDK.
     /// </summary>
     [EventSource(Name = "Microsoft-ApplicationInsights-AspNetCore")]
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class AspNetCoreEventSource : EventSource
     {
         /// <summary>
@@ -128,7 +131,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Keywords = Keywords.Diagnostics,
             Message = "An error has occured which may prevent application insights from functioning. Error message: '{0}' ",
             Level = EventLevel.Warning)]
-        public void LogWarning(string errorMessage,string appDomainName = "Incorrect")
+        public void LogWarning(string errorMessage, string appDomainName = "Incorrect")
         {
             this.WriteEvent(14, errorMessage, this.ApplicationName);
         }
@@ -148,7 +151,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Keywords = Keywords.Diagnostics,
             Message = "An error has occured in DiagnosticSource listener. Listener: '{0}' Callback: '{1}'. Error message: '{2}' ",
             Level = EventLevel.Warning)]
-        public void DiagnosticListenerWarning(string listener,string callback, string errorMessage, string appDomainName = "Incorrect")
+        public void DiagnosticListenerWarning(string listener, string callback, string errorMessage, string appDomainName = "Incorrect")
         {
             this.WriteEvent(16, listener, callback, errorMessage, this.ApplicationName);
         }
