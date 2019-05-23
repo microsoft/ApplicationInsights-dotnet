@@ -2,7 +2,6 @@
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
-    using ApplicationInsights;
     using Microsoft.ApplicationInsights;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Options;

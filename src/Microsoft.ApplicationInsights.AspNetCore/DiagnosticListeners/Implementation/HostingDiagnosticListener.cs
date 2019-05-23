@@ -176,7 +176,7 @@
                     currentActivity = newActivity;
                 }
 
-                var requestTelemetry = InitializeRequestTelemetry(httpContext, currentActivity, isActivityCreatedFromRequestIdHeader, Stopwatch.GetTimestamp());
+                var requestTelemetry = InitializeRequestTelemetry(httpContext, currentActivity, Stopwatch.GetTimestamp());
                 if (this.enableW3CHeaders && sourceAppId != null)
                 {
                     requestTelemetry.Source = sourceAppId;

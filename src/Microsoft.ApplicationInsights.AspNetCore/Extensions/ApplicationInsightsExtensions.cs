@@ -351,7 +351,7 @@
             if (developerMode != null)
             {
                 telemetryConfigValues.Add(new KeyValuePair<string, string>(DeveloperModeForWebSites,
-                    developerMode.Value.ToString(CultureInfo.InvariantCulture)));
+                    developerMode.Value.ToString()));
                 wasAnythingSet = true;
             }
 
