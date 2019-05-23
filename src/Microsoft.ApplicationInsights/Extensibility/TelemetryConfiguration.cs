@@ -79,9 +79,10 @@
         /// needed to send telemetry to Application Insights.
         /// </summary>
 #if NETSTANDARD1_3 || NETSTANDARD2_0
-        [Obsolete(@"We do not recommend using TelemetryConfiguration.Active on .NET Core.
-Instead we suggest using dependency injection extensions. 
-See https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-2.2 and https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core for more info")]
+        [Obsolete("We do not recommend using TelemetryConfiguration.Active on .NET Core. " +
+                  "Instead we suggest using dependency injection pattern. " +
+                  "See https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-2.2 " +
+                  "and https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core for more info")]
 #endif 
         public static TelemetryConfiguration Active
         {
