@@ -298,7 +298,7 @@
                 return false;
             }
 
-            if (!this.includedTypesFlags.HasFlag(telemetryItemTypeFlag))
+            if (this.includedTypesFlags != SamplingTelemetryItemTypes.None && !this.includedTypesFlags.HasFlag(telemetryItemTypeFlag))
             {
                 return false;
             }

@@ -172,6 +172,11 @@
         }
 
         /// <summary>
+        /// Gets item type for sampling evaluation
+        /// </summary>
+        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Event;
+
+        /// <summary>
         /// Gets or sets the source for the request telemetry object. This often is a hashed instrumentation key identifying the caller.
         /// </summary>
         public string Source
