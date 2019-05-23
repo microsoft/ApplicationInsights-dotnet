@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 2.7.0
+ - Updated Web/Base SDK version dependency to 2.10.0
 - [Remove unused reference to System.Net.Http](https://github.com/microsoft/ApplicationInsights-aspnetcore/pull/879)
 
 ## Version 2.7.0-beta4
