@@ -1,13 +1,12 @@
-﻿using System.Globalization;
-
-namespace Microsoft.Extensions.DependencyInjection
+﻿namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
-    using System.Reflection;    
+    using System.Reflection;
     using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.AspNetCore;    
+    using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
@@ -17,7 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.ApplicationInsights.WindowsServer;    
+    using Microsoft.ApplicationInsights.WindowsServer;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -26,6 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.Extensions.Configuration.Memory;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
+    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
 
     /// <summary>
@@ -213,28 +213,28 @@ namespace Microsoft.Extensions.DependencyInjection
                     // NetStandard2.0 has a package reference to Microsoft.Extensions.Logging.ApplicationInsights, and
                     // enables ApplicationInsightsLoggerProvider by default.                
 #if NETSTANDARD2_0
-                services.AddLogging(loggingBuilder =>
-                {
-                     loggingBuilder.AddApplicationInsights();
+                    services.AddLogging(loggingBuilder =>
+                    {
+                         loggingBuilder.AddApplicationInsights();
 
-                    // The default behavior is to capture only logs above Warning level from all categories.
-                    // This can achieved with this code level filter -> loggingBuilder.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>("",LogLevel.Warning);
-                    // However, this will make it impossible to override this behavior from Configuration like below using appsettings.json:
-                    //"ApplicationInsights": {
-                    // "LogLevel": {
-                    // "": "Error"
-                    // }
-                    // },
-                    // The reason is as both rules will match the filter, the last one added wins.
-                    // To ensure that the default filter is in the beginning of filter rules, so that user override from Configuration will always win, 
-                    // we add code filter rule to the 0th position as below.
-
-                    loggingBuilder.Services.Configure<LoggerFilterOptions>
-                    (options => options.Rules.Insert(0,
-                        new LoggerFilterRule(
-                            "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider", null,
-                            LogLevel.Warning, null)));
-                });                                
+                        // The default behavior is to capture only logs above Warning level from all categories.
+                        // This can achieved with this code level filter -> loggingBuilder.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>("",LogLevel.Warning);
+                        // However, this will make it impossible to override this behavior from Configuration like below using appsettings.json:
+                        // "ApplicationInsights": {
+                        // "LogLevel": {
+                        // "": "Error"
+                        // }
+                        // },
+                        // The reason is as both rules will match the filter, the last one added wins.
+                        // To ensure that the default filter is in the beginning of filter rules, so that user override from Configuration will always win, 
+                        // we add code filter rule to the 0th position as below.
+                         loggingBuilder.Services.Configure<LoggerFilterOptions>(
+                        options => options.Rules.Insert(
+                            0,
+                            new LoggerFilterRule(
+                                "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider", null,
+                                LogLevel.Warning, null)));
+                    });
 #endif
                 }
                 return services;
@@ -243,7 +243,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 AspNetCoreEventSource.Instance.LogWarning(e.Message);
                 return services;
-            }            
+            }
         }
 
         /// <summary>

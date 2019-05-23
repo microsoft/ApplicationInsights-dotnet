@@ -289,7 +289,7 @@
 
                 activity.Start();
 
-                var requestTelemetry = InitializeRequestTelemetry(httpContext, activity, isActivityCreatedFromRequestIdHeader, timestamp);
+                var requestTelemetry = this.InitializeRequestTelemetry(httpContext, activity, timestamp);
                 if (this.enableW3CHeaders && sourceAppId != null)
                 {
                     requestTelemetry.Source = sourceAppId;
@@ -297,7 +297,7 @@
 
                 // fix parent that may be modified by non-W3C operation correlation
                 requestTelemetry.Context.Operation.ParentId = originalParentId;
-                SetAppIdInResponseHeader(httpContext, requestTelemetry);
+                this.SetAppIdInResponseHeader(httpContext, requestTelemetry);
             }
         }
 
