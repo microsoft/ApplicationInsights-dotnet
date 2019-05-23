@@ -5,7 +5,6 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Net.Http.Headers;
     using System.Text;
     using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners.Implementation;
@@ -550,10 +549,11 @@
             {
                 foreach (var item in baggage)
                 {
-                    if (NameValueHeaderValue.TryParse(item, out var baggageItem))
+                    var parts = item.Split('=');
+                    if (parts.Length == 2)
                     {
-                        var itemName = StringUtilities.EnforceMaxLength(baggageItem.Name, InjectionGuardConstants.ContextHeaderKeyMaxLength);
-                        var itemValue = StringUtilities.EnforceMaxLength(baggageItem.Value, InjectionGuardConstants.ContextHeaderValueMaxLength);
+                        var itemName = StringUtilities.EnforceMaxLength(parts[0], InjectionGuardConstants.ContextHeaderKeyMaxLength);
+                        var itemValue = StringUtilities.EnforceMaxLength(parts[1], InjectionGuardConstants.ContextHeaderValueMaxLength);
                         activity.AddBaggage(itemName, itemValue);
                     }
                 }
