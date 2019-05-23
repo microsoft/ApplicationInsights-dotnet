@@ -2129,6 +2129,7 @@
             return client;
         }
 
+#pragma warning disable 612, 618  // obsolete TelemetryConfigration.Active
         /// <summary>
         /// Resets the TelemetryConfiguration.Active default instance to null so that the iKey auto population paths can be followed for testing.
         /// </summary>
@@ -2136,6 +2137,7 @@
         {
             TelemetryConfiguration.Active = null;
         }
+#pragma warning restore 612, 618  // obsolete TelemetryConfigration.Active
 
         private double ComputeSomethingHeavy()
         {

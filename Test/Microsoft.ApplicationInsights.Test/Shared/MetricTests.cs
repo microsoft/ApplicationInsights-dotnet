@@ -1,8 +1,7 @@
-﻿using System;
+﻿#pragma warning disable 612, 618  // obsolete TelemetryConfigration.Active
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.ExceptionServices;
 
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Metrics;
@@ -1870,3 +1869,4 @@ namespace Microsoft.ApplicationInsights
         }
     }
 }
+#pragma warning restore 612, 618  // obsolete TelemetryConfigration.Active
