@@ -48,7 +48,9 @@
                 
         <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(EnlistmentRoot.Length)))</RelativeOutputPathBase>
 
-        <BaseIntermediateOutputPath>$(EnlistmentRoot)\..\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
+        <!-- Unit Test projects should be in a separate obj directory to exclude them from SDL scans -->
+        <BaseIntermediateOutputPath>$(EnlistmentRoot)\..\obj\src\$(MSBuildProjectName)</BaseIntermediateOutputPath>
+        <BaseIntermediateOutputPath Condition="$(MSBuildProjectName.Contains('.Tests'))">$(EnlistmentRoot)\..\obj\tests\$(MSBuildProjectName)</BaseIntermediateOutputPath>
         <BaseIntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(BaseIntermediateOutputPath) ))</BaseIntermediateOutputPath>
         
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>

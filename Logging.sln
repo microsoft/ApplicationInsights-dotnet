@@ -55,7 +55,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "EventSource.Shared", "src\E
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSourceListener.netcoreapp1.Tests", "test\DiagnosticSourceListener.netcoreapp10.Tests\DiagnosticSourceListener.netcoreapp1.Tests.csproj", "{625DABF6-C4AD-41A9-B2C0-04C9FEC2ADCF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloWorldTest", "HelloWorldTest\HelloWorldTest.csproj", "{7AAF876A-43B5-4F47-B402-DC5C94948F3F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloWorld.Tests", "HelloWorldTest\HelloWorld.Tests.csproj", "{7AAF876A-43B5-4F47-B402-DC5C94948F3F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceListener.netcoreapp10.Tests", "test\TraceListener.netcoreapp10.Tests\TraceListener.netcoreapp10.Tests.csproj", "{11E4A92F-154E-450B-8508-437C28744BC2}"
 EndProject
@@ -65,7 +65,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Log4NetAppender.NetCoreApp1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILogger", "src\ILogger\ILogger.csproj", "{7D942802-E85E-4C3C-B97E-67A3867B7CBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILogger.NetStandard.Tests", "test\ILogger.NetStandard.Tests\ILogger.NetStandard.Tests.csproj", "{4C1B862F-8F19-4D0F-834D-694DDE0438AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILogger.NetStandard.Tests", "test\ILogger.NetStandard.Tests\ILogger.NetStandard.Tests.csproj", "{4C1B862F-8F19-4D0F-834D-694DDE0438AE}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
