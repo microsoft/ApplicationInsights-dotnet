@@ -17,6 +17,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="AspNetCoreEnvironmentTelemetryInitializer"/> class.
         /// </summary>
+        /// <param name="environment">HostingEnvironment to provide EnvironmentName to be added to telemetry properties.</param>
         public AspNetCoreEnvironmentTelemetryInitializer(IHostingEnvironment environment)
         {
             this.environment = environment;

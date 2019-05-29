@@ -20,6 +20,10 @@
 
         private char[] headerValueSeparators;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClientIpHeaderTelemetryInitializer" /> class.
+        /// </summary>
+        /// <param name="httpContextAccessor">Accessor to provide HttpContext corresponding to telemetry items.</param>
         public ClientIpHeaderTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
              : base(httpContextAccessor)
         {
@@ -58,6 +62,7 @@
         /// </summary>
         public bool UseFirstIp { get; set; }
 
+        /// <inheritdoc />
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
             if (!string.IsNullOrEmpty(telemetry.Context.Location.Ip))

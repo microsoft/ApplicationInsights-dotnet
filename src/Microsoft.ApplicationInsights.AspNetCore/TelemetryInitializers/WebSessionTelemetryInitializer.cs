@@ -5,11 +5,17 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Http;
 
-    /// <inheritdoc />
+    /// <summary>
+    /// This telemetry initializer sets the Context.Session properties on an ITelemetry item.
+    /// </summary>
     public class WebSessionTelemetryInitializer : TelemetryInitializerBase
     {
         private const string WebSessionCookieName = "ai_session";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WebSessionTelemetryInitializer" /> class.
+        /// </summary>
+        /// <param name="httpContextAccessor">Accessor to provide HttpContext corresponding to telemetry items.</param>
         public WebSessionTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
              : base(httpContextAccessor)
         {

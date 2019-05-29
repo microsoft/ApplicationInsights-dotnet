@@ -134,6 +134,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore
             this.Dispose(true);
         }
 
+        /// <summary>
+        /// Dispose the class.
+        /// </summary>
+        /// <param name="disposing">Indicates if this class is currently being disposed.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposing)

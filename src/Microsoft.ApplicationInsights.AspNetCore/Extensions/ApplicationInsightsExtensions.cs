@@ -2,9 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Reflection;
+
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
@@ -23,7 +24,6 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
@@ -42,12 +42,14 @@
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
 
+        [SuppressMessage(category: "", checkId: "CS1591:MissingXmlComment", Justification = "Obsolete method.")]
         [Obsolete("This middleware is no longer needed. Enable Request monitoring using services.AddApplicationInsights")]
         public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
         {
             return app;
         }
 
+        [SuppressMessage(category: "", checkId: "CS1591:MissingXmlComment", Justification = "Obsolete method.")]
         [Obsolete("This middleware is no longer needed to track exceptions as they are automatically tracked by RequestTrackingTelemetryModule")]
         public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
         {
@@ -358,7 +360,7 @@
             {
                 telemetryConfigValues.Add(new KeyValuePair<string, string>(DeveloperModeForWebSites,
 #if !NETSTANDARD1_6
-                    developerMode.Value.ToString(CultureInfo.InvariantCulture)));
+                    developerMode.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)));
 #else
                     developerMode.Value.ToString()));
 #endif

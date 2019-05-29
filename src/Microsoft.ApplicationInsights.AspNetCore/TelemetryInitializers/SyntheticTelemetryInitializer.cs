@@ -1,14 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Net.Sockets;
-    using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Http.Features;
 
     /// <summary>
     /// This will allow to mark synthetic traffic from availability tests
@@ -20,11 +14,16 @@
 
         private const string SyntheticSourceHeaderValue = "Application Insights Availability Monitoring";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SyntheticTelemetryInitializer" /> class.
+        /// </summary>
+        /// <param name="httpContextAccessor">Accessor to provide HttpContext corresponding to telemetry items.</param>
         public SyntheticTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
              : base(httpContextAccessor)
         {
         }
 
+        /// <inheritdoc />
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
             if (string.IsNullOrEmpty(telemetry.Context.Operation.SyntheticSource))
