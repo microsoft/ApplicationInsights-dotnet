@@ -27,10 +27,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         /// <summary>
         /// Prevents a default instance of the <see cref="AspNetCoreEventSource"/> class from being created.
         /// </summary>
-        private AspNetCoreEventSource() : base()
+        private AspNetCoreEventSource()
+            : base()
         {
             try
-            {                
+            {
                 this.ApplicationName = System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
             }
             catch (Exception exp)
@@ -42,7 +43,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         /// <summary>
         /// Gets the application name for use in logging events.
         /// </summary>
-        public string ApplicationName { [NonEvent] get; [NonEvent]private set; }
+        public string ApplicationName
+        {
+            [NonEvent]
+            get;
+            [NonEvent]
+            private set;
+        }
 
         /// <summary>
         /// Logs an event for the TelemetryInitializerBase Initialize method when the HttpContext is null.

@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNetCore.Hosting;
 
@@ -23,10 +24,15 @@
 
         /// <inheritdoc />
         public void Initialize(ITelemetry telemetry)
-        {   
-            if (this.environment != null && !telemetry.Context.Properties.ContainsKey(AspNetCoreEnvironmentPropertyName))
+        {
+            if (this.environment != null)
             {
-                telemetry.Context.Properties.Add(AspNetCoreEnvironmentPropertyName, this.environment.EnvironmentName);
+                if (telemetry is ISupportProperties telProperties && !telProperties.Properties.ContainsKey(AspNetCoreEnvironmentPropertyName))
+                {
+                    telProperties.Properties.Add(
+                        AspNetCoreEnvironmentPropertyName,
+                        this.environment.EnvironmentName);
+                }
             }
         }
     }

@@ -60,7 +60,8 @@
         /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
         /// <param name="instrumentationKey">Instrumentation key to use for telemetry.</param>
         /// <returns>The <see cref="IServiceCollection"/>.</returns>
-        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services,
+        public static IServiceCollection AddApplicationInsightsTelemetry(
+            this IServiceCollection services,
             string instrumentationKey)
         {
             services.AddApplicationInsightsTelemetry(options => options.InstrumentationKey = instrumentationKey);
@@ -73,7 +74,8 @@
         /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
         /// <param name="configuration">Configuration to use for sending telemetry.</param>
         /// <returns>The <see cref="IServiceCollection"/>.</returns>
-        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services,
+        public static IServiceCollection AddApplicationInsightsTelemetry(
+            this IServiceCollection services,
             IConfiguration configuration)
         {
             services.AddApplicationInsightsTelemetry(options => AddTelemetryConfiguration(configuration, options));
@@ -88,7 +90,8 @@
         /// <returns>
         /// The <see cref="IServiceCollection"/>.
         /// </returns>
-        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services,
+        public static IServiceCollection AddApplicationInsightsTelemetry(
+            this IServiceCollection services,
             Action<ApplicationInsightsServiceOptions> options)
         {
             services.AddApplicationInsightsTelemetry();
@@ -104,7 +107,8 @@
         /// <returns>
         /// The <see cref="IServiceCollection"/>.
         /// </returns>
-        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services,
+        public static IServiceCollection AddApplicationInsightsTelemetry(
+            this IServiceCollection services,
             ApplicationInsightsServiceOptions options)
         {
             services.AddApplicationInsightsTelemetry();
@@ -202,7 +206,7 @@
                     // Using startup filter instead of starting DiagnosticListeners directly because
                     // AspNetCoreHostingDiagnosticListener injects TelemetryClient that injects TelemetryConfiguration
                     // that requires IOptions infrastructure to run and initialize
-                    services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();                    
+                    services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
                     services.AddSingleton<JavaScriptSnippet>();
 
                     services.AddOptions();
@@ -211,7 +215,7 @@
                         .AddSingleton<IConfigureOptions<TelemetryConfiguration>, TelemetryConfigurationOptionsSetup>();
 
                     // NetStandard2.0 has a package reference to Microsoft.Extensions.Logging.ApplicationInsights, and
-                    // enables ApplicationInsightsLoggerProvider by default.                
+                    // enables ApplicationInsightsLoggerProvider by default.
 #if NETSTANDARD2_0
                     services.AddLogging(loggingBuilder =>
                     {
@@ -226,7 +230,7 @@
                         // }
                         // },
                         // The reason is as both rules will match the filter, the last one added wins.
-                        // To ensure that the default filter is in the beginning of filter rules, so that user override from Configuration will always win, 
+                        // To ensure that the default filter is in the beginning of filter rules, so that user override from Configuration will always win,
                         // we add code filter rule to the 0th position as below.
                          loggingBuilder.Services.Configure<LoggerFilterOptions>(
                         options => options.Rules.Insert(
@@ -237,6 +241,7 @@
                     });
 #endif
                 }
+
                 return services;
             }
             catch (Exception e)
@@ -281,7 +286,7 @@
 
             if (!telemetryProcessorType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(ITelemetryProcessor)))
             {
-                throw new ArgumentException(nameof(telemetryProcessorType));
+                throw new ArgumentException(nameof(telemetryProcessorType) + "does not implement ITelemetryProcessor.");
             }
 
             return services.AddSingleton<ITelemetryProcessorFactory>(serviceProvider =>
@@ -297,7 +302,7 @@
         /// The <see cref="IServiceCollection"/>.
         /// </returns>
         [Obsolete("Use ConfigureTelemetryModule overload that accepts ApplicationInsightsServiceOptions.")]
-        public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services, Action<T> configModule) 
+        public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services, Action<T> configModule)
             where T : ITelemetryModule
         {
             if (configModule == null)
@@ -316,9 +321,10 @@
         /// <param name="configModule">Action used to configure the module.</param>
         /// <returns>
         /// The <see cref="IServiceCollection"/>.
-        /// </returns>        
-        public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services,
-            Action<T, ApplicationInsightsServiceOptions> configModule) 
+        /// </returns>
+        public static IServiceCollection ConfigureTelemetryModule<T>(
+            this IServiceCollection services,
+            Action<T, ApplicationInsightsServiceOptions> configModule)
             where T : ITelemetryModule
         {
             if (configModule == null)
@@ -351,7 +357,11 @@
             if (developerMode != null)
             {
                 telemetryConfigValues.Add(new KeyValuePair<string, string>(DeveloperModeForWebSites,
+#if !NETSTANDARD1_6
+                    developerMode.Value.ToString(CultureInfo.InvariantCulture)));
+#else
                     developerMode.Value.ToString()));
+#endif
                 wasAnythingSet = true;
             }
 

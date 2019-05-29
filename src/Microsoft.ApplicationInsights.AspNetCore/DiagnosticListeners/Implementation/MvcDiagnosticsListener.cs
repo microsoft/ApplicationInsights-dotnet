@@ -107,7 +107,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             {
                 if (value.Key == "Microsoft.AspNetCore.Mvc.BeforeAction")
                 {
-                    var context = httpContextFetcher.Fetch(value.Value) as HttpContext;
+                    var context = this.httpContextFetcher.Fetch(value.Value) as HttpContext;
                     var routeData = routeDataFetcher.Fetch(value.Value);
                     var routeValues = routeValuesFetcher.Fetch(routeData) as IDictionary<string, object>;
 

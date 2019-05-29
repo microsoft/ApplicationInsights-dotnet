@@ -15,14 +15,14 @@
         Type TelemetryModuleType { get; }
 
         /// <summary>
-        /// Configures the given <see cref="ITelemetryModule"/>     
+        /// Configures the given <see cref="ITelemetryModule"/>
         /// </summary>
         [Obsolete("Use Configure(ITelemetryModule telemetryModule, ApplicationInsightsServiceOptions options) instead.")]
         void Configure(ITelemetryModule telemetryModule);
 
         /// <summary>
-        /// Configures the given <see cref="ITelemetryModule"/>.     
+        /// Configures the given <see cref="ITelemetryModule"/>.
         /// </summary>
-        void Configure(ITelemetryModule telemetryModule, ApplicationInsightsServiceOptions options);        
+        void Configure(ITelemetryModule telemetryModule, ApplicationInsightsServiceOptions options);
     }
 }

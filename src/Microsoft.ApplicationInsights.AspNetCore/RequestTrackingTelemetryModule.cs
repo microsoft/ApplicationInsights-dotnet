@@ -27,7 +27,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         /// <summary>
         /// RequestTrackingTelemetryModule.
         /// </summary>
-        public RequestTrackingTelemetryModule() : this(null)
+        public RequestTrackingTelemetryModule() 
+            : this(null)
         {
             this.CollectionOptions = new RequestCollectionOptions();
         }

@@ -105,7 +105,7 @@
                     }
                 }
             }
-            
+
             telemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
         }
 

@@ -9,7 +9,6 @@
     /// </summary>
     public static class HttpRequestExtensions
     {
-
         private const string UnknownHostName = "UNKNOWN-HOST";
 
         /// <summary>
@@ -18,17 +17,17 @@
         /// <param name="request">The <see cref="HttpRequest"/></param>
         /// <returns>A New Uri object representing request Uri.</returns>
         public static Uri GetUri(this HttpRequest request)
-        {            
-            if (null == request)
+        {
+            if (request == null)
             {
                 throw new ArgumentNullException(nameof(request));
             }
 
-            if (true == string.IsNullOrWhiteSpace(request.Scheme))
+            if (string.IsNullOrWhiteSpace(request.Scheme) == true)
             {
                 throw new ArgumentException("Http request Scheme is not specified");
             }
-            
+
             return new Uri(string.Concat(
                     request.Scheme,
                     "://",

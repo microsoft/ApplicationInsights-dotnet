@@ -20,6 +20,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                     result = headerValues.SelectMany(headerValue => headerValue.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
                 }
             }
+
             return result;
         }
 

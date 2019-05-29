@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore
 {
-    using System;    
+    using System;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNetCore.Builder;
@@ -28,7 +28,7 @@
                 catch (Exception ex)
                 {
                     AspNetCoreEventSource.Instance.LogWarning(ex.Message);
-                }                
+                }
             };
         }
     }

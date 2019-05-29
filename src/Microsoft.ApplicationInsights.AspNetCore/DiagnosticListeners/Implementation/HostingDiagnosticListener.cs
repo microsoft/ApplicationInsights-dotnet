@@ -115,6 +115,7 @@
                 string originalParentId = currentActivity.ParentId;
 
                 Activity newActivity = null;
+
                 // W3C
                 if (this.enableW3CHeaders)
                 {
@@ -133,12 +134,14 @@
                          alternativeRootIdValues != StringValues.Empty)
                 {
                     newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener)
-                        .SetParentId(StringUtilities.EnforceMaxLength(alternativeRootIdValues.First(),
-                        InjectionGuardConstants.RequestHeaderMaxLength));
+                        .SetParentId(StringUtilities.EnforceMaxLength(
+                            alternativeRootIdValues.First(),
+                            InjectionGuardConstants.RequestHeaderMaxLength));
 
                     if (httpContext.Request.Headers.TryGetValue(RequestResponseHeaders.StandardParentIdHeader, out StringValues parentId))
                     {
-                        originalParentId = StringUtilities.EnforceMaxLength(parentId.First(),
+                        originalParentId = StringUtilities.EnforceMaxLength(
+                            parentId.First(),
                             InjectionGuardConstants.RequestHeaderMaxLength);
                     }
                 }
@@ -153,7 +156,6 @@
                     // So if there is no current Activity (i.e. there were no Request-Id header in the incoming request), we'll override ParentId on
                     // the current Activity by the properly formatted one. This workaround should go away
                     // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
-
                     newActivity = new Activity(ActivityCreatedByHostingDiagnosticListener);
                     if (this.enableW3CHeaders)
                     {
@@ -164,6 +166,7 @@
                     {
                         newActivity.SetParentId(W3CUtilities.GenerateTraceId());
                     }
+
                     // end of workaround
                 }
 
@@ -173,7 +176,7 @@
                     currentActivity = newActivity;
                 }
 
-                var requestTelemetry = InitializeRequestTelemetry(httpContext, currentActivity, Stopwatch.GetTimestamp());
+                var requestTelemetry = this.InitializeRequestTelemetry(httpContext, currentActivity, Stopwatch.GetTimestamp());
                 if (this.enableW3CHeaders && sourceAppId != null)
                 {
                     requestTelemetry.Source = sourceAppId;
@@ -216,6 +219,7 @@
                 IHeaderDictionary requestHeaders = httpContext.Request.Headers;
 
                 string originalParentId = null;
+
                 // W3C
                 if (this.enableW3CHeaders)
                 {
@@ -253,7 +257,8 @@
 
                     if (originalParentId == null && requestHeaders.TryGetValue(RequestResponseHeaders.StandardParentIdHeader, out StringValues parentId))
                     {
-                        originalParentId = StringUtilities.EnforceMaxLength(parentId.First(),
+                        originalParentId = StringUtilities.EnforceMaxLength(
+                            parentId.First(),
                             InjectionGuardConstants.RequestHeaderMaxLength);
                     }
                 }
@@ -268,7 +273,6 @@
                     // So if there is no current Activity (i.e. there were no Request-Id header in the incoming request), we'll override ParentId on
                     // the current Activity by the properly formatted one. This workaround should go away
                     // with W3C support on .NET https://github.com/dotnet/corefx/issues/30331
-
                     if (this.enableW3CHeaders)
                     {
                         activity.GenerateW3CContext();
@@ -358,6 +362,7 @@
                         {
                             this.OnHttpRequestInStart(httpContext);
                         }
+
                         break;
                     case "Microsoft.AspNetCore.Hosting.HttpRequestIn.Stop":
                         httpContext = this.httpContextFetcherStop.Fetch(value.Value) as HttpContext;
@@ -365,6 +370,7 @@
                         {
                             this.OnHttpRequestInStop(httpContext);
                         }
+
                         break;
                     case "Microsoft.AspNetCore.Hosting.BeginRequest":
                         httpContext = this.httpContextFetcherBeginRequest.Fetch(value.Value) as HttpContext;
@@ -373,6 +379,7 @@
                         {
                             this.OnBeginRequest(httpContext, timestamp.Value);
                         }
+
                         break;
                     case "Microsoft.AspNetCore.Hosting.EndRequest":
                         httpContext = this.httpContextFetcherEndRequest.Fetch(value.Value) as HttpContext;
@@ -381,6 +388,7 @@
                         {
                             this.OnEndRequest(httpContext, timestamp.Value);
                         }
+
                         break;
                     case "Microsoft.AspNetCore.Diagnostics.UnhandledException":
                         httpContext = this.httpContextFetcherDiagExceptionUnhandled.Fetch(value.Value) as HttpContext;
@@ -397,6 +405,7 @@
                         {
                             this.OnDiagnosticsHandledException(httpContext, exception);
                         }
+
                         break;
                     case "Microsoft.AspNetCore.Hosting.UnhandledException":
                         httpContext = this.httpContextFetcherHostingExceptionUnhandled.Fetch(value.Value) as HttpContext;
@@ -405,6 +414,7 @@
                         {
                             this.OnHostingException(httpContext, exception);
                         }
+
                         break;
                 }
             }
@@ -448,7 +458,7 @@
 
             this.client.InitializeInstrumentationKey(requestTelemetry);
 
-            requestTelemetry.Source = GetAppIdFromRequestHeader(httpContext.Request.Headers, requestTelemetry.Context.InstrumentationKey);
+            requestTelemetry.Source = this.GetAppIdFromRequestHeader(httpContext.Request.Headers, requestTelemetry.Context.InstrumentationKey);
 
             requestTelemetry.Start(timestamp);
             httpContext.Features.Set(requestTelemetry);
@@ -494,7 +504,8 @@
                          RequestResponseHeaders.RequestContextTargetKey)))
                 {
                     string applicationId = null;
-                    if (this.applicationIdProvider?.TryGetApplicationId(requestTelemetry.Context.InstrumentationKey,
+                    if (this.applicationIdProvider?.TryGetApplicationId(
+                            requestTelemetry.Context.InstrumentationKey,
                             out applicationId) ?? false)
                     {
                         HttpHeadersUtilities.SetRequestContextKeyValue(
@@ -589,12 +600,14 @@
             sourceAppId = null;
             if (requestHeaders.TryGetValue(W3C.W3CConstants.TraceParentHeader, out StringValues traceParentValues))
             {
-                var parentTraceParent = StringUtilities.EnforceMaxLength(traceParentValues.First(),
+                var parentTraceParent = StringUtilities.EnforceMaxLength(
+                    traceParentValues.First(),
                     InjectionGuardConstants.TraceParentHeaderMaxLength);
                 activity.SetTraceparent(parentTraceParent);
             }
 
-            string[] traceStateValues = HttpHeadersUtilities.SafeGetCommaSeparatedHeaderValues(requestHeaders,
+            string[] traceStateValues = HttpHeadersUtilities.SafeGetCommaSeparatedHeaderValues(
+                requestHeaders,
                 W3C.W3CConstants.TraceStateHeader,
                 InjectionGuardConstants.TraceStateHeaderMaxLength,
                 InjectionGuardConstants.TraceStateMaxPairs);

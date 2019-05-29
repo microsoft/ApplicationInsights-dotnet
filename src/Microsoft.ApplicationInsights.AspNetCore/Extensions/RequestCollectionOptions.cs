@@ -11,6 +11,7 @@
         public RequestCollectionOptions()
         {
             this.InjectResponseHeaders = true;
+
             // In NetStandard20, ApplicationInsightsLoggerProvider is enabled by default,
             // which captures Exceptions. Disabling it in RequestCollectionModule to avoid duplication.
 #if NETSTANDARD2_0

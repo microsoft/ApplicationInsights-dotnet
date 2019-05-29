@@ -5,7 +5,7 @@
     using System.Net;
     using System.Net.NetworkInformation;
     using System.Threading;
-    using Channel;    
+    using Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
@@ -18,7 +18,7 @@
 
         /// <summary>
         /// Initializes role instance name and node name with the host name.
-        /// </summary>        
+        /// </summary>
         /// <param name="telemetry">Telemetry item.</param>
         public void Initialize(ITelemetry telemetry)
         {
@@ -33,7 +33,7 @@
         {
             string hostName = Dns.GetHostName();
 
-            // Issue #61: For dnxcore machine name does not have domain name like in full framework 
+            // Issue #61: For dnxcore machine name does not have domain name like in full framework
 #if NET451 || NET46
             string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
             if (!hostName.EndsWith(domainName, StringComparison.OrdinalIgnoreCase))
