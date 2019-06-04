@@ -24,16 +24,14 @@
         // if HttpApplicaiton.OnRequestExecute is available, we don't attempt to detect any correlation issues
         private static bool correlationIssuesDetectionComplete = typeof(HttpApplication).GetMethod("OnExecuteRequestStep") != null;
 
+        /// <summary>Tracks if given type should be included in telemetry. ConcurrentDictionary is used as a concurrent hashset.</summary>
+        private readonly ConcurrentDictionary<Type, bool> includedHttpHandlerTypes = new ConcurrentDictionary<Type, bool>();
+
         private TelemetryClient telemetryClient;
         private TelemetryConfiguration telemetryConfiguration;
         private bool initializationErrorReported;
         private ChildRequestTrackingSuppressionModule childRequestTrackingSuppressionModule = null;
-
-        /// <summary>
-        /// Handler types that are not TransferHandlers will be included in request tracking.
-        /// </summary>
-        private HashSet<Type> requestHandlerTypesDoNotFilter = new HashSet<Type>();
-
+        
         /// <summary>
         /// Gets or sets a value indicating whether child request suppression is enabled or disabled. 
         /// True by default.
@@ -371,7 +369,7 @@
             if (handler != null)
             {
                 var handlerType = handler.GetType();
-                if (!this.requestHandlerTypesDoNotFilter.Contains(handlerType))
+                if (!this.includedHttpHandlerTypes.ContainsKey(handlerType))
                 {
                     var handlerName = handlerType.FullName;
                     foreach (var h in this.Handlers)
@@ -383,7 +381,7 @@
                         }
                     }
 
-                    this.requestHandlerTypesDoNotFilter.Add(handlerType);
+                    this.includedHttpHandlerTypes.TryAdd(handlerType, true);
                 }
             }
 
