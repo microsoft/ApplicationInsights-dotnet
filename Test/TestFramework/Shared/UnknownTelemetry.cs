@@ -14,6 +14,8 @@
         private readonly TelemetryContext context;
         private IExtension extension;
         private double? samplingPercentage;
+        private bool supportsProactiveSampling = false;
+        private bool isProactivelySampledOut = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UnknownTelemetry"/> class.
@@ -47,7 +49,7 @@
         /// </summary>
         /// <param name="source">Source instance of <see cref="UnknownTelemetry"/> to clone from.</param>
         private UnknownTelemetry(UnknownTelemetry source)
-        {            
+        {
             this.context = source.context.DeepClone(this.Properties);
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
@@ -175,6 +177,20 @@
         /// Gets item type for sampling evaluation
         /// </summary>
         public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Event;
+
+        /// <inheritdoc/>
+        public bool IsProactivelySampledOut
+        {
+            get { return this.isProactivelySampledOut; }
+            set { this.IsProactivelySampledOut = value; }
+        }
+
+        /// <inheritdoc/>
+        public bool SupportsProactiveSampling
+        {
+            get { return this.supportsProactiveSampling; }
+            set { this.supportsProactiveSampling = value; }
+        }
 
         /// <summary>
         /// Gets or sets the source for the request telemetry object. This often is a hashed instrumentation key identifying the caller.

@@ -28,6 +28,16 @@
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
         private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
+        private readonly Dictionary<SamplingTelemetryItemTypes, double> lastKnownSampleRatePerType = new Dictionary<SamplingTelemetryItemTypes, double>
+        {
+            { SamplingTelemetryItemTypes.Request, 100 },
+            { SamplingTelemetryItemTypes.RemoteDependency, 100 },
+            { SamplingTelemetryItemTypes.Exception, 100 },
+            { SamplingTelemetryItemTypes.Event, 100 },
+            { SamplingTelemetryItemTypes.PageView, 100 },
+            { SamplingTelemetryItemTypes.Message, 100 },
+        };
+
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
@@ -104,15 +114,6 @@
                     active = value;
                 }
             }
-        }
-
-        /// <summary>
-        /// Gets or sets last known request sampling percentage to skip initializers for sampled requests
-        /// </summary>
-        public double? LastObservedRequestSamplingPercentage
-        {
-            get;
-            set;
         }
 
         /// <summary>
@@ -307,6 +308,22 @@
             var configuration = new TelemetryConfiguration();
             TelemetryConfigurationFactory.Instance.Initialize(configuration, null, config);
             return configuration;
+        }
+
+        /// <summary>
+        /// Gets last known request sampling percentage to skip initializers for sampled requests
+        /// </summary>
+        public double GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes samplingItemType)
+        {
+            return this.lastKnownSampleRatePerType[samplingItemType];
+        }
+
+        /// <summary>
+        /// Sets last known request sampling percentage to skip initializers for sampled requests
+        /// </summary>
+        public void SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes samplingItemType, double value)
+        {
+            this.lastKnownSampleRatePerType[samplingItemType] = value;
         }
 
         /// <summary>

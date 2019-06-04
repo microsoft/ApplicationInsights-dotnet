@@ -37,8 +37,18 @@
         double? SamplingPercentage { get; set; }
 
         /// <summary>
-        /// Gets os sets the flag indentifying item's telemetry type to consider in sampling evaluation
+        /// Gets os sets the flag indicating item's telemetry type to consider in sampling evaluation
         /// </summary>
         SamplingTelemetryItemTypes ItemTypeFlag { get; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether item can be sampled out proactively
+        /// </summary>
+        bool SupportsProactiveSampling { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether item was proactively sampled out
+        /// </summary>
+        bool IsProactivelySampledOut { get; set; }
     }
 }

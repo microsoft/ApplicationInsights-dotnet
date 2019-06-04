@@ -24,6 +24,16 @@
 
         private readonly char[] listSeparators = { ';' };
         private readonly IDictionary<string, Type> allowedTypes;
+        private readonly long[] proactivelySampledOutItems = new long[] { 0, 0, 0, 0, 0, 0, 0 };
+        private readonly Dictionary<SamplingTelemetryItemTypes, int> typeToSamplingIndexMap = new Dictionary<SamplingTelemetryItemTypes, int>
+        {
+            { SamplingTelemetryItemTypes.Request, 1 },
+            { SamplingTelemetryItemTypes.RemoteDependency, 2 },
+            { SamplingTelemetryItemTypes.Exception, 3 },
+            { SamplingTelemetryItemTypes.Event, 4 },
+            { SamplingTelemetryItemTypes.PageView, 5 },
+            { SamplingTelemetryItemTypes.Message, 6 },
+        };
 
         private SamplingTelemetryItemTypes excludedTypesFlags;
         private HashSet<Type> excludedTypesHashSet;
@@ -117,21 +127,6 @@
                 }
 
                 this.excludedTypesFlags = newExcludedFlags;
-
-                // HashSet<Type> newExcludedTypesHashSet = new HashSet<Type>();
-                // if (!string.IsNullOrEmpty(value))
-                // {
-                //    string[] splitList = value.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
-                //    foreach (string item in splitList)
-                //    {
-                //        if (this.allowedTypes.ContainsKey(item))
-                //        {
-                //            newExcludedTypesHashSet.Add(this.allowedTypes[item]);
-                //        }
-                //    }
-                // }
-
-                // Interlocked.Exchange(ref this.excludedTypesHashSet, newExcludedTypesHashSet);
             }
         }
 
@@ -186,21 +181,6 @@
                 }
 
                 this.includedTypesFlags = newIncludedFlags;
-
-                // HashSet<Type> newIncludedTypesHashSet = new HashSet<Type>();
-                // if (!string.IsNullOrEmpty(value))
-                // {
-                //    string[] splitList = value.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
-                //    foreach (string item in splitList)
-                //    {
-                //        if (this.allowedTypes.ContainsKey(item))
-                //        {
-                //            newIncludedTypesHashSet.Add(this.allowedTypes[item]);
-                //        }
-                //    }
-                // }
-
-                // Interlocked.Exchange(ref this.includedTypesHashSet, newIncludedTypesHashSet);
             }
         }
 
@@ -278,7 +258,25 @@
 
             if (isSampledIn)
             {
-                this.SampledNext.Process(item);
+                if (samplingSupportingTelemetry.IsProactivelySampledOut)
+                {
+                    this.IncrementProactivelySampledOutItems(samplingSupportingTelemetry.ItemTypeFlag);
+
+                    if (TelemetryChannelEventSource.IsVerboseEnabled)
+                    {
+                        TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
+                    }
+                }
+                else
+                {
+                    if (this.GetProactivelySampledOutItems(samplingSupportingTelemetry.ItemTypeFlag) > 0)
+                    {
+                        samplingSupportingTelemetry.SamplingPercentage = samplingSupportingTelemetry.SamplingPercentage / 2;
+                        this.DecrementProactivelySampledOutItems(samplingSupportingTelemetry.ItemTypeFlag);
+                    }
+
+                    this.SampledNext.Process(item);
+                }
             }
             else
             { 
@@ -304,6 +302,27 @@
             }
 
             return true;
+        }
+
+        private void IncrementProactivelySampledOutItems(SamplingTelemetryItemTypes telemetryItemTypeFlag)
+        {
+            int typeIndex;
+            this.typeToSamplingIndexMap.TryGetValue(telemetryItemTypeFlag, out typeIndex);
+            Interlocked.Increment(ref this.proactivelySampledOutItems[typeIndex]);
+        }
+
+        private void DecrementProactivelySampledOutItems(SamplingTelemetryItemTypes telemetryItemTypeFlag)
+        {
+            int typeIndex;
+            this.typeToSamplingIndexMap.TryGetValue(telemetryItemTypeFlag, out typeIndex);
+            Interlocked.Decrement(ref this.proactivelySampledOutItems[typeIndex]);
+        }
+
+        private long GetProactivelySampledOutItems(SamplingTelemetryItemTypes telemetryItemTypeFlag)
+        {
+            int typeIndex;
+            this.typeToSamplingIndexMap.TryGetValue(telemetryItemTypeFlag, out typeIndex);
+            return Volatile.Read(ref this.proactivelySampledOutItems[typeIndex]);
         }
     }
 }

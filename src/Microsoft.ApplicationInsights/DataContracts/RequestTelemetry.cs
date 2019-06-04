@@ -29,6 +29,8 @@
         private bool successFieldSet;
         private IExtension extension;
         private double? samplingPercentage;
+        private bool supportsProactiveSampling = true;
+        private bool isProactivelySampledOut = false;
         private bool success = true;
         private IDictionary<string, double> measurementsValue;
 
@@ -240,6 +242,20 @@
         /// </summary>
         public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Request;
 
+        /// <inheritdoc/>
+        public bool IsProactivelySampledOut
+        {
+            get { return this.isProactivelySampledOut; }
+            set { this.isProactivelySampledOut = value; }
+        }
+
+        /// <inheritdoc/>
+        public bool SupportsProactiveSampling
+        {
+            get { return this.supportsProactiveSampling; }
+            set { this.supportsProactiveSampling = value; }
+        }
+
         /// <summary>
         /// Gets or sets the source for the request telemetry object. This often is a hashed instrumentation key identifying the caller.
         /// </summary>
@@ -377,6 +393,9 @@
             this.MetricExtractorInfo = null;
             this.Sequence = null;
             this.Success = null;
+
+            this.isProactivelySampledOut = false;
+            this.samplingPercentage = null;            
 #pragma warning restore CS0618 // Type or member is obsolete
         }
     }

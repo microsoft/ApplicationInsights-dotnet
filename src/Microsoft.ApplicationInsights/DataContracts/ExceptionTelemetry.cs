@@ -29,6 +29,8 @@
         private Exception exception;
         private string message;
         private double? samplingPercentage;
+        private bool supportsProactiveSampling = false;
+        private bool isProactivelySampledOut = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionTelemetry"/> class with empty properties.
@@ -277,6 +279,20 @@
         /// Gets item type for sampling evaluation
         /// </summary>
         public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Exception;
+
+        /// <inheritdoc/>
+        public bool IsProactivelySampledOut
+        {
+            get { return this.isProactivelySampledOut; }
+            set { this.isProactivelySampledOut = value; }
+        }
+
+        /// <inheritdoc/>
+        public bool SupportsProactiveSampling
+        {
+            get { return this.supportsProactiveSampling; }
+            set { this.supportsProactiveSampling = value; }
+        }
 
         internal IList<ExceptionDetails> Exceptions
         {

@@ -509,63 +509,89 @@
                 Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
             }
 
-            bool sampledIn = false;
-
             telemetry.Context.Initialize(this.Context, instrumentationKey);
-            for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
+
+            if (telemetry is ISupportSampling telemetryWithSampling && !telemetryWithSampling.IsProactivelySampledOut)
             {
-            // foreach (ITelemetryInitializer initializer in this.configuration.TelemetryInitializers)
-            // {
-                if (!sampledIn && !string.IsNullOrEmpty(telemetry.Context.Operation.Id) && telemetry is RequestTelemetry)
+                bool sampledIn = false;
+
+                if (telemetryWithSampling.SupportsProactiveSampling)
                 {
-                    if (this.configuration.LastObservedRequestSamplingPercentage.HasValue && GetSamplingScore(telemetry) > this.configuration.LastObservedRequestSamplingPercentage)
+                    for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
                     {
-                        break;
+                        if (!sampledIn && !string.IsNullOrEmpty(telemetry.Context.Operation.Id))
+                        {
+                            if (GetSamplingScore(telemetry) > this.configuration.GetLastObservedSamplingPercentage(telemetryWithSampling.ItemTypeFlag))
+                            {
+                                telemetryWithSampling.IsProactivelySampledOut = true;
+                                break;
+                            }
+                            else
+                            {
+                                sampledIn = true;
+                            }
+                        }
+
+                        try
+                        {
+                            this.configuration.TelemetryInitializers[index].Initialize(telemetry);
+                        }
+                        catch (Exception exception)
+                        {
+                            CoreEventSource.Log.LogError(string.Format(
+                                                            CultureInfo.InvariantCulture,
+                                                            "Exception while initializing {0}, exception message - {1}",
+                                                            this.configuration.TelemetryInitializers[index].GetType().FullName,
+                                                            exception));
+                        }
                     }
-                    else
+                }
+                else
+                {
+                    sampledIn = true;
+
+                    for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
                     {
-                        sampledIn = true;
+                        try
+                        {
+                            this.configuration.TelemetryInitializers[index].Initialize(telemetry);
+                        }
+                        catch (Exception exception)
+                        {
+                            CoreEventSource.Log.LogError(string.Format(
+                                                            CultureInfo.InvariantCulture,
+                                                            "Exception while initializing {0}, exception message - {1}",
+                                                            this.configuration.TelemetryInitializers[index].GetType().FullName,
+                                                            exception));
+                        }
                     }
                 }
 
-                try
+                if (sampledIn)
                 {
-                    this.configuration.TelemetryInitializers[index].Initialize(telemetry);
-                }
-                catch (Exception exception)
-                {
-                    CoreEventSource.Log.LogError(string.Format(
-                                                    CultureInfo.InvariantCulture,
-                                                    "Exception while initializing {0}, exception message - {1}",
-                                                    this.configuration.TelemetryInitializers[index].GetType().FullName,
-                                                    exception));
-                }
-            }
+                    if (telemetry.Timestamp == default(DateTimeOffset))
+                    {
+                        telemetry.Timestamp = PreciseTimestamp.GetUtcNow();
+                    }
 
-            if (sampledIn)
-            {
-                if (telemetry.Timestamp == default(DateTimeOffset))
-                {
-                    telemetry.Timestamp = PreciseTimestamp.GetUtcNow();
-                }
+                    // Currently backend requires SDK version to comply "name: version"
+                    if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
+                    {
+                        var version = this.sdkVersion ?? (this.sdkVersion = SdkVersionUtils.GetSdkVersion(VersionPrefix));
+                        telemetry.Context.Internal.SdkVersion = version;
+                    }
 
-                // Currently backend requires SDK version to comply "name: version"
-                if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
-                {
-                    var version = this.sdkVersion ?? (this.sdkVersion = SdkVersionUtils.GetSdkVersion(VersionPrefix));
-                    telemetry.Context.Internal.SdkVersion = version;
-                }
+                    // set NodeName to the machine name if it's not initialized yet, if RoleInstance is also not set then we send only RoleInstance
+                    if (string.IsNullOrEmpty(telemetry.Context.Internal.NodeName) && !string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
+                    {
+                        telemetry.Context.Internal.NodeName = PlatformSingleton.Current.GetMachineName();
+                    }
 
-                // set NodeName to the machine name if it's not initialized yet, if RoleInstance is also not set then we send only RoleInstance
-                if (string.IsNullOrEmpty(telemetry.Context.Internal.NodeName) && !string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
-                {
-                    telemetry.Context.Internal.NodeName = PlatformSingleton.Current.GetMachineName();
-                }
-
-                // set RoleInstance to the machine name if it's not initialized yet
-                if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
-                {
-                    telemetry.Context.Cloud.RoleInstance = PlatformSingleton.Current.GetMachineName();
+                    // set RoleInstance to the machine name if it's not initialized yet
+                    if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
+                    {
+                        telemetry.Context.Cloud.RoleInstance = PlatformSingleton.Current.GetMachineName();
+                    }
                 }
             }
         }
