@@ -209,7 +209,8 @@
                     // AspNetCoreHostingDiagnosticListener injects TelemetryClient that injects TelemetryConfiguration
                     // that requires IOptions infrastructure to run and initialize
                     services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
-                    services.AddSingleton<JavaScriptSnippet>();
+                    services.AddSingleton<IJavaScriptSnippet, JavaScriptSnippet>();
+                    services.AddSingleton<JavaScriptSnippet>(); // Add 'JavaScriptSnippet' "Service" for backwards compatibility. To remove in favour of 'IJavaScriptSnippet'.
 
                     services.AddOptions();
                     services.AddSingleton<IOptions<TelemetryConfiguration>, TelemetryConfigurationOptions>();

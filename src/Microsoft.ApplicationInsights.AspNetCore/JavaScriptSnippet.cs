@@ -11,7 +11,7 @@
     /// <summary>
     /// This class helps to inject Application Insights JavaScript snippet into application code.
     /// </summary>
-    public class JavaScriptSnippet
+    public class JavaScriptSnippet : IJavaScriptSnippet
     {
         /// <summary>JavaScript snippet.</summary>
         private static readonly string Snippet = Resources.JavaScriptSnippet;
