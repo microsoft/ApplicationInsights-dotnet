@@ -15,12 +15,12 @@
     /// </summary>
     public sealed class SamplingTelemetryProcessor : ITelemetryProcessor
     {
-        private const string DependencyTelemetryName = "Dependency";
-        private const string EventTelemetryName = "Event";
-        private const string ExceptionTelemetryName = "Exception";
-        private const string PageViewTelemetryName = "PageView";
-        private const string RequestTelemetryName = "Request";
-        private const string TraceTelemetryName = "Trace";
+        private const string DependencyTelemetryName = "dependency";
+        private const string EventTelemetryName = "event";
+        private const string ExceptionTelemetryName = "exception";
+        private const string PageViewTelemetryName = "pageview";
+        private const string RequestTelemetryName = "request";
+        private const string TraceTelemetryName = "trace";
 
         private readonly char[] listSeparators = { ';' };
         private readonly IDictionary<string, Type> allowedTypes;
@@ -101,7 +101,7 @@
                     {
                         if (this.allowedTypes.ContainsKey(item))
                         {
-                            switch (item)
+                            switch (item.ToLowerInvariant())
                             {
                                 case RequestTelemetryName:
                                     newExcludedFlags |= SamplingTelemetryItemTypes.Request;

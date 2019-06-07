@@ -337,6 +337,10 @@
             {
                 this.Metrics.SanitizeMeasurements();
             }
+            else
+            {
+                this.measurementsValue = new Dictionary<string, double>();
+            }
 
             this.Url = this.Url.SanitizeUri();
 

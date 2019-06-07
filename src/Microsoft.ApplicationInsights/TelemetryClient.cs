@@ -511,87 +511,86 @@
 
             telemetry.Context.Initialize(this.Context, instrumentationKey);
 
-            if (telemetry is ISupportSampling telemetryWithSampling && !telemetryWithSampling.IsProactivelySampledOut)
+            bool sampledIn = false;
+
+            if (telemetry is ISupportSampling telemetryWithSampling 
+                && !telemetryWithSampling.IsProactivelySampledOut
+                && telemetryWithSampling.SupportsProactiveSampling)
             {
-                bool sampledIn = false;
-
-                if (telemetryWithSampling.SupportsProactiveSampling)
+                for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
                 {
-                    for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
+                    if (!sampledIn && !string.IsNullOrEmpty(telemetry.Context.Operation.Id))
                     {
-                        if (!sampledIn && !string.IsNullOrEmpty(telemetry.Context.Operation.Id))
+                        if (GetSamplingScore(telemetry) > this.configuration.GetLastObservedSamplingPercentage(telemetryWithSampling.ItemTypeFlag))
                         {
-                            if (GetSamplingScore(telemetry) > this.configuration.GetLastObservedSamplingPercentage(telemetryWithSampling.ItemTypeFlag))
-                            {
-                                telemetryWithSampling.IsProactivelySampledOut = true;
-                                break;
-                            }
-                            else
-                            {
-                                sampledIn = true;
-                            }
+                            telemetryWithSampling.IsProactivelySampledOut = true;
+                            break;
                         }
+                        else
+                        {
+                            sampledIn = true;
+                        }
+                    }
 
-                        try
-                        {
-                            this.configuration.TelemetryInitializers[index].Initialize(telemetry);
-                        }
-                        catch (Exception exception)
-                        {
-                            CoreEventSource.Log.LogError(string.Format(
-                                                            CultureInfo.InvariantCulture,
-                                                            "Exception while initializing {0}, exception message - {1}",
-                                                            this.configuration.TelemetryInitializers[index].GetType().FullName,
-                                                            exception));
-                        }
+                    try
+                    {
+                        this.configuration.TelemetryInitializers[index].Initialize(telemetry);
+                    }
+                    catch (Exception exception)
+                    {
+                        CoreEventSource.Log.LogError(string.Format(
+                                                        CultureInfo.InvariantCulture,
+                                                        "Exception while initializing {0}, exception message - {1}",
+                                                        this.configuration.TelemetryInitializers[index].GetType().FullName,
+                                                        exception));
                     }
                 }
-                else
-                {
-                    sampledIn = true;
+            }
+            else
+            {
+                sampledIn = true;
 
-                    for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
+                for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
+                {
+                    try
                     {
-                        try
-                        {
-                            this.configuration.TelemetryInitializers[index].Initialize(telemetry);
-                        }
-                        catch (Exception exception)
-                        {
-                            CoreEventSource.Log.LogError(string.Format(
-                                                            CultureInfo.InvariantCulture,
-                                                            "Exception while initializing {0}, exception message - {1}",
-                                                            this.configuration.TelemetryInitializers[index].GetType().FullName,
-                                                            exception));
-                        }
+                        this.configuration.TelemetryInitializers[index].Initialize(telemetry);
+                    }
+                    catch (Exception exception)
+                    {
+                        CoreEventSource.Log.LogError(string.Format(
+                                                        CultureInfo.InvariantCulture,
+                                                        "Exception while initializing {0}, exception message - {1}",
+                                                        this.configuration.TelemetryInitializers[index].GetType().FullName,
+                                                        exception));
                     }
                 }
+            }
 
-                if (sampledIn)
+            if (sampledIn)
+            {
+                if (telemetry.Timestamp == default(DateTimeOffset))
                 {
-                    if (telemetry.Timestamp == default(DateTimeOffset))
-                    {
-                        telemetry.Timestamp = PreciseTimestamp.GetUtcNow();
-                    }
+                    telemetry.Timestamp = PreciseTimestamp.GetUtcNow();
+                }
 
-                    // Currently backend requires SDK version to comply "name: version"
-                    if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
-                    {
-                        var version = this.sdkVersion ?? (this.sdkVersion = SdkVersionUtils.GetSdkVersion(VersionPrefix));
-                        telemetry.Context.Internal.SdkVersion = version;
-                    }
+                // Currently backend requires SDK version to comply "name: version"
+                if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
+                {
+                    var version = this.sdkVersion ?? (this.sdkVersion = SdkVersionUtils.GetSdkVersion(VersionPrefix));
+                    telemetry.Context.Internal.SdkVersion = version;
+                }
 
-                    // set NodeName to the machine name if it's not initialized yet, if RoleInstance is also not set then we send only RoleInstance
-                    if (string.IsNullOrEmpty(telemetry.Context.Internal.NodeName) && !string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
-                    {
-                        telemetry.Context.Internal.NodeName = PlatformSingleton.Current.GetMachineName();
-                    }
+                // set NodeName to the machine name if it's not initialized yet, if RoleInstance is also not set then we send only RoleInstance
+                if (string.IsNullOrEmpty(telemetry.Context.Internal.NodeName) && !string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
+                {
+                    telemetry.Context.Internal.NodeName = PlatformSingleton.Current.GetMachineName();
+                }
 
-                    // set RoleInstance to the machine name if it's not initialized yet
-                    if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
-                    {
-                        telemetry.Context.Cloud.RoleInstance = PlatformSingleton.Current.GetMachineName();
-                    }
+                // set RoleInstance to the machine name if it's not initialized yet
+                if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
+                {
+                    telemetry.Context.Cloud.RoleInstance = PlatformSingleton.Current.GetMachineName();
                 }
             }
         }

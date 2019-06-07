@@ -311,7 +311,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             RequestTelemetry other = (RequestTelemetry)request.DeepClone();
 
             ComparisonConfig comparisonConfig = new ComparisonConfig();
-            comparisonConfig.MembersToIgnore.Add("HttpMethod"); // Obsolete
+            comparisonConfig.MembersToIgnore.Add("RequestTelemetry.HttpMethod"); // Obsolete
             CompareLogic deepComparator = new CompareLogic(comparisonConfig);
 
             var result = deepComparator.Compare(request, other);
