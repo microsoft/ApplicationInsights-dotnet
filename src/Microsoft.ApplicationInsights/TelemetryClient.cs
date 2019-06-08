@@ -35,11 +35,7 @@
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the active configuration, usually loaded from ApplicationInsights.config.
         /// </summary>
 #if NETSTANDARD1_3 || NETSTANDARD2_0
-        [Obsolete("TelemetryClient parameterless constructor uses TelemetryConfiguration.Active singleton. " +
-                  "We do not recommend using TelemetryConfiguration.Active on .NET Core. " + 
-                  "Instead we suggest using dependency injection pattern. " + 
-                  "See https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-2.2 " + 
-                  "and https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core for more info")]
+        [Obsolete("We do not recommend using TelemetryConfiguration.Active on .NET Core. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/1152 for more details")]
 #endif
         public TelemetryClient() : this(TelemetryConfiguration.Active)
         {
