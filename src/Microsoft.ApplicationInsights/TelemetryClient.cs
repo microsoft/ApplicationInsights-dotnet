@@ -219,17 +219,16 @@
         }
 
         /// <summary>
-        /// This method is deprecated. Metrics should always be pre-aggregated across a time period before being sent.<br />
+        /// This method is not the preferred method for sending metrics.
+        /// Metrics should always be pre-aggregated across a time period before being sent.<br />
         /// Use one of the <c>GetMetric(..)</c> overloads to get a metric object for accessing SDK pre-aggregation capabilities.<br />
-        /// If you are implementing your own pre-aggregation logic, you can use the <c>Track(ITelemetry metricTelemetry)</c> method to
-        /// send the resulting aggregates.<br />
+        /// If you are implementing your own pre-aggregation logic, then you can use this method.
         /// If your application requires sending a separate telemetry item at every occasion without aggregation across time,
         /// you likely have a use case for event telemetry; see <see cref="TrackEvent(EventTelemetry)"/>.
         /// </summary>
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
-        /// <param name="properties">Named string values you can use to classify and filter metrics.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        /// <param name="properties">Named string values you can use to classify and filter metrics.</param>        
         public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
         {
             var telemetry = new MetricTelemetry(name, value);
@@ -242,15 +241,14 @@
         }
 
         /// <summary>
-        /// This method is deprecated. Metrics should always be pre-aggregated across a time period before being sent.<br />
+        /// This method is not the preferred method for sending metrics.
+        /// Metrics should always be pre-aggregated across a time period before being sent.<br />
         /// Use one of the <c>GetMetric(..)</c> overloads to get a metric object for accessing SDK pre-aggregation capabilities.<br />
-        /// If you are implementing your own pre-aggregation logic, you can use the <c>Track(ITelemetry metricTelemetry)</c> method to
-        /// send the resulting aggregates.<br />
+        /// If you are implementing your own pre-aggregation logic, then you can use this method.
         /// If your application requires sending a separate telemetry item at every occasion without aggregation across time,
         /// you likely have a use case for event telemetry; see <see cref="TrackEvent(EventTelemetry)"/>.
         /// </summary>
-        /// <param name="telemetry">The metric telemetry item.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        /// <param name="telemetry">The metric telemetry item.</param>        
         public void TrackMetric(MetricTelemetry telemetry)
         {
             if (telemetry == null)
