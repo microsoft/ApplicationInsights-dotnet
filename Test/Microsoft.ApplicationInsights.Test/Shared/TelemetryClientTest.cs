@@ -101,7 +101,7 @@
         {
             EventTelemetry telemetry = new EventTelemetry("TestEvent");
 
-            new TelemetryClient().Initialize(telemetry);
+            new TelemetryClient(TelemetryConfiguration.CreateDefault()).Initialize(telemetry);
 
             Assert.IsTrue(telemetry.Timestamp != default(DateTimeOffset));
         }
@@ -118,7 +118,7 @@
             for (int i = 0; i < timeStampDiff.Length; i++)
             {
                 var telemetry = new DependencyTelemetry();
-                new TelemetryClient().Initialize(telemetry);
+                new TelemetryClient(TelemetryConfiguration.CreateDefault()).Initialize(telemetry);
 
                 if (i > 0)
                 {
@@ -143,7 +143,7 @@
             PlatformSingleton.Current = new StubPlatform { OnGetMachineName = () => "TestMachine" };
 
             EventTelemetry telemetry = new EventTelemetry("TestEvent");
-            new TelemetryClient().Initialize(telemetry);
+            new TelemetryClient(TelemetryConfiguration.CreateDefault()).Initialize(telemetry);
 
             Assert.AreEqual("TestMachine", telemetry.Context.Cloud.RoleInstance);
             Assert.IsNull(telemetry.Context.Internal.NodeName);
@@ -159,7 +159,7 @@
             EventTelemetry telemetry = new EventTelemetry("TestEvent");
             telemetry.Context.Cloud.RoleInstance = "MyMachineImplementation";
 
-            new TelemetryClient().Initialize(telemetry);
+            new TelemetryClient(TelemetryConfiguration.CreateDefault()).Initialize(telemetry);
 
             Assert.AreEqual("MyMachineImplementation", telemetry.Context.Cloud.RoleInstance);
             Assert.AreEqual("TestMachine", telemetry.Context.Internal.NodeName);
@@ -175,7 +175,7 @@
             EventTelemetry telemetry = new EventTelemetry("TestEvent");
             telemetry.Context.Internal.NodeName = "MyMachineImplementation";
 
-            new TelemetryClient().Initialize(telemetry);
+            new TelemetryClient(TelemetryConfiguration.CreateDefault()).Initialize(telemetry);
 
             Assert.AreEqual("TestMachine", telemetry.Context.Cloud.RoleInstance);
             Assert.AreEqual("MyMachineImplementation", telemetry.Context.Internal.NodeName);
@@ -192,7 +192,7 @@
         {
             EventTelemetry telemetry = new EventTelemetry("TestEvent");
 
-            var tc = new TelemetryClient();
+            var tc = new TelemetryClient(TelemetryConfiguration.CreateDefault());
             // Set ikey on Context
             tc.InstrumentationKey = "mykey";
             tc.InitializeInstrumentationKey(telemetry);
@@ -235,7 +235,7 @@
             EventTelemetry telemetry = new EventTelemetry("TestEvent");
             telemetry.Context.InstrumentationKey = "expectedIKey";
 
-            var tc = new TelemetryClient();
+            var tc = new TelemetryClient(TelemetryConfiguration.CreateDefault());
             tc.InstrumentationKey = "mykey";
             tc.InitializeInstrumentationKey(telemetry);
 
@@ -2129,6 +2129,7 @@
             return client;
         }
 
+#pragma warning disable 612, 618  // obsolete TelemetryConfigration.Active
         /// <summary>
         /// Resets the TelemetryConfiguration.Active default instance to null so that the iKey auto population paths can be followed for testing.
         /// </summary>
@@ -2136,6 +2137,7 @@
         {
             TelemetryConfiguration.Active = null;
         }
+#pragma warning restore 612, 618  // obsolete TelemetryConfigration.Active
 
         private double ComputeSomethingHeavy()
         {

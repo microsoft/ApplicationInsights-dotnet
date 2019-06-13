@@ -2,6 +2,9 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.11.0-beta1
+- [Deprecate TelemetryConfiguration.Active on .NET Core in favor of dependency injection pattern](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1152)
+
 ## Version 2.10.0
 - [SDKVersion modified to be dotnetc for NetCore. This helps identify the source of code path, as implementations are slightly different for NetCore.](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1125)
 - [Fix telemetry timestamp precision on .NET Framework](https://github.com/microsoft/ApplicationInsights-dotnet-server/issues/1175)

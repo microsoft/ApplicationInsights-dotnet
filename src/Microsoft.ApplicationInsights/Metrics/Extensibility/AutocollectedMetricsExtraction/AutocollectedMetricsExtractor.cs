@@ -101,14 +101,16 @@
         /// Specifically, this will also ensure that the <see cref="TelemetryClient" /> used internally for sending extracted metrics uses
         /// the same configuration.
         /// </summary>
-        /// <param name="configuration">The telemetric configuration to be used by this extractor.</param>
+        /// <param name="configuration">The telemetry configuration to be used by this extractor.</param>
         public void Initialize(TelemetryConfiguration configuration)
         {
+#pragma warning disable 612, 618 // TelemetryConfigration.Active and TelemetryClient()
             TelemetryClient metricsClient = (configuration == null)
                                                     ? new TelemetryClient()
                                                     : new TelemetryClient(configuration);
+#pragma warning restore 612, 618 // TelemetryConfigration.Active and TelemetryClient()
 
-            if (false == String.IsNullOrWhiteSpace(MetricTerms.Autocollection.Moniker.Key))
+            if (false == string.IsNullOrWhiteSpace(MetricTerms.Autocollection.Moniker.Key))
             {
                 metricsClient.Context.GlobalProperties[MetricTerms.Autocollection.Moniker.Key] = MetricTerms.Autocollection.Moniker.Value;
             }
