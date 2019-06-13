@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
-#if !NETCOREAPP
+#if !NETCOREAPP1_1
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -174,8 +174,9 @@
             }
 
             [TestMethod]
+            [Ignore]
             public void ThrowsUnauthorizedAccessExceptionWhenProcessDoesNotHaveRightToCreateFile()
-            {
+            {                
                 using (new DirectoryAccessDenier(this.storageFolder, FileSystemRights.CreateFiles))
                 { 
                     var folder = new PlatformFolder(this.storageFolder);
