@@ -7,6 +7,7 @@
     using System.Linq;
     using KellermanSoftware.CompareNetObjects;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -277,7 +278,7 @@
             Assert.AreEqual(detail, retrievedValue.ToString());
 
             // Clear and verify the detail is no longer present            
-            new TelemetryClient().TrackDependency(telemetry);            
+            new TelemetryClient(TelemetryConfiguration.CreateDefault()).TrackDependency(telemetry);            
             Assert.IsFalse(telemetry.TryGetOperationDetail(key, out retrievedValue));
         }
 
@@ -291,7 +292,7 @@
             Assert.IsNull(retrievedValue);
 
             // should not throw                        
-            new TelemetryClient().TrackDependency(telemetry);
+            new TelemetryClient(TelemetryConfiguration.CreateDefault()).TrackDependency(telemetry);
         }
 
         [TestMethod]

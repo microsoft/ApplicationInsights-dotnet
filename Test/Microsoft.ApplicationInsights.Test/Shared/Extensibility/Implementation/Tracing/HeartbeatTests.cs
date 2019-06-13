@@ -102,7 +102,8 @@
         [TestMethod]
         public void InitializationOfTelemetryClientDoesntResetHeartbeat()
         {
-            TelemetryClient client = new TelemetryClient();
+            TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
+            TelemetryClient client = new TelemetryClient(configuration);
 
             bool origIsEnabled = true;
             string origExcludedHbProvider = "Nonsense-Test";
@@ -128,7 +129,7 @@
                 }
             }
 
-            TelemetryClient client2 = new TelemetryClient();
+            TelemetryClient client2 = new TelemetryClient(configuration);
 
             foreach (var module in TelemetryModules.Instance.Modules)
             {
