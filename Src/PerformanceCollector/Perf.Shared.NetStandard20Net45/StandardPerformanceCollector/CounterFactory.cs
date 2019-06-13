@@ -1,7 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerfCollector
 {
-    using System;
-
     /// <summary>
     /// Factory to create different counters.
     /// </summary>

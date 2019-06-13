@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerfCollector
 {
     /// <summary>
     /// Gauge that computes the ratio of two different gauges.
@@ -44,12 +44,12 @@
         /// Returns the current value of the sum of all different gauges attached to this one and resets their values.
         /// </summary>
         /// <returns>The value of the target metric.</returns>
-        public double GetValueAndReset()
+        public double Collect()
         {
             if ((this.numeratorGauge != null) && (this.denominatorGauge != null))
             {
-                double denominatorValue = this.denominatorGauge.GetValueAndReset();
-                return (denominatorValue == 0) ? 0 : (this.numeratorGauge.GetValueAndReset() / denominatorValue) * this.scale;
+                double denominatorValue = this.denominatorGauge.Collect();
+                return (denominatorValue == 0) ? 0 : (this.numeratorGauge.Collect() / denominatorValue) * this.scale;
             } 
 
             return 0;

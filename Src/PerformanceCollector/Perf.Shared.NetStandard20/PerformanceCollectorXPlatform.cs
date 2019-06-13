@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerfCollector
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.XPlatform
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,7 @@
     using System.Linq;
     using Microsoft.ApplicationInsights.Common;
 
-    internal class WebAppPerformanceCollector : IPerformanceCollector
+    internal class PerformanceCollectorXPlatform : IPerformanceCollector
     {
         private readonly List<Tuple<PerformanceCounterData, ICounterValue>> performanceCounters = new List<Tuple<PerformanceCounterData, ICounterValue>>();
 
@@ -75,8 +75,8 @@
             try
             {
                 bool useInstancePlaceHolder = false;                
-                var pc = PerformanceCounterUtility.CreateAndValidateCounter(perfCounter, null, null, false, out useInstancePlaceHolder, out error);                
-
+                var pc = PerformanceCounterUtility.CreateAndValidateCounter(perfCounter, null, null, false, out useInstancePlaceHolder, out error);
+                
                 if (pc != null)
                 {
                     this.RegisterPerformanceCounter(perfCounter, GetCounterReportAsName(perfCounter, reportAs), pc.CategoryName, pc.CounterName, pc.InstanceName, useInstancePlaceHolder);
@@ -138,7 +138,7 @@
         /// <summary>
         /// Collects a value for a single counter.
         /// </summary>
-        private static double CollectCounter(string coutnerOriginalString, ICounterValue counter)
+        private static double CollectCounter(string counterOriginalString, ICounterValue counter)
         {
             try
             {
@@ -150,7 +150,7 @@
                     string.Format(
                         CultureInfo.CurrentCulture,
                         "Failed to perform a read for web app performance counter {0}",
-                        coutnerOriginalString),
+                        counterOriginalString),
                     e);
             }
         }
@@ -175,11 +175,11 @@
 
             try
             {
-                counter = CounterFactory.GetCounter(originalString, reportAs);
+                counter = CounterFactoryXPlatform.GetCounter(originalString);
             }
             catch
             {
-                PerformanceCollectorEventSource.Log.CounterNotWebAppSupported(originalString);
+                PerformanceCollectorEventSource.Log.CounterNotXPlatformSupported(originalString);
                 return;
             }
 

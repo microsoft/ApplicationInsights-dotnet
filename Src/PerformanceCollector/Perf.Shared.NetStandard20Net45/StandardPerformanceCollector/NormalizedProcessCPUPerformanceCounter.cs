@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerfCollector
 {
     using System;
     using System.Diagnostics;
@@ -19,7 +19,7 @@
         /// <param name="instanceName">The instance name.</param>
         internal NormalizedProcessCPUPerformanceCounter(string instanceName)
         {
-            int? count = PerformanceCounterUtility.GetProcessorCount(false);
+            int? count = PerformanceCounterUtility.GetProcessorCount();
 
             if (count.HasValue)
             {

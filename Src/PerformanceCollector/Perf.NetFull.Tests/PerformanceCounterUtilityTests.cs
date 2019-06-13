@@ -32,19 +32,19 @@
             var clrInstances = PerformanceCounterUtility.GetClrProcessInstances();
 
             bool usesInstanceNamePlaceholder;
-            var pc = PerformanceCounterUtility.ParsePerformanceCounter(@"\Processor(??APP_WIN32_PROC??)\% Processor Time", win32Instances, clrInstances, out usesInstanceNamePlaceholder);
+            var pc = PerformanceCounterUtility.ParsePerformanceCounter(@"\Processor(??APP_WIN32_PROC??)\% Processor Time", win32Instances, clrInstances, true, out usesInstanceNamePlaceholder);
             Assert.IsFalse(pc.InstanceName.Contains("?"));
 
-            pc = PerformanceCounterUtility.ParsePerformanceCounter(@"\Processor(??APP_CLR_PROC??)\% Processor Time", win32Instances, clrInstances, out usesInstanceNamePlaceholder);
+            pc = PerformanceCounterUtility.ParsePerformanceCounter(@"\Processor(??APP_CLR_PROC??)\% Processor Time", win32Instances, clrInstances, true, out usesInstanceNamePlaceholder);
             Assert.IsFalse(pc.InstanceName.Contains("?"));
 
-            pc = PerformanceCounterUtility.ParsePerformanceCounter(@"\Processor(??APP_W3SVC_PROC??)\% Processor Time", win32Instances, clrInstances, out usesInstanceNamePlaceholder);
+            pc = PerformanceCounterUtility.ParsePerformanceCounter(@"\Processor(??APP_W3SVC_PROC??)\% Processor Time", win32Instances, clrInstances, true, out usesInstanceNamePlaceholder);
             Assert.IsFalse(pc.InstanceName.Contains("?"));
 
-            pc = PerformanceCounterUtility.ParsePerformanceCounter(@"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Execution Time", win32Instances, clrInstances, out usesInstanceNamePlaceholder);
+            pc = PerformanceCounterUtility.ParsePerformanceCounter(@"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Execution Time", win32Instances, clrInstances, true, out usesInstanceNamePlaceholder);
             Assert.IsFalse(pc.InstanceName.Contains("?"));
             
-            pc = PerformanceCounterUtility.ParsePerformanceCounter(@"\Processor(??NON_EXISTENT??)\% Processor Time", win32Instances, clrInstances, out usesInstanceNamePlaceholder);
+            pc = PerformanceCounterUtility.ParsePerformanceCounter(@"\Processor(??NON_EXISTENT??)\% Processor Time", win32Instances, clrInstances, true, out usesInstanceNamePlaceholder);
             Assert.AreEqual("??NON_EXISTENT??", pc.InstanceName);
 
             // validate placeholder cache state
@@ -88,12 +88,12 @@
             PerformanceCounterStructure pc;
 
             bool usesInstanceNamePlaceholder;
-            pc = PerformanceCounterUtility.ParsePerformanceCounter(@"\Processor(_Total)\% Processor Time", null, null, out usesInstanceNamePlaceholder);
+            pc = PerformanceCounterUtility.ParsePerformanceCounter(@"\Processor(_Total)\% Processor Time", null, null, true, out usesInstanceNamePlaceholder);
             Assert.AreEqual("Processor", pc.CategoryName);
             Assert.AreEqual("% Processor Time", pc.CounterName);
             Assert.AreEqual("_Total", pc.InstanceName);
 
-            pc = PerformanceCounterUtility.ParsePerformanceCounter(@"\Memory\Available Memory", null, null, out usesInstanceNamePlaceholder);
+            pc = PerformanceCounterUtility.ParsePerformanceCounter(@"\Memory\Available Memory", null, null, true, out usesInstanceNamePlaceholder);
             Assert.AreEqual("Memory", pc.CategoryName);
             Assert.AreEqual("Available Memory", pc.CounterName);
             Assert.AreEqual(string.Empty, pc.InstanceName);

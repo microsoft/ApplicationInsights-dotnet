@@ -2032,18 +2032,21 @@
 
                             this.pingResponse(context.Response);
 
-                            var dataPoint = (MonitoringDataPoint)serializerDataPoint.ReadObject(context.Request.InputStream);
+                            var dataPoint =
+                                (MonitoringDataPoint) serializerDataPoint.ReadObject(context.Request.InputStream);
                             var transmissionTime = long.Parse(
                                 context.Request.Headers[QuickPulseConstants.XMsQpsTransmissionTimeHeaderName],
                                 CultureInfo.InvariantCulture);
-                            var instanceName = context.Request.Headers[QuickPulseConstants.XMsQpsInstanceNameHeaderName];
+                            var instanceName =
+                                context.Request.Headers[QuickPulseConstants.XMsQpsInstanceNameHeaderName];
                             var machineName = context.Request.Headers[QuickPulseConstants.XMsQpsMachineNameHeaderName];
                             var invariantVersion =
                                 context.Request.Headers[QuickPulseConstants.XMsQpsInvariantVersionHeaderName];
                             var streamId = context.Request.Headers[QuickPulseConstants.XMsQpsStreamIdHeaderName];
-                            var collectionConfigurationETag = context.Request.Headers[QuickPulseConstants.XMsQpsConfigurationETagHeaderName];
+                            var collectionConfigurationETag =
+                                context.Request.Headers[QuickPulseConstants.XMsQpsConfigurationETagHeaderName];
 
-                                this.pings.Add(
+                            this.pings.Add(
                                 Tuple.Create(
                                     new PingHeaders()
                                     {
@@ -2068,15 +2071,19 @@
 
                             this.submitResponse(context.Response);
 
-                            var dataPoints = serializerDataPointArray.ReadObject(context.Request.InputStream) as MonitoringDataPoint[];
+                            var dataPoints =
+                                serializerDataPointArray.ReadObject(context.Request.InputStream) as MonitoringDataPoint
+                                    [];
                             var transmissionTime = long.Parse(
                                 context.Request.Headers[QuickPulseConstants.XMsQpsTransmissionTimeHeaderName],
                                 CultureInfo.InvariantCulture);
-                            var collectionConfigurationETag = context.Request.Headers[QuickPulseConstants.XMsQpsConfigurationETagHeaderName];
+                            var collectionConfigurationETag =
+                                context.Request.Headers[QuickPulseConstants.XMsQpsConfigurationETagHeaderName];
 
                             this.samples.AddRange(
                                 dataPoints.Select(
-                                    dp => Tuple.Create(new DateTimeOffset(transmissionTime, TimeSpan.Zero), collectionConfigurationETag, dp)));
+                                    dp => Tuple.Create(new DateTimeOffset(transmissionTime, TimeSpan.Zero),
+                                        collectionConfigurationETag, dp)));
                         }
 
                             break;
@@ -2089,9 +2096,13 @@
                         context.Response.Close();
                     }
                 }
+                catch (Exception e)
+                {
+                    System.Diagnostics.Trace.WriteLine("Exception occuring in ProcessRequest. " + e.ToString());
+                }
                 finally
                 {
-                    this.AssertionSync.Release();
+                    this.AssertionSync?.Release();
                 }
             }
         }

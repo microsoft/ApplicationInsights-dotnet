@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerfCollector
 {
     using System;
     using System.Collections.Generic;
@@ -72,13 +72,11 @@
         /// </summary>
         /// <param name="perfCounterName">Name of the performance counter.</param>
         /// <param name="reportAs">Report as name for the performance counter.</param>
-        /// <param name="isCustomCounter">Boolean to check if the performance counter is custom defined.</param>
         /// <param name="error">Captures the error logged.</param>
         /// <param name="blockCounterWithInstancePlaceHolder">Boolean that controls the registry of the counter based on the availability of instance place holder.</param>
         public void RegisterCounter(
             string perfCounterName,
-            string reportAs,
-            bool isCustomCounter,
+            string reportAs,            
             out string error,
             bool blockCounterWithInstancePlaceHolder = false)
         {
@@ -94,13 +92,14 @@
                 perfCounterName,
                 this.win32Instances,
                 this.clrInstances,
+                true,
                 out usesInstanceNamePlaceholder,
                 out error);
 
             // If blockCounterWithInstancePlaceHolder is true, then we register the counter only if usesInstanceNamePlaceHolder is true.
             if (pc != null && !(blockCounterWithInstancePlaceHolder && usesInstanceNamePlaceholder))
             {
-                this.RegisterCounter(perfCounterName, reportAs, pc, isCustomCounter, usesInstanceNamePlaceholder, out error);
+                this.RegisterCounter(perfCounterName, reportAs, pc, usesInstanceNamePlaceholder, out error);
             }
         }
 
@@ -149,8 +148,7 @@
                 pcd.PerformanceCounter.CategoryName,
                 pcd.PerformanceCounter.CounterName,
                 pcd.PerformanceCounter.InstanceName,
-                pcd.UsesInstanceNamePlaceholder,
-                pcd.IsCustomCounter);
+                pcd.UsesInstanceNamePlaceholder);
         }
 
         /// <summary>
@@ -175,6 +173,7 @@
                 pcd.OriginalString,
                 this.win32Instances,
                 this.clrInstances,
+                true,
                 out usesInstanceNamePlaceholder,
                 out dummy);
 
@@ -199,14 +198,12 @@
         /// <param name="originalString">Counter original string.</param>
         /// <param name="reportAs">Counter report as.</param>
         /// <param name="pc">Performance counter.</param>
-        /// <param name="isCustomCounter">Boolean to check if it is a custom counter.</param>
         /// <param name="usesInstanceNamePlaceholder">Uses Instance Name Place holder boolean.</param>
         /// <param name="error">Error message.</param>
         private void RegisterCounter(
             string originalString,
             string reportAs,
             PerformanceCounterStructure pc,
-            bool isCustomCounter,
             bool usesInstanceNamePlaceholder,
             out string error)
         {
@@ -220,8 +217,7 @@
                     pc.CategoryName,
                     pc.CounterName,
                     pc.InstanceName,
-                    usesInstanceNamePlaceholder,
-                    isCustomCounter);
+                    usesInstanceNamePlaceholder);
 
                 PerformanceCollectorEventSource.Log.CounterRegisteredEvent(PerformanceCounterUtility.FormatPerformanceCounter(pc));
             }
@@ -241,8 +237,7 @@
         /// <param name="counterName">Counter name.</param>
         /// <param name="instanceName">Instance name.</param>
         /// <param name="usesInstanceNamePlaceholder">Indicates whether the counter uses a placeholder in the instance name.</param>
-        /// <param name="isCustomCounter">Indicates whether the counter is a custom counter.</param>
-        private void RegisterPerformanceCounter(string originalString, string reportAs, string categoryName, string counterName, string instanceName, bool usesInstanceNamePlaceholder, bool isCustomCounter)
+        private void RegisterPerformanceCounter(string originalString, string reportAs, string categoryName, string counterName, string instanceName, bool usesInstanceNamePlaceholder)
         {
             ICounterValue performanceCounter = null;
 
@@ -292,8 +287,7 @@
                 PerformanceCounterData perfData = new PerformanceCounterData(
                         originalString,
                         reportAs,
-                        usesInstanceNamePlaceholder,
-                        isCustomCounter,
+                        usesInstanceNamePlaceholder,                        
                         !firstReadOk,
                         categoryName,
                         counterName,

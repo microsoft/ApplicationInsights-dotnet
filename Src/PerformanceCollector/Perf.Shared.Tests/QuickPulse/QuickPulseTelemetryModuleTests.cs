@@ -45,7 +45,9 @@
             builder = builder.Use(current => telemetryProcessor);
             builder.Build();
 
-            new QuickPulseTelemetryModule().Initialize(configuration);
+            var qp = new QuickPulseTelemetryModule();
+            qp.Initialize(configuration);
+            qp.Dispose();
         }
 
         [TestMethod]
@@ -346,6 +348,8 @@
             Assert.IsNotNull(telemetryProcessor);
 
             Assert.AreEqual(telemetryProcessor, QuickPulseTestHelper.GetTelemetryProcessors(module).SingleOrDefault());
+
+            newModule.Dispose();
         }
 
         [TestMethod]

@@ -5,8 +5,8 @@
     using System.Globalization;
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerfCollector;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerfCollector;    
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -24,7 +24,6 @@
                 collector.RegisterCounter(
                     counter,
                     null,
-                    true,
                     out error,
                     false);
             }
@@ -66,7 +65,6 @@
                     collector.RegisterCounter(
                         PerformanceCounterUtility.FormatPerformanceCounter(pc),
                         null,
-                        true,
                         out error,
                         false);
                 }
@@ -98,7 +96,6 @@
                     collector.RegisterCounter(
                         PerformanceCounterUtility.FormatPerformanceCounter(pc),
                         null,
-                        true,
                         out error,
                         false);
                 }
@@ -125,7 +122,6 @@
                 collector.RegisterCounter(
                     PerformanceCounterUtility.FormatPerformanceCounter(pc),
                     pc.GetHashCode().ToString(CultureInfo.InvariantCulture),
-                    true,
                     out error,
                     false);
             }
@@ -157,7 +153,6 @@
                 collector.RegisterCounter(
                     PerformanceCounterUtility.FormatPerformanceCounter(pc),
                     pc.GetHashCode().ToString(CultureInfo.InvariantCulture),
-                    true,
                     out error,
                     false);
             }
@@ -183,14 +178,12 @@
             collector.RegisterCounter(
                     @"\Process(??APP_WIN32_PROC??)\% Processor Time Normalized",
                     null,
-                    true,
                     out error,
                     false);
 
             collector.RegisterCounter(
                     @"\Process(??APP_WIN32_PROC??)\% Processor Time",
                     null,
-                    true,
                     out error,
                     false);
                        

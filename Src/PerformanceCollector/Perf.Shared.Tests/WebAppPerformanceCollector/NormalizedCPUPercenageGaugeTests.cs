@@ -4,7 +4,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Threading;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerfCollector;
     using Microsoft.VisualStudio.TestTools.UnitTesting;    
 
     [TestClass]
@@ -22,8 +22,8 @@
                 "CPU",
                 new RawCounterGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes", "userTime", AzureWebApEnvironmentVariables.App, new CacheHelperTests()));
 
-            double value1 = gauge.GetValueAndReset();
-            double normalizedValue1 = normalizedGauge.GetValueAndReset();
+            double value1 = gauge.Collect();
+            double normalizedValue1 = normalizedGauge.Collect();
 
             Assert.IsTrue(Math.Abs(value1) < 0.000001);
             Assert.IsTrue(Math.Abs(normalizedValue1) < 0.000001);
@@ -32,8 +32,8 @@
             Thread.Sleep(TimeSpan.FromSeconds(10));
             long actualSleepTimeTicks = sw.Elapsed.Ticks;
 
-            double value2 = gauge.GetValueAndReset();
-            double normalizedValue2 = normalizedGauge.GetValueAndReset();
+            double value2 = gauge.Collect();
+            double normalizedValue2 = normalizedGauge.Collect();
 
             Assert.IsTrue(
                 Math.Abs(value2 - (normalizedValue2 * initialProcessorsCount)) < 0.005,

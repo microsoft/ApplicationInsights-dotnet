@@ -180,8 +180,24 @@
             this.WriteEvent(21, this.applicationNameProvider.Name);
         }
 
+        [Event(22, Keywords = Keywords.UserActionable, Level = EventLevel.Error, Message = @"Performance counter is not available in the supported list of XPlatform counters. Counter is {0}.")]
+        public void CounterNotXPlatformSupported(
+    string counterName,
+    string applicationName = "dummy")
+        {
+            this.WriteEvent(22, counterName, this.applicationNameProvider.Name);
+        }
+
+        [Event(23, Level = EventLevel.Informational, Message = @"PerformanceCollector is: {0}.")]
+        public void InitializedWithCollector(
+            string collectorName,
+            string applicationName = "dummy")
+        {
+            this.WriteEvent(23, collectorName, this.applicationNameProvider.Name);
+        }
+
         #endregion
-        
+
         public class Keywords
         {
             public const EventKeywords UserActionable = (EventKeywords)0x1;

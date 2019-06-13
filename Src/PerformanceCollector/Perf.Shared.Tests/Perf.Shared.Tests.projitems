@@ -41,6 +41,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseTelemetryModuleTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseTelemetryProcessorTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseTestHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PerformanceCounterUtilityTestsCommon.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PerformanceCollectorModuleTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollectorTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\AzureWebAppTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\CacheHelperTests.cs" />

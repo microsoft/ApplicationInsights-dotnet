@@ -17,8 +17,9 @@
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.PerfLib;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector;
+#if NETSTANDARD2_0
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.XPlatform;
+#endif
 
     /// <summary>
     /// Telemetry module for collecting QuickPulse data.
@@ -165,8 +166,9 @@
 
                         QuickPulseEventSource.Log.TroubleshootingMessageEvent("Initializing members...");
                         this.collectionTimeSlotManager = this.collectionTimeSlotManager ?? new QuickPulseCollectionTimeSlotManager();
-                        this.performanceCollector = this.performanceCollector ?? 
-                            (PerformanceCounterUtility.IsWebAppRunningInAzure() ? new WebAppPerformanceCollector() : (IPerformanceCollector)new StandardPerformanceCollector());
+
+                        this.performanceCollector = this.performanceCollector ?? PerformanceCounterUtility.GetPerformanceCollector();
+
                         this.timeProvider = this.timeProvider ?? new Clock();
                         this.topCpuCollector = this.topCpuCollector
                                                ?? new QuickPulseTopCpuCollector(this.timeProvider, new QuickPulseProcessProvider(PerfLib.GetPerfLib()));
@@ -280,7 +282,7 @@
                     try
                     {
                         string error;
-                        this.performanceCollector.RegisterCounter(counter.Item2, counter.Item1, true, out error, true);
+                        this.performanceCollector.RegisterCounter(counter.Item2, counter.Item1, out error, true);
 
                         if (!string.IsNullOrWhiteSpace(error))
                         {
@@ -305,8 +307,7 @@
                                 string.Format(CultureInfo.InvariantCulture, "Unexpected error processing counter '{0}': {1}", counter, e.Message),
                                 e,
                                 Tuple.Create("MetricId", counter.Item1)));
-
-                        QuickPulseEventSource.Log.CounterRegistrationFailedEvent(e.Message, counter.Item2);
+                        QuickPulseEventSource.Log.CounterRegistrationFailedEvent(e.Message, counter.Item2);                        
                     }
                 }
 
@@ -357,7 +358,7 @@
             string machineName = Environment.MachineName;
             var assemblyVersion = SdkVersionUtils.GetSdkVersion(null);
             bool isWebApp = PerformanceCounterUtility.IsWebAppRunningInAzure();
-            int? processorCount = PerformanceCounterUtility.GetProcessorCount(isWebApp);
+            int? processorCount = PerformanceCounterUtility.GetProcessorCount();
             this.serviceClient = new QuickPulseServiceClient(
                 serviceEndpointUri,
                 instanceName,
