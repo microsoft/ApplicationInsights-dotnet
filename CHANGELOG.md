@@ -1,7 +1,8 @@
 # Changelog
 
-## Version develop
+## Version 2.8.0-beta1
 - [Fix: Add `IJavaScriptSnippet` service interface and update the `IServiceCollection` extension to register it for `JavaScriptSnippet`.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/890)
+- [Fix - ApplicationInsights StartupFilter should not swallow exceptions from downstream ApplicationBuilder.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/897)
 
 ## Version 2.7.0
 - Updated Web/Base SDK version dependency to 2.10.0
