@@ -173,8 +173,7 @@
                 AssertEx.Throws<PathTooLongException>(() => folder.CreateFile(new string('F', 1024)));
             }
 
-            [TestMethod]
-            [Ignore]
+            [TestMethod]            
             public void ThrowsUnauthorizedAccessExceptionWhenProcessDoesNotHaveRightToCreateFile()
             {                
                 using (new DirectoryAccessDenier(this.storageFolder, FileSystemRights.CreateFiles))
