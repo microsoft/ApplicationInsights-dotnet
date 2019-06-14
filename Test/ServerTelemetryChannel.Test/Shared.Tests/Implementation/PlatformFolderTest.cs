@@ -174,8 +174,9 @@
             }
 
             [TestMethod]
+            [Ignore]
             public void ThrowsUnauthorizedAccessExceptionWhenProcessDoesNotHaveRightToCreateFile()
-            {
+            {                
                 using (new DirectoryAccessDenier(this.storageFolder, FileSystemRights.CreateFiles))
                 { 
                     var folder = new PlatformFolder(this.storageFolder);

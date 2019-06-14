@@ -27,7 +27,7 @@
         [ExpectedException(typeof(ArgumentNullException))]
         public void CreatingOperationItemWithNullTelemetryThrowsArgumentNullException()
         {
-            var operationItem = new OperationHolder<DependencyTelemetry>(new TelemetryClient(), null);
+            var operationItem = new OperationHolder<DependencyTelemetry>(new TelemetryClient(TelemetryConfiguration.CreateDefault()), null);
         }
 
         /// <summary>
@@ -36,7 +36,7 @@
         [TestMethod]
         public void CreatingOperationItemDoesNotThrowOnPassingValidArguments()
         {
-            var operationItem = new OperationHolder<DependencyTelemetry>(new TelemetryClient(), new DependencyTelemetry());
+            var operationItem = new OperationHolder<DependencyTelemetry>(new TelemetryClient(TelemetryConfiguration.CreateDefault()), new DependencyTelemetry());
         }
     }
 }

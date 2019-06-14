@@ -1,16 +1,13 @@
-﻿using System;
-using System.Threading;
+﻿#pragma warning disable 612, 618  // obsolete TelemetryConfigration.Active
+
+using System;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Metrics;
 using Microsoft.ApplicationInsights.Metrics.TestUtility;
-using Microsoft.ApplicationInsights.Metrics.Extensibility;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights;
-using System.Collections.Generic;
-using Microsoft.ApplicationInsights.Channel;
 
 namespace SomeCustomerNamespace
 {
@@ -139,3 +136,4 @@ namespace SomeCustomerNamespace
         //}
     }
 }
+#pragma warning restore 612, 618  // obsolete TelemetryConfigration.Active

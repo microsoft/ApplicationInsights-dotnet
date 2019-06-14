@@ -1,4 +1,5 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
+﻿#pragma warning disable 612, 618  // obsolete TelemetryConfigration.Active
+namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     using System;
     using System.Collections.Generic;
@@ -134,3 +135,4 @@
         }
     }
 }
+#pragma warning restore 612, 618  // obsolete TelemetryConfigration.Active

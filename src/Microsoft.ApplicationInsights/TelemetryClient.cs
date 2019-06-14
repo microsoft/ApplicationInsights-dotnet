@@ -29,10 +29,14 @@
 #endif
         private readonly TelemetryConfiguration configuration;
         private string sdkVersion;
-        
+
+#pragma warning disable 612, 618 // TelemetryConfiguration.Active
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the active configuration, usually loaded from ApplicationInsights.config.
         /// </summary>
+#if NETSTANDARD1_3 || NETSTANDARD2_0
+        [Obsolete("We do not recommend using TelemetryConfiguration.Active on .NET Core. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/1152 for more details")]
+#endif
         public TelemetryClient() : this(TelemetryConfiguration.Active)
         {
         }
@@ -57,6 +61,7 @@
                 throw new ArgumentException("The specified configuration does not have a telemetry channel.", nameof(configuration));
             }
         }
+#pragma warning restore 612, 618 // TelemetryConfiguration.Active
 
         /// <summary>
         /// Gets the current context that will be used to augment telemetry you send.
