@@ -46,7 +46,8 @@
         private const string AzureWebAppCoreSdkVersionPrefix = "azwapccore:";
 
         private const string WebSiteEnvironmentVariable = "WEBSITE_SITE_NAME";
-        private const string ProcessorsCountEnvironmentVariable = "NUMBER_OF_PROCESSORS";
+        private const string WebSiteIsolationEnvironmentVariable = "WEBSITE_ISOLATION";
+        private const string WebSiteIsolationHyperV = "hyperv";
 
         private static readonly ConcurrentDictionary<string, string> PlaceholderCache =
             new ConcurrentDictionary<string, string>();
@@ -165,16 +166,21 @@
         }
 
         /// <summary>
-        /// Searches for the environment variable specific to Azure web applications and confirms if the current application is a web application or not.
+        /// Searches for the environment variable specific to Azure Web App.
         /// </summary>
-        /// <returns>Boolean, which is true if the current application is an Azure web application.</returns>
+        /// <returns>Boolean, which is true if the current application is an Azure Web App.</returns>
         public static bool IsWebAppRunningInAzure()
         {
             if (!isAzureWebApp.HasValue)
             {
                 try
                 {
-                    isAzureWebApp = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(WebSiteEnvironmentVariable));
+                    // Presence of "WEBSITE_SITE_NAME" indicate web apps.
+                    // "WEBSITE_ISOLATION"!="hyperv" indicate premium containers. In this case, perf counters
+                    // can be read using regular mechanism and hence this method retuns false for
+                    // premium containers.
+                    isAzureWebApp = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(WebSiteEnvironmentVariable)) &&
+                                    Environment.GetEnvironmentVariable(WebSiteIsolationEnvironmentVariable) != WebSiteIsolationHyperV;
                 }
                 catch (Exception ex)
                 {

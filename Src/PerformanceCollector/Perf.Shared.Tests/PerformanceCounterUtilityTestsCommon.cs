@@ -89,5 +89,45 @@
             }
 #endif
         }
+
+        [TestMethod]
+        public void IsWebAppReturnsTrueOnRegularWebApp()
+        {
+            try
+            {
+                PerformanceCounterUtility.isAzureWebApp = null;
+                Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", "something");
+                Environment.SetEnvironmentVariable("WEBSITE_ISOLATION", "nothyperv");
+                var actual = PerformanceCounterUtility.IsWebAppRunningInAzure();
+                Assert.IsTrue(actual);
+            }
+            finally
+            {
+                PerformanceCounterUtility.isAzureWebApp = null;
+                Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", string.Empty);
+                Environment.SetEnvironmentVariable("WEBSITE_ISOLATION", string.Empty);
+                Task.Delay(1000).Wait();
+            }
+        }
+
+        [TestMethod]
+        public void IsWebAppReturnsFalseOnPremiumContainerWebApp()
+        {
+            try
+            {
+                PerformanceCounterUtility.isAzureWebApp = null;
+                Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", "something");
+                Environment.SetEnvironmentVariable("WEBSITE_ISOLATION", "hyperv");
+                var actual = PerformanceCounterUtility.IsWebAppRunningInAzure();
+                Assert.IsFalse(actual);
+            }
+            finally
+            {
+                PerformanceCounterUtility.isAzureWebApp = null;
+                Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", string.Empty);
+                Environment.SetEnvironmentVariable("WEBSITE_ISOLATION", string.Empty);
+                Task.Delay(1000).Wait();
+            }
+        }
     }
 }
