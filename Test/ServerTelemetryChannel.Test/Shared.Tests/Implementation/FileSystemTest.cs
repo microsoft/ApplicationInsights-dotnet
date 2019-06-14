@@ -25,7 +25,7 @@
 
         protected static DirectoryInfo GetLocalFolder()
         {
-            return new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
+            return new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create));
         }
 
         protected static DirectoryInfo CreatePlatformFolder(string uniqueName)
