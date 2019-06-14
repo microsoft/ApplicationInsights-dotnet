@@ -106,8 +106,11 @@
             }
 
             [TestMethod]
+            [TestCategory("WindowsOnly")]
             public void ThrowsUnauthorizedAccessExceptionWhenProcessDoesNotHaveRightToListDirectory()
             {
+                // Only on Windows as the APIs are not available in Linux.
+                // The product also does not this this.
                 using (new DirectoryAccessDenier(this.storageFolder, FileSystemRights.ListDirectory))
                 {
                     var folder = new PlatformFolder(this.storageFolder);
@@ -174,9 +177,11 @@
             }
 
             [TestMethod]
-            [Ignore]
+            [TestCategory("WindowsOnly")]
             public void ThrowsUnauthorizedAccessExceptionWhenProcessDoesNotHaveRightToCreateFile()
-            {                
+            {
+                // Only on Windows as the APIs are not available in Linux.
+                // The product also does not this this.
                 using (new DirectoryAccessDenier(this.storageFolder, FileSystemRights.CreateFiles))
                 { 
                     var folder = new PlatformFolder(this.storageFolder);
