@@ -179,8 +179,10 @@
             }
 
             [TestMethod]
+            [TestCategory("WindowsOnly")]
             public void ThrowsUnauthorizedAccessExceptionWhenProcessHasNoRightToWriteToFile()
             {
+                // Only on Windows as the APIs are not available in Linux.                
                 using (new FileAccessDenier(this.platformFile, FileSystemRights.Write))
                 { 
                     var file = new PlatformFile(this.platformFile);

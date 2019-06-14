@@ -179,11 +179,11 @@
                 AssertEx.Throws<PathTooLongException>(() => folder.CreateFile(new string('F', 1024)));
             }
 
-            [TestMethod]            
+            [TestMethod]
+            [TestCategory("WindowsOnly")]
             public void ThrowsUnauthorizedAccessExceptionWhenProcessDoesNotHaveRightToCreateFile()
             {
                 Trace.WriteLine(string.Format("{0} Blocking Listing Permission on: {1} ", DateTime.Now.ToLongTimeString(), this.storageFolder.FullName));
-            {
                 // Only on Windows as the APIs are not available in Linux.
                 // The product also does not this this.
                 using (new DirectoryAccessDenier(this.storageFolder, FileSystemRights.CreateFiles))
