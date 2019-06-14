@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
-#if !NETCOREAPP
+#if !NETCOREAPP1_1
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -108,9 +108,12 @@
             }
 
             [TestMethod]
+            [TestCategory("WindowsOnly")]
             public void ThrowsUnauthorizedAccessExceptionWhenProcessDoesNotHaveRightToListDirectory()
             {
                 Trace.WriteLine(string.Format("{0} Blocking Listing Permission on: {1} ",DateTime.Now.ToLongTimeString(), this.storageFolder.FullName));
+                // Only on Windows as the APIs are not available in Linux.
+                // The product also does not this this.
                 using (new DirectoryAccessDenier(this.storageFolder, FileSystemRights.ListDirectory))
                 {
                     var folder = new PlatformFolder(this.storageFolder);
@@ -176,10 +179,13 @@
                 AssertEx.Throws<PathTooLongException>(() => folder.CreateFile(new string('F', 1024)));
             }
 
-            [TestMethod]            
+            [TestMethod]
+            [TestCategory("WindowsOnly")]
             public void ThrowsUnauthorizedAccessExceptionWhenProcessDoesNotHaveRightToCreateFile()
             {
                 Trace.WriteLine(string.Format("{0} Blocking Listing Permission on: {1} ", DateTime.Now.ToLongTimeString(), this.storageFolder.FullName));
+                // Only on Windows as the APIs are not available in Linux.
+                // The product also does not this this.
                 using (new DirectoryAccessDenier(this.storageFolder, FileSystemRights.CreateFiles))
                 { 
                     var folder = new PlatformFolder(this.storageFolder);

@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
-#if !NETCOREAPP
+#if !NETCOREAPP1_1
     using System;
     using System.IO;
     using System.Security.AccessControl;
@@ -179,8 +179,10 @@
             }
 
             [TestMethod]
+            [TestCategory("WindowsOnly")]
             public void ThrowsUnauthorizedAccessExceptionWhenProcessHasNoRightToWriteToFile()
             {
+                // Only on Windows as the APIs are not available in Linux.                
                 using (new FileAccessDenier(this.platformFile, FileSystemRights.Write))
                 { 
                     var file = new PlatformFile(this.platformFile);
