@@ -10,6 +10,7 @@
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.ApplicationInsights.TestFramework;
+    using System.Diagnostics;
 
 
     /// <summary>
@@ -25,6 +26,7 @@
         {
             string uniqueName = GetUniqueFileName();
             this.storageFolder = FileSystemTest.CreatePlatformFolder(uniqueName);
+            Trace.WriteLine("Storage folder is:" + this.storageFolder.FullName);
         }
 
         public void Dispose()
@@ -108,6 +110,7 @@
             [TestMethod]
             public void ThrowsUnauthorizedAccessExceptionWhenProcessDoesNotHaveRightToListDirectory()
             {
+                Trace.WriteLine(string.Format("{0} Blocking Listing Permission on: {1} ",DateTime.Now.ToLongTimeString(), this.storageFolder.FullName));
                 using (new DirectoryAccessDenier(this.storageFolder, FileSystemRights.ListDirectory))
                 {
                     var folder = new PlatformFolder(this.storageFolder);
@@ -175,7 +178,8 @@
 
             [TestMethod]            
             public void ThrowsUnauthorizedAccessExceptionWhenProcessDoesNotHaveRightToCreateFile()
-            {                
+            {
+                Trace.WriteLine(string.Format("{0} Blocking Listing Permission on: {1} ", DateTime.Now.ToLongTimeString(), this.storageFolder.FullName));
                 using (new DirectoryAccessDenier(this.storageFolder, FileSystemRights.CreateFiles))
                 { 
                     var folder = new PlatformFolder(this.storageFolder);
