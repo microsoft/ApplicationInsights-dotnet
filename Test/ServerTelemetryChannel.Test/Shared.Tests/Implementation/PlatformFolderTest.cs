@@ -10,6 +10,7 @@
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.ApplicationInsights.TestFramework;
+    using System.Diagnostics;
 
 
     /// <summary>
@@ -25,6 +26,7 @@
         {
             string uniqueName = GetUniqueFileName();
             this.storageFolder = FileSystemTest.CreatePlatformFolder(uniqueName);
+            Trace.WriteLine("Storage folder is:" + this.storageFolder.FullName);
         }
 
         public void Dispose()
@@ -109,6 +111,7 @@
             [TestCategory("WindowsOnly")]
             public void ThrowsUnauthorizedAccessExceptionWhenProcessDoesNotHaveRightToListDirectory()
             {
+                Trace.WriteLine(string.Format("{0} Blocking Listing Permission on: {1} ",DateTime.Now.ToLongTimeString(), this.storageFolder.FullName));
                 // Only on Windows as the APIs are not available in Linux.
                 // The product also does not this this.
                 using (new DirectoryAccessDenier(this.storageFolder, FileSystemRights.ListDirectory))
@@ -176,9 +179,10 @@
                 AssertEx.Throws<PathTooLongException>(() => folder.CreateFile(new string('F', 1024)));
             }
 
-            [TestMethod]
-            [TestCategory("WindowsOnly")]
+            [TestMethod]            
             public void ThrowsUnauthorizedAccessExceptionWhenProcessDoesNotHaveRightToCreateFile()
+            {
+                Trace.WriteLine(string.Format("{0} Blocking Listing Permission on: {1} ", DateTime.Now.ToLongTimeString(), this.storageFolder.FullName));
             {
                 // Only on Windows as the APIs are not available in Linux.
                 // The product also does not this this.
