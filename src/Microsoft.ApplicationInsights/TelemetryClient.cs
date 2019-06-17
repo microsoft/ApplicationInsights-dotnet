@@ -511,63 +511,66 @@
 
             telemetry.Context.Initialize(this.Context, instrumentationKey);
 
-            bool sampledIn = false;
+            ISupportSampling telemetryWithSampling = telemetry as ISupportSampling;
 
-            if (telemetry is ISupportSampling telemetryWithSampling 
-                && !telemetryWithSampling.IsProactivelySampledOut
-                && telemetryWithSampling.SupportsProactiveSampling)
+            bool sampledOut = telemetryWithSampling?.IsProactivelySampledOut ?? false;
+            bool shoudlCheckSamplingScore = !sampledOut;
+
+            if (!sampledOut)
             {
-                for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
+                if (telemetryWithSampling?.SupportsProactiveSampling ?? false)
                 {
-                    if (!sampledIn && !string.IsNullOrEmpty(telemetry.Context.Operation.Id))
+                    for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
                     {
-                        if (GetSamplingScore(telemetry) > this.configuration.GetLastObservedSamplingPercentage(telemetryWithSampling.ItemTypeFlag))
+                        if (shoudlCheckSamplingScore && !string.IsNullOrEmpty(telemetry.Context.Operation.Id))
                         {
-                            telemetryWithSampling.IsProactivelySampledOut = true;
-                            break;
+                            if (SamplingScoreGenerator.GetSamplingScore(telemetry.Context.Operation.Id) > this.configuration.GetLastObservedSamplingPercentage(telemetryWithSampling.ItemTypeFlag))
+                            {
+                                telemetryWithSampling.IsProactivelySampledOut = true;
+                                sampledOut = true;
+                                break;
+                            }
+                            else
+                            {
+                                shoudlCheckSamplingScore = false;
+                            }
                         }
-                        else
-                        {
-                            sampledIn = true;
-                        }
-                    }
 
-                    try
+                        try
+                        {
+                            this.configuration.TelemetryInitializers[index].Initialize(telemetry);
+                        }
+                        catch (Exception exception)
+                        {
+                            CoreEventSource.Log.LogError(string.Format(
+                                                            CultureInfo.InvariantCulture,
+                                                            "Exception while initializing {0}, exception message - {1}",
+                                                            this.configuration.TelemetryInitializers[index].GetType().FullName,
+                                                            exception));
+                        }
+                    }                    
+                }
+                else
+                {
+                    for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
                     {
-                        this.configuration.TelemetryInitializers[index].Initialize(telemetry);
-                    }
-                    catch (Exception exception)
-                    {
-                        CoreEventSource.Log.LogError(string.Format(
-                                                        CultureInfo.InvariantCulture,
-                                                        "Exception while initializing {0}, exception message - {1}",
-                                                        this.configuration.TelemetryInitializers[index].GetType().FullName,
-                                                        exception));
+                        try
+                        {
+                            this.configuration.TelemetryInitializers[index].Initialize(telemetry);
+                        }
+                        catch (Exception exception)
+                        {
+                            CoreEventSource.Log.LogError(string.Format(
+                                                            CultureInfo.InvariantCulture,
+                                                            "Exception while initializing {0}, exception message - {1}",
+                                                            this.configuration.TelemetryInitializers[index].GetType().FullName,
+                                                            exception));
+                        }
                     }
                 }
             }
-            else
-            {
-                sampledIn = true;
 
-                for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
-                {
-                    try
-                    {
-                        this.configuration.TelemetryInitializers[index].Initialize(telemetry);
-                    }
-                    catch (Exception exception)
-                    {
-                        CoreEventSource.Log.LogError(string.Format(
-                                                        CultureInfo.InvariantCulture,
-                                                        "Exception while initializing {0}, exception message - {1}",
-                                                        this.configuration.TelemetryInitializers[index].GetType().FullName,
-                                                        exception));
-                    }
-                }
-            }
-
-            if (sampledIn)
+            if (!sampledOut)
             {
                 if (telemetry.Timestamp == default(DateTimeOffset))
                 {
@@ -1253,34 +1256,6 @@
                         aggregationScope,
                         metricIdentifier,
                         metricConfiguration);
-        }
-
-        internal static double GetSamplingScore(ITelemetry telemetry)
-        {
-            double samplingScore = (double)GetSamplingHashCode(telemetry.Context.Operation.Id) / int.MaxValue;
-            return samplingScore * 100;
-        }
-
-        internal static int GetSamplingHashCode(string input)
-        {
-            if (string.IsNullOrEmpty(input))
-            {
-                return 0;
-            }
-
-            while (input.Length < 8)
-            {
-                input = input + input;
-            }
-
-            int hash = 5381;
-
-            for (int i = 0; i < input.Length; i++)
-            {
-                hash = ((hash << 5) + hash) + (int)input[i];
-            }
-
-            return hash == int.MinValue ? int.MaxValue : Math.Abs(hash);
         }
 
         private Metric GetOrCreateMetric(

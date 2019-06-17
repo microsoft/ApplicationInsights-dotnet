@@ -15,12 +15,12 @@
     /// </summary>
     public sealed class SamplingTelemetryProcessor : ITelemetryProcessor
     {
-        private const string DependencyTelemetryName = "dependency";
-        private const string EventTelemetryName = "event";
-        private const string ExceptionTelemetryName = "exception";
-        private const string PageViewTelemetryName = "pageview";
-        private const string RequestTelemetryName = "request";
-        private const string TraceTelemetryName = "trace";
+        private const string DependencyTelemetryName = "DEPENDENCY";
+        private const string EventTelemetryName = "EVENT";
+        private const string ExceptionTelemetryName = "EXCEPTION";
+        private const string PageViewTelemetryName = "PAGEVIEW";
+        private const string RequestTelemetryName = "REQUEST";
+        private const string TraceTelemetryName = "TRACE";
 
         private readonly char[] listSeparators = { ';' };
         private readonly IDictionary<string, Type> allowedTypes;
@@ -36,11 +36,9 @@
         };
 
         private SamplingTelemetryItemTypes excludedTypesFlags;
-        private HashSet<Type> excludedTypesHashSet;
         private string excludedTypesString;
 
         private SamplingTelemetryItemTypes includedTypesFlags;
-        private HashSet<Type> includedTypesHashSet;
         private string includedTypesString;
 
         /// <summary>
@@ -57,9 +55,7 @@
             this.SamplingPercentage = 100.0;
             this.SampledNext = next;
             this.UnsampledNext = next;
-
-            this.excludedTypesHashSet = new HashSet<Type>();
-            this.includedTypesHashSet = new HashSet<Type>();
+            
             this.allowedTypes = new Dictionary<string, Type>(6, StringComparer.OrdinalIgnoreCase)
             {
                 { DependencyTelemetryName, typeof(DependencyTelemetry) },
@@ -101,7 +97,7 @@
                     {
                         if (this.allowedTypes.ContainsKey(item))
                         {
-                            switch (item.ToLowerInvariant())
+                            switch (item.ToUpperInvariant())
                             {
                                 case RequestTelemetryName:
                                     newExcludedFlags |= SamplingTelemetryItemTypes.Request;
@@ -155,7 +151,7 @@
                     {
                         if (this.allowedTypes.ContainsKey(item))
                         {
-                            switch (item)
+                            switch (item.ToUpperInvariant())
                             {
                                 case RequestTelemetryName:
                                     newIncludedFlags |= SamplingTelemetryItemTypes.Request;

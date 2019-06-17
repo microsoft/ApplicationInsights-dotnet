@@ -322,7 +322,7 @@
         /// Sets last known request sampling percentage to skip initializers for sampled requests
         /// </summary>
         public void SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes samplingItemType, double value)
-        {
+        {            
             this.lastKnownSampleRatePerType[samplingItemType] = value;
         }
 

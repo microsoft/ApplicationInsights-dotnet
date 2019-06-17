@@ -1,6 +1,8 @@
+Microsoft.ApplicationInsights.Channel.SamplingScoreGenerator
+static Microsoft.ApplicationInsights.Channel.SamplingScoreGenerator.GetSamplingScore(string value) -> double
+static Microsoft.ApplicationInsights.Channel.SamplingScoreGenerator.GetSamplingScore(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> double
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.GetLastObservedSamplingPercentage(Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes samplingItemType) -> double
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.SetLastObservedSamplingPercentage(Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes samplingItemType, double value) -> void
-Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.ClearState() -> void
 Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.None = 0 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Event = 1 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
