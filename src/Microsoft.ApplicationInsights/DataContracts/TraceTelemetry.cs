@@ -13,7 +13,7 @@
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
     /// </summary>
-    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IAiSerializableTelemetry
+    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportAdvancedSampling, IAiSerializableTelemetry
     {
         internal const string TelemetryName = "Message";
 

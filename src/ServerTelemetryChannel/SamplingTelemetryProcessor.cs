@@ -222,14 +222,15 @@
 
             //// If null was passed in as item or if sampling not supported in general, do nothing:
             var samplingSupportingTelemetry = item as ISupportSampling;
-            if (samplingSupportingTelemetry == null)
+            var advancedSamplingSupportingTelemetry = item as ISupportAdvancedSampling;
+            if (samplingSupportingTelemetry == null || advancedSamplingSupportingTelemetry == null)
             {
                 this.UnsampledNext.Process(item);
                 return;
             }
 
             //// If telemetry was excluded by type, do nothing:
-            if (!this.IsSamplingApplicable(samplingSupportingTelemetry.ItemTypeFlag))
+            if (!this.IsSamplingApplicable(advancedSamplingSupportingTelemetry.ItemTypeFlag))
             {
                 if (TelemetryChannelEventSource.IsVerboseEnabled)
                 {
@@ -255,9 +256,9 @@
 
             if (isSampledIn)
             {
-                if (samplingSupportingTelemetry.IsProactivelySampledOut)
+                if (advancedSamplingSupportingTelemetry.IsProactivelySampledOut)
                 {
-                    this.AddProactivelySampledOutItems(samplingSupportingTelemetry.ItemTypeFlag, Convert.ToInt64(100 / samplingPercentage));
+                    this.AddProactivelySampledOutItems(advancedSamplingSupportingTelemetry.ItemTypeFlag, Convert.ToInt64(100 / samplingPercentage));
 
                     if (TelemetryChannelEventSource.IsVerboseEnabled)
                     {
@@ -266,11 +267,11 @@
                 }
                 else
                 {
-                    var proactivelySampledOutItemsCount = this.GetProactivelySampledOutItems(samplingSupportingTelemetry.ItemTypeFlag);
+                    var proactivelySampledOutItemsCount = this.GetProactivelySampledOutItems(advancedSamplingSupportingTelemetry.ItemTypeFlag);
                     if (proactivelySampledOutItemsCount > 0)
                     {
                         samplingSupportingTelemetry.SamplingPercentage = (100 * samplingSupportingTelemetry.SamplingPercentage) / (100 + (proactivelySampledOutItemsCount * samplingSupportingTelemetry.SamplingPercentage));
-                        this.ClearProactivelySampledOutItems(samplingSupportingTelemetry.ItemTypeFlag);
+                        this.ClearProactivelySampledOutItems(advancedSamplingSupportingTelemetry.ItemTypeFlag);
                     }
 
                     this.SampledNext.Process(item);

@@ -511,7 +511,7 @@
 
             telemetry.Context.Initialize(this.Context, instrumentationKey);
 
-            ISupportSampling telemetryWithSampling = telemetry as ISupportSampling;
+            ISupportAdvancedSampling telemetryWithSampling = telemetry as ISupportAdvancedSampling;
 
             // Telemetry can be already sampled out if that decision was made before calling Track()
             bool sampledOut = telemetryWithSampling?.IsProactivelySampledOut ?? false;

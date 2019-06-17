@@ -33,7 +33,8 @@ Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.RemoteDep
 Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Request = 256 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.SessionState = 512 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Availability = 1024 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
-Microsoft.ApplicationInsights.DataContracts.ISupportSampling.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
@@ -41,8 +42,8 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ItemTypeFlag.get 
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
-Microsoft.ApplicationInsights.DataContracts.ISupportSampling.IsProactivelySampledOut.get -> bool
-Microsoft.ApplicationInsights.DataContracts.ISupportSampling.IsProactivelySampledOut.set -> void
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.IsProactivelySampledOut.get -> bool
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.IsProactivelySampledOut.set -> void
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.IsProactivelySampledOut.get -> bool
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.IsProactivelySampledOut.get -> bool
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.IsProactivelySampledOut.get -> bool
@@ -57,8 +58,8 @@ Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.IsProactivelySamp
 Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.IsProactivelySampledOut.set -> void
 Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.IsProactivelySampledOut.set -> void
 Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.IsProactivelySampledOut.set -> void
-Microsoft.ApplicationInsights.DataContracts.ISupportSampling.SupportsProactiveSampling.get -> bool
-Microsoft.ApplicationInsights.DataContracts.ISupportSampling.SupportsProactiveSampling.set -> void
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.SupportsProactiveSampling.get -> bool
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.SupportsProactiveSampling.set -> void
 Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.SupportsProactiveSampling.get -> bool
 Microsoft.ApplicationInsights.DataContracts.EventTelemetry.SupportsProactiveSampling.get -> bool
 Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.SupportsProactiveSampling.get -> bool
