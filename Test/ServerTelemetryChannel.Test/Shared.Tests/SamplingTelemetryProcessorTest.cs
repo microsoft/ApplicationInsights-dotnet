@@ -344,7 +344,7 @@
 
         [TestMethod]
         public void UnknownIncludedTypesAreIgnored()
-        { 
+        {
             TelemetryTypeSupportsSampling(telemetryProcessors => telemetryProcessors.Process(new TraceTelemetry("my trace")), null, "lala1;lala2,lala3");
         }
 

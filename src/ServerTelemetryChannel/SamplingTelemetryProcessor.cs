@@ -24,6 +24,7 @@
 
         private readonly char[] listSeparators = { ';' };
         private readonly IDictionary<string, Type> allowedTypes;
+
         private readonly long[] proactivelySampledOutItems = new long[] { 0, 0, 0, 0, 0, 0, 0 };
         private readonly Dictionary<SamplingTelemetryItemTypes, int> typeToSamplingIndexMap = new Dictionary<SamplingTelemetryItemTypes, int>
         {
@@ -256,7 +257,7 @@
             {
                 if (samplingSupportingTelemetry.IsProactivelySampledOut)
                 {
-                    this.IncrementProactivelySampledOutItems(samplingSupportingTelemetry.ItemTypeFlag);
+                    this.AddProactivelySampledOutItems(samplingSupportingTelemetry.ItemTypeFlag, Convert.ToInt64(100 / samplingPercentage));
 
                     if (TelemetryChannelEventSource.IsVerboseEnabled)
                     {
@@ -265,10 +266,11 @@
                 }
                 else
                 {
-                    if (this.GetProactivelySampledOutItems(samplingSupportingTelemetry.ItemTypeFlag) > 0)
+                    var proactivelySampledOutItemsCount = this.GetProactivelySampledOutItems(samplingSupportingTelemetry.ItemTypeFlag);
+                    if (proactivelySampledOutItemsCount > 0)
                     {
-                        samplingSupportingTelemetry.SamplingPercentage = samplingSupportingTelemetry.SamplingPercentage / 2;
-                        this.DecrementProactivelySampledOutItems(samplingSupportingTelemetry.ItemTypeFlag);
+                        samplingSupportingTelemetry.SamplingPercentage = (100 * samplingSupportingTelemetry.SamplingPercentage) / (100 + (proactivelySampledOutItemsCount * samplingSupportingTelemetry.SamplingPercentage));
+                        this.ClearProactivelySampledOutItems(samplingSupportingTelemetry.ItemTypeFlag);
                     }
 
                     this.SampledNext.Process(item);
@@ -300,18 +302,18 @@
             return true;
         }
 
-        private void IncrementProactivelySampledOutItems(SamplingTelemetryItemTypes telemetryItemTypeFlag)
+        private void AddProactivelySampledOutItems(SamplingTelemetryItemTypes telemetryItemTypeFlag, long value)
         {
             int typeIndex;
             this.typeToSamplingIndexMap.TryGetValue(telemetryItemTypeFlag, out typeIndex);
-            Interlocked.Increment(ref this.proactivelySampledOutItems[typeIndex]);
+            Interlocked.Add(ref this.proactivelySampledOutItems[typeIndex], value);
         }
 
-        private void DecrementProactivelySampledOutItems(SamplingTelemetryItemTypes telemetryItemTypeFlag)
+        private void ClearProactivelySampledOutItems(SamplingTelemetryItemTypes telemetryItemTypeFlag)
         {
             int typeIndex;
             this.typeToSamplingIndexMap.TryGetValue(telemetryItemTypeFlag, out typeIndex);
-            Interlocked.Decrement(ref this.proactivelySampledOutItems[typeIndex]);
+            Interlocked.Exchange(ref this.proactivelySampledOutItems[typeIndex], 0);
         }
 
         private long GetProactivelySampledOutItems(SamplingTelemetryItemTypes telemetryItemTypeFlag)

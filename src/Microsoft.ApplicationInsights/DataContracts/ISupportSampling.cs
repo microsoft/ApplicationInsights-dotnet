@@ -8,22 +8,65 @@
     [Flags]
     public enum SamplingTelemetryItemTypes
     {
-#pragma warning disable SA1602
-#pragma warning disable CS1591
+        /// <summary>
+        /// Unknown Telemetry Item Type
+        /// </summary>
         None = 0,
+        
+        /// <summary>
+        /// Event Telemetry type
+        /// </summary>
         Event = 1,
+
+        /// <summary>
+        /// Exception Telemetry type
+        /// </summary>
         Exception = 2,
+
+        /// <summary>
+        /// Message Telemetry type
+        /// </summary>
         Message = 4,
+
+        /// <summary>
+        /// Metric Telemetry type
+        /// </summary>
         Metric = 8,
+
+        /// <summary>
+        /// PageView Telemetry type
+        /// </summary>
         PageView = 16,
+
+        /// <summary>
+        /// PageViewPerformance Telemetry type
+        /// </summary>
         PageViewPerformance = 32,
+
+        /// <summary>
+        /// PerformanceCounter Telemetry type
+        /// </summary>
         PerformanceCounter = 64,
+
+        /// <summary>
+        /// RemoteDependency Telemetry type
+        /// </summary>
         RemoteDependency = 128,
+
+        /// <summary>
+        /// Request Telemetry type
+        /// </summary>
         Request = 256,
+
+        /// <summary>
+        /// SessionState Telemetry type
+        /// </summary>
         SessionState = 512,
+
+        /// <summary>
+        /// Availability Telemetry type
+        /// </summary>
         Availability = 1024,
-#pragma warning restore CS1591
-#pragma warning restore SA1602
     }
 
     /// <summary>

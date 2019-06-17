@@ -22,8 +22,6 @@
         private IExtension extension;
 
         private double? samplingPercentage;
-        private bool supportsProactiveSampling = false;
-        private bool isProactivelySampledOut = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventTelemetry"/> class.
@@ -49,6 +47,8 @@
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
+            this.IsProactivelySampledOut = source.IsProactivelySampledOut;
+            this.SupportsProactiveSampling = source.SupportsProactiveSampling;
             this.extension = source.extension?.DeepClone();
         }
 
@@ -128,18 +128,10 @@
         public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Event;
 
         /// <inheritdoc/>
-        public bool IsProactivelySampledOut
-        {
-            get { return this.isProactivelySampledOut; }
-            set { this.isProactivelySampledOut = value; }
-        }
+        public bool IsProactivelySampledOut { get; set; } = false;
 
         /// <inheritdoc/>
-        public bool SupportsProactiveSampling
-        {
-            get { return this.supportsProactiveSampling; }
-            set { this.supportsProactiveSampling = value; }
-        }
+        public bool SupportsProactiveSampling { get; set; } = false;
 
         /// <summary>
         /// Deeply clones a <see cref="EventTelemetry"/> object.

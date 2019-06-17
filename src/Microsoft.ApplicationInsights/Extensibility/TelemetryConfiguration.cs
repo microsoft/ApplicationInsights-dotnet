@@ -4,12 +4,12 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Sampling;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
@@ -28,16 +28,8 @@
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
         private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
-        private readonly Dictionary<SamplingTelemetryItemTypes, double> lastKnownSampleRatePerType = new Dictionary<SamplingTelemetryItemTypes, double>
-        {
-            { SamplingTelemetryItemTypes.Request, 100 },
-            { SamplingTelemetryItemTypes.RemoteDependency, 100 },
-            { SamplingTelemetryItemTypes.Exception, 100 },
-            { SamplingTelemetryItemTypes.Event, 100 },
-            { SamplingTelemetryItemTypes.PageView, 100 },
-            { SamplingTelemetryItemTypes.Message, 100 },
-        };
-
+        private readonly SamplingRateStore lastKnownSampleRateStore = new SamplingRateStore();
+        
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
@@ -315,7 +307,7 @@
         /// </summary>
         public double GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes samplingItemType)
         {
-            return this.lastKnownSampleRatePerType[samplingItemType];
+            return this.lastKnownSampleRateStore.GetLastObservedSamplingPercentage(samplingItemType);
         }
 
         /// <summary>
@@ -323,7 +315,7 @@
         /// </summary>
         public void SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes samplingItemType, double value)
         {            
-            this.lastKnownSampleRatePerType[samplingItemType] = value;
+            this.lastKnownSampleRateStore.SetLastObservedSamplingPercentage(samplingItemType, value);
         }
 
         /// <summary>

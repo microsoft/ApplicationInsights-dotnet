@@ -24,8 +24,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
         private readonly TelemetryContext context;
         private IExtension extension;
         private double? samplingPercentage;
-        private bool supportsProactiveSampling = false;
-        private bool isProactivelySampledOut = false;
         private bool successFieldSet;
         private bool success = true;
         private IDictionary<string, double> measurementsValue;
@@ -108,7 +106,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
-            this.isProactivelySampledOut = source.isProactivelySampledOut;
+            this.SupportsProactiveSampling = source.SupportsProactiveSampling;
+            this.IsProactivelySampledOut = source.IsProactivelySampledOut;
             this.successFieldSet = source.successFieldSet;
             this.extension = source.extension?.DeepClone();
             this.Name = source.Name;
@@ -329,18 +328,10 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.RemoteDependency;
 
         /// <inheritdoc/>
-        public bool IsProactivelySampledOut
-        {
-            get { return this.isProactivelySampledOut; }
-            set { this.isProactivelySampledOut = value; }
-        }
+        public bool IsProactivelySampledOut { get; set; } = false;
 
         /// <inheritdoc/>
-        public bool SupportsProactiveSampling
-        {
-            get { return this.supportsProactiveSampling; }
-            set { this.supportsProactiveSampling = value; }
-        }
+        public bool SupportsProactiveSampling { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the MetricExtractorInfo.

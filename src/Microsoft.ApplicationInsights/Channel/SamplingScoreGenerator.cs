@@ -4,7 +4,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
-    /// Provides methods to calculate sampling score for Application Insights telemetry items
+    /// Utility class for sampling score generation.
     /// </summary>
     public static class SamplingScoreGenerator
     {
@@ -15,8 +15,7 @@
         /// <returns>Item sampling score.</returns>
         public static double GetSamplingScore(string value)
         {
-            double samplingScore = (double)value.GetSamplingHashCode() / int.MaxValue;
-            return samplingScore * 100;
+            return (double)value.GetSamplingHashCode() / int.MaxValue * 100;
         }
 
         /// <summary>

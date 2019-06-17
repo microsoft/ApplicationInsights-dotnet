@@ -513,7 +513,10 @@
 
             ISupportSampling telemetryWithSampling = telemetry as ISupportSampling;
 
+            // Telemetry can be already sampled out if that decision was made before calling Track()
             bool sampledOut = telemetryWithSampling?.IsProactivelySampledOut ?? false;
+
+            // If telemetry was not sampled out, we need to check its sampling score after we learn its Operation Id
             bool shoudlCheckSamplingScore = !sampledOut;
 
             if (!sampledOut)
