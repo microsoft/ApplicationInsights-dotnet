@@ -37,6 +37,9 @@ namespace Microsoft.ApplicationInsights.DataContracts
             Assert.IsFalse(request.Duration == null);
             Assert.IsTrue(request.Success == null);
             Assert.IsTrue(request.Data.success);
+            Assert.IsTrue(request.SupportsProactiveSampling);
+            Assert.IsFalse(request.IsProactivelySampledOut);
+            Assert.AreEqual(request.ItemTypeFlag, SamplingTelemetryItemTypes.Request);
         }
 
         [TestMethod]
@@ -49,6 +52,9 @@ namespace Microsoft.ApplicationInsights.DataContracts
             Assert.AreEqual(TimeSpan.FromSeconds(42), request.Duration);
             Assert.AreEqual(true, request.Success);
             Assert.AreEqual(start, request.Timestamp);
+            Assert.IsTrue(request.SupportsProactiveSampling);
+            Assert.IsFalse(request.IsProactivelySampledOut);
+            Assert.AreEqual(request.ItemTypeFlag, SamplingTelemetryItemTypes.Request);
         }
 
         [TestMethod]
@@ -290,6 +296,14 @@ namespace Microsoft.ApplicationInsights.DataContracts
             var telemetry = new RequestTelemetry();
 
             Assert.IsNotNull(telemetry as ISupportSampling);
+        }
+
+        [TestMethod]
+        public void RequestTelemetryImplementsISupportAdvancedSamplingContract()
+        {
+            var telemetry = new RequestTelemetry();
+
+            Assert.IsNotNull(telemetry as ISupportAdvancedSampling);
         }
 
         [TestMethod]

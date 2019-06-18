@@ -18,6 +18,15 @@
     public class PageViewPerformanceTelemetryTest
     {
         [TestMethod]
+        public void VerifyExpectedDefaultValue()
+        {
+            var pageViewPerformanceTelemetry = new PageViewPerformanceTelemetry();
+            Assert.IsFalse(pageViewPerformanceTelemetry.SupportsProactiveSampling);
+            Assert.IsFalse(pageViewPerformanceTelemetry.IsProactivelySampledOut);
+            Assert.AreEqual(pageViewPerformanceTelemetry.ItemTypeFlag, SamplingTelemetryItemTypes.PageViewPerformance);
+        }
+
+        [TestMethod]
         public void PageViewImplementsITelemetryContractConsistentlyWithOtherTelemetryTypes()
         {
             new ITelemetryTest<PageViewPerformanceTelemetry, AI.PageViewPerfData>().Run();
@@ -166,6 +175,14 @@
             var telemetry = new PageViewPerformanceTelemetry();
 
             Assert.IsNotNull(telemetry as ISupportSampling);
+        }
+
+        [TestMethod]
+        public void PageViewPerformanceTelemetryImplementsISupportAdvancedSamplingContract()
+        {
+            var telemetry = new PageViewPerformanceTelemetry();
+
+            Assert.IsNotNull(telemetry as ISupportAdvancedSampling);
         }
 
         [TestMethod]

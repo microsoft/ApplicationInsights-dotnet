@@ -14,8 +14,6 @@
         private readonly TelemetryContext context;
         private IExtension extension;
         private double? samplingPercentage;
-        private bool supportsProactiveSampling = false;
-        private bool isProactivelySampledOut = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UnknownTelemetry"/> class.
@@ -171,25 +169,6 @@
         {
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
-        }
-
-        /// <summary>
-        /// Gets item type for sampling evaluation
-        /// </summary>
-        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Event;
-
-        /// <inheritdoc/>
-        public bool IsProactivelySampledOut
-        {
-            get { return this.isProactivelySampledOut; }
-            set { this.IsProactivelySampledOut = value; }
-        }
-
-        /// <inheritdoc/>
-        public bool SupportsProactiveSampling
-        {
-            get { return this.supportsProactiveSampling; }
-            set { this.supportsProactiveSampling = value; }
         }
 
         /// <summary>

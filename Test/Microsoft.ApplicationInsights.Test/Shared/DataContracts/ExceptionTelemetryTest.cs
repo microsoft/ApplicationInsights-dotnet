@@ -20,6 +20,15 @@
     public class ExceptionTelemetryTest
     {
         [TestMethod]
+        public void VerifyExpectedDefaultValue()
+        {
+            var exceptionTelemetry = new ExceptionTelemetry();
+            Assert.IsFalse(exceptionTelemetry.SupportsProactiveSampling);
+            Assert.IsFalse(exceptionTelemetry.IsProactivelySampledOut);
+            Assert.AreEqual(exceptionTelemetry.ItemTypeFlag, SamplingTelemetryItemTypes.Exception);
+        }
+
+        [TestMethod]
         public void ClassIsPublicAndCanBeUsedByCustomersDirectly()
         {
             Assert.IsTrue(typeof(ExceptionTelemetry).GetTypeInfo().IsPublic);
@@ -636,6 +645,14 @@
             var telemetry = new ExceptionTelemetry();
 
             Assert.IsNotNull(telemetry as ISupportSampling);
+        }
+
+        [TestMethod]
+        public void ExceptionTelemetryImplementsISupportAdvancedSamplingContract()
+        {
+            var telemetry = new ExceptionTelemetry();
+
+            Assert.IsNotNull(telemetry as ISupportAdvancedSampling);
         }
 
         [TestMethod]
