@@ -93,6 +93,8 @@ EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		PerformanceCollector\Perf.Shared.NetStandard20Net45\Perf.Shared.NetStandard20Net45.projitems*{054c25dc-e545-4712-95c4-81f30cf65ce8}*SharedItemsImports = 13
+		DependencyCollector\Shared.Tests\DependencyCollector.Shared.Tests.projitems*{257fce5a-0779-45a5-b541-0ce43d79d009}*SharedItemsImports = 4
+		TestFramework\Shared\TestFramework.Shared.projitems*{257fce5a-0779-45a5-b541-0ce43d79d009}*SharedItemsImports = 4
 		PerformanceCollector\Perf.Shared.NetStandard.Stubs\Perf.Shared.NetStandard.Stubs.projitems*{30a45441-0849-48fe-ad37-5d29d0e3068a}*SharedItemsImports = 13
 		Web\Web.Shared.Net\Web.Shared.Net.projitems*{395e03bb-d061-4c9d-9d47-18676566444d}*SharedItemsImports = 13
 		PerformanceCollector\Filtering.Shared\Filtering.Shared.projitems*{568aeb4f-ba4c-47a5-9fa3-68f06cd11fed}*SharedItemsImports = 13
