@@ -365,9 +365,9 @@
         [TestMethod]
         public void TelemetryConfigurationAllowsToManageLastKnownSampleRate()
         {
-            var configuraiton = new TelemetryConfiguration();
-            configuraiton.SetLastObservedSamplingPercentage(DataContracts.SamplingTelemetryItemTypes.Request, 10);
-            Assert.AreEqual(configuraiton.GetLastObservedSamplingPercentage(DataContracts.SamplingTelemetryItemTypes.Request), 10);
+            var configuration = new TelemetryConfiguration();
+            configuration.SetLastObservedSamplingPercentage(DataContracts.SamplingTelemetryItemTypes.Request, 10);
+            Assert.AreEqual(configuration.GetLastObservedSamplingPercentage(DataContracts.SamplingTelemetryItemTypes.Request), 10);
         }
         #endregion
 

@@ -220,13 +220,13 @@
             }
 
             //// So sampling rate is not 100%, or we must evaluate further
-
-            //// If null was passed in as item or if sampling not supported in general, do nothing:            
+            
             var advancedSamplingSupportingTelemetry = item as ISupportAdvancedSampling;
 
             // If someone implemented ISupportSampling and hopes that SamplingTelemetryProcessor will continue to work for them:
             var samplingSupportingTelemetry = advancedSamplingSupportingTelemetry ?? item as ISupportSampling;
 
+            //// If null was passed in as item or if sampling not supported in general, do nothing:    
             if (samplingSupportingTelemetry == null)
             {
                 this.UnsampledNext.Process(item);
