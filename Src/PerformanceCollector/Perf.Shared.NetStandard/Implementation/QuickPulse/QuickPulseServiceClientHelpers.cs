@@ -1,18 +1,22 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse
 {
-    using System.Collections.Generic;
+    using System.Linq;
     using System.Net.Http.Headers;
-    using Microsoft.ApplicationInsights.Common;
+    using Microsoft.ApplicationInsights.Common.Internal;
 
     internal static class QuickPulseServiceClientHelpers
     {
-        private static readonly string[] emptyResult = ArrayExtensions.Empty<string>();
-
-        public static IEnumerable<string> GetValuesSafe(this HttpResponseHeaders headers, string name)
+        public static string GetValueSafe(this HttpHeaders headers, string name)
         {
-            IEnumerable<string> result = (headers?.Contains(name) ?? false) ? headers.GetValues(name) : emptyResult;
+            string value = default(string);
 
-            return result;
+            if (headers?.Contains(name) ?? false)
+            {
+                value = headers.GetValues(name).First();
+                value = StringUtilities.EnforceMaxLength(value, InjectionGuardConstants.QuickPulseResponseHeaderMaxLength);
+            }
+            
+            return value;
         }
     }
 }

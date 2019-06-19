@@ -8,6 +8,7 @@
  - [Defer populating RequestTelemetry properties.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/1173)
  - [Azure Web App for Windows Containers to use regular PerfCounter mechanism.](https://github.com/microsoft/ApplicationInsights-dotnet-server/pull/1167)
  - [Support for Process CPU and Process Memory perf counters in all platforms including Linux.](https://github.com/microsoft/ApplicationInsights-dotnet-server/issues/1189)
+ - SDL: [Guard against malicious headers in quickpulse](https://github.com/microsoft/ApplicationInsights-dotnet-server/pull/1191)
 
 ## Version 2.10.0
 - Updated Base SDK to 2.10.0

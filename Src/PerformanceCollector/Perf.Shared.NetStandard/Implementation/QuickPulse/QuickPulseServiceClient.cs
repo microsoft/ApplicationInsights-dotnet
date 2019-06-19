@@ -172,8 +172,7 @@
         {
             configurationInfo = null;
 
-            bool isSubscribed;
-            if (!bool.TryParse(response.Headers.GetValuesSafe(QuickPulseConstants.XMsQpsSubscribedHeaderName).FirstOrDefault(), out isSubscribed))
+            if (!bool.TryParse(response.Headers.GetValueSafe(QuickPulseConstants.XMsQpsSubscribedHeaderName), out bool isSubscribed))
             {
                 // could not parse the isSubscribed value
 
@@ -192,10 +191,10 @@
 
             foreach (string headerName in QuickPulseConstants.XMsQpsAuthOpaqueHeaderNames)
             {
-                this.authOpaqueHeaderValues[headerName] = response.Headers.GetValuesSafe(headerName).FirstOrDefault();
+                this.authOpaqueHeaderValues[headerName] = response.Headers.GetValueSafe(headerName);
             }
 
-            string configurationETagHeaderValue = response.Headers.GetValuesSafe(QuickPulseConstants.XMsQpsConfigurationETagHeaderName).FirstOrDefault();
+            string configurationETagHeaderValue = response.Headers.GetValueSafe(QuickPulseConstants.XMsQpsConfigurationETagHeaderName);
 
             try
             {

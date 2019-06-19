@@ -52,6 +52,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\RatioCounterTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\SumUpCountersGaugeTests.cs" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp1.0' OR '$(TargetFramework)' == 'netcoreapp2.0'">
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseServiceClientHelpersTests.cs" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\SampleFiles\RemoteEnvironmentVariablesAllSampleOne.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
