@@ -215,7 +215,7 @@
             //// If sampling rate is 100% and we aren't distinguishing between evaluated/unevaluated items, there is nothing to do:
             if (samplingPercentage >= 100.0 - 1.0E-12 && this.SampledNext.Equals(this.UnsampledNext))
             {
-                HandlePossibleProactiveSampling(item, samplingPercentage);
+                this.HandlePossibleProactiveSampling(item, samplingPercentage);
                 return;
             }
 
@@ -262,7 +262,7 @@
             {
                 if (advancedSamplingSupportingTelemetry != null)
                 {
-                    HandlePossibleProactiveSampling(item, samplingPercentage, advancedSamplingSupportingTelemetry);
+                    this.HandlePossibleProactiveSampling(item, samplingPercentage, advancedSamplingSupportingTelemetry);
                 }
                 else
                 {
