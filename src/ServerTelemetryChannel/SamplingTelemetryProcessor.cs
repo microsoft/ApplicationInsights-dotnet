@@ -25,6 +25,7 @@
         private readonly char[] listSeparators = { ';' };
         private readonly IDictionary<string, Type> allowedTypes;
 
+        // Interlocked operations support an array indexer but not a dictionary property accessor
         private readonly long[] proactivelySampledOutItems = new long[] { 0, 0, 0, 0, 0, 0, 0 };
         private readonly Dictionary<SamplingTelemetryItemTypes, int> typeToSamplingIndexMap = new Dictionary<SamplingTelemetryItemTypes, int>
         {
@@ -214,23 +215,26 @@
             //// If sampling rate is 100% and we aren't distinguishing between evaluated/unevaluated items, there is nothing to do:
             if (samplingPercentage >= 100.0 - 1.0E-12 && this.SampledNext.Equals(this.UnsampledNext))
             {
-                this.SampledNext.Process(item);
+                HandlePossibleProactiveSampling(item, samplingPercentage);
                 return;
             }
 
             //// So sampling rate is not 100%, or we must evaluate further
 
-            //// If null was passed in as item or if sampling not supported in general, do nothing:
-            var samplingSupportingTelemetry = item as ISupportSampling;
+            //// If null was passed in as item or if sampling not supported in general, do nothing:            
             var advancedSamplingSupportingTelemetry = item as ISupportAdvancedSampling;
-            if (samplingSupportingTelemetry == null || advancedSamplingSupportingTelemetry == null)
+
+            // If someone implemented ISupportSampling and hopes that SamplingTelemetryProcessor will continue to work for them:
+            var samplingSupportingTelemetry = advancedSamplingSupportingTelemetry ?? item as ISupportSampling;
+
+            if (samplingSupportingTelemetry == null)
             {
                 this.UnsampledNext.Process(item);
                 return;
             }
 
             //// If telemetry was excluded by type, do nothing:
-            if (!this.IsSamplingApplicable(advancedSamplingSupportingTelemetry.ItemTypeFlag))
+            if (advancedSamplingSupportingTelemetry != null && !this.IsSamplingApplicable(advancedSamplingSupportingTelemetry.ItemTypeFlag))
             {
                 if (TelemetryChannelEventSource.IsVerboseEnabled)
                 {
@@ -256,24 +260,12 @@
 
             if (isSampledIn)
             {
-                if (advancedSamplingSupportingTelemetry.IsProactivelySampledOut)
+                if (advancedSamplingSupportingTelemetry != null)
                 {
-                    this.AddProactivelySampledOutItems(advancedSamplingSupportingTelemetry.ItemTypeFlag, Convert.ToInt64(100 / samplingPercentage));
-
-                    if (TelemetryChannelEventSource.IsVerboseEnabled)
-                    {
-                        TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
-                    }
+                    HandlePossibleProactiveSampling(item, samplingPercentage, advancedSamplingSupportingTelemetry);
                 }
                 else
                 {
-                    var proactivelySampledOutItemsCount = this.GetProactivelySampledOutItems(advancedSamplingSupportingTelemetry.ItemTypeFlag);
-                    if (proactivelySampledOutItemsCount > 0)
-                    {
-                        samplingSupportingTelemetry.SamplingPercentage = (100 * samplingSupportingTelemetry.SamplingPercentage) / (100 + (proactivelySampledOutItemsCount * samplingSupportingTelemetry.SamplingPercentage));
-                        this.ClearProactivelySampledOutItems(advancedSamplingSupportingTelemetry.ItemTypeFlag);
-                    }
-
                     this.SampledNext.Process(item);
                 }
             }
@@ -285,6 +277,39 @@
                 }
 
                 TelemetryDebugWriter.WriteTelemetry(item, nameof(SamplingTelemetryProcessor));
+            }
+        }
+
+        private void HandlePossibleProactiveSampling(ITelemetry item, double currentSamplingPercentage, ISupportAdvancedSampling samplingSupportingTelemetry = null)
+        {
+            var advancedSamplingSupportingTelemetry = samplingSupportingTelemetry ?? item as ISupportAdvancedSampling;
+
+            if (advancedSamplingSupportingTelemetry != null)
+            {
+                if (advancedSamplingSupportingTelemetry.IsProactivelySampledOut)
+                {
+                    this.AddProactivelySampledOutItems(advancedSamplingSupportingTelemetry.ItemTypeFlag, Convert.ToInt64(100 / currentSamplingPercentage));
+
+                    if (TelemetryChannelEventSource.IsVerboseEnabled)
+                    {
+                        TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
+                    }
+                }
+                else
+                {
+                    var proactivelySampledOutItemsCount = this.GetProactivelySampledOutItems(advancedSamplingSupportingTelemetry.ItemTypeFlag);
+                    if (proactivelySampledOutItemsCount > 0)
+                    {
+                        advancedSamplingSupportingTelemetry.SamplingPercentage = (100 * advancedSamplingSupportingTelemetry.SamplingPercentage) / (100 + (proactivelySampledOutItemsCount * advancedSamplingSupportingTelemetry.SamplingPercentage));
+                        this.ClearProactivelySampledOutItems(advancedSamplingSupportingTelemetry.ItemTypeFlag);
+                    }
+
+                    this.SampledNext.Process(item);
+                }
+            }
+            else
+            {
+                this.SampledNext.Process(item);
             }
         }
 
@@ -321,7 +346,7 @@
         {
             int typeIndex;
             this.typeToSamplingIndexMap.TryGetValue(telemetryItemTypeFlag, out typeIndex);
-            return Volatile.Read(ref this.proactivelySampledOutItems[typeIndex]);
+            return Interlocked.Read(ref this.proactivelySampledOutItems[typeIndex]);
         }
     }
 }

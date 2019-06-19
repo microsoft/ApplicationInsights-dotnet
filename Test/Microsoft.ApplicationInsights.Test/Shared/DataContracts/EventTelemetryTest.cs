@@ -19,7 +19,7 @@
             var eventTelemetry = new EventTelemetry();
             Assert.IsFalse(eventTelemetry.SupportsProactiveSampling);
             Assert.IsFalse(eventTelemetry.IsProactivelySampledOut);
-            Assert.AreEqual(eventTelemetry.ItemTypeFlag, SamplingTelemetryItemTypes.Event);
+            Assert.AreEqual(SamplingTelemetryItemTypes.Event, eventTelemetry.ItemTypeFlag);
         }
 
         [TestMethod]

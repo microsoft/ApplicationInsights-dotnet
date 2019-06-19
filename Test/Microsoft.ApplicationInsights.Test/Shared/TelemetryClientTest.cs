@@ -16,6 +16,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
     using Microsoft.ApplicationInsights.Metrics.TestUtility;
@@ -1161,6 +1162,129 @@
             Assert.AreEqual(ItemsToGenerate, sentTelemetry.Count);
         }
 
+        [TestMethod]
+        public void ProactivelySampledOutTelemetryIsNotInitialized()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
+
+            var configuration = new TelemetryConfiguration("Test key", channel);
+
+            var initializedTelemetry = new List<ITelemetry>();
+            var telemetryInitializer = new StubTelemetryInitializer();
+            telemetryInitializer.OnInitialize = item =>
+            {   
+                initializedTelemetry.Add(item);
+            };
+
+            configuration.TelemetryInitializers.Add(telemetryInitializer);
+
+            var client = new TelemetryClient(configuration);
+
+            var telemetry = new RequestTelemetry();
+            telemetry.IsProactivelySampledOut = true;
+            client.Track(telemetry);
+
+            Assert.IsTrue(telemetry.IsProactivelySampledOut);
+            Assert.AreEqual(0, initializedTelemetry.Count);
+            Assert.AreEqual(1, sentTelemetry.Count);
+        }
+
+        [TestMethod]
+        public void TelemetryThatWillBeSampledOutIsNotInitialized()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
+
+            var configuration = new TelemetryConfiguration("Test key", channel);
+
+            // Any sampling score will be greater or equal to 0 and item will be proactively sampled out
+            configuration.SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Request, 0);
+
+            var initializedTelemetry = new List<ITelemetry>();
+            var telemetryInitializer = new StubTelemetryInitializer();
+            telemetryInitializer.OnInitialize = item =>
+            {
+                initializedTelemetry.Add(item);
+            };
+
+            configuration.TelemetryInitializers.Add(telemetryInitializer);
+
+            var client = new TelemetryClient(configuration);
+            var telemetry = new RequestTelemetry();
+            telemetry.Context.Operation.Id = W3CUtilities.GenerateTraceId();
+            client.Track(telemetry);
+
+            Assert.IsTrue(telemetry.IsProactivelySampledOut);
+            Assert.AreEqual(0, initializedTelemetry.Count);
+            Assert.AreEqual(1, sentTelemetry.Count);
+        }
+
+        [TestMethod]
+        public void TelemetryThatWillBeSampledInIsFullyInitialized()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
+            var configuration = new TelemetryConfiguration("Test key", channel);
+
+            var initalizersCount = 0;
+            var telemetryInitializer1 = new StubTelemetryInitializer();
+            telemetryInitializer1.OnInitialize = item =>
+            {
+                initalizersCount++;
+            };
+            var telemetryInitializer2 = new StubTelemetryInitializer();
+            telemetryInitializer2.OnInitialize = item =>
+            {
+                initalizersCount++;
+            };
+
+            configuration.TelemetryInitializers.Add(telemetryInitializer1);
+            configuration.TelemetryInitializers.Add(telemetryInitializer2);
+
+            var client = new TelemetryClient(configuration);
+            var telemetry = new RequestTelemetry();
+            telemetry.Context.Operation.Id = W3CUtilities.GenerateTraceId();
+            client.Track(telemetry);
+
+            Assert.IsFalse(telemetry.IsProactivelySampledOut);
+            Assert.AreEqual(2, initalizersCount);
+            Assert.AreEqual(1, sentTelemetry.Count);
+        }
+
+        [TestMethod]
+        public void InitializeStopsCheckingSamplingRateIfItWasDeterminedOnce()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
+            var configuration = new TelemetryConfiguration("Test key", channel);
+
+            var initalizersCount = 0;
+            var telemetryInitializer1 = new StubTelemetryInitializer();
+            telemetryInitializer1.OnInitialize = item =>
+            {
+                // If sampling score is checked after this initializer, it should sample the item out
+                configuration.SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Request, 0);
+                initalizersCount++;
+            };
+            var telemetryInitializer2 = new StubTelemetryInitializer();
+            telemetryInitializer2.OnInitialize = item =>
+            {
+                initalizersCount++;
+            };
+
+            configuration.TelemetryInitializers.Add(telemetryInitializer1);
+            configuration.TelemetryInitializers.Add(telemetryInitializer2);
+
+            var client = new TelemetryClient(configuration);
+            var telemetry = new RequestTelemetry();
+            telemetry.Context.Operation.Id = W3CUtilities.GenerateTraceId();
+            client.Track(telemetry);
+
+            Assert.IsFalse(telemetry.IsProactivelySampledOut);
+            Assert.AreEqual(2, initalizersCount);
+            Assert.AreEqual(1, sentTelemetry.Count);
+        }
         #endregion
 
         #region ValidateEndpoint

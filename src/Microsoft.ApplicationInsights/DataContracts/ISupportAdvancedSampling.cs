@@ -72,7 +72,7 @@
     /// <summary>
     /// Represent objects that support  advanced sampling features.
     /// </summary>
-    public interface ISupportAdvancedSampling
+    public interface ISupportAdvancedSampling : ISupportSampling
     {
         /// <summary>
         /// Gets os sets the flag indicating item's telemetry type to consider in sampling evaluation

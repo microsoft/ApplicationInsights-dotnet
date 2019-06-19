@@ -31,7 +31,7 @@
             Assert.IsNotNull(defaultDependencyTelemetry.Id);
             Assert.IsFalse(defaultDependencyTelemetry.SupportsProactiveSampling);
             Assert.IsFalse(defaultDependencyTelemetry.IsProactivelySampledOut);
-            Assert.AreEqual(defaultDependencyTelemetry.ItemTypeFlag, SamplingTelemetryItemTypes.RemoteDependency);
+            Assert.AreEqual(SamplingTelemetryItemTypes.RemoteDependency, defaultDependencyTelemetry.ItemTypeFlag);
             Assert.IsTrue(defaultDependencyTelemetry.Id.Length >= 1);
         }
 

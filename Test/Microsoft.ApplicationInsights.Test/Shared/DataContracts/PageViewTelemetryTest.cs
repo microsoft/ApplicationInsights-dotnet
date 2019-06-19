@@ -23,7 +23,7 @@
             var pageViewTelemetry = new PageViewTelemetry();
             Assert.IsFalse(pageViewTelemetry.SupportsProactiveSampling);
             Assert.IsFalse(pageViewTelemetry.IsProactivelySampledOut);
-            Assert.AreEqual(pageViewTelemetry.ItemTypeFlag, SamplingTelemetryItemTypes.PageView);
+            Assert.AreEqual(SamplingTelemetryItemTypes.PageView, pageViewTelemetry.ItemTypeFlag);
         }
 
         [TestMethod]

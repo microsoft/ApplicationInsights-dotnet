@@ -527,7 +527,7 @@
                     {
                         if (shoudlCheckSamplingScore && !string.IsNullOrEmpty(telemetry.Context.Operation.Id))
                         {
-                            if (SamplingScoreGenerator.GetSamplingScore(telemetry.Context.Operation.Id) > this.configuration.GetLastObservedSamplingPercentage(telemetryWithSampling.ItemTypeFlag))
+                            if (SamplingScoreGenerator.GetSamplingScore(telemetry.Context.Operation.Id) >= this.configuration.GetLastObservedSamplingPercentage(telemetryWithSampling.ItemTypeFlag))
                             {
                                 telemetryWithSampling.IsProactivelySampledOut = true;
                                 sampledOut = true;

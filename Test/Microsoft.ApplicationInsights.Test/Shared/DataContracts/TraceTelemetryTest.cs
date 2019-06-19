@@ -37,7 +37,7 @@
             Assert.IsNull(item.SeverityLevel);
             Assert.IsFalse(item.SupportsProactiveSampling);
             Assert.IsFalse(item.IsProactivelySampledOut);
-            Assert.AreEqual(item.ItemTypeFlag, SamplingTelemetryItemTypes.Message);
+            Assert.AreEqual(SamplingTelemetryItemTypes.Message, item.ItemTypeFlag);
         }
 
         [TestMethod]
@@ -50,7 +50,7 @@
             Assert.IsNull(item.SeverityLevel);
             Assert.IsFalse(item.SupportsProactiveSampling);
             Assert.IsFalse(item.IsProactivelySampledOut);
-            Assert.AreEqual(item.ItemTypeFlag, SamplingTelemetryItemTypes.Message);
+            Assert.AreEqual(SamplingTelemetryItemTypes.Message, item.ItemTypeFlag);
         }
 
         [TestMethod]
@@ -63,7 +63,7 @@
             Assert.AreEqual(SeverityLevel.Critical, trace.SeverityLevel);
             Assert.IsFalse(trace.SupportsProactiveSampling);
             Assert.IsFalse(trace.IsProactivelySampledOut);
-            Assert.AreEqual(trace.ItemTypeFlag, SamplingTelemetryItemTypes.Message);
+            Assert.AreEqual(SamplingTelemetryItemTypes.Message, trace.ItemTypeFlag);
         }
 
         [TestMethod]

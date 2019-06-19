@@ -25,7 +25,7 @@
             var exceptionTelemetry = new ExceptionTelemetry();
             Assert.IsFalse(exceptionTelemetry.SupportsProactiveSampling);
             Assert.IsFalse(exceptionTelemetry.IsProactivelySampledOut);
-            Assert.AreEqual(exceptionTelemetry.ItemTypeFlag, SamplingTelemetryItemTypes.Exception);
+            Assert.AreEqual(SamplingTelemetryItemTypes.Exception, exceptionTelemetry.ItemTypeFlag);
         }
 
         [TestMethod]

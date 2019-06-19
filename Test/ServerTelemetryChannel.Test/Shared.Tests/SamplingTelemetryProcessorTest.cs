@@ -15,6 +15,8 @@
     [TestClass]
     public class SamplingTelemetryProcessorTest
     {
+        Random random = new Random();
+
         [TestMethod]
         public void ThrowsAgrumentNullExceptionWithoutNextPocessor()
         {
@@ -382,6 +384,89 @@
                                           excludedTypes:      null,
                                           includedTypes:      "request",
                                           samplingPercentage: 100);
+        }
+
+        [TestMethod]
+        public void ProactivelySampledOutItemIsNotSent()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            TelemetryProcessorChain telemetryProcessorChainWithSampling = CreateTelemetryProcessorChainWithSampling(
+                                                                                    sentTelemetry,
+                                                                                    100);
+            var sampledOutTelemetry = new RequestTelemetry();
+            sampledOutTelemetry.IsProactivelySampledOut = true;
+
+            telemetryProcessorChainWithSampling.Process(sampledOutTelemetry);
+            telemetryProcessorChainWithSampling.Dispose();
+
+            Assert.AreEqual(0, sentTelemetry.Count);            
+        }
+
+        [TestMethod]
+        public void ProactivelySampledOutItemIsNotSentEvenIfItIsSampledIn()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            TelemetryProcessorChain telemetryProcessorChainWithSampling = CreateTelemetryProcessorChainWithSampling(
+                                                                                    sentTelemetry,
+                                                                                    50);
+            for (int i = 0; i < 100; i++)
+            {
+                var sampledOutTelemetry = new RequestTelemetry();
+                sampledOutTelemetry.IsProactivelySampledOut = true;
+
+                telemetryProcessorChainWithSampling.Process(sampledOutTelemetry);
+            }
+
+            telemetryProcessorChainWithSampling.Dispose();
+
+            Assert.AreEqual(0, sentTelemetry.Count);
+        }
+
+        [TestMethod]
+        public void ProactivelySampledOutItemThatIsLaterSampledInIsAddedToTheNextSampledInItem()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            TelemetryProcessorChain telemetryProcessorChainWithSampling = CreateTelemetryProcessorChainWithSampling(
+                                                                                    sentTelemetry,
+                                                                                    25);
+
+            // Get the random number of sampled out items
+            var sampledOutItemsCount = this.random.Next(100) + 100;
+
+            for (int i = 0; i < sampledOutItemsCount; i++)
+            {
+                var sampledOutTelemetry = new RequestTelemetry();
+
+                // This makes those items proactively sampled out
+                sampledOutTelemetry.IsProactivelySampledOut = true;
+
+                // This operation ID hash is lower than 25, so every item in this batch is sampled in
+                sampledOutTelemetry.Context.Operation.Id = "abcdfeghijk";
+                telemetryProcessorChainWithSampling.Process(sampledOutTelemetry);
+            }
+
+            // No telemetry is recorded
+            Assert.AreEqual(0, sentTelemetry.Count);
+            
+            // Sampling Rate has changed up
+            ((SamplingTelemetryProcessor)telemetryProcessorChainWithSampling.FirstTelemetryProcessor).SamplingPercentage = 50;            
+
+            for (int i = 0; i < 100; i++)
+            {
+                var sampledInTelemetry = new RequestTelemetry();                
+                telemetryProcessorChainWithSampling.Process(sampledInTelemetry);
+            }
+
+            telemetryProcessorChainWithSampling.Dispose();
+
+            // The item that is sampled in will need to represent all sampled out items and itself:
+            // 4 * sampledOutItemsCount + 2, where 4 is (100 / 25) and 2 is (100 / 50) as per chosen sample rates
+            double expectedSamplingRate = (double)100 / (100 / 25 * sampledOutItemsCount + (100 / 50));
+            Assert.AreEqual(expectedSamplingRate, ((ISupportSampling)sentTelemetry.First()).SamplingPercentage.Value, delta: 0.01);
+
+            // Sampled out items are supposed to be cleared, no more gain up:
+            sentTelemetry.RemoveAt(0);
+            sentTelemetry.ForEach((item) => Assert.AreEqual(50, ((ISupportSampling)item).SamplingPercentage));
         }
 
         private static void TelemetryTypeDoesNotSupportSampling(Func<TelemetryProcessorChain, int> sendAction, string excludedTypes = null, string includedTypes = null)

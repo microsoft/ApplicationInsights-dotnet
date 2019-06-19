@@ -361,6 +361,16 @@
         }
         #endregion
 
+        #region Sampling Store
+        [TestMethod]
+        public void TelemetryConfigurationAllowsToManageLastKnownSampleRate()
+        {
+            var configuraiton = new TelemetryConfiguration();
+            configuraiton.SetLastObservedSamplingPercentage(DataContracts.SamplingTelemetryItemTypes.Request, 10);
+            Assert.AreEqual(configuraiton.GetLastObservedSamplingPercentage(DataContracts.SamplingTelemetryItemTypes.Request), 10);
+        }
+        #endregion
+
         private class TestableTelemetryModules : TelemetryModules
         {
         }
