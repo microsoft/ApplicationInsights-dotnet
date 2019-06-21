@@ -23,12 +23,14 @@
                     // via <see cref="TelemetryConfigurationOptionsSetup"/> class which triggers
                     // initialization of TelemetryModules and construction of TelemetryProcessor pipeline.
                     var tc = app.ApplicationServices.GetService<TelemetryConfiguration>();
-                    next(app);
                 }
                 catch (Exception ex)
                 {
                     AspNetCoreEventSource.Instance.LogWarning(ex.Message);
-                }                
+                }
+
+                // Invoking next builder is not wrapped in try catch to ensure any exceptions gets propogated up.
+                next(app);
             };
         }
     }
