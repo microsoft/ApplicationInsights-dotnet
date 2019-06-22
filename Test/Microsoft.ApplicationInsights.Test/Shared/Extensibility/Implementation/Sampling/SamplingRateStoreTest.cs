@@ -11,12 +11,12 @@
         public void StoreIsInitializedWith100Rate()
         {
             var store = new SamplingRateStore();
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Request), 100);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.RemoteDependency), 100);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Event), 100);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Exception), 100);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Message), 100);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.PageView), 100);
+            Assert.AreEqual(100, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Request));
+            Assert.AreEqual(100, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.RemoteDependency));
+            Assert.AreEqual(100, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Event));
+            Assert.AreEqual(100, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Exception));
+            Assert.AreEqual(100, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Message));
+            Assert.AreEqual(100, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.PageView));
         }
 
         [TestMethod]
@@ -30,12 +30,12 @@
             store.SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Message, 14);
             store.SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.PageView, 15);
 
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Request), 10);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.RemoteDependency), 11);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Event), 12);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Exception), 13);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Message), 14);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.PageView), 15);
+            Assert.AreEqual(10, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Request));
+            Assert.AreEqual(11, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.RemoteDependency));
+            Assert.AreEqual(12, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Event));
+            Assert.AreEqual(13, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Exception));
+            Assert.AreEqual(14, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Message));
+            Assert.AreEqual(15, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.PageView));
         }
 
         [TestMethod]
@@ -56,12 +56,12 @@
             store.SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Message, 5);
             store.SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.PageView, 6);
 
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Request), 1);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.RemoteDependency), 2);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Event), 3);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Exception), 4);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Message), 5);
-            Assert.AreEqual(store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.PageView), 6);
+            Assert.AreEqual(1, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Request));
+            Assert.AreEqual(2, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.RemoteDependency));
+            Assert.AreEqual(3, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Event));
+            Assert.AreEqual(4, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Exception));
+            Assert.AreEqual(5, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Message));
+            Assert.AreEqual(6, store.GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.PageView));
         }
 
         [TestMethod]

@@ -25,17 +25,7 @@
         private readonly char[] listSeparators = { ';' };
         private readonly IDictionary<string, Type> allowedTypes;
 
-        // Interlocked operations support an array indexer but not a dictionary property accessor
-        private readonly long[] proactivelySampledOutItems = new long[] { 0, 0, 0, 0, 0, 0, 0 };
-        private readonly Dictionary<SamplingTelemetryItemTypes, int> typeToSamplingIndexMap = new Dictionary<SamplingTelemetryItemTypes, int>
-        {
-            { SamplingTelemetryItemTypes.Request, 1 },
-            { SamplingTelemetryItemTypes.RemoteDependency, 2 },
-            { SamplingTelemetryItemTypes.Exception, 3 },
-            { SamplingTelemetryItemTypes.Event, 4 },
-            { SamplingTelemetryItemTypes.PageView, 5 },
-            { SamplingTelemetryItemTypes.Message, 6 },
-        };
+        private readonly AtomicSampledItemsCounter proactivelySampledOutCounters = new AtomicSampledItemsCounter();
 
         private SamplingTelemetryItemTypes excludedTypesFlags;
         private string excludedTypesString;
@@ -89,42 +79,7 @@
             set
             {
                 this.excludedTypesString = value;
-
-                SamplingTelemetryItemTypes newExcludedFlags = SamplingTelemetryItemTypes.None;
-
-                if (!string.IsNullOrEmpty(value))
-                {
-                    string[] splitList = value.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string item in splitList)
-                    {
-                        if (this.allowedTypes.ContainsKey(item))
-                        {
-                            switch (item.ToUpperInvariant())
-                            {
-                                case RequestTelemetryName:
-                                    newExcludedFlags |= SamplingTelemetryItemTypes.Request;
-                                    break;
-                                case DependencyTelemetryName:
-                                    newExcludedFlags |= SamplingTelemetryItemTypes.RemoteDependency;
-                                    break;
-                                case ExceptionTelemetryName:
-                                    newExcludedFlags |= SamplingTelemetryItemTypes.Exception;
-                                    break;
-                                case PageViewTelemetryName:
-                                    newExcludedFlags |= SamplingTelemetryItemTypes.PageView;
-                                    break;
-                                case TraceTelemetryName:
-                                    newExcludedFlags |= SamplingTelemetryItemTypes.Message;
-                                    break;
-                                case EventTelemetryName:
-                                    newExcludedFlags |= SamplingTelemetryItemTypes.Event;
-                                    break;
-                            }
-                        }
-                    }
-                }
-
-                this.excludedTypesFlags = newExcludedFlags;
+                this.excludedTypesFlags = this.PopulateSamplingFlagsFromTheInput(value);
             }
         }
 
@@ -143,42 +98,7 @@
             set
             {
                 this.includedTypesString = value;
-
-                SamplingTelemetryItemTypes newIncludedFlags = SamplingTelemetryItemTypes.None;
-
-                if (!string.IsNullOrEmpty(value))
-                {
-                    string[] splitList = value.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string item in splitList)
-                    {
-                        if (this.allowedTypes.ContainsKey(item))
-                        {
-                            switch (item.ToUpperInvariant())
-                            {
-                                case RequestTelemetryName:
-                                    newIncludedFlags |= SamplingTelemetryItemTypes.Request;
-                                    break;
-                                case DependencyTelemetryName:
-                                    newIncludedFlags |= SamplingTelemetryItemTypes.RemoteDependency;
-                                    break;
-                                case ExceptionTelemetryName:
-                                    newIncludedFlags |= SamplingTelemetryItemTypes.Exception;
-                                    break;
-                                case PageViewTelemetryName:
-                                    newIncludedFlags |= SamplingTelemetryItemTypes.PageView;
-                                    break;
-                                case TraceTelemetryName:
-                                    newIncludedFlags |= SamplingTelemetryItemTypes.Message;
-                                    break;
-                                case EventTelemetryName:
-                                    newIncludedFlags |= SamplingTelemetryItemTypes.Event;
-                                    break;
-                            }
-                        }
-                    }
-                }
-
-                this.includedTypesFlags = newIncludedFlags;
+                this.includedTypesFlags = this.PopulateSamplingFlagsFromTheInput(value);
             }
         }
 
@@ -280,6 +200,45 @@
             }
         }
 
+        private SamplingTelemetryItemTypes PopulateSamplingFlagsFromTheInput(string input)
+        {
+            SamplingTelemetryItemTypes samplingTypeFlags = SamplingTelemetryItemTypes.None;
+
+            if (!string.IsNullOrEmpty(input))
+            {
+                string[] splitList = input.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string item in splitList)
+                {
+                    if (this.allowedTypes.ContainsKey(item))
+                    {
+                        switch (item.ToUpperInvariant())
+                        {
+                            case RequestTelemetryName:
+                                samplingTypeFlags |= SamplingTelemetryItemTypes.Request;
+                                break;
+                            case DependencyTelemetryName:
+                                samplingTypeFlags |= SamplingTelemetryItemTypes.RemoteDependency;
+                                break;
+                            case ExceptionTelemetryName:
+                                samplingTypeFlags |= SamplingTelemetryItemTypes.Exception;
+                                break;
+                            case PageViewTelemetryName:
+                                samplingTypeFlags |= SamplingTelemetryItemTypes.PageView;
+                                break;
+                            case TraceTelemetryName:
+                                samplingTypeFlags |= SamplingTelemetryItemTypes.Message;
+                                break;
+                            case EventTelemetryName:
+                                samplingTypeFlags |= SamplingTelemetryItemTypes.Event;
+                                break;
+                        }
+                    }
+                }
+            }
+
+            return samplingTypeFlags;
+        }
+
         private void HandlePossibleProactiveSampling(ITelemetry item, double currentSamplingPercentage, ISupportAdvancedSampling samplingSupportingTelemetry = null)
         {
             var advancedSamplingSupportingTelemetry = samplingSupportingTelemetry ?? item as ISupportAdvancedSampling;
@@ -288,7 +247,7 @@
             {
                 if (advancedSamplingSupportingTelemetry.IsProactivelySampledOut)
                 {
-                    this.AddProactivelySampledOutItems(advancedSamplingSupportingTelemetry.ItemTypeFlag, Convert.ToInt64(100 / currentSamplingPercentage));
+                    this.proactivelySampledOutCounters.AddItems(advancedSamplingSupportingTelemetry.ItemTypeFlag, Convert.ToInt64(100 / currentSamplingPercentage));
 
                     if (TelemetryChannelEventSource.IsVerboseEnabled)
                     {
@@ -297,11 +256,11 @@
                 }
                 else
                 {
-                    var proactivelySampledOutItemsCount = this.GetProactivelySampledOutItems(advancedSamplingSupportingTelemetry.ItemTypeFlag);
+                    var proactivelySampledOutItemsCount = this.proactivelySampledOutCounters.GetItems(advancedSamplingSupportingTelemetry.ItemTypeFlag);
                     if (proactivelySampledOutItemsCount > 0)
                     {
                         advancedSamplingSupportingTelemetry.SamplingPercentage = (100 * advancedSamplingSupportingTelemetry.SamplingPercentage) / (100 + (proactivelySampledOutItemsCount * advancedSamplingSupportingTelemetry.SamplingPercentage));
-                        this.ClearProactivelySampledOutItems(advancedSamplingSupportingTelemetry.ItemTypeFlag);
+                        this.proactivelySampledOutCounters.ClearItems(advancedSamplingSupportingTelemetry.ItemTypeFlag);
                     }
 
                     this.SampledNext.Process(item);
@@ -326,27 +285,6 @@
             }
 
             return true;
-        }
-
-        private void AddProactivelySampledOutItems(SamplingTelemetryItemTypes telemetryItemTypeFlag, long value)
-        {
-            int typeIndex;
-            this.typeToSamplingIndexMap.TryGetValue(telemetryItemTypeFlag, out typeIndex);
-            Interlocked.Add(ref this.proactivelySampledOutItems[typeIndex], value);
-        }
-
-        private void ClearProactivelySampledOutItems(SamplingTelemetryItemTypes telemetryItemTypeFlag)
-        {
-            int typeIndex;
-            this.typeToSamplingIndexMap.TryGetValue(telemetryItemTypeFlag, out typeIndex);
-            Interlocked.Exchange(ref this.proactivelySampledOutItems[typeIndex], 0);
-        }
-
-        private long GetProactivelySampledOutItems(SamplingTelemetryItemTypes telemetryItemTypeFlag)
-        {
-            int typeIndex;
-            this.typeToSamplingIndexMap.TryGetValue(telemetryItemTypeFlag, out typeIndex);
-            return Interlocked.Read(ref this.proactivelySampledOutItems[typeIndex]);
         }
     }
 }

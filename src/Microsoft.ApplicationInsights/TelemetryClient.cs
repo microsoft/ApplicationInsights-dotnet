@@ -517,7 +517,7 @@
             bool sampledOut = telemetryWithSampling?.IsProactivelySampledOut ?? false;
 
             // If telemetry was not sampled out, we need to check its sampling score after we learn its Operation Id
-            bool shoudlCheckSamplingScore = !sampledOut;
+            bool shouldCheckSamplingScore = !sampledOut;
 
             if (!sampledOut)
             {
@@ -525,7 +525,7 @@
                 {
                     for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
                     {
-                        if (shoudlCheckSamplingScore && !string.IsNullOrEmpty(telemetry.Context.Operation.Id))
+                        if (shouldCheckSamplingScore && !string.IsNullOrEmpty(telemetry.Context.Operation.Id))
                         {
                             if (SamplingScoreGenerator.GetSamplingScore(telemetry.Context.Operation.Id) >= this.configuration.GetLastObservedSamplingPercentage(telemetryWithSampling.ItemTypeFlag))
                             {
@@ -535,7 +535,7 @@
                             }
                             else
                             {
-                                shoudlCheckSamplingScore = false;
+                                shouldCheckSamplingScore = false;
                             }
                         }
 

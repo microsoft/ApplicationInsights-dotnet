@@ -23,12 +23,13 @@
     /// </remarks>
     public sealed class TelemetryConfiguration : IDisposable
     {
+        internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
+
         private static object syncRoot = new object();
         private static TelemetryConfiguration active;
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
         private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
-        private readonly SamplingRateStore lastKnownSampleRateStore = new SamplingRateStore();
         
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
@@ -300,22 +301,6 @@
             var configuration = new TelemetryConfiguration();
             TelemetryConfigurationFactory.Instance.Initialize(configuration, null, config);
             return configuration;
-        }
-
-        /// <summary>
-        /// Gets last known request sampling percentage to skip initializers for sampled requests
-        /// </summary>
-        public double GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes samplingItemType)
-        {
-            return this.lastKnownSampleRateStore.GetLastObservedSamplingPercentage(samplingItemType);
-        }
-
-        /// <summary>
-        /// Sets last known request sampling percentage to skip initializers for sampled requests
-        /// </summary>
-        public void SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes samplingItemType, double value)
-        {            
-            this.lastKnownSampleRateStore.SetLastObservedSamplingPercentage(samplingItemType, value);
         }
 
         /// <summary>
