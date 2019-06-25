@@ -10,7 +10,7 @@
         private bool isHealthy = true; // is this a healthy value or not
 
         /// <summary>
-        /// Gets or sets the payload value at the time the property item was added, as a string
+        /// Gets or sets the payload value at the time the property item was added, as a string.
         /// </summary>
         public string PayloadValue
         {
@@ -27,7 +27,7 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this property is currently in a healthy or unhealthy state
+        /// Gets or sets a value indicating whether this property is currently in a healthy or unhealthy state.
         /// </summary>
         public bool IsHealthy
         {
@@ -40,7 +40,7 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this property payload has been updated since the last time it was delivered in a heartbeat
+        /// Gets or sets a value indicating whether this property payload has been updated since the last time it was delivered in a heartbeat.
         /// </summary>
         public bool IsUpdated { get; set; }
     }

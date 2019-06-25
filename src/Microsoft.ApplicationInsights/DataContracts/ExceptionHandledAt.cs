@@ -21,6 +21,6 @@
         /// <summary>
         /// Exception was handled by some platform handlers.
         /// </summary>
-        Platform
+        Platform,
     }
 }

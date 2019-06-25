@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {218}</summary>
+    /// <summary>@ToDo: Complete documentation before stable release. {218}.</summary>
     public sealed class MetricConfigurationForMeasurement : MetricConfiguration
     {
         /// <summary>Creates a new instance of <c>MetricConfigurationForMeasurement</c>.</summary>

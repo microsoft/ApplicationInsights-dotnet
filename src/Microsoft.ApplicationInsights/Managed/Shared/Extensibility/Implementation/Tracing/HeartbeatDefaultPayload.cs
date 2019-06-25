@@ -9,7 +9,7 @@
     {
         internal static readonly IHeartbeatDefaultPayloadProvider[] DefaultPayloadProviders =
         {
-            new BaseDefaultHeartbeatPropertyProvider()
+            new BaseDefaultHeartbeatPropertyProvider(),
         };
 
         public static bool IsDefaultKeyword(string keyword)

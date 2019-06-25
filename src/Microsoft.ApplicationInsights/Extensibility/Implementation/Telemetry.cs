@@ -85,7 +85,7 @@
         }
 
         /// <summary>
-        /// Flattens Extension object on ITelemetry if exists into the properties and measurements
+        /// Flattens Extension object on ITelemetry if exists into the properties and measurements.
         /// </summary>        
         internal static void FlattenIExtensionIfExists(this ITelemetry telemetry)
         {
@@ -114,9 +114,9 @@
         }
 
         /// <summary>
-        /// Flattens ITelemetry object into the properties and measurements
+        /// Flattens ITelemetry object into the properties and measurements.
         /// </summary>        
-        /// <returns>EventData containing flattened ITelemetry object</returns>
+        /// <returns>EventData containing flattened ITelemetry object.</returns>
         internal static EventData FlattenTelemetryIntoEventData(this ITelemetry telemetry)
         {
             EventData flatTelemetry = new EventData();

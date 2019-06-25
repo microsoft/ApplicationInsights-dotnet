@@ -18,7 +18,7 @@
                 fileName = fileName,
                 level = level,
                 line = line,
-                method = method
+                method = method,
             };
         }
 

@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
-#if !NETCOREAPP
+#if !NETCOREAPP1_1
     using System;
     using System.IO;
     using System.Linq;
@@ -25,7 +25,7 @@
 
         protected static DirectoryInfo GetLocalFolder()
         {
-            return new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
+            return new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create));
         }
 
         protected static DirectoryInfo CreatePlatformFolder(string uniqueName)

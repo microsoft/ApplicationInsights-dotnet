@@ -16,13 +16,13 @@
     public static class TelemetryProcessorChainBuilderExtensions
     {
         /// <summary>
-        /// Adds <see cref="SamplingTelemetryProcessor"/> to the given<see cref="TelemetryProcessorChainBuilder" />
+        /// Adds <see cref="SamplingTelemetryProcessor"/> to the given<see cref="TelemetryProcessorChainBuilder" />.
         /// </summary>
-        /// <param name="builder">Instance of <see cref="TelemetryProcessorChainBuilder"/></param>
+        /// <param name="builder">Instance of <see cref="TelemetryProcessorChainBuilder"/>.</param>
         /// <param name="samplingPercentage">Sampling Percentage to configure.</param>     
         /// <param name="excludedTypes">Semicolon separated list of types that should not be sampled.</param>   
         /// <param name="includedTypes">Semicolon separated list of types that should be sampled. All types are sampled when left empty.</param> 
-        /// <return>Instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
+        /// <return>Same instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
         public static TelemetryProcessorChainBuilder UseSampling(this TelemetryProcessorChainBuilder builder, double samplingPercentage, string excludedTypes = null, string includedTypes = null)
         {
             if (builder == null)
@@ -34,17 +34,17 @@
             {
                 SamplingPercentage = samplingPercentage,
                 ExcludedTypes = excludedTypes,
-                IncludedTypes = includedTypes
+                IncludedTypes = includedTypes,
             });
         }
 
         /// <summary>
-        /// Adds <see cref="AdaptiveSamplingTelemetryProcessor"/> to the <see cref="TelemetryProcessorChainBuilder" />
+        /// Adds <see cref="AdaptiveSamplingTelemetryProcessor"/> to the <see cref="TelemetryProcessorChainBuilder" />.
         /// </summary>
-        /// <param name="builder">Instance of <see cref="TelemetryProcessorChainBuilder"/></param>
+        /// <param name="builder">Instance of <see cref="TelemetryProcessorChainBuilder"/>.</param>
         /// <param name="excludedTypes">Semicolon separated list of types that should not be sampled.</param>
         /// <param name="includedTypes">Semicolon separated list of types that should be sampled. All types are sampled when left empty.</param> 
-        /// <return>Instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
+        /// <return>Same instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
         public static TelemetryProcessorChainBuilder UseAdaptiveSampling(this TelemetryProcessorChainBuilder builder, string excludedTypes = null, string includedTypes = null)
         {
             if (builder == null)
@@ -55,18 +55,18 @@
             return builder.Use(next => new AdaptiveSamplingTelemetryProcessor(next)
             {
                 ExcludedTypes = excludedTypes,
-                IncludedTypes = includedTypes
+                IncludedTypes = includedTypes,
             });
         }
 
         /// <summary>
-        /// Adds <see cref="AdaptiveSamplingTelemetryProcessor"/> to the <see cref="TelemetryProcessorChainBuilder" />
+        /// Adds <see cref="AdaptiveSamplingTelemetryProcessor"/> to the <see cref="TelemetryProcessorChainBuilder" />.
         /// </summary>
-        /// <param name="builder">Instance of <see cref="TelemetryProcessorChainBuilder"/></param>
+        /// <param name="builder">Instance of <see cref="TelemetryProcessorChainBuilder"/>.</param>
         /// <param name="maxTelemetryItemsPerSecond">Maximum number of telemetry items to be generated on this application instance.</param>
         /// <param name="excludedTypes">Semicolon separated list of types that should not be sampled.</param>
         /// <param name="includedTypes">Semicolon separated list of types that should be sampled. All types are sampled when left empty.</param> 
-        /// <return>Instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
+        /// <return>Same instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
         public static TelemetryProcessorChainBuilder UseAdaptiveSampling(this TelemetryProcessorChainBuilder builder, double maxTelemetryItemsPerSecond, string excludedTypes = null, string includedTypes = null)
         {
             if (builder == null)
@@ -78,19 +78,19 @@
             {
                 MaxTelemetryItemsPerSecond = maxTelemetryItemsPerSecond,
                 ExcludedTypes = excludedTypes,
-                IncludedTypes = includedTypes
+                IncludedTypes = includedTypes,
             });
         }
 
         /// <summary>
-        /// Adds <see cref="AdaptiveSamplingTelemetryProcessor"/> to the <see cref="TelemetryProcessorChainBuilder" />
+        /// Adds <see cref="AdaptiveSamplingTelemetryProcessor"/> to the <see cref="TelemetryProcessorChainBuilder" />.
         /// </summary>
-        /// <param name="builder">Instance of <see cref="TelemetryProcessorChainBuilder"/></param>
+        /// <param name="builder">Instance of <see cref="TelemetryProcessorChainBuilder"/>.</param>
         /// <param name="settings">Set of settings applicable to dynamic sampling percentage algorithm.</param>
         /// <param name="callback">Callback invoked every time sampling percentage evaluation occurs.</param>
         /// <param name="excludedTypes">Semicolon separated list of types that should not be sampled.</param>
         /// <param name="includedTypes">Semicolon separated list of types that should be sampled. All types are sampled when left empty.</param> 
-        /// <return>Instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
+        /// <return>Same instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
         public static TelemetryProcessorChainBuilder UseAdaptiveSampling(
             this TelemetryProcessorChainBuilder builder,
             WindowsServer.Channel.Implementation.SamplingPercentageEstimatorSettings settings,
@@ -112,7 +112,7 @@
             {
                 InitialSamplingPercentage = 100.0 / settings.EffectiveInitialSamplingRate,
                 ExcludedTypes = excludedTypes,
-                IncludedTypes = includedTypes
+                IncludedTypes = includedTypes,
             });
         }
     }

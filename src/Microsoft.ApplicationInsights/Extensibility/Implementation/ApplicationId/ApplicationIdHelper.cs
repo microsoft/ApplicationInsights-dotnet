@@ -7,7 +7,7 @@
     internal static class ApplicationIdHelper
     {
         /// <summary>
-        /// special string which describes that ID was taken from Breeze
+        /// special string which describes that ID was taken from Breeze.
         /// </summary>
         private const string Format = "cid-v1:{0}";
 
@@ -83,7 +83,7 @@
         /// ASCII Extended characters (hex: 0x80 - 0xFF) (decimal: 128-255) (NOT ALLOWED)
         /// Non-Printable ASCII characters are (hex: 0x00 - 0x1F) (decimal: 0-31) (NOT ALLOWED)
         /// Printable ASCII characters are (hex: 0x20 - 0xFF) (decimal: 32-255) (PARTIALLY ALLOWED)
-        /// ALLOWED characters are (hex: 0x20 - 0x7F) (decimal: 32-127)
+        /// ALLOWED characters are (hex: 0x20 - 0x7F) (decimal: 32-127).
         /// </summary>
         private static bool IsCharHeaderSafe(char ch) => (uint)(ch - 0x20) <= (0x7F - 0x20);
     }

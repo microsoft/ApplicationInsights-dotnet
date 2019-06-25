@@ -1,4 +1,4 @@
-﻿#pragma warning disable CA1716  // Namespace naming
+﻿#pragma warning disable CA1716, 612, 618  // Namespace naming, obsolete TelemetryConfigration.Active
 
 namespace User.Namespace.Example01
 {
@@ -1199,4 +1199,4 @@ namespace Microsoft.ApplicationInsights.Metrics.Examples
     }
 }
 
-#pragma warning restore CA1716  // Namespace naming
+#pragma warning restore CA1716, 612, 618  // Namespace naming, obsolete TelemetryConfigration.Active

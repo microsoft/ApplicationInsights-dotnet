@@ -3,8 +3,8 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using Extensibility.Implementation;
-    using Extensibility.Implementation.External;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
     /// Wrapper class for <see cref="ExceptionData"/> that lets user provide exception data without having the actual Exception object.
@@ -14,7 +14,7 @@
         private readonly ExceptionData data;
         
         /// <summary>
-        /// Constructs the instance of <see cref="ExceptionInfo"/>
+        /// Constructs the instance of <see cref="ExceptionInfo"/>.
         /// </summary>
         public ExceptionInfo(IEnumerable<ExceptionDetailsInfo> exceptionDetailsInfoList, SeverityLevel? severityLevel, string problemId,
             IDictionary<string, string> properties, IDictionary<string, double> measurements)
@@ -25,7 +25,7 @@
                 severityLevel = severityLevel.TranslateSeverityLevel(),
                 problemId = problemId,
                 properties = new ConcurrentDictionary<string, string>(properties),
-                measurements = new ConcurrentDictionary<string, double>(measurements)
+                measurements = new ConcurrentDictionary<string, double>(measurements),
             };
         }
 

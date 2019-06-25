@@ -43,13 +43,13 @@
                 Keywords = (long)eventSourceEvent.Keywords,
                 MessageFormat = eventSourceEvent.Message,
                 EventId = eventSourceEvent.EventId,
-                Level = eventSourceEvent.Level
+                Level = eventSourceEvent.Level,
             };
 
             var traceEvent = new TraceEvent
             {
                 MetaData = metadata,
-                Payload = eventSourceEvent.Payload?.ToArray()
+                Payload = eventSourceEvent.Payload?.ToArray(),
             };
 
             this.listener.WriteEvent(traceEvent);

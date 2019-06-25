@@ -306,9 +306,9 @@
             return hash;
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {659}</summary>
-        /// <param name="source">@ToDo: Complete documentation before stable release. {688}</param>
-        /// <param name="target">@ToDo: Complete documentation before stable release. {859}</param>
+        /// <summary>@ToDo: Complete documentation before stable release. {659}.</summary>
+        /// <param name="source">@ToDo: Complete documentation before stable release. {688}.</param>
+        /// <param name="target">@ToDo: Complete documentation before stable release. {859}.</param>
         public static void CopyTelemetryContext(TelemetryContext source, TelemetryContext target)
         {
             Util.ValidateNotNull(source, nameof(source));

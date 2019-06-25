@@ -81,6 +81,9 @@
         /// If the configuration file does not exist, the active configuration instance is initialized with minimum defaults 
         /// needed to send telemetry to Application Insights.
         /// </summary>
+#if NETSTANDARD1_3 || NETSTANDARD2_0
+        [Obsolete("We do not recommend using TelemetryConfiguration.Active on .NET Core. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/1152 for more details")]
+#endif 
         public static TelemetryConfiguration Active
         {
             get
@@ -236,6 +239,18 @@
         /// This feature is opt-in and must be configured to be enabled.
         /// </remarks>
         public IApplicationIdProvider ApplicationIdProvider { get; set; }
+
+        /// <summary>
+        /// Gets a collection of strings indicating if an experimental feature should be enabled.
+        /// The presence of a string in this collection will be evaluated as 'true'.
+        /// </summary>
+        /// <remarks>
+        /// This property allows the dev team to ship and evaluate features before adding these to the public API.
+        /// We are not committing to support any features enabled through this property.
+        /// Use this at your own risk.
+        /// </remarks>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public IList<string> ExperimentalFeatures { get; } = new List<string>(0);
 
         /// <summary>
         /// Gets a list of telemetry sinks associated with the configuration.

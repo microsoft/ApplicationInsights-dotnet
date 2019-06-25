@@ -1,10 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using System.Diagnostics;
-    using Implementation;
+
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 #if NET45
     /// <summary>

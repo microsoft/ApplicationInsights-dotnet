@@ -21,7 +21,7 @@
             {
                 id = exception.GetHashCode(),
                 typeName = exception.GetType().FullName,
-                message = exception.Message
+                message = exception.Message,
             };
 
             if (parentExceptionDetails != null)

@@ -26,10 +26,14 @@
 #endif
         private readonly TelemetryConfiguration configuration;
         private string sdkVersion;
-        
+
+#pragma warning disable 612, 618 // TelemetryConfiguration.Active
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the active configuration, usually loaded from ApplicationInsights.config.
         /// </summary>
+#if NETSTANDARD1_3 || NETSTANDARD2_0
+        [Obsolete("We do not recommend using TelemetryConfiguration.Active on .NET Core. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/1152 for more details")]
+#endif
         public TelemetryClient() : this(TelemetryConfiguration.Active)
         {
         }
@@ -54,6 +58,7 @@
                 throw new ArgumentException("The specified configuration does not have a telemetry channel.", nameof(configuration));
             }
         }
+#pragma warning restore 612, 618 // TelemetryConfiguration.Active
 
         /// <summary>
         /// Gets the current context that will be used to augment telemetry you send.
@@ -216,17 +221,16 @@
         }
 
         /// <summary>
-        /// This method is deprecated. Metrics should always be pre-aggregated across a time period before being sent.<br />
+        /// This method is not the preferred method for sending metrics.
+        /// Metrics should always be pre-aggregated across a time period before being sent.<br />
         /// Use one of the <c>GetMetric(..)</c> overloads to get a metric object for accessing SDK pre-aggregation capabilities.<br />
-        /// If you are implementing your own pre-aggregation logic, you can use the <c>Track(ITelemetry metricTelemetry)</c> method to
-        /// send the resulting aggregates.<br />
+        /// If you are implementing your own pre-aggregation logic, then you can use this method.
         /// If your application requires sending a separate telemetry item at every occasion without aggregation across time,
         /// you likely have a use case for event telemetry; see <see cref="TrackEvent(EventTelemetry)"/>.
         /// </summary>
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
-        /// <param name="properties">Named string values you can use to classify and filter metrics.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        /// <param name="properties">Named string values you can use to classify and filter metrics.</param>        
         public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
         {
             var telemetry = new MetricTelemetry(name, value);
@@ -239,15 +243,14 @@
         }
 
         /// <summary>
-        /// This method is deprecated. Metrics should always be pre-aggregated across a time period before being sent.<br />
+        /// This method is not the preferred method for sending metrics.
+        /// Metrics should always be pre-aggregated across a time period before being sent.<br />
         /// Use one of the <c>GetMetric(..)</c> overloads to get a metric object for accessing SDK pre-aggregation capabilities.<br />
-        /// If you are implementing your own pre-aggregation logic, you can use the <c>Track(ITelemetry metricTelemetry)</c> method to
-        /// send the resulting aggregates.<br />
+        /// If you are implementing your own pre-aggregation logic, then you can use this method.
         /// If your application requires sending a separate telemetry item at every occasion without aggregation across time,
         /// you likely have a use case for event telemetry; see <see cref="TrackEvent(EventTelemetry)"/>.
         /// </summary>
-        /// <param name="telemetry">The metric telemetry item.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        /// <param name="telemetry">The metric telemetry item.</param>        
         public void TrackMetric(MetricTelemetry telemetry)
         {
             if (telemetry == null)
@@ -291,7 +294,7 @@
 
         /// <summary>
         /// Send an <see cref="ExceptionTelemetry"/> for display in Diagnostic Search.
-        /// Create a separate <see cref="ExceptionTelemetry"/> instance for each call to <see cref="TrackException(ExceptionTelemetry)"/>
+        /// Create a separate <see cref="ExceptionTelemetry"/> instance for each call to <see cref="TrackException(ExceptionTelemetry)"/>.
         /// </summary>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackexception">Learn more</a>
@@ -364,7 +367,7 @@
 
         /// <summary>
         /// Send information about external dependency call in the application.
-        /// Create a separate <see cref="DependencyTelemetry"/> instance for each call to <see cref="TrackDependency(DependencyTelemetry)"/>
+        /// Create a separate <see cref="DependencyTelemetry"/> instance for each call to <see cref="TrackDependency(DependencyTelemetry)"/>.
         /// </summary>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
@@ -412,7 +415,7 @@
 
         /// <summary>
         /// Send information about availability of an application.
-        /// Create a separate <see cref="AvailabilityTelemetry"/> instance for each call to <see cref="TrackAvailability(AvailabilityTelemetry)"/>
+        /// Create a separate <see cref="AvailabilityTelemetry"/> instance for each call to <see cref="TrackAvailability(AvailabilityTelemetry)"/>.
         /// </summary>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
@@ -671,8 +674,7 @@
         /// </remarks>
         public void Flush()
         {
-            MetricManager privateMetricManager;
-            if (this.TryGetMetricManager(out privateMetricManager))
+            if (this.TryGetMetricManager(out MetricManager privateMetricManager))
             {
                 privateMetricManager.Flush(flushDownstreamPipeline: false);
             }

@@ -9,8 +9,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using WindowsServer.TelemetryChannel.Implementation;
-    
+
     /// <summary>
     /// Runs a task after a certain delay and log any error.
     /// </summary>
@@ -82,9 +81,9 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
                             LogException(exception);
                         }
                     },
-                    CancellationToken.None,
-                    TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously,
-                    TaskScheduler.Default);
+                CancellationToken.None,
+                TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously,
+                TaskScheduler.Default);
 
             CancelAndDispose(Interlocked.Exchange(ref this.tokenSource, newTokenSource));
         }

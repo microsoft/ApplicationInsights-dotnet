@@ -3,8 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using DataContracts;
+
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
     /// Base class for telemetry types representing duration in time.

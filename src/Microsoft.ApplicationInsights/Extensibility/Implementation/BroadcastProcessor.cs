@@ -75,7 +75,7 @@
             }
 
             /// <summary>
-            /// Sends the item to sink. If cloning of item is required, clones the item before sending it to <see cref="TelemetrySink"/>
+            /// Sends the item to sink. If cloning of item is required, clones the item before sending it to <see cref="TelemetrySink"/>.
             /// </summary>
             /// <param name="telemetry">The telemetry item to send to sink.</param>
             public void SendItemToSink(ITelemetry telemetry)

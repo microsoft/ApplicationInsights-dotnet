@@ -4,7 +4,7 @@
 
     /// <summary>
     /// Partial class to declare measurements.( This is to be removed once
-    /// every telemetry type gets rid of internal Data classes)
+    /// every telemetry type gets rid of internal Data classes).
     /// </summary>
     internal partial class RequestData
     {

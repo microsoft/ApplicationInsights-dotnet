@@ -15,7 +15,7 @@
             "runtimeFramework",
             "baseSdkTargetFramework",
             "osType",
-            "processSessionId"
+            "processSessionId",
         };
 
         /// <summary>
@@ -81,7 +81,7 @@
         /// This will return the current running .NET framework version, based on the version of the assembly that owns
         /// the 'Object' type. The version number returned can be used to infer other things such as .NET Core / Standard.
         /// </summary>
-        /// <returns>a string representing the version of the current .NET framework</returns>
+        /// <returns>a string representing the version of the current .NET framework.</returns>
         private static string GetRuntimeFrameworkVer()
         {
 #if NET45 || NET46
@@ -102,7 +102,7 @@
         /// <summary>
         /// Returns the current target framework that the assembly was built against.
         /// </summary>
-        /// <returns>standard string representing the target framework</returns>
+        /// <returns>standard string representing the target framework.</returns>
         private static string GetBaseSdkTargetFramework()
         {
 #if NET45
@@ -162,7 +162,7 @@
         /// Return a unique process session identifier that will only be set once in the lifetime of a 
         /// single executable session.
         /// </summary>
-        /// <returns>string representation of a unique id</returns>
+        /// <returns>string representation of a unique id.</returns>
         private static string GetProcessSessionId()
         {
             if (BaseDefaultHeartbeatPropertyProvider.uniqueProcessSessionId == null)

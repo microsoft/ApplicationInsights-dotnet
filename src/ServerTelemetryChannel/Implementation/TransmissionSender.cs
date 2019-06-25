@@ -5,9 +5,10 @@
     using System.Net;
     using System.Net.Http;
     using System.Threading;
-    using System.Threading.Tasks;    
-    using Extensibility;
+    using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     internal class TransmissionSender
@@ -198,7 +199,7 @@
                         responseContent = new HttpWebResponseWrapper()
                         {
                             // Expectation is that RetryPolicy will attempt retry for this status.
-                            StatusCode = ResponseStatusCodes.UnknownNetworkError
+                            StatusCode = ResponseStatusCodes.UnknownNetworkError,
                         };
                     }
 
@@ -289,7 +290,7 @@
                 {
                     StatusCode = ResponseStatusCodes.ResponseCodeTooManyRequests,
                     StatusDescription = "Internally Throttled",
-                    RetryAfterHeader = null
+                    RetryAfterHeader = null,
                 }));
         }
     }

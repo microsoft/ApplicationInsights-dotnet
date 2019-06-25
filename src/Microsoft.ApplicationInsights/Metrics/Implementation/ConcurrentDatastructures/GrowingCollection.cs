@@ -8,7 +8,7 @@
 
     using static System.FormattableString;
 
-    /// <summary>@ToDo: Complete documentation before stable release. {574}</summary>
+    /// <summary>@ToDo: Complete documentation before stable release. {574}.</summary>
     /// <typeparam name="T">Type of collection elements.</typeparam>
     internal class GrowingCollection<T> : IEnumerable<T>
     {
@@ -16,13 +16,13 @@
 
         private Segment dataHead;
 
-        /// <summary>@ToDo: Complete documentation before stable release. {371}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {371}.</summary>
         public GrowingCollection()
         {
             this.dataHead = new Segment(null);
         }
 
-        /// <summary>Gets @ToDo: Complete documentation before stable release. {072}</summary>
+        /// <summary>Gets @ToDo: Complete documentation before stable release. {072}.</summary>
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -33,8 +33,8 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {146}</summary>
-        /// <param name="item">@ToDo: Complete documentation before stable release. {688}</param>
+        /// <summary>@ToDo: Complete documentation before stable release. {146}.</summary>
+        /// <param name="item">@ToDo: Complete documentation before stable release. {688}.</param>
         public void Add(T item)
         {
             Segment currHead = Volatile.Read(ref this.dataHead);
@@ -50,8 +50,8 @@
             }
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {508}</summary>
-        /// <returns>@ToDo: Complete documentation before stable release. {325}</returns>
+        /// <summary>@ToDo: Complete documentation before stable release. {508}.</summary>
+        /// <returns>@ToDo: Complete documentation before stable release. {325}.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public GrowingCollection<T>.Enumerator GetEnumerator()
         {
@@ -59,8 +59,8 @@
             return enumerator;
         }
 
-        /// <summary>@ToDo: Complete documentation before stable release. {563}</summary>
-        /// <returns>@ToDo: Complete documentation before stable release. {016}</returns>
+        /// <summary>@ToDo: Complete documentation before stable release. {563}.</summary>
+        /// <returns>@ToDo: Complete documentation before stable release. {016}.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -75,7 +75,7 @@
 
         #region class Enumerator 
 
-        /// <summary>@ToDo: Complete documentation before stable release. {671}</summary>
+        /// <summary>@ToDo: Complete documentation before stable release. {671}.</summary>
         public class Enumerator : IEnumerator<T>
         {
             private readonly Segment head;
@@ -93,7 +93,7 @@
                 this.count = this.headOffset + (this.head.NextSegment == null ? 0 : this.head.NextSegment.GlobalCount);
             }
 
-            /// <summary>Gets @ToDo: Complete documentation before stable release. {648}</summary>
+            /// <summary>Gets @ToDo: Complete documentation before stable release. {648}.</summary>
             public int Count
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -103,7 +103,7 @@
                 }
             }
 
-            /// <summary>Gets @ToDo: Complete documentation before stable release. {314}</summary>
+            /// <summary>Gets @ToDo: Complete documentation before stable release. {314}.</summary>
             public T Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -122,7 +122,7 @@
                 }
             }
 
-            /// <summary>@ToDo: Complete documentation before stable release. {941}</summary>
+            /// <summary>@ToDo: Complete documentation before stable release. {941}.</summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Dispose()
             {
@@ -130,8 +130,8 @@
                 GC.SuppressFinalize(this);
             }
 
-            /// <summary>@ToDo: Complete documentation before stable release. {168}</summary>
-            /// <returns>@ToDo: Complete documentation before stable release. {185}</returns>
+            /// <summary>@ToDo: Complete documentation before stable release. {168}.</summary>
+            /// <returns>@ToDo: Complete documentation before stable release. {185}.</returns>
             public bool MoveNext()
             {
                 if (this.currentSegmentOffset == 0)
@@ -154,7 +154,7 @@
                 }
             }
 
-            /// <summary>@ToDo: Complete documentation before stable release. {307}</summary>
+            /// <summary>@ToDo: Complete documentation before stable release. {307}.</summary>
             public void Reset()
             {
                 this.currentSegment = this.head;
