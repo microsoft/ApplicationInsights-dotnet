@@ -14,7 +14,7 @@
         private double messageSampleRate = 100;
 
         /// <summary>
-        /// Gets last known request sampling percentage for telemetry type
+        /// Gets last known request sampling percentage for telemetry type.
         /// </summary>
         internal double GetLastObservedSamplingPercentage(SamplingTelemetryItemTypes samplingItemType)
         {
@@ -38,7 +38,7 @@
         }
 
         /// <summary>
-        /// Sets last known request sampling percentage for telemetry type
+        /// Sets last known request sampling percentage for telemetry type.
         /// </summary>
         internal void SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes samplingItemType, double value)
         {

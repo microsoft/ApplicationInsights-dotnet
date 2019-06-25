@@ -10,7 +10,7 @@
     public static class TelemetryConfigurationExtensions
     {
         /// <summary>
-        /// Gets last known request sampling percentage to skip initializers for sampled requests
+        /// Gets last known request sampling percentage to skip initializers for sampled requests.
         /// </summary>
         public static double GetLastObservedSamplingPercentage(this TelemetryConfiguration configuration, SamplingTelemetryItemTypes samplingItemType)
         {
@@ -18,7 +18,7 @@
         }
 
         /// <summary>
-        /// Sets last known request sampling percentage to skip initializers for sampled requests
+        /// Sets last known request sampling percentage to skip initializers for sampled requests.
         /// </summary>
         public static void SetLastObservedSamplingPercentage(this TelemetryConfiguration configuration, SamplingTelemetryItemTypes samplingItemType, double value)
         {

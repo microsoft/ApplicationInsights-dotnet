@@ -179,7 +179,7 @@
         }
 
         /// <summary>
-        /// Gets item type for sampling evaluation
+        /// Gets item type for sampling evaluation.
         /// </summary>
         public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.PageView;
 

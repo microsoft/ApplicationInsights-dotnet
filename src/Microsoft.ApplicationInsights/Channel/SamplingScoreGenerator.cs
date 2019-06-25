@@ -11,7 +11,7 @@
         /// <summary>
         ///  Generates telemetry sampling score between 0 and 100.
         /// </summary>
-        /// <param name="value">String value to generate score</param>
+        /// <param name="value">String value to generate score.</param>
         /// <returns>Item sampling score.</returns>
         public static double GetSamplingScore(string value)
         {
