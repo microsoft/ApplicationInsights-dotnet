@@ -1191,7 +1191,7 @@
         }
 
         [TestMethod]
-        public void TelemetryThatWillBeSampledOutIsNotInitialized()
+        public void TelemetryThatWillBeSampledOutIsNotFullyInitialized()
         {
             var sentTelemetry = new List<ITelemetry>();
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
@@ -1201,22 +1201,38 @@
             // Any sampling score will be greater or equal to 0 and item will be proactively sampled out
             configuration.SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Request, 0);
 
-            var initializedTelemetry = new List<ITelemetry>();
+            var partiallyInitializedTelemetry = new List<ITelemetry>();
+            var fullyInitializedTelemetry = new List<ITelemetry>();
+
+            var customTelemetryInitializer = new StubTelemetryInitializer();
+            customTelemetryInitializer.OnInitialize = item =>
+            {
+                partiallyInitializedTelemetry.Add(item);
+            };
+
+            var operationIdTelemetryInitializer = new StubTelemetryInitializer();
+            operationIdTelemetryInitializer.OnInitialize = item =>
+            {
+                item.Context.Operation.Id = W3CUtilities.GenerateTraceId();
+            };
+
             var telemetryInitializer = new StubTelemetryInitializer();
             telemetryInitializer.OnInitialize = item =>
             {
-                initializedTelemetry.Add(item);
+                fullyInitializedTelemetry.Add(item);
             };
 
+            configuration.TelemetryInitializers.Add(customTelemetryInitializer);
+            configuration.TelemetryInitializers.Add(operationIdTelemetryInitializer);
             configuration.TelemetryInitializers.Add(telemetryInitializer);
 
             var client = new TelemetryClient(configuration);
-            var telemetry = new RequestTelemetry();
-            telemetry.Context.Operation.Id = W3CUtilities.GenerateTraceId();
+            var telemetry = new RequestTelemetry();            
             client.Track(telemetry);
 
             Assert.IsTrue(telemetry.IsProactivelySampledOut);
-            Assert.AreEqual(0, initializedTelemetry.Count);
+            Assert.AreEqual(1, partiallyInitializedTelemetry.Count);
+            Assert.AreEqual(0, fullyInitializedTelemetry.Count);
             Assert.AreEqual(1, sentTelemetry.Count);
         }
 
@@ -1233,6 +1249,11 @@
             {
                 initalizersCount++;
             };
+            var operationIdTelemetryInitializer = new StubTelemetryInitializer();
+            operationIdTelemetryInitializer.OnInitialize = item =>
+            {
+                item.Context.Operation.Id = W3CUtilities.GenerateTraceId();
+            };
             var telemetryInitializer2 = new StubTelemetryInitializer();
             telemetryInitializer2.OnInitialize = item =>
             {
@@ -1240,11 +1261,11 @@
             };
 
             configuration.TelemetryInitializers.Add(telemetryInitializer1);
+            configuration.TelemetryInitializers.Add(operationIdTelemetryInitializer);
             configuration.TelemetryInitializers.Add(telemetryInitializer2);
 
             var client = new TelemetryClient(configuration);
-            var telemetry = new RequestTelemetry();
-            telemetry.Context.Operation.Id = W3CUtilities.GenerateTraceId();
+            var telemetry = new RequestTelemetry();            
             client.Track(telemetry);
 
             Assert.IsFalse(telemetry.IsProactivelySampledOut);
@@ -1260,6 +1281,11 @@
             var configuration = new TelemetryConfiguration("Test key", channel);
 
             var initalizersCount = 0;
+            var operationIdTelemetryInitializer = new StubTelemetryInitializer();
+            operationIdTelemetryInitializer.OnInitialize = item =>
+            {
+                item.Context.Operation.Id = W3CUtilities.GenerateTraceId();
+            };
             var telemetryInitializer1 = new StubTelemetryInitializer();
             telemetryInitializer1.OnInitialize = item =>
             {
@@ -1273,12 +1299,12 @@
                 initalizersCount++;
             };
 
+            configuration.TelemetryInitializers.Add(operationIdTelemetryInitializer);
             configuration.TelemetryInitializers.Add(telemetryInitializer1);
             configuration.TelemetryInitializers.Add(telemetryInitializer2);
 
             var client = new TelemetryClient(configuration);
-            var telemetry = new RequestTelemetry();
-            telemetry.Context.Operation.Id = W3CUtilities.GenerateTraceId();
+            var telemetry = new RequestTelemetry();            
             client.Track(telemetry);
 
             Assert.IsFalse(telemetry.IsProactivelySampledOut);
