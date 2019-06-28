@@ -26,8 +26,9 @@
         private const string VersionPrefix = "dotnet:";
 #endif
         private readonly TelemetryConfiguration configuration;
-        private string sdkVersion;
         private readonly bool proactiveSamplingEnabled = false;
+
+        private string sdkVersion;
 
 #pragma warning disable 612, 618 // TelemetryConfiguration.Active
         /// <summary>
