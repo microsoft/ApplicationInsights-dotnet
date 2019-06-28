@@ -8,6 +8,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Metrics;
@@ -26,6 +27,7 @@
 #endif
         private readonly TelemetryConfiguration configuration;
         private string sdkVersion;
+        private readonly bool proactiveSamplingEnabled = false;
 
 #pragma warning disable 612, 618 // TelemetryConfiguration.Active
         /// <summary>
@@ -36,6 +38,7 @@
 #endif
         public TelemetryClient() : this(TelemetryConfiguration.Active)
         {
+            this.proactiveSamplingEnabled = TelemetryConfiguration.Active.EvaluateExperimentalFeature("proactiveSampling");
         }
 
         /// <summary>
@@ -52,6 +55,7 @@
             }
 
             this.configuration = configuration;
+            this.proactiveSamplingEnabled = this.configuration.EvaluateExperimentalFeature("proactiveSampling");
 
             if (this.configuration.TelemetryChannel == null)
             {
@@ -518,14 +522,15 @@
 
             // Telemetry can be already sampled out if that decision was made before calling Track()
             bool sampledOut = telemetryWithSampling?.IsProactivelySampledOut ?? false;
-
-            // If telemetry was not sampled out, we need to check its sampling score after we learn its Operation Id
-            bool shouldCheckSamplingScore = !sampledOut;
+            bool shouldTryHeadSampling = this.proactiveSamplingEnabled && (telemetryWithSampling?.SupportsProactiveSampling ?? false);
 
             if (!sampledOut)
             {
-                if (telemetryWithSampling?.SupportsProactiveSampling ?? false)
+                if (shouldTryHeadSampling)
                 {
+                    // If telemetry was not sampled out, we need to check its sampling score after we learn its Operation Id                    
+                    bool shouldCheckSamplingScore = true;
+
                     for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
                     {
                         if (shouldCheckSamplingScore && !string.IsNullOrEmpty(telemetry.Context.Operation.Id))

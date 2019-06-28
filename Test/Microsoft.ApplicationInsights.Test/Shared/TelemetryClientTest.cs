@@ -1149,7 +1149,7 @@
         {
             var sentTelemetry = new List<ITelemetry>();
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var configuration = new TelemetryConfiguration("Test key", channel);
+            var configuration = new TelemetryConfiguration("Test key", channel);            
             var client = new TelemetryClient(configuration);
 
             const int ItemsToGenerate = 100;
@@ -1197,6 +1197,7 @@
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
 
             var configuration = new TelemetryConfiguration("Test key", channel);
+            configuration.ExperimentalFeatures.Add("proactiveSampling");
 
             // Any sampling score will be greater or equal to 0 and item will be proactively sampled out
             configuration.SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Request, 0);
@@ -1242,6 +1243,7 @@
             var sentTelemetry = new List<ITelemetry>();
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
             var configuration = new TelemetryConfiguration("Test key", channel);
+            configuration.ExperimentalFeatures.Add("proactiveSampling");
 
             var initalizersCount = 0;
             var telemetryInitializer1 = new StubTelemetryInitializer();
@@ -1279,6 +1281,7 @@
             var sentTelemetry = new List<ITelemetry>();
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
             var configuration = new TelemetryConfiguration("Test key", channel);
+            configuration.ExperimentalFeatures.Add("proactiveSampling");
 
             var initalizersCount = 0;
             var operationIdTelemetryInitializer = new StubTelemetryInitializer();
@@ -1311,6 +1314,53 @@
             Assert.AreEqual(2, initalizersCount);
             Assert.AreEqual(1, sentTelemetry.Count);
         }
+
+        [TestMethod]
+        public void TelemetryThatWillBeSampledOutIsFullyInitializedWithoutFeatureFlag()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
+
+            var configuration = new TelemetryConfiguration("Test key", channel);
+
+            // Any sampling score will be greater or equal to 0 and item will be proactively sampled out
+            configuration.SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Request, 0);
+
+            var partiallyInitializedTelemetry = new List<ITelemetry>();
+            var fullyInitializedTelemetry = new List<ITelemetry>();
+
+            var customTelemetryInitializer = new StubTelemetryInitializer();
+            customTelemetryInitializer.OnInitialize = item =>
+            {
+                partiallyInitializedTelemetry.Add(item);
+            };
+
+            var operationIdTelemetryInitializer = new StubTelemetryInitializer();
+            operationIdTelemetryInitializer.OnInitialize = item =>
+            {
+                item.Context.Operation.Id = W3CUtilities.GenerateTraceId();
+            };
+
+            var telemetryInitializer = new StubTelemetryInitializer();
+            telemetryInitializer.OnInitialize = item =>
+            {
+                fullyInitializedTelemetry.Add(item);
+            };
+
+            configuration.TelemetryInitializers.Add(customTelemetryInitializer);
+            configuration.TelemetryInitializers.Add(operationIdTelemetryInitializer);
+            configuration.TelemetryInitializers.Add(telemetryInitializer);
+
+            var client = new TelemetryClient(configuration);
+            var telemetry = new RequestTelemetry();
+            client.Track(telemetry);
+
+            Assert.IsFalse(telemetry.IsProactivelySampledOut);
+            Assert.AreEqual(1, partiallyInitializedTelemetry.Count);
+            Assert.AreEqual(1, fullyInitializedTelemetry.Count);
+            Assert.AreEqual(1, sentTelemetry.Count);
+        }
+
         #endregion
 
         #region ValidateEndpoint
