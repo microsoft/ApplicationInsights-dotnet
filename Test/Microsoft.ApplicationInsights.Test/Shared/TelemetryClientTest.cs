@@ -1193,6 +1193,9 @@
         [TestMethod]
         public void TelemetryThatWillBeSampledOutIsNotFullyInitialized()
         {
+            // Partially initialized -> Telemetry Initializers are skipped after it is determined that item is sampled out
+            // Fully initialized -> none of the Telemetry Initializers are skipped
+
             var sentTelemetry = new List<ITelemetry>();
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
 
@@ -1240,6 +1243,10 @@
         [TestMethod]
         public void TelemetryThatWillBeSampledInIsFullyInitialized()
         {
+            // Partially initialized -> Telemetry Initializers are skipped after it is determined that item is sampled out
+            // Fully initialized -> none of the Telemetry Initializers are skipped
+            // By default, Last Known Sampling Rate for each item type is 100, so each item is sampled in.
+
             var sentTelemetry = new List<ITelemetry>();
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
             var configuration = new TelemetryConfiguration("Test key", channel);

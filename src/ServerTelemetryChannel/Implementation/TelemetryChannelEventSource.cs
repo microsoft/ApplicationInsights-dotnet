@@ -520,6 +520,12 @@
                 this.ApplicationName);
         }
 
+        [Event(72, Message = "Proactively Sampled out: {0}.", Level = EventLevel.Verbose)]
+        public void ItemProactivelySampledOut(string telemetryType, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(72, telemetryType ?? string.Empty, this.ApplicationName);
+        }
+
         private static string GetApplicationName()
         {
             //// We want to add application name to all events BUT

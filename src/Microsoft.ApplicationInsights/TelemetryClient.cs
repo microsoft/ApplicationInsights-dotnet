@@ -25,6 +25,7 @@
 #else
         private const string VersionPrefix = "dotnet:";
 #endif
+        private const string ProactiveSamplingFeatureName = "proactiveSampling";
         private readonly TelemetryConfiguration configuration;
         private readonly bool proactiveSamplingEnabled = false;
 
@@ -39,7 +40,11 @@
 #endif
         public TelemetryClient() : this(TelemetryConfiguration.Active)
         {
-            this.proactiveSamplingEnabled = TelemetryConfiguration.Active.EvaluateExperimentalFeature("proactiveSampling");
+            this.proactiveSamplingEnabled = TelemetryConfiguration.Active.EvaluateExperimentalFeature(ProactiveSamplingFeatureName);
+            if (this.proactiveSamplingEnabled)
+            {
+                CoreEventSource.Log.TelemetryClientIsInitializedWithFeatureFlag(ProactiveSamplingFeatureName);
+            }
         }
 
         /// <summary>
@@ -56,7 +61,12 @@
             }
 
             this.configuration = configuration;
-            this.proactiveSamplingEnabled = this.configuration.EvaluateExperimentalFeature("proactiveSampling");
+
+            this.proactiveSamplingEnabled = this.configuration.EvaluateExperimentalFeature(ProactiveSamplingFeatureName);
+            if (this.proactiveSamplingEnabled)
+            {
+                CoreEventSource.Log.TelemetryClientIsInitializedWithFeatureFlag(ProactiveSamplingFeatureName);
+            }
 
             if (this.configuration.TelemetryChannel == null)
             {

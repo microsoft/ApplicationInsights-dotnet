@@ -544,6 +544,17 @@
                 this.nameProvider.Name);
         }
 
+        [Event(46,
+            Message = "Telemetry Client has been initialized with the feature flag: {0}",
+            Level = EventLevel.Informational)]
+        public void TelemetryClientIsInitializedWithFeatureFlag(string flag, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                46,
+                flag,
+                this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

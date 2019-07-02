@@ -251,7 +251,7 @@
 
                     if (TelemetryChannelEventSource.IsVerboseEnabled)
                     {
-                        TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
+                        TelemetryChannelEventSource.Log.ItemProactivelySampledOut(item.ToString());
                     }
                 }
                 else
