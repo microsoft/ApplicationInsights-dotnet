@@ -8,7 +8,6 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Metrics;
@@ -24,10 +23,8 @@
         private const string VersionPrefix = "dotnetc:";
 #else
         private const string VersionPrefix = "dotnet:";
-#endif
-        private const string ProactiveSamplingFeatureName = "proactiveSampling";
+#endif  
         private readonly TelemetryConfiguration configuration;
-        private readonly bool proactiveSamplingEnabled = false;
 
         private string sdkVersion;
 
@@ -40,11 +37,6 @@
 #endif
         public TelemetryClient() : this(TelemetryConfiguration.Active)
         {
-            this.proactiveSamplingEnabled = TelemetryConfiguration.Active.EvaluateExperimentalFeature(ProactiveSamplingFeatureName);
-            if (this.proactiveSamplingEnabled)
-            {
-                CoreEventSource.Log.TelemetryClientIsInitializedWithFeatureFlag(ProactiveSamplingFeatureName);
-            }
         }
 
         /// <summary>
@@ -61,12 +53,6 @@
             }
 
             this.configuration = configuration;
-
-            this.proactiveSamplingEnabled = this.configuration.EvaluateExperimentalFeature(ProactiveSamplingFeatureName);
-            if (this.proactiveSamplingEnabled)
-            {
-                CoreEventSource.Log.TelemetryClientIsInitializedWithFeatureFlag(ProactiveSamplingFeatureName);
-            }
 
             if (this.configuration.TelemetryChannel == null)
             {
@@ -499,101 +485,59 @@
                 instrumentationKey = this.configuration.InstrumentationKey;
             }
 
-            var telemetryWithProperties = telemetry as ISupportProperties;
-            if (telemetryWithProperties != null)
-            {
-                if ((this.configuration.TelemetryChannel != null) && (this.configuration.TelemetryChannel.DeveloperMode.HasValue && this.configuration.TelemetryChannel.DeveloperMode.Value))
-                {
-                    if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
-                    {
-                        telemetryWithProperties.Properties.Add("DeveloperMode", "true");
-                    }
-                }
-            }
-
-            // Properties set of TelemetryClient's Context are copied over to that of ITelemetry's Context
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (this.Context.PropertiesValue != null)
-            {
-                Utils.CopyDictionary(this.Context.Properties, telemetry.Context.Properties);
-            }
-
-#pragma warning restore CS0618 // Type or member is obsolete
-
-            // This check avoids accessing the public accessor GlobalProperties
-            // unless needed, to avoid the penalty of ConcurrentDictionary instantiation.
-            if (this.Context.GlobalPropertiesValue != null)
-            {
-                Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
-            }
-
-            telemetry.Context.Initialize(this.Context, instrumentationKey);
-
             ISupportAdvancedSampling telemetryWithSampling = telemetry as ISupportAdvancedSampling;
 
             // Telemetry can be already sampled out if that decision was made before calling Track()
             bool sampledOut = telemetryWithSampling?.IsProactivelySampledOut ?? false;
-            bool shouldTryHeadSampling = this.proactiveSamplingEnabled && (telemetryWithSampling?.SupportsProactiveSampling ?? false);
 
             if (!sampledOut)
             {
-                if (shouldTryHeadSampling)
+                var telemetryWithProperties = telemetry as ISupportProperties;
+                if (telemetryWithProperties != null)
                 {
-                    // If telemetry was not sampled out, we need to check its sampling score after we learn its Operation Id                    
-                    bool shouldCheckSamplingScore = true;
-
-                    for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
+                    if ((this.configuration.TelemetryChannel != null) && (this.configuration.TelemetryChannel.DeveloperMode.HasValue && this.configuration.TelemetryChannel.DeveloperMode.Value))
                     {
-                        if (shouldCheckSamplingScore && !string.IsNullOrEmpty(telemetry.Context.Operation.Id))
+                        if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
                         {
-                            if (SamplingScoreGenerator.GetSamplingScore(telemetry.Context.Operation.Id) >= this.configuration.GetLastObservedSamplingPercentage(telemetryWithSampling.ItemTypeFlag))
-                            {
-                                telemetryWithSampling.IsProactivelySampledOut = true;
-                                sampledOut = true;
-                                break;
-                            }
-                            else
-                            {
-                                shouldCheckSamplingScore = false;
-                            }
-                        }
-
-                        try
-                        {
-                            this.configuration.TelemetryInitializers[index].Initialize(telemetry);
-                        }
-                        catch (Exception exception)
-                        {
-                            CoreEventSource.Log.LogError(string.Format(
-                                                            CultureInfo.InvariantCulture,
-                                                            "Exception while initializing {0}, exception message - {1}",
-                                                            this.configuration.TelemetryInitializers[index].GetType().FullName,
-                                                            exception));
-                        }
-                    }                    
-                }
-                else
-                {
-                    for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
-                    {
-                        try
-                        {
-                            this.configuration.TelemetryInitializers[index].Initialize(telemetry);
-                        }
-                        catch (Exception exception)
-                        {
-                            CoreEventSource.Log.LogError(string.Format(
-                                                            CultureInfo.InvariantCulture,
-                                                            "Exception while initializing {0}, exception message - {1}",
-                                                            this.configuration.TelemetryInitializers[index].GetType().FullName,
-                                                            exception));
+                            telemetryWithProperties.Properties.Add("DeveloperMode", "true");
                         }
                     }
                 }
-            }
 
-            if (!sampledOut)
-            {
+                // Properties set of TelemetryClient's Context are copied over to that of ITelemetry's Context
+#pragma warning disable CS0618 // Type or member is obsolete
+                if (this.Context.PropertiesValue != null)
+                {
+                    Utils.CopyDictionary(this.Context.Properties, telemetry.Context.Properties);
+                }
+
+#pragma warning restore CS0618 // Type or member is obsolete
+
+                // This check avoids accessing the public accessor GlobalProperties
+                // unless needed, to avoid the penalty of ConcurrentDictionary instantiation.
+                if (this.Context.GlobalPropertiesValue != null)
+                {
+                    Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
+                }
+
+                telemetry.Context.Initialize(this.Context, instrumentationKey);
+
+                for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
+                {
+                    try
+                    {
+                        this.configuration.TelemetryInitializers[index].Initialize(telemetry);
+                    }
+                    catch (Exception exception)
+                    {
+                        CoreEventSource.Log.LogError(string.Format(
+                                                        CultureInfo.InvariantCulture,
+                                                        "Exception while initializing {0}, exception message - {1}",
+                                                        this.configuration.TelemetryInitializers[index].GetType().FullName,
+                                                        exception));
+                    }
+                }
+
                 if (telemetry.Timestamp == default(DateTimeOffset))
                 {
                     telemetry.Timestamp = PreciseTimestamp.GetUtcNow();
@@ -617,6 +561,10 @@
                 {
                     telemetry.Context.Cloud.RoleInstance = PlatformSingleton.Current.GetMachineName();
                 }
+            }
+            else
+            {
+                CoreEventSource.Log.InitializationIsSkippedForSampledItem();
             }
         }
 

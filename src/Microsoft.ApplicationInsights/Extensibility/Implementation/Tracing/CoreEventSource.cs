@@ -545,13 +545,12 @@
         }
 
         [Event(46,
-            Message = "Telemetry Client has been initialized with the feature flag: {0}",
+            Message = "Initialization is skipped for the sampled item.",
             Level = EventLevel.Informational)]
-        public void TelemetryClientIsInitializedWithFeatureFlag(string flag, string appDomainName = "Incorrect")
+        public void InitializationIsSkippedForSampledItem(string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 46,
-                flag,
                 this.nameProvider.Name);
         }
 
