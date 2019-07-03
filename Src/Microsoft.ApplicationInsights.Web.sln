@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.452
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.705
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{1A75535C-B8E5-4C31-BC6E-50456C8C4052}"
 EndProject
@@ -89,6 +89,10 @@ EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetStandard20Net45", "PerformanceCollector\Perf.Shared.NetStandard20Net45\Perf.Shared.NetStandard20Net45.shproj", "{054C25DC-E545-4712-95C4-81F30CF65CE8}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared.NetStandard20", "PerformanceCollector\Perf.Shared.NetStandard20\Perf.Shared.NetStandard20.shproj", "{A8BA3BD0-19CE-488D-B2BD-0B9B677F4E03}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventCounterCollector", "EventCounterCollector\EventCounterCollector\EventCounterCollector.csproj", "{30AE1A5D-775A-4DEC-9F87-849D8AE93E3A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventCounterCollector.Tests", "EventCounterCollector\EventCounterCollector.Tests\EventCounterCollector.Tests\EventCounterCollector.Tests.csproj", "{6ABC0D66-F577-44A7-8F61-B23882B7A1FF}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -245,6 +249,22 @@ Global
 		{AC7D8533-C823-4E93-B008-51B3C4744E2E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AC7D8533-C823-4E93-B008-51B3C4744E2E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{AC7D8533-C823-4E93-B008-51B3C4744E2E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{30AE1A5D-775A-4DEC-9F87-849D8AE93E3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30AE1A5D-775A-4DEC-9F87-849D8AE93E3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30AE1A5D-775A-4DEC-9F87-849D8AE93E3A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{30AE1A5D-775A-4DEC-9F87-849D8AE93E3A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{30AE1A5D-775A-4DEC-9F87-849D8AE93E3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30AE1A5D-775A-4DEC-9F87-849D8AE93E3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30AE1A5D-775A-4DEC-9F87-849D8AE93E3A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{30AE1A5D-775A-4DEC-9F87-849D8AE93E3A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{6ABC0D66-F577-44A7-8F61-B23882B7A1FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6ABC0D66-F577-44A7-8F61-B23882B7A1FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6ABC0D66-F577-44A7-8F61-B23882B7A1FF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6ABC0D66-F577-44A7-8F61-B23882B7A1FF}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6ABC0D66-F577-44A7-8F61-B23882B7A1FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6ABC0D66-F577-44A7-8F61-B23882B7A1FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6ABC0D66-F577-44A7-8F61-B23882B7A1FF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6ABC0D66-F577-44A7-8F61-B23882B7A1FF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
