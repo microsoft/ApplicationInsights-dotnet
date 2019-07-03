@@ -80,13 +80,8 @@
         SamplingTelemetryItemTypes ItemTypeFlag { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether item can be sampled out proactively.
+        /// Gets or sets a value indicating whether item was sampled out at head.
         /// </summary>
-        bool SupportsProactiveSampling { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether item was proactively sampled out.
-        /// </summary>
-        bool IsProactivelySampledOut { get; set; }
+        bool IsSampledOutAtHead { get; set; }
     }
 }

@@ -488,7 +488,7 @@
             ISupportAdvancedSampling telemetryWithSampling = telemetry as ISupportAdvancedSampling;
 
             // Telemetry can be already sampled out if that decision was made before calling Track()
-            bool sampledOut = telemetryWithSampling?.IsProactivelySampledOut ?? false;
+            bool sampledOut = telemetryWithSampling?.IsSampledOutAtHead ?? false;
 
             if (!sampledOut)
             {

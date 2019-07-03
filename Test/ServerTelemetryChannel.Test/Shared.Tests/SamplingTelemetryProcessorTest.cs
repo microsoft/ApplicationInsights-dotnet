@@ -394,7 +394,7 @@
                                                                                     sentTelemetry,
                                                                                     100);
             var sampledOutTelemetry = new RequestTelemetry();
-            sampledOutTelemetry.IsProactivelySampledOut = true;
+            sampledOutTelemetry.IsSampledOutAtHead = true;
 
             telemetryProcessorChainWithSampling.Process(sampledOutTelemetry);
             telemetryProcessorChainWithSampling.Dispose();
@@ -412,7 +412,7 @@
             for (int i = 0; i < 100; i++)
             {
                 var sampledOutTelemetry = new RequestTelemetry();
-                sampledOutTelemetry.IsProactivelySampledOut = true;
+                sampledOutTelemetry.IsSampledOutAtHead = true;
 
                 telemetryProcessorChainWithSampling.Process(sampledOutTelemetry);
             }
@@ -438,7 +438,7 @@
                 var sampledOutTelemetry = new RequestTelemetry();
 
                 // This makes those items proactively sampled out
-                sampledOutTelemetry.IsProactivelySampledOut = true;
+                sampledOutTelemetry.IsSampledOutAtHead = true;
 
                 // This operation ID hash is lower than 25, so every item in this batch is sampled in
                 sampledOutTelemetry.Context.Operation.Id = "abcdfeghijk";

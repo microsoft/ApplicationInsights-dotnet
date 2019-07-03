@@ -58,8 +58,7 @@
             this.extension = source.extension?.DeepClone();
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
-            this.IsProactivelySampledOut = source.IsProactivelySampledOut;
-            this.SupportsProactiveSampling = source.SupportsProactiveSampling;
+            this.IsSampledOutAtHead = source.IsSampledOutAtHead;
         }
 
         /// <inheritdoc />
@@ -184,10 +183,7 @@
         public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.PageView;
 
         /// <inheritdoc/>
-        public bool IsProactivelySampledOut { get; set; } = false;
-
-        /// <inheritdoc/>
-        public bool SupportsProactiveSampling { get; set; } = false;
+        public bool IsSampledOutAtHead { get; set; } = false;
 
         /// <summary>
         /// Deeply clones a <see cref="PageViewTelemetry"/> object.

@@ -12,6 +12,7 @@
 
     /// <summary>
     /// Represents a telemetry processor for sampling telemetry at a fixed-rate before sending to Application Insights.
+    /// Supports telemetry items sampled at head, adjusts gain up accordingly.
     /// </summary>
     public sealed class SamplingTelemetryProcessor : ITelemetryProcessor
     {
@@ -245,7 +246,7 @@
 
             if (advancedSamplingSupportingTelemetry != null)
             {
-                if (advancedSamplingSupportingTelemetry.IsProactivelySampledOut)
+                if (advancedSamplingSupportingTelemetry.IsSampledOutAtHead)
                 {
                     this.proactivelySampledOutCounters.AddItems(advancedSamplingSupportingTelemetry.ItemTypeFlag, Convert.ToInt64(100 / currentSamplingPercentage));
 

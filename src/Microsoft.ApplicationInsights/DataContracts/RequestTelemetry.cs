@@ -83,8 +83,7 @@
             this.successFieldSet = source.successFieldSet;
             this.extension = source.extension?.DeepClone();
             this.samplingPercentage = source.samplingPercentage;
-            this.IsProactivelySampledOut = source.IsProactivelySampledOut;
-            this.SupportsProactiveSampling = source.SupportsProactiveSampling;
+            this.IsSampledOutAtHead = source.IsSampledOutAtHead;
         }
 
         /// <inheritdoc />
@@ -244,10 +243,7 @@
         public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Request;
 
         /// <inheritdoc/>
-        public bool IsProactivelySampledOut { get; set; } = false;
-
-        /// <inheritdoc/>
-        public bool SupportsProactiveSampling { get; set; } = true;
+        public bool IsSampledOutAtHead { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the source for the request telemetry object. This often is a hashed instrumentation key identifying the caller.

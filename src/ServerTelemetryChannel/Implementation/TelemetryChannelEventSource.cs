@@ -520,7 +520,7 @@
                 this.ApplicationName);
         }
 
-        [Event(72, Message = "Proactively Sampled out: {0}.", Level = EventLevel.Verbose)]
+        [Event(72, Message = "Sampled out at head, sampled in at tail, gain up calculated: {0}.", Level = EventLevel.Verbose)]
         public void ItemProactivelySampledOut(string telemetryType, string appDomainName = "Incorrect")
         {
             this.WriteEvent(72, telemetryType ?? string.Empty, this.ApplicationName);

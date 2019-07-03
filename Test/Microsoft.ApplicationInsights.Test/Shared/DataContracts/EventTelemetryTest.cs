@@ -17,8 +17,7 @@
         public void VerifyExpectedDefaultValue()
         {
             var eventTelemetry = new EventTelemetry();
-            Assert.IsFalse(eventTelemetry.SupportsProactiveSampling);
-            Assert.IsFalse(eventTelemetry.IsProactivelySampledOut);
+            Assert.IsFalse(eventTelemetry.IsSampledOutAtHead);
             Assert.AreEqual(SamplingTelemetryItemTypes.Event, eventTelemetry.ItemTypeFlag);
         }
 
