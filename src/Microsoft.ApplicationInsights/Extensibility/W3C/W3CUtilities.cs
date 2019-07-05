@@ -3,6 +3,7 @@
     using System;
     using System.ComponentModel;
     using System.Globalization;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
     /// W3C distributed tracing utilities.
@@ -20,7 +21,10 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static string GenerateTraceId()
         {
-            return GenerateId(Guid.NewGuid().ToByteArray(), 0, 16);
+            byte[] firstHalf = BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next());
+            byte[] secondHalf = BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next());
+
+            return GenerateId(firstHalf, secondHalf, 0, 16);
         }
 
         /// <summary>
@@ -31,7 +35,7 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         internal static string GenerateSpanId()
         {
-            return GenerateId(Guid.NewGuid().ToByteArray(), 0, 8);
+            return GenerateId(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()), 0, 8);
         }
 
         /// <summary>
@@ -45,6 +49,25 @@
             for (int i = start; i < start + length; i++)
             {
                 var val = Lookup32[bytes[i]];
+                result[2 * i] = (char)val;
+                result[(2 * i) + 1] = (char)(val >> 16);
+            }
+
+            return new string(result);
+        }
+
+        /// <summary>
+        /// Converts byte arrays to hex lower case string.
+        /// </summary>
+        /// <returns>Array encoded as hex string.</returns>
+        private static string GenerateId(byte[] firstHalf, byte[] secondHalf, int start, int length)
+        {
+            // See https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa/24343727#24343727
+            var result = new char[length * 2];
+            int arrayBorder = length / 2;
+            for (int i = start; i < start + length; i++)
+            {
+                var val = Lookup32[i < arrayBorder ? firstHalf[i] : secondHalf[i - arrayBorder]];
                 result[2 * i] = (char)val;
                 result[(2 * i) + 1] = (char)(val >> 16);
             }

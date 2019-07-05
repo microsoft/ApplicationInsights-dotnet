@@ -15,7 +15,50 @@ static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.Set
 static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.UpdateContextOnActivity(this System.Diagnostics.Activity activity) -> System.Diagnostics.Activity
 static Microsoft.ApplicationInsights.Extensibility.W3C.W3CActivityExtensions.UpdateTelemetry(this System.Diagnostics.Activity activity, Microsoft.ApplicationInsights.Channel.ITelemetry telemetry, bool forceUpdate) -> void
 Microsoft.ApplicationInsights.TelemetryClient.InitializeInstrumentationKey(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> void
-
+Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationExtensions
+static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationExtensions.GetLastObservedSamplingPercentage(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration, Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes samplingItemType) -> double
+static Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationExtensions.SetLastObservedSamplingPercentage(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration configuration, Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes samplingItemType, double value) -> void
+Microsoft.ApplicationInsights.Channel.SamplingScoreGenerator
+static Microsoft.ApplicationInsights.Channel.SamplingScoreGenerator.GetSamplingScore(string value) -> double
+static Microsoft.ApplicationInsights.Channel.SamplingScoreGenerator.GetSamplingScore(Microsoft.ApplicationInsights.Channel.ITelemetry telemetry) -> double
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.None = 0 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Event = 1 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Exception = 2 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Message = 4 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Metric = 8 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.PageView = 16 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.PageViewPerformance = 32 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.PerformanceCounter = 64 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.RemoteDependency = 128 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Request = 256 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.SessionState = 512 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes.Availability = 1024 -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.ItemTypeFlag.get -> Microsoft.ApplicationInsights.DataContracts.SamplingTelemetryItemTypes
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.IsSampledOutAtHead.get -> bool
+Microsoft.ApplicationInsights.DataContracts.ISupportAdvancedSampling.IsSampledOutAtHead.set -> void
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.IsSampledOutAtHead.get -> bool
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.IsSampledOutAtHead.get -> bool
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.IsSampledOutAtHead.get -> bool
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.IsSampledOutAtHead.get -> bool
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.IsSampledOutAtHead.get -> bool
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.IsSampledOutAtHead.get -> bool
+Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.IsSampledOutAtHead.get -> bool
+Microsoft.ApplicationInsights.DataContracts.DependencyTelemetry.IsSampledOutAtHead.set -> void
+Microsoft.ApplicationInsights.DataContracts.EventTelemetry.IsSampledOutAtHead.set -> void
+Microsoft.ApplicationInsights.DataContracts.TraceTelemetry.IsSampledOutAtHead.set -> void
+Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry.IsSampledOutAtHead.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewPerformanceTelemetry.IsSampledOutAtHead.set -> void
+Microsoft.ApplicationInsights.DataContracts.PageViewTelemetry.IsSampledOutAtHead.set -> void
+Microsoft.ApplicationInsights.DataContracts.RequestTelemetry.IsSampledOutAtHead.set -> void
 Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental.ExperimentalFeaturesExtension
 Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration.ExperimentalFeatures.get -> System.Collections.Generic.IList<string>
 static Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental.ExperimentalFeaturesExtension.EvaluateExperimentalFeature(this Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration telemetryConfiguration, string featureName) -> bool

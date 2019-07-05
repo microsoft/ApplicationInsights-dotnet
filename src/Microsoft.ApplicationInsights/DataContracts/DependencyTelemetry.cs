@@ -17,7 +17,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// The class that represents information about the collected dependency.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=839889">Learn more.</a>
     /// </summary>
-    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
     {
         internal new const string TelemetryName = "RemoteDependency";
         
@@ -106,6 +106,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
+            this.IsSampledOutAtHead = source.IsSampledOutAtHead;
             this.successFieldSet = source.successFieldSet;
             this.extension = source.extension?.DeepClone();
             this.Name = source.Name;
@@ -319,6 +320,14 @@ namespace Microsoft.ApplicationInsights.DataContracts
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
         }
+
+        /// <summary>
+        /// Gets item type for sampling evaluation.
+        /// </summary>
+        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.RemoteDependency;
+
+        /// <inheritdoc/>
+        public bool IsSampledOutAtHead { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the MetricExtractorInfo.

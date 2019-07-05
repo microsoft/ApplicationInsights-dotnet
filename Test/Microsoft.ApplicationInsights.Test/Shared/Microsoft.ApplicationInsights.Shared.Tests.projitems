@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Experimental\ExperimentalFeaturesTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonSerializationWriterTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IExtensionImplementations.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Sampling\SamplingRateStoreTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MetricTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationTelemetryExtensionsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServiceProfiler\Agent\Utilities\ParsedPayload.cs" />
@@ -135,5 +136,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Platform\PlatformReferencesTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\RichPayloadEventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FailOnAssertSetup.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Sampling\" />
   </ItemGroup>
 </Project>

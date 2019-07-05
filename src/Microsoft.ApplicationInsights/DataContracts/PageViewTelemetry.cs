@@ -18,7 +18,7 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
     /// </remarks>
-    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
     {
         internal const string TelemetryName = "PageView";
 
@@ -57,6 +57,8 @@
             this.context = source.context.DeepClone(this.Data.properties);
             this.extension = source.extension?.DeepClone();
             this.Timestamp = source.Timestamp;
+            this.samplingPercentage = source.samplingPercentage;
+            this.IsSampledOutAtHead = source.IsSampledOutAtHead;
         }
 
         /// <inheritdoc />
@@ -174,6 +176,14 @@
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
         }
+
+        /// <summary>
+        /// Gets item type for sampling evaluation.
+        /// </summary>
+        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.PageView;
+
+        /// <inheritdoc/>
+        public bool IsSampledOutAtHead { get; set; } = false;
 
         /// <summary>
         /// Deeply clones a <see cref="PageViewTelemetry"/> object.

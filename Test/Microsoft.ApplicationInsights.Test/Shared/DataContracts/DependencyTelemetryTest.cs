@@ -30,6 +30,8 @@
             Assert.IsNotNull(defaultDependencyTelemetry.ResultCode);            
             Assert.IsNotNull(defaultDependencyTelemetry.Type);
             Assert.IsNotNull(defaultDependencyTelemetry.Id);
+            Assert.IsFalse(defaultDependencyTelemetry.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingTelemetryItemTypes.RemoteDependency, defaultDependencyTelemetry.ItemTypeFlag);
             Assert.IsTrue(defaultDependencyTelemetry.Id.Length >= 1);
         }
 
@@ -252,6 +254,14 @@
             var telemetry = new DependencyTelemetry();
 
             Assert.IsNotNull(telemetry as ISupportSampling);
+        }
+
+        [TestMethod]
+        public void DependencyTelemetryImplementsISupportAdvancedSamplingContract()
+        {
+            var telemetry = new DependencyTelemetry();
+
+            Assert.IsNotNull(telemetry as ISupportAdvancedSampling);
         }
 
         [TestMethod]

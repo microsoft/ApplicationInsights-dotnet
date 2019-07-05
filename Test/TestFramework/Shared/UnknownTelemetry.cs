@@ -47,7 +47,7 @@
         /// </summary>
         /// <param name="source">Source instance of <see cref="UnknownTelemetry"/> to clone from.</param>
         private UnknownTelemetry(UnknownTelemetry source)
-        {            
+        {
             this.context = source.context.DeepClone(this.Properties);
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;

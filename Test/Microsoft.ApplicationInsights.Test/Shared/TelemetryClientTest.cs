@@ -16,6 +16,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
     using Microsoft.ApplicationInsights.Metrics.TestUtility;
@@ -1148,7 +1149,7 @@
         {
             var sentTelemetry = new List<ITelemetry>();
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var configuration = new TelemetryConfiguration("Test key", channel);
+            var configuration = new TelemetryConfiguration("Test key", channel);            
             var client = new TelemetryClient(configuration);
 
             const int ItemsToGenerate = 100;
@@ -1161,6 +1162,35 @@
             Assert.AreEqual(ItemsToGenerate, sentTelemetry.Count);
         }
 
+        [TestMethod]
+        public void ProactivelySampledOutTelemetryIsNotInitialized()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
+
+            var configuration = new TelemetryConfiguration("Test key", channel);
+
+            var initializedTelemetry = new List<ITelemetry>();
+            var telemetryInitializer = new StubTelemetryInitializer();
+            telemetryInitializer.OnInitialize = item =>
+            {   
+                initializedTelemetry.Add(item);
+            };
+
+            configuration.TelemetryInitializers.Add(telemetryInitializer);
+
+            var client = new TelemetryClient(configuration);
+
+            var telemetry = new RequestTelemetry();
+            telemetry.IsSampledOutAtHead = true;
+            client.Track(telemetry);
+
+            Assert.IsTrue(telemetry.IsSampledOutAtHead);
+            Assert.AreEqual(0, initializedTelemetry.Count);
+            Assert.IsNull(telemetry.Context.Internal.SdkVersion);
+            Assert.IsNull(telemetry.Context.Internal.NodeName);            
+            Assert.AreEqual(1, sentTelemetry.Count);
+        }
         #endregion
 
         #region ValidateEndpoint

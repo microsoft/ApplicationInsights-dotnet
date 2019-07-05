@@ -4,12 +4,12 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Sampling;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Metrics;
     using Microsoft.ApplicationInsights.Metrics.Extensibility;
@@ -23,11 +23,14 @@
     /// </remarks>
     public sealed class TelemetryConfiguration : IDisposable
     {
+        internal readonly SamplingRateStore LastKnownSampleRateStore = new SamplingRateStore();
+
         private static object syncRoot = new object();
         private static TelemetryConfiguration active;
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
         private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
+        
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;

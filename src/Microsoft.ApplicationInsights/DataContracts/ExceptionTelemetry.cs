@@ -16,7 +16,7 @@
     /// <remarks>
     /// Additional exception details will need to be tracked manually.
     /// </remarks>
-    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IAiSerializableTelemetry
+    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, ISupportMetrics, IAiSerializableTelemetry
     {
         internal const string TelemetryName = "Exception";
 
@@ -88,6 +88,7 @@
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.samplingPercentage = source.samplingPercentage;
+            this.IsSampledOutAtHead = source.IsSampledOutAtHead;
 
             if (!this.isCreatedFromExceptionInfo)
             {
@@ -272,6 +273,14 @@
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
         }
+
+        /// <summary>
+        /// Gets item type for sampling evaluation.
+        /// </summary>
+        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Exception;
+
+        /// <inheritdoc/>
+        public bool IsSampledOutAtHead { get; set; } = false;
 
         internal IList<ExceptionDetails> Exceptions
         {

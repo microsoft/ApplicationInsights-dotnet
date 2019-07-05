@@ -1,14 +1,23 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
+﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
-
-    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
     /// Utility class for sampling score generation.
     /// </summary>
-    internal static class SamplingScoreGenerator
+    public static class SamplingScoreGenerator
     {
+        /// <summary>
+        ///  Generates telemetry sampling score between 0 and 100.
+        /// </summary>
+        /// <param name="value">String value to generate score.</param>
+        /// <returns>Item sampling score.</returns>
+        public static double GetSamplingScore(string value)
+        {
+            return (double)value.GetSamplingHashCode() / int.MaxValue * 100;
+        }
+
         /// <summary>
         /// Generates telemetry sampling score between 0 and 100.
         /// </summary>

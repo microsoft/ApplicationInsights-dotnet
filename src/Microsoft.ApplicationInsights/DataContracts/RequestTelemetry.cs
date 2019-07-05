@@ -20,7 +20,7 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
     /// </remarks>
-    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling, IAiSerializableTelemetry
+    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportAdvancedSampling, IAiSerializableTelemetry
     {
         internal new const string TelemetryName = "Request";
 
@@ -82,6 +82,8 @@
             this.Timestamp = source.Timestamp;
             this.successFieldSet = source.successFieldSet;
             this.extension = source.extension?.DeepClone();
+            this.samplingPercentage = source.samplingPercentage;
+            this.IsSampledOutAtHead = source.IsSampledOutAtHead;
         }
 
         /// <inheritdoc />
@@ -236,6 +238,14 @@
         }
 
         /// <summary>
+        /// Gets item type for sampling evaluation.
+        /// </summary>
+        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.Request;
+
+        /// <inheritdoc/>
+        public bool IsSampledOutAtHead { get; set; } = false;
+
+        /// <summary>
         /// Gets or sets the source for the request telemetry object. This often is a hashed instrumentation key identifying the caller.
         /// </summary>
         public string Source
@@ -312,7 +322,15 @@
         {
             this.Name = this.Name.SanitizeName();
             this.Properties.SanitizeProperties();
-            this.Metrics.SanitizeMeasurements();
+            if (this.measurementsValue != null)
+            {
+                this.Metrics.SanitizeMeasurements();
+            }
+            else
+            {
+                this.measurementsValue = new Dictionary<string, double>();
+            }
+
             this.Url = this.Url.SanitizeUri();
 
             // Set for backward compatibility:
