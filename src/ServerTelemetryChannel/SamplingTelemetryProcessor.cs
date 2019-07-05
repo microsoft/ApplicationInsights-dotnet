@@ -248,6 +248,7 @@
             {
                 if (advancedSamplingSupportingTelemetry.IsSampledOutAtHead)
                 {
+                    // Item is sampled in but was proactively sampled out: store the amount of items it represented and drop it
                     this.proactivelySampledOutCounters.AddItems(advancedSamplingSupportingTelemetry.ItemTypeFlag, Convert.ToInt64(100 / currentSamplingPercentage));
 
                     if (TelemetryChannelEventSource.IsVerboseEnabled)
@@ -260,6 +261,11 @@
                     var proactivelySampledOutItemsCount = this.proactivelySampledOutCounters.GetItems(advancedSamplingSupportingTelemetry.ItemTypeFlag);
                     if (proactivelySampledOutItemsCount > 0)
                     {
+                        // The item is sampled in and may need to represent all proactively sampled out items and itself.
+                        // The current item with sample rate SR represents 100/SR items.
+                        // We stored that it needs to represent X more items.
+                        // We need to adjust sample rate to represent (100/SR + X) items in 1 item.
+                        // It is 100 / (100/SR + X) = 100 / ((100 + X*SR)/SR) = (100 * SR) / (100 + X*SR)
                         advancedSamplingSupportingTelemetry.SamplingPercentage = (100 * advancedSamplingSupportingTelemetry.SamplingPercentage) / (100 + (proactivelySampledOutItemsCount * advancedSamplingSupportingTelemetry.SamplingPercentage));
                         this.proactivelySampledOutCounters.ClearItems(advancedSamplingSupportingTelemetry.ItemTypeFlag);
                     }
