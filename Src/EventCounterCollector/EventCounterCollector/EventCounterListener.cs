@@ -156,21 +156,23 @@
                 double actualValue = 0.0;
                 double actualInterval = 0.0;
                 int actualCount = 0;
+                string counterName = string.Empty;
+                string counterDisplayName = string.Empty;
                 foreach (KeyValuePair<string, object> payload in eventPayload)
                 {
                     var key = payload.Key;
                     if (key.Equals("Name", StringComparison.OrdinalIgnoreCase))
                     {
-                        var counterName = payload.Value.ToString();
-                        if (this.countersToCollect[eventSourceName].Contains(counterName))
-                        {
-                            metricTelemetry.Name = eventSourceName + "|" + counterName;
-                        }
-                        else
+                        counterName = payload.Value.ToString();
+                        if (!this.countersToCollect[eventSourceName].Contains(counterName))                        
                         {
                             EventCounterCollectorEventSource.Log.IgnoreEventWrittenAsCounterNotInConfiguredList(eventSourceName, counterName);
                             return;
                         }
+                    }
+                    else if (key.Equals("DisplayName", StringComparison.OrdinalIgnoreCase))
+                    {
+                        counterDisplayName = payload.Value.ToString();
                     }
                     else if (key.Equals("Mean", StringComparison.OrdinalIgnoreCase))
                     {
@@ -214,6 +216,10 @@
                 {
                     metricTelemetry.Sum = actualValue;
                 }
+
+                // DisplayName is the recommended name. We fallback to counterName is DisplayName not available.
+                var name = string.IsNullOrEmpty(counterDisplayName) ? counterName : counterDisplayName;
+                metricTelemetry.Name = eventSourceName + "|" + name;
 
                 // This will make the counter appear under PerformanceCounter as opposed to CustomMetrics in Application Insights Analytics(Kusto) tables.
                 metricTelemetry.Properties.Add("CustomPerfCounter", "true");
