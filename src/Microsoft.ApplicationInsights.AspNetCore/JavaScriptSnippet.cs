@@ -41,12 +41,12 @@
             TelemetryConfiguration telemetryConfiguration,
             IOptions<ApplicationInsightsServiceOptions> serviceOptions,
             IHttpContextAccessor httpContextAccessor,
-            JavaScriptEncoder encoder)
+            JavaScriptEncoder encoder = null)
         {
             this.telemetryConfiguration = telemetryConfiguration;
             this.httpContextAccessor = httpContextAccessor;
             this.enableAuthSnippet = serviceOptions.Value.EnableAuthenticationTrackingJavaScript;
-            this.encoder = encoder;
+            this.encoder = (encoder == null) ? JavaScriptEncoder.Default : encoder;
         }
 
         /// <summary>
