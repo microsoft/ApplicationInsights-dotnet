@@ -11,7 +11,7 @@
     /// <summary>
     /// Telemetry type used to track page load performance.
     /// </summary>
-    public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IAiSerializableTelemetry
+    public sealed class PageViewPerformanceTelemetry : ITelemetry, ISupportProperties, ISupportAdvancedSampling, IAiSerializableTelemetry
     {
         internal const string TelemetryName = "PageViewPerformance";
 
@@ -47,6 +47,8 @@
             this.Data = source.Data.DeepClone();
             this.Context = source.Context.DeepClone(this.Data.properties);
             this.extension = source.extension?.DeepClone();
+            this.samplingPercentage = source.samplingPercentage;
+            this.IsSampledOutAtHead = source.IsSampledOutAtHead;
         }
 
         /// <inheritdoc />
@@ -206,6 +208,14 @@
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
         }
+
+        /// <summary>
+        /// Gets item type for sampling evaluation.
+        /// </summary>
+        public SamplingTelemetryItemTypes ItemTypeFlag => SamplingTelemetryItemTypes.PageViewPerformance;
+
+        /// <inheritdoc/>
+        public bool IsSampledOutAtHead { get; set; } = false;
 
         /// <summary>
         /// Deeply clones a <see cref="PageViewTelemetry"/> object.

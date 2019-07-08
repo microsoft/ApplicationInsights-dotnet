@@ -35,6 +35,8 @@
             Assert.IsNotNull(item.Properties);
             AssertEx.IsEmpty(item.Message);
             Assert.IsNull(item.SeverityLevel);
+            Assert.IsFalse(item.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingTelemetryItemTypes.Message, item.ItemTypeFlag);
         }
 
         [TestMethod]
@@ -45,6 +47,8 @@
             Assert.IsNotNull(item.Properties);
             Assert.AreEqual("TestMessage", item.Message);
             Assert.IsNull(item.SeverityLevel);
+            Assert.IsFalse(item.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingTelemetryItemTypes.Message, item.ItemTypeFlag);
         }
 
         [TestMethod]
@@ -55,6 +59,8 @@
             Assert.IsNotNull(trace.Properties);
             Assert.AreEqual("TestMessage", trace.Message);
             Assert.AreEqual(SeverityLevel.Critical, trace.SeverityLevel);
+            Assert.IsFalse(trace.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingTelemetryItemTypes.Message, trace.ItemTypeFlag);
         }
 
         [TestMethod]
@@ -133,6 +139,14 @@
             var telemetry = new TraceTelemetry();
 
             Assert.IsNotNull(telemetry as ISupportSampling);
+        }
+
+        [TestMethod]
+        public void TraceTelemetryImplementsISupportAdvancedSamplingContract()
+        {
+            var telemetry = new TraceTelemetry();
+
+            Assert.IsNotNull(telemetry as ISupportAdvancedSampling);
         }
 
         [TestMethod]

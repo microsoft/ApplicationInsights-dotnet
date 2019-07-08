@@ -167,7 +167,7 @@
                                     wrapper = new HttpWebResponseWrapper
                                     {
                                         StatusCode = (int)response.StatusCode,
-                                        StatusDescription = response.ReasonPhrase // maybe not required?
+                                        StatusDescription = response.ReasonPhrase, // maybe not required?
                                     };
                                     wrapper.RetryAfterHeader = response.Headers?.RetryAfter?.ToString();
 
@@ -204,7 +204,7 @@
                     {                        
                         wrapper = new HttpWebResponseWrapper
                         {
-                            StatusCode = (int)HttpStatusCode.RequestTimeout
+                            StatusCode = (int)HttpStatusCode.RequestTimeout,
                         };
                     }
 

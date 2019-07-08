@@ -23,7 +23,7 @@
             {
                 Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 #endif
-            return exception.ToString();
+                return exception.ToString();
 #if !NETSTANDARD1_3
             }
             finally

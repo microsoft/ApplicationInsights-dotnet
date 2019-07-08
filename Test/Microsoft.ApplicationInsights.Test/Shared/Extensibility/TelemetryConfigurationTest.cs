@@ -80,7 +80,7 @@
         {
             Assert.IsFalse(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").GetSetMethod(true).IsPublic);
         }
-
+#pragma warning disable 612, 618
         [TestMethod]
         public void ActiveIsLazilyInitializedToDelayCostOfLoadingConfigurationFromFile()
         {
@@ -186,7 +186,7 @@
                 TelemetryConfigurationFactory.Instance = null;
             }
         }
-
+#pragma warning restore 612, 618
         #endregion
 
         #region CreateDefault
@@ -358,6 +358,16 @@
             {
                 TelemetryConfiguration.CreateFromConfiguration(" ");
             });
+        }
+        #endregion
+
+        #region Sampling Store
+        [TestMethod]
+        public void TelemetryConfigurationAllowsToManageLastKnownSampleRate()
+        {
+            var configuration = new TelemetryConfiguration();
+            configuration.SetLastObservedSamplingPercentage(DataContracts.SamplingTelemetryItemTypes.Request, 10);
+            Assert.AreEqual(configuration.GetLastObservedSamplingPercentage(DataContracts.SamplingTelemetryItemTypes.Request), 10);
         }
         #endregion
 

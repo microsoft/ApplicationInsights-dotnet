@@ -59,7 +59,7 @@
             this.estimatorProcessor = new SamplingPercentageEstimatorTelemetryProcessor(settings, this.SamplingPercentageChanged, next);
             this.samplingProcessor = new SamplingTelemetryProcessor(next, this.estimatorProcessor)
             {
-                SamplingPercentage = this.estimatorSettings.InitialSamplingPercentage
+                SamplingPercentage = this.estimatorSettings.InitialSamplingPercentage,
             };
         }
 

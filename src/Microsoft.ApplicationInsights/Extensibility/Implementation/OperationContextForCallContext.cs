@@ -26,7 +26,7 @@
 
         /// <summary>
         /// Context that is propagated with HTTP outbound calls, check for null.
-        /// <see href="https://github.com/lmolkova/correlation/blob/master/http_protocol_proposal_v1.md"/> 
+        /// <see href="https://github.com/lmolkova/correlation/blob/master/http_protocol_proposal_v1.md"/>. 
         /// </summary>
         public IDictionary<string, string> CorrelationContext;
     }

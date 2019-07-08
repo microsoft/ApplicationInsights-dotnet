@@ -14,6 +14,14 @@
     public class EventTelemetryTest
     {
         [TestMethod]
+        public void VerifyExpectedDefaultValue()
+        {
+            var eventTelemetry = new EventTelemetry();
+            Assert.IsFalse(eventTelemetry.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingTelemetryItemTypes.Event, eventTelemetry.ItemTypeFlag);
+        }
+
+        [TestMethod]
         public void EventTelemetryIsPublic()
         {
             Assert.IsTrue(typeof(EventTelemetry).GetTypeInfo().IsPublic);
@@ -144,6 +152,14 @@
             var telemetry = new EventTelemetry();
 
             Assert.IsNotNull(telemetry as ISupportSampling);
+        }
+
+        [TestMethod]
+        public void EventTelemetryImplementsISupportAdvancedSamplingContract()
+        {
+            var telemetry = new EventTelemetry();
+
+            Assert.IsNotNull(telemetry as ISupportAdvancedSampling);
         }
 
         [TestMethod]

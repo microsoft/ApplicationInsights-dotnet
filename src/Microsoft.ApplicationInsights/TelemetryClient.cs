@@ -3,10 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Globalization;
-    using System.Linq;
-    using System.Reflection;
-    using System.Threading;
+    using System.Globalization;    
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -26,13 +23,18 @@
         private const string VersionPrefix = "dotnetc:";
 #else
         private const string VersionPrefix = "dotnet:";
-#endif
+#endif  
         private readonly TelemetryConfiguration configuration;
+
         private string sdkVersion;
-        
+
+#pragma warning disable 612, 618 // TelemetryConfiguration.Active
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the active configuration, usually loaded from ApplicationInsights.config.
         /// </summary>
+#if NETSTANDARD1_3 || NETSTANDARD2_0
+        [Obsolete("We do not recommend using TelemetryConfiguration.Active on .NET Core. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/1152 for more details")]
+#endif
         public TelemetryClient() : this(TelemetryConfiguration.Active)
         {
         }
@@ -57,6 +59,7 @@
                 throw new ArgumentException("The specified configuration does not have a telemetry channel.", nameof(configuration));
             }
         }
+#pragma warning restore 612, 618 // TelemetryConfiguration.Active
 
         /// <summary>
         /// Gets the current context that will be used to augment telemetry you send.
@@ -219,17 +222,16 @@
         }
 
         /// <summary>
-        /// This method is deprecated. Metrics should always be pre-aggregated across a time period before being sent.<br />
+        /// This method is not the preferred method for sending metrics.
+        /// Metrics should always be pre-aggregated across a time period before being sent.<br />
         /// Use one of the <c>GetMetric(..)</c> overloads to get a metric object for accessing SDK pre-aggregation capabilities.<br />
-        /// If you are implementing your own pre-aggregation logic, you can use the <c>Track(ITelemetry metricTelemetry)</c> method to
-        /// send the resulting aggregates.<br />
+        /// If you are implementing your own pre-aggregation logic, then you can use this method.
         /// If your application requires sending a separate telemetry item at every occasion without aggregation across time,
         /// you likely have a use case for event telemetry; see <see cref="TrackEvent(EventTelemetry)"/>.
         /// </summary>
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
-        /// <param name="properties">Named string values you can use to classify and filter metrics.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        /// <param name="properties">Named string values you can use to classify and filter metrics.</param>        
         public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
         {
             var telemetry = new MetricTelemetry(name, value);
@@ -242,15 +244,14 @@
         }
 
         /// <summary>
-        /// This method is deprecated. Metrics should always be pre-aggregated across a time period before being sent.<br />
+        /// This method is not the preferred method for sending metrics.
+        /// Metrics should always be pre-aggregated across a time period before being sent.<br />
         /// Use one of the <c>GetMetric(..)</c> overloads to get a metric object for accessing SDK pre-aggregation capabilities.<br />
-        /// If you are implementing your own pre-aggregation logic, you can use the <c>Track(ITelemetry metricTelemetry)</c> method to
-        /// send the resulting aggregates.<br />
+        /// If you are implementing your own pre-aggregation logic, then you can use this method.
         /// If your application requires sending a separate telemetry item at every occasion without aggregation across time,
         /// you likely have a use case for event telemetry; see <see cref="TrackEvent(EventTelemetry)"/>.
         /// </summary>
-        /// <param name="telemetry">The metric telemetry item.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        /// <param name="telemetry">The metric telemetry item.</param>        
         public void TrackMetric(MetricTelemetry telemetry)
         {
             if (telemetry == null)
@@ -294,7 +295,7 @@
 
         /// <summary>
         /// Send an <see cref="ExceptionTelemetry"/> for display in Diagnostic Search.
-        /// Create a separate <see cref="ExceptionTelemetry"/> instance for each call to <see cref="TrackException(ExceptionTelemetry)"/>
+        /// Create a separate <see cref="ExceptionTelemetry"/> instance for each call to <see cref="TrackException(ExceptionTelemetry)"/>.
         /// </summary>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackexception">Learn more</a>
@@ -367,7 +368,7 @@
 
         /// <summary>
         /// Send information about external dependency call in the application.
-        /// Create a separate <see cref="DependencyTelemetry"/> instance for each call to <see cref="TrackDependency(DependencyTelemetry)"/>
+        /// Create a separate <see cref="DependencyTelemetry"/> instance for each call to <see cref="TrackDependency(DependencyTelemetry)"/>.
         /// </summary>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
@@ -415,7 +416,7 @@
 
         /// <summary>
         /// Send information about availability of an application.
-        /// Create a separate <see cref="AvailabilityTelemetry"/> instance for each call to <see cref="TrackAvailability(AvailabilityTelemetry)"/>
+        /// Create a separate <see cref="AvailabilityTelemetry"/> instance for each call to <see cref="TrackAvailability(AvailabilityTelemetry)"/>.
         /// </summary>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
@@ -484,73 +485,86 @@
                 instrumentationKey = this.configuration.InstrumentationKey;
             }
 
-            var telemetryWithProperties = telemetry as ISupportProperties;
-            if (telemetryWithProperties != null)
+            ISupportAdvancedSampling telemetryWithSampling = telemetry as ISupportAdvancedSampling;
+
+            // Telemetry can be already sampled out if that decision was made before calling Track()
+            bool sampledOut = telemetryWithSampling?.IsSampledOutAtHead ?? false;
+
+            if (!sampledOut)
             {
-                if ((this.configuration.TelemetryChannel != null) && (this.configuration.TelemetryChannel.DeveloperMode.HasValue && this.configuration.TelemetryChannel.DeveloperMode.Value))
+                var telemetryWithProperties = telemetry as ISupportProperties;
+                if (telemetryWithProperties != null)
                 {
-                    if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
+                    if ((this.configuration.TelemetryChannel != null) && (this.configuration.TelemetryChannel.DeveloperMode.HasValue && this.configuration.TelemetryChannel.DeveloperMode.Value))
                     {
-                        telemetryWithProperties.Properties.Add("DeveloperMode", "true");
+                        if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
+                        {
+                            telemetryWithProperties.Properties.Add("DeveloperMode", "true");
+                        }
                     }
                 }
-            }
 
-            // Properties set of TelemetryClient's Context are copied over to that of ITelemetry's Context
+                // Properties set of TelemetryClient's Context are copied over to that of ITelemetry's Context
 #pragma warning disable CS0618 // Type or member is obsolete
-            if (this.Context.PropertiesValue != null)
-            {
-                Utils.CopyDictionary(this.Context.Properties, telemetry.Context.Properties);
-            }
+                if (this.Context.PropertiesValue != null)
+                {
+                    Utils.CopyDictionary(this.Context.Properties, telemetry.Context.Properties);
+                }
 
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            // This check avoids accessing the public accessor GlobalProperties
-            // unless needed, to avoid the penalty of ConcurrentDictionary instantiation.
-            if (this.Context.GlobalPropertiesValue != null)
-            {
-                Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
-            }
-
-            telemetry.Context.Initialize(this.Context, instrumentationKey);
-            foreach (ITelemetryInitializer initializer in this.configuration.TelemetryInitializers)
-            {
-                try
+                // This check avoids accessing the public accessor GlobalProperties
+                // unless needed, to avoid the penalty of ConcurrentDictionary instantiation.
+                if (this.Context.GlobalPropertiesValue != null)
                 {
-                    initializer.Initialize(telemetry);
+                    Utils.CopyDictionary(this.Context.GlobalProperties, telemetry.Context.GlobalProperties);
                 }
-                catch (Exception exception)
+
+                telemetry.Context.Initialize(this.Context, instrumentationKey);
+
+                for (int index = 0; index < this.configuration.TelemetryInitializers.Count; index++)
                 {
-                    CoreEventSource.Log.LogError(string.Format(
-                                                    CultureInfo.InvariantCulture,
-                                                    "Exception while initializing {0}, exception message - {1}",
-                                                    initializer.GetType().FullName,
-                                                    exception));
+                    try
+                    {
+                        this.configuration.TelemetryInitializers[index].Initialize(telemetry);
+                    }
+                    catch (Exception exception)
+                    {
+                        CoreEventSource.Log.LogError(string.Format(
+                                                        CultureInfo.InvariantCulture,
+                                                        "Exception while initializing {0}, exception message - {1}",
+                                                        this.configuration.TelemetryInitializers[index].GetType().FullName,
+                                                        exception));
+                    }
+                }
+
+                if (telemetry.Timestamp == default(DateTimeOffset))
+                {
+                    telemetry.Timestamp = PreciseTimestamp.GetUtcNow();
+                }
+
+                // Currently backend requires SDK version to comply "name: version"
+                if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
+                {
+                    var version = this.sdkVersion ?? (this.sdkVersion = SdkVersionUtils.GetSdkVersion(VersionPrefix));
+                    telemetry.Context.Internal.SdkVersion = version;
+                }
+
+                // set NodeName to the machine name if it's not initialized yet, if RoleInstance is also not set then we send only RoleInstance
+                if (string.IsNullOrEmpty(telemetry.Context.Internal.NodeName) && !string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
+                {
+                    telemetry.Context.Internal.NodeName = PlatformSingleton.Current.GetMachineName();
+                }
+
+                // set RoleInstance to the machine name if it's not initialized yet
+                if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
+                {
+                    telemetry.Context.Cloud.RoleInstance = PlatformSingleton.Current.GetMachineName();
                 }
             }
-
-            if (telemetry.Timestamp == default(DateTimeOffset))
+            else
             {
-                telemetry.Timestamp = PreciseTimestamp.GetUtcNow();
-            }
-
-            // Currently backend requires SDK version to comply "name: version"
-            if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
-            {
-                var version = this.sdkVersion ?? (this.sdkVersion = SdkVersionUtils.GetSdkVersion(VersionPrefix));
-                telemetry.Context.Internal.SdkVersion = version;
-            }
-
-            // set NodeName to the machine name if it's not initialized yet, if RoleInstance is also not set then we send only RoleInstance
-            if (string.IsNullOrEmpty(telemetry.Context.Internal.NodeName) && !string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
-            {
-                telemetry.Context.Internal.NodeName = PlatformSingleton.Current.GetMachineName();
-            }
-
-            // set RoleInstance to the machine name if it's not initialized yet
-            if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
-            {
-                telemetry.Context.Cloud.RoleInstance = PlatformSingleton.Current.GetMachineName();
+                CoreEventSource.Log.InitializationIsSkippedForSampledItem();
             }
         }
 
@@ -624,8 +638,7 @@
         /// </remarks>
         public void Flush()
         {
-            MetricManager privateMetricManager;
-            if (this.TryGetMetricManager(out privateMetricManager))
+            if (this.TryGetMetricManager(out MetricManager privateMetricManager))
             {
                 privateMetricManager.Flush(flushDownstreamPipeline: false);
             }

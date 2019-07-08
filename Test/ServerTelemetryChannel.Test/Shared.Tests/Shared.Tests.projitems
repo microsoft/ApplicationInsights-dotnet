@@ -31,6 +31,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\TelemetryBufferWhichDoesNothingOnFlush.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\TestableBackoffLogicManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationLifecycleTransmissionPolicyTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\AtomicSampledItemsCounterTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\BackoffLogicManagerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\CurrentThreadTaskSchedulerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ErrorHandlingTransmissionPolicyTest.cs" />

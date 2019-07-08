@@ -4,7 +4,7 @@
     using System.Collections.Generic;
 
     /// <summary>
-    /// Partial class to implement ISerializableWithWriter
+    /// Partial class to implement ISerializableWithWriter.
     /// </summary>
     internal partial class RemoteDependencyData
     {

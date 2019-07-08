@@ -3,8 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using DataContracts;
+
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
     /// Base class for telemetry types representing duration in time.
@@ -108,7 +109,7 @@
         /// </summary>
         internal void GenerateId()
         {
-            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+            this.Id = W3C.W3CUtilities.GenerateSpanId();
         }
 
         /// <summary>

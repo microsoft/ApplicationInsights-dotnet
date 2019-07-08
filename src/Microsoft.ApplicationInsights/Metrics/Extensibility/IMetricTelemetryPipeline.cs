@@ -19,12 +19,12 @@
         /// <exception cref="ArgumentException">The runtime class of the specified <c>metricAggregate</c> does not match the
         ///     telemetry destination type represented by this instance of <c>IMetricTelemetryPipeline</c>.</exception>
         /// <exception cref="OperationCanceledException">The specified <c>cancelToken</c> has had cancellation requested.</exception>
-        /// <returns>@ToDo: Complete documentation before stable release. {034}</returns>
+        /// <returns>@ToDo: Complete documentation before stable release. {034}.</returns>
         Task TrackAsync(MetricAggregate metricAggregate, CancellationToken cancelToken);
 
-        /// <summary>@ToDo: Complete documentation before stable release. {453}</summary>
-        /// <param name="cancelToken">@ToDo: Complete documentation before stable release. {697}</param>
-        /// <returns>@ToDo: Complete documentation before stable release. {934}</returns>
+        /// <summary>@ToDo: Complete documentation before stable release. {453}.</summary>
+        /// <param name="cancelToken">@ToDo: Complete documentation before stable release. {697}.</param>
+        /// <returns>@ToDo: Complete documentation before stable release. {934}.</returns>
         Task FlushAsync(CancellationToken cancelToken);
     }
 }

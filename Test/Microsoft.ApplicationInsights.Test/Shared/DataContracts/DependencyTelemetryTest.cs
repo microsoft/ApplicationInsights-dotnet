@@ -7,6 +7,7 @@
     using System.Linq;
     using KellermanSoftware.CompareNetObjects;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -29,6 +30,8 @@
             Assert.IsNotNull(defaultDependencyTelemetry.ResultCode);            
             Assert.IsNotNull(defaultDependencyTelemetry.Type);
             Assert.IsNotNull(defaultDependencyTelemetry.Id);
+            Assert.IsFalse(defaultDependencyTelemetry.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingTelemetryItemTypes.RemoteDependency, defaultDependencyTelemetry.ItemTypeFlag);
             Assert.IsTrue(defaultDependencyTelemetry.Id.Length >= 1);
         }
 
@@ -254,6 +257,14 @@
         }
 
         [TestMethod]
+        public void DependencyTelemetryImplementsISupportAdvancedSamplingContract()
+        {
+            var telemetry = new DependencyTelemetry();
+
+            Assert.IsNotNull(telemetry as ISupportAdvancedSampling);
+        }
+
+        [TestMethod]
         public void DependencyTelemetryHasCorrectValueOfSamplingPercentageAfterSerialization()
         {
             var telemetry = this.CreateRemoteDependencyTelemetry("mycommand");
@@ -277,7 +288,7 @@
             Assert.AreEqual(detail, retrievedValue.ToString());
 
             // Clear and verify the detail is no longer present            
-            new TelemetryClient().TrackDependency(telemetry);            
+            new TelemetryClient(TelemetryConfiguration.CreateDefault()).TrackDependency(telemetry);            
             Assert.IsFalse(telemetry.TryGetOperationDetail(key, out retrievedValue));
         }
 
@@ -291,7 +302,7 @@
             Assert.IsNull(retrievedValue);
 
             // should not throw                        
-            new TelemetryClient().TrackDependency(telemetry);
+            new TelemetryClient(TelemetryConfiguration.CreateDefault()).TrackDependency(telemetry);
         }
 
         [TestMethod]

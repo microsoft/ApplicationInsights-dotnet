@@ -18,6 +18,14 @@
     public class PageViewTelemetryTest
     {
         [TestMethod]
+        public void VerifyExpectedDefaultValue()
+        {
+            var pageViewTelemetry = new PageViewTelemetry();
+            Assert.IsFalse(pageViewTelemetry.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingTelemetryItemTypes.PageView, pageViewTelemetry.ItemTypeFlag);
+        }
+
+        [TestMethod]
         public void PageViewImplementsITelemetryContractConsistentlyWithOtherTelemetryTypes()
         {
             new ITelemetryTest<PageViewTelemetry, AI.PageViewData>().Run();
@@ -170,6 +178,14 @@
             var telemetry = new PageViewTelemetry();
 
             Assert.IsNotNull(telemetry as ISupportSampling);
+        }
+
+        [TestMethod]
+        public void PageViewTelemetryImplementsISupportAdvancedSamplingContract()
+        {
+            var telemetry = new PageViewTelemetry();
+
+            Assert.IsNotNull(telemetry as ISupportAdvancedSampling);
         }
 
         [TestMethod]

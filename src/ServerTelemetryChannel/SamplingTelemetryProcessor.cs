@@ -3,32 +3,35 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
-    
+
     /// <summary>
     /// Represents a telemetry processor for sampling telemetry at a fixed-rate before sending to Application Insights.
+    /// Supports telemetry items sampled at head, adjusts gain up accordingly.
     /// </summary>
     public sealed class SamplingTelemetryProcessor : ITelemetryProcessor
     {
-        private const string DependencyTelemetryName = "Dependency";
-        private const string EventTelemetryName = "Event";
-        private const string ExceptionTelemetryName = "Exception";
-        private const string PageViewTelemetryName = "PageView";
-        private const string RequestTelemetryName = "Request";
-        private const string TraceTelemetryName = "Trace";
+        private const string DependencyTelemetryName = "DEPENDENCY";
+        private const string EventTelemetryName = "EVENT";
+        private const string ExceptionTelemetryName = "EXCEPTION";
+        private const string PageViewTelemetryName = "PAGEVIEW";
+        private const string RequestTelemetryName = "REQUEST";
+        private const string TraceTelemetryName = "TRACE";
 
         private readonly char[] listSeparators = { ';' };
         private readonly IDictionary<string, Type> allowedTypes;
 
-        private HashSet<Type> excludedTypesHashSet;
+        private readonly AtomicSampledItemsCounter proactivelySampledOutCounters = new AtomicSampledItemsCounter();
+
+        private SamplingTelemetryItemTypes excludedTypesFlags;
         private string excludedTypesString;
 
-        private HashSet<Type> includedTypesHashSet;
+        private SamplingTelemetryItemTypes includedTypesFlags;
         private string includedTypesString;
 
         /// <summary>
@@ -45,9 +48,7 @@
             this.SamplingPercentage = 100.0;
             this.SampledNext = next;
             this.UnsampledNext = next;
-
-            this.excludedTypesHashSet = new HashSet<Type>();
-            this.includedTypesHashSet = new HashSet<Type>();
+            
             this.allowedTypes = new Dictionary<string, Type>(6, StringComparer.OrdinalIgnoreCase)
             {
                 { DependencyTelemetryName, typeof(DependencyTelemetry) },
@@ -79,21 +80,7 @@
             set
             {
                 this.excludedTypesString = value;
-
-                HashSet<Type> newExcludedTypesHashSet = new HashSet<Type>();
-                if (!string.IsNullOrEmpty(value))
-                {
-                    string[] splitList = value.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string item in splitList)
-                    {
-                        if (this.allowedTypes.ContainsKey(item))
-                        {
-                            newExcludedTypesHashSet.Add(this.allowedTypes[item]);
-                        }
-                    }
-                }
-
-                Interlocked.Exchange(ref this.excludedTypesHashSet, newExcludedTypesHashSet);
+                this.excludedTypesFlags = this.PopulateSamplingFlagsFromTheInput(value);
             }
         }
 
@@ -112,21 +99,7 @@
             set
             {
                 this.includedTypesString = value;
-
-                HashSet<Type> newIncludedTypesHashSet = new HashSet<Type>();
-                if (!string.IsNullOrEmpty(value))
-                {
-                    string[] splitList = value.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string item in splitList)
-                    {
-                        if (this.allowedTypes.ContainsKey(item))
-                        {
-                            newIncludedTypesHashSet.Add(this.allowedTypes[item]);
-                        }
-                    }
-                }
-
-                Interlocked.Exchange(ref this.includedTypesHashSet, newIncludedTypesHashSet);
+                this.includedTypesFlags = this.PopulateSamplingFlagsFromTheInput(value);
             }
         }
 
@@ -163,14 +136,18 @@
             //// If sampling rate is 100% and we aren't distinguishing between evaluated/unevaluated items, there is nothing to do:
             if (samplingPercentage >= 100.0 - 1.0E-12 && this.SampledNext.Equals(this.UnsampledNext))
             {
-                this.SampledNext.Process(item);
+                this.HandlePossibleProactiveSampling(item, samplingPercentage);
                 return;
             }
 
             //// So sampling rate is not 100%, or we must evaluate further
+            
+            var advancedSamplingSupportingTelemetry = item as ISupportAdvancedSampling;
 
-            //// If null was passed in as item or if sampling not supported in general, do nothing:
-            var samplingSupportingTelemetry = item as ISupportSampling;
+            // If someone implemented ISupportSampling and hopes that SamplingTelemetryProcessor will continue to work for them:
+            var samplingSupportingTelemetry = advancedSamplingSupportingTelemetry ?? item as ISupportSampling;
+
+            //// If null was passed in as item or if sampling not supported in general, do nothing:    
             if (samplingSupportingTelemetry == null)
             {
                 this.UnsampledNext.Process(item);
@@ -178,7 +155,7 @@
             }
 
             //// If telemetry was excluded by type, do nothing:
-            if (!this.IsSamplingApplicable(item.GetType()))
+            if (advancedSamplingSupportingTelemetry != null && !this.IsSamplingApplicable(advancedSamplingSupportingTelemetry.ItemTypeFlag))
             {
                 if (TelemetryChannelEventSource.IsVerboseEnabled)
                 {
@@ -204,7 +181,14 @@
 
             if (isSampledIn)
             {
-                this.SampledNext.Process(item);
+                if (advancedSamplingSupportingTelemetry != null)
+                {
+                    this.HandlePossibleProactiveSampling(item, samplingPercentage, advancedSamplingSupportingTelemetry);
+                }
+                else
+                {
+                    this.SampledNext.Process(item);
+                }
             }
             else
             { 
@@ -217,17 +201,92 @@
             }
         }
 
-        private bool IsSamplingApplicable(Type telemetryItemType)
+        private SamplingTelemetryItemTypes PopulateSamplingFlagsFromTheInput(string input)
         {
-            var excludedTypesHashSetRef = this.excludedTypesHashSet;
-            var includedTypesHashSetRef = this.includedTypesHashSet;
+            SamplingTelemetryItemTypes samplingTypeFlags = SamplingTelemetryItemTypes.None;
 
-            if (excludedTypesHashSetRef.Count > 0 && excludedTypesHashSetRef.Contains(telemetryItemType))
+            if (!string.IsNullOrEmpty(input))
+            {
+                string[] splitList = input.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string item in splitList)
+                {
+                    if (this.allowedTypes.ContainsKey(item))
+                    {
+                        switch (item.ToUpperInvariant())
+                        {
+                            case RequestTelemetryName:
+                                samplingTypeFlags |= SamplingTelemetryItemTypes.Request;
+                                break;
+                            case DependencyTelemetryName:
+                                samplingTypeFlags |= SamplingTelemetryItemTypes.RemoteDependency;
+                                break;
+                            case ExceptionTelemetryName:
+                                samplingTypeFlags |= SamplingTelemetryItemTypes.Exception;
+                                break;
+                            case PageViewTelemetryName:
+                                samplingTypeFlags |= SamplingTelemetryItemTypes.PageView;
+                                break;
+                            case TraceTelemetryName:
+                                samplingTypeFlags |= SamplingTelemetryItemTypes.Message;
+                                break;
+                            case EventTelemetryName:
+                                samplingTypeFlags |= SamplingTelemetryItemTypes.Event;
+                                break;
+                        }
+                    }
+                }
+            }
+
+            return samplingTypeFlags;
+        }
+
+        private void HandlePossibleProactiveSampling(ITelemetry item, double currentSamplingPercentage, ISupportAdvancedSampling samplingSupportingTelemetry = null)
+        {
+            var advancedSamplingSupportingTelemetry = samplingSupportingTelemetry ?? item as ISupportAdvancedSampling;
+
+            if (advancedSamplingSupportingTelemetry != null)
+            {
+                if (advancedSamplingSupportingTelemetry.IsSampledOutAtHead)
+                {
+                    // Item is sampled in but was proactively sampled out: store the amount of items it represented and drop it
+                    this.proactivelySampledOutCounters.AddItems(advancedSamplingSupportingTelemetry.ItemTypeFlag, Convert.ToInt64(100 / currentSamplingPercentage));
+
+                    if (TelemetryChannelEventSource.IsVerboseEnabled)
+                    {
+                        TelemetryChannelEventSource.Log.ItemProactivelySampledOut(item.ToString());
+                    }
+                }
+                else
+                {
+                    var proactivelySampledOutItemsCount = this.proactivelySampledOutCounters.GetItems(advancedSamplingSupportingTelemetry.ItemTypeFlag);
+                    if (proactivelySampledOutItemsCount > 0)
+                    {
+                        // The item is sampled in and may need to represent all proactively sampled out items and itself.
+                        // The current item with sample rate SR represents 100/SR items.
+                        // We stored that it needs to represent X more items.
+                        // We need to adjust sample rate to represent (100/SR + X) items in 1 item.
+                        // It is 100 / (100/SR + X) = 100 / ((100 + X*SR)/SR) = (100 * SR) / (100 + X*SR)
+                        advancedSamplingSupportingTelemetry.SamplingPercentage = (100 * advancedSamplingSupportingTelemetry.SamplingPercentage) / (100 + (proactivelySampledOutItemsCount * advancedSamplingSupportingTelemetry.SamplingPercentage));
+                        this.proactivelySampledOutCounters.ClearItems(advancedSamplingSupportingTelemetry.ItemTypeFlag);
+                    }
+
+                    this.SampledNext.Process(item);
+                }
+            }
+            else
+            {
+                this.SampledNext.Process(item);
+            }
+        }
+
+        private bool IsSamplingApplicable(SamplingTelemetryItemTypes telemetryItemTypeFlag)
+        {
+            if (this.excludedTypesFlags.HasFlag(telemetryItemTypeFlag))
             {
                 return false;
             }
 
-            if (includedTypesHashSetRef.Count > 0 && !includedTypesHashSetRef.Contains(telemetryItemType))
+            if (this.includedTypesFlags != SamplingTelemetryItemTypes.None && !this.includedTypesFlags.HasFlag(telemetryItemTypeFlag))
             {
                 return false;
             }

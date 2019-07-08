@@ -544,6 +544,16 @@
                 this.nameProvider.Name);
         }
 
+        [Event(46,
+            Message = "Initialization is skipped for the sampled item.",
+            Level = EventLevel.Informational)]
+        public void InitializationIsSkippedForSampledItem(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                46,
+                this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

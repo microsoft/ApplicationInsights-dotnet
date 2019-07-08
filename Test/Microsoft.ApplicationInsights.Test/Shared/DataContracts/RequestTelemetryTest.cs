@@ -37,6 +37,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
             Assert.IsFalse(request.Duration == null);
             Assert.IsTrue(request.Success == null);
             Assert.IsTrue(request.Data.success);
+            Assert.IsFalse(request.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingTelemetryItemTypes.Request, request.ItemTypeFlag);
         }
 
         [TestMethod]
@@ -49,6 +51,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
             Assert.AreEqual(TimeSpan.FromSeconds(42), request.Duration);
             Assert.AreEqual(true, request.Success);
             Assert.AreEqual(start, request.Timestamp);
+            Assert.IsFalse(request.IsSampledOutAtHead);
+            Assert.AreEqual(SamplingTelemetryItemTypes.Request, request.ItemTypeFlag);
         }
 
         [TestMethod]
@@ -293,6 +297,14 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         [TestMethod]
+        public void RequestTelemetryImplementsISupportAdvancedSamplingContract()
+        {
+            var telemetry = new RequestTelemetry();
+
+            Assert.IsNotNull(telemetry as ISupportAdvancedSampling);
+        }
+
+        [TestMethod]
         public void RequestTelemetryHasCorrectValueOfSamplingPercentageAfterSerialization()
         {
             var telemetry = new RequestTelemetry { Id = null };
@@ -311,7 +323,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             RequestTelemetry other = (RequestTelemetry)request.DeepClone();
 
             ComparisonConfig comparisonConfig = new ComparisonConfig();
-            comparisonConfig.MembersToIgnore.Add("HttpMethod"); // Obsolete
+            comparisonConfig.MembersToIgnore.Add("RequestTelemetry.HttpMethod"); // Obsolete
             CompareLogic deepComparator = new CompareLogic(comparisonConfig);
 
             var result = deepComparator.Compare(request, other);

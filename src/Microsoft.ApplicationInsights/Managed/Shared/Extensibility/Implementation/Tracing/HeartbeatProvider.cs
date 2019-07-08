@@ -71,7 +71,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the currently defined interval between heartbeats
+        /// Gets or sets the currently defined interval between heartbeats.
         /// </summary>
         public TimeSpan HeartbeatInterval
         {
@@ -112,7 +112,7 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether or not heartbeats are enabled
+        /// Gets or sets a value indicating whether or not heartbeats are enabled.
         /// </summary>
         public bool IsHeartbeatEnabled
         {
@@ -197,7 +197,7 @@
                         return new HeartbeatPropertyPayload()
                         {
                             IsHealthy = isHealthy,
-                            PayloadValue = propertyValue
+                            PayloadValue = propertyValue,
                         };
                     });
                 }
@@ -232,6 +232,7 @@
                         {
                             property.IsHealthy = isHealthy.Value;
                         }
+
                         if (propertyValue != null)
                         {
                             property.PayloadValue = propertyValue;
