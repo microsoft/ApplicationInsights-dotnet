@@ -384,7 +384,7 @@ namespace Microsoft.ApplicationInsights.Tests
             var activity = new Activity("System.Net.Http.HttpRequestOut");
             activity.Start();
 
-            var appInsightsUrl = TelemetryConfiguration.Active.TelemetryChannel.EndpointAddress;
+            var appInsightsUrl = TelemetryConfiguration.CreateDefault().TelemetryChannel.EndpointAddress;
             HttpRequestMessage requestMsg = new HttpRequestMessage(HttpMethod.Get, appInsightsUrl);
             this.listener.OnActivityStart(requestMsg);
             Assert.IsNull(HttpHeadersUtilities.GetRequestContextKeyValue(requestMsg.Headers, RequestResponseHeaders.RequestContextCorrelationSourceKey));

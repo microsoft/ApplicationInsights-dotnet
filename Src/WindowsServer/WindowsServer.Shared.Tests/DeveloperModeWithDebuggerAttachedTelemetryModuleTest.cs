@@ -10,32 +10,34 @@
         [TestMethod]
         public void DevModeModuleValidateValueNotOverridden()
         {
-            TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode = true;
+            var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
+            telemetryConfiguration.TelemetryChannel.DeveloperMode = true;
             DeveloperModeWithDebuggerAttachedTelemetryModule module = new DeveloperModeWithDebuggerAttachedTelemetryModule();
-            module.Initialize(TelemetryConfiguration.Active);
-            Assert.AreEqual(true, TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode);
+            module.Initialize(telemetryConfiguration);
+            Assert.AreEqual(true, telemetryConfiguration.TelemetryChannel.DeveloperMode);
 
-            TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode = false;
-            module.Initialize(TelemetryConfiguration.Active);
-            Assert.AreEqual(false, TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode);
+            telemetryConfiguration.TelemetryChannel.DeveloperMode = false;
+            module.Initialize(telemetryConfiguration);
+            Assert.AreEqual(false, telemetryConfiguration.TelemetryChannel.DeveloperMode);
         }
 
         [TestMethod]
         public void DevModeModuleValidateValueSetToDebuggerAttachedValueWhenNull()
         {
-            TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode = null;
+            var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
+            telemetryConfiguration.TelemetryChannel.DeveloperMode = null;
 
             DeveloperModeWithDebuggerAttachedTelemetryModule.IsDebuggerAttached = () => true;
             DeveloperModeWithDebuggerAttachedTelemetryModule module = new DeveloperModeWithDebuggerAttachedTelemetryModule();
-            module.Initialize(TelemetryConfiguration.Active);
-            Assert.AreEqual(true, TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode);
+            module.Initialize(telemetryConfiguration);
+            Assert.AreEqual(true, telemetryConfiguration.TelemetryChannel.DeveloperMode);
 
-            TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode = null;
+            telemetryConfiguration.TelemetryChannel.DeveloperMode = null;
             DeveloperModeWithDebuggerAttachedTelemetryModule.IsDebuggerAttached = () => false;
             module = new DeveloperModeWithDebuggerAttachedTelemetryModule();
-            module.Initialize(TelemetryConfiguration.Active);
+            module.Initialize(telemetryConfiguration);
             
-            Assert.AreEqual(null, TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode);
+            Assert.AreEqual(null, telemetryConfiguration.TelemetryChannel.DeveloperMode);
         }
     }
 }
