@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation
 {
     using Microsoft.ApplicationInsights.DataContracts;
 
@@ -8,9 +8,9 @@
     internal interface ICounterValue
     {
         /// <summary>
-        /// Returns the current value of the counter as a <c ref="MetricTelemetry"/> and resets the metric.
+        /// Returns the current value of the counter.
         /// </summary>
         /// <returns>Value of the counter.</returns>
-        double GetValueAndReset();
+        double Collect();
     }
 }

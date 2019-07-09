@@ -6,8 +6,7 @@
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerfCollector;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -24,8 +23,7 @@
                 string error;
                 collector.RegisterCounter(
                     counter,
-                    null,
-                    true,
+                    null,                    
                     out error,
                     false);
             }
@@ -64,7 +62,6 @@
                 collector.RegisterCounter(
                     counterRequest.PerformanceCounter,
                     counterRequest.ReportAs,
-                    true,
                     out error,
                     false);
             }

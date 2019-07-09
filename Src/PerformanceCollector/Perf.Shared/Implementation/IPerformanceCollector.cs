@@ -25,11 +25,10 @@
         /// Registers a counter using the counter name and reportAs value to the total list of counters.
         /// </summary>
         /// <param name="perfCounter">Name of the performance counter.</param>
-        /// <param name="reportAs">Report as name for the performance counter.</param>
-        /// <param name="isCustomCounter">Boolean to check if the performance counter is custom defined.</param>
+        /// <param name="reportAs">Report as name for the performance counter.</param>        
         /// <param name="error">Captures the error logged.</param>
         /// <param name="blockCounterWithInstancePlaceHolder">Boolean that controls the registry of the counter based on the availability of instance place holder.</param>
-        void RegisterCounter(string perfCounter, string reportAs, bool isCustomCounter, out string error, bool blockCounterWithInstancePlaceHolder);
+        void RegisterCounter(string perfCounter, string reportAs, out string error, bool blockCounterWithInstancePlaceHolder);
 
         /// <summary>
         /// Removes a counter.

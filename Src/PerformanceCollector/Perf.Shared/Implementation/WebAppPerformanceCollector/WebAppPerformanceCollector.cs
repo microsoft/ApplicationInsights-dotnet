@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerfCollector
 {
     using System;
     using System.Collections.Generic;
@@ -64,29 +64,27 @@
         /// </summary>
         /// <param name="perfCounter">Name of the performance counter.</param>
         /// <param name="reportAs">Report as name for the performance counter.</param>
-        /// <param name="isCustomCounter">Boolean to check if the performance counter is custom defined.</param>
         /// <param name="error">Captures the error logged.</param>
         /// <param name="blockCounterWithInstancePlaceHolder">Boolean that controls the registry of the counter based on the availability of instance place holder.</param>
         public void RegisterCounter(
             string perfCounter,
             string reportAs,
-            bool isCustomCounter,
             out string error,
             bool blockCounterWithInstancePlaceHolder)
         {            
             try
             {
                 bool useInstancePlaceHolder = false;                
-                var pc = PerformanceCounterUtility.CreateAndValidateCounter(perfCounter, null, null, out useInstancePlaceHolder, out error);
-                
+                var pc = PerformanceCounterUtility.CreateAndValidateCounter(perfCounter, null, null, false, out useInstancePlaceHolder, out error);                
+
                 if (pc != null)
                 {
-                    this.RegisterPerformanceCounter(perfCounter, GetCounterReportAsName(perfCounter, reportAs), pc.CategoryName, pc.CounterName, pc.InstanceName, useInstancePlaceHolder, false);
+                    this.RegisterPerformanceCounter(perfCounter, GetCounterReportAsName(perfCounter, reportAs), pc.CategoryName, pc.CounterName, pc.InstanceName, useInstancePlaceHolder);
                 }
                 else
                 {
                     // Even if validation failed, we might still be able to collect perf counter in WebApp.
-                    this.RegisterPerformanceCounter(perfCounter, GetCounterReportAsName(perfCounter, reportAs), string.Empty, perfCounter, string.Empty, useInstancePlaceHolder, false);
+                    this.RegisterPerformanceCounter(perfCounter, GetCounterReportAsName(perfCounter, reportAs), string.Empty, perfCounter, string.Empty, useInstancePlaceHolder);
                 }                
             }
             catch (Exception e)
@@ -134,8 +132,7 @@
                 pcd.PerformanceCounter.CategoryName,
                 pcd.PerformanceCounter.CounterName,
                 pcd.PerformanceCounter.InstanceName,
-                pcd.UsesInstanceNamePlaceholder,
-                pcd.IsCustomCounter);
+                pcd.UsesInstanceNamePlaceholder);
         }
 
         /// <summary>
@@ -145,7 +142,7 @@
         {
             try
             {
-                return counter.GetValueAndReset();
+                return counter.Collect();
             }
             catch (Exception e)
             {
@@ -172,7 +169,7 @@
         /// <summary>
         /// Register a performance counter for collection.
         /// </summary>
-        private void RegisterPerformanceCounter(string originalString, string reportAs, string categoryName, string counterName, string instanceName, bool usesInstanceNamePlaceholder, bool isCustomCounter)
+        private void RegisterPerformanceCounter(string originalString, string reportAs, string categoryName, string counterName, string instanceName, bool usesInstanceNamePlaceholder)
         {
             ICounterValue counter = null;
 
@@ -192,7 +189,7 @@
             {
                 // perform the first read. For many counters the first read will always return 0
                 // since a single sample is not enough to calculate a value
-                var value = counter.GetValueAndReset();
+                var value = counter.Collect();
                 firstReadOk = true;
             } 
             catch (Exception e)
@@ -210,7 +207,6 @@
                         originalString,
                         reportAs,
                         usesInstanceNamePlaceholder,
-                        isCustomCounter,
                         !firstReadOk,
                         categoryName,
                         counterName,

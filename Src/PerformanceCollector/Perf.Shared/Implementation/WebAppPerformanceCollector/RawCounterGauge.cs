@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerfCollector
 {
     using Microsoft.ApplicationInsights.DataContracts;
 
@@ -47,7 +47,7 @@
         /// Returns the current value of the counter as a <c ref="float"/> and resets the metric.
         /// </summary>
         /// <returns>The value of the target metric.</returns>
-        public double GetValueAndReset()
+        public double Collect()
         {
             return this.cacheHelper.GetCounterValue(this.jsonId, this.environmentVariable);
         }

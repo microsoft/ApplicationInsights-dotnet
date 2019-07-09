@@ -10,17 +10,20 @@
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
+    using Microsoft.ApplicationInsights.Common.Internal;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.W3C;
     using Microsoft.ApplicationInsights.TestFramework;
+    using Microsoft.ApplicationInsights.Web.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.ApplicationInsights.Web.Implementation;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+    using Xunit.Sdk;
     using Assert = Xunit.Assert;
+    using MsAssert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
     /// <summary>
     /// Platform independent tests for RequestTrackingTelemetryModule.
@@ -217,6 +220,19 @@
         }
 
         [TestMethod]
+        public void OnEndDoesNotSetUrlIfDisableTrackingPropertiesIsSet()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext();
+
+            var module = this.RequestTrackingTelemetryModuleFactory();
+            module.DisableTrackingProperties = true;
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+
+            Assert.Null(context.GetRequestTelemetry().Url); // "RequestTrackingTelemetryModule should not set Url if DisableTrackingProperties=true"
+        }
+
+        [TestMethod]
         public void OnEndTracksRequest()
         {
             var context = HttpModuleHelper.GetFakeHttpContext();
@@ -368,6 +384,32 @@
         }
 
         [TestMethod]
+        public void OnEndDoesNotAddSourceFieldIfDisableTrackingPropertiesIsSet()
+        {
+            // ARRANGE  
+            Dictionary<string, string> headers = new Dictionary<string, string>();
+            headers.Add(RequestResponseHeaders.RequestContextHeader, this.GetCorrelationIdHeaderValue(TestApplicationId2));
+
+            var context = HttpModuleHelper.GetFakeHttpContext(headers);
+
+            // My instrumentation key and hence app id is random / newly generated. The appId header is different - hence a different component.
+            var config = TelemetryConfiguration.CreateDefault();
+            config.InstrumentationKey = TestInstrumentationKey1;
+            config.ApplicationIdProvider = new MockApplicationIdProvider(TestInstrumentationKey1, TestApplicationId1);
+            config.ExperimentalFeatures.Add("DeferRequestTrackingProperties");
+            
+            var module = this.RequestTrackingTelemetryModuleFactory(null /*use default*/);
+            
+            // ACT
+            module.Initialize(config);
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+
+            // VALIDATE
+            Assert.True(string.IsNullOrEmpty(context.GetRequestTelemetry().Source), "RequestTrackingTelemetryModule should not set source if DisableTrackingProperties=true");
+        }
+
+        [TestMethod]
         public void OnEndDoesNotAddSourceFieldForRequestWithOutSourceIkeyHeader()
         {
             // ARRANGE                                   
@@ -439,6 +481,53 @@
             Assert.True(intermediateRequest.Properties.ContainsKey("AI internal"));
         }
 
+        [TestMethod]
+        public void VerifyBehaviorWhenDeferredIsFalse()
+        {
+            var config = this.CreateDefaultConfig(HttpModuleHelper.GetFakeHttpContext());
+            var context = HttpModuleHelper.GetFakeHttpContext();
+
+            // Create, Initialize, and Validate RequestTrackingTelemetryModule
+            var module = this.RequestTrackingTelemetryModuleFactory(config);
+            MsAssert.IsFalse(module.DisableTrackingProperties, $"{nameof(module.DisableTrackingProperties)} should be False by default.");
+
+            // Validate Telemetry Processor Chain
+            MsAssert.IsFalse(config.DefaultTelemetrySink.TelemetryProcessors.Any(x => x is PostSamplingTelemetryProcessor));
+
+            // Run test to generate requestTelemetry
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+            var requestTelemetry = context.GetRequestTelemetry();
+
+            // Validate requestTelemetry
+            MsAssert.IsNotNull(requestTelemetry, "TEST ERROR: Failed to create requestTelemetry.");
+            MsAssert.IsNotNull(requestTelemetry.Url);
+        }
+
+        [TestMethod]
+        public void VerifyBehaviorWhenDeferredIsTrue()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext();
+            var config = new TelemetryConfiguration();
+            config.ExperimentalFeatures.Add(ExperimentalConstants.DeferRequestTrackingProperties);
+
+            // Create and Validate RequestTrackingTelemetryModule
+            var module = this.RequestTrackingTelemetryModuleFactory(config);
+            MsAssert.IsTrue(module.DisableTrackingProperties, "TEST ERROR: Module was not initialized with custom config.");
+
+            // Validate Telemetry Processor Chain
+            MsAssert.IsTrue(config.DefaultTelemetrySink.TelemetryProcessors.Any(x => x is PostSamplingTelemetryProcessor), "Module should inject PostSamplingTelemetryProcessor");
+
+            // Run test to generate requestTelemetry
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+            var requestTelemetry = context.GetRequestTelemetry();
+
+            // Validate requestTelemetry
+            MsAssert.IsNotNull(requestTelemetry, "TEST ERROR: Failed to create requestTelemetry.");
+            MsAssert.IsNotNull(requestTelemetry.Url); // set by PostSamplingTelemetryProcessor
+        }
+
         private TelemetryConfiguration CreateDefaultConfig(HttpContext fakeContext, string rootIdHeaderName = null, string parentIdHeaderName = null, string instrumentationKey = null)
         {
             var telemetryChannel = new StubTelemetryChannel()
@@ -453,7 +542,7 @@
                 InstrumentationKey = TestInstrumentationKey1,
                 ApplicationIdProvider = new MockApplicationIdProvider(TestInstrumentationKey1, TestApplicationId1)
             };
-            configuration.TelemetryInitializers.Add(new Extensibility.OperationCorrelationTelemetryInitializer());
+            configuration.TelemetryInitializers.Add(new Microsoft.ApplicationInsights.Extensibility.OperationCorrelationTelemetryInitializer());
 
             var telemetryInitializer = new TestableOperationCorrelationTelemetryInitializer(fakeContext);
 

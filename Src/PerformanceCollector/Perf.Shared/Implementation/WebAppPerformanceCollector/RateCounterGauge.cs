@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerfCollector
 {
     using System;
     using System.Globalization;
@@ -71,10 +71,10 @@
         /// Computes the rate of a specific counter by tracking the last collected time and value.
         /// </summary>
         /// <returns>The value of the target metric.</returns>
-        public double GetValueAndReset()
+        public double Collect()
         {
             double previouslyCollectedValue = this.lastValue;
-            this.lastValue = (this.counter == null) ? this.cacheHelper.GetCounterValue(this.jsonId, this.environmentVariable) : this.counter.GetValueAndReset();
+            this.lastValue = (this.counter == null) ? this.cacheHelper.GetCounterValue(this.jsonId, this.environmentVariable) : this.counter.Collect();
 
             var previouslyCollectedTime = this.lastCollectedTime;
             this.lastCollectedTime = DateTimeOffset.UtcNow;

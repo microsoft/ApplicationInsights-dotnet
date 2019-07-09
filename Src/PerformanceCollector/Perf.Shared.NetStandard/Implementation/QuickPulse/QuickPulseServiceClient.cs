@@ -48,10 +48,6 @@
 
         private readonly HttpClient httpClient = new HttpClient();
 
-#if NETSTANDARD2_0
-        private static bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-#endif
-
         public QuickPulseServiceClient(
             Uri serviceUri,
             string instanceName,
@@ -176,8 +172,7 @@
         {
             configurationInfo = null;
 
-            bool isSubscribed;
-            if (!bool.TryParse(response.Headers.GetValuesSafe(QuickPulseConstants.XMsQpsSubscribedHeaderName).FirstOrDefault(), out isSubscribed))
+            if (!bool.TryParse(response.Headers.GetValueSafe(QuickPulseConstants.XMsQpsSubscribedHeaderName), out bool isSubscribed))
             {
                 // could not parse the isSubscribed value
 
@@ -196,10 +191,10 @@
 
             foreach (string headerName in QuickPulseConstants.XMsQpsAuthOpaqueHeaderNames)
             {
-                this.authOpaqueHeaderValues[headerName] = response.Headers.GetValuesSafe(headerName).FirstOrDefault();
+                this.authOpaqueHeaderValues[headerName] = response.Headers.GetValueSafe(headerName);
             }
 
-            string configurationETagHeaderValue = response.Headers.GetValuesSafe(QuickPulseConstants.XMsQpsConfigurationETagHeaderName).FirstOrDefault();
+            string configurationETagHeaderValue = response.Headers.GetValueSafe(QuickPulseConstants.XMsQpsConfigurationETagHeaderName);
 
             try
             {
@@ -226,24 +221,6 @@
             return Math.Round(value, 4, MidpointRounding.AwayFromZero);
         }
 
-        private bool IsPerfCounterSupported()
-        {
-            bool perfCollectionSupported = false;
-#if NETSTANDARD2_0
-            if (isWindows)
-            {
-                perfCollectionSupported = true;
-            }
-            else
-            {
-                perfCollectionSupported = this.isWebApp;
-            }
-#else
-            perfCollectionSupported = this.isWebApp;
-#endif
-            return perfCollectionSupported;
-        }
-
         private void WritePingData(DateTimeOffset timestamp, Stream stream)
         {            
             var dataPoint = new MonitoringDataPoint
@@ -256,7 +233,7 @@
                 MachineName = this.machineName,
                 Timestamp = timestamp.UtcDateTime,
                 IsWebApp = this.isWebApp,
-                PerformanceCollectionSupported = IsPerfCounterSupported(),
+                PerformanceCollectionSupported = PerformanceCounterUtility.IsPerfCounterSupported(),
                 ProcessorCount = this.processorCount,
             };
 
@@ -294,7 +271,7 @@
                     MachineName = this.machineName,
                     Timestamp = sample.EndTimestamp.UtcDateTime,
                     IsWebApp = this.isWebApp,
-                    PerformanceCollectionSupported = IsPerfCounterSupported(),
+                    PerformanceCollectionSupported = PerformanceCounterUtility.IsPerfCounterSupported(),
                     ProcessorCount = this.processorCount,
                     Metrics = metricPoints.ToArray(),
                     Documents = documents,

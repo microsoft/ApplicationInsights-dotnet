@@ -18,6 +18,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Filtering\FilterTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Filtering\Mocks\TelemetryMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\HttpContextHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\SimpleTelemetryProcessorSpy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mocks\PerformanceCollectorMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PerformanceCollectorEventSourceTests.cs" />
@@ -41,6 +42,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseTelemetryModuleTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseTelemetryProcessorTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseTestHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PerformanceCounterUtilityTestsCommon.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PerformanceCollectorModuleTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollectorTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\AzureWebAppTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\CacheHelperTests.cs" />
@@ -49,6 +52,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\RateCounterTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\RatioCounterTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\SumUpCountersGaugeTests.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp1.0' OR '$(TargetFramework)' == 'netcoreapp2.0'">
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulse\QuickPulseServiceClientHelpersTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)WebAppPerformanceCollector\SampleFiles\RemoteEnvironmentVariablesAllSampleOne.json">

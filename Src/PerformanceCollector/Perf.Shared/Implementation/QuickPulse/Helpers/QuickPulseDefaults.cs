@@ -38,7 +38,26 @@
         {
             get
             {
-                return PerformanceCounterUtility.IsWebAppRunningInAzure() ? WebAppDefaultPerformanceCountersToCollect : DefaultPerformanceCountersToCollect;
+                if (PerformanceCounterUtility.IsWebAppRunningInAzure())
+                {
+                    return WebAppDefaultPerformanceCountersToCollect;
+                }
+                else
+                {
+#if NETSTANDARD2_0
+                    if (PerformanceCounterUtility.IsWindows)
+                    {
+                        return DefaultPerformanceCountersToCollect;
+                    }
+                    else
+                    {
+                        return WebAppDefaultPerformanceCountersToCollect;
+                    }
+#else
+                    return DefaultPerformanceCountersToCollect;
+#endif
+
+                }
             }
         }
 

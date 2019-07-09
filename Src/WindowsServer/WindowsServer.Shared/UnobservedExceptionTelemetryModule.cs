@@ -71,6 +71,11 @@
 
         private void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs unobservedTaskExceptionEventArgs)
         {
+            if (unobservedTaskExceptionEventArgs.Observed)
+            {
+                return;
+            }
+
             WindowsServerEventSource.Log.TaskSchedulerOnUnobservedTaskException();
 
             var exp = new ExceptionTelemetry(unobservedTaskExceptionEventArgs.Exception)

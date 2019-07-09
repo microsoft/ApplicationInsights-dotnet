@@ -74,12 +74,13 @@ namespace E2ETests
             GetDockerCompose();
             Trace.WriteLine("Getting docker-compose.exe completed.");
 
-            //DockerUtils.RemoveDockerImage(Apps[AppNameBeingTested].imageName, true);
-            //DockerUtils.RemoveDockerContainer(Apps[AppNameBeingTested].containerName, true);
+            DockerUtils.RemoveDockerImage(Apps[AppNameBeingTested].imageName, true);
+            DockerUtils.RemoveDockerContainer(Apps[AppNameBeingTested].containerName, true);
 
             // Deploy the docker cluster using Docker-Compose
-            //DockerUtils.ExecuteDockerComposeCommand("up -d --force-recreate --build", DockerComposeFileName);
-            DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
+            DockerUtils.ExecuteDockerComposeCommand("up -d --force-recreate --build", DockerComposeFileName);
+            
+            //DockerUtils.ExecuteDockerComposeCommand("up -d --build", DockerComposeFileName);
             Thread.Sleep(5000);
             DockerUtils.PrintDockerProcessStats("Docker-Compose -build");
 

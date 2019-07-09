@@ -7,8 +7,8 @@ namespace E2ETests.net471
     [TestClass]
     public class Test452OnNet471 : Test452Base
     {
-        private static string VersionPrefix;
-        private static string VersionPrefixSql;
+        private const string VersionPrefix = "rdddsd";
+        private const string VersionPrefixSql = "rddf";
 
         public TestContext TestContext { get; set; }
 
@@ -17,9 +17,6 @@ namespace E2ETests.net471
         {
             DockerComposeFileName = "docker-compose452AppOn471.yml";
             AppNameBeingTested = TestConstants.WebAppName;
-
-            VersionPrefix = "rdddsd";
-            VersionPrefixSql = "rddf";
 
             if (!Apps.ContainsKey(AppNameBeingTested))
             {

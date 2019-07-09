@@ -8,14 +8,27 @@
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.InteropServices;
     using System.Text.RegularExpressions;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerfCollector;    
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerfCollector;
+#if NETSTANDARD2_0
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.XPlatform;
+#endif
 
     /// <summary>
     /// Utility functionality for performance counter collection.
     /// </summary>
-    [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "This class has different code for Net45/NetCore")]
+    [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification =
+        "This class has different code for Net45/NetCore")]
     internal static class PerformanceCounterUtility
     {
+#if NETSTANDARD2_0
+        public static bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+#endif
+        // Internal for testing
+        internal static bool? isAzureWebApp = null;
+
         private const string Win32ProcessInstancePlaceholder = @"APP_WIN32_PROC";
         private const string ClrProcessInstancePlaceholder = @"APP_CLR_PROC";
         private const string W3SvcProcessInstancePlaceholder = @"APP_W3SVC_PROC";
@@ -23,7 +36,7 @@
         private const string Win32ProcessCategoryName = "Process";
         private const string ClrProcessCategoryName = ".NET CLR Memory";
         private const string Win32ProcessCounterName = "ID Process";
-        private const string ClrProcessCounterName = "Process ID";        
+        private const string ClrProcessCounterName = "Process ID";
 #if NETSTANDARD2_0
         private const string StandardSdkVersionPrefix = "pccore:";
 #else
@@ -33,9 +46,11 @@
         private const string AzureWebAppCoreSdkVersionPrefix = "azwapccore:";
 
         private const string WebSiteEnvironmentVariable = "WEBSITE_SITE_NAME";
-        private const string ProcessorsCountEnvironmentVariable = "NUMBER_OF_PROCESSORS";
+        private const string WebSiteIsolationEnvironmentVariable = "WEBSITE_ISOLATION";
+        private const string WebSiteIsolationHyperV = "hyperv";
 
-        private static readonly ConcurrentDictionary<string, string> PlaceholderCache = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> PlaceholderCache =
+            new ConcurrentDictionary<string, string>();
 
         private static readonly Regex InstancePlaceholderRegex = new Regex(
             @"^\?\?(?<placeholder>[a-zA-Z0-9_]+)\?\?$",
@@ -46,8 +61,6 @@
                 @"^\\(?<categoryName>[^(]+)(\((?<instanceName>[^)]+)\)){0,1}\\(?<counterName>[\s\S]+)$",
                 RegexOptions.Compiled);
 
-        private static bool? isAzureWebApp = null;
-
 #if !NETSTANDARD1_6
         /// <summary>
         /// Formats a counter into a readable string.
@@ -55,6 +68,91 @@
         public static string FormatPerformanceCounter(PerformanceCounter pc)
         {
             return FormatPerformanceCounter(pc.CategoryName, pc.CounterName, pc.InstanceName);
+        }
+#endif
+
+        public static bool IsPerfCounterSupported()
+        {
+#if NETSTANDARD1_6
+            // PerfCounter is limited to only when running in WebApp
+            return IsWebAppRunningInAzure();
+#else
+            return true;
+#endif
+        }
+
+#if NETSTANDARD1_6
+        public static IPerformanceCollector GetPerformanceCollector()
+        {
+            IPerformanceCollector collector;
+
+            // NetStandard1.6 has perf counter only on web apps.
+
+            if (PerformanceCounterUtility.IsWebAppRunningInAzure())
+            {
+                collector = (IPerformanceCollector)new WebAppPerformanceCollector();
+                PerformanceCollectorEventSource.Log.InitializedWithCollector(collector.GetType().Name);
+            }
+            else
+            {
+                // This will be the Stub collector which won't do anything.
+                collector = (IPerformanceCollector)new StandardPerformanceCollectorStub();
+                PerformanceCollectorEventSource.Log.InitializedWithCollector(collector.GetType().Name);
+            }
+
+            return collector;
+            }
+#elif NET45
+        public static IPerformanceCollector GetPerformanceCollector()
+        {
+            IPerformanceCollector collector;
+            if (PerformanceCounterUtility.IsWebAppRunningInAzure())
+            {
+                collector = (IPerformanceCollector)new WebAppPerfCollector.WebAppPerformanceCollector();
+                PerformanceCollectorEventSource.Log.InitializedWithCollector(collector.GetType().Name);
+            }
+            else
+            {
+                collector = (IPerformanceCollector)new StandardPerformanceCollector();
+                PerformanceCollectorEventSource.Log.InitializedWithCollector(collector.GetType().Name);
+            }
+
+            return collector;
+        }
+#elif NETSTANDARD2_0
+        public static IPerformanceCollector GetPerformanceCollector()
+        {   
+            IPerformanceCollector collector;
+            if (PerformanceCounterUtility.IsWebAppRunningInAzure())
+            {
+                if (PerformanceCounterUtility.IsWindows)
+                {
+                    // WebApp For windows
+                    collector = (IPerformanceCollector)new WebAppPerformanceCollector();
+                    PerformanceCollectorEventSource.Log.InitializedWithCollector(collector.GetType().Name);
+                }
+                else
+                {
+                    // We are in WebApp, but not Windows. Use XPlatformPerfCollector.
+                    collector = (IPerformanceCollector)new PerformanceCollectorXPlatform();
+                    PerformanceCollectorEventSource.Log.InitializedWithCollector(collector.GetType().Name);
+                }
+            }
+            else if (PerformanceCounterUtility.IsWindows)
+            {
+                // The original Windows PerformanceCounter collector which is also
+                // supported in NetStandard2.0 in Windows.
+                collector = (IPerformanceCollector)new StandardPerformanceCollector();
+                PerformanceCollectorEventSource.Log.InitializedWithCollector(collector.GetType().Name);
+            }
+            else
+            {
+                // This is NetStandard2.0 and non-windows. Use XPlatformPerfCollector
+                collector = (IPerformanceCollector)new PerformanceCollectorXPlatform();
+                PerformanceCollectorEventSource.Log.InitializedWithCollector(collector.GetType().Name);
+            }
+
+            return collector;
         }
 #endif
 
@@ -68,16 +166,21 @@
         }
 
         /// <summary>
-        /// Searches for the environment variable specific to Azure web applications and confirms if the current application is a web application or not.
+        /// Searches for the environment variable specific to Azure Web App.
         /// </summary>
-        /// <returns>Boolean, which is true if the current application is an Azure web application.</returns>
+        /// <returns>Boolean, which is true if the current application is an Azure Web App.</returns>
         public static bool IsWebAppRunningInAzure()
         {
             if (!isAzureWebApp.HasValue)
             {
                 try
                 {
-                    isAzureWebApp = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(WebSiteEnvironmentVariable));
+                    // Presence of "WEBSITE_SITE_NAME" indicate web apps.
+                    // "WEBSITE_ISOLATION"!="hyperv" indicate premium containers. In this case, perf counters
+                    // can be read using regular mechanism and hence this method retuns false for
+                    // premium containers.
+                    isAzureWebApp = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(WebSiteEnvironmentVariable)) &&
+                                    Environment.GetEnvironmentVariable(WebSiteIsolationEnvironmentVariable) != WebSiteIsolationHyperV;
                 }
                 catch (Exception ex)
                 {
@@ -92,34 +195,18 @@
         /// <summary>
         /// Gets the processor count from the appropriate environment variable depending on whether the app is a WebApp or not.
         /// </summary>
-        /// <param name="isWebApp">Indicates whether the application is a WebApp or not.</param>
         /// <returns>The number of processors in the system or null if failed to determine.</returns>
-        public static int? GetProcessorCount(bool isWebApp)
+        public static int? GetProcessorCount()
         {
             int count;
-
-            if (!isWebApp)
+            try
             {
                 count = Environment.ProcessorCount;
             }
-            else
+            catch (Exception ex)
             {
-                string countString;
-                try
-                {
-                    countString = Environment.GetEnvironmentVariable(ProcessorsCountEnvironmentVariable);
-                }
-                catch (Exception ex)
-                {
-                    PerformanceCollectorEventSource.Log.ProcessorsCountIncorrectValueError(ex.ToString());
-                    return null;
-                }
-
-                if (!int.TryParse(countString, out count))
-                {
-                    PerformanceCollectorEventSource.Log.ProcessorsCountIncorrectValueError(countString);
-                    return null;
-                }
+                PerformanceCollectorEventSource.Log.ProcessorsCountIncorrectValueError(ex.ToString());
+                return null;
             }
 
             if (count < 1 || count > 1000)
@@ -143,7 +230,7 @@
                 return AzureWebAppCoreSdkVersionPrefix;
 #else
                 return AzureWebAppSdkVersionPrefix;
-#endif                                
+#endif
             }
             else
             {
@@ -175,6 +262,7 @@
         /// <param name="perfCounterName">Performance counter name to validate.</param>
         /// <param name="win32Instances">Windows 32 instances.</param>
         /// <param name="clrInstances">CLR instances.</param>
+        /// <param name="supportInstanceNames">Boolean indicating if InstanceNames are supported. For WebApp and XPlatform counters, counters are always read from own process instance.</param>
         /// <param name="usesInstanceNamePlaceholder">Boolean to check if it is using an instance name place holder.</param>
         /// <param name="error">Error message.</param>
         /// <returns>Performance counter.</returns>
@@ -182,6 +270,7 @@
             string perfCounterName,
             IEnumerable<string> win32Instances,
             IEnumerable<string> clrInstances,
+            bool supportInstanceNames,
             out bool usesInstanceNamePlaceholder,
             out string error)
         {
@@ -193,6 +282,7 @@
                     perfCounterName,
                     win32Instances,
                     clrInstances,
+                    supportInstanceNames,
                     out usesInstanceNamePlaceholder);
             }
             catch (Exception e)
@@ -213,6 +303,7 @@
             string performanceCounter,
             IEnumerable<string> win32Instances,
             IEnumerable<string> clrInstances,
+            bool supportInstanceNames,
             out bool usesInstanceNamePlaceholder)
         {
             var match = PerformanceCounterRegex.Match(performanceCounter);
@@ -235,6 +326,7 @@
                         match.Groups["instanceName"].Value,
                         win32Instances,
                         clrInstances,
+                        supportInstanceNames,
                         out usesInstanceNamePlaceholder),
                 CounterName = match.Groups["counterName"].Value,
             };
@@ -334,8 +426,15 @@
             string instanceName,
             IEnumerable<string> win32Instances,
             IEnumerable<string> clrInstances,
+            bool supportInstanceNames,
             out bool usesPlaceholder)
         {
+            if (!supportInstanceNames)
+            {
+                usesPlaceholder = false;
+                return instanceName;
+            }
+
             var match = MatchInstancePlaceholder(instanceName);
             if (match == null)
             {
@@ -345,11 +444,6 @@
             }
 
             usesPlaceholder = true;
-
-            if (IsWebAppRunningInAzure())
-            {
-                return instanceName;
-            }
 
             var placeholder = match.Groups["placeholder"].Value;
 

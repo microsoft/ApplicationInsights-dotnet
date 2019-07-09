@@ -2,15 +2,18 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq;
     using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
+    using Microsoft.ApplicationInsights.Common.Internal;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
@@ -93,6 +96,13 @@
                 initialGlobalTelemetryQuota ?? InitialGlobalTelemetryQuota);
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether request properties
+        /// which were disabled via "RequestTrackingTelemetryModule.DisableTrackingProperties" should be evaluated.
+        /// </summary>
+        /// <remarks>This feature is still being evaluated and not recommended for end users.</remarks>
+        internal bool EvaluateDisabledTrackingProperties { get; set; }
+
         private ITelemetryProcessor Next { get; }
 
         /// <summary>
@@ -105,6 +115,8 @@
             why this instance of telemetry processor was created. Regardless of which instrumentation key is passed in,
             this telemetry processor will only collect for whichever instrumentation key is specified by the module in StartCollection call.
             */
+
+            this.EvaluateDisabledTrackingProperties = configuration.EvaluateExperimentalFeature(ExperimentalConstants.DeferRequestTrackingProperties);
 
             this.Register();
         }
@@ -178,8 +190,27 @@
             }
         }
 
-        private static ITelemetryDocument ConvertRequestToTelemetryDocument(RequestTelemetry requestTelemetry)
+        private ITelemetryDocument ConvertRequestToTelemetryDocument(RequestTelemetry requestTelemetry)
         {
+            var url = requestTelemetry.Url;
+#if NET45
+            if (this.EvaluateDisabledTrackingProperties && url == null)
+            {
+                try
+                {
+                    // some of the requestTelemetry properties might be deferred by using RequestTrackingTelemetryModule.DisableTrackingProperties.
+                    // evaluate them now
+                    // note: RequestTrackingUtilities.UpdateRequestTelemetryFromRequest is not used here, since not all fields need to be populated
+                    var request = System.Web.HttpContext.Current?.Request;
+                    url = request?.Unvalidated.Url;
+                }
+                catch (Exception e)
+                {
+                    QuickPulseEventSource.Log.UnknownErrorEvent(e.ToInvariantString());
+                }
+            }
+#endif
+
             ITelemetryDocument telemetryDocument = new RequestTelemetryDocument()
             {
                 Id = Guid.NewGuid(),
@@ -190,7 +221,7 @@
                 Success = requestTelemetry.Success,
                 Duration = requestTelemetry.Duration,
                 ResponseCode = requestTelemetry.ResponseCode,
-                Url = requestTelemetry.Url,
+                Url = url,
                 Properties = GetProperties(requestTelemetry),
             };
 
@@ -463,7 +494,7 @@
                             documentStreams,
                             documentStream => documentStream.RequestQuotaTracker,
                             documentStream => documentStream.CheckFilters(telemetryAsRequest, out groupErrors),
-                            ConvertRequestToTelemetryDocument);
+                            this.ConvertRequestToTelemetryDocument);
                     }
                     else if (telemetryAsDependency != null)
                     {

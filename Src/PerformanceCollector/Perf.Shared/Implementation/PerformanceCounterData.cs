@@ -6,7 +6,6 @@
             string originalString,
             string reportAs,
             bool usesInstanceNamePlaceholder,
-            bool isCustomCounter,
             bool isInBadState,
             string categoryName,
             string counterName,
@@ -15,7 +14,6 @@
             this.OriginalString = originalString;
             this.ReportAs = reportAs;
             this.UsesInstanceNamePlaceholder = usesInstanceNamePlaceholder;
-            this.IsCustomCounter = isCustomCounter;
             this.IsInBadState = isInBadState;
             this.PerformanceCounter = new PerformanceCounterStructure(categoryName, counterName, instanceName);
         }
@@ -24,14 +22,12 @@
             string originalString,
             string reportAs,
             bool usesInstanceNamePlaceholder,
-            bool isCustomCounter,
             bool isInBadState,
             PerformanceCounterStructure counter)
         {
             this.OriginalString = originalString;
             this.ReportAs = reportAs;
             this.UsesInstanceNamePlaceholder = usesInstanceNamePlaceholder;
-            this.IsCustomCounter = isCustomCounter;
             this.IsInBadState = isInBadState;
             this.PerformanceCounter = counter;
         }
@@ -43,8 +39,6 @@
         public string ReportAs { get; private set; }
 
         public bool UsesInstanceNamePlaceholder { get; private set; }
-
-        public bool IsCustomCounter { get; private set; }
 
         public bool IsInBadState { get; private set; }
     }

@@ -1,9 +1,9 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerfCollector
 {
     using System;
     using System.Collections.Generic;
 
-    internal class StandardPerformanceCollector : IPerformanceCollector
+    internal class StandardPerformanceCollectorStub : IPerformanceCollector
     {
         private static readonly Tuple<PerformanceCounterData, double>[] emptyCollectResult = Array.Empty<Tuple<PerformanceCounterData, double>>();
 
@@ -13,9 +13,9 @@
         public IEnumerable<PerformanceCounterData> PerformanceCounters { get; } = Array.Empty<PerformanceCounterData>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StandardPerformanceCollector"/> class.
+        /// Initializes a new instance of the <see cref="StandardPerfCollector"/> class.
         /// </summary>
-        public StandardPerformanceCollector()
+        public StandardPerformanceCollectorStub()
         {
             PerformanceCollectorEventSource.Log.PerfCounterNetCoreOnlyOnAzureWebApp();
         }
@@ -26,7 +26,7 @@
         /// <param name="onReadingFailure">Invoked when an individual counter fails to be read.</param>
         public IEnumerable<Tuple<PerformanceCounterData, double>> Collect(Action<string, Exception> onReadingFailure = null)
         {
-            return StandardPerformanceCollector.emptyCollectResult;
+            return StandardPerformanceCollectorStub.emptyCollectResult;
         }
 
         /// <summary>
@@ -41,13 +41,11 @@
         /// </summary>
         /// <param name="perfCounterName">Name of the performance counter.</param>
         /// <param name="reportAs">Report as name for the performance counter.</param>
-        /// <param name="isCustomCounter">Boolean to check if the performance counter is custom defined.</param>
         /// <param name="error">Captures the error logged.</param>
         /// <param name="blockCounterWithInstancePlaceHolder">Boolean that controls the registry of the counter based on the availability of instance place holder.</param>
         public void RegisterCounter(
             string perfCounterName,
             string reportAs,
-            bool isCustomCounter,
             out string error,
             bool blockCounterWithInstancePlaceHolder = false)
         {

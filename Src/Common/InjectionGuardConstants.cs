@@ -50,5 +50,10 @@ namespace Microsoft.ApplicationInsights.Common.Internal
         /// Max number of key value pairs in the tracestate header.
         /// </summary>
         public const int TraceStateMaxPairs = 32;
+
+        /// <summary>
+        /// Max length of incoming Response Header value allowed.
+        /// </summary>
+        public const int QuickPulseResponseHeaderMaxLength = 1024;
     }
 }

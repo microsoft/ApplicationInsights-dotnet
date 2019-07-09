@@ -3,16 +3,16 @@
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
-    <SharedGUID>054c25dc-e545-4712-95c4-81f30cf65ce8</SharedGUID>
+    <SharedGUID>a8ba3bd0-19ce-488d-b2bd-0b9b677f4e03</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <Import_RootNamespace>Perf.Shared.NetStandard20</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)StandardPerformanceCollector\CounterFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)StandardPerformanceCollector\ICounterValue.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)StandardPerformanceCollector\NormalizedProcessCPUPerformanceCounter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)StandardPerformanceCollector\StandardPerformanceCollector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)StandardPerformanceCollector\StandardPerformanceCounter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CounterFactoryXPlatform.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PerformanceCollectorXPlatform.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)XPlatProcessCPUPerformanceCounter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)XPlatProcessCPUPerformanceCounterNormalized.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)XPlatProcessMemoryPerformanceCounter.cs" />
   </ItemGroup>
 </Project>

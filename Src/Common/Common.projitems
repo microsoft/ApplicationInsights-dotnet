@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ExceptionUtilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GuidExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HeadersUtilities.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExperimentalConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InjectionGuardConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PropertyFetcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RequestResponseHeaders.cs" />
@@ -28,5 +29,8 @@
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.6' ">
     <Compile Include="$(MSBuildThisFileDirectory)WebHeaderCollectionExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' and ('$(MSBuildProjectName)' == 'Perf' or '$(MSBuildProjectName)' == 'Web') ">
+    <Compile Include="$(MSBuildThisFileDirectory)RequestTrackingUtilities.cs" />
   </ItemGroup>
 </Project>
