@@ -11,6 +11,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Experimental;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Web.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.Implementation;
@@ -264,6 +265,13 @@
             this.telemetryConfiguration = configuration;
             this.telemetryClient = new TelemetryClient(configuration);
             this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("web:");
+
+            this.DisableTrackingProperties = configuration.EvaluateExperimentalFeature(Microsoft.ApplicationInsights.Common.Internal.ExperimentalConstants.DeferRequestTrackingProperties);
+            if (this.DisableTrackingProperties)
+            {
+                configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Use(next => new PostSamplingTelemetryProcessor(next));
+                configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Build();
+            }
 
             // Headers will be read-only in a classic iis pipeline
             // Exception System.PlatformNotSupportedException: This operation requires IIS integrated pipeline mode.

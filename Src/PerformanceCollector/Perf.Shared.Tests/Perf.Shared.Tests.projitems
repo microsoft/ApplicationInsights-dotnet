@@ -18,6 +18,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Filtering\FilterTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Filtering\Mocks\TelemetryMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\HttpContextHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\SimpleTelemetryProcessorSpy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mocks\PerformanceCollectorMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PerformanceCollectorEventSourceTests.cs" />
