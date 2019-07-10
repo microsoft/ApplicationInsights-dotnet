@@ -50,7 +50,9 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
         {
             this.adapterHelper.Dispose();
             this.appendableLogger.Dispose();
+#pragma warning disable CS0618 // Type or member is obsolete
             TelemetryConfiguration.Active.Dispose();
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [TestMethod]
@@ -115,8 +117,10 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
         [TestCategory("Log4NetAppender")]
         public void TracesAreEnqueuedInChannel()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             TelemetryConfiguration.Active.InstrumentationKey = this.adapterHelper.InstrumentationKey;
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             ApplicationInsightsAppenderTests.InitializeLog4NetAIAdapter(string.Empty);
             this.SendMessagesToMockChannel(this.adapterHelper.InstrumentationKey);
@@ -126,7 +130,9 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
         [TestCategory("Log4NetAppender")]
         public void InstrumentationKeyCanBeOverridden()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             // Set instrumentation key in Log4Net environment
             string instrumentationKey = "93d9c2b7-e633-4571-8520-d391511a1df5";
@@ -424,7 +430,9 @@ adapterComponentIdSnippet +
         private void VerifyPropertiesInTelemetry()
         {
             // Mock channel to validate that our appender is trying to send logs
+#pragma warning disable CS0618 // Type or member is obsolete
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             // Set up error handler to intercept exception
             ApplicationInsightsAppender aiAppender = (ApplicationInsightsAppender)LogManager.GetRepository(callingAssembly).GetAppenders()[0];
@@ -463,7 +471,9 @@ adapterComponentIdSnippet +
                 this.adapterHelper = new AdapterHelper();
 
                 // Mock channel to validate that our appender is trying to send logs
+#pragma warning disable CS0618 // Type or member is obsolete
                 TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 ApplicationInsightsAppenderTests.InitializeLog4NetAIAdapter(string.Empty);
 

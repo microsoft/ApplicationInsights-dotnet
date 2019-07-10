@@ -56,7 +56,9 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
         public override void ActivateOptions()
         {
             base.ActivateOptions();
+#pragma warning disable CS0618 // Type or member is obsolete
             this.telemetryClient = new TelemetryClient();
+#pragma warning restore CS0618 // Type or member is obsolete
             if (!string.IsNullOrEmpty(this.InstrumentationKey))
             {
                 this.telemetryClient.Context.InstrumentationKey = this.InstrumentationKey;
