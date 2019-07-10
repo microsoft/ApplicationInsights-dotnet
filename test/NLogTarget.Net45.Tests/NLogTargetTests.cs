@@ -475,7 +475,9 @@
             ApplicationInsightsTarget target = null)
         {
             // Mock channel to validate that our appender is trying to send logs
+#pragma warning disable CS0618 // Type or member is obsolete
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             if (target == null)
             {

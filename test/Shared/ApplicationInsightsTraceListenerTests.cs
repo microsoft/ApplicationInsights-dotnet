@@ -45,11 +45,13 @@
         [TestCategory("TraceListener")]
         public void TraceListenerWriteUsedApplicationInsightsConfigInstrumentationKeyWhenUnspecifiedInstrumentationKey()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             TelemetryConfiguration.Active.InstrumentationKey = this.adapterHelper.InstrumentationKey;
 
             // Changing the channel to Mock channel to verify 
             // the Telemetry event is assigned with the InstrumentationKey from configuration
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             using (var listener = new ApplicationInsightsTraceListener(null))
             {                
@@ -63,7 +65,9 @@
         {
             // Changing the channel to Mock channel to verify 
             // the Telemetry event is assigned with the InstrumentationKey from configuration
+#pragma warning disable CS0618 // Type or member is obsolete
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+#pragma warning restore CS0618 // Type or member is obsolete
             string instrumentationKey = Guid.NewGuid().ToString();
 
             using (var listener = new ApplicationInsightsTraceListener(instrumentationKey))
@@ -78,7 +82,9 @@
         {
             // Changing the channel to Mock channel to verify 
             // the Telemetry event is assigned with the InstrumentationKey from configuration
+#pragma warning disable CS0618 // Type or member is obsolete
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             using (var listener = new ApplicationInsightsTraceListener(Guid.NewGuid().ToString()))
             {
@@ -96,7 +102,9 @@
         [TestCategory("TraceListener")]
         public void SdkVersionIsCorrect()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             using (var listener = new ApplicationInsightsTraceListener(Guid.NewGuid().ToString()))
             {
@@ -114,7 +122,9 @@
         [TestCategory("TraceListener")]
         public void TelemetryIsAcceptedByValidateEndpoint()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             using (var listener = new ApplicationInsightsTraceListener(Guid.NewGuid().ToString()))
             {
@@ -379,7 +389,9 @@
         [TestMethod]
         public void TraceListenerFlushesChannel()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             using (var listener = new ApplicationInsightsTraceListener(Guid.NewGuid().ToString()))
             {
@@ -400,7 +412,9 @@
             string instrumentationKey,
             TraceOptions options)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             using (var listener = new ApplicationInsightsTraceListener(instrumentationKey))
             {

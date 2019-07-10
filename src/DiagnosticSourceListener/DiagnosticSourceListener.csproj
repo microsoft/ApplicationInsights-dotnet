@@ -38,7 +38,7 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.10.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0-beta1" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

@@ -113,7 +113,9 @@ namespace Microsoft.ApplicationInsights.NLogTarget
         protected override void InitializeTarget()
         {
             base.InitializeTarget();
+#pragma warning disable CS0618 // Type or member is obsolete: TelemtryConfiguration.Active is used in TelemetryClient constructor.
             this.telemetryClient = new TelemetryClient();
+#pragma warning restore CS0618 // Type or member is obsolete
 
             string instrumentationKey = this.instrumentationKeyLayout.Render(LogEventInfo.CreateNullEvent());
             if (!string.IsNullOrWhiteSpace(instrumentationKey))

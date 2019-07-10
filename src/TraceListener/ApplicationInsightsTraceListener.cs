@@ -38,7 +38,9 @@ namespace Microsoft.ApplicationInsights.TraceListener
         /// <param name="instrumentationKey">Instrumentation Key of your application.</param>
         public ApplicationInsightsTraceListener(string instrumentationKey)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             this.TelemetryClient = new TelemetryClient();
+#pragma warning restore CS0618 // Type or member is obsolete
             if (!string.IsNullOrEmpty(instrumentationKey))
             {
                 this.TelemetryClient.Context.InstrumentationKey = instrumentationKey;
