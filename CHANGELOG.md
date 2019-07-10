@@ -2,6 +2,9 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/documentation/articles/app-insights-release-notes-dotnet/).
 
+## VNext
+- [Fix: Emit warning if user sets both Sampling IncludedTypes and ExcludedTypes. Excluded will take precedence.](https://github.com/microsoft/ApplicationInsights-dotnet/issues/1166)
+
 ## Version 2.11.0-beta1
 - [Performance fixes: Support Head Sampling; Remove NewGuid(); Sampling Flags; etc... ](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1158)
 - [Deprecate TelemetryConfiguration.Active on .NET Core in favor of dependency injection pattern](https://github.com/microsoft/ApplicationInsights-dotnet/pull/1152)
