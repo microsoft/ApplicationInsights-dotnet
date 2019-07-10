@@ -334,8 +334,8 @@
                     telemetryProcessors.Process(new RequestTelemetry());
                     return 2;
                 },
-                "pageview;request",
-                "exception;request");
+                excludedTypes: "pageview;request",
+                includedTypes: "exception;request");
         }
 
         [TestMethod]

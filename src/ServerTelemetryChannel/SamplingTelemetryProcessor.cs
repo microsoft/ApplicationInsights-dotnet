@@ -1,14 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel
 {
     using System;
-    using System.Collections.Generic;
-    using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.SamplingInternals;
 
     /// <summary>
     /// Represents a telemetry processor for sampling telemetry at a fixed-rate before sending to Application Insights.
@@ -16,19 +15,8 @@
     /// </summary>
     public sealed class SamplingTelemetryProcessor : ITelemetryProcessor
     {
-        private const string DependencyTelemetryName = "DEPENDENCY";
-        private const string EventTelemetryName = "EVENT";
-        private const string ExceptionTelemetryName = "EXCEPTION";
-        private const string PageViewTelemetryName = "PAGEVIEW";
-        private const string RequestTelemetryName = "REQUEST";
-        private const string TraceTelemetryName = "TRACE";
-
-        private readonly char[] listSeparators = { ';' };
-        private readonly IDictionary<string, Type> allowedTypes;
-
         private readonly AtomicSampledItemsCounter proactivelySampledOutCounters = new AtomicSampledItemsCounter();
 
-        private SamplingTelemetryItemTypes excludedTypesFlags;
         private string excludedTypesString;
 
         private SamplingTelemetryItemTypes includedTypesFlags;
@@ -48,16 +36,6 @@
             this.SamplingPercentage = 100.0;
             this.SampledNext = next;
             this.UnsampledNext = next;
-            
-            this.allowedTypes = new Dictionary<string, Type>(6, StringComparer.OrdinalIgnoreCase)
-            {
-                { DependencyTelemetryName, typeof(DependencyTelemetry) },
-                { EventTelemetryName, typeof(EventTelemetry) },
-                { ExceptionTelemetryName, typeof(ExceptionTelemetry) },
-                { PageViewTelemetryName, typeof(PageViewTelemetry) },
-                { RequestTelemetryName, typeof(RequestTelemetry) },
-                { TraceTelemetryName, typeof(TraceTelemetry) },
-            };
         }
 
         internal SamplingTelemetryProcessor(ITelemetryProcessor unsampledNext, ITelemetryProcessor sampledNext) : this(sampledNext)
@@ -80,7 +58,18 @@
             set
             {
                 this.excludedTypesString = value;
-                this.excludedTypesFlags = this.PopulateSamplingFlagsFromTheInput(value);
+
+                if (value != null)
+                {
+                    var newIncludesFlags = SamplingIncludesUtility.CalculateFromExcludes(value);
+
+                    if (includedTypesFlags != SamplingTelemetryItemTypes.None)
+                    {
+                        // IF WE OVERWRITE, WE NEED TO LOG A WARNING (BAD CONFIGURATION)
+                    }
+
+                    this.includedTypesFlags = newIncludesFlags;
+                }
             }
         }
 
@@ -99,7 +88,18 @@
             set
             {
                 this.includedTypesString = value;
-                this.includedTypesFlags = this.PopulateSamplingFlagsFromTheInput(value);
+
+                if (value != null)
+                {
+                    var newIncludesFlags = SamplingIncludesUtility.CalculateFromIncludes(value);
+
+                    if (includedTypesFlags != SamplingTelemetryItemTypes.None)
+                    {
+                        // IF WE OVERWRITE, WE NEED TO LOG A WARNING (BAD CONFIGURATION)
+                    }
+
+                    this.includedTypesFlags = newIncludesFlags;
+                }
             }
         }
 
@@ -201,45 +201,6 @@
             }
         }
 
-        private SamplingTelemetryItemTypes PopulateSamplingFlagsFromTheInput(string input)
-        {
-            SamplingTelemetryItemTypes samplingTypeFlags = SamplingTelemetryItemTypes.None;
-
-            if (!string.IsNullOrEmpty(input))
-            {
-                string[] splitList = input.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string item in splitList)
-                {
-                    if (this.allowedTypes.ContainsKey(item))
-                    {
-                        switch (item.ToUpperInvariant())
-                        {
-                            case RequestTelemetryName:
-                                samplingTypeFlags |= SamplingTelemetryItemTypes.Request;
-                                break;
-                            case DependencyTelemetryName:
-                                samplingTypeFlags |= SamplingTelemetryItemTypes.RemoteDependency;
-                                break;
-                            case ExceptionTelemetryName:
-                                samplingTypeFlags |= SamplingTelemetryItemTypes.Exception;
-                                break;
-                            case PageViewTelemetryName:
-                                samplingTypeFlags |= SamplingTelemetryItemTypes.PageView;
-                                break;
-                            case TraceTelemetryName:
-                                samplingTypeFlags |= SamplingTelemetryItemTypes.Message;
-                                break;
-                            case EventTelemetryName:
-                                samplingTypeFlags |= SamplingTelemetryItemTypes.Event;
-                                break;
-                        }
-                    }
-                }
-            }
-
-            return samplingTypeFlags;
-        }
-
         private void HandlePossibleProactiveSampling(ITelemetry item, double currentSamplingPercentage, ISupportAdvancedSampling samplingSupportingTelemetry = null)
         {
             var advancedSamplingSupportingTelemetry = samplingSupportingTelemetry ?? item as ISupportAdvancedSampling;
@@ -281,17 +242,15 @@
 
         private bool IsSamplingApplicable(SamplingTelemetryItemTypes telemetryItemTypeFlag)
         {
-            if (this.excludedTypesFlags.HasFlag(telemetryItemTypeFlag))
+            if (this.includedTypesFlags == SamplingTelemetryItemTypes.None)
             {
-                return false;
+                //default value
+                return true;
             }
-
-            if (this.includedTypesFlags != SamplingTelemetryItemTypes.None && !this.includedTypesFlags.HasFlag(telemetryItemTypeFlag))
+            else
             {
-                return false;
+                return this.includedTypesFlags.HasFlag(telemetryItemTypeFlag);
             }
-
-            return true;
         }
     }
 }
