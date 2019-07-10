@@ -526,6 +526,12 @@
             this.WriteEvent(72, telemetryType ?? string.Empty, this.ApplicationName);
         }
 
+        [Event(73, Message = "Configuration Error: Cannot specify both Included and Excluded types in the sampling processor. Included will be ignored.", Level = EventLevel.Warning)]
+        public void SamplingConfigErrorBothTypes(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(73, this.ApplicationName);
+        }
+
         private static string GetApplicationName()
         {
             //// We want to add application name to all events BUT

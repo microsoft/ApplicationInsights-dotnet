@@ -47,6 +47,7 @@
         /// Gets or sets a semicolon separated list of telemetry types that should not be sampled.
         /// Allowed type names: Dependency, Event, Exception, PageView, Request, Trace. 
         /// Types listed are excluded even if they are set in IncludedTypes.
+        /// Do not set both ExcludedTypes and IncludedTypes. ExcludedTypes will take precedence over IncludedTypes. 
         /// </summary>
         public string ExcludedTypes
         {
@@ -62,21 +63,23 @@
                 if (value != null)
                 {
                     var newIncludesFlags = SamplingIncludesUtility.CalculateFromExcludes(value);
-
-                    if (includedTypesFlags != SamplingTelemetryItemTypes.None)
-                    {
-                        // IF WE OVERWRITE, WE NEED TO LOG A WARNING (BAD CONFIGURATION)
-                    }
-
                     this.includedTypesFlags = newIncludesFlags;
+
+                    if (this.includedTypesString != null)
+                    {
+                        // excluded will always overwrite included. Log a "Configuration Error".
+                        TelemetryChannelEventSource.Log.SamplingConfigErrorBothTypes();
+                    }
                 }
             }
         }
 
         /// <summary>
         /// Gets or sets a semicolon separated list of telemetry types that should be sampled. 
+        /// Allowed type names: Dependency, Event, Exception, PageView, Request, Trace. 
         /// If left empty all types are included implicitly. 
         /// Types are not included if they are set in ExcludedTypes.
+        /// Do not set both ExcludedTypes and IncludedTypes. ExcludedTypes will take precedence over IncludedTypes. 
         /// </summary>
         public string IncludedTypes
         {
@@ -91,14 +94,16 @@
 
                 if (value != null)
                 {
-                    var newIncludesFlags = SamplingIncludesUtility.CalculateFromIncludes(value);
-
-                    if (includedTypesFlags != SamplingTelemetryItemTypes.None)
+                    if (this.excludedTypesString != null)
                     {
-                        // IF WE OVERWRITE, WE NEED TO LOG A WARNING (BAD CONFIGURATION)
+                        // included cannot overwrite excluded. Log a "Configuration Error".
+                        TelemetryChannelEventSource.Log.SamplingConfigErrorBothTypes();
                     }
-
-                    this.includedTypesFlags = newIncludesFlags;
+                    else
+                    {
+                        var newIncludesFlags = SamplingIncludesUtility.CalculateFromIncludes(value);
+                        this.includedTypesFlags = newIncludesFlags;
+                    }
                 }
             }
         }
@@ -244,7 +249,7 @@
         {
             if (this.includedTypesFlags == SamplingTelemetryItemTypes.None)
             {
-                //default value
+                // default value
                 return true;
             }
             else
