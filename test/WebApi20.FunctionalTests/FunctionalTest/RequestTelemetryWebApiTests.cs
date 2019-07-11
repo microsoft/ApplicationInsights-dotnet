@@ -34,7 +34,13 @@
                 expectedRequestTelemetry.Success = true;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
 
-                this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
+                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
+                {
+                    { "Request-Id", ""},
+                    { "Request-Context", "appId=value"},
+                };
+
+                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
             }
         }
 
@@ -51,7 +57,13 @@
                 expectedRequestTelemetry.Success = false;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
 
-                this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
+                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
+                {
+                    { "Request-Id", ""},
+                    { "Request-Context", "appId=value"},
+                };
+
+                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
             }
         }
 
@@ -68,7 +80,13 @@
                 expectedRequestTelemetry.Success = true;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
 
-                this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
+                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
+                {
+                    { "Request-Id", ""},
+                    { "Request-Context", "appId=value"},
+                };
+
+                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
             }
         }
 
@@ -121,7 +139,7 @@
                 expectedRequestTelemetry.Success = true;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
 
-                var item = this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry, true);
+                var item = this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
 
                 // W3C compatible-Id ( should go away when W3C is implemented in .NET https://github.com/dotnet/corefx/issues/30331)
                 Assert.Equal(32, item.tags["ai.operation.id"].Length);

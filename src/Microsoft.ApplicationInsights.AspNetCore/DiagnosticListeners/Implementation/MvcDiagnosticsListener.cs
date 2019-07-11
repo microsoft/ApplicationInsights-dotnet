@@ -11,6 +11,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     /// <summary>
     /// <see cref="IApplicationInsightDiagnosticListener"/> implementation that listens for evens specific to AspNetCore Mvc layer
     /// </summary>
+    [Obsolete("This class was merged with HostingDiagnosticsListener to optimize Diagnostics Source subscription performance")]
     public class MvcDiagnosticsListener : IApplicationInsightDiagnosticListener
     {
         /// <inheritdoc />
