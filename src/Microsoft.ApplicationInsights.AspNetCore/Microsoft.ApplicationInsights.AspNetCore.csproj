@@ -91,9 +91,9 @@
   <ImportGroup Condition=" '$(OS)' == 'Windows_NT' ">
     <!--5 files are required for signing in this order: Signing.props, MicroBuild.Core.props, and MicroBuild.Core.targets-->
     <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" />
-    <Import Project="..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props" Condition="Exists('..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props')"/>
-    <Import Project="..\..\..\packages\MicroBuild.Core.0.3.0\buildCrossTargeting\MicroBuild.Core.props" Condition="Exists('..\..\..\packages\MicroBuild.Core.0.3.0\buildCrossTargeting\MicroBuild.Core.props')"/>
-    <Import Project="..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\packages\MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets')"/>
-    <Import Project="..\..\..\packages\MicroBuild.Core.0.3.0\buildCrossTargeting\MicroBuild.Core.targets" Condition="Exists('..\..\..\packages\MicroBuild.Core.0.3.0\buildCrossTargeting\MicroBuild.Core.targets')"/>
+    <Import Project="$(NuGetPackageRoot)MicroBuild.Core.0.3.0\build\MicroBuild.Core.props" Condition="Exists('$(NuGetPackageRoot)\MicroBuild.Core.0.3.0\build\MicroBuild.Core.props')"/>
+    <!--<Import Project="$(NuGetPackageRoot)MicroBuild.Core.0.3.0\buildCrossTargeting\MicroBuild.Core.props" Condition="Exists('$(NuGetPackageRoot)MicroBuild.Core.0.3.0\buildCrossTargeting\MicroBuild.Core.props')"/>-->
+    <Import Project="$(NuGetPackageRoot)MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets" Condition="Exists('$(NuGetPackageRoot)MicroBuild.Core.0.3.0\build\MicroBuild.Core.targets')"/>
+    <!--<Import Project="$(NuGetPackageRoot)MicroBuild.Core.0.3.0\buildCrossTargeting\MicroBuild.Core.targets" Condition="Exists('$(NuGetPackageRoot)MicroBuild.Core.0.3.0\buildCrossTargeting\MicroBuild.Core.targets')"/>-->
   </ImportGroup>
 </Project>
