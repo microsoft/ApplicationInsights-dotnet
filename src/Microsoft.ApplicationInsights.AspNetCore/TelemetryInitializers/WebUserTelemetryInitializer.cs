@@ -5,12 +5,17 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Http;
 
-    /// <inheritdoc />
+    /// <summary>
+    /// This initializer sets the User Id on telemetry.
+    /// </summary>
     public class WebUserTelemetryInitializer : TelemetryInitializerBase
     {
         private const string WebUserCookieName = "ai_user";
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WebUserTelemetryInitializer" /> class.
+        /// </summary>
+        /// <param name="httpContextAccessor">Accessor to provide HttpContext corresponding to telemetry items.</param>
         public WebUserTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
              : base(httpContextAccessor)
         {

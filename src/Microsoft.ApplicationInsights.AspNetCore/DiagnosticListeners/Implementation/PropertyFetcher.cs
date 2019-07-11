@@ -4,6 +4,7 @@
     using System.Reflection;
 
     // see https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/System/Diagnostics/DiagnosticSourceEventSource.cs
+    
     /// <summary>
     /// Efficient implementation of fetching properties of anonymous types with reflection.
     /// </summary>
@@ -31,7 +32,7 @@
         {
             /// <summary>
             /// Create a property fetcher from a .NET Reflection PropertyInfo class that
-            /// represents a property of a particular type.  
+            /// represents a property of a particular type.
             /// </summary>
             public static PropertyFetch FetcherForProperty(PropertyInfo propertyInfo)
             {
@@ -48,7 +49,7 @@
             }
 
             /// <summary>
-            /// Given an object, fetch the property that this propertyFetch represents. 
+            /// Given an object, fetch the property that this propertyFetch represents.
             /// </summary>
             public virtual object Fetch(object obj)
             {
@@ -61,9 +62,7 @@
 
                 public TypedFetchProperty(PropertyInfo property)
                 {
-                    this.propertyFetch =
-                        (Func<TObject, TProperty>)
-                        property.GetMethod.CreateDelegate(typeof(Func<TObject, TProperty>));
+                    this.propertyFetch = (Func<TObject, TProperty>)property.GetMethod.CreateDelegate(typeof(Func<TObject, TProperty>));
                 }
 
                 public override object Fetch(object obj)

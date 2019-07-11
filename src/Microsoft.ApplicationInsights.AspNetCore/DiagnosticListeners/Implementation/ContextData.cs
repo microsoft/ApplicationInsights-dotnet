@@ -1,11 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
 #if NET451 || NET46
-    using System.Runtime.Remoting.Messaging;
     using System.Runtime.Remoting;
+    using System.Runtime.Remoting.Messaging;
 #else
     using System.Threading;
 #endif
+
     /// <summary>
     /// Represents ambient data that is local to a given asynchronous control flow, such as an asynchronous method.
     /// </summary>
@@ -14,7 +15,6 @@
     {
 #if NET451 || NET46
         private static readonly string Key = typeof(ContextData<T>).FullName;
-
 
         /// <summary>
         /// Gets or sets the value of the ambient data.
@@ -27,6 +27,7 @@
                 var handle = CallContext.LogicalGetData(Key) as ObjectHandle;
                 return handle != null ? (T)handle.Unwrap() : default(T);
             }
+
             set
             {
                 CallContext.LogicalSetData(Key, new ObjectHandle(value));

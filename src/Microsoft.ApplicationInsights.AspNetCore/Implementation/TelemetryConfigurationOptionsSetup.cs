@@ -1,18 +1,20 @@
 namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
-    using System.Linq;
     using System.Collections.Generic;
+    using System.Linq;
     using Microsoft.ApplicationInsights.AspNetCore;
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.Extensions.Options;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.Extensibility.W3C;
+    using Microsoft.Extensions.Options;
+    using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
+    using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
     /// Initializes TelemetryConfiguration based on values in <see cref="ApplicationInsightsServiceOptions"/>
@@ -29,7 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
         private readonly IApplicationIdProvider applicationIdProvider;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:TelemetryConfigurationOptionsSetup"/> class.
+        /// Initializes a new instance of the <see cref="TelemetryConfigurationOptionsSetup"/> class.
         /// </summary>
         public TelemetryConfigurationOptionsSetup(
             IServiceProvider serviceProvider,
@@ -62,7 +64,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     foreach (ITelemetryModuleConfigurator telemetryModuleConfigurator in this.telemetryModuleConfigurators)
                     {
-                        ITelemetryModule telemetryModule = this.modules.FirstOrDefault(((module) => module.GetType() == telemetryModuleConfigurator.TelemetryModuleType));
+                        ITelemetryModule telemetryModule = this.modules.FirstOrDefault((module) => module.GetType() == telemetryModuleConfigurator.TelemetryModuleType);
                         if (telemetryModule != null)
                         {
                             telemetryModuleConfigurator.Configure(telemetryModule, this.applicationInsightsServiceOptions);
@@ -128,23 +130,22 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
 
-                // Microsoft.ApplicationInsights.DependencyCollector.DependencyTrackingTelemetryModule depends on this nullable configuration to support Correlation. 
+                // Microsoft.ApplicationInsights.DependencyCollector.DependencyTrackingTelemetryModule depends on this nullable configuration to support Correlation.
                 configuration.ApplicationIdProvider = this.applicationIdProvider;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 AspNetCoreEventSource.Instance.TelemetryConfigurationSetupFailure(ex.Message);
             }
-            
         }
 
         private void AddQuickPulse(TelemetryConfiguration configuration)
         {
             if (this.applicationInsightsServiceOptions.EnableQuickPulseMetricStream)
-            {              
-                QuickPulseTelemetryModule quickPulseModule = this.modules.FirstOrDefault(((module) => module.GetType() == typeof(QuickPulseTelemetryModule))) as QuickPulseTelemetryModule;
+            {
+                QuickPulseTelemetryModule quickPulseModule = this.modules.FirstOrDefault((module) => module.GetType() == typeof(QuickPulseTelemetryModule)) as QuickPulseTelemetryModule;
                 if (quickPulseModule != null)
-                {                    
+                {
                     QuickPulseTelemetryProcessor processor = null;
                     configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.Use((next) =>
                     {
@@ -156,15 +157,25 @@ namespace Microsoft.Extensions.DependencyInjection
                 else
                 {
                     AspNetCoreEventSource.Instance.UnableToFindQuickPulseModuleInDI();
-                }                
-            }        
+                }
+            }
         }
 
         private void AddSampling(TelemetryConfiguration configuration)
         {
             if (this.applicationInsightsServiceOptions.EnableAdaptiveSampling)
             {
-                configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.UseAdaptiveSampling(5, excludedTypes: "Event");
+                AdaptiveSamplingPercentageEvaluatedCallback samplingCallback = (ratePerSecond, currentPercentage, newPercentage, isChanged, estimatorSettings) =>
+                {
+                    if (isChanged)
+                    {
+                        configuration.SetLastObservedSamplingPercentage(SamplingTelemetryItemTypes.Request, newPercentage);
+                    }
+                };
+
+                SamplingPercentageEstimatorSettings settings = new SamplingPercentageEstimatorSettings();
+                settings.MaxTelemetryItemsPerSecond = 5;
+                configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.UseAdaptiveSampling(settings, samplingCallback, excludedTypes: "Event");
                 configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder.UseAdaptiveSampling(5, includedTypes: "Event");
             }
         }

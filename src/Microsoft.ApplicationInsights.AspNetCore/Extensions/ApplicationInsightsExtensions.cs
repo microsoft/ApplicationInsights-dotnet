@@ -2,31 +2,34 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Reflection;
-    using AspNetCore.Builder;
+
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore;
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.AspNetCore.Logging;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
+#if NETSTANDARD2_0
+    using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
+#endif
     using Microsoft.ApplicationInsights.Extensibility.Implementation.ApplicationId;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.ApplicationInsights.WindowsServer;    
+    using Microsoft.ApplicationInsights.WindowsServer;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
+    using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
-    using Microsoft.Extensions.Options;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
 
     /// <summary>
     /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.
@@ -42,13 +45,15 @@
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
 
-        [Obsolete]
+        [SuppressMessage(category: "", checkId: "CS1591:MissingXmlComment", Justification = "Obsolete method.")]
+        [Obsolete("This middleware is no longer needed. Enable Request monitoring using services.AddApplicationInsights")]
         public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
         {
             return app;
         }
 
-        [Obsolete]
+        [SuppressMessage(category: "", checkId: "CS1591:MissingXmlComment", Justification = "Obsolete method.")]
+        [Obsolete("This middleware is no longer needed to track exceptions as they are automatically tracked by RequestTrackingTelemetryModule")]
         public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
         {
             return app.UseMiddleware<ExceptionTrackingMiddleware>();
@@ -60,7 +65,8 @@
         /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
         /// <param name="instrumentationKey">Instrumentation key to use for telemetry.</param>
         /// <returns>The <see cref="IServiceCollection"/>.</returns>
-        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services,
+        public static IServiceCollection AddApplicationInsightsTelemetry(
+            this IServiceCollection services,
             string instrumentationKey)
         {
             services.AddApplicationInsightsTelemetry(options => options.InstrumentationKey = instrumentationKey);
@@ -73,7 +79,8 @@
         /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
         /// <param name="configuration">Configuration to use for sending telemetry.</param>
         /// <returns>The <see cref="IServiceCollection"/>.</returns>
-        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services,
+        public static IServiceCollection AddApplicationInsightsTelemetry(
+            this IServiceCollection services,
             IConfiguration configuration)
         {
             services.AddApplicationInsightsTelemetry(options => AddTelemetryConfiguration(configuration, options));
@@ -88,7 +95,8 @@
         /// <returns>
         /// The <see cref="IServiceCollection"/>.
         /// </returns>
-        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services,
+        public static IServiceCollection AddApplicationInsightsTelemetry(
+            this IServiceCollection services,
             Action<ApplicationInsightsServiceOptions> options)
         {
             services.AddApplicationInsightsTelemetry();
@@ -104,7 +112,8 @@
         /// <returns>
         /// The <see cref="IServiceCollection"/>.
         /// </returns>
-        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services,
+        public static IServiceCollection AddApplicationInsightsTelemetry(
+            this IServiceCollection services,
             ApplicationInsightsServiceOptions options)
         {
             services.AddApplicationInsightsTelemetry();
@@ -188,6 +197,36 @@
                     services.AddSingleton<ITelemetryModule, AzureInstanceMetadataTelemetryModule>();
                     services.AddSingleton<ITelemetryModule, QuickPulseTelemetryModule>();
                     services.AddSingleton<ITelemetryModule, RequestTrackingTelemetryModule>();
+#if NETSTANDARD2_0
+                    services.AddSingleton<ITelemetryModule, EventCounterCollectionModule>();
+                    services.ConfigureTelemetryModule<EventCounterCollectionModule>((eventCounterModule, options) =>
+                    {
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "cpu-usage"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "working-set"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "gc-heap-size"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "gen-0-gc-count"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "gen-1-gc-count"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "gen-2-gc-count"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "time-in-gc"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "gen-0-size"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "gen-1-size"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "gen-2-size"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "loh-size"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "alloc-rate"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "assembly-count"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "exception-count"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "threadpool-thread-count"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "monitor-lock-contention-count"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "threadpool-queue-length"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "threadpool-completed-items-count"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "active-timer-count"));
+
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore", "requests-per-second"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore", "total-requests"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore", "current-requests"));
+                        eventCounterModule.Counters.Add(new EventCounterCollectionRequest("Microsoft.AspNetCore", "failed-requests"));
+                    });
+#endif
                     services.AddSingleton<TelemetryConfiguration>(provider =>
                         provider.GetService<IOptions<TelemetryConfiguration>>().Value);
 
@@ -202,8 +241,9 @@
                     // Using startup filter instead of starting DiagnosticListeners directly because
                     // AspNetCoreHostingDiagnosticListener injects TelemetryClient that injects TelemetryConfiguration
                     // that requires IOptions infrastructure to run and initialize
-                    services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();                    
-                    services.AddSingleton<JavaScriptSnippet>();
+                    services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
+                    services.AddSingleton<IJavaScriptSnippet, JavaScriptSnippet>();
+                    services.AddSingleton<JavaScriptSnippet>(); // Add 'JavaScriptSnippet' "Service" for backwards compatibility. To remove in favour of 'IJavaScriptSnippet'.
 
                     services.AddOptions();
                     services.AddSingleton<IOptions<TelemetryConfiguration>, TelemetryConfigurationOptions>();
@@ -211,39 +251,45 @@
                         .AddSingleton<IConfigureOptions<TelemetryConfiguration>, TelemetryConfigurationOptionsSetup>();
 
                     // NetStandard2.0 has a package reference to Microsoft.Extensions.Logging.ApplicationInsights, and
-                    // enables ApplicationInsightsLoggerProvider by default.                
+                    // enables ApplicationInsightsLoggerProvider by default.
 #if NETSTANDARD2_0
-                services.AddLogging(loggingBuilder =>
-                {
-                     loggingBuilder.AddApplicationInsights();
+                    services.AddLogging(loggingBuilder =>
+                    {
+                         loggingBuilder.AddApplicationInsights();
 
-                    // The default behavior is to capture only logs above Warning level from all categories.
-                    // This can achieved with this code level filter -> loggingBuilder.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>("",LogLevel.Warning);
-                    // However, this will make it impossible to override this behavior from Configuration like below using appsettings.json:
-                    //"ApplicationInsights": {
-                    // "LogLevel": {
-                    // "": "Error"
-                    // }
-                    // },
-                    // The reason is as both rules will match the filter, the last one added wins.
-                    // To ensure that the default filter is in the beginning of filter rules, so that user override from Configuration will always win, 
-                    // we add code filter rule to the 0th position as below.
-
-                    loggingBuilder.Services.Configure<LoggerFilterOptions>
-                    (options => options.Rules.Insert(0,
-                        new LoggerFilterRule(
-                            "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider", null,
-                            LogLevel.Warning, null)));
-                });                                
+                        // The default behavior is to capture only logs above Warning level from all categories.
+                        // This can achieved with this code level filter -> loggingBuilder.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>("",LogLevel.Warning);
+                        // However, this will make it impossible to override this behavior from Configuration like below using appsettings.json:
+                        // {
+                        //   "Logging": {
+                        //     "ApplicationInsights": {
+                        //       "LogLevel": {
+                        //         "": "Error"
+                        //       }
+                        //     }
+                        //   },
+                        //   ...
+                        // }
+                        // The reason is as both rules will match the filter, the last one added wins.
+                        // To ensure that the default filter is in the beginning of filter rules, so that user override from Configuration will always win,
+                        // we add code filter rule to the 0th position as below.
+                        loggingBuilder.Services.Configure<LoggerFilterOptions>(
+                            options => options.Rules.Insert(
+                                0,
+                                new LoggerFilterRule(
+                                    "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider", null,
+                                    LogLevel.Warning, null)));
+                    });
 #endif
                 }
+
                 return services;
             }
             catch (Exception e)
             {
                 AspNetCoreEventSource.Instance.LogWarning(e.Message);
                 return services;
-            }            
+            }
         }
 
         /// <summary>
@@ -281,7 +327,7 @@
 
             if (!telemetryProcessorType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(ITelemetryProcessor)))
             {
-                throw new ArgumentException(nameof(telemetryProcessorType));
+                throw new ArgumentException(nameof(telemetryProcessorType) + "does not implement ITelemetryProcessor.");
             }
 
             return services.AddSingleton<ITelemetryProcessorFactory>(serviceProvider =>
@@ -297,7 +343,8 @@
         /// The <see cref="IServiceCollection"/>.
         /// </returns>
         [Obsolete("Use ConfigureTelemetryModule overload that accepts ApplicationInsightsServiceOptions.")]
-        public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services, Action<T> configModule) where T : ITelemetryModule
+        public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services, Action<T> configModule)
+            where T : ITelemetryModule
         {
             if (configModule == null)
             {
@@ -315,9 +362,11 @@
         /// <param name="configModule">Action used to configure the module.</param>
         /// <returns>
         /// The <see cref="IServiceCollection"/>.
-        /// </returns>        
-        public static IServiceCollection ConfigureTelemetryModule<T>(this IServiceCollection services,
-            Action<T, ApplicationInsightsServiceOptions> configModule) where T : ITelemetryModule
+        /// </returns>
+        public static IServiceCollection ConfigureTelemetryModule<T>(
+            this IServiceCollection services,
+            Action<T, ApplicationInsightsServiceOptions> configModule)
+            where T : ITelemetryModule
         {
             if (configModule == null)
             {
@@ -325,7 +374,7 @@
             }
 
             return services.AddSingleton(typeof(ITelemetryModuleConfigurator),
-                new TelemetryModuleConfigurator((config, options) => configModule((T) config, options), typeof(T)));
+                new TelemetryModuleConfigurator((config, options) => configModule((T)config, options), typeof(T)));
         }
 
         /// <summary>
@@ -349,7 +398,11 @@
             if (developerMode != null)
             {
                 telemetryConfigValues.Add(new KeyValuePair<string, string>(DeveloperModeForWebSites,
+#if !NETSTANDARD1_6
+                    developerMode.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+#else
                     developerMode.Value.ToString()));
+#endif
                 wasAnythingSet = true;
             }
 
@@ -362,14 +415,15 @@
 
             if (endpointAddress != null)
             {
-                telemetryConfigValues.Add(new KeyValuePair<string, string>(EndpointAddressForWebSites,
+                telemetryConfigValues.Add(new KeyValuePair<string, string>(
+                    EndpointAddressForWebSites,
                     endpointAddress));
                 wasAnythingSet = true;
             }
 
             if (wasAnythingSet)
             {
-                configurationSourceRoot.Add(new MemoryConfigurationSource() {InitialData = telemetryConfigValues});
+                configurationSourceRoot.Add(new MemoryConfigurationSource() { InitialData = telemetryConfigValues });
             }
 
             return configurationSourceRoot;
@@ -385,9 +439,9 @@
         ///              "EndpointAddress": "http://dc.services.visualstudio.com/v2/track",
         ///              "DeveloperMode": true
         ///          }
-        ///      }
+        ///      }.
         /// </para>
-        /// Values can also be read from environment variables to support azure web sites configuration:
+        /// Values can also be read from environment variables to support azure web sites configuration.
         /// </summary>
         /// <param name="config">Configuration to read variables from.</param>
         /// <param name="serviceOptions">Telemetry configuration to populate.</param>

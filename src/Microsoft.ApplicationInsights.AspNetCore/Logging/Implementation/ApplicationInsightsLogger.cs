@@ -29,7 +29,7 @@
         private readonly string sdkVersion = SdkVersionUtils.GetVersion(VersionPrefix);
 
         /// <summary>
-        /// Creates a new instance of <see cref="ApplicationInsightsLogger"/>
+        /// Creates a new instance of <see cref="ApplicationInsightsLogger"/>.
         /// </summary>
         public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter, ApplicationInsightsLoggerOptions options)
         {
@@ -60,7 +60,7 @@
                 if (exception == null || this.options?.TrackExceptionsAsExceptionTelemetry == false)
                 {
                     var traceTelemetry = new TraceTelemetry(formatter(state, exception), this.GetSeverityLevel(logLevel));
-                    PopulateTelemetry(traceTelemetry, stateDictionary, eventId);
+                    this.PopulateTelemetry(traceTelemetry, stateDictionary, eventId);
                     this.telemetryClient.TrackTrace(traceTelemetry);
                 }
                 else
@@ -70,7 +70,7 @@
                     exceptionTelemetry.SeverityLevel = this.GetSeverityLevel(logLevel);
                     exceptionTelemetry.Properties["Exception"] = exception.ToString();
                     exception.Data.Cast<DictionaryEntry>().ToList().ForEach((item) => exceptionTelemetry.Properties[item.Key.ToString()] = (item.Value ?? "null").ToString());
-                    PopulateTelemetry(exceptionTelemetry, stateDictionary, eventId);
+                    this.PopulateTelemetry(exceptionTelemetry, stateDictionary, eventId);
                     this.telemetryClient.TrackException(exceptionTelemetry);
                 }
             }
@@ -105,7 +105,7 @@
                     }
                 }
             }
-            
+
             telemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
         }
 

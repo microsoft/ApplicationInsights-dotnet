@@ -12,8 +12,8 @@
         private readonly Action<ITelemetryModule, ApplicationInsightsServiceOptions> configure;
 
         /// <summary>
-        /// Constructs an instance of <see cref="TelemetryModuleConfigurator"/>.
-        /// </summary>        
+        /// Initializes a new instance of the <see cref="TelemetryModuleConfigurator"/> class.
+        /// </summary>
         /// <param name="configure">The action used to configure telemetry module.</param>
         /// <param name="telemetryModuleType">The type of the telemetry module being configured.</param>
         public TelemetryModuleConfigurator(Action<ITelemetryModule, ApplicationInsightsServiceOptions> configure, Type telemetryModuleType)
@@ -37,7 +37,7 @@
         }
 
         /// <summary>
-        /// Gets the type of <see cref="ITelemetryModule"/> to be configured.     
+        /// Gets the type of <see cref="ITelemetryModule"/> to be configured.
         /// </summary>
         public Type TelemetryModuleType { get; }
     }

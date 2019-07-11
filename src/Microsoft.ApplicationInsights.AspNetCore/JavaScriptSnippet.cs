@@ -11,7 +11,7 @@
     /// <summary>
     /// This class helps to inject Application Insights JavaScript snippet into application code.
     /// </summary>
-    public class JavaScriptSnippet
+    public class JavaScriptSnippet : IJavaScriptSnippet
     {
         /// <summary>JavaScript snippet.</summary>
         private static readonly string Snippet = Resources.JavaScriptSnippet;
@@ -37,15 +37,16 @@
         /// <param name="serviceOptions">Service options instance to use.</param>
         /// <param name="httpContextAccessor">Http context accessor to use.</param>
         /// <param name="encoder">Encoder used to encode user identity.</param>
-        public JavaScriptSnippet(TelemetryConfiguration telemetryConfiguration,
+        public JavaScriptSnippet(
+            TelemetryConfiguration telemetryConfiguration,
             IOptions<ApplicationInsightsServiceOptions> serviceOptions,
             IHttpContextAccessor httpContextAccessor,
-            JavaScriptEncoder encoder)
+            JavaScriptEncoder encoder = null)
         {
             this.telemetryConfiguration = telemetryConfiguration;
             this.httpContextAccessor = httpContextAccessor;
             this.enableAuthSnippet = serviceOptions.Value.EnableAuthenticationTrackingJavaScript;
-            this.encoder = encoder;
+            this.encoder = (encoder == null) ? JavaScriptEncoder.Default : encoder;
         }
 
         /// <summary>
@@ -60,7 +61,7 @@
                     !string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
                 {
                     string additionalJS = string.Empty;
-                    IIdentity identity = httpContextAccessor?.HttpContext?.User?.Identity;
+                    IIdentity identity = this.httpContextAccessor?.HttpContext?.User?.Identity;
                     if (enableAuthSnippet &&
                         identity != null &&
                         identity.IsAuthenticated)

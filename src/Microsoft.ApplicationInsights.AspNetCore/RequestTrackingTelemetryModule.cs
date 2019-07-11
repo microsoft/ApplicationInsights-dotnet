@@ -2,7 +2,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Reflection;
     using System.Threading;
@@ -17,30 +16,35 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     /// </summary>
     public class RequestTrackingTelemetryModule : ITelemetryModule, IObserver<DiagnosticListener>, IDisposable
     {
-        private TelemetryClient telemetryClient;
-        private readonly IApplicationIdProvider applicationIdProvider;
-        private ConcurrentBag<IDisposable> subscriptions;
-        private readonly List<IApplicationInsightDiagnosticListener> diagnosticListeners;
-        private bool isInitialized = false;
+        // We are only interested in BeforeAction event from Microsoft.AspNetCore.Mvc source.
+        // We are interested in Microsoft.AspNetCore.Hosting and Microsoft.AspNetCore.Diagnostics as well.
+        // Below filter achieves acceptable performance, character 22 shoudl not be M unless event is BeforeAction.
+        private static readonly Predicate<string> HostingPredicate = (string eventName) => (eventName != null) ? !(eventName[21] == 'M') || eventName == "Microsoft.AspNetCore.Mvc.BeforeAction" : false;
         private readonly object lockObject = new object();
+        private readonly IApplicationIdProvider applicationIdProvider;
+
+        private TelemetryClient telemetryClient;
+        private ConcurrentBag<IDisposable> subscriptions;
+        private HostingDiagnosticListener diagnosticListener;
+        private bool isInitialized = false;
 
         /// <summary>
-        /// RequestTrackingTelemetryModule
+        /// Initializes a new instance of the <see cref="RequestTrackingTelemetryModule"/> class.
         /// </summary>
-        public RequestTrackingTelemetryModule() : this(null)
+        public RequestTrackingTelemetryModule() 
+            : this(null)
         {
             this.CollectionOptions = new RequestCollectionOptions();
         }
 
         /// <summary>
-        /// Creates RequestTrackingTelemetryModule.
+        /// Initializes a new instance of the <see cref="RequestTrackingTelemetryModule"/> class.
         /// </summary>
-        /// <param name="applicationIdProvider"></param>
+        /// <param name="applicationIdProvider">Provider to resolve Application Id</param>
         public RequestTrackingTelemetryModule(IApplicationIdProvider applicationIdProvider)
         {
             this.applicationIdProvider = applicationIdProvider;
             this.subscriptions = new ConcurrentBag<IDisposable>();
-            this.diagnosticListeners = new List<IApplicationInsightDiagnosticListener>();
         }
 
         /// <summary>
@@ -74,16 +78,14 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                                 // ignore any errors
                             }
 
-                            this.diagnosticListeners.Add(new HostingDiagnosticListener(
+                            this.diagnosticListener = new HostingDiagnosticListener(
+                                configuration,
                                 this.telemetryClient,
                                 this.applicationIdProvider,
                                 this.CollectionOptions.InjectResponseHeaders,
                                 this.CollectionOptions.TrackExceptions,
                                 this.CollectionOptions.EnableW3CDistributedTracing,
-                                enableNewDiagnosticEvents));
-
-                            this.diagnosticListeners.Add
-                                (new MvcDiagnosticsListener());
+                                enableNewDiagnosticEvents);
 
                             this.subscriptions?.Add(DiagnosticListener.AllListeners.Subscribe(this));
 
@@ -95,7 +97,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
             catch (Exception e)
             {
                 AspNetCoreEventSource.Instance.RequestTrackingModuleInitializationFailed(e.Message);
-            }            
+            }
         }
 
         /// <inheritdoc />
@@ -107,13 +109,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                 return;
             }
 
-            foreach (var applicationInsightDiagnosticListener in this.diagnosticListeners)
+            if (this.diagnosticListener.ListenerName == value.Name)
             {
-                if (applicationInsightDiagnosticListener.ListenerName == value.Name)
-                {
-                    subs.Add(value.Subscribe(applicationInsightDiagnosticListener));
-                    applicationInsightDiagnosticListener.OnSubscribe();
-                }
+                subs.Add(value.Subscribe(this.diagnosticListener, HostingPredicate));
+                this.diagnosticListener.OnSubscribe();
             }
         }
 
@@ -133,6 +132,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore
             this.Dispose(true);
         }
 
+        /// <summary>
+        /// Dispose the class.
+        /// </summary>
+        /// <param name="disposing">Indicates if this class is currently being disposed.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposing)
@@ -151,9 +154,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore
                 subscription.Dispose();
             }
 
-            foreach (var listener in this.diagnosticListeners)
+            if (this.diagnosticListener != null)
             {
-                listener.Dispose();
+                this.diagnosticListener.Dispose();
             }
         }
     }

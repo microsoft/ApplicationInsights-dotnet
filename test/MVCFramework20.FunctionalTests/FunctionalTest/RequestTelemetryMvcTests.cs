@@ -1,5 +1,6 @@
 ﻿namespace MVCFramework20.FunctionalTests.FunctionalTest
 {
+    using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
 
@@ -30,7 +31,13 @@
                 expectedRequestTelemetry.Success = true;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
 
-                this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
+                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
+                {
+                    { "Request-Id", ""},
+                    { "Request-Context", "appId=value"},
+                };
+
+                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
             }
         }
 
@@ -47,7 +54,13 @@
                 expectedRequestTelemetry.Success = true;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
 
-                this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
+                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
+                {
+                    { "Request-Id", ""},
+                    { "Request-Context", "appId=value"},
+                };
+
+                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
             }
         }
 
@@ -64,7 +77,13 @@
                 expectedRequestTelemetry.Success = false;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
 
-                this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
+                Dictionary<string, string> requestHeaders = new Dictionary<string, string>()
+                {
+                    { "Request-Id", ""},
+                    { "Request-Context", "appId=value"},
+                };
+
+                this.ValidateRequestWithHeaders(server, RequestPath, requestHeaders, expectedRequestTelemetry, expectRequestContextInResponse: true);
             }
         }
 

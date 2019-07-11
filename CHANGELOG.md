@@ -1,10 +1,16 @@
 # Changelog
 
+## Version 2.8.0-beta1
+- [Add EventCounter collection.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/913)
+- [Performance fixes: One DiagSource Listener; Head Sampling Feature; No Concurrent Dictionary; etc...](https://github.com/microsoft/ApplicationInsights-aspnetcore/pull/907)
+- [Fix: Add `IJavaScriptSnippet` service interface and update the `IServiceCollection` extension to register it for `JavaScriptSnippet`.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/890)
+- [Make JavaScriptEncoder optional and Fallback to JavaScriptEncoder.Default.](https://github.com/microsoft/ApplicationInsights-aspnetcore/pull/918)
+
 ## Version 2.7.1
 - [Fix - ApplicationInsights StartupFilter should not swallow exceptions from downstream ApplicationBuilder.](https://github.com/microsoft/ApplicationInsights-aspnetcore/issues/897)
 
 ## Version 2.7.0
- - Updated Web/Base SDK version dependency to 2.10.0
+- Updated Web/Base SDK version dependency to 2.10.0
 - [Remove unused reference to System.Net.Http](https://github.com/microsoft/ApplicationInsights-aspnetcore/pull/879)
 
 ## Version 2.7.0-beta4

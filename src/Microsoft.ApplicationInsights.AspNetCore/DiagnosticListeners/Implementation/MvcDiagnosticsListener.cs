@@ -11,12 +11,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     /// <summary>
     /// <see cref="IApplicationInsightDiagnosticListener"/> implementation that listens for evens specific to AspNetCore Mvc layer
     /// </summary>
+    [Obsolete("This class was merged with HostingDiagnosticsListener to optimize Diagnostics Source subscription performance")]
     public class MvcDiagnosticsListener : IApplicationInsightDiagnosticListener
     {
         /// <inheritdoc />
         public string ListenerName { get; } = "Microsoft.AspNetCore";
 
-        private readonly  PropertyFetcher httpContextFetcher = new PropertyFetcher("httpContext");
+        private readonly PropertyFetcher httpContextFetcher = new PropertyFetcher("httpContext");
         private readonly PropertyFetcher routeDataFetcher = new PropertyFetcher("routeData");
         private readonly PropertyFetcher routeValuesFetcher = new PropertyFetcher("Values");
 
@@ -107,7 +108,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             {
                 if (value.Key == "Microsoft.AspNetCore.Mvc.BeforeAction")
                 {
-                    var context = httpContextFetcher.Fetch(value.Value) as HttpContext;
+                    var context = this.httpContextFetcher.Fetch(value.Value) as HttpContext;
                     var routeData = routeDataFetcher.Fetch(value.Value);
                     var routeValues = routeValuesFetcher.Fetch(routeData) as IDictionary<string, object>;
 

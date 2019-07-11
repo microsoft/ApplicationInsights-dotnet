@@ -3,15 +3,18 @@
 //     Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
+
 namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Diagnostics.Tracing;
 
     /// <summary>
     /// Event source for Application Insights ASP.NET Core SDK.
     /// </summary>
     [EventSource(Name = "Microsoft-ApplicationInsights-AspNetCore")]
+    [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", Justification = "appDomainName is required")]
     internal sealed class AspNetCoreEventSource : EventSource
     {
         /// <summary>
@@ -24,10 +27,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         /// <summary>
         /// Prevents a default instance of the <see cref="AspNetCoreEventSource"/> class from being created.
         /// </summary>
-        private AspNetCoreEventSource() : base()
+        private AspNetCoreEventSource()
+            : base()
         {
             try
-            {                
+            {
                 this.ApplicationName = System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
             }
             catch (Exception exp)
@@ -39,7 +43,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         /// <summary>
         /// Gets the application name for use in logging events.
         /// </summary>
-        public string ApplicationName { [NonEvent] get; [NonEvent]private set; }
+        public string ApplicationName
+        {
+            [NonEvent]
+            get;
+            [NonEvent]
+            private set;
+        }
 
         /// <summary>
         /// Logs an event for the TelemetryInitializerBase Initialize method when the HttpContext is null.
@@ -128,7 +138,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Keywords = Keywords.Diagnostics,
             Message = "An error has occured which may prevent application insights from functioning. Error message: '{0}' ",
             Level = EventLevel.Warning)]
-        public void LogWarning(string errorMessage,string appDomainName = "Incorrect")
+        public void LogWarning(string errorMessage, string appDomainName = "Incorrect")
         {
             this.WriteEvent(14, errorMessage, this.ApplicationName);
         }
@@ -148,7 +158,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             Keywords = Keywords.Diagnostics,
             Message = "An error has occured in DiagnosticSource listener. Listener: '{0}' Callback: '{1}'. Error message: '{2}' ",
             Level = EventLevel.Warning)]
-        public void DiagnosticListenerWarning(string listener,string callback, string errorMessage, string appDomainName = "Incorrect")
+        public void DiagnosticListenerWarning(string listener, string callback, string errorMessage, string appDomainName = "Incorrect")
         {
             this.WriteEvent(16, listener, callback, errorMessage, this.ApplicationName);
         }
@@ -161,6 +171,16 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         public void TelemetryConfigurationSetupFailure(string errorMessage, string appDomainName = "Incorrect")
         {
             this.WriteEvent(17, errorMessage, this.ApplicationName);
+        }
+
+        [Event(
+            18,
+            Keywords = Keywords.Diagnostics,
+            Message = "Telemetry item was sampled out at head, OperationId: '{0}'",
+            Level = EventLevel.Verbose)]
+        public void TelemetryItemWasSampledOutAtHead(string operationId, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(18, operationId, this.ApplicationName);
         }
 
         /// <summary>

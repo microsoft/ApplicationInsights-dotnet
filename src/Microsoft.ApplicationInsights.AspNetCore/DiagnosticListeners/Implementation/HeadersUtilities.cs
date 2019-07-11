@@ -21,7 +21,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         public static string GetHeaderKeyValue(IEnumerable<string> headerValues, string keyName)
         {
             if (headerValues != null)
-            {                
+            {
                 foreach (string keyNameValue in headerValues)
                 {
                     string[] keyNameValueParts = keyNameValue.Trim().Split('=');
@@ -43,9 +43,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// provided key value. If the initial header value strings don't contain the key name,
         /// then the key name/value pair should be added to the comma-separated list and returned.
         /// </summary>
-        /// <param name="headerValues">The existing header values that the key/value pair should be added to.</param>
-        /// <param name="keyName">The name of the key to add.</param>
-        /// <param name="keyValue">The value of the key to add.</param>
+        /// <param name="currentHeaders">The existing header values that the key/value pair should be added to.</param>
+        /// <param name="key">The name of the key to add.</param>
+        /// <param name="value">The value of the key to add.</param>
         /// <returns>The result of setting the provided key name/value pair into the provided headerValues.</returns>
         public static StringValues SetHeaderKeyValue(string[] currentHeaders, string key, string value)
         {
@@ -60,12 +60,30 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                     }
                 }
 
-                return StringValues.Concat(currentHeaders, string.Concat(key, "=", value));                
+                return StringValues.Concat(currentHeaders, string.Concat(key, "=", value));
             }
             else
             {
                 return string.Concat(key, "=", value);
             }
+        }
+
+        /// <summary>
+        /// Http Headers only allow Printable US-ASCII characters.
+        /// Remove all other characters.
+        /// </summary>
+        public static string SanitizeString(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return input;
+            }
+
+            // US-ASCII characters (hex: 0x00 - 0x7F) (decimal: 0-127)
+            // ASCII Extended characters (hex: 0x80 - 0xFF) (decimal: 128-255) (NOT ALLOWED)
+            // Non-Printable ASCII characters are (hex: 0x00 - 0x1F) (decimal: 0-31) (NOT ALLOWED)
+            // Printable ASCII characters are (hex: 0x20 - 0xFF) (decimal: 32-255)
+            return Regex.Replace(input, @"[^\u0020-\u007F]", string.Empty);
         }
 
         /// <summary>
@@ -108,24 +126,5 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
             return true;
         }
-
-        /// <summary>
-        /// Http Headers only allow Printable US-ASCII characters.
-        /// Remove all other characters.
-        /// </summary>
-        public static string SanitizeString(string input)
-        {
-            if (string.IsNullOrWhiteSpace(input))
-            {
-                return input;
-            }
-
-            // US-ASCII characters (hex: 0x00 - 0x7F) (decimal: 0-127)
-            // ASCII Extended characters (hex: 0x80 - 0xFF) (decimal: 0-255) (NOT ALLOWED)
-            // Non-Printable ASCII characters are (hex: 0x00 - 0x1F) (decimal: 0-31) (NOT ALLOWED)
-            // Printable ASCII characters are (hex: 0x20 - 0xFF) (decimal: 32-255) 
-            return Regex.Replace(input, @"[^\u0020-\u007F]", string.Empty);
-        }
-
     }
 }

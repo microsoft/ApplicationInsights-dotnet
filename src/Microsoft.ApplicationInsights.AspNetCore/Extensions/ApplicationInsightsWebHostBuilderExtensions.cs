@@ -19,7 +19,7 @@
         {
             webHostBuilder.ConfigureServices(collection =>
             {
-                collection.AddApplicationInsightsTelemetry();                
+                collection.AddApplicationInsightsTelemetry();
             });
 
             return webHostBuilder;
