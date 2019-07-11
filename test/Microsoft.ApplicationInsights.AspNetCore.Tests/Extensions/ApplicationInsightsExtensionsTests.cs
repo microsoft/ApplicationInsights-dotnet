@@ -21,6 +21,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
+#if NETCOREAPP2_0
+    using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
+#endif
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
@@ -489,10 +492,21 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
-
+#if NETCOREAPP2_0
+                Assert.Equal(7, modules.Count());
+#else
                 Assert.Equal(6, modules.Count());
+#endif
+
+
                 var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
                 Assert.NotNull(perfCounterModule);
+
+#if NETCOREAPP2_0
+                var eventCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(EventCounterCollectionModule));
+                Assert.NotNull(eventCounterModule);
+#endif
+
 
                 var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
                 Assert.NotNull(dependencyModuleDescriptor);
@@ -509,6 +523,34 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var quickPulseModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(QuickPulseTelemetryModule));
                 Assert.NotNull(quickPulseModuleDescriptor);
             }
+
+#if NETCOREAPP2_0
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesEventCounterCollectorWithDefaultListOfCounters()
+            {
+                //ARRANGE
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null, null, false);
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+
+                //ACT
+
+                // Requesting TelemetryConfiguration from services trigger constructing the TelemetryConfiguration
+                // which in turn trigger configuration of all modules.
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                var eventCounterModule = modules.OfType<EventCounterCollectionModule>().Single();
+
+                //VALIDATE
+                Assert.Equal(23, eventCounterModule.Counters.Count);
+                eventCounterModule.Counters.FirstOrDefault<EventCounterCollectionRequest>(
+                    eventCounterCollectionRequest => eventCounterCollectionRequest.EventSourceName == "System.Runtime" 
+                    && eventCounterCollectionRequest.EventCounterName == "cpu-usage");
+
+                eventCounterModule.Counters.FirstOrDefault<EventCounterCollectionRequest>(
+                    eventCounterCollectionRequest => eventCounterCollectionRequest.EventSourceName == "Microsoft.AspNetCore"
+                    && eventCounterCollectionRequest.EventCounterName == "requests-per-second");
+            }
+#endif
 
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesDependencyCollectorWithDefaultValues()
